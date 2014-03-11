@@ -212,7 +212,7 @@
 				LastUpgradeCheck = 0420;
 				ORGANIZATIONNAME = "Derek W. Nylen";
 			};
-			buildConfigurationList = 024EE3DC148E0B21008FDADC /* Build configuration list for PBXProject "scl" */;
+			buildConfigurationList = 024EE3DC148E0B21008FDADC /* Build configuration list for PBXProject "Duck" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -345,7 +345,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		024EE3DC148E0B21008FDADC /* Build configuration list for PBXProject "scl" */ = {
+		024EE3DC148E0B21008FDADC /* Build configuration list for PBXProject "Duck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				024EE3E4148E0B21008FDADC /* Debug */,
