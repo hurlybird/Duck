@@ -26,8 +26,8 @@ DKDeclareSUID( DKClassTypeID );
 
 enum
 {
-    DKObjectMutable =           0,
-    DKObjectExternalStorage =   1,
+    DKObjectMutable =           (1 << 0),
+    DKObjectExternalStorage =   (1 << 1),
 };
 
 
@@ -56,6 +56,9 @@ typedef struct
     DKTypeRef   (* const initialize)( DKTypeRef ref );
     void        (* const finalize)( DKTypeRef ref );
     
+    DKTypeRef   (* const copy)( DKTypeRef ref );
+    DKTypeRef   (* const mutableCopy)( DKTypeRef ref );
+    
     // Comparison
     int         (* const equal)( DKTypeRef a, DKTypeRef b );
     int         (* const compare)( DKTypeRef a, DKTypeRef b );
@@ -81,37 +84,43 @@ DKSUID      DKObjectGetTypeID( DKTypeRef ref );
 
 DKTypeRef   DKObjectRetain( DKTypeRef ref );
 void        DKObjectRelease( DKTypeRef ref );
+
 DKTypeRef   DKObjectAllocate( void );
 DKTypeRef   DKObjectInitialize( DKTypeRef ref );
 void        DKObjectFinalize( DKTypeRef ref );
+
+DKTypeRef   DKObjectCopy( DKTypeRef ref );
+DKTypeRef   DKObjectMutableCopy( DKTypeRef ref );
 
 int         DKObjectEqual( DKTypeRef a, DKTypeRef b );
 int         DKObjectCompare( DKTypeRef a, DKTypeRef b );
 DKHashIndex DKObjectHash( DKTypeRef ref );
 
 
+// Allocate a new object
+DKTypeRef   DKNewObject( DKTypeRef _class, size_t size, DKOptionFlags flags );
+
+
 // Polymorphic DKObjectInterface Wrappers
-
-// Initialize a new object header
-void        DKObjectHeaderInit( DKTypeRef ref, DKTypeRef _class, DKOptionFlags flags );
-
-// Allocate a new object and call the default initializer
 DKTypeRef   DKCreate( DKTypeRef _class );
 
 DKTypeRef   DKGetClass( DKTypeRef ref );
 
 DKTypeRef   DKGetInterface( DKTypeRef ref, DKSUID suid );
 DKSUID      DKGetTypeID( DKTypeRef ref );
+
 DKTypeRef   DKRetain( DKTypeRef ref );
 void        DKRelease( DKTypeRef ref );
+
+DKTypeRef   DKCopy( DKTypeRef ref );
+DKTypeRef   DKMutableCopy( DKTypeRef ref );
 
 int         DKEqual( DKTypeRef a, DKTypeRef b );
 int         DKCompare( DKTypeRef a, DKTypeRef b );
 DKHashIndex DKHash( DKTypeRef ref );
 
 // Flags
-int         DKGetFlag( DKTypeRef ref, int flag );
-void        DKSetFlag( DKTypeRef ref, int flag, int value );
+int         DKTestFlag( DKTypeRef ref, int flag );
 #define     DKIsMutable( ref )  DKGetFlag( (ref), DKObjectMutable )
 
 

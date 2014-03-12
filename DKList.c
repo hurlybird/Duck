@@ -180,7 +180,7 @@ void DKListAppendValue( DKMutableListRef ref, const void * value )
     
     if( list )
     {
-        DKRange append = DKRangeMake( 0, list->getCount( ref ) );
+        DKRange append = DKRangeMake( list->getCount( ref ), 0 );
         list->replaceValues( ref, append, &value, 1 );
     }
 }

@@ -39,9 +39,13 @@ const DKObjectInterface __DKClassClass__ =
     
     DKDoNothingRetain,
     DKDoNothingRelease,
+    
     DKDisallowAllocate,
     DKDisallowInitialize,
     DKDisallowFinalize,
+    
+    DKObjectCopy,
+    DKObjectMutableCopy,
     
     DKObjectEqual,
     DKObjectCompare,
@@ -57,9 +61,13 @@ static const DKObjectInterface __DKObjectClass__ =
     
     DKObjectRetain,
     DKObjectRelease,
+    
     DKObjectAllocate,
     DKObjectInitialize,
     DKObjectFinalize,
+    
+    DKObjectCopy,
+    DKObjectMutableCopy,
 
     DKObjectEqual,
     DKObjectCompare,
@@ -75,9 +83,13 @@ const DKObjectInterface __DKInterfaceClass__ =
     
     DKDoNothingRetain,
     DKDoNothingRelease,
+    
     DKDisallowAllocate,
     DKDisallowInitialize,
     DKDisallowFinalize,
+
+    DKObjectCopy,
+    DKObjectMutableCopy,
 
     DKObjectEqual,
     DKObjectCompare,
@@ -163,7 +175,7 @@ void DKObjectRelease( DKTypeRef ref )
 //
 DKTypeRef DKObjectAllocate( void )
 {
-    return DKAllocAndZero( sizeof(DKObjectHeader) );
+    return DKNewObject( DKObjectClass(), sizeof(DKObjectHeader), 0 );
 }
 
 
@@ -183,6 +195,24 @@ DKTypeRef DKObjectInitialize( DKTypeRef ref )
 void DKObjectFinalize( DKTypeRef ref )
 {
     // Nothing to do here
+}
+
+
+///
+//  DKObjectCopy()
+//
+DKTypeRef DKObjectCopy( DKTypeRef ref )
+{
+    return DKObjectRetain( ref );
+}
+
+
+///
+//  DKObjectMutableCopy()
+//
+DKTypeRef DKObjectMutableCopy( DKTypeRef ref )
+{
+    return DKObjectRetain( ref );
 }
 
 
@@ -323,23 +353,19 @@ static void DKDisallowFinalize( DKTypeRef ref )
 // DKObject Polymorphic Wrappers =========================================================
 
 ///
-//  DKObjectHeaderInit()
+//  DKNewObject()
 //
-void DKObjectHeaderInit( DKTypeRef ref, DKTypeRef _class, DKOptionFlags flags )
+DKTypeRef DKNewObject( DKTypeRef _class, size_t size, DKOptionFlags flags )
 {
-    DKObjectHeader * obj = (DKObjectHeader *)ref;
+    assert( _class );
     
-    if( obj )
-    {
-        assert( _class );
-        assert( obj->_isa == NULL );
-        assert( obj->_refcount == 0 );
-        assert( obj->_flags == 0 );
-        
-        obj->_isa = _class;
-        obj->_refcount = 1;
-        obj->_flags = flags;
-    }
+    DKObjectHeader * obj = DKAllocAndZero( size );
+    
+    obj->_isa = _class;
+    obj->_refcount = 1;
+    obj->_flags = flags;
+    
+    return obj;
 }
 
 
@@ -352,9 +378,7 @@ DKTypeRef DKCreate( DKTypeRef _class )
 
     if( classObject )
     {
-        DKObjectHeader * obj = (DKObjectHeader *)classObject->allocate();
-        DKObjectHeaderInit( obj, classObject, 0 );
-        
+        DKTypeRef obj = classObject->allocate();
         return classObject->initialize( obj );
     }
     
@@ -453,6 +477,40 @@ void DKRelease( DKTypeRef ref )
 
 
 ///
+//  DKCopy()
+//
+DKTypeRef DKCopy( DKTypeRef ref )
+{
+    const DKObjectHeader * obj = ref;
+    
+    if( obj )
+    {
+        const DKObjectInterface * objectInterface = obj->_isa;
+        return objectInterface->retain( obj );
+    }
+
+    return ref;
+}
+
+
+///
+//  DKMutableCopy()
+//
+DKTypeRef DKMutableCopy( DKTypeRef ref )
+{
+    const DKObjectHeader * obj = ref;
+    
+    if( obj )
+    {
+        const DKObjectInterface * objectInterface = obj->_isa;
+        return objectInterface->mutableCopy( obj );
+    }
+
+    return ref;
+}
+
+
+///
 //  DKEqual()
 //
 int DKEqual( DKTypeRef a, DKTypeRef b )
@@ -504,36 +562,18 @@ DKHashIndex DKHash( DKTypeRef ref )
 
 
 ///
-//  DKGetFlag()
+//  DKTestFlag()
 //
-int DKGetFlag( DKTypeRef ref, int flag )
+int DKTestFlag( DKTypeRef ref, int flag )
 {
     DKObjectHeader * obj = (DKObjectHeader *)ref;
     
     if( obj )
     {
-        return (obj->_flags & (1 << flag)) != 0;
+        return (obj->_flags & flag) != 0;
     }
     
     return 0;
-}
-
-
-///
-//  DKSetFlag()
-//
-void DKSetFlag( DKTypeRef ref, int flag, int value )
-{
-    DKObjectHeader * obj = (DKObjectHeader *)ref;
-    
-    if( obj )
-    {
-        if( value )
-            obj->_flags |= (1 << flag);
-        
-        else
-            obj->_flags &= ~(1 << flag);
-    }
 }
 
 

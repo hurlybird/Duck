@@ -111,10 +111,53 @@ void TestDKList( DKTypeRef listClass )
     
     DKMutableListRef list = (DKMutableListRef)DKCreate( listClass );
     
+    // Append
     DKListAppendValue( list, a );
     DKListAppendValue( list, b );
     DKListAppendValue( list, c );
     DKListAppendValue( list, d );
+    
+    VERIFY( DKListGetCount( list ) == 4 );
+    
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 0 ) ), "a" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 1 ) ), "b" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 2 ) ), "c" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 3 ) ), "d" ) == 0 );
+    
+    DKListRemoveAllValues( list );
+    
+    // Insert
+    DKListInsertValueAtIndex( list, 0, a );
+    DKListInsertValueAtIndex( list, 0, b );
+    DKListInsertValueAtIndex( list, 0, c );
+    DKListInsertValueAtIndex( list, 0, d );
+
+    VERIFY( DKListGetCount( list ) == 4 );
+
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 0 ) ), "d" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 1 ) ), "c" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 2 ) ), "b" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 3 ) ), "a" ) == 0 );
+
+    DKListRemoveAllValues( list );
+
+    // Copy
+    DKListAppendValue( list, a );
+    DKListAppendValue( list, b );
+    DKListAppendValue( list, c );
+    DKListAppendValue( list, d );
+    
+    VERIFY( DKListGetCount( list ) == 4 );
+    
+    DKTypeRef copy = DKCopy( list );
+    
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( copy, 0 ) ), "a" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( copy, 1 ) ), "b" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( copy, 2 ) ), "c" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( copy, 3 ) ), "d" ) == 0 );
+    
+    DKListRemoveAllValues( list );
+    DKRelease( copy );
     
     DKRelease( list );
     
