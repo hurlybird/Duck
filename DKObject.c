@@ -515,6 +515,11 @@ DKTypeRef DKMutableCopy( DKTypeRef ref )
 //
 int DKEqual( DKTypeRef a, DKTypeRef b )
 {
+    if( a == b )
+    {
+        return 1;
+    }
+
     const DKObjectHeader * obj = a;
 
     if( obj )
@@ -523,7 +528,7 @@ int DKEqual( DKTypeRef a, DKTypeRef b )
         return objectInterface->equal( a, b );
     }
     
-    return a == b;
+    return 0;
 }
 
 
@@ -532,6 +537,11 @@ int DKEqual( DKTypeRef a, DKTypeRef b )
 //
 int DKCompare( DKTypeRef a, DKTypeRef b )
 {
+    if( a == b )
+    {
+        return 0;
+    }
+
     const DKObjectHeader * obj = a;
 
     if( obj )
@@ -540,7 +550,7 @@ int DKCompare( DKTypeRef a, DKTypeRef b )
         return objectInterface->compare( a, b );
     }
     
-    return a < b;
+    return a < b ? -1 : 1;
 }
 
 

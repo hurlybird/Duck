@@ -119,6 +119,16 @@ void TestDKList( DKTypeRef listClass )
     
     VERIFY( DKListGetCount( list ) == 4 );
     
+    VERIFY( DKListGetFirstIndexOfValue( list, a ) == 0 );
+    VERIFY( DKListGetFirstIndexOfValue( list, b ) == 1 );
+    VERIFY( DKListGetFirstIndexOfValue( list, c ) == 2 );
+    VERIFY( DKListGetFirstIndexOfValue( list, d ) == 3 );
+
+    VERIFY( DKListGetLastIndexOfValue( list, a ) == 0 );
+    VERIFY( DKListGetLastIndexOfValue( list, b ) == 1 );
+    VERIFY( DKListGetLastIndexOfValue( list, c ) == 2 );
+    VERIFY( DKListGetLastIndexOfValue( list, d ) == 3 );
+    
     VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 0 ) ), "a" ) == 0 );
     VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 1 ) ), "b" ) == 0 );
     VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 2 ) ), "c" ) == 0 );

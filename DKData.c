@@ -29,6 +29,9 @@ static void         DKDataFinalize( DKTypeRef ref );
 static DKTypeRef    DKDataCopy( DKTypeRef ref );
 static DKTypeRef    DKMutableDataCopy( DKTypeRef ref );
 static DKTypeRef    DKDataMutableCopy( DKTypeRef ref );
+int                 DKDataEqual( DKTypeRef a, DKTypeRef b );
+int                 DKDataCompare( DKTypeRef a, DKTypeRef b );
+DKHashIndex         DKDataHash( DKTypeRef ref );
 
 
 static const DKObjectInterface __DKDataClass__ =
@@ -48,9 +51,9 @@ static const DKObjectInterface __DKDataClass__ =
     DKDataCopy,
     DKDataMutableCopy,
 
-    DKObjectEqual,
-    DKObjectCompare,
-    DKObjectHash
+    DKDataEqual,
+    DKDataCompare,
+    DKDataHash
 };
 
 
@@ -71,9 +74,9 @@ static const DKObjectInterface __DKMutableDataClass__ =
     DKMutableDataCopy,
     DKDataMutableCopy,
 
-    DKObjectEqual,
-    DKObjectCompare,
-    DKObjectHash
+    DKDataEqual,
+    DKDataCompare,
+    DKDataHash
 };
 
 
@@ -205,6 +208,57 @@ static DKTypeRef DKMutableDataCopy( DKTypeRef ref )
 static DKTypeRef DKDataMutableCopy( DKTypeRef ref )
 {
     return DKDataCreateMutableCopy( ref );
+}
+
+
+///
+//  DKDataEqual()
+//
+int DKDataEqual( DKTypeRef a, DKTypeRef b )
+{
+    return DKDataCompare( a, b ) == 0;
+}
+
+
+///
+//  DKDataCompare()
+//
+int DKDataCompare( DKTypeRef a, DKTypeRef b )
+{
+    DKSUID btype = DKGetTypeID( b );
+    
+    if( (btype == DKDataTypeID) || (btype == DKMutableDataTypeID) )
+    {
+        DKDataRef da = a;
+        DKDataRef db = b;
+        
+        if( da->segment.length < db->segment.length )
+            return -1;
+        
+        if( da->segment.length > db->segment.length )
+            return 1;
+        
+        if( da->segment.length == 0 )
+            return 0;
+
+        return memcmp( da->segment.data, db->segment.data, da->segment.length );
+    }
+    
+    return DKObjectCompare( a, b );
+}
+
+
+///
+//  DKDataHash()
+//
+DKHashIndex DKDataHash( DKTypeRef ref )
+{
+    DKDataRef data = ref;
+    
+    if( data->segment.length > 0 )
+        return DKMemHash( data->segment.data, data->segment.length );
+    
+    return 0;
 }
 
 
