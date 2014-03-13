@@ -172,7 +172,11 @@ static void DKDataFinalize( DKTypeRef ref )
     if( ref )
     {
         struct DKData * data = (struct DKData *)ref;
-        DKMemorySegmentClear( &data->segment );
+        
+        if( !DKTestFlag( data, DKObjectExternalStorage ) )
+        {
+            DKMemorySegmentClear( &data->segment );
+        }
     }
 }
 
@@ -213,11 +217,19 @@ static DKTypeRef DKDataMutableCopy( DKTypeRef ref )
 //
 DKDataRef DKDataCreate( const void * bytes, DKIndex length )
 {
-    DKDataRef ref = DKCreate( DKDataClass() );
+    DKDataRef ref = DKNewObject( DKDataClass(), sizeof(struct DKData) + length, DKObjectExternalStorage );
 
     if( ref )
     {
-        DKMemorySegmentReplaceBytes( (DKMemorySegment *)&ref->segment, DKRangeMake( 0, 0 ), bytes, length );
+        struct DKData * data = (struct DKData *)ref;
+        
+        DKMemorySegmentInit( &data->segment );
+
+        data->segment.data = (void *)(data + 1);
+        data->segment.length = length;
+        data->segment.maxLength = length;
+        
+        memcpy( data->segment.data, bytes, length );
     }
     
     return ref;
@@ -241,6 +253,28 @@ DKDataRef DKDataCreateCopy( DKDataRef src )
     {
         return DKDataCreate( NULL, 0 );
     }
+}
+
+
+///
+//  DKDataCreateWithBytesNoCopy()
+//
+DKDataRef DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length )
+{
+    DKDataRef ref = DKNewObject( DKDataClass(), sizeof(struct DKData), DKObjectExternalStorage );
+
+    if( ref )
+    {
+        struct DKData * data = (struct DKData *)ref;
+        
+        DKMemorySegmentInit( &data->segment );
+
+        data->segment.data = (void *)bytes;
+        data->segment.length = length;
+        data->segment.maxLength = length;
+    }
+    
+    return ref;
 }
 
 
