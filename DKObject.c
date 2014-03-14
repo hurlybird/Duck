@@ -20,11 +20,6 @@ static DKTypeRef    DKClassGetInterface( DKTypeRef ref, DKSUID suid );
 static DKSUID       DKClassGetTypeID( DKTypeRef ref );
 static DKTypeRef    DKInterfaceGetInterface( DKTypeRef ref, DKSUID suid );
 static DKSUID       DKInterfaceGetTypeID( DKTypeRef ref );
-static DKTypeRef    DKDoNothingRetain( DKTypeRef ref );
-static void         DKDoNothingRelease( DKTypeRef ref );
-static DKTypeRef    DKDisallowAllocate( void );
-static DKTypeRef    DKDisallowInitialize( DKTypeRef ref );
-static void         DKDisallowFinalize( DKTypeRef ref );
 
 
 
@@ -44,12 +39,9 @@ const DKObjectInterface __DKClassClass__ =
     DKDisallowInitialize,
     DKDisallowFinalize,
     
-    DKObjectCopy,
-    DKObjectMutableCopy,
-    
-    DKObjectEqual,
-    DKObjectCompare,
-    DKObjectHash
+    DKPtrEqual,
+    DKPtrCompare,
+    DKPtrHash
 };
 
 static const DKObjectInterface __DKObjectClass__ =
@@ -66,12 +58,9 @@ static const DKObjectInterface __DKObjectClass__ =
     DKObjectInitialize,
     DKObjectFinalize,
     
-    DKObjectCopy,
-    DKObjectMutableCopy,
-
-    DKObjectEqual,
-    DKObjectCompare,
-    DKObjectHash
+    DKPtrEqual,
+    DKPtrCompare,
+    DKPtrHash
 };
 
 const DKObjectInterface __DKInterfaceClass__ =
@@ -88,12 +77,9 @@ const DKObjectInterface __DKInterfaceClass__ =
     DKDisallowInitialize,
     DKDisallowFinalize,
 
-    DKObjectCopy,
-    DKObjectMutableCopy,
-
-    DKObjectEqual,
-    DKObjectCompare,
-    DKObjectHash
+    DKPtrEqual,
+    DKPtrCompare,
+    DKPtrHash
 };
 
 
@@ -198,58 +184,6 @@ void DKObjectFinalize( DKTypeRef ref )
 }
 
 
-///
-//  DKObjectCopy()
-//
-DKTypeRef DKObjectCopy( DKTypeRef ref )
-{
-    return DKObjectRetain( ref );
-}
-
-
-///
-//  DKObjectMutableCopy()
-//
-DKTypeRef DKObjectMutableCopy( DKTypeRef ref )
-{
-    return DKObjectRetain( ref );
-}
-
-
-///
-//  DKObjectEqual()
-//
-int DKObjectEqual( DKTypeRef a, DKTypeRef b )
-{
-    return a == b;
-}
-
-
-///
-//  DKObjectCompare()
-//
-int DKObjectCompare( DKTypeRef a, DKTypeRef b )
-{
-    if( a < b )
-        return 1;
-    
-    if( a > b )
-        return -1;
-    
-    return 0;
-}
-
-
-///
-//  DKObjectHash()
-//
-DKHashIndex DKObjectHash( DKTypeRef ref )
-{
-    assert( sizeof(DKHashIndex) == sizeof(DKTypeRef) );
-    return (DKHashIndex)ref;
-}
-
-
 
 
 // DKClass and DKInterface ===============================================================
@@ -305,7 +239,7 @@ static DKSUID DKInterfaceGetTypeID( DKTypeRef ref )
 ///
 //  DKDoNothingRetain()
 //
-static DKTypeRef DKDoNothingRetain( DKTypeRef ref )
+DKTypeRef DKDoNothingRetain( DKTypeRef ref )
 {
     return ref;
 }
@@ -314,7 +248,7 @@ static DKTypeRef DKDoNothingRetain( DKTypeRef ref )
 ///
 //  DKDoNothingRelease()
 //
-static void DKDoNothingRelease( DKTypeRef ref )
+void DKDoNothingRelease( DKTypeRef ref )
 {
 }
 
@@ -322,7 +256,7 @@ static void DKDoNothingRelease( DKTypeRef ref )
 ///
 //  DKDisallowAllocate()
 //
-static DKTypeRef DKDisallowAllocate( void )
+DKTypeRef DKDisallowAllocate( void )
 {
     assert( 0 );
     return NULL;
@@ -332,7 +266,7 @@ static DKTypeRef DKDisallowAllocate( void )
 ///
 //  DKDisallowInitialize()
 //
-static DKTypeRef DKDisallowInitialize( DKTypeRef ref )
+DKTypeRef DKDisallowInitialize( DKTypeRef ref )
 {
     assert( 0 );
     return ref;
@@ -342,7 +276,7 @@ static DKTypeRef DKDisallowInitialize( DKTypeRef ref )
 ///
 //  DKDisallowFinalize()
 //
-static void DKDisallowFinalize( DKTypeRef ref )
+void DKDisallowFinalize( DKTypeRef ref )
 {
     assert( 0 );
 }
@@ -473,40 +407,6 @@ void DKRelease( DKTypeRef ref )
         const DKObjectInterface * objectInterface = obj->_isa;
         objectInterface->release( obj );
     }
-}
-
-
-///
-//  DKCopy()
-//
-DKTypeRef DKCopy( DKTypeRef ref )
-{
-    const DKObjectHeader * obj = ref;
-    
-    if( obj )
-    {
-        const DKObjectInterface * objectInterface = obj->_isa;
-        return objectInterface->retain( obj );
-    }
-
-    return ref;
-}
-
-
-///
-//  DKMutableCopy()
-//
-DKTypeRef DKMutableCopy( DKTypeRef ref )
-{
-    const DKObjectHeader * obj = ref;
-    
-    if( obj )
-    {
-        const DKObjectInterface * objectInterface = obj->_isa;
-        return objectInterface->mutableCopy( obj );
-    }
-
-    return ref;
 }
 
 

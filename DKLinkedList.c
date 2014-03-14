@@ -7,6 +7,7 @@
 //
 
 #include "DKLinkedList.h"
+#include "DKCopying.h"
 
 
 #define DK_LINKED_LIST_ERROR_CHECKS 1
@@ -70,12 +71,18 @@ static const DKObjectInterface __DKLinkedListClass__ =
     DKLinkedListInitialize,
     DKLinkedListFinalize,
     
-    DKLinkedListCopy,
-    DKLinkedListMutableCopy,
+    DKPtrEqual,
+    DKPtrCompare,
+    DKPtrHash
+};
+
+
+static const DKCopyingInterface __DKLinkedListCopyingInterface__ =
+{
+    DK_INTERFACE_OBJECT,
     
-    DKObjectEqual,
-    DKObjectCompare,
-    DKObjectHash
+    DKLinkedListCopy,
+    DKLinkedListMutableCopy
 };
 
 
@@ -93,12 +100,18 @@ static const DKObjectInterface __DKMutableLinkedListClass__ =
     DKLinkedListInitialize,
     DKLinkedListFinalize,
     
-    DKMutableLinkedListCopy,
-    DKLinkedListMutableCopy,
+    DKPtrEqual,
+    DKPtrCompare,
+    DKPtrHash
+};
 
-    DKObjectEqual,
-    DKObjectCompare,
-    DKObjectHash
+
+static const DKCopyingInterface __DKMutableLinkedListCopyingInterface__ =
+{
+    DK_INTERFACE_OBJECT,
+    
+    DKMutableLinkedListCopy,
+    DKLinkedListMutableCopy
 };
 
 
@@ -114,17 +127,13 @@ static const DKListInterface __DKLinkedListListInterface__ =
 };
 
 
-static const DKListCallbacks __DKLinkedListDefaultCallbacks__ =
-{
-    DKRetain,
-    DKRelease,
-    DKEqual
-};
-
-
 
 
 // DKObject Interface ====================================================================
+
+static void DKLinkedListReplaceValuesInternal( struct DKLinkedList * list, DKRange range, const void ** values, DKIndex count );
+static void DKLinkedListReplaceValuesWithListInternal( struct DKLinkedList * list, DKRange range, DKListRef srcList );
+
 
 ///
 //  DKLinkedListClass()
@@ -155,6 +164,9 @@ static DKTypeRef DKLinkedListGetInterface( DKTypeRef ref, DKSUID suid )
     if( suid == DKListInterfaceID )
         return &__DKLinkedListListInterface__;
     
+    if( suid == DKCopyingInterfaceID )
+        return &__DKLinkedListCopyingInterface__;
+
     return NULL;
 }
 
@@ -178,6 +190,9 @@ static DKTypeRef DKMutableLinkedListGetInterface( DKTypeRef ref, DKSUID suid )
     
     if( suid == DKListInterfaceID )
         return &__DKLinkedListListInterface__;
+    
+    if( suid == DKCopyingInterfaceID )
+        return &__DKMutableLinkedListCopyingInterface__;
     
     return NULL;
 }
@@ -223,7 +238,7 @@ static DKTypeRef DKLinkedListInitialize( DKTypeRef ref )
         
         DKNodePoolInit( &list->nodePool, sizeof(struct DKLinkedListNode), 0 );
 
-        list->callbacks = __DKLinkedListDefaultCallbacks__;
+        list->callbacks = *DKListObjectCallbacks();
     }
     
     return ref;
@@ -239,7 +254,7 @@ static void DKLinkedListFinalize( DKTypeRef ref )
     {
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
 
-        DKLinkedListReplaceValues( list, DKRangeMake( 0, list->count ), NULL, 0 );
+        DKLinkedListReplaceValuesInternal( list, DKRangeMake( 0, list->count ), NULL, 0 );
         
         DKNodePoolClear( &list->nodePool );
     }

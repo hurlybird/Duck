@@ -24,6 +24,7 @@
 		027E9770148E830200AC8406 /* scl_value.h in Headers */ = {isa = PBXBuildFile; fileRef = 027E976F148E830200AC8406 /* scl_value.h */; };
 		027E9783148F2D4400AC8406 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 027E9782148F2D4400AC8406 /* main.c */; };
 		027E9789148F2D6A00AC8406 /* libDuck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libDuck.a */; };
+		0283F5BF18D2D93E003B1734 /* DKCopying.c in Sources */ = {isa = PBXBuildFile; fileRef = 0283F5BE18D2D93E003B1734 /* DKCopying.c */; };
 		029748BF18CAC2C200863C71 /* DKData.c in Sources */ = {isa = PBXBuildFile; fileRef = 024EE3ED148E0BCD008FDADC /* DKData.c */; };
 /* End PBXBuildFile section */
 
@@ -74,6 +75,9 @@
 		027E9771148E84A500AC8406 /* scl_value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scl_value.c; sourceTree = "<group>"; };
 		027E977F148F2D4400AC8406 /* DuckTestSuite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DuckTestSuite; sourceTree = BUILT_PRODUCTS_DIR; };
 		027E9782148F2D4400AC8406 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		0283F5BC18D2AF7B003B1734 /* DKEnvApple.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKEnvApple.h; sourceTree = "<group>"; };
+		0283F5BD18D2D92A003B1734 /* DKCopying.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKCopying.h; sourceTree = "<group>"; };
+		0283F5BE18D2D93E003B1734 /* DKCopying.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKCopying.c; sourceTree = "<group>"; };
 		02A5E25218C1A61A00CFF9CA /* scl_string.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scl_string.c; sourceTree = "<group>"; };
 		02A5E25418C1A62400CFF9CA /* scl_string.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = scl_string.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -102,9 +106,12 @@
 			children = (
 				024EE3EB148E0BBA008FDADC /* Duck.h */,
 				0274E6F914901BCF00E6F451 /* DKEnv.h */,
+				0283F5BC18D2AF7B003B1734 /* DKEnvApple.h */,
 				0274E6FB14901BDA00E6F451 /* DKEnv.c */,
 				026B298818CA6987003FC949 /* DKObject.h */,
 				026B298718CA6987003FC949 /* DKObject.c */,
+				0283F5BD18D2D92A003B1734 /* DKCopying.h */,
+				0283F5BE18D2D93E003B1734 /* DKCopying.c */,
 				0239C6B814FE8F4900873E36 /* DKMemory.h */,
 				0239C6BB14FE8F5600873E36 /* DKMemory.c */,
 				024EE3E9148E0BA5008FDADC /* DKData.h */,
@@ -237,6 +244,7 @@
 			files = (
 				029748BF18CAC2C200863C71 /* DKData.c in Sources */,
 				026B298918CA6987003FC949 /* DKObject.c in Sources */,
+				0283F5BF18D2D93E003B1734 /* DKCopying.c in Sources */,
 				0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */,
 				0278EA4918CD811B0028A755 /* DKMemory.c in Sources */,
 				0278EA4B18CD92AC0028A755 /* DKList.c in Sources */,

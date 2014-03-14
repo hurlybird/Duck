@@ -21,9 +21,9 @@ typedef void * DKMutableListRef;
 
 typedef void (*DKListApplierFunction)( const void * value, void * context );
 
-typedef const void * (*DKListRetainCallback)( const void * value );
-typedef void (*DKListReleaseCallback)( const void * value );
-typedef int  (*DKListEqualCallback)( const void * value1, const void * value2 );
+typedef const void * (* DKListRetainCallback)( const void * value );
+typedef void (* DKListReleaseCallback)( const void * value );
+typedef int  (* DKListEqualCallback)( const void * value1, const void * value2 );
 
 
 typedef struct
@@ -34,23 +34,25 @@ typedef struct
     
 } DKListCallbacks;
 
+const DKListCallbacks * DKListObjectCallbacks( void );
+const DKListCallbacks * DKListStringCallbacks( void );
+const DKListCallbacks * DKListIndexCallbacks( void );
+
 
 typedef struct
 {
     const DKObjectHeader _obj;
 
-    const DKListCallbacks * (*getCallbacks)( DKListRef ref );
+    const DKListCallbacks * (* const getCallbacks)( DKListRef ref );
 
-    DKIndex     (*getCount)( DKListRef ref );
-    DKIndex     (*getValues)( DKListRef ref, DKRange range, const void ** values );
-    void        (*replaceValues)( DKMutableListRef ref, DKRange range, const void ** values, DKIndex count );
-    void        (*replaceValuesWithList)( DKMutableListRef ref, DKRange range, DKListRef srcList );
+    DKIndex     (* const getCount)( DKListRef ref );
+    DKIndex     (* const getValues)( DKListRef ref, DKRange range, const void ** values );
+    void        (* const replaceValues)( DKMutableListRef ref, DKRange range, const void ** values, DKIndex count );
+    void        (* const replaceValuesWithList)( DKMutableListRef ref, DKRange range, DKListRef srcList );
 
 } DKListInterface;
 
-
 typedef const DKListInterface * DKListInterfaceRef;
-
 
 
 DKIndex     DKListGetCount( DKListRef ref );

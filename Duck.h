@@ -12,6 +12,7 @@
 
 #include "DKEnv.h"
 #include "DKObject.h"
+#include "DKCopying.h"
 #include "DKData.h"
 #include "DKList.h"
 #include "DKLinkedList.h"

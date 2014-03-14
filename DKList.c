@@ -13,6 +13,54 @@ DKDefineSUID( DKListInterfaceID );
 
 
 ///
+//  DKListObjectCallbacks()
+//
+static const DKListCallbacks __DKListObjectCallbacks__ =
+{
+    DKRetain,
+    DKRelease,
+    DKEqual
+};
+
+const DKListCallbacks * DKListObjectCallbacks( void )
+{
+    return &__DKListObjectCallbacks__;
+}
+
+
+///
+//  DKListSUIDCallbacks()
+//
+static const DKListCallbacks __DKListStringCallbacks__ =
+{
+    DKDoNothingRetain,
+    DKDoNothingRelease,
+    DKStrEqual
+};
+
+const DKListCallbacks * DKListStringCallbacks( void )
+{
+    return &__DKListStringCallbacks__;
+}
+
+
+///
+//  DKListSUIDCallbacks()
+//
+static const DKListCallbacks __DKListIndexCallbacks__ =
+{
+    DKDoNothingRetain,
+    DKDoNothingRelease,
+    DKPtrEqual
+};
+
+const DKListCallbacks * DKListIndexCallbacks( void )
+{
+    return &__DKListIndexCallbacks__;
+}
+
+
+///
 //  DKListGetCount()
 //
 DKIndex DKListGetCount( DKListRef ref )

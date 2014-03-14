@@ -6,6 +6,7 @@
 //  Copyright (c) 2011 Derek W. Nylen. All rights reserved.
 //
 #include "DKData.h"
+#include "DKCopying.h"
 
 
 DKDefineSUID( DKDataTypeID );
@@ -48,12 +49,18 @@ static const DKObjectInterface __DKDataClass__ =
     DKDataInitialize,
     DKDataFinalize,
     
-    DKDataCopy,
-    DKDataMutableCopy,
-
     DKDataEqual,
     DKDataCompare,
     DKDataHash
+};
+
+
+static const DKCopyingInterface __DKDataCopyingInterface__ =
+{
+    DK_INTERFACE_OBJECT,
+    
+    DKDataCopy,
+    DKDataMutableCopy
 };
 
 
@@ -71,12 +78,18 @@ static const DKObjectInterface __DKMutableDataClass__ =
     DKDataInitialize,
     DKDataFinalize,
 
-    DKMutableDataCopy,
-    DKDataMutableCopy,
-
     DKDataEqual,
     DKDataCompare,
     DKDataHash
+};
+
+
+static const DKCopyingInterface __DKMutableDataCopyingInterface__ =
+{
+    DK_INTERFACE_OBJECT,
+    
+    DKMutableDataCopy,
+    DKDataMutableCopy
 };
 
 
@@ -109,7 +122,25 @@ static DKTypeRef DKDataGetInterface( DKTypeRef ref, DKSUID suid )
 {
     if( suid == DKObjectInterfaceID )
         return &__DKDataClass__;
+
+    if( suid == DKCopyingInterfaceID )
+        return &__DKDataCopyingInterface__;
+    
+    return NULL;
+}
+
+
+///
+//  DKMutableDataGetInterface()
+//
+static DKTypeRef DKMutableDataGetInterface( DKTypeRef ref, DKSUID suid )
+{
+    if( suid == DKObjectInterfaceID )
+        return &__DKMutableDataClass__;
         
+    if( suid == DKCopyingInterfaceID )
+        return &__DKMutableDataCopyingInterface__;
+
     return NULL;
 }
 
@@ -244,7 +275,7 @@ int DKDataCompare( DKTypeRef a, DKTypeRef b )
         return memcmp( da->segment.data, db->segment.data, da->segment.length );
     }
     
-    return DKObjectCompare( a, b );
+    return DKPtrCompare( a, b );
 }
 
 

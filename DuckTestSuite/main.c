@@ -20,7 +20,7 @@ void TestDKList( DKTypeRef listClass );
 
 int main( int argc, const char * argv[] )
 {
-    printf( "Testing Component/Container Library (libcc)\n" );
+    printf( "Testing Duck Object Library (libDuck)\n" );
 
     TestDKObject();
     TestDKData();
@@ -67,6 +67,10 @@ void TestDKData( void )
     VERIFY( strcmp( (const char *)DKDataGetByteRange( data, DKRangeMake( 10, 10 ) ), b ) == 0 );
     VERIFY( strcmp( (const char *)DKDataGetByteRange( data, DKRangeMake( 20, 10 ) ), c ) == 0 );
     VERIFY( strcmp( (const char *)DKDataGetByteRange( data, DKRangeMake( 30, 10 ) ), d ) == 0 );
+
+    DKDataRef copy = DKCopy( data );
+    VERIFY( DKDataGetLength( copy ) == 40 );
+    DKRelease( copy );
 
     DKDataReplaceBytes( data, DKRangeMake( 0, 0 ), e, 10 );
     VERIFY( DKDataGetLength( data ) == 50 );

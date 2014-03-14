@@ -13,7 +13,8 @@
 #include <string.h>
 #include <assert.h>
 
-#include <libkern/OSAtomic.h>
+#include "DKEnvApple.h"
+
 
 
 typedef const void * DKTypeRef;
@@ -50,16 +51,6 @@ enum
 typedef uint32_t DKOptionFlags;
 
 
-// Atomic Integers
-//typedef int32_t DKAtomicInt;
-//#define DKAtomicIncrement( ptr )    __sync_add_and_fetch( ptr, 1 )
-//#define DKAtomicDecrement( ptr )    __sync_sub_and_fetch( ptr, 1 )
-
-typedef int32_t DKAtomicInt;
-#define DKAtomicIncrement( ptr )    OSAtomicIncrement32( ptr )
-#define DKAtomicDecrement( ptr )    OSAtomicDecrement32( ptr )
-
-
 // Memory Allocation
 void   DKSetAllocCallback( void * (*callback)( size_t size ) );
 void   DKSetFreeCallback( void (*callback)( void * ptr ) );
@@ -69,7 +60,15 @@ void * DKAllocAndZero( size_t size );
 void   DKFree( void * ptr );
 
 
-// Hash functions
+// Equal
+int DKPtrEqual( const void * a, const void * b );
+int DKStrEqual( const void * a, const void * b );
+
+// Compare
+int DKPtrCompare( const void * a, const void * b );
+int DKStrCompare( const void * a, const void * b );
+
+// Hash
 DKHashIndex DKPtrHash( const void * ptr );
 DKHashIndex DKStrHash( const void * str );
 DKHashIndex DKMemHash( const void * buffer, size_t buffer_size );
@@ -77,4 +76,10 @@ DKHashIndex DKMemHash( const void * buffer, size_t buffer_size );
 
 
 #endif // _DK_ENV_H_
+
+
+
+
+
+
 

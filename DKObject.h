@@ -56,9 +56,6 @@ typedef struct
     DKTypeRef   (* const initialize)( DKTypeRef ref );
     void        (* const finalize)( DKTypeRef ref );
     
-    DKTypeRef   (* const copy)( DKTypeRef ref );
-    DKTypeRef   (* const mutableCopy)( DKTypeRef ref );
-    
     // Comparison
     int         (* const equal)( DKTypeRef a, DKTypeRef b );
     int         (* const compare)( DKTypeRef a, DKTypeRef b );
@@ -89,12 +86,14 @@ DKTypeRef   DKObjectAllocate( void );
 DKTypeRef   DKObjectInitialize( DKTypeRef ref );
 void        DKObjectFinalize( DKTypeRef ref );
 
-DKTypeRef   DKObjectCopy( DKTypeRef ref );
-DKTypeRef   DKObjectMutableCopy( DKTypeRef ref );
 
-int         DKObjectEqual( DKTypeRef a, DKTypeRef b );
-int         DKObjectCompare( DKTypeRef a, DKTypeRef b );
-DKHashIndex DKObjectHash( DKTypeRef ref );
+// Retain/Release versions that do nothing
+DKTypeRef   DKDoNothingRetain( DKTypeRef ref );
+void        DKDoNothingRelease( DKTypeRef ref );
+
+DKTypeRef   DKDisallowAllocate( void );
+DKTypeRef   DKDisallowInitialize( DKTypeRef ref );
+void        DKDisallowFinalize( DKTypeRef ref );
 
 
 // Allocate a new object
@@ -111,9 +110,6 @@ DKSUID      DKGetTypeID( DKTypeRef ref );
 
 DKTypeRef   DKRetain( DKTypeRef ref );
 void        DKRelease( DKTypeRef ref );
-
-DKTypeRef   DKCopy( DKTypeRef ref );
-DKTypeRef   DKMutableCopy( DKTypeRef ref );
 
 int         DKEqual( DKTypeRef a, DKTypeRef b );
 int         DKCompare( DKTypeRef a, DKTypeRef b );
