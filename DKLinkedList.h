@@ -14,10 +14,6 @@
 #include "DKMemory.h"
 
 
-DKDeclareSUID( DKLinkedListTypeID );
-DKDeclareSUID( DKMutableLinkedListTypeID );
-
-
 DKTypeRef DKLinkedListClass( void );
 DKTypeRef DKMutableLinkedListClass( void );
 

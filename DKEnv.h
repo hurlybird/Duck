@@ -47,10 +47,6 @@ enum
 };
 
 
-// Flags
-typedef uint32_t DKOptionFlags;
-
-
 // Memory Allocation
 void   DKSetAllocCallback( void * (*callback)( size_t size ) );
 void   DKSetFreeCallback( void (*callback)( void * ptr ) );

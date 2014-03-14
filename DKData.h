@@ -13,10 +13,6 @@
 #include "DKMemory.h"
 
 
-DKDeclareSUID( DKDataTypeID );
-DKDeclareSUID( DKMutableDataTypeID );
-
-
 typedef const struct DKData * DKDataRef;
 typedef struct DKData * DKMutableDataRef;
 

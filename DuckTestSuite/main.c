@@ -37,8 +37,6 @@ void TestDKObject( void )
     
     VERIFY( DKGetClass( objectClass ) == &__DKClassClass__ );
     VERIFY( DKGetClass( object ) == objectClass );
-    VERIFY( DKGetTypeID( objectClass ) == DKClassTypeID );
-    VERIFY( DKGetTypeID( object ) == DKObjectTypeID );
     VERIFY( DKGetClass( object ) == DKGetInterface( object, DKObjectInterfaceID ) );
     VERIFY( DKGetInterface( objectClass, DKObjectInterfaceID ) == DKGetInterface( object, DKObjectInterfaceID ) );
 

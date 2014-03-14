@@ -40,14 +40,8 @@ struct DKLinkedList
 };
 
 
-DKDefineSUID( DKLinkedListTypeID );
-DKDefineSUID( DKMutableLinkedListTypeID );
-
-
 static DKTypeRef    DKLinkedListGetInterface( DKTypeRef ref, DKSUID suid );
-static DKSUID       DKLinkedListGetTypeID( DKTypeRef ref );
 static DKTypeRef    DKMutableLinkedListGetInterface( DKTypeRef ref, DKSUID suid );
-static DKSUID       DKMutableLinkedListGetTypeID( DKTypeRef ref );
 static DKTypeRef    DKLinkedListAllocate( void );
 static DKTypeRef    DKMutableLinkedListAllocate( void );
 static DKTypeRef    DKLinkedListInitialize( DKTypeRef ref );
@@ -62,7 +56,6 @@ static const DKObjectInterface __DKLinkedListClass__ =
     DK_CLASS_OBJECT,
 
     DKLinkedListGetInterface,
-    DKLinkedListGetTypeID,
     
     DKObjectRetain,
     DKObjectRelease,
@@ -91,7 +84,6 @@ static const DKObjectInterface __DKMutableLinkedListClass__ =
     DK_CLASS_OBJECT,
 
     DKMutableLinkedListGetInterface,
-    DKMutableLinkedListGetTypeID,
     
     DKObjectRetain,
     DKObjectRelease,
@@ -172,15 +164,6 @@ static DKTypeRef DKLinkedListGetInterface( DKTypeRef ref, DKSUID suid )
 
 
 ///
-//  DKLinkedListGetTypeID()
-//
-static DKSUID DKLinkedListGetTypeID( DKTypeRef ref )
-{
-    return DKLinkedListTypeID;
-}
-
-
-///
 //  DKMutableLinkedListGetInterface()
 //
 static DKTypeRef DKMutableLinkedListGetInterface( DKTypeRef ref, DKSUID suid )
@@ -195,15 +178,6 @@ static DKTypeRef DKMutableLinkedListGetInterface( DKTypeRef ref, DKSUID suid )
         return &__DKMutableLinkedListCopyingInterface__;
     
     return NULL;
-}
-
-
-///
-//  DKMutableLinkedListGetTypeID()
-//
-static DKSUID DKMutableLinkedListGetTypeID( DKTypeRef ref )
-{
-    return DKMutableLinkedListTypeID;
 }
 
 
@@ -732,258 +706,6 @@ void DKLinkedListReplaceValuesWithList( DKMutableListRef ref, DKRange range, DKL
         DKLinkedListReplaceValuesWithListInternal( list, range, srcList );
     }
 }
-
-
-
-
-/*
-
-// Interface =============================================================================
-
-///
-//  scl_list_init()
-//
-void scl_list_init( scl_list * list )
-{
-    scl_pool_init( &list->node_pool, sizeof(scl_list_node), 0 );
-    
-    list->front = NULL;
-    list->back = NULL;
-    list->size = 0;
-    
-    list->cursor.node = NULL;
-    list->cursor.index = 0;
-}
-
-
-///
-//  scl_list_finalize()
-//
-void scl_list_finalize( scl_list * list )
-{
-    scl_list_remove_all( list );
-    scl_pool_finalize( &list->node_pool );
-
-    list->front = NULL;
-    list->back = NULL;
-    list->size = 0;
-}
-
-
-///
-//  scl_list_size()
-//
-size_t scl_list_size( scl_list * list )
-{
-    return list->size;
-}
-
-
-///
-//  scl_list_add()
-//
-void scl_list_add( scl_list * list, scl_value * value )
-{
-    scl_list_node * node = alloc_node( list, value );
-    
-    if( list->front == NULL )
-    {
-        list->front = node;
-        list->back = node;
-    }
-    
-    else
-    {
-        list->back->next = node;
-        node->prev = list->back;
-        list->back = node;
-    }
-
-    list->cursor.node = node;
-    list->cursor.index = list->size - 1;
-}
-
-
-///
-//  scl_list_insert()
-//
-void scl_list_insert( scl_list * list, scl_value * value, size_t index )
-{
-    scl_list_node * node = alloc_node( list, value );
-    
-    if( list->front == NULL )
-    {
-        list->front = node;
-        list->back = node;
-    }
-    
-    else if( index == 0 )
-    {
-        list->front->prev = node;
-        node->next = list->front;
-        list->front = node;
-    }
-    
-    else
-    {
-        node->prev = move_cursor( list, index - 1 );
-        
-        if( node->prev )
-        {
-            node->next = node->prev->next;
-            node->prev->next = node;
-            node->next->prev = node;
-        }
-        
-        else
-        {
-            list->back->next = node;
-            node->prev = list->back;
-            list->back = node;
-        }
-    }
-
-    list->cursor.node = node;
-    list->cursor.index = index;
-}
-
-
-///
-//  scl_list_remove_first()
-//
-void scl_list_remove_first( scl_list * list )
-{
-    scl_list_remove_range( list, 0, 1 );
-}
-
-
-///
-//  scl_list_remove_last()
-//
-void scl_list_remove_last( scl_list * list )
-{
-    scl_list_remove_range( list, list->size - 1, 1 );
-}
-
-
-///
-//  scl_list_remove_index()
-//
-void scl_list_remove_index( scl_list * list, size_t index )
-{
-    scl_list_remove_range( list, index, 1 );
-}
-
-
-///
-//  scl_list_remove_range()
-//
-void scl_list_remove_range( scl_list * list, size_t index, size_t count )
-{
-    scl_list_node * node = move_cursor( list, index );
-
-    for( size_t i = 0; (i < count) && (node != NULL); ++i )
-    {
-        scl_list_node * next = node->next;
-        
-        if( node->prev )
-            node->prev->next = node->next;
-        
-        if( node->next )
-            node->next->prev = node->prev;
-
-        if( list->front == node )
-            list->front = node->next;
-        
-        if( list->back == node )
-            list->back = node->prev;
-
-        free_node( list, node );
-        
-        node = next;
-    }
-    
-    list->cursor.node = list->front;
-    list->cursor.index = 0;
-}
-
-
-///
-//  scl_list_remove_all()
-//
-void scl_list_remove_all( scl_list * list )
-{
-    free_node( list, list->front );
-
-    list->front = NULL;
-    list->back = NULL;
-    list->size = 0;
-    
-    list->cursor.node = NULL;
-    list->cursor.index = 0;
-}
-
-
-///
-//  scl_list_last()
-//
-scl_value * scl_list_last( scl_list * list )
-{
-    if( list->back )
-        return &list->back->value;
-    
-    return NULL;
-}
-
-
-///
-//  scl_list_first()
-//
-scl_value * scl_list_first( scl_list * list )
-{
-    if( list->front )
-        return &list->front->value;
-    
-    return NULL;
-}
-
-
-///
-//  scl_list_index()
-//
-scl_value * scl_list_index( scl_list * list, size_t index )
-{
-    scl_list_node * node = move_cursor( list, index );
-    
-    if( node )
-        return &node->value;
-    
-    return NULL;
-}
-
-
-///
-//  scl_list_foreach()
-//
-int scl_list_foreach( scl_list * list, scl_list_traversal callback, void * context )
-{
-    int result = 0;
-
-    scl_list_node * node = list->front;
-
-    while( node )
-    {
-        if( (result = callback( context, &node->value )) != 0 )
-            break;
-        
-        node = node->next;
-    }
-    
-    return result;
-}
-
-*/
-
 
 
 

@@ -9,10 +9,6 @@
 #include "DKCopying.h"
 
 
-DKDefineSUID( DKDataTypeID );
-DKDefineSUID( DKMutableDataTypeID );
-
-
 struct DKData
 {
     DKObjectHeader _obj;
@@ -21,8 +17,6 @@ struct DKData
 
 
 static DKTypeRef    DKDataGetInterface( DKTypeRef ref, DKSUID suid );
-static DKSUID       DKDataGetTypeID( DKTypeRef ref );
-static DKSUID       DKMutableDataGetTypeID( DKTypeRef ref );
 static DKTypeRef    DKDataAllocate( void );
 static DKTypeRef    DKMutableDataAllocate( void );
 static DKTypeRef    DKDataInitialize( DKTypeRef ref );
@@ -40,7 +34,6 @@ static const DKObjectInterface __DKDataClass__ =
     DK_CLASS_OBJECT,
 
     DKDataGetInterface,
-    DKDataGetTypeID,
     
     DKObjectRetain,
     DKObjectRelease,
@@ -69,7 +62,6 @@ static const DKObjectInterface __DKMutableDataClass__ =
     DK_CLASS_OBJECT,
 
     DKDataGetInterface,
-    DKMutableDataGetTypeID,
     
     DKObjectRetain,
     DKObjectRelease,
@@ -142,24 +134,6 @@ static DKTypeRef DKMutableDataGetInterface( DKTypeRef ref, DKSUID suid )
         return &__DKMutableDataCopyingInterface__;
 
     return NULL;
-}
-
-
-///
-//  DKDataGetTypeID()
-//
-static DKSUID DKDataGetTypeID( DKTypeRef ref )
-{
-    return DKDataTypeID;
-}
-
-
-///
-//  DKMutableDataGetTypeID()
-//
-static DKSUID DKMutableDataGetTypeID( DKTypeRef ref )
-{
-    return DKMutableDataTypeID;
 }
 
 
@@ -256,9 +230,9 @@ int DKDataEqual( DKTypeRef a, DKTypeRef b )
 //
 int DKDataCompare( DKTypeRef a, DKTypeRef b )
 {
-    DKSUID btype = DKGetTypeID( b );
+    DKTypeRef btype = DKGetClass( b );
     
-    if( (btype == DKDataTypeID) || (btype == DKMutableDataTypeID) )
+    if( (btype == DKDataClass()) || (btype == DKMutableDataClass()) )
     {
         DKDataRef da = a;
         DKDataRef db = b;

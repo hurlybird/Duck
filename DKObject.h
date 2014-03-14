@@ -11,31 +11,21 @@
 #include "DKEnv.h"
 
 
-// Base Object Type
-DKDeclareSUID( DKObjectTypeID );
-
-// Object Interface
 DKDeclareSUID( DKObjectInterfaceID );
-
-// Type of all interface objects
-DKDeclareSUID( DKInterfaceTypeID );
-
-// Type of all class objects
-DKDeclareSUID( DKClassTypeID );
 
 
 enum
 {
     DKObjectMutable =           (1 << 0),
-    DKObjectExternalStorage =   (1 << 1),
+    DKObjectExternalStorage =   (1 << 1)
 };
 
 
 typedef struct
 {
-    DKTypeRef       _isa;
-    DKAtomicInt     _refcount;
-    DKOptionFlags   _flags;
+    DKTypeRef   _isa;
+    DKAtomicInt _refcount;
+    DKAtomicInt _flags;
     
 } DKObjectHeader;
 
@@ -46,7 +36,6 @@ typedef struct
 
     // Reflection
     DKTypeRef   (* const getInterface)( DKTypeRef ref, DKSUID suid );
-    DKSUID      (* const getTypeID)( DKTypeRef ref );
     
     // Life-Cycle
     DKTypeRef   (* const retain)( DKTypeRef ref );
@@ -97,16 +86,14 @@ void        DKDisallowFinalize( DKTypeRef ref );
 
 
 // Allocate a new object
-DKTypeRef   DKNewObject( DKTypeRef _class, size_t size, DKOptionFlags flags );
+DKTypeRef   DKNewObject( DKTypeRef _class, size_t size, int flags );
 
 
 // Polymorphic DKObjectInterface Wrappers
 DKTypeRef   DKCreate( DKTypeRef _class );
 
 DKTypeRef   DKGetClass( DKTypeRef ref );
-
 DKTypeRef   DKGetInterface( DKTypeRef ref, DKSUID suid );
-DKSUID      DKGetTypeID( DKTypeRef ref );
 
 DKTypeRef   DKRetain( DKTypeRef ref );
 void        DKRelease( DKTypeRef ref );
