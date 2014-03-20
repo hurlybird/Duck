@@ -9,38 +9,104 @@
 #include "DKObject.h"
 
 
-DKDefineSUID( DKObjectInterfaceID );
-
-
-static DKTypeRef    DKClassGetInterface( DKTypeRef ref, DKSUID suid );
-static DKTypeRef    DKInterfaceGetInterface( DKTypeRef ref, DKSUID suid );
-
-
 
 // Base Classes ==========================================================================
-const DKObjectInterface __DKClassClass__ =
-{
-    DK_CLASS_OBJECT,
 
-    DKClassGetInterface,
+const DKInterface __DKEmptyInterfaceTable__[] =
+{
+    DK_INTERFACE_TABLE_END
+};
+
+const DKMethod __DKEmptyMethodTable__[] =
+{
+    DK_METHOD_TABLE_END
+};
+
+const DKProperty __DKEmptyPropertyTable__[] =
+{
+    DK_PROPERTY_TABLE_END
+};
+
+const DKClass __DKClassClass__ =
+{
+    DK_STATIC_CLASS_OBJECT,
+    
+    DK_EMPTY_INTERFACE_TABLE,
+    DK_EMPTY_METHOD_TABLE,
+    DK_EMPTY_PROPERTY_TABLE,
+    
+    DKObjectGetInterface,
+    DKObjectGetMethod,
     
     DKDoNothingRetain,
     DKDoNothingRelease,
     
-    DKDisallowAllocate,
-    DKDisallowInitialize,
-    DKDisallowFinalize,
+    DKDoNothingAllocate,
+    DKDoNothingInitialize,
+    DKDoNothingFinalize,
     
-    DKPtrEqual,
-    DKPtrCompare,
-    DKPtrHash
+    DKObjectEqual,
+    DKObjectCompare,
+    DKObjectHash
 };
 
-static const DKObjectInterface __DKObjectClass__ =
+const DKClass __DKInterfaceClass__ =
 {
-    DK_CLASS_OBJECT,
+    DK_STATIC_CLASS_OBJECT,
 
+    DK_EMPTY_INTERFACE_TABLE,
+    DK_EMPTY_METHOD_TABLE,
+    DK_EMPTY_PROPERTY_TABLE,
+    
     DKObjectGetInterface,
+    DKObjectGetMethod,
+    
+    DKDoNothingRetain,
+    DKDoNothingRelease,
+    
+    DKDoNothingAllocate,
+    DKDoNothingInitialize,
+    DKDoNothingFinalize,
+
+    DKObjectEqual,
+    DKObjectCompare,
+    DKObjectHash
+};
+
+const DKClass __DKMethodClass__ =
+{
+    DK_STATIC_CLASS_OBJECT,
+
+    DK_EMPTY_INTERFACE_TABLE,
+    DK_EMPTY_METHOD_TABLE,
+    DK_EMPTY_PROPERTY_TABLE,
+    
+    DKObjectGetInterface,
+    DKObjectGetMethod,
+    
+    DKDoNothingRetain,
+    DKDoNothingRelease,
+    
+    DKDoNothingAllocate,
+    DKDoNothingInitialize,
+    DKDoNothingFinalize,
+
+    DKObjectEqual,
+    DKObjectCompare,
+    DKObjectHash
+};
+
+
+const DKClass __DKObjectClass__ =
+{
+    DK_STATIC_CLASS_OBJECT,
+    
+    DK_EMPTY_INTERFACE_TABLE,
+    DK_EMPTY_METHOD_TABLE,
+    DK_EMPTY_PROPERTY_TABLE,
+    
+    DKObjectGetInterface,
+    DKObjectGetMethod,
     
     DKObjectRetain,
     DKObjectRelease,
@@ -49,27 +115,9 @@ static const DKObjectInterface __DKObjectClass__ =
     DKObjectInitialize,
     DKObjectFinalize,
     
-    DKPtrEqual,
-    DKPtrCompare,
-    DKPtrHash
-};
-
-const DKObjectInterface __DKInterfaceClass__ =
-{
-    DK_CLASS_OBJECT,
-
-    DKInterfaceGetInterface,
-    
-    DKDoNothingRetain,
-    DKDoNothingRelease,
-    
-    DKDisallowAllocate,
-    DKDisallowInitialize,
-    DKDisallowFinalize,
-
-    DKPtrEqual,
-    DKPtrCompare,
-    DKPtrHash
+    DKObjectEqual,
+    DKObjectCompare,
+    DKObjectHash
 };
 
 
@@ -78,22 +126,59 @@ const DKObjectInterface __DKInterfaceClass__ =
 // DKObject ==============================================================================
 
 ///
-//  DKObjectClass()
-//
-DKTypeRef DKObjectClass( void )
-{
-    return &__DKObjectClass__;
-}
-
-
-///
 //  DKObjectGetInterface()
 //
 DKTypeRef DKObjectGetInterface( DKTypeRef ref, DKSUID suid )
 {
-    if( suid == DKObjectInterfaceID )
-        return &__DKObjectClass__;
+    const DKObjectHeader * obj = ref;
+    
+    if( obj )
+    {
+        const DKClass * classObject = obj->isa;
+        const DKInterface * interfaces = classObject->interfaces;
         
+        for( int i = 0; interfaces[i].suid != NULL; ++i )
+        {
+            if( interfaces[i].suid == suid )
+                return interfaces[i].interface;
+        }
+
+        for( int i = 0; interfaces[i].suid != NULL; ++i )
+        {
+            if( strcmp( interfaces[i].suid->selector, suid->selector ) == 0 )
+                return interfaces[i].interface;
+        }
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKObjectGetMethod()
+//
+DKTypeRef DKObjectGetMethod( DKTypeRef ref, DKSUID suid )
+{
+    const DKObjectHeader * obj = ref;
+    
+    if( obj )
+    {
+        const DKClass * classObject = obj->isa;
+        const DKMethod * methods = classObject->methods;
+        
+        for( int i = 0; methods[i].suid != NULL; ++i )
+        {
+            if( methods[i].suid == suid )
+                return methods[i].method;
+        }
+
+        for( int i = 0; methods[i].suid != NULL; ++i )
+        {
+            if( strcmp( methods[i].suid->selector, suid->selector ) == 0 )
+                return methods[i].method;
+        }
+    }
+    
     return NULL;
 }
 
@@ -107,7 +192,7 @@ DKTypeRef DKObjectRetain( DKTypeRef ref )
     
     if( obj )
     {
-        DKAtomicIncrement( &obj->_refcount );
+        DKAtomicIncrement( &obj->refcount );
     }
 
     return ref;
@@ -123,14 +208,14 @@ void DKObjectRelease( DKTypeRef ref )
 
     if( obj )
     {
-        DKAtomicInt n = DKAtomicDecrement( &obj->_refcount );
+        DKAtomicInt n = DKAtomicDecrement( &obj->refcount );
         
         assert( n >= 0 );
         
         if( n == 0 )
         {
-            const DKObjectInterface * objectInterface = obj->_isa;
-            objectInterface->finalize( obj );
+            const DKClass * classObject = obj->isa;
+            classObject->finalize( obj );
             DKFree( obj );
         }
     }
@@ -151,7 +236,6 @@ DKTypeRef DKObjectAllocate( void )
 //
 DKTypeRef DKObjectInitialize( DKTypeRef ref )
 {
-    // Nothing to do here
     return ref;
 }
 
@@ -161,43 +245,12 @@ DKTypeRef DKObjectInitialize( DKTypeRef ref )
 //
 void DKObjectFinalize( DKTypeRef ref )
 {
-    // Nothing to do here
 }
 
 
 
 
 // DKClass and DKInterface ===============================================================
-
-///
-//  DKClassGetInterface()
-//
-static DKTypeRef DKClassGetInterface( DKTypeRef ref, DKSUID suid )
-{
-    // We should never be able to call this on the root class in normal usage
-    assert( ref != &__DKClassClass__ );
-
-    if( ref )
-    {
-        assert( DKGetClass( ref ) == &__DKClassClass__ );
-        
-        // This makes class.getInterface() the same as calling instance.getInterface()
-        const DKObjectInterface * objectInterface = ref;
-        return objectInterface->getInterface( ref, suid );
-    }
-
-    return NULL;
-}
-
-
-///
-//  DKInterfaceGetInterface()
-//
-static DKTypeRef DKInterfaceGetInterface( DKTypeRef ref, DKSUID suid )
-{
-    return NULL;
-}
-
 
 ///
 //  DKDoNothingRetain()
@@ -217,31 +270,28 @@ void DKDoNothingRelease( DKTypeRef ref )
 
 
 ///
-//  DKDisallowAllocate()
+//  DKDoNothingAllocate()
 //
-DKTypeRef DKDisallowAllocate( void )
+DKTypeRef DKDoNothingAllocate( void )
 {
-    assert( 0 );
     return NULL;
 }
 
 
 ///
-//  DKDisallowInitialize()
+//  DKDoNothingInitialize()
 //
-DKTypeRef DKDisallowInitialize( DKTypeRef ref )
+DKTypeRef DKDoNothingInitialize( DKTypeRef ref )
 {
-    assert( 0 );
     return ref;
 }
 
 
 ///
-//  DKDisallowFinalize()
+//  DKDoNothingFinalize()
 //
-void DKDisallowFinalize( DKTypeRef ref )
+void DKDoNothingFinalize( DKTypeRef ref )
 {
-    assert( 0 );
 }
 
 
@@ -252,15 +302,15 @@ void DKDisallowFinalize( DKTypeRef ref )
 ///
 //  DKNewObject()
 //
-DKTypeRef DKNewObject( DKTypeRef _class, size_t size, int flags )
+DKTypeRef DKNewObject( DKTypeRef _class, size_t size, int attributes )
 {
     assert( _class );
     
     DKObjectHeader * obj = DKAlloc( size );
     
-    obj->_isa = _class;
-    obj->_refcount = 1;
-    obj->_flags = flags;
+    obj->isa = _class;
+    obj->refcount = 1;
+    obj->attributes = attributes;
     
     return obj;
 }
@@ -271,7 +321,7 @@ DKTypeRef DKNewObject( DKTypeRef _class, size_t size, int flags )
 //
 DKTypeRef DKCreate( DKTypeRef _class )
 {
-    const DKObjectInterface * classObject = _class;
+    const DKClass * classObject = _class;
 
     if( classObject )
     {
@@ -289,7 +339,7 @@ DKTypeRef DKGetClass( DKTypeRef ref )
     
     if( obj )
     {
-        return obj->_isa;
+        return obj->isa;
     }
     
     return NULL;
@@ -305,16 +355,25 @@ DKTypeRef DKGetInterface( DKTypeRef ref, DKSUID suid )
     
     if( obj )
     {
-        if( suid == DKObjectInterfaceID )
-        {
-            if( obj->_isa == &__DKClassClass__ )
-                return obj;
-            
-            return obj->_isa;
-        }
+        const DKClass * classObject = obj->isa;
+        return classObject->getInterface( ref, suid );
+    }
+    
+    return NULL;
+}
 
-        const DKObjectInterface * objectInterface = obj->_isa;
-        return objectInterface->getInterface( obj, suid );
+
+///
+//  DKGetMethod()
+//
+DKTypeRef DKGetMethod( DKTypeRef ref, DKSUID suid )
+{
+    const DKObjectHeader * obj = ref;
+    
+    if( obj )
+    {
+        const DKClass * classObject = obj->isa;
+        return classObject->getMethod( ref, suid );
     }
     
     return NULL;
@@ -330,8 +389,8 @@ DKTypeRef DKRetain( DKTypeRef ref )
     
     if( obj )
     {
-        const DKObjectInterface * objectInterface = obj->_isa;
-        return objectInterface->retain( obj );
+        const DKClass * classObject = obj->isa;
+        return classObject->retain( obj );
     }
 
     return ref;
@@ -347,8 +406,8 @@ void DKRelease( DKTypeRef ref )
     
     if( obj )
     {
-        const DKObjectInterface * objectInterface = obj->_isa;
-        objectInterface->release( obj );
+        const DKClass * classObject = obj->isa;
+        classObject->release( obj );
     }
 }
 
@@ -367,8 +426,8 @@ int DKEqual( DKTypeRef a, DKTypeRef b )
 
     if( obj )
     {
-        const DKObjectInterface * objectInterface = obj->_isa;
-        return objectInterface->equal( a, b );
+        const DKClass * classObject = obj->isa;
+        return classObject->equal( a, b );
     }
     
     return 0;
@@ -389,8 +448,8 @@ int DKCompare( DKTypeRef a, DKTypeRef b )
 
     if( obj )
     {
-        const DKObjectInterface * objectInterface = obj->_isa;
-        return objectInterface->compare( a, b );
+        const DKClass * classObject = obj->isa;
+        return classObject->compare( a, b );
     }
     
     return a < b ? -1 : 1;
@@ -406,8 +465,8 @@ DKHashIndex DKHash( DKTypeRef ref )
 
     if( obj )
     {
-        const DKObjectInterface * objectInterface = obj->_isa;
-        return objectInterface->hash( ref );
+        const DKClass * classObject = obj->isa;
+        return classObject->hash( ref );
     }
     
     return 0;
@@ -415,15 +474,15 @@ DKHashIndex DKHash( DKTypeRef ref )
 
 
 ///
-//  DKTestFlag()
+//  DKTestAttribute()
 //
-int DKTestFlag( DKTypeRef ref, int flag )
+int DKTestAttribute( DKTypeRef ref, int attr )
 {
     DKObjectHeader * obj = (DKObjectHeader *)ref;
     
     if( obj )
     {
-        return (obj->_flags & flag) != 0;
+        return (obj->attributes & attr) != 0;
     }
     
     return 0;

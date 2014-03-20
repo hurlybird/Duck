@@ -37,8 +37,6 @@ void TestDKObject( void )
     
     VERIFY( DKGetClass( objectClass ) == &__DKClassClass__ );
     VERIFY( DKGetClass( object ) == objectClass );
-    VERIFY( DKGetClass( object ) == DKGetInterface( object, DKObjectInterfaceID ) );
-    VERIFY( DKGetInterface( objectClass, DKObjectInterfaceID ) == DKGetInterface( object, DKObjectInterfaceID ) );
 
     DKRelease( object );
 }
@@ -120,6 +118,8 @@ void TestDKList( DKTypeRef listClass )
     DKListAppendValue( list, d );
     
     VERIFY( DKListGetCount( list ) == 4 );
+    
+    DKIndex n = DKCallMethod( list, Count );
     
     VERIFY( DKListGetFirstIndexOfValue( list, a ) == 0 );
     VERIFY( DKListGetFirstIndexOfValue( list, b ) == 1 );

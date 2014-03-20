@@ -9,7 +9,7 @@
 #include "DKList.h"
 
 
-DKDefineSUID( DKListInterfaceID );
+DKDefineSUID( DKListInterfaceID, "B5CCEBD4-8C90-4E96-AF58-EAB94ECC42A1" );
 
 
 ///
@@ -65,7 +65,7 @@ const DKListCallbacks * DKListIndexCallbacks( void )
 //
 DKIndex DKListGetCount( DKListRef ref )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -83,7 +83,7 @@ DKIndex DKListGetCountOfValue( DKListRef ref, const void * value )
 {
     DKIndex count = 0;
 
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -111,7 +111,7 @@ DKIndex DKListGetCountOfValue( DKListRef ref, const void * value )
 //
 DKIndex DKListGetFirstIndexOfValue( DKListRef ref, const void * value )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -139,7 +139,7 @@ DKIndex DKListGetFirstIndexOfValue( DKListRef ref, const void * value )
 //
 DKIndex DKListGetLastIndexOfValue( DKListRef ref, const void * value )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -169,7 +169,7 @@ const void * DKListGetValueAtIndex( DKListRef ref, DKIndex index )
 {
     const void * value = NULL;
 
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -185,7 +185,7 @@ const void * DKListGetValueAtIndex( DKListRef ref, DKIndex index )
 //
 DKIndex DKListGetValues( DKListRef ref, DKRange range, const void ** values )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -201,7 +201,7 @@ DKIndex DKListGetValues( DKListRef ref, DKRange range, const void ** values )
 //
 void DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * context )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -224,7 +224,7 @@ void DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * 
 //
 void DKListAppendValue( DKMutableListRef ref, const void * value )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -239,7 +239,7 @@ void DKListAppendValue( DKMutableListRef ref, const void * value )
 //
 void DKListSetValueAtIndex( DKMutableListRef ref, DKIndex index, const void * value )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -254,7 +254,7 @@ void DKListSetValueAtIndex( DKMutableListRef ref, DKIndex index, const void * va
 //
 void DKListInsertValueAtIndex( DKMutableListRef ref, DKIndex index, const void * value )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -269,7 +269,7 @@ void DKListInsertValueAtIndex( DKMutableListRef ref, DKIndex index, const void *
 //
 void DKListReplaceValues( DKMutableListRef ref, DKRange range, const void ** values, DKIndex count )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -283,7 +283,7 @@ void DKListReplaceValues( DKMutableListRef ref, DKRange range, const void ** val
 //
 void DKListReplaceValuesWithList( DKMutableListRef ref, DKRange range, DKListRef srcList )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -297,7 +297,7 @@ void DKListReplaceValuesWithList( DKMutableListRef ref, DKRange range, DKListRef
 //
 void DKListRemoveValueAtIndex( DKMutableListRef ref, DKIndex index )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {
@@ -312,7 +312,7 @@ void DKListRemoveValueAtIndex( DKMutableListRef ref, DKIndex index )
 //
 void DKListRemoveAllValues( DKMutableListRef ref )
 {
-    DKListInterfaceRef list = DKGetInterface( ref, DKListInterfaceID );
+    DKListInterfaceRef list = DKGetInterface( ref, &DKListInterfaceID );
     
     if( list )
     {

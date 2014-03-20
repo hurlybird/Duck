@@ -9,7 +9,7 @@
 #include "DKCopying.h"
 
 
-DKDefineSUID( DKCopyingInterfaceID );
+DKDefineSUID( DKCopyingInterfaceID, "A29F6AD3-8BC5-40E1-A5AC-40B01B54256D" );
 
 
 ///
@@ -21,7 +21,7 @@ DKTypeRef DKCopy( DKTypeRef ref )
     
     if( obj )
     {
-        const DKCopyingInterface * copyingInterface = DKGetInterface( obj, DKCopyingInterfaceID );
+        const DKCopyingInterface * copyingInterface = DKGetInterface( obj, &DKCopyingInterfaceID );
         return copyingInterface->copy( obj );
     }
 
@@ -38,7 +38,7 @@ DKTypeRef DKMutableCopy( DKTypeRef ref )
     
     if( obj )
     {
-        const DKCopyingInterface * copyingInterface = DKGetInterface( obj, DKCopyingInterfaceID );
+        const DKCopyingInterface * copyingInterface = DKGetInterface( obj, &DKCopyingInterfaceID );
         return copyingInterface->mutableCopy( obj );
     }
 

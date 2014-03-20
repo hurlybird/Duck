@@ -40,8 +40,6 @@ struct DKLinkedList
 };
 
 
-static DKTypeRef    DKLinkedListGetInterface( DKTypeRef ref, DKSUID suid );
-static DKTypeRef    DKMutableLinkedListGetInterface( DKTypeRef ref, DKSUID suid );
 static DKTypeRef    DKLinkedListAllocate( void );
 static DKTypeRef    DKMutableLinkedListAllocate( void );
 static DKTypeRef    DKLinkedListInitialize( DKTypeRef ref );
@@ -51,11 +49,60 @@ static DKTypeRef    DKMutableLinkedListCopy( DKTypeRef ref );
 static DKTypeRef    DKLinkedListMutableCopy( DKTypeRef ref );
 
 
-static const DKObjectInterface __DKLinkedListClass__ =
-{
-    DK_CLASS_OBJECT,
+DKDefineMethod( DKIndex, Count );
 
-    DKLinkedListGetInterface,
+
+// DKLinkedList Class ====================================================================
+
+static const DKListInterface __DKLinkedListListInterface__ =
+{
+    DK_STATIC_INTERFACE_OBJECT,
+    
+    DKLinkedListGetCallbacks,
+    DKLinkedListGetCount,
+    DKLinkedListGetValues,
+    DKLinkedListReplaceValues,
+    DKLinkedListReplaceValuesWithList
+};
+
+static const DKCopyingInterface __DKLinkedListCopyingInterface__ =
+{
+    DK_STATIC_INTERFACE_OBJECT,
+    
+    DKLinkedListCopy,
+    DKLinkedListMutableCopy
+};
+
+static const DKMethodImp __DKLinkedListCountMethod__ =
+{
+    DK_STATIC_METHOD_OBJECT,
+    
+    DKLinkedListGetCount
+};
+
+static const DKInterface __DKLinkedListInterfaces__[] =
+{
+    { &DKListInterfaceID, &__DKLinkedListListInterface__ },
+    { &DKCopyingInterfaceID, &__DKLinkedListCopyingInterface__ },
+    DK_INTERFACE_TABLE_END
+};
+
+static const DKMethod __DKLinkedListMethods__[] =
+{
+    { &DKSelector_Count, &__DKLinkedListCountMethod__ },
+    DK_METHOD_TABLE_END
+};
+
+static const DKClass __DKLinkedListClass__ =
+{
+    DK_STATIC_CLASS_OBJECT,
+
+    __DKLinkedListInterfaces__,
+    __DKLinkedListMethods__,
+    DK_EMPTY_PROPERTY_TABLE,
+    
+    DKObjectGetInterface,
+    DKObjectGetMethod,
     
     DKObjectRetain,
     DKObjectRelease,
@@ -70,20 +117,34 @@ static const DKObjectInterface __DKLinkedListClass__ =
 };
 
 
-static const DKCopyingInterface __DKLinkedListCopyingInterface__ =
+
+// DKMutableLinkedList Class =============================================================
+
+static const DKCopyingInterface __DKMutableLinkedListCopyingInterface__ =
 {
-    DK_INTERFACE_OBJECT,
+    DK_STATIC_INTERFACE_OBJECT,
     
-    DKLinkedListCopy,
+    DKMutableLinkedListCopy,
     DKLinkedListMutableCopy
 };
 
-
-static const DKObjectInterface __DKMutableLinkedListClass__ =
+static const DKInterface __DKMutableLinkedListInterfaces__[] =
 {
-    DK_CLASS_OBJECT,
+    { &DKListInterfaceID, &__DKLinkedListListInterface__ },
+    { &DKCopyingInterfaceID, &__DKMutableLinkedListCopyingInterface__ },
+    DK_INTERFACE_TABLE_END
+};
 
-    DKMutableLinkedListGetInterface,
+static const DKClass __DKMutableLinkedListClass__ =
+{
+    DK_STATIC_CLASS_OBJECT,
+
+    __DKMutableLinkedListInterfaces__,
+    __DKLinkedListMethods__,
+    DK_EMPTY_PROPERTY_TABLE,
+    
+    DKObjectGetInterface,
+    DKObjectGetMethod,
     
     DKObjectRetain,
     DKObjectRelease,
@@ -95,27 +156,6 @@ static const DKObjectInterface __DKMutableLinkedListClass__ =
     DKPtrEqual,
     DKPtrCompare,
     DKPtrHash
-};
-
-
-static const DKCopyingInterface __DKMutableLinkedListCopyingInterface__ =
-{
-    DK_INTERFACE_OBJECT,
-    
-    DKMutableLinkedListCopy,
-    DKLinkedListMutableCopy
-};
-
-
-static const DKListInterface __DKLinkedListListInterface__ =
-{
-    DK_INTERFACE_OBJECT,
-    
-    DKLinkedListGetCallbacks,
-    DKLinkedListGetCount,
-    DKLinkedListGetValues,
-    DKLinkedListReplaceValues,
-    DKLinkedListReplaceValuesWithList
 };
 
 
@@ -142,42 +182,6 @@ DKTypeRef DKLinkedListClass( void )
 DKTypeRef DKMutableLinkedListClass( void )
 {
     return &__DKMutableLinkedListClass__;
-}
-
-
-///
-//  DKLinkedListGetInterface()
-//
-static DKTypeRef DKLinkedListGetInterface( DKTypeRef ref, DKSUID suid )
-{
-    if( suid == DKObjectInterfaceID )
-        return &__DKLinkedListClass__;
-    
-    if( suid == DKListInterfaceID )
-        return &__DKLinkedListListInterface__;
-    
-    if( suid == DKCopyingInterfaceID )
-        return &__DKLinkedListCopyingInterface__;
-
-    return NULL;
-}
-
-
-///
-//  DKMutableLinkedListGetInterface()
-//
-static DKTypeRef DKMutableLinkedListGetInterface( DKTypeRef ref, DKSUID suid )
-{
-    if( suid == DKObjectInterfaceID )
-        return &__DKMutableLinkedListClass__;
-    
-    if( suid == DKListInterfaceID )
-        return &__DKLinkedListListInterface__;
-    
-    if( suid == DKCopyingInterfaceID )
-        return &__DKMutableLinkedListCopyingInterface__;
-    
-    return NULL;
 }
 
 
@@ -534,7 +538,7 @@ static void DKLinkedListReplaceValuesWithListInternal( struct DKLinkedList * lis
 {
     DKLinkedListRemoveValues( list, range );
 
-    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKListInterfaceID );
+    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, &DKListInterfaceID );
     assert( srcListInterface );
     
     DKIndex count = srcListInterface->getCount( srcList );
@@ -577,7 +581,7 @@ DKListRef DKLinkedListCreateCopy( DKListRef srcList )
 {
     struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKLinkedListClass() );
     
-    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKListInterfaceID );
+    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, &DKListInterfaceID );
     assert( srcListInterface );
 
     list->callbacks = *srcListInterface->getCallbacks( srcList );
@@ -609,7 +613,7 @@ DKMutableListRef DKLinkedListCreateMutableCopy( DKListRef srcList )
 {
     struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKMutableLinkedListClass() );
     
-    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKListInterfaceID );
+    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, &DKListInterfaceID );
     assert( srcListInterface );
 
     list->callbacks = *srcListInterface->getCallbacks( srcList );
@@ -677,7 +681,7 @@ void DKLinkedListReplaceValues( DKMutableListRef ref, DKRange range, const void 
 {
     if( ref )
     {
-        if( !DKTestFlag( ref, DKObjectMutable ) )
+        if( !DKTestAttribute( ref, DKObjectMutable ) )
         {
             assert( 0 );
             return;
@@ -696,7 +700,7 @@ void DKLinkedListReplaceValuesWithList( DKMutableListRef ref, DKRange range, DKL
 {
     if( ref )
     {
-        if( !DKTestFlag( ref, DKObjectMutable ) )
+        if( !DKTestAttribute( ref, DKObjectMutable ) )
         {
             assert( 0 );
             return;

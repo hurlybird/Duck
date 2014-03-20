@@ -31,6 +31,9 @@ void    DKLinkedListReplaceValues( DKMutableListRef ref, DKRange range, const vo
 void    DKLinkedListReplaceValuesWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
 
 
+DKDeclareMethod( DKIndex, Count );
+
+
 #endif // _DK_LINKED_LIST_H_
 
 

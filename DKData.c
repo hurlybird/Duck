@@ -16,7 +16,6 @@ struct DKData
 };
 
 
-static DKTypeRef    DKDataGetInterface( DKTypeRef ref, DKSUID suid );
 static DKTypeRef    DKDataAllocate( void );
 static DKTypeRef    DKMutableDataAllocate( void );
 static DKTypeRef    DKDataInitialize( DKTypeRef ref );
@@ -29,11 +28,33 @@ int                 DKDataCompare( DKTypeRef a, DKTypeRef b );
 DKHashIndex         DKDataHash( DKTypeRef ref );
 
 
-static const DKObjectInterface __DKDataClass__ =
-{
-    DK_CLASS_OBJECT,
 
-    DKDataGetInterface,
+
+// DKData Class ==========================================================================
+static const DKCopyingInterface __DKDataCopyingInterface__ =
+{
+    DK_STATIC_INTERFACE_OBJECT,
+    
+    DKDataCopy,
+    DKDataMutableCopy
+};
+
+static const DKInterface __DKDataInterfaces__[] =
+{
+    { &DKCopyingInterfaceID, &__DKDataCopyingInterface__ },
+    DK_INTERFACE_TABLE_END
+};
+
+static const DKClass __DKDataClass__ =
+{
+    DK_STATIC_CLASS_OBJECT,
+
+    __DKDataInterfaces__,
+    DK_EMPTY_METHOD_TABLE,
+    DK_EMPTY_PROPERTY_TABLE,
+    
+    DKObjectGetInterface,
+    DKObjectGetMethod,
     
     DKObjectRetain,
     DKObjectRelease,
@@ -48,20 +69,33 @@ static const DKObjectInterface __DKDataClass__ =
 };
 
 
-static const DKCopyingInterface __DKDataCopyingInterface__ =
+
+
+// DKMutableData Class ===================================================================
+static const DKCopyingInterface __DKMutableDataCopyingInterface__ =
 {
-    DK_INTERFACE_OBJECT,
+    DK_STATIC_INTERFACE_OBJECT,
     
-    DKDataCopy,
+    DKMutableDataCopy,
     DKDataMutableCopy
 };
 
-
-static const DKObjectInterface __DKMutableDataClass__ =
+static const DKInterface __DKMutableDataInterfaces__[] =
 {
-    DK_CLASS_OBJECT,
+    { &DKCopyingInterfaceID, &__DKMutableDataCopyingInterface__ },
+    DK_INTERFACE_TABLE_END
+};
 
-    DKDataGetInterface,
+static const DKClass __DKMutableDataClass__ =
+{
+    DK_STATIC_CLASS_OBJECT,
+
+    __DKMutableDataInterfaces__,
+    DK_EMPTY_METHOD_TABLE,
+    DK_EMPTY_PROPERTY_TABLE,
+    
+    DKObjectGetInterface,
+    DKObjectGetMethod,
     
     DKObjectRetain,
     DKObjectRelease,
@@ -76,18 +110,9 @@ static const DKObjectInterface __DKMutableDataClass__ =
 };
 
 
-static const DKCopyingInterface __DKMutableDataCopyingInterface__ =
-{
-    DK_INTERFACE_OBJECT,
-    
-    DKMutableDataCopy,
-    DKDataMutableCopy
-};
 
 
-
-
-// DKObject Interface ====================================================================
+// Class Methods =========================================================================
 
 ///
 //  DKDataClass()
@@ -104,36 +129,6 @@ DKTypeRef DKDataClass( void )
 DKTypeRef DKMutableDataClass( void )
 {
     return &__DKMutableDataClass__;
-}
-
-
-///
-//  DKDataGetInterface()
-//
-static DKTypeRef DKDataGetInterface( DKTypeRef ref, DKSUID suid )
-{
-    if( suid == DKObjectInterfaceID )
-        return &__DKDataClass__;
-
-    if( suid == DKCopyingInterfaceID )
-        return &__DKDataCopyingInterface__;
-    
-    return NULL;
-}
-
-
-///
-//  DKMutableDataGetInterface()
-//
-static DKTypeRef DKMutableDataGetInterface( DKTypeRef ref, DKSUID suid )
-{
-    if( suid == DKObjectInterfaceID )
-        return &__DKMutableDataClass__;
-        
-    if( suid == DKCopyingInterfaceID )
-        return &__DKMutableDataCopyingInterface__;
-
-    return NULL;
 }
 
 
@@ -181,7 +176,7 @@ static void DKDataFinalize( DKTypeRef ref )
     {
         struct DKData * data = (struct DKData *)ref;
         
-        if( !DKTestFlag( data, DKObjectExternalStorage ) )
+        if( !DKTestAttribute( data, DKObjectExternalStorage ) )
         {
             DKMemorySegmentClear( &data->segment );
         }
@@ -447,7 +442,7 @@ void * DKDataGetMutableBytePtr( DKMutableDataRef ref )
 {
     if( ref )
     {
-        if( !DKTestFlag( ref, DKObjectMutable ) )
+        if( !DKTestAttribute( ref, DKObjectMutable ) )
         {
             assert( 0 );
             return NULL;
@@ -467,7 +462,7 @@ void * DKDataGetMutableByteRange( DKMutableDataRef ref, DKRange range )
 {
     if( ref )
     {
-        if( !DKTestFlag( ref, DKObjectMutable ) )
+        if( !DKTestAttribute( ref, DKObjectMutable ) )
         {
             assert( 0 );
             return NULL;
