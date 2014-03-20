@@ -11,7 +11,7 @@
 
 #include "DKObject.h"
 
-DKDeclareSUID( DKCopyingInterfaceID );
+DKDeclareInterface( DKCopying );
 
 typedef struct
 {

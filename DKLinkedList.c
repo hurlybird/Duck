@@ -56,7 +56,7 @@ DKDefineMethod( DKIndex, Count );
 
 static const DKListInterface __DKLinkedListListInterface__ =
 {
-    DKStaticInterfaceObject( DKListInterfaceID ),
+    DKStaticInterfaceObject( DKList ),
     
     DKLinkedListGetCallbacks,
     DKLinkedListGetCount,
@@ -67,17 +67,21 @@ static const DKListInterface __DKLinkedListListInterface__ =
 
 static const DKCopyingInterface __DKLinkedListCopyingInterface__ =
 {
-    DKStaticInterfaceObject( DKCopyingInterfaceID ),
+    DKStaticInterfaceObject( DKCopying ),
     
     DKLinkedListCopy,
     DKLinkedListMutableCopy
 };
 
+static DKIndex DKLinkedListGetCountMethod( DKTypeRef ref, DKSEL sel )
+{
+    return DKLinkedListGetCount( ref );
+}
+
 static const DKMethod __DKLinkedListCountMethod__ =
 {
-    DKStaticMethodObject( DKSelector_Count ),
-    
-    DKLinkedListGetCount
+    DKStaticMethodObject( Count ),
+    DKLinkedListGetCountMethod
 };
 
 static DKTypeRef __DKLinkedListInterfaces__[] =
@@ -120,7 +124,7 @@ static const DKClass __DKLinkedListClass__ =
 
 static const DKCopyingInterface __DKMutableLinkedListCopyingInterface__ =
 {
-    DKStaticInterfaceObject( DKCopyingInterfaceID ),
+    DKStaticInterfaceObject( DKCopying ),
     
     DKMutableLinkedListCopy,
     DKLinkedListMutableCopy
@@ -535,7 +539,7 @@ static void DKLinkedListReplaceValuesWithListInternal( struct DKLinkedList * lis
 {
     DKLinkedListRemoveValues( list, range );
 
-    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, &DKListInterfaceID );
+    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKSelector( DKList ) );
     assert( srcListInterface );
     
     DKIndex count = srcListInterface->getCount( srcList );
@@ -578,7 +582,7 @@ DKListRef DKLinkedListCreateCopy( DKListRef srcList )
 {
     struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKLinkedListClass() );
     
-    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, &DKListInterfaceID );
+    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKSelector( DKList ) );
     assert( srcListInterface );
 
     list->callbacks = *srcListInterface->getCallbacks( srcList );
@@ -610,7 +614,7 @@ DKMutableListRef DKLinkedListCreateMutableCopy( DKListRef srcList )
 {
     struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKMutableLinkedListClass() );
     
-    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, &DKListInterfaceID );
+    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKSelector( DKList ) );
     assert( srcListInterface );
 
     list->callbacks = *srcListInterface->getCallbacks( srcList );

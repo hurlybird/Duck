@@ -29,6 +29,8 @@ int main( int argc, const char * argv[] )
     return 0;
 }
 
+DKDeclareMethod( int, BaadFood );
+DKDefineMethod( int, BaadFood );
 
 void TestDKObject( void )
 {
@@ -37,6 +39,8 @@ void TestDKObject( void )
     
     VERIFY( DKGetClass( objectClass ) == &__DKClassClass__ );
     VERIFY( DKGetClass( object ) == objectClass );
+
+    DKCallMethod( object, BaadFood );
 
     DKRelease( object );
 }

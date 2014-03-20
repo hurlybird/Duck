@@ -35,6 +35,29 @@ const DKClass __DKClassClass__ =
     DKObjectHash
 };
 
+const DKClass __DKSelectorClass__ =
+{
+    DK_STATIC_CLASS_OBJECT,
+
+    DKEmptyInterfaceTable(),
+    DKEmptyMethodTable(),
+    DKEmptyPropertyTable(),
+    
+    DKObjectGetInterface,
+    DKObjectGetMethod,
+    
+    DKDoNothingRetain,
+    DKDoNothingRelease,
+    
+    DKDoNothingAllocate,
+    DKDoNothingInitialize,
+    DKDoNothingFinalize,
+
+    DKObjectEqual,
+    DKObjectCompare,
+    DKObjectHash
+};
+
 const DKClass __DKInterfaceClass__ =
 {
     DK_STATIC_CLASS_OBJECT,
@@ -113,7 +136,7 @@ const DKClass __DKObjectClass__ =
 ///
 //  DKObjectGetInterface()
 //
-DKTypeRef DKObjectGetInterface( DKTypeRef ref, DKSUID suid )
+DKTypeRef DKObjectGetInterface( DKTypeRef ref, DKSEL sel )
 {
     const DKObjectHeader * obj = ref;
     
@@ -125,7 +148,7 @@ DKTypeRef DKObjectGetInterface( DKTypeRef ref, DKSUID suid )
         {
             const DKInterface * interface = classObject->interfaces[i];
         
-            if( interface->suid == suid )
+            if( interface->sel == sel )
                 return interface;
         }
 
@@ -133,7 +156,7 @@ DKTypeRef DKObjectGetInterface( DKTypeRef ref, DKSUID suid )
         {
             const DKInterface * interface = classObject->interfaces[i];
 
-            if( strcmp( interface->suid->selector, suid->selector ) == 0 )
+            if( strcmp( interface->sel->suid, sel->suid ) == 0 )
                 return interface;
         }
     }
@@ -145,7 +168,7 @@ DKTypeRef DKObjectGetInterface( DKTypeRef ref, DKSUID suid )
 ///
 //  DKObjectGetMethod()
 //
-DKTypeRef DKObjectGetMethod( DKTypeRef ref, DKSUID suid )
+DKTypeRef DKObjectGetMethod( DKTypeRef ref, DKSEL sel )
 {
     const DKObjectHeader * obj = ref;
     
@@ -157,7 +180,7 @@ DKTypeRef DKObjectGetMethod( DKTypeRef ref, DKSUID suid )
         {
             const DKMethod * method = classObject->methods[i];
         
-            if( method->suid == suid )
+            if( method->sel == sel )
                 return method;
         }
 
@@ -165,7 +188,7 @@ DKTypeRef DKObjectGetMethod( DKTypeRef ref, DKSUID suid )
         {
             const DKMethod * method = classObject->methods[i];
 
-            if( strcmp( method->suid->selector, suid->selector ) == 0 )
+            if( strcmp( method->sel->suid, sel->suid ) == 0 )
                 return method;
         }
     }
@@ -340,14 +363,14 @@ DKTypeRef DKGetClass( DKTypeRef ref )
 ///
 //  DKGetInterface()
 //
-DKTypeRef DKGetInterface( DKTypeRef ref, DKSUID suid )
+DKTypeRef DKGetInterface( DKTypeRef ref, DKSEL sel )
 {
     const DKObjectHeader * obj = ref;
     
     if( obj )
     {
         const DKClass * classObject = obj->isa;
-        return classObject->getInterface( ref, suid );
+        return classObject->getInterface( ref, sel );
     }
     
     return NULL;
@@ -357,17 +380,31 @@ DKTypeRef DKGetInterface( DKTypeRef ref, DKSUID suid )
 ///
 //  DKGetMethod()
 //
-DKTypeRef DKGetMethod( DKTypeRef ref, DKSUID suid )
+static void DKMethodNotFoundProc( DKTypeRef ref, DKSEL sel )
 {
+    assert( 0 );
+}
+
+static const DKMethod DKMethodNotFound =
+{
+    { &__DKMethodClass__, 1 },
+    NULL,
+    DKMethodNotFoundProc
+};
+
+DKTypeRef DKGetMethod( DKTypeRef ref, DKSEL sel )
+{
+    DKTypeRef method = NULL;
+    
     const DKObjectHeader * obj = ref;
     
     if( obj )
     {
         const DKClass * classObject = obj->isa;
-        return classObject->getMethod( ref, suid );
+        method = classObject->getMethod( ref, sel );
     }
     
-    return NULL;
+    return method ? method : &DKMethodNotFound;
 }
 
 

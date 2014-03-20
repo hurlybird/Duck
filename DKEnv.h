@@ -20,19 +20,6 @@
 typedef const void * DKTypeRef;
 
 
-// SUID
-struct DKSUID
-{
-    const char * name;
-    const char * selector;
-};
-
-typedef const struct DKSUID * DKSUID;
-
-#define DKDeclareSUID( name )       extern struct DKSUID name
-#define DKDefineSUID( name, uuid )  struct DKSUID name = { #name, uuid }
-
-
 // Index Types
 typedef intptr_t DKIndex;
 typedef uintptr_t DKHashIndex;

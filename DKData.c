@@ -33,7 +33,7 @@ DKHashIndex         DKDataHash( DKTypeRef ref );
 // DKData Class ==========================================================================
 static const DKCopyingInterface __DKDataCopyingInterface__ =
 {
-    DKStaticInterfaceObject( DKCopyingInterfaceID ),
+    DKStaticInterfaceObject( DKCopying ),
     
     DKDataCopy,
     DKDataMutableCopy
@@ -73,7 +73,7 @@ static const DKClass __DKDataClass__ =
 // DKMutableData Class ===================================================================
 static const DKCopyingInterface __DKMutableDataCopyingInterface__ =
 {
-    DKStaticInterfaceObject( DKCopyingInterfaceID ),
+    DKStaticInterfaceObject( DKCopying ),
     
     DKMutableDataCopy,
     DKDataMutableCopy

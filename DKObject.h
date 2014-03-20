@@ -27,28 +27,56 @@ enum
 };
 
 
+struct DKSEL
+{
+    const DKObjectHeader    obj;
+    const char *            name;
+    const char *            suid;
+};
+
+typedef const struct DKSEL * DKSEL;
+
+#define DKSelector( name )  &(DKSelector_ ## name)
+
+
 typedef struct
 {
-    const DKObjectHeader    _obj;
-    DKSUID                  suid;
+    const DKObjectHeader    obj;
+    DKSEL                   sel;
     
 } DKInterface;
 
+#define DKDeclareInterface( name )              \
+    extern struct DKSEL DKSelector_ ## name
+
+#define DKDefineInterface( name )               \
+    struct DKSEL DKSelector_ ## name =          \
+    {                                           \
+        { &__DKSelectorClass__, 1 },            \
+        #name,                                  \
+        #name                                   \
+    }
+
 
 typedef struct
 {
-    const DKObjectHeader    _obj;
-    DKSUID                  suid;
+    const DKObjectHeader    obj;
+    DKSEL                   sel;
     const void *            imp;
     
 } DKMethod;
 
-#define DKDeclareMethod( ret, name, ... )       \
-    extern struct DKSUID DKSelector_ ## name;   \
-    typedef ret (*name)( __VA_ARGS__ )
+#define DKDeclareMethod( ret, name, ... )               \
+    extern struct DKSEL DKSelector_ ## name;            \
+    typedef ret (*name)( DKTypeRef, DKSEL , ## __VA_ARGS__ )
 
-#define DKDefineMethod( ret, name, ... )        \
-    struct DKSUID DKSelector_ ## name = { #name, #ret " " #name "( " #__VA_ARGS__ " )" }
+#define DKDefineMethod( ret, name, ... )                \
+    struct DKSEL DKSelector_ ## name =                  \
+    {                                                   \
+        { &__DKSelectorClass__, 1 },                    \
+        #name,                                          \
+        #ret " " #name "( " #__VA_ARGS__ " )"           \
+    }
 
 typedef enum
 {
@@ -83,7 +111,7 @@ typedef struct DKProperty
     size_t                  offset;
     size_t                  size;
     size_t                  count;
-    DKSUID                  interface;
+    DKSEL                   interface;
 
     void (*setter)( DKTypeRef ref, const struct DKProperty * property, const void * value );
     void (*getter)( DKTypeRef ref, const struct DKProperty * property, void * value );
@@ -105,8 +133,8 @@ typedef struct
     size_t      propertyCount;
     
     // Get interfaces/methods/properties
-    DKTypeRef   (* const getInterface)( DKTypeRef ref, DKSUID suid );
-    DKTypeRef   (* const getMethod)( DKTypeRef ref, DKSUID suid );
+    DKTypeRef   (* const getInterface)( DKTypeRef ref, DKSEL sel );
+    DKTypeRef   (* const getMethod)( DKTypeRef ref, DKSEL sel );
     
     // Life-Cycle
     DKTypeRef   (* const retain)( DKTypeRef ref );
@@ -129,14 +157,17 @@ extern const DKClass __DKClassClass__;
 #define DKClassClass()                      ((DKTypeRef)&__DKClassClass__)
 
 
+extern const DKClass __DKSelectorClass__;
+
+
 extern const DKClass __DKInterfaceClass__;
-#define DKStaticInterfaceObject( suid )     { { &__DKInterfaceClass__, 1 }, &suid }
-#define DKInterfaceClass()                  ((DKTypeRef)&__DKInterfaceClass__)
+#define DKStaticInterfaceObject( interface )    { { &__DKInterfaceClass__, 1 }, &(DKSelector_ ## interface) }
+#define DKInterfaceClass()                      ((DKTypeRef)&__DKInterfaceClass__)
 
 
 extern const DKClass __DKMethodClass__;
-#define DKStaticMethodObject( suid )        { &__DKMethodClass__, 1 }, &suid
-#define DKMethodClass()                     ((DKTypeRef)&__DKMethodClass__)
+#define DKStaticMethodObject( method )          { &__DKMethodClass__, 1 }, &(DKSelector_ ## method)
+#define DKMethodClass()                         ((DKTypeRef)&__DKMethodClass__)
 
 
 extern const DKClass __DKObjectClass__;
@@ -156,8 +187,8 @@ extern const DKClass __DKObjectClass__;
 
 
 // Concrete DKObjectInterface Implementation
-DKTypeRef   DKObjectGetInterface( DKTypeRef ref, DKSUID suid );
-DKTypeRef   DKObjectGetMethod( DKTypeRef ref, DKSUID suid );
+DKTypeRef   DKObjectGetInterface( DKTypeRef ref, DKSEL sel );
+DKTypeRef   DKObjectGetMethod( DKTypeRef ref, DKSEL sel );
 
 DKTypeRef   DKObjectRetain( DKTypeRef ref );
 void        DKObjectRelease( DKTypeRef ref );
@@ -187,8 +218,8 @@ DKTypeRef   DKNewObject( DKTypeRef _class, size_t size, int flags );
 DKTypeRef   DKCreate( DKTypeRef _class );
 
 DKTypeRef   DKGetClass( DKTypeRef ref );
-DKTypeRef   DKGetInterface( DKTypeRef ref, DKSUID suid );
-DKTypeRef   DKGetMethod( DKTypeRef ref, DKSUID suid );
+DKTypeRef   DKGetInterface( DKTypeRef ref, DKSEL sel );
+DKTypeRef   DKGetMethod( DKTypeRef ref, DKSEL sel );
 
 DKTypeRef   DKRetain( DKTypeRef ref );
 void        DKRelease( DKTypeRef ref );
@@ -202,7 +233,7 @@ int         DKTestAttribute( DKTypeRef ref, int attr );
 #define     DKIsMutable( ref )  DKTestAttribute( (ref), DKObjectMutable )
 
 
-#define DKCallMethod( ref, method, ... )   ((method)((const DKMethod *)DKGetMethod( ref, &DKSelector_ ## method ))->imp)( ref , ## __VA_ARGS__ )
+#define DKCallMethod( ref, method, ... )   ((method)((const DKMethod *)DKGetMethod( ref, &DKSelector_ ## method ))->imp)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
 
 
 

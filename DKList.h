@@ -12,7 +12,7 @@
 #include "DKObject.h"
 
 
-DKDeclareSUID( DKListInterfaceID );
+DKDeclareInterface( DKList );
 
 
 typedef const void * DKListRef;
