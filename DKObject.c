@@ -12,28 +12,13 @@
 
 // Base Classes ==========================================================================
 
-const DKInterface __DKEmptyInterfaceTable__[] =
-{
-    DK_INTERFACE_TABLE_END
-};
-
-const DKMethod __DKEmptyMethodTable__[] =
-{
-    DK_METHOD_TABLE_END
-};
-
-const DKProperty __DKEmptyPropertyTable__[] =
-{
-    DK_PROPERTY_TABLE_END
-};
-
 const DKClass __DKClassClass__ =
 {
     DK_STATIC_CLASS_OBJECT,
     
-    DK_EMPTY_INTERFACE_TABLE,
-    DK_EMPTY_METHOD_TABLE,
-    DK_EMPTY_PROPERTY_TABLE,
+    DKEmptyInterfaceTable(),
+    DKEmptyMethodTable(),
+    DKEmptyPropertyTable(),
     
     DKObjectGetInterface,
     DKObjectGetMethod,
@@ -54,9 +39,9 @@ const DKClass __DKInterfaceClass__ =
 {
     DK_STATIC_CLASS_OBJECT,
 
-    DK_EMPTY_INTERFACE_TABLE,
-    DK_EMPTY_METHOD_TABLE,
-    DK_EMPTY_PROPERTY_TABLE,
+    DKEmptyInterfaceTable(),
+    DKEmptyMethodTable(),
+    DKEmptyPropertyTable(),
     
     DKObjectGetInterface,
     DKObjectGetMethod,
@@ -77,9 +62,9 @@ const DKClass __DKMethodClass__ =
 {
     DK_STATIC_CLASS_OBJECT,
 
-    DK_EMPTY_INTERFACE_TABLE,
-    DK_EMPTY_METHOD_TABLE,
-    DK_EMPTY_PROPERTY_TABLE,
+    DKEmptyInterfaceTable(),
+    DKEmptyMethodTable(),
+    DKEmptyPropertyTable(),
     
     DKObjectGetInterface,
     DKObjectGetMethod,
@@ -101,9 +86,9 @@ const DKClass __DKObjectClass__ =
 {
     DK_STATIC_CLASS_OBJECT,
     
-    DK_EMPTY_INTERFACE_TABLE,
-    DK_EMPTY_METHOD_TABLE,
-    DK_EMPTY_PROPERTY_TABLE,
+    DKEmptyInterfaceTable(),
+    DKEmptyMethodTable(),
+    DKEmptyPropertyTable(),
     
     DKObjectGetInterface,
     DKObjectGetMethod,
@@ -135,18 +120,21 @@ DKTypeRef DKObjectGetInterface( DKTypeRef ref, DKSUID suid )
     if( obj )
     {
         const DKClass * classObject = obj->isa;
-        const DKInterface * interfaces = classObject->interfaces;
         
-        for( int i = 0; interfaces[i].suid != NULL; ++i )
+        for( int i = 0; i < classObject->interfaceCount; ++i )
         {
-            if( interfaces[i].suid == suid )
-                return interfaces[i].interface;
+            const DKInterface * interface = classObject->interfaces[i];
+        
+            if( interface->suid == suid )
+                return interface;
         }
 
-        for( int i = 0; interfaces[i].suid != NULL; ++i )
+        for( int i = 0; i < classObject->interfaceCount; ++i )
         {
-            if( strcmp( interfaces[i].suid->selector, suid->selector ) == 0 )
-                return interfaces[i].interface;
+            const DKInterface * interface = classObject->interfaces[i];
+
+            if( strcmp( interface->suid->selector, suid->selector ) == 0 )
+                return interface;
         }
     }
     
@@ -164,18 +152,21 @@ DKTypeRef DKObjectGetMethod( DKTypeRef ref, DKSUID suid )
     if( obj )
     {
         const DKClass * classObject = obj->isa;
-        const DKMethod * methods = classObject->methods;
         
-        for( int i = 0; methods[i].suid != NULL; ++i )
+        for( int i = 0; i < classObject->methodCount; ++i )
         {
-            if( methods[i].suid == suid )
-                return methods[i].method;
+            const DKMethod * method = classObject->methods[i];
+        
+            if( method->suid == suid )
+                return method;
         }
 
-        for( int i = 0; methods[i].suid != NULL; ++i )
+        for( int i = 0; i < classObject->methodCount; ++i )
         {
-            if( strcmp( methods[i].suid->selector, suid->selector ) == 0 )
-                return methods[i].method;
+            const DKMethod * method = classObject->methods[i];
+
+            if( strcmp( method->suid->selector, suid->selector ) == 0 )
+                return method;
         }
     }
     

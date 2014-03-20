@@ -33,25 +33,24 @@ DKHashIndex         DKDataHash( DKTypeRef ref );
 // DKData Class ==========================================================================
 static const DKCopyingInterface __DKDataCopyingInterface__ =
 {
-    DK_STATIC_INTERFACE_OBJECT,
+    DKStaticInterfaceObject( DKCopyingInterfaceID ),
     
     DKDataCopy,
     DKDataMutableCopy
 };
 
-static const DKInterface __DKDataInterfaces__[] =
+static DKTypeRef __DKDataInterfaces__[] =
 {
-    { &DKCopyingInterfaceID, &__DKDataCopyingInterface__ },
-    DK_INTERFACE_TABLE_END
+    &__DKDataCopyingInterface__
 };
 
 static const DKClass __DKDataClass__ =
 {
     DK_STATIC_CLASS_OBJECT,
 
-    __DKDataInterfaces__,
-    DK_EMPTY_METHOD_TABLE,
-    DK_EMPTY_PROPERTY_TABLE,
+    DKInterfaceTable( __DKDataInterfaces__ ),
+    DKEmptyMethodTable(),
+    DKEmptyPropertyTable(),
     
     DKObjectGetInterface,
     DKObjectGetMethod,
@@ -74,25 +73,24 @@ static const DKClass __DKDataClass__ =
 // DKMutableData Class ===================================================================
 static const DKCopyingInterface __DKMutableDataCopyingInterface__ =
 {
-    DK_STATIC_INTERFACE_OBJECT,
+    DKStaticInterfaceObject( DKCopyingInterfaceID ),
     
     DKMutableDataCopy,
     DKDataMutableCopy
 };
 
-static const DKInterface __DKMutableDataInterfaces__[] =
+static DKTypeRef __DKMutableDataInterfaces__[] =
 {
-    { &DKCopyingInterfaceID, &__DKMutableDataCopyingInterface__ },
-    DK_INTERFACE_TABLE_END
+    &__DKMutableDataCopyingInterface__,
 };
 
 static const DKClass __DKMutableDataClass__ =
 {
     DK_STATIC_CLASS_OBJECT,
 
-    __DKMutableDataInterfaces__,
-    DK_EMPTY_METHOD_TABLE,
-    DK_EMPTY_PROPERTY_TABLE,
+    DKInterfaceTable( __DKMutableDataInterfaces__ ),
+    DKEmptyMethodTable(),
+    DKEmptyPropertyTable(),
     
     DKObjectGetInterface,
     DKObjectGetMethod,

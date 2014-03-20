@@ -41,7 +41,7 @@ const DKListCallbacks * DKListIndexCallbacks( void );
 
 typedef struct
 {
-    const DKObjectHeader _obj;
+    const DKInterface _interface;
 
     const DKListCallbacks * (* const getCallbacks)( DKListRef ref );
 

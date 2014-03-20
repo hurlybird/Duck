@@ -29,25 +29,19 @@ enum
 
 typedef struct
 {
-    DKSUID      suid;
-    DKTypeRef   interface;
+    const DKObjectHeader    _obj;
+    DKSUID                  suid;
     
 } DKInterface;
 
 
 typedef struct
 {
-    DKSUID      suid;
-    DKTypeRef   method;
+    const DKObjectHeader    _obj;
+    DKSUID                  suid;
+    const void *            imp;
     
 } DKMethod;
-
-typedef struct
-{
-    const DKObjectHeader _obj;
-    const void * function;
-
-} DKMethodImp;
 
 #define DKDeclareMethod( ret, name, ... )       \
     extern struct DKSUID DKSelector_ ## name;   \
@@ -81,6 +75,8 @@ enum
 
 typedef struct DKProperty
 {
+    const DKObjectHeader    _obj;
+    
     const char *            name;
     DKPropertyType          type;
     int32_t                 attributes;
@@ -99,9 +95,14 @@ typedef struct
 {
     const DKObjectHeader _obj;
     
-    const DKInterface * interfaces;
-    const DKMethod * methods;
-    const DKProperty * properties;
+    DKTypeRef * interfaces;
+    size_t      interfaceCount;
+    
+    DKTypeRef * methods;
+    size_t      methodCount;
+    
+    DKTypeRef * properties;
+    size_t      propertyCount;
     
     // Get interfaces/methods/properties
     DKTypeRef   (* const getInterface)( DKTypeRef ref, DKSUID suid );
@@ -124,37 +125,34 @@ typedef struct
 
 
 extern const DKClass __DKClassClass__;
-#define DK_STATIC_CLASS_OBJECT      { &__DKClassClass__, 1 }
-#define DKClassClass()              ((DKTypeRef)&__DKClassClass__)
+#define DK_STATIC_CLASS_OBJECT              { &__DKClassClass__, 1 }
+#define DKClassClass()                      ((DKTypeRef)&__DKClassClass__)
 
 
 extern const DKClass __DKInterfaceClass__;
-#define DK_STATIC_INTERFACE_OBJECT  { &__DKInterfaceClass__, 1 }
-#define DKInterfaceClass()          ((DKTypeRef)&__DKInterfaceClass__)
+#define DKStaticInterfaceObject( suid )     { { &__DKInterfaceClass__, 1 }, &suid }
+#define DKInterfaceClass()                  ((DKTypeRef)&__DKInterfaceClass__)
 
 
 extern const DKClass __DKMethodClass__;
-#define DK_STATIC_METHOD_OBJECT     { &__DKMethodClass__, 1 }
-#define DKMethodClass()             ((DKTypeRef)&__DKMethodClass__)
+#define DKStaticMethodObject( suid )        { &__DKMethodClass__, 1 }, &suid
+#define DKMethodClass()                     ((DKTypeRef)&__DKMethodClass__)
 
 
 extern const DKClass __DKObjectClass__;
-#define DKObjectClass()             ((DKTypeRef)&__DKObjectClass__)
+#define DKObjectClass()                     ((DKTypeRef)&__DKObjectClass__)
 
 
-extern const DKInterface __DKEmptyInterfaceTable__[];
-#define DK_EMPTY_INTERFACE_TABLE    __DKEmptyInterfaceTable__
-#define DK_INTERFACE_TABLE_END      { NULL, NULL }
+#define DKInterfaceTable( table )   table, sizeof(table) / sizeof(DKTypeRef)
+#define DKEmptyInterfaceTable()     NULL, 0
 
 
-extern const DKMethod __DKEmptyMethodTable__[];
-#define DK_EMPTY_METHOD_TABLE       __DKEmptyMethodTable__
-#define DK_METHOD_TABLE_END         { NULL, NULL }
+#define DKMethodTable( table )      table, sizeof(table) / sizeof(DKTypeRef)
+#define DKEmptyMethodTable()        NULL, 0
 
 
-extern const DKProperty __DKEmptyPropertyTable__[];
-#define DK_EMPTY_PROPERTY_TABLE     __DKEmptyPropertyTable__
-#define DK_PROPERTY_TABLE_END       { NULL, }
+#define DKPropertyTable( table )    table, sizeof(table) / sizeof(DKTypeRef)
+#define DKEmptyPropertyTable()      NULL, 0
 
 
 // Concrete DKObjectInterface Implementation
@@ -204,7 +202,7 @@ int         DKTestAttribute( DKTypeRef ref, int attr );
 #define     DKIsMutable( ref )  DKTestAttribute( (ref), DKObjectMutable )
 
 
-#define DKCallMethod( ref, method, ... )   ((method)((DKMethodImp *)DKGetMethod( ref, &DKSelector_ ## method ))->function)( ref , ## __VA_ARGS__ )
+#define DKCallMethod( ref, method, ... )   ((method)((const DKMethod *)DKGetMethod( ref, &DKSelector_ ## method ))->imp)( ref , ## __VA_ARGS__ )
 
 
 

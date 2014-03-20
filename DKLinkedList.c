@@ -56,7 +56,7 @@ DKDefineMethod( DKIndex, Count );
 
 static const DKListInterface __DKLinkedListListInterface__ =
 {
-    DK_STATIC_INTERFACE_OBJECT,
+    DKStaticInterfaceObject( DKListInterfaceID ),
     
     DKLinkedListGetCallbacks,
     DKLinkedListGetCount,
@@ -67,39 +67,37 @@ static const DKListInterface __DKLinkedListListInterface__ =
 
 static const DKCopyingInterface __DKLinkedListCopyingInterface__ =
 {
-    DK_STATIC_INTERFACE_OBJECT,
+    DKStaticInterfaceObject( DKCopyingInterfaceID ),
     
     DKLinkedListCopy,
     DKLinkedListMutableCopy
 };
 
-static const DKMethodImp __DKLinkedListCountMethod__ =
+static const DKMethod __DKLinkedListCountMethod__ =
 {
-    DK_STATIC_METHOD_OBJECT,
+    DKStaticMethodObject( DKSelector_Count ),
     
     DKLinkedListGetCount
 };
 
-static const DKInterface __DKLinkedListInterfaces__[] =
+static DKTypeRef __DKLinkedListInterfaces__[] =
 {
-    { &DKListInterfaceID, &__DKLinkedListListInterface__ },
-    { &DKCopyingInterfaceID, &__DKLinkedListCopyingInterface__ },
-    DK_INTERFACE_TABLE_END
+    &__DKLinkedListListInterface__,
+    &__DKLinkedListCopyingInterface__
 };
 
-static const DKMethod __DKLinkedListMethods__[] =
+static DKTypeRef __DKLinkedListMethods__[] =
 {
-    { &DKSelector_Count, &__DKLinkedListCountMethod__ },
-    DK_METHOD_TABLE_END
+    &__DKLinkedListCountMethod__
 };
 
 static const DKClass __DKLinkedListClass__ =
 {
     DK_STATIC_CLASS_OBJECT,
 
-    __DKLinkedListInterfaces__,
-    __DKLinkedListMethods__,
-    DK_EMPTY_PROPERTY_TABLE,
+    DKInterfaceTable( __DKLinkedListInterfaces__ ),
+    DKMethodTable( __DKLinkedListMethods__ ),
+    DKEmptyPropertyTable(),
     
     DKObjectGetInterface,
     DKObjectGetMethod,
@@ -122,26 +120,25 @@ static const DKClass __DKLinkedListClass__ =
 
 static const DKCopyingInterface __DKMutableLinkedListCopyingInterface__ =
 {
-    DK_STATIC_INTERFACE_OBJECT,
+    DKStaticInterfaceObject( DKCopyingInterfaceID ),
     
     DKMutableLinkedListCopy,
     DKLinkedListMutableCopy
 };
 
-static const DKInterface __DKMutableLinkedListInterfaces__[] =
+static DKTypeRef __DKMutableLinkedListInterfaces__[] =
 {
-    { &DKListInterfaceID, &__DKLinkedListListInterface__ },
-    { &DKCopyingInterfaceID, &__DKMutableLinkedListCopyingInterface__ },
-    DK_INTERFACE_TABLE_END
+    &__DKLinkedListListInterface__,
+    &__DKMutableLinkedListCopyingInterface__
 };
 
 static const DKClass __DKMutableLinkedListClass__ =
 {
     DK_STATIC_CLASS_OBJECT,
 
-    __DKMutableLinkedListInterfaces__,
-    __DKLinkedListMethods__,
-    DK_EMPTY_PROPERTY_TABLE,
+    DKInterfaceTable( __DKMutableLinkedListInterfaces__ ),
+    DKMethodTable( __DKLinkedListMethods__ ),
+    DKEmptyPropertyTable(),
     
     DKObjectGetInterface,
     DKObjectGetMethod,

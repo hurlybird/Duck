@@ -15,7 +15,7 @@ DKDeclareSUID( DKCopyingInterfaceID );
 
 typedef struct
 {
-    const DKObjectHeader _obj;
+    const DKInterface _interface;
 
     DKTypeRef   (* const copy)( DKTypeRef ref );
     DKTypeRef   (* const mutableCopy)( DKTypeRef ref );
