@@ -23,21 +23,33 @@ typedef const struct DKObjectHeader DKObjectHeader;
 
 enum
 {
-    // The objec is statically allocated
-    DKObjectIsStatic =          (1 << 0),
+    // The lower byte is reserved for fast lookup indexes
+    DKFastLookupIndexMask =         0xFF,
+    
+    DKFastLookupLifeCycle =         1,
+    DKFastLookupReferenceCounting,
+    DKFastLookupIntrospection,
+    DKFastLookupComparison,
+    DKFastLookupList,
+    DKFastLookupDictionary,
+    
+    DKFastLookupTableSize =         16,
+
+    // The object is statically allocated
+    DKObjectIsStatic =              (1 << 8),
     
     // The object is mutable
-    DKObjectIsMutable =         (1 << 1),
+    DKObjectIsMutable =             (1 << 9),
     
     // The object content is allocated inline with the object structure
-    DKObjectContentIsInline =   (1 << 2),
+    DKObjectContentIsInline =       (1 << 10),
     
     // The object content is managed externally
-    DKObjectContentIsExternal = (1 << 3)
+    DKObjectContentIsExternal =     (1 << 11)
 };
 
 #define DKTestObjectAttribute( ref, attr )  ((((const DKObjectHeader *)(ref))->attributes & (attr)) != 0)
-
+#define DKFastLookupIndex( ref )            (((const DKObjectHeader *)(ref))->attributes & DKFastLookupIndexMask)
 
 
 
@@ -67,15 +79,23 @@ struct DKInterface
 
 typedef const struct DKInterface DKInterface;
 
-#define DKDeclareInterface( name )                      \
+#define DKDeclareInterface( name )                                                      \
     extern struct DKSEL DKSelector_ ## name
 
-#define DKDefineInterface( name )                       \
-    struct DKSEL DKSelector_ ## name =                  \
-    {                                                   \
-        { &__DKSelectorClass__, 1, DKObjectIsStatic },  \
-        #name,                                          \
-        #name                                           \
+#define DKDefineInterface( name )                                                       \
+    struct DKSEL DKSelector_ ## name =                                                  \
+    {                                                                                   \
+        { &__DKSelectorClass__, 1, DKObjectIsStatic },                                  \
+        #name,                                                                          \
+        #name                                                                           \
+    }
+
+#define DKDefineFastLookupInterface( name )                                             \
+    struct DKSEL DKSelector_ ## name =                                                  \
+    {                                                                                   \
+        { &__DKSelectorClass__, 1, DKObjectIsStatic | (DKFastLookup ## name) },         \
+        #name,                                                                          \
+        #name                                                                           \
     }
 
 
@@ -99,6 +119,14 @@ typedef const struct DKMethod DKMethod;
     struct DKSEL DKSelector_ ## name =                                                  \
     {                                                                                   \
         { &__DKSelectorClass__, 1, DKObjectIsStatic },                                  \
+        #name,                                                                          \
+        #ret " " #name "( " #__VA_ARGS__ " )"                                           \
+    }
+
+#define DKDefineFastLookupMethod( ret, name, ... )                                      \
+    struct DKSEL DKSelector_ ## name =                                                  \
+    {                                                                                   \
+        { &__DKSelectorClass__, 1, DKObjectIsStatic | (DKFastLookup ## name) },         \
         #name,                                                                          \
         #ret " " #name "( " #__VA_ARGS__ " )"                                           \
     }
@@ -128,9 +156,7 @@ DKTypeRef   DKAllocInterface( DKSEL sel, size_t size );
 
 void        DKInstallInterface( DKTypeRef _class, DKTypeRef interface );
 DKTypeRef   DKLookupInterface( DKTypeRef ref, DKSEL sel );
-
-void        DKInstallMethod( DKTypeRef _class, DKTypeRef method );
-DKTypeRef   DKLookupMethod( DKTypeRef ref, DKSEL sel );
+DKTypeRef   DKFastLookupInterface( DKTypeRef ref, int index );
 
 
 

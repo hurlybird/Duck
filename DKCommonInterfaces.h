@@ -70,13 +70,11 @@ struct DKIntrospection
     DKInterface _interface;
     
     DKTypeRef   (*queryInterface)( DKTypeRef ref, DKSEL sel );
-    DKTypeRef   (*queryMethod)( DKTypeRef ref, DKSEL sel );
 };
 
 typedef const struct DKIntrospection DKIntrospection;
 
 DKTypeRef   DKDefaultQueryInterfaceImp( DKTypeRef ref, DKSEL sel );
-DKTypeRef   DKDefaultQueryMethodImp( DKTypeRef ref, DKSEL sel );
 
 DKIntrospection * DKDefaultIntrospection( void );
 

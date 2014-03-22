@@ -10,7 +10,7 @@
 
 
 // LifeCycle =============================================================================
-DKDefineInterface( LifeCycle );
+DKDefineFastLookupInterface( LifeCycle );
 
 ///
 //  DKDefaultAllocateImp()
@@ -61,7 +61,7 @@ DKLifeCycle * DKDefaultLifeCycle( void )
 
 
 // ReferenceCounting =====================================================================
-DKDefineInterface( ReferenceCounting );
+DKDefineFastLookupInterface( ReferenceCounting );
 
 ///
 //  DKDefaultRetainImp()
@@ -155,7 +155,7 @@ DKReferenceCounting * DKStaticObjectReferenceCounting( void )
 
 
 // Introspection =========================================================================
-DKDefineInterface( Introspection );
+DKDefineFastLookupInterface( Introspection );
 
 ///
 //  DKDefaultQueryInterfaceImp()
@@ -163,15 +163,6 @@ DKDefineInterface( Introspection );
 DKTypeRef DKDefaultQueryInterfaceImp( DKTypeRef ref, DKSEL sel )
 {
     return DKLookupInterface( ref, sel );
-}
-
-
-///
-//  DKDefaultQueryMethodImp()
-//
-DKTypeRef DKDefaultQueryMethodImp( DKTypeRef ref, DKSEL sel )
-{
-    return DKLookupMethod( ref, sel );
 }
 
 
@@ -186,7 +177,6 @@ DKIntrospection * DKDefaultIntrospection( void )
     {
         introspection = (struct DKIntrospection *)DKAllocInterface( DKSelector(Introspection), sizeof(DKIntrospection) );
         introspection->queryInterface = DKDefaultQueryInterfaceImp;
-        introspection->queryMethod = DKDefaultQueryMethodImp;
     }
     
     return introspection;
@@ -196,7 +186,7 @@ DKIntrospection * DKDefaultIntrospection( void )
 
 
 // Comparison ============================================================================
-DKDefineInterface( Comparison );
+DKDefineFastLookupInterface( Comparison );
 
 ///
 //  DKDefaultEqualImp()

@@ -23,13 +23,9 @@ struct DKClass
 
     const struct DKClass *  superclass;
 
-    DKLifeCycle *           lifeCycle;
-    DKReferenceCounting *   referenceCounting;
-    DKIntrospection *       introspection;
-    DKComparison *          comparison;
+    DKTypeRef               fastLookupTable[DKFastLookupTableSize];
     
     DKElementArray          interfaces;
-    DKElementArray          methods;
     DKElementArray          properties;
 };
 
@@ -103,15 +99,17 @@ static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa,
     metaclass->superclass = NULL;
 
     DKElementArrayInit( &metaclass->interfaces, sizeof(DKTypeRef) );
-    DKElementArrayInit( &metaclass->methods, sizeof(DKTypeRef) );
+    DKElementArrayReserve( &metaclass->interfaces, 4 );
+    
     DKElementArrayInit( &metaclass->properties, sizeof(DKTypeRef) );
+    DKElementArrayReserve( &metaclass->interfaces, 4 );
 
-    // Just set the fast-track pointers here -- they'll be properly installed once all
+    // Just set the fast-lookup pointers here -- they'll be properly installed once all
     // the base classes are initialized
-    metaclass->lifeCycle = DKDefaultLifeCycle();
-    metaclass->referenceCounting = referenceCounting;
-    metaclass->introspection = DKDefaultIntrospection();
-    metaclass->comparison = comparison;
+    metaclass->fastLookupTable[DKFastLookupLifeCycle] = DKDefaultLifeCycle();
+    metaclass->fastLookupTable[DKFastLookupReferenceCounting] = referenceCounting;
+    metaclass->fastLookupTable[DKFastLookupIntrospection] = DKDefaultIntrospection();
+    metaclass->fastLookupTable[DKFastLookupComparison] = comparison;
 }
 
 
@@ -120,11 +118,14 @@ static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa,
 //
 static void InitMetaClassInterfaceTable( struct DKClass * metaclass )
 {
-    // Use the fast-track pointers set above to properly install the interfaces
-    DKInstallInterface( metaclass, metaclass->lifeCycle );
-    DKInstallInterface( metaclass, metaclass->referenceCounting );
-    DKInstallInterface( metaclass, metaclass->introspection );
-    DKInstallInterface( metaclass, metaclass->comparison );
+    // Use the fast-lookup pointers set above to properly install the interfaces
+    for( int i = 1; i < DKFastLookupTableSize; i++ )
+    {
+        DKTypeRef interface = metaclass->fastLookupTable[i];
+        
+        if( interface )
+            DKInstallInterface( metaclass, interface );
+    }
 }
 
 
@@ -193,7 +194,9 @@ void DKFreeObject( DKTypeRef ref )
     
     while( classObject )
     {
-        classObject->lifeCycle->finalize( obj );
+        DKLifeCycle * lifeCycle = classObject->fastLookupTable[DKFastLookupLifeCycle];
+        lifeCycle->finalize( obj );
+        
         classObject = classObject->superclass;
     }
     
@@ -217,11 +220,8 @@ DKTypeRef DKAllocClass( DKTypeRef superclass )
     DKElementArrayInit( &classObject->interfaces, sizeof(DKTypeRef) );
     DKElementArrayReserve( &classObject->interfaces, 16 );
 
-    DKElementArrayInit( &classObject->methods, sizeof(DKTypeRef) );
-    DKElementArrayReserve( &classObject->methods, 32 );
-
     DKElementArrayInit( &classObject->properties, sizeof(DKTypeRef) );
-    DKElementArrayReserve( &classObject->properties, 32 );
+    DKElementArrayReserve( &classObject->properties, 16 );
 
     DKInstallInterface( classObject, DKDefaultLifeCycle() );
     DKInstallInterface( classObject, DKDefaultReferenceCounting() );
@@ -262,18 +262,24 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
     // Retain the interface
     DKRetain( interfaceObject );
     
-    // Update the fast-track pointers to common interfaces
-    if( DKEqual( interfaceObject->sel, DKSelector( LifeCycle ) ) )
-        classObject->lifeCycle = interface;
+    // Update the fast-lookup table
+    int fastLookupIndex = DKFastLookupIndex( interfaceObject->sel );
+    assert( (fastLookupIndex >= 0) && (fastLookupIndex < DKFastLookupTableSize) );
+    
+    if( fastLookupIndex )
+    {
+        // If we're replacing a fast-lookup entry, make sure the selectors match
+        DKTypeRef oldInterface = classObject->fastLookupTable[fastLookupIndex];
 
-    else if( DKEqual( interfaceObject->sel, DKSelector( ReferenceCounting ) ) )
-        classObject->referenceCounting = interface;
-
-    else if( DKEqual( interfaceObject->sel, DKSelector( Introspection ) ) )
-        classObject->introspection = interface;
-
-    else if( DKEqual( interfaceObject->sel, DKSelector( Comparison ) ) )
-        classObject->comparison = interface;
+        if( (oldInterface != NULL) && !DKEqual( interface, oldInterface ) )
+        {
+            // This likely means that two interfaces are trying to use the same fast lookup index
+            assert( 0 );
+            return;
+        }
+    
+        classObject->fastLookupTable[fastLookupIndex] = interface;
+    }
 
     // Replace the interface in the interface table
     DKIndex count = DKElementArrayGetCount( &classObject->interfaces );
@@ -309,7 +315,20 @@ DKTypeRef DKLookupInterface( DKTypeRef ref, DKSEL sel )
         {
             classObject = ref;
         }
+
+        // First check the fast lookup table
+        int fastLookupIndex = DKFastLookupIndex( sel );
+        assert( (fastLookupIndex >= 0) && (fastLookupIndex < DKFastLookupTableSize) );
         
+        if( fastLookupIndex )
+        {
+            return classObject->fastLookupTable[fastLookupIndex];
+        }
+        
+        // Next check the interface cache
+        // Do stuff here...
+        
+        // Finally search the interface table for the interface
         DKIndex count = DKElementArrayGetCount( &classObject->interfaces );
         
         for( DKIndex i = 0; i < count; ++i )
@@ -326,65 +345,21 @@ DKTypeRef DKLookupInterface( DKTypeRef ref, DKSEL sel )
 
 
 ///
-//  DKInstallMethod()
+//  DKFastLookupInterface()
 //
-void DKInstallMethod( DKTypeRef _class, DKTypeRef method )
+DKTypeRef DKFastLookupInterface( DKTypeRef ref, int index )
 {
-    assert( _class && method );
+    assert( (index >= 0) && (index < DKFastLookupTableSize) );
 
-    struct DKClass * classObject = (struct DKClass *)_class;
-    const DKMethod * methodObject = method;
-
-    assert( (classObject->_obj.isa == &__DKClassClass__) || (classObject->_obj.isa == &__DKMetaClass__) );
-    assert( methodObject->_obj.isa == &__DKMethodClass__ );
-
-    // Retain the method
-    DKRetain( methodObject );
-    
-    // Replace the interface in the interface table
-    DKIndex count = DKElementArrayGetCount( &classObject->methods );
-    
-    for( DKIndex i = 0; i < count; ++i )
-    {
-        const DKMethod * oldMethodObject = DKElementArrayGetElementAtIndex( &classObject->methods, i, void * );
-        
-        if( DKEqual( oldMethodObject->sel, methodObject->sel ) )
-        {
-            DKRelease( oldMethodObject );
-            DKElementArraySetElementAtIndex( &classObject->methods, i, &methodObject );
-            return;
-        }
-    }
-    
-    // Add the method to the method table
-    DKElementArrayAppendElement( &classObject->methods, &methodObject );
-}
-
-
-///
-//  DKLookupMethod()
-//
-DKTypeRef DKLookupMethod( DKTypeRef ref, DKSEL sel )
-{
     if( ref )
     {
         const DKObjectHeader * obj = ref;
         const struct DKClass * classObject = obj->isa;
         
         if( classObject == DKClassClass() )
-        {
             classObject = ref;
-        }
         
-        DKIndex count = DKElementArrayGetCount( &classObject->methods );
-        
-        for( DKIndex i = 0; i < count; ++i )
-        {
-            const DKMethod * method = DKElementArrayGetElementAtIndex( &classObject->methods, i, void * );
-            
-            if( DKEqual( method->sel, sel ) )
-                return method;
-        }
+        return classObject->fastLookupTable[index];
     }
     
     return NULL;
@@ -404,8 +379,11 @@ DKTypeRef DKCreate( DKTypeRef _class )
 
     if( classObject )
     {
-        DKTypeRef ref = classObject->lifeCycle->allocate();
-        return classObject->lifeCycle->initialize( ref );
+        DKLifeCycle * lifeCycle = classObject->fastLookupTable[DKFastLookupLifeCycle];
+
+        DKTypeRef ref = lifeCycle->allocate();
+        
+        return lifeCycle->initialize( ref );
     }
     
     return NULL;
@@ -475,7 +453,9 @@ DKTypeRef DKRetain( DKTypeRef ref )
     if( obj )
     {
         const struct DKClass * classObject = obj->isa;
-        return classObject->referenceCounting->retain( obj );
+        DKReferenceCounting * referenceCounting = classObject->fastLookupTable[DKFastLookupReferenceCounting];
+
+        return referenceCounting->retain( obj );
     }
 
     return ref;
@@ -492,7 +472,9 @@ void DKRelease( DKTypeRef ref )
     if( obj )
     {
         const struct DKClass * classObject = obj->isa;
-        classObject->referenceCounting->release( obj );
+        DKReferenceCounting * referenceCounting = classObject->fastLookupTable[DKFastLookupReferenceCounting];
+
+        referenceCounting->release( obj );
     }
 }
 
@@ -506,11 +488,48 @@ DKTypeRef DKQueryInterface( DKTypeRef ref, DKSEL sel )
     {
         const DKObjectHeader * obj = ref;
         const struct DKClass * classObject = obj->isa;
+        DKIntrospection * introspection = classObject->fastLookupTable[DKFastLookupIntrospection];
         
-        return classObject->introspection->queryInterface( ref, sel );
+        return introspection->queryInterface( ref, sel );
     }
     
     return NULL;
+}
+
+
+///
+//  DKQueryMethod()
+//
+static struct DKSEL DKMethodNotFoundSelector =
+{
+    { &__DKSelectorClass__, 1, DKObjectIsStatic },
+    "DKMethodNotFound",
+    "void DKMethodNotFound( ??? )"
+};
+
+static void DKMethodNotFoundImp( DKTypeRef ref, DKSEL sel )
+{
+    assert( 0 );
+}
+
+static DKMethod DKMethodNotFound =
+{
+    { &__DKMethodClass__, 1, DKObjectIsStatic },
+    &DKMethodNotFoundSelector,
+    DKMethodNotFoundImp
+};
+
+DKTypeRef DKQueryMethod( DKTypeRef ref, DKSEL sel )
+{
+    DKMethod * method = DKQueryInterface( ref, sel );
+    
+    if( method )
+    {
+        assert( DKIsMemberOfClass( method, DKMethodClass() ) );
+        return method;
+    }
+    
+    return &DKMethodNotFound;
 }
 
 
@@ -528,8 +547,9 @@ int DKEqual( DKTypeRef a, DKTypeRef b )
     {
         const DKObjectHeader * obj = a;
         const struct DKClass * classObject = obj->isa;
+        DKComparison * comparison = classObject->fastLookupTable[DKFastLookupComparison];
 
-        return classObject->comparison->equal( a, b );
+        return comparison->equal( a, b );
     }
     
     return 0;
@@ -550,8 +570,9 @@ int DKCompare( DKTypeRef a, DKTypeRef b )
     {
         const DKObjectHeader * obj = a;
         const struct DKClass * classObject = obj->isa;
+        DKComparison * comparison = classObject->fastLookupTable[DKFastLookupComparison];
 
-        return classObject->comparison->compare( a, b );
+        return comparison->compare( a, b );
     }
     
     return a < b ? -1 : 1;
@@ -567,8 +588,9 @@ DKHashIndex DKHash( DKTypeRef ref )
     {
         const DKObjectHeader * obj = ref;
         const struct DKClass * classObject = obj->isa;
+        DKComparison * comparison = classObject->fastLookupTable[DKFastLookupComparison];
         
-        return classObject->comparison->hash( ref );
+        return comparison->hash( ref );
     }
     
     return 0;
