@@ -302,6 +302,20 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
 
 
 ///
+//  DKInstallMethod()
+//
+void DKInstallMethod( DKTypeRef _class, DKSEL sel, const void * imp )
+{
+    struct DKMethod * method = (struct DKMethod *)DKAllocInterface( sel, sizeof(DKMethod) );
+    method->imp = imp;
+    
+    DKInstallInterface( _class, method );
+    
+    DKRelease( method );
+}
+
+
+///
 //  DKLookupInterface()
 //
 DKTypeRef DKLookupInterface( DKTypeRef ref, DKSEL sel )

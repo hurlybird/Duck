@@ -155,6 +155,7 @@ DKTypeRef   DKAllocInterface( DKSEL sel, size_t size );
 //void        DKRegisterClass( DKTypeRef classObject );
 
 void        DKInstallInterface( DKTypeRef _class, DKTypeRef interface );
+void        DKInstallMethod( DKTypeRef _class, DKSEL sel, const void * imp );
 DKTypeRef   DKLookupInterface( DKTypeRef ref, DKSEL sel );
 DKTypeRef   DKFastLookupInterface( DKTypeRef ref, int index );
 
