@@ -43,6 +43,7 @@ DKTypeRef DKDataClass( void )
     {
         dataClass = DKAllocClass( DKObjectClass() );
         
+        // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKDataAllocate;
         lifeCycle->initialize = DKDataInitialize;
@@ -51,6 +52,7 @@ DKTypeRef DKDataClass( void )
         DKInstallInterface( dataClass, lifeCycle );
         DKRelease( lifeCycle );
 
+        // Copying
         struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKDataCopy;
         copying->mutableCopy = DKDataMutableCopy;
@@ -74,6 +76,7 @@ DKTypeRef DKMutableDataClass( void )
     {
         mutableDataClass = DKAllocClass( DKObjectClass() );
         
+        // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKMutableDataAllocate;
         lifeCycle->initialize = DKDataInitialize;
@@ -82,6 +85,7 @@ DKTypeRef DKMutableDataClass( void )
         DKInstallInterface( mutableDataClass, lifeCycle );
         DKRelease( lifeCycle );
 
+        // Copying
         struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKMutableDataCopy;
         copying->mutableCopy = DKDataMutableCopy;

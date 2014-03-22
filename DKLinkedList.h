@@ -9,29 +9,25 @@
 #ifndef _DK_LINKED_LIST_H_
 #define _DK_LINKED_LIST_H_
 
-#include "DKObject.h"
 #include "DKList.h"
-#include "DKMemory.h"
 
 
 DKTypeRef DKLinkedListClass( void );
 DKTypeRef DKMutableLinkedListClass( void );
 
-DKListRef DKLinkedListCreate( const void ** values, DKIndex count, const DKListCallbacks * callbacks );
+DKListRef DKLinkedListCreate( DKTypeRef objects[], DKIndex count );
 DKListRef DKLinkedListCreateCopy( DKListRef srcList );
 
-DKMutableListRef DKLinkedListCreateMutable( const DKListCallbacks * callbacks );
+DKMutableListRef DKLinkedListCreateMutable( void );
 DKMutableListRef DKLinkedListCreateMutableCopy( DKListRef srcList );
 
-const DKListCallbacks * DKLinkedListGetCallbacks( DKListRef ref );
-
 DKIndex DKLinkedListGetCount( DKListRef ref );
-DKIndex DKLinkedListGetValues( DKListRef ref, DKRange range, const void ** values );
-void    DKLinkedListReplaceValues( DKMutableListRef ref, DKRange range, const void ** values, DKIndex count );
-void    DKLinkedListReplaceValuesWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
+DKIndex DKLinkedListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] );
+void    DKLinkedListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
+void    DKLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
 
 
-DKDeclareMethod( DKIndex, Count );
+//DKDeclareMethod( DKIndex, Count );
 
 
 #endif // _DK_LINKED_LIST_H_

@@ -20,11 +20,11 @@ void TestDKList( DKTypeRef listClass );
 
 int main( int argc, const char * argv[] )
 {
-    printf( "Testing Duck Object Library (libDuck)\n" );
+    printf( "Testing the Duck Object Library (libDuck)\n" );
 
     TestDKObject();
     TestDKData();
-    //TestDKList( DKMutableLinkedListClass() );
+    TestDKList( DKMutableLinkedListClass() );
 
     return 0;
 }
@@ -102,7 +102,7 @@ void TestDKData( void )
     DKRelease( data );
 }
 
-/*
+
 void TestDKList( DKTypeRef listClass )
 {
     DKDataRef a = DKDataCreate( "a", 2 );
@@ -113,63 +113,63 @@ void TestDKList( DKTypeRef listClass )
     DKMutableListRef list = (DKMutableListRef)DKCreate( listClass );
     
     // Append
-    DKListAppendValue( list, a );
-    DKListAppendValue( list, b );
-    DKListAppendValue( list, c );
-    DKListAppendValue( list, d );
+    DKListAppendObject( list, a );
+    DKListAppendObject( list, b );
+    DKListAppendObject( list, c );
+    DKListAppendObject( list, d );
     
     VERIFY( DKListGetCount( list ) == 4 );
     
-    DKIndex n = DKCallMethod( list, Count );
+    //DKIndex n = DKCallMethod( list, Count );
     
-    VERIFY( DKListGetFirstIndexOfValue( list, a ) == 0 );
-    VERIFY( DKListGetFirstIndexOfValue( list, b ) == 1 );
-    VERIFY( DKListGetFirstIndexOfValue( list, c ) == 2 );
-    VERIFY( DKListGetFirstIndexOfValue( list, d ) == 3 );
+    VERIFY( DKListGetFirstIndexOfObject( list, a ) == 0 );
+    VERIFY( DKListGetFirstIndexOfObject( list, b ) == 1 );
+    VERIFY( DKListGetFirstIndexOfObject( list, c ) == 2 );
+    VERIFY( DKListGetFirstIndexOfObject( list, d ) == 3 );
 
-    VERIFY( DKListGetLastIndexOfValue( list, a ) == 0 );
-    VERIFY( DKListGetLastIndexOfValue( list, b ) == 1 );
-    VERIFY( DKListGetLastIndexOfValue( list, c ) == 2 );
-    VERIFY( DKListGetLastIndexOfValue( list, d ) == 3 );
+    VERIFY( DKListGetLastIndexOfObject( list, a ) == 0 );
+    VERIFY( DKListGetLastIndexOfObject( list, b ) == 1 );
+    VERIFY( DKListGetLastIndexOfObject( list, c ) == 2 );
+    VERIFY( DKListGetLastIndexOfObject( list, d ) == 3 );
     
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 0 ) ), "a" ) == 0 );
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 1 ) ), "b" ) == 0 );
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 2 ) ), "c" ) == 0 );
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 3 ) ), "d" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 0 ) ), "a" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 1 ) ), "b" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 2 ) ), "c" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 3 ) ), "d" ) == 0 );
     
-    DKListRemoveAllValues( list );
+    DKListRemoveAllObjects( list );
     
     // Insert
-    DKListInsertValueAtIndex( list, 0, a );
-    DKListInsertValueAtIndex( list, 0, b );
-    DKListInsertValueAtIndex( list, 0, c );
-    DKListInsertValueAtIndex( list, 0, d );
+    DKListInsertObjectAtIndex( list, 0, a );
+    DKListInsertObjectAtIndex( list, 0, b );
+    DKListInsertObjectAtIndex( list, 0, c );
+    DKListInsertObjectAtIndex( list, 0, d );
 
     VERIFY( DKListGetCount( list ) == 4 );
 
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 0 ) ), "d" ) == 0 );
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 1 ) ), "c" ) == 0 );
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 2 ) ), "b" ) == 0 );
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( list, 3 ) ), "a" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 0 ) ), "d" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 1 ) ), "c" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 2 ) ), "b" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 3 ) ), "a" ) == 0 );
 
-    DKListRemoveAllValues( list );
+    DKListRemoveAllObjects( list );
 
     // Copy
-    DKListAppendValue( list, a );
-    DKListAppendValue( list, b );
-    DKListAppendValue( list, c );
-    DKListAppendValue( list, d );
+    DKListAppendObject( list, a );
+    DKListAppendObject( list, b );
+    DKListAppendObject( list, c );
+    DKListAppendObject( list, d );
     
     VERIFY( DKListGetCount( list ) == 4 );
     
     DKTypeRef copy = DKCopy( list );
     
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( copy, 0 ) ), "a" ) == 0 );
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( copy, 1 ) ), "b" ) == 0 );
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( copy, 2 ) ), "c" ) == 0 );
-    VERIFY( strcmp( DKDataGetBytePtr( DKListGetValueAtIndex( copy, 3 ) ), "d" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 0 ) ), "a" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 1 ) ), "b" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 2 ) ), "c" ) == 0 );
+    VERIFY( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 3 ) ), "d" ) == 0 );
     
-    DKListRemoveAllValues( list );
+    DKListRemoveAllObjects( list );
     DKRelease( copy );
     
     DKRelease( list );
@@ -179,7 +179,7 @@ void TestDKList( DKTypeRef listClass )
     DKRelease( c );
     DKRelease( d );
 }
-*/
+
 
 
 

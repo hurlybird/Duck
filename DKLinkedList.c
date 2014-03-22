@@ -7,6 +7,8 @@
 //
 
 #include "DKLinkedList.h"
+#include "DKMemory.h"
+#include "DKCommonInterfaces.h"
 #include "DKCopying.h"
 
 
@@ -17,15 +19,14 @@ struct DKLinkedListNode
 {
     struct DKLinkedListNode * prev;
     struct DKLinkedListNode * next;
-    DKTypeRef value;
+    DKTypeRef object;
 };
 
 struct DKLinkedList
 {
-    const DKObjectHeader _obj;
+    DKObjectHeader _obj;
 
     DKNodePool nodePool;
-    DKListCallbacks callbacks;
 
     struct DKLinkedListNode * first;
     struct DKLinkedListNode * last;
@@ -49,11 +50,12 @@ static DKTypeRef    DKMutableLinkedListCopy( DKTypeRef ref );
 static DKTypeRef    DKLinkedListMutableCopy( DKTypeRef ref );
 
 
-DKDefineMethod( DKIndex, Count );
+//DKDefineMethod( DKIndex, Count );
 
 
 // DKLinkedList Class ====================================================================
 
+/*
 static const DKListInterface __DKLinkedListListInterface__ =
 {
     DKStaticInterfaceObject( DKList ),
@@ -117,11 +119,11 @@ static const DKClass __DKLinkedListClass__ =
     DKPtrCompare,
     DKPtrHash
 };
-
+*/
 
 
 // DKMutableLinkedList Class =============================================================
-
+/*
 static const DKCopyingInterface __DKMutableLinkedListCopyingInterface__ =
 {
     DKStaticInterfaceObject( DKCopying ),
@@ -158,14 +160,14 @@ static const DKClass __DKMutableLinkedListClass__ =
     DKPtrCompare,
     DKPtrHash
 };
-
+*/
 
 
 
 // DKObject Interface ====================================================================
 
-static void DKLinkedListReplaceValuesInternal( struct DKLinkedList * list, DKRange range, const void ** values, DKIndex count );
-static void DKLinkedListReplaceValuesWithListInternal( struct DKLinkedList * list, DKRange range, DKListRef srcList );
+static void DKLinkedListReplaceObjectsInternal( struct DKLinkedList * list, DKRange range, DKTypeRef objects[], DKIndex count );
+static void DKLinkedListReplaceObjectsWithListInternal( struct DKLinkedList * list, DKRange range, DKListRef srcList );
 
 
 ///
@@ -173,7 +175,41 @@ static void DKLinkedListReplaceValuesWithListInternal( struct DKLinkedList * lis
 //
 DKTypeRef DKLinkedListClass( void )
 {
-    return &__DKLinkedListClass__;
+    static DKTypeRef linkedListClass = NULL;
+
+    if( !linkedListClass )
+    {
+        linkedListClass = DKAllocClass( DKObjectClass() );
+        
+        // LifeCycle
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        lifeCycle->allocate = DKLinkedListAllocate;
+        lifeCycle->initialize = DKLinkedListInitialize;
+        lifeCycle->finalize = DKLinkedListFinalize;
+
+        DKInstallInterface( linkedListClass, lifeCycle );
+        DKRelease( lifeCycle );
+
+        // Copying
+        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        copying->copy = DKLinkedListCopy;
+        copying->mutableCopy = DKLinkedListMutableCopy;
+        
+        DKInstallInterface( linkedListClass, copying );
+        DKRelease( copying );
+
+        // List
+        struct DKList * list = (struct DKList *)DKAllocInterface( DKSelector(List), sizeof(DKList) );
+        list->getCount = DKLinkedListGetCount;
+        list->getObjects = DKLinkedListGetObjects;
+        list->replaceObjects = DKLinkedListReplaceObjects;
+        list->replaceObjectsWithList = DKLinkedListReplaceObjectsWithList;
+
+        DKInstallInterface( linkedListClass, list );
+        DKRelease( list );
+    }
+    
+    return linkedListClass;
 }
 
 
@@ -182,7 +218,41 @@ DKTypeRef DKLinkedListClass( void )
 //
 DKTypeRef DKMutableLinkedListClass( void )
 {
-    return &__DKMutableLinkedListClass__;
+    static DKTypeRef mutableLinkedListClass = NULL;
+
+    if( !mutableLinkedListClass )
+    {
+        mutableLinkedListClass = DKAllocClass( DKObjectClass() );
+        
+        // LifeCycle
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        lifeCycle->allocate = DKMutableLinkedListAllocate;
+        lifeCycle->initialize = DKLinkedListInitialize;
+        lifeCycle->finalize = DKLinkedListFinalize;
+
+        DKInstallInterface( mutableLinkedListClass, lifeCycle );
+        DKRelease( lifeCycle );
+
+        // Copying
+        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        copying->copy = DKMutableLinkedListCopy;
+        copying->mutableCopy = DKLinkedListMutableCopy;
+        
+        DKInstallInterface( mutableLinkedListClass, copying );
+        DKRelease( copying );
+
+        // List
+        struct DKList * list = (struct DKList *)DKAllocInterface( DKSelector(List), sizeof(DKList) );
+        list->getCount = DKLinkedListGetCount;
+        list->getObjects = DKLinkedListGetObjects;
+        list->replaceObjects = DKLinkedListReplaceObjects;
+        list->replaceObjectsWithList = DKLinkedListReplaceObjectsWithList;
+
+        DKInstallInterface( mutableLinkedListClass, list );
+        DKRelease( list );
+    }
+    
+    return mutableLinkedListClass;
 }
 
 
@@ -191,7 +261,7 @@ DKTypeRef DKMutableLinkedListClass( void )
 //
 static DKTypeRef DKLinkedListAllocate( void )
 {
-    return DKNewObject( DKLinkedListClass(), sizeof(struct DKLinkedList), 0 );
+    return DKAllocObject( DKLinkedListClass(), sizeof(struct DKLinkedList), 0 );
 }
 
 
@@ -200,7 +270,7 @@ static DKTypeRef DKLinkedListAllocate( void )
 //
 static DKTypeRef DKMutableLinkedListAllocate( void )
 {
-    return DKNewObject( DKMutableLinkedListClass(), sizeof(struct DKLinkedList), DKObjectMutable );
+    return DKAllocObject( DKMutableLinkedListClass(), sizeof(struct DKLinkedList), DKObjectIsMutable );
 }
 
 
@@ -216,8 +286,6 @@ static DKTypeRef DKLinkedListInitialize( DKTypeRef ref )
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
         
         DKNodePoolInit( &list->nodePool, sizeof(struct DKLinkedListNode), 0 );
-
-        list->callbacks = *DKListObjectCallbacks();
     }
     
     return ref;
@@ -233,7 +301,7 @@ static void DKLinkedListFinalize( DKTypeRef ref )
     {
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
 
-        DKLinkedListReplaceValuesInternal( list, DKRangeMake( 0, list->count ), NULL, 0 );
+        DKLinkedListReplaceObjectsInternal( list, DKRangeMake( 0, list->count ), NULL, 0 );
         
         DKNodePoolClear( &list->nodePool );
     }
@@ -322,14 +390,14 @@ static void DKLinkedListCheckForErrors( struct DKLinkedList * list )
 ///
 //  DKLinkedListAllocNode()
 //
-static struct DKLinkedListNode * DKLinkedListAllocNode( struct DKLinkedList * list, DKTypeRef value )
+static struct DKLinkedListNode * DKLinkedListAllocNode( struct DKLinkedList * list, DKTypeRef object )
 {
     struct DKLinkedListNode * node = DKNodePoolAlloc( &list->nodePool );
 
     node->prev = NULL;
     node->next = NULL;
     
-    node->value = list->callbacks.retain( value );
+    node->object = DKRetain( object );
     
     list->count++;
     
@@ -345,7 +413,7 @@ static void DKLinkedListFreeNode( struct DKLinkedList * list, struct DKLinkedLis
     assert( list->count > 0 );
     list->count--;
 
-    list->callbacks.release( node->value );
+    DKRelease( node->object );
     
     DKNodePoolFree( &list->nodePool, node );
 }
@@ -411,9 +479,9 @@ static struct DKLinkedListNode * DKLinkedListMoveCursor( struct DKLinkedList * l
 
 
 ///
-//  DKLinkedListRemoveValues()
+//  DKLinkedListRemoveObjects()
 //
-static void DKLinkedListRemoveValues( struct DKLinkedList * list, DKRange range )
+static void DKLinkedListRemoveObjects( struct DKLinkedList * list, DKRange range )
 {
     assert( range.location >= 0 );
     assert( range.length >= 0 );
@@ -457,9 +525,9 @@ static void DKLinkedListRemoveValues( struct DKLinkedList * list, DKRange range 
 
 
 ///
-//  DKLinkedListInsertValue()
+//  DKLinkedListInsertObject()
 //
-static void DKLinkedListInsertValue( struct DKLinkedList * list, DKIndex index, const void * value )
+static void DKLinkedListInsertObject( struct DKLinkedList * list, DKIndex index, DKTypeRef object )
 {
     assert( index >= 0 );
     assert( index <= list->count );
@@ -468,7 +536,7 @@ static void DKLinkedListInsertValue( struct DKLinkedList * list, DKIndex index, 
     {
         assert( index == 0 );
 
-        struct DKLinkedListNode * node = DKLinkedListAllocNode( list, value );
+        struct DKLinkedListNode * node = DKLinkedListAllocNode( list, object );
 
         list->first = node;
         list->last = node;
@@ -479,7 +547,7 @@ static void DKLinkedListInsertValue( struct DKLinkedList * list, DKIndex index, 
     
     else if( index == 0 )
     {
-        struct DKLinkedListNode * node = DKLinkedListAllocNode( list, value );
+        struct DKLinkedListNode * node = DKLinkedListAllocNode( list, object );
         
         node->next = list->first;
         list->first->prev = node;
@@ -491,7 +559,7 @@ static void DKLinkedListInsertValue( struct DKLinkedList * list, DKIndex index, 
     
     else if( index == list->count )
     {
-        struct DKLinkedListNode * node = DKLinkedListAllocNode( list, value );
+        struct DKLinkedListNode * node = DKLinkedListAllocNode( list, object );
         
         node->prev = list->last;
         list->last->next = node;
@@ -504,7 +572,7 @@ static void DKLinkedListInsertValue( struct DKLinkedList * list, DKIndex index, 
     else
     {
         struct DKLinkedListNode * next = DKLinkedListMoveCursor( list, index );
-        struct DKLinkedListNode * node = DKLinkedListAllocNode( list, value );
+        struct DKLinkedListNode * node = DKLinkedListAllocNode( list, object );
         
         assert( next );
         
@@ -521,36 +589,36 @@ static void DKLinkedListInsertValue( struct DKLinkedList * list, DKIndex index, 
 
 
 ///
-//  DKLinkedListReplaceValuesInternal()
+//  DKLinkedListReplaceObjectsInternal()
 //
-static void DKLinkedListReplaceValuesInternal( struct DKLinkedList * list, DKRange range, const void ** values, DKIndex count )
+static void DKLinkedListReplaceObjectsInternal( struct DKLinkedList * list, DKRange range, DKTypeRef objects[], DKIndex count )
 {
-    DKLinkedListRemoveValues( list, range );
+    DKLinkedListRemoveObjects( list, range );
     
     for( DKIndex i = 0; i < count; i++ )
-        DKLinkedListInsertValue( list, range.location + i, values[i] );
+        DKLinkedListInsertObject( list, range.location + i, objects[i] );
 }
 
 
 ///
-//  DKLinkedListReplaceValuesInRangeInternal()
+//  DKLinkedListReplaceObjectsWithListInternal()
 //
-static void DKLinkedListReplaceValuesWithListInternal( struct DKLinkedList * list, DKRange range, DKListRef srcList )
+static void DKLinkedListReplaceObjectsWithListInternal( struct DKLinkedList * list, DKRange range, DKListRef srcList )
 {
-    DKLinkedListRemoveValues( list, range );
+    DKLinkedListRemoveObjects( list, range );
 
-    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKSelector( DKList ) );
+    DKList * srcListInterface = DKQueryInterface( srcList, DKSelector(List) );
     assert( srcListInterface );
     
     DKIndex count = srcListInterface->getCount( srcList );
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        const void * value;
+        DKTypeRef object;
         
-        srcListInterface->getValues( srcList, DKRangeMake( i, 1 ), &value );
+        srcListInterface->getObjects( srcList, DKRangeMake( i, 1 ), &object );
 
-        DKLinkedListInsertValue( list, range.location + i, value );
+        DKLinkedListInsertObject( list, range.location + i, object );
     }
 }
 
@@ -562,14 +630,11 @@ static void DKLinkedListReplaceValuesWithListInternal( struct DKLinkedList * lis
 ///
 //  DKLinkedListCreate()
 //
-DKListRef DKLinkedListCreate( const void ** values, DKIndex count, const DKListCallbacks * callbacks )
+DKListRef DKLinkedListCreate( DKTypeRef objects[], DKIndex count )
 {
     struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKLinkedListClass() );
     
-    if( callbacks )
-        list->callbacks = *callbacks;
-
-    DKLinkedListReplaceValuesInternal( list, DKRangeMake( 0, 0 ), values, count );
+    DKLinkedListReplaceObjectsInternal( list, DKRangeMake( 0, 0 ), objects, count );
     
     return list;
 }
@@ -582,12 +647,7 @@ DKListRef DKLinkedListCreateCopy( DKListRef srcList )
 {
     struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKLinkedListClass() );
     
-    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKSelector( DKList ) );
-    assert( srcListInterface );
-
-    list->callbacks = *srcListInterface->getCallbacks( srcList );
-
-    DKLinkedListReplaceValuesWithListInternal( list, DKRangeMake( 0, 0 ), srcList );
+    DKLinkedListReplaceObjectsWithListInternal( list, DKRangeMake( 0, 0 ), srcList );
     
     return list;
 }
@@ -596,12 +656,9 @@ DKListRef DKLinkedListCreateCopy( DKListRef srcList )
 ///
 //  DKLinkedListCreateMutable()
 //
-DKMutableListRef DKLinkedListCreateMutable( const DKListCallbacks * callbacks )
+DKMutableListRef DKLinkedListCreateMutable( void )
 {
     struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKMutableLinkedListClass() );
-    
-    if( callbacks )
-        list->callbacks = *callbacks;
     
     return list;
 }
@@ -614,29 +671,9 @@ DKMutableListRef DKLinkedListCreateMutableCopy( DKListRef srcList )
 {
     struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKMutableLinkedListClass() );
     
-    DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKSelector( DKList ) );
-    assert( srcListInterface );
-
-    list->callbacks = *srcListInterface->getCallbacks( srcList );
-
-    DKLinkedListReplaceValuesWithListInternal( list, DKRangeMake( 0, 0 ), srcList );
+    DKLinkedListReplaceObjectsWithListInternal( list, DKRangeMake( 0, 0 ), srcList );
     
     return list;
-}
-
-
-///
-//  DKLinkedListGetCallbacks()
-//
-const DKListCallbacks * DKLinkedListGetCallbacks( DKListRef ref )
-{
-    if( ref )
-    {
-        const struct DKLinkedList * list = ref;
-        return &list->callbacks;
-    }
-    
-    return NULL;
 }
 
 
@@ -656,9 +693,9 @@ DKIndex DKLinkedListGetCount( DKListRef ref )
 
 
 ///
-//  DKLinkedListGetValues()
+//  DKLinkedListGetObjects()
 //
-DKIndex DKLinkedListGetValues( DKListRef ref, DKRange range, const void ** values )
+DKIndex DKLinkedListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] )
 {
     if( ref )
     {
@@ -667,7 +704,7 @@ DKIndex DKLinkedListGetValues( DKListRef ref, DKRange range, const void ** value
         for( DKIndex i = 0; i < range.length; ++i )
         {
             struct DKLinkedListNode * node = DKLinkedListMoveCursor( list, range.location + i );
-            values[i] = node->value;
+            objects[i] = node->object;
         }
     }
     
@@ -676,39 +713,39 @@ DKIndex DKLinkedListGetValues( DKListRef ref, DKRange range, const void ** value
 
 
 ///
-//  DKLinkedListReplaceValues()
+//  DKLinkedListReplaceObjects()
 //
-void DKLinkedListReplaceValues( DKMutableListRef ref, DKRange range, const void ** values, DKIndex count )
+void DKLinkedListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count )
 {
     if( ref )
     {
-        if( !DKTestAttribute( ref, DKObjectMutable ) )
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
             assert( 0 );
             return;
         }
 
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
-        DKLinkedListReplaceValuesInternal( list, range, values, count );
+        DKLinkedListReplaceObjectsInternal( list, range, objects, count );
     }
 }
 
 
 ///
-//  DKLinkedListReplaceValuesWithList()
+//  DKLinkedListReplaceObjectsWithList()
 //
-void DKLinkedListReplaceValuesWithList( DKMutableListRef ref, DKRange range, DKListRef srcList )
+void DKLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList )
 {
     if( ref )
     {
-        if( !DKTestAttribute( ref, DKObjectMutable ) )
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
             assert( 0 );
             return;
         }
 
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
-        DKLinkedListReplaceValuesWithListInternal( list, range, srcList );
+        DKLinkedListReplaceObjectsWithListInternal( list, range, srcList );
     }
 }
 

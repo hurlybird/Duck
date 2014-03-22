@@ -15,6 +15,8 @@
 		024EE3FA148E42C9008FDADC /* DKLinkedList.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3F9148E42C9008FDADC /* DKLinkedList.h */; };
 		0261EB8618DD83C000974404 /* DKData.c in Sources */ = {isa = PBXBuildFile; fileRef = 024EE3ED148E0BCD008FDADC /* DKData.c */; };
 		0261EB8918DE0C1600974404 /* DKCommonInterfaces.c in Sources */ = {isa = PBXBuildFile; fileRef = 0261EB8818DE0C1600974404 /* DKCommonInterfaces.c */; };
+		0261EB8B18DE3D8C00974404 /* DKList.c in Sources */ = {isa = PBXBuildFile; fileRef = 0278EA4A18CD92AC0028A755 /* DKList.c */; };
+		0261EB8C18DE419A00974404 /* DKLinkedList.c in Sources */ = {isa = PBXBuildFile; fileRef = 024EE3FB148E42D6008FDADC /* DKLinkedList.c */; };
 		026B298A18CA6987003FC949 /* DKObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 026B298818CA6987003FC949 /* DKObject.h */; };
 		0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */ = {isa = PBXBuildFile; fileRef = 0274E6F914901BCF00E6F451 /* DKEnv.h */; };
 		0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */ = {isa = PBXBuildFile; fileRef = 0274E6FB14901BDA00E6F451 /* DKEnv.c */; };
@@ -250,9 +252,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				0283F5BF18D2D93E003B1734 /* DKCopying.c in Sources */,
+				0261EB8C18DE419A00974404 /* DKLinkedList.c in Sources */,
 				0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */,
 				0278EA4918CD811B0028A755 /* DKMemory.c in Sources */,
 				0261EB8918DE0C1600974404 /* DKCommonInterfaces.c in Sources */,
+				0261EB8B18DE3D8C00974404 /* DKList.c in Sources */,
 				0261EB8618DD83C000974404 /* DKData.c in Sources */,
 				02BF4B6218DBED2F00A1D6C9 /* DKRuntime.c in Sources */,
 			);

@@ -9,69 +9,47 @@
 #ifndef _DK_LIST_H_
 #define _DK_LIST_H_
 
-#include "DKObject.h"
+#include "DKRuntime.h"
 
 
-DKDeclareInterface( DKList );
+DKDeclareInterface( List );
 
 
 typedef const void * DKListRef;
 typedef void * DKMutableListRef;
 
+typedef void (*DKListApplierFunction)( DKTypeRef object, void * context );
 
-typedef void (*DKListApplierFunction)( const void * value, void * context );
-
-typedef const void * (* DKListRetainCallback)( const void * value );
-typedef void (* DKListReleaseCallback)( const void * value );
-typedef int  (* DKListEqualCallback)( const void * value1, const void * value2 );
-
-
-typedef struct
+struct DKList
 {
-    DKListRetainCallback retain;
-    DKListReleaseCallback release;
-    DKListEqualCallback equal;
-    
-} DKListCallbacks;
+    DKInterface _interface;
 
-const DKListCallbacks * DKListObjectCallbacks( void );
-const DKListCallbacks * DKListStringCallbacks( void );
-const DKListCallbacks * DKListIndexCallbacks( void );
+    DKIndex     (*getCount)( DKListRef ref );
+    DKIndex     (*getObjects)( DKListRef ref, DKRange range, DKTypeRef objects[] );
+    void        (*replaceObjects)( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
+    void        (*replaceObjectsWithList)( DKMutableListRef ref, DKRange range, DKListRef srcList );
+};
 
-
-typedef struct
-{
-    const DKInterface _interface;
-
-    const DKListCallbacks * (* const getCallbacks)( DKListRef ref );
-
-    DKIndex     (* const getCount)( DKListRef ref );
-    DKIndex     (* const getValues)( DKListRef ref, DKRange range, const void ** values );
-    void        (* const replaceValues)( DKMutableListRef ref, DKRange range, const void ** values, DKIndex count );
-    void        (* const replaceValuesWithList)( DKMutableListRef ref, DKRange range, DKListRef srcList );
-
-} DKListInterface;
-
-typedef const DKListInterface * DKListInterfaceRef;
+typedef const struct DKList DKList;
 
 
 DKIndex     DKListGetCount( DKListRef ref );
-DKIndex     DKListGetCountOfValue( DKListRef ref, const void * value );
-DKIndex     DKListGetFirstIndexOfValue( DKListRef ref, const void * value );
-DKIndex     DKListGetLastIndexOfValue( DKListRef ref, const void * value );
+DKIndex     DKListGetCountOfObject( DKListRef ref, DKTypeRef object );
+DKIndex     DKListGetFirstIndexOfObject( DKListRef ref, DKTypeRef object );
+DKIndex     DKListGetLastIndexOfObject( DKListRef ref, DKTypeRef object );
 
-const void * DKListGetValueAtIndex( DKListRef ref, DKIndex index );
-DKIndex     DKListGetValues( DKListRef ref, DKRange range, const void ** values );
+const void * DKListGetObjectAtIndex( DKListRef ref, DKIndex index );
+DKIndex     DKListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] );
 
 void        DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * context );
 
-void        DKListAppendValue( DKMutableListRef ref, const void * value );
-void        DKListSetValueAtIndex( DKMutableListRef ref, DKIndex index, const void * value );
-void        DKListInsertValueAtIndex( DKMutableListRef ref, DKIndex index, const void * value );
-void        DKListReplaceValues( DKMutableListRef ref, DKRange range, const void ** values, DKIndex count );
-void        DKListReplaceValuesWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
-void        DKListRemoveValueAtIndex( DKMutableListRef ref, DKIndex index );
-void        DKListRemoveAllValues( DKMutableListRef ref );
+void        DKListAppendObject( DKMutableListRef ref, DKTypeRef object );
+void        DKListSetObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef object );
+void        DKListInsertObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef object );
+void        DKListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
+void        DKListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
+void        DKListRemoveObjectAtIndex( DKMutableListRef ref, DKIndex index );
+void        DKListRemoveAllObjects( DKMutableListRef ref );
 
 
 
