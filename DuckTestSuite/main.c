@@ -24,23 +24,20 @@ int main( int argc, const char * argv[] )
 
     TestDKObject();
     TestDKData();
-    TestDKList( DKMutableLinkedListClass() );
+    //TestDKList( DKMutableLinkedListClass() );
 
     return 0;
 }
 
-DKDeclareMethod( int, BaadFood );
-DKDefineMethod( int, BaadFood );
 
 void TestDKObject( void )
 {
-    DKTypeRef objectClass = DKObjectClass();
+    DKTypeRef objectClass = DKDataClass();
     DKTypeRef object = DKCreate( objectClass );
     
-    VERIFY( DKGetClass( objectClass ) == &__DKClassClass__ );
+    VERIFY( DKGetClass( objectClass ) == DKClassClass() );
     VERIFY( DKGetClass( object ) == objectClass );
-
-    DKCallMethod( object, BaadFood );
+    VERIFY( DKQueryInterface( objectClass, DKSelector(LifeCycle) ) == DKQueryInterface( object, DKSelector(LifeCycle) ) );
 
     DKRelease( object );
 }
@@ -105,7 +102,7 @@ void TestDKData( void )
     DKRelease( data );
 }
 
-
+/*
 void TestDKList( DKTypeRef listClass )
 {
     DKDataRef a = DKDataCreate( "a", 2 );
@@ -182,7 +179,7 @@ void TestDKList( DKTypeRef listClass )
     DKRelease( c );
     DKRelease( d );
 }
-
+*/
 
 
 

@@ -75,57 +75,20 @@ void DKFree( void * ptr )
 
 
 ///
-//  DKPtrEqual()
-//
-int DKPtrEqual( const void * a, const void * b )
-{
-    return a == b;
-}
-
-
-///
 //  DKStrEqual()
 //
 int DKStrEqual( const void * a, const void * b )
 {
-    return DKStrCompare( a, b ) != 0;
+    return strcmp( a, b ) != 0;
 }
 
 
 ///
-//  DKPtrCompare()
+//  DKStrLexicalCmp()
 //
-int DKPtrCompare( const void * a, const void * b )
+int DKStrLexicalCmp( const void * a, const void * b )
 {
-    if( a < b )
-        return 1;
-    
-    if( a > b )
-        return -1;
-    
-    return 0;
-}
-
-
-///
-//  DKStrCompare()
-//
-int DKStrCompare( const void * a, const void * b )
-{
-    if( (a != NULL) && (b != NULL) )
-        return strcmp( a, b );
-    
-    return DKPtrCompare( a, b );
-}
-
-
-///
-//  DKPtrHash()
-//
-DKHashIndex DKPtrHash( const void * ptr )
-{
-    assert( sizeof(DKHashIndex) == sizeof(void *) );
-    return (DKHashIndex)ptr;
+    return strcmp( a, b );
 }
 
 

@@ -9,18 +9,19 @@
 #ifndef _DK_COPYING_H_
 #define _DK_COPYING_H_
 
-#include "DKObject.h"
+#include "DKRuntime.h"
 
-DKDeclareInterface( DKCopying );
+DKDeclareInterface( Copying );
 
-typedef struct
+struct DKCopying
 {
-    const DKInterface _interface;
+    DKInterface _interface;
 
-    DKTypeRef   (* const copy)( DKTypeRef ref );
-    DKTypeRef   (* const mutableCopy)( DKTypeRef ref );
+    DKTypeRef   (*copy)( DKTypeRef ref );
+    DKTypeRef   (*mutableCopy)( DKTypeRef ref );
+};
 
-} DKCopyingInterface;
+typedef const struct DKCopying DKCopying;
 
 
 DKTypeRef DKCopy( DKTypeRef ref );

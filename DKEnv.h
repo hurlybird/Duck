@@ -49,16 +49,9 @@ void * DKAllocAndZero( size_t size );
 void   DKFree( void * ptr );
 
 
-// Equal
-int DKPtrEqual( const void * a, const void * b );
 int DKStrEqual( const void * a, const void * b );
+int DKStrLexicalCmp( const void * a, const void * b );
 
-// Compare
-int DKPtrCompare( const void * a, const void * b );
-int DKStrCompare( const void * a, const void * b );
-
-// Hash
-DKHashIndex DKPtrHash( const void * ptr );
 DKHashIndex DKStrHash( const void * str );
 DKHashIndex DKMemHash( const void * buffer, size_t buffer_size );
 

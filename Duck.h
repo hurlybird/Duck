@@ -11,11 +11,12 @@
 
 
 #include "DKEnv.h"
-#include "DKObject.h"
+#include "DKRuntime.h"
+#include "DKCommonInterfaces.h"
 #include "DKCopying.h"
 #include "DKData.h"
-#include "DKList.h"
-#include "DKLinkedList.h"
+//#include "DKList.h"
+//#include "DKLinkedList.h"
 //#include "scl_value.h"
 //#include "scl_buffer.h"
 //#include "scl_array.h"

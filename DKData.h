@@ -9,7 +9,7 @@
 #ifndef _DK_DATA_H_
 #define _DK_DATA_H_
 
-#include "DKObject.h"
+#include "DKRuntime.h"
 #include "DKMemory.h"
 
 

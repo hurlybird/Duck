@@ -6,13 +6,14 @@
 //  Copyright (c) 2011 Derek W. Nylen. All rights reserved.
 //
 #include "DKData.h"
+#include "DKCommonInterfaces.h"
 #include "DKCopying.h"
 
 
 struct DKData
 {
     DKObjectHeader _obj;
-    DKMemorySegment segment;
+    DKByteArray byteArray;
 };
 
 
@@ -23,90 +24,9 @@ static void         DKDataFinalize( DKTypeRef ref );
 static DKTypeRef    DKDataCopy( DKTypeRef ref );
 static DKTypeRef    DKMutableDataCopy( DKTypeRef ref );
 static DKTypeRef    DKDataMutableCopy( DKTypeRef ref );
-int                 DKDataEqual( DKTypeRef a, DKTypeRef b );
-int                 DKDataCompare( DKTypeRef a, DKTypeRef b );
-DKHashIndex         DKDataHash( DKTypeRef ref );
-
-
-
-
-// DKData Class ==========================================================================
-static const DKCopyingInterface __DKDataCopyingInterface__ =
-{
-    DKStaticInterfaceObject( DKCopying ),
-    
-    DKDataCopy,
-    DKDataMutableCopy
-};
-
-static DKTypeRef __DKDataInterfaces__[] =
-{
-    &__DKDataCopyingInterface__
-};
-
-static const DKClass __DKDataClass__ =
-{
-    DK_STATIC_CLASS_OBJECT,
-
-    DKInterfaceTable( __DKDataInterfaces__ ),
-    DKEmptyMethodTable(),
-    DKEmptyPropertyTable(),
-    
-    DKObjectGetInterface,
-    DKObjectGetMethod,
-    
-    DKObjectRetain,
-    DKObjectRelease,
-    
-    DKDataAllocate,
-    DKDataInitialize,
-    DKDataFinalize,
-    
-    DKDataEqual,
-    DKDataCompare,
-    DKDataHash
-};
-
-
-
-
-// DKMutableData Class ===================================================================
-static const DKCopyingInterface __DKMutableDataCopyingInterface__ =
-{
-    DKStaticInterfaceObject( DKCopying ),
-    
-    DKMutableDataCopy,
-    DKDataMutableCopy
-};
-
-static DKTypeRef __DKMutableDataInterfaces__[] =
-{
-    &__DKMutableDataCopyingInterface__,
-};
-
-static const DKClass __DKMutableDataClass__ =
-{
-    DK_STATIC_CLASS_OBJECT,
-
-    DKInterfaceTable( __DKMutableDataInterfaces__ ),
-    DKEmptyMethodTable(),
-    DKEmptyPropertyTable(),
-    
-    DKObjectGetInterface,
-    DKObjectGetMethod,
-    
-    DKObjectRetain,
-    DKObjectRelease,
-    
-    DKMutableDataAllocate,
-    DKDataInitialize,
-    DKDataFinalize,
-
-    DKDataEqual,
-    DKDataCompare,
-    DKDataHash
-};
-
+static int          DKDataEqual( DKTypeRef a, DKTypeRef b );
+static int          DKDataCompare( DKTypeRef a, DKTypeRef b );
+static DKHashIndex  DKDataHash( DKTypeRef ref );
 
 
 
@@ -117,7 +37,29 @@ static const DKClass __DKMutableDataClass__ =
 //
 DKTypeRef DKDataClass( void )
 {
-    return &__DKDataClass__;
+    static DKTypeRef dataClass = NULL;
+
+    if( !dataClass )
+    {
+        dataClass = DKAllocClass( DKObjectClass() );
+        
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        lifeCycle->allocate = DKDataAllocate;
+        lifeCycle->initialize = DKDataInitialize;
+        lifeCycle->finalize = DKDataFinalize;
+
+        DKInstallInterface( dataClass, lifeCycle );
+        DKRelease( lifeCycle );
+
+        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        copying->copy = DKDataCopy;
+        copying->mutableCopy = DKDataMutableCopy;
+        
+        DKInstallInterface( dataClass, copying );
+        DKRelease( copying );
+    }
+    
+    return dataClass;
 }
 
 
@@ -126,7 +68,29 @@ DKTypeRef DKDataClass( void )
 //
 DKTypeRef DKMutableDataClass( void )
 {
-    return &__DKMutableDataClass__;
+    static DKTypeRef mutableDataClass = NULL;
+
+    if( !mutableDataClass )
+    {
+        mutableDataClass = DKAllocClass( DKObjectClass() );
+        
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        lifeCycle->allocate = DKMutableDataAllocate;
+        lifeCycle->initialize = DKDataInitialize;
+        lifeCycle->finalize = DKDataFinalize;
+
+        DKInstallInterface( mutableDataClass, lifeCycle );
+        DKRelease( lifeCycle );
+
+        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        copying->copy = DKMutableDataCopy;
+        copying->mutableCopy = DKDataMutableCopy;
+        
+        DKInstallInterface( mutableDataClass, copying );
+        DKRelease( copying );
+    }
+    
+    return mutableDataClass;
 }
 
 
@@ -135,7 +99,7 @@ DKTypeRef DKMutableDataClass( void )
 //
 static DKTypeRef DKDataAllocate( void )
 {
-    return DKNewObject( DKDataClass(), sizeof(struct DKData), 0 );
+    return DKAllocObject( DKDataClass(), sizeof(struct DKData), 0 );
 }
 
 
@@ -144,7 +108,7 @@ static DKTypeRef DKDataAllocate( void )
 //
 static DKTypeRef DKMutableDataAllocate( void )
 {
-    return DKNewObject( DKMutableDataClass(), sizeof(struct DKData), DKObjectMutable );
+    return DKAllocObject( DKMutableDataClass(), sizeof(struct DKData), DKObjectIsMutable );
 }
 
 
@@ -158,7 +122,7 @@ static DKTypeRef DKDataInitialize( DKTypeRef ref )
     if( ref )
     {
         struct DKData * data = (struct DKData *)ref;
-        DKMemorySegmentInit( &data->segment );
+        DKByteArrayInit( &data->byteArray );
     }
     
     return ref;
@@ -174,9 +138,9 @@ static void DKDataFinalize( DKTypeRef ref )
     {
         struct DKData * data = (struct DKData *)ref;
         
-        if( !DKTestAttribute( data, DKObjectExternalStorage ) )
+        if( !DKTestObjectAttribute( data, (DKObjectContentIsInline | DKObjectContentIsExternal) ) )
         {
-            DKMemorySegmentClear( &data->segment );
+            DKByteArrayClear( &data->byteArray );
         }
     }
 }
@@ -212,7 +176,7 @@ static DKTypeRef DKDataMutableCopy( DKTypeRef ref )
 ///
 //  DKDataEqual()
 //
-int DKDataEqual( DKTypeRef a, DKTypeRef b )
+static int DKDataEqual( DKTypeRef a, DKTypeRef b )
 {
     return DKDataCompare( a, b ) == 0;
 }
@@ -221,7 +185,7 @@ int DKDataEqual( DKTypeRef a, DKTypeRef b )
 ///
 //  DKDataCompare()
 //
-int DKDataCompare( DKTypeRef a, DKTypeRef b )
+static int DKDataCompare( DKTypeRef a, DKTypeRef b )
 {
     DKTypeRef btype = DKGetClass( b );
     
@@ -230,31 +194,31 @@ int DKDataCompare( DKTypeRef a, DKTypeRef b )
         DKDataRef da = a;
         DKDataRef db = b;
         
-        if( da->segment.length < db->segment.length )
+        if( da->byteArray.length < db->byteArray.length )
             return -1;
         
-        if( da->segment.length > db->segment.length )
+        if( da->byteArray.length > db->byteArray.length )
             return 1;
         
-        if( da->segment.length == 0 )
+        if( da->byteArray.length == 0 )
             return 0;
 
-        return memcmp( da->segment.data, db->segment.data, da->segment.length );
+        return memcmp( da->byteArray.data, db->byteArray.data, da->byteArray.length );
     }
     
-    return DKPtrCompare( a, b );
+    return DKDefaultCompareImp( a, b );
 }
 
 
 ///
 //  DKDataHash()
 //
-DKHashIndex DKDataHash( DKTypeRef ref )
+static DKHashIndex DKDataHash( DKTypeRef ref )
 {
     DKDataRef data = ref;
     
-    if( data->segment.length > 0 )
-        return DKMemHash( data->segment.data, data->segment.length );
+    if( data->byteArray.length > 0 )
+        return DKMemHash( data->byteArray.data, data->byteArray.length );
     
     return 0;
 }
@@ -269,19 +233,19 @@ DKHashIndex DKDataHash( DKTypeRef ref )
 //
 DKDataRef DKDataCreate( const void * bytes, DKIndex length )
 {
-    DKDataRef ref = DKNewObject( DKDataClass(), sizeof(struct DKData) + length, DKObjectExternalStorage );
+    DKDataRef ref = DKAllocObject( DKDataClass(), sizeof(struct DKData) + length, DKObjectContentIsInline );
 
     if( ref )
     {
         struct DKData * data = (struct DKData *)ref;
         
-        DKMemorySegmentInit( &data->segment );
+        DKByteArrayInit( &data->byteArray );
 
-        data->segment.data = (void *)(data + 1);
-        data->segment.length = length;
-        data->segment.maxLength = length;
+        data->byteArray.data = (void *)(data + 1);
+        data->byteArray.length = length;
+        data->byteArray.maxLength = length;
         
-        memcpy( data->segment.data, bytes, length );
+        memcpy( data->byteArray.data, bytes, length );
     }
     
     return ref;
@@ -313,17 +277,17 @@ DKDataRef DKDataCreateCopy( DKDataRef src )
 //
 DKDataRef DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length )
 {
-    DKDataRef ref = DKNewObject( DKDataClass(), sizeof(struct DKData), DKObjectExternalStorage );
+    DKDataRef ref = DKAllocObject( DKDataClass(), sizeof(struct DKData), DKObjectContentIsExternal );
 
     if( ref )
     {
         struct DKData * data = (struct DKData *)ref;
         
-        DKMemorySegmentInit( &data->segment );
+        DKByteArrayInit( &data->byteArray );
 
-        data->segment.data = (void *)bytes;
-        data->segment.length = length;
-        data->segment.maxLength = length;
+        data->byteArray.data = (void *)bytes;
+        data->byteArray.length = length;
+        data->byteArray.maxLength = length;
     }
     
     return ref;
@@ -351,7 +315,7 @@ DKMutableDataRef DKDataCreateMutableCopy( DKDataRef src )
         const void * srcBytes = DKDataGetBytePtr( src );
         DKIndex srcLength = DKDataGetLength( src );
 
-        DKMemorySegmentReplaceBytes( &ref->segment, DKRangeMake( 0, 0 ), srcBytes, srcLength );
+        DKByteArrayReplaceBytes( &ref->byteArray, DKRangeMake( 0, 0 ), srcBytes, srcLength );
     }
 
     return ref;
@@ -365,7 +329,7 @@ DKIndex DKDataGetLength( DKDataRef ref )
 {
     if( ref )
     {
-        return ref->segment.length;
+        return ref->byteArray.length;
     }
     
     return 0;
@@ -379,14 +343,16 @@ void DKDataSetLength( DKMutableDataRef ref, DKIndex length )
 {
     if( ref )
     {
-        if( length > ref->segment.length )
+        if( length > ref->byteArray.length )
         {
-            DKMemorySegmentReplaceBytes( &ref->segment, DKRangeMake( ref->segment.length, 0 ), NULL, length - ref->segment.length );
+            DKRange range = DKRangeMake( ref->byteArray.length, 0 );
+            DKByteArrayReplaceBytes( &ref->byteArray, range, NULL, length - ref->byteArray.length );
         }
         
-        else if( length < ref->segment.length )
+        else if( length < ref->byteArray.length )
         {
-            DKMemorySegmentReplaceBytes( &ref->segment, DKRangeMake( length, ref->segment.length - length ), NULL, 0 );
+            DKRange range = DKRangeMake( length, ref->byteArray.length - length );
+            DKByteArrayReplaceBytes( &ref->byteArray, range, NULL, 0 );
         }
     }
 }
@@ -399,7 +365,7 @@ void DKDataIncreaseLength( DKMutableDataRef ref, DKIndex length )
 {
     if( ref )
     {
-        DKDataSetLength( ref, ref->segment.length + length );
+        DKDataSetLength( ref, ref->byteArray.length + length );
     }
 }
 
@@ -409,9 +375,9 @@ void DKDataIncreaseLength( DKMutableDataRef ref, DKIndex length )
 //
 const void * DKDataGetBytePtr( DKDataRef ref )
 {
-    if( ref && (ref->segment.length > 0) )
+    if( ref && (ref->byteArray.length > 0) )
     {
-        return ref->segment.data;
+        return ref->byteArray.data;
     }
     
     return NULL;
@@ -425,8 +391,8 @@ const void * DKDataGetByteRange( DKDataRef ref, DKRange range )
 {
     if( ref )
     {
-        if( (range.location < ref->segment.length) && (DKRangeEnd( range ) <= ref->segment.length) )
-            return ref->segment.data + range.location;
+        if( (range.location < ref->byteArray.length) && (DKRangeEnd( range ) <= ref->byteArray.length) )
+            return ref->byteArray.data + range.location;
     }
     
     return NULL;
@@ -440,7 +406,7 @@ void * DKDataGetMutableBytePtr( DKMutableDataRef ref )
 {
     if( ref )
     {
-        if( !DKTestAttribute( ref, DKObjectMutable ) )
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
             assert( 0 );
             return NULL;
@@ -460,7 +426,7 @@ void * DKDataGetMutableByteRange( DKMutableDataRef ref, DKRange range )
 {
     if( ref )
     {
-        if( !DKTestAttribute( ref, DKObjectMutable ) )
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
             assert( 0 );
             return NULL;
@@ -498,7 +464,8 @@ void DKDataAppendBytes( DKMutableDataRef ref, const void * bytes, DKIndex length
 {
     if( ref )
     {
-        DKMemorySegmentReplaceBytes( &ref->segment, DKRangeMake( ref->segment.length, 0 ), bytes, length );
+        DKRange range = DKRangeMake( ref->byteArray.length, 0 );
+        DKByteArrayReplaceBytes( &ref->byteArray, range, bytes, length );
     }
 }
 
@@ -510,7 +477,7 @@ void DKDataReplaceBytes( DKMutableDataRef ref, DKRange range, const void * bytes
 {
     if( ref )
     {
-        DKMemorySegmentReplaceBytes( &ref->segment, range, bytes, length );
+        DKByteArrayReplaceBytes( &ref->byteArray, range, bytes, length );
     }
 }
 
@@ -522,7 +489,7 @@ void DKDataDeleteBytes( DKMutableDataRef ref, DKRange range )
 {
     if( ref )
     {
-        DKMemorySegmentReplaceBytes( &ref->segment, range, NULL, 0 );
+        DKByteArrayReplaceBytes( &ref->byteArray, range, NULL, 0 );
     }
 }
 

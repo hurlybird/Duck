@@ -9,7 +9,7 @@
 #include "DKCopying.h"
 
 
-DKDefineInterface( DKCopying );
+DKDefineInterface( Copying );
 
 
 ///
@@ -17,12 +17,12 @@ DKDefineInterface( DKCopying );
 //
 DKTypeRef DKCopy( DKTypeRef ref )
 {
-    const DKObjectHeader * obj = ref;
-    
-    if( obj )
+    if( ref )
     {
-        const DKCopyingInterface * copyingInterface = DKGetInterface( obj, DKSelector( DKCopying ) );
-        return copyingInterface->copy( obj );
+        const DKObjectHeader * obj = ref;
+        DKCopying * copying = DKQueryInterface( obj, DKSelector( Copying ) );
+        
+        return copying->copy( obj );
     }
 
     return ref;
@@ -34,12 +34,12 @@ DKTypeRef DKCopy( DKTypeRef ref )
 //
 DKTypeRef DKMutableCopy( DKTypeRef ref )
 {
-    const DKObjectHeader * obj = ref;
-    
-    if( obj )
+    if( ref )
     {
-        const DKCopyingInterface * copyingInterface = DKGetInterface( obj, DKSelector( DKCopying ) );
-        return copyingInterface->mutableCopy( obj );
+        const DKObjectHeader * obj = ref;
+        DKCopying * copying = DKQueryInterface( obj, DKSelector( Copying ) );
+        
+        return copying->mutableCopy( obj );
     }
 
     return ref;

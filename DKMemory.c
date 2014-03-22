@@ -9,37 +9,61 @@
 #include "DKMemory.h"
 
 
-// DKMemorySegment =======================================================================
+// DKByteArray ===========================================================================
 
-#define MIN_DATA_SIZE 64
+#define MIN_BYTE_ARRAY_SIZE 64
 
 ///
-//  DKMemorySegmentInit()
+//  DKByteArrayInit()
 //
-void DKMemorySegmentInit( DKMemorySegment * segment )
+void DKByteArrayInit( DKByteArray * array )
 {
-    segment->data = NULL;
-    segment->length = 0;
-    segment->maxLength = 0;
+    array->data = NULL;
+    array->length = 0;
+    array->maxLength = 0;
 }
 
 
 ///
-//  DKMemorySegmentClear()
+//  DKByteArrayReserve()
 //
-void DKMemorySegmentClear( DKMemorySegment * segment )
+void DKByteArrayReserve( DKByteArray * array, DKIndex length )
 {
-    DKFree( segment->data );
-    segment->data = NULL;
-    segment->length = 0;
-    segment->maxLength = 0;
+    if( array->maxLength < length )
+    {
+        if( length < MIN_BYTE_ARRAY_SIZE )
+            length = MIN_BYTE_ARRAY_SIZE;
+    
+        uint8_t * data = DKAlloc( length );
+        
+        if( array->length > 0 )
+        {
+            memcpy( data, array->data, array->length );
+            DKFree( array->data );
+        }
+        
+        array->data = data;
+        array->maxLength = length;
+    }
 }
 
 
 ///
-//  DKMemorySegmentResize()
+//  DKByteArrayClear()
 //
-static void * DKMemorySegmentResize( void * ptr, DKIndex oldSize, DKIndex requestedSize, DKIndex * allocatedSize )
+void DKByteArrayClear( DKByteArray * array )
+{
+    DKFree( array->data );
+    array->data = NULL;
+    array->length = 0;
+    array->maxLength = 0;
+}
+
+
+///
+//  DKByteArrayResize()
+//
+static void * DKByteArrayResize( void * ptr, DKIndex oldSize, DKIndex requestedSize, DKIndex * allocatedSize )
 {
     if( requestedSize < oldSize )
         return ptr;
@@ -49,8 +73,8 @@ static void * DKMemorySegmentResize( void * ptr, DKIndex oldSize, DKIndex reques
     if( newSize < requestedSize )
         newSize = requestedSize;
     
-    if( newSize < MIN_DATA_SIZE )
-        newSize = MIN_DATA_SIZE;
+    if( newSize < MIN_BYTE_ARRAY_SIZE )
+        newSize = MIN_BYTE_ARRAY_SIZE;
     
     *allocatedSize = newSize;
     
@@ -59,15 +83,15 @@ static void * DKMemorySegmentResize( void * ptr, DKIndex oldSize, DKIndex reques
 
 
 ///
-//  DKMemorySegmentReplaceBytes()
+//  DKByteArrayReplaceBytes()
 //
-void DKMemorySegmentReplaceBytes( DKMemorySegment * segment, DKRange range, const void * bytes, DKIndex length )
+void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const void * bytes, DKIndex length )
 {
     DKIndex range_end = DKRangeEnd( range );
 
     assert( range.location >= 0 );
     assert( range.length >= 0 );
-    assert( range_end <= segment->length );
+    assert( range_end <= array->length );
     assert( length >= 0 );
 
     // Do nothing
@@ -76,35 +100,35 @@ void DKMemorySegmentReplaceBytes( DKMemorySegment * segment, DKRange range, cons
 
     DKRange prefixRange = DKRangeMake( 0, range.location );
     DKRange insertedRange = DKRangeMake( range.location, length );
-    DKRange suffixRangeBeforeInsertion = DKRangeMake( range_end, segment->length - range_end );
-    DKRange suffixRangeAfterInsertion = DKRangeMake( range.location + length, segment->length - range_end );
+    DKRange suffixRangeBeforeInsertion = DKRangeMake( range_end, array->length - range_end );
+    DKRange suffixRangeAfterInsertion = DKRangeMake( range.location + length, array->length - range_end );
 
     // Resize
-    DKIndex newLength = segment->length + length - range.length;
+    DKIndex newLength = array->length + length - range.length;
     assert( newLength >= 0 );
 
     // Resize
-    uint8_t * data = DKMemorySegmentResize( segment->data, segment->maxLength, newLength, &segment->maxLength );
+    uint8_t * data = DKByteArrayResize( array->data, array->maxLength, newLength, &array->maxLength );
     
-    if( segment->data )
+    if( array->data )
     {
-        if( segment->data != data )
+        if( array->data != data )
         {
             // Copy prefix
             if( prefixRange.length > 0 )
             {
-                memcpy( data, segment->data, prefixRange.length );
+                memcpy( data, array->data, prefixRange.length );
             }
             
             // Copy suffix
             if( suffixRangeBeforeInsertion.length > 0 )
             {
                 uint8_t * dst = &data[suffixRangeAfterInsertion.location];
-                uint8_t * src = &segment->data[suffixRangeBeforeInsertion.location];
+                uint8_t * src = &array->data[suffixRangeBeforeInsertion.location];
                 memcpy( dst, src, suffixRangeBeforeInsertion.length );
             }
             
-            DKFree( segment->data );
+            DKFree( array->data );
         }
         
         else
@@ -119,13 +143,13 @@ void DKMemorySegmentReplaceBytes( DKMemorySegment * segment, DKRange range, cons
         }
     }
     
-    segment->data = data;
-    segment->length = newLength;
+    array->data = data;
+    array->length = newLength;
     
     // Insert or Extend
     if( insertedRange.length > 0 )
     {
-        uint8_t * dst = &segment->data[insertedRange.location];
+        uint8_t * dst = &array->data[insertedRange.location];
         
         if( bytes != NULL )
         {
@@ -137,6 +161,98 @@ void DKMemorySegmentReplaceBytes( DKMemorySegment * segment, DKRange range, cons
             memset( dst, 0, insertedRange.length );
         }
     }
+}
+
+
+
+
+// DKPointerArray ========================================================================
+
+///
+//  DKElementArrayInit()
+//
+void DKElementArrayInit( DKElementArray * array, DKIndex elementSize )
+{
+    DKByteArrayInit( &array->byteArray );
+    array->elementSize = elementSize;
+}
+
+
+///
+//  DKElementArrayReserve()
+//
+void DKElementArrayReserve( DKElementArray * array, DKIndex length )
+{
+    DKByteArrayReserve( &array->byteArray, length * array->elementSize );
+}
+
+
+///
+//  DKElementArrayClear()
+void DKElementArrayClear( DKElementArray * array )
+{
+    DKByteArrayClear( &array->byteArray );
+}
+
+
+///
+//  DKElementArrayReplaceElements()
+//
+void DKElementArrayReplaceElements( DKElementArray * array, DKRange range, const void * elements, DKIndex length )
+{
+    DKRange byteRange = DKRangeMake( range.location * array->elementSize, range.length * array->elementSize );
+    DKIndex byteLength = length * array->elementSize;
+    
+    DKByteArrayReplaceBytes( &array->byteArray, byteRange, elements, byteLength );
+}
+
+
+///
+//  DKElementArrayGetCount()
+//
+DKIndex DKElementArrayGetCount( const DKElementArray * array )
+{
+    return array->byteArray.length / array->elementSize;
+}
+
+
+///
+//  DKElementArrayAppendElement()
+//
+void DKElementArrayAppendElement( DKElementArray * array, const void * element )
+{
+    DKRange byteRange = DKRangeMake( array->byteArray.length, 0 );
+    DKByteArrayReplaceBytes( &array->byteArray, byteRange, element, array->elementSize );
+}
+
+
+///
+//  DKElementArrayInsertElementAtIndex()
+//
+void DKElementArrayInsertElementAtIndex( DKElementArray * array, DKIndex index, const void * element )
+{
+    DKRange byteRange = DKRangeMake( index * array->elementSize, 0 );
+    DKByteArrayReplaceBytes( &array->byteArray, byteRange, element, array->elementSize );
+}
+
+
+///
+//  DKElementArraySetElementAtIndex()
+//
+void DKElementArraySetElementAtIndex( DKElementArray * array, DKIndex index, const void * element )
+{
+    DKRange byteRange = DKRangeMake( index * array->elementSize, array->elementSize );
+    DKByteArrayReplaceBytes( &array->byteArray, byteRange, element, array->elementSize );
+}
+
+
+///
+//  DKElementArrayRemoveElementAtIndex()
+//
+void DKElementArrayRemoveElementAtIndex( DKElementArray * array, DKIndex index )
+{
+    DKRange byteRange = DKRangeMake( index * array->elementSize, array->elementSize );
+    DKByteArrayReplaceBytes( &array->byteArray, byteRange, NULL, 0 );
 }
 
 
