@@ -7,9 +7,33 @@
 //
 
 #include "DKList.h"
+#include "DKLinkedList.h"
 
 
 DKDefineFastLookupInterface( List );
+
+
+///
+//  DKListClass()
+//
+static DKTypeRef DefaultListClass = NULL;
+
+DKTypeRef DKListClass( void )
+{
+    if( DefaultListClass )
+        return DefaultListClass;
+    
+    return DKLinkedListClass();
+}
+
+
+///
+//  DKSetListClass()
+//
+void DKSetListClass( DKTypeRef ref )
+{
+    DefaultListClass = ref;
+}
 
 
 ///

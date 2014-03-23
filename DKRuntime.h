@@ -241,17 +241,19 @@ DKHashIndex DKHash( DKTypeRef ref );
 //
 // DKCallMethod does three things:
 //
-// 1) Retrieve a DKMethod object from REF using the selector DKSelector( METHOD ).
+// 1) Retrieve a DKMethod object from REF using DKSelector_METHOD. This is equivalent to
+//    the selector returned by DKSelector( METHOD ).
 //
 // 2) Cast the method implementation to the DKMethod_METHOD type defined by
 //    DKDefineSelector( METHOD ). This provides a modicum of compile-time type checking.
 //
-// 3) Call the imp function with REF, DKSelector( METHOD) and the remaining arguments.
+// 3) Call the imp function with REF, DKSelector_METHOD and the remaining arguments.
 //
 //    Note that the GNU C Preprocessor concat operator ## has a special case when used
 //    between a comma and __VA_ARGS__: if no variable arguments are supplied, the comma
 //    is omitted as well.
-//    The preprocesser used by Clang seems to support this syntax as well.
+//
+//    The preprocesser used by Clang seems to support the special case ## syntax as well.
 //
 //    If the method isn't defined for the object, DKLookupMethod returns a generic
 //    implementation that produces an error.

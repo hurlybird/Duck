@@ -33,6 +33,9 @@ struct DKList
 typedef const struct DKList DKList;
 
 
+DKTypeRef   DKListClass( void );
+void        DKSetListClass( DKTypeRef ref );
+
 DKIndex     DKListGetCount( DKListRef ref );
 DKIndex     DKListGetCountOfObject( DKListRef ref, DKTypeRef object );
 DKIndex     DKListGetFirstIndexOfObject( DKListRef ref, DKTypeRef object );

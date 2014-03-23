@@ -7,10 +7,34 @@
 //
 
 #include "DKDictionary.h"
+#include "DKBinaryTree.h"
 #include "DKLinkedList.h"
 
 
 DKDefineFastLookupInterface( Dictionary );
+
+
+///
+//  DKDictionaryClass()
+//
+static DKTypeRef DefaultDictionaryClass = NULL;
+
+DKTypeRef DKDictionaryClass( void )
+{
+    if( DefaultDictionaryClass )
+        return DefaultDictionaryClass;
+    
+    return DKBinaryTreeClass();
+}
+
+
+///
+//  DKSetDictionaryClass()
+//
+void DKSetDictionaryClass( DKTypeRef ref )
+{
+    DefaultDictionaryClass = ref;
+}
 
 
 ///

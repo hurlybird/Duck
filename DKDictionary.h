@@ -47,6 +47,9 @@ struct DKDictionary
 typedef const struct DKDictionary DKDictionary;
 
 
+DKTypeRef   DKDictionaryClass( void );
+void        DKSetDictionaryClass( DKTypeRef ref );
+
 DKIndex DKDictionaryGetCount( DKDictionaryRef ref );
 
 void DKDictionarySetObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object );
