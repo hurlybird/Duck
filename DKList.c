@@ -19,7 +19,7 @@ DKIndex DKListGetCount( DKListRef ref )
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         return list->getCount( ref );
     }
     
@@ -36,7 +36,7 @@ DKIndex DKListGetCountOfObject( DKListRef ref, DKTypeRef object )
 
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
     
         DKIndex n = list->getCount( ref );
         
@@ -62,7 +62,7 @@ DKIndex DKListGetFirstIndexOfObject( DKListRef ref, DKTypeRef object )
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
     
         DKIndex n = list->getCount( ref );
         
@@ -88,7 +88,7 @@ DKIndex DKListGetLastIndexOfObject( DKListRef ref, DKTypeRef object )
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
     
         DKIndex n = list->getCount( ref );
         
@@ -116,7 +116,7 @@ DKTypeRef DKListGetObjectAtIndex( DKListRef ref, DKIndex index )
 
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         list->getObjects( ref, DKRangeMake( index, 1 ), &object );
     }
     
@@ -131,7 +131,7 @@ DKIndex DKListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] )
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         return list->getObjects( ref, range, objects );
     }
     
@@ -146,7 +146,7 @@ void DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * 
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         
         DKIndex n = list->getCount( ref );
         
@@ -169,7 +169,7 @@ void DKListAppendObject( DKMutableListRef ref, DKTypeRef object )
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         DKRange append = DKRangeMake( list->getCount( ref ), 0 );
         list->replaceObjects( ref, append, &object, 1 );
     }
@@ -183,7 +183,7 @@ void DKListSetObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef obje
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         DKRange replace = DKRangeMake( index, 1 );
         list->replaceObjects( ref, replace, &object, 1 );
     }
@@ -197,7 +197,7 @@ void DKListInsertObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef o
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         DKRange insert = DKRangeMake( index, 0 );
         list->replaceObjects( ref, insert, &object, 1 );
     }
@@ -211,7 +211,7 @@ void DKListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef object
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         list->replaceObjects( ref, range, objects, count );
     }
 }
@@ -224,7 +224,7 @@ void DKListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRe
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         list->replaceObjectsWithList( ref, range, srcList );
     }
 }
@@ -237,7 +237,7 @@ void DKListRemoveObjectAtIndex( DKMutableListRef ref, DKIndex index )
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         DKRange remove = DKRangeMake( index, 1 );
         list->replaceObjects( ref, remove, NULL, 0 );
     }
@@ -251,7 +251,7 @@ void DKListRemoveAllObjects( DKMutableListRef ref )
 {
     if( ref )
     {
-        DKList * list = DKQueryInterface( ref, DKSelector(List) );
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
         DKRange remove = DKRangeMake( 0, list->getCount( ref ) );
         list->replaceObjects( ref, remove, NULL, 0 );
     }

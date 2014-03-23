@@ -30,19 +30,80 @@ int main( int argc, const char * argv[] )
 }
 
 
+
+// TestDKObject ==========================================================================
+
+DKDeclareMethod( int, Square, int );
+DKDefineMethod( int, Square, int );
+
+DKDeclareMethod( int, Cube, int );
+DKDefineMethod( int, Cube, int );
+
+static DKTypeRef TestClass = NULL;
+
+static DKTypeRef TestObjectAllocate( void )
+{
+    return DKAllocObject( TestClass, sizeof(DKObjectHeader), 0 );
+}
+
+static int TestSquare( DKTypeRef ref, DKSEL sel, int x )
+{
+    return x * x;
+}
+
+static int TestCube( DKTypeRef ref, DKSEL sel, int x )
+{
+    return x * x * x;
+}
+
 void TestDKObject( void )
 {
-    DKTypeRef objectClass = DKDataClass();
-    DKTypeRef object = DKCreate( objectClass );
+    // Define a sample class
+    TestClass = DKAllocClass( DKObjectClass() );
     
-    VERIFY( DKGetClass( objectClass ) == DKClassClass() );
-    VERIFY( DKGetClass( object ) == objectClass );
-    VERIFY( DKQueryInterface( objectClass, DKSelector(LifeCycle) ) == DKQueryInterface( object, DKSelector(LifeCycle) ) );
+    // Add a custom life-cycle interface
+    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    lifeCycle->allocate = TestObjectAllocate;
+    lifeCycle->initialize = DKDefaultInitializeImp;
+    lifeCycle->finalize = DKDefaultFinalizeImp;
+    
+    DKInstallInterface( TestClass, lifeCycle );
+    DKRelease( lifeCycle );
+    
+    // Install some custom methods
+    DKInstallMethod( TestClass, DKSelector(Square), TestSquare );
+    DKInstallMethod( TestClass, DKSelector(Cube), TestCube );
+    
+    // Create an instance of the object
+    DKTypeRef object = DKCreate( TestClass );
+    
+    // Test class membership
+    VERIFY( DKGetClass( TestClass ) == DKClassClass() );
+    VERIFY( DKGetClass( object ) == TestClass );
 
+    VERIFY( DKIsKindOfClass( object, TestClass ) );
+    VERIFY( DKIsKindOfClass( object, DKObjectClass() ) );
+
+    VERIFY( DKIsMemberOfClass( object, TestClass ) );
+    VERIFY( !DKIsMemberOfClass( object, DKObjectClass() ) );
+    
+    // DKQueryInterface should return the same object when called on the class or an instance of the class
+    VERIFY( DKLookupInterface( TestClass, DKSelector(LifeCycle) ) == DKLookupInterface( object, DKSelector(LifeCycle) ) );
+
+    // Try calling our custom methods
+    VERIFY( DKCallMethod( object, Square, 2 ) == 4 );
+    VERIFY( DKCallMethod( object, Cube, 2 ) == 8 );
+
+    // Cleanup
     DKRelease( object );
+    DKRelease( TestClass );
+    TestClass = NULL;
 }
 
 
+
+
+// TestDKData ============================================================================
 void TestDKData( void )
 {
     DKMutableDataRef data = DKDataCreateMutable();
@@ -103,6 +164,9 @@ void TestDKData( void )
 }
 
 
+
+
+// TestDKList ============================================================================
 void TestDKList( DKTypeRef listClass )
 {
     DKDataRef a = DKDataCreate( "a", 2 );

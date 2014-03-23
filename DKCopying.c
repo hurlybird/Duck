@@ -19,10 +19,8 @@ DKTypeRef DKCopy( DKTypeRef ref )
 {
     if( ref )
     {
-        const DKObjectHeader * obj = ref;
-        DKCopying * copying = DKQueryInterface( obj, DKSelector( Copying ) );
-        
-        return copying->copy( obj );
+        DKCopying * copying = DKLookupInterface( ref, DKSelector( Copying ) );
+        return copying->copy( ref );
     }
 
     return ref;
@@ -36,10 +34,8 @@ DKTypeRef DKMutableCopy( DKTypeRef ref )
 {
     if( ref )
     {
-        const DKObjectHeader * obj = ref;
-        DKCopying * copying = DKQueryInterface( obj, DKSelector( Copying ) );
-        
-        return copying->mutableCopy( obj );
+        DKCopying * copying = DKLookupInterface( ref, DKSelector( Copying ) );
+        return copying->mutableCopy( ref );
     }
 
     return ref;

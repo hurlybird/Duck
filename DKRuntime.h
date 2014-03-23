@@ -28,7 +28,6 @@ enum
     
     DKFastLookupLifeCycle =         1,
     DKFastLookupReferenceCounting,
-    DKFastLookupIntrospection,
     DKFastLookupComparison,
     DKFastLookupList,
     DKFastLookupDictionary,
@@ -156,8 +155,9 @@ DKTypeRef   DKAllocInterface( DKSEL sel, size_t size );
 
 void        DKInstallInterface( DKTypeRef _class, DKTypeRef interface );
 void        DKInstallMethod( DKTypeRef _class, DKSEL sel, const void * imp );
+
 DKTypeRef   DKLookupInterface( DKTypeRef ref, DKSEL sel );
-DKTypeRef   DKFastLookupInterface( DKTypeRef ref, int index );
+DKTypeRef   DKLookupMethod( DKTypeRef ref, DKSEL sel );
 
 
 
@@ -184,9 +184,6 @@ int         DKIsKindOfClass( DKTypeRef ref, DKTypeRef _class );
 DKTypeRef   DKRetain( DKTypeRef ref );
 void        DKRelease( DKTypeRef ref );
 
-DKTypeRef   DKQueryInterface( DKTypeRef ref, DKSEL sel );
-DKTypeRef   DKQueryMethod( DKTypeRef ref, DKSEL sel );
-
 int         DKEqual( DKTypeRef a, DKTypeRef b );
 int         DKCompare( DKTypeRef a, DKTypeRef b );
 DKHashIndex DKHash( DKTypeRef ref );
@@ -211,11 +208,11 @@ DKHashIndex DKHash( DKTypeRef ref );
 //    is omitted as well.
 //    The preprocesser used by Clang seems to support this syntax as well.
 //
-//    If the method isn't defined for the object, DKQueryMethod returns a generic
+//    If the method isn't defined for the object, DKLookupMethod returns a generic
 //    implementation that produces an error.
 
 #define DKCallMethod( ref, method, ... ) \
-    ((DKMethod_ ## method)((const DKMethod *)DKQueryMethod( ref, &DKSelector_ ## method ))->imp)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
+    ((DKMethod_ ## method)((const DKMethod *)DKLookupMethod( ref, &DKSelector_ ## method ))->imp)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
 
 
 

@@ -154,37 +154,6 @@ DKReferenceCounting * DKStaticObjectReferenceCounting( void )
 
 
 
-// Introspection =========================================================================
-DKDefineFastLookupInterface( Introspection );
-
-///
-//  DKDefaultQueryInterfaceImp()
-//
-DKTypeRef DKDefaultQueryInterfaceImp( DKTypeRef ref, DKSEL sel )
-{
-    return DKLookupInterface( ref, sel );
-}
-
-
-///
-//  DKDefaultIntrospection()
-//
-DKIntrospection * DKDefaultIntrospection( void )
-{
-    static struct DKIntrospection * introspection = NULL;
-    
-    if( !introspection )
-    {
-        introspection = (struct DKIntrospection *)DKAllocInterface( DKSelector(Introspection), sizeof(DKIntrospection) );
-        introspection->queryInterface = DKDefaultQueryInterfaceImp;
-    }
-    
-    return introspection;
-}
-
-
-
-
 // Comparison ============================================================================
 DKDefineFastLookupInterface( Comparison );
 

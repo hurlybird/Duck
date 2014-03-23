@@ -607,7 +607,7 @@ static void DKLinkedListReplaceObjectsWithListInternal( struct DKLinkedList * li
 {
     DKLinkedListRemoveObjects( list, range );
 
-    DKList * srcListInterface = DKQueryInterface( srcList, DKSelector(List) );
+    DKList * srcListInterface = DKLookupInterface( srcList, DKSelector(List) );
     assert( srcListInterface );
     
     DKIndex count = srcListInterface->getCount( srcList );

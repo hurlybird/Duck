@@ -62,25 +62,6 @@ DKReferenceCounting * DKStaticObjectReferenceCounting( void );
 
 
 
-// Introspection =========================================================================
-DKDeclareInterface( Introspection );
-
-struct DKIntrospection
-{
-    DKInterface _interface;
-    
-    DKTypeRef   (*queryInterface)( DKTypeRef ref, DKSEL sel );
-};
-
-typedef const struct DKIntrospection DKIntrospection;
-
-DKTypeRef   DKDefaultQueryInterfaceImp( DKTypeRef ref, DKSEL sel );
-
-DKIntrospection * DKDefaultIntrospection( void );
-
-
-
-
 // Comparison ============================================================================
 DKDeclareInterface( Comparison );
 
