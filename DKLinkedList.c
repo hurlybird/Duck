@@ -50,119 +50,6 @@ static DKTypeRef    DKMutableLinkedListCopy( DKTypeRef ref );
 static DKTypeRef    DKLinkedListMutableCopy( DKTypeRef ref );
 
 
-//DKDefineMethod( DKIndex, Count );
-
-
-// DKLinkedList Class ====================================================================
-
-/*
-static const DKListInterface __DKLinkedListListInterface__ =
-{
-    DKStaticInterfaceObject( DKList ),
-    
-    DKLinkedListGetCallbacks,
-    DKLinkedListGetCount,
-    DKLinkedListGetValues,
-    DKLinkedListReplaceValues,
-    DKLinkedListReplaceValuesWithList
-};
-
-static const DKCopyingInterface __DKLinkedListCopyingInterface__ =
-{
-    DKStaticInterfaceObject( DKCopying ),
-    
-    DKLinkedListCopy,
-    DKLinkedListMutableCopy
-};
-
-static DKIndex DKLinkedListGetCountMethod( DKTypeRef ref, DKSEL sel )
-{
-    return DKLinkedListGetCount( ref );
-}
-
-static const DKMethod __DKLinkedListCountMethod__ =
-{
-    DKStaticMethodObject( Count ),
-    DKLinkedListGetCountMethod
-};
-
-static DKTypeRef __DKLinkedListInterfaces__[] =
-{
-    &__DKLinkedListListInterface__,
-    &__DKLinkedListCopyingInterface__
-};
-
-static DKTypeRef __DKLinkedListMethods__[] =
-{
-    &__DKLinkedListCountMethod__
-};
-
-static const DKClass __DKLinkedListClass__ =
-{
-    DK_STATIC_CLASS_OBJECT,
-
-    DKInterfaceTable( __DKLinkedListInterfaces__ ),
-    DKMethodTable( __DKLinkedListMethods__ ),
-    DKEmptyPropertyTable(),
-    
-    DKObjectGetInterface,
-    DKObjectGetMethod,
-    
-    DKObjectRetain,
-    DKObjectRelease,
-    
-    DKLinkedListAllocate,
-    DKLinkedListInitialize,
-    DKLinkedListFinalize,
-    
-    DKPtrEqual,
-    DKPtrCompare,
-    DKPtrHash
-};
-*/
-
-
-// DKMutableLinkedList Class =============================================================
-/*
-static const DKCopyingInterface __DKMutableLinkedListCopyingInterface__ =
-{
-    DKStaticInterfaceObject( DKCopying ),
-    
-    DKMutableLinkedListCopy,
-    DKLinkedListMutableCopy
-};
-
-static DKTypeRef __DKMutableLinkedListInterfaces__[] =
-{
-    &__DKLinkedListListInterface__,
-    &__DKMutableLinkedListCopyingInterface__
-};
-
-static const DKClass __DKMutableLinkedListClass__ =
-{
-    DK_STATIC_CLASS_OBJECT,
-
-    DKInterfaceTable( __DKMutableLinkedListInterfaces__ ),
-    DKMethodTable( __DKLinkedListMethods__ ),
-    DKEmptyPropertyTable(),
-    
-    DKObjectGetInterface,
-    DKObjectGetMethod,
-    
-    DKObjectRetain,
-    DKObjectRelease,
-    
-    DKMutableLinkedListAllocate,
-    DKLinkedListInitialize,
-    DKLinkedListFinalize,
-    
-    DKPtrEqual,
-    DKPtrCompare,
-    DKPtrHash
-};
-*/
-
-
 
 // DKObject Interface ====================================================================
 
@@ -286,6 +173,13 @@ static DKTypeRef DKLinkedListInitialize( DKTypeRef ref )
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
         
         DKNodePoolInit( &list->nodePool, sizeof(struct DKLinkedListNode), 0 );
+
+        list->first = NULL;
+        list->last = NULL;
+        list->count = 0;
+        
+        list->cursor.node = NULL;
+        list->cursor.index = 0;
     }
     
     return ref;

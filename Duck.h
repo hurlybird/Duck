@@ -11,6 +11,7 @@
 
 
 #include "DKEnv.h"
+#include "DKMemory.h"
 #include "DKRuntime.h"
 #include "DKCommonInterfaces.h"
 #include "DKCopying.h"

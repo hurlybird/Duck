@@ -7,6 +7,9 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include "Duck.h"
 
 
@@ -16,6 +19,7 @@
 void TestDKObject( void );
 void TestDKData( void );
 void TestDKList( DKTypeRef listClass );
+void TestDKListPerformance( DKTypeRef listClass );
 
 
 int main( int argc, const char * argv[] )
@@ -25,6 +29,7 @@ int main( int argc, const char * argv[] )
     TestDKObject();
     TestDKData();
     TestDKList( DKMutableLinkedListClass() );
+    //TestDKListPerformance( DKMutableLinkedListClass() );
 
     return 0;
 }
@@ -245,6 +250,86 @@ void TestDKList( DKTypeRef listClass )
 }
 
 
+
+// TestDKListPerformance =================================================================
+void TestDKListPerformance( DKTypeRef listClass )
+{
+    const int N = 1000000;
+
+    DKDataRef foo = DKDataCreate( "foo", 4 );
+    DKDataRef bar = NULL;
+    
+    // Array Setup
+    DKElementArray array;
+    DKElementArrayInit( &array, sizeof(DKDataRef) );
+    
+    clock_t arraySetupStart = clock();
+
+    for( int i = 0; i < N; ++i )
+        DKElementArrayAppendElement( &array, &foo );
+    
+    clock_t arraySetupEnd = clock();
+
+    double arraySetupTime = (double)(arraySetupEnd - arraySetupStart) / (double)CLOCKS_PER_SEC;
+    printf( "Array Setup:  %lf\n", arraySetupTime );
+
+    // Array Access
+    clock_t arrayAccessStart = clock();
+    
+    for( int i = 0; i < N; ++i )
+        bar = DKElementArrayGetElementAtIndex( &array, i, DKDataRef );
+    
+    clock_t arrayAccessEnd = clock();
+
+    double arrayAccessTime = (double)(arrayAccessEnd - arrayAccessStart) / (double)CLOCKS_PER_SEC;
+    printf( "Array Access: %lf\n", arrayAccessTime );
+
+
+    // List Setup
+    DKMutableListRef list = (DKMutableListRef)DKCreate( listClass );
+
+    clock_t listSetupStart1 = clock();
+    
+    for( int i = 0; i < N; ++i )
+        DKListAppendObject( list, foo );
+    
+    clock_t listSetupEnd1 = clock();
+
+    double listSetupTime1 = (double)(listSetupEnd1 - listSetupStart1) / (double)CLOCKS_PER_SEC;
+    printf( "List Setup 1: %lf\n", listSetupTime1 );
+    
+    
+    // List Setup (preallocated nodes)
+    DKListRemoveAllObjects( list );
+    
+    clock_t listSetupStart2 = clock();
+    
+    for( int i = 0; i < N; ++i )
+        DKListAppendObject( list, foo );
+    
+    clock_t listSetupEnd2 = clock();
+
+    double listSetupTime2 = (double)(listSetupEnd2 - listSetupStart2) / (double)CLOCKS_PER_SEC;
+    printf( "List Setup 2: %lf\n", listSetupTime2 );
+    
+    
+    // List Access
+    clock_t listAccessStart = clock();
+    
+    for( int i = 0; i < N; ++i )
+        bar = DKListGetObjectAtIndex( list, i );
+    
+    clock_t listAccessEnd = clock();
+    
+    double listAccessTime = (double)(listAccessEnd - listAccessStart) / (double)CLOCKS_PER_SEC;
+    printf( "List Access:  %lf\n", listAccessTime );
+
+    
+    // Cleanup
+    DKElementArrayClear( &array );
+    DKRelease( list );
+    DKRelease( foo );
+}
 
 
 
