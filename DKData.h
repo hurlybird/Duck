@@ -42,6 +42,11 @@ void        DKDataReplaceBytes( DKMutableDataRef ref, DKRange range, const void 
 void        DKDataAppendBytes( DKMutableDataRef ref, const void * bytes, DKIndex length );
 void        DKDataDeleteBytes( DKMutableDataRef ref, DKRange range );
 
+int         DKDataSeek( DKTypeRef ref, DKIndex offset, int origin );
+DKIndex     DKDataTell( DKTypeRef ref );
+
+DKIndex     DKDataRead( DKTypeRef ref, void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKDataWrite( DKTypeRef ref, const void * buffer, DKIndex size, DKIndex count );
 
 
 #endif // _DK_DATA_H_

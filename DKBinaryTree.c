@@ -5,8 +5,6 @@
 //  Created by Derek Nylen on 2014-02-28.
 //  Copyright (c) 2014 Derek W. Nylen. All rights reserved.
 //
-#include <stdarg.h>
-
 #include "DKBinaryTree.h"
 #include "DKNodePool.h"
 #include "DKLifeCycle.h"

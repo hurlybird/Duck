@@ -10,12 +10,14 @@
 #include "DKLifeCycle.h"
 #include "DKComparison.h"
 #include "DKCopying.h"
+#include "DKStream.h"
 
 
 struct DKData
 {
     DKObjectHeader _obj;
     DKByteArray byteArray;
+    DKIndex cursor;
 };
 
 
@@ -61,6 +63,16 @@ DKTypeRef DKDataClass( void )
         
         DKInstallInterface( dataClass, copying );
         DKRelease( copying );
+
+        // Stream
+        struct DKStream * stream = (struct DKStream *)DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
+        stream->seek = DKDataSeek;
+        stream->tell = DKDataTell;
+        stream->read = DKDataRead;
+        stream->write = DKDataWrite;
+        
+        DKInstallInterface( dataClass, stream );
+        DKRelease( stream );
     }
     
     return dataClass;
@@ -94,6 +106,16 @@ DKTypeRef DKMutableDataClass( void )
         
         DKInstallInterface( mutableDataClass, copying );
         DKRelease( copying );
+        
+        // Stream
+        struct DKStream * stream = (struct DKStream *)DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
+        stream->seek = DKDataSeek;
+        stream->tell = DKDataTell;
+        stream->read = DKDataRead;
+        stream->write = DKDataWrite;
+        
+        DKInstallInterface( mutableDataClass, stream );
+        DKRelease( stream );
     }
     
     return mutableDataClass;
@@ -129,6 +151,7 @@ static DKTypeRef DKDataInitialize( DKTypeRef ref )
     {
         struct DKData * data = (struct DKData *)ref;
         DKByteArrayInit( &data->byteArray );
+        data->cursor = 0;
     }
     
     return ref;
@@ -227,6 +250,24 @@ static DKHashIndex DKDataHash( DKTypeRef ref )
         return DKMemHash( data->byteArray.data, data->byteArray.length );
     
     return 0;
+}
+
+
+///
+//  DKDataUpdateCursor()
+//
+static void DKDataSetCursor( DKDataRef ref, DKIndex cursor )
+{
+    struct DKData * data = (struct DKData *)ref;
+    
+    if( cursor < 0 )
+        data->cursor = 0;
+    
+    else if( cursor > data->byteArray.length )
+        data->cursor = data->byteArray.length;
+    
+    else
+        data = cursor;
 }
 
 
@@ -359,6 +400,8 @@ void DKDataSetLength( DKMutableDataRef ref, DKIndex length )
         {
             DKRange range = DKRangeMake( length, ref->byteArray.length - length );
             DKByteArrayReplaceBytes( &ref->byteArray, range, NULL, 0 );
+            
+            DKDataSetCursor( ref, ref->cursor );
         }
     }
 }
@@ -484,6 +527,7 @@ void DKDataReplaceBytes( DKMutableDataRef ref, DKRange range, const void * bytes
     if( ref )
     {
         DKByteArrayReplaceBytes( &ref->byteArray, range, bytes, length );
+        DKDataSetCursor( ref, ref->cursor );
     }
 }
 
@@ -496,11 +540,107 @@ void DKDataDeleteBytes( DKMutableDataRef ref, DKRange range )
     if( ref )
     {
         DKByteArrayReplaceBytes( &ref->byteArray, range, NULL, 0 );
+        DKDataSetCursor( ref, ref->cursor );
     }
 }
 
 
+///
+//  DKDataSeek()
+//
+int DKDataSeek( DKTypeRef ref, DKIndex offset, int origin )
+{
+    if( ref )
+    {
+        struct DKData * data = (struct DKData *)ref;
+        
+        DKIndex cursor = data->cursor;
+        
+        if( origin == DKSeekSet )
+            cursor = offset;
+        
+        else if( origin == DKSeekCur )
+            cursor += offset;
+        
+        else
+            cursor = data->byteArray.length + cursor;
 
+        DKDataSetCursor( data, cursor );
+    }
+    
+    return -1;
+}
+
+
+///
+//  DKDataTell()
+//
+DKIndex DKDataTell( DKTypeRef ref )
+{
+    if( ref )
+    {
+        struct DKData * data = (struct DKData *)ref;
+        return data->cursor;
+    }
+    
+    return -1;
+}
+
+
+///
+//  DKDataRead()
+//
+DKIndex DKDataRead( DKTypeRef ref, void * buffer, DKIndex size, DKIndex count )
+{
+    if( ref )
+    {
+        struct DKData * data = (struct DKData *)ref;
+
+        assert( (data->cursor >= 0) && (data->cursor <= data->byteArray.length) );
+        
+        DKRange range = DKRangeMake( data->cursor, size * count );
+        
+        if( range.length > (data->byteArray.length - data->cursor) )
+            range.length = data->byteArray.length - data->cursor;
+        
+        DKDataGetBytes( data, range, buffer );
+        
+        return range.length / size;
+    }
+    
+    return 0;
+}
+
+
+///
+//  DKDataWrite()
+//
+DKIndex DKDataWrite( DKTypeRef ref, const void * buffer, DKIndex size, DKIndex count )
+{
+    if( ref )
+    {
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
+        {
+            assert( 0 );
+            return 0;
+        }
+
+        struct DKData * data = (struct DKData *)ref;
+
+        assert( (data->cursor >= 0) && (data->cursor <= data->byteArray.length) );
+        
+        DKRange range = DKRangeMake( data->cursor, size * count );
+        
+        if( range.length > (data->byteArray.length - data->cursor) )
+            range.length = data->byteArray.length - data->cursor;
+        
+        DKDataReplaceBytes( data, range, buffer, size * count );
+        
+        return count;
+    }
+    
+    return 0;
+}
 
 
 

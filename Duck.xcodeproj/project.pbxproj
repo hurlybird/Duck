@@ -32,6 +32,8 @@
 		02C72E7018DEC861009CD44D /* DKElementArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E6F18DEC861009CD44D /* DKElementArray.c */; };
 		02C72E7218DECE4C009CD44D /* DKBinaryTree.c in Sources */ = {isa = PBXBuildFile; fileRef = 024918C918C1368B0046AA8B /* DKBinaryTree.c */; };
 		02C72E7518DEDCB6009CD44D /* DKDictionary.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E7418DEDCB6009CD44D /* DKDictionary.c */; };
+		02C72E7718DF606B009CD44D /* DKStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E7618DF606B009CD44D /* DKStream.c */; };
+		02C72E7B18DF704B009CD44D /* DKFile.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E7A18DF704B009CD44D /* DKFile.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +100,10 @@
 		02C72E7118DEC86D009CD44D /* DKElementArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKElementArray.h; sourceTree = "<group>"; };
 		02C72E7318DEDCAE009CD44D /* DKDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKDictionary.h; sourceTree = "<group>"; };
 		02C72E7418DEDCB6009CD44D /* DKDictionary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKDictionary.c; sourceTree = "<group>"; };
+		02C72E7618DF606B009CD44D /* DKStream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKStream.c; sourceTree = "<group>"; };
+		02C72E7818DF6074009CD44D /* DKStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKStream.h; sourceTree = "<group>"; };
+		02C72E7918DF7042009CD44D /* DKFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKFile.h; sourceTree = "<group>"; };
+		02C72E7A18DF704B009CD44D /* DKFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKFile.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +148,10 @@
 				0261EB9018DE807100974404 /* DKComparison.c */,
 				0283F5BD18D2D92A003B1734 /* DKCopying.h */,
 				0283F5BE18D2D93E003B1734 /* DKCopying.c */,
+				02C72E7818DF6074009CD44D /* DKStream.h */,
+				02C72E7618DF606B009CD44D /* DKStream.c */,
+				02C72E7918DF7042009CD44D /* DKFile.h */,
+				02C72E7A18DF704B009CD44D /* DKFile.c */,
 				024EE3E9148E0BA5008FDADC /* DKData.h */,
 				024EE3ED148E0BCD008FDADC /* DKData.c */,
 				0278EA4818CD25170028A755 /* DKList.h */,
@@ -279,6 +289,8 @@
 				02C72E7018DEC861009CD44D /* DKElementArray.c in Sources */,
 				02C72E7218DECE4C009CD44D /* DKBinaryTree.c in Sources */,
 				0261EB8918DE0C1600974404 /* DKLifeCycle.c in Sources */,
+				02C72E7B18DF704B009CD44D /* DKFile.c in Sources */,
+				02C72E7718DF606B009CD44D /* DKStream.c in Sources */,
 				02C72E7518DEDCB6009CD44D /* DKDictionary.c in Sources */,
 				0261EB8F18DE7FE300974404 /* DKReferenceCounting.c in Sources */,
 				02C72E6E18DEC817009CD44D /* DKByteArray.c in Sources */,
