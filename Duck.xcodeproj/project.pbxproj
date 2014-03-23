@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0239C6B914FE8F4900873E36 /* DKNodePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 0239C6B814FE8F4900873E36 /* DKNodePool.h */; };
-		024918C818C136700046AA8B /* scl_avltree.h in Headers */ = {isa = PBXBuildFile; fileRef = 024918C718C136700046AA8B /* scl_avltree.h */; };
+		024918C818C136700046AA8B /* DKBinaryTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 024918C718C136700046AA8B /* DKBinaryTree.h */; };
 		024EE3EA148E0BA5008FDADC /* DKData.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3E9148E0BA5008FDADC /* DKData.h */; };
 		024EE3EC148E0BBA008FDADC /* Duck.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3EB148E0BBA008FDADC /* Duck.h */; };
 		024EE3F4148E3566008FDADC /* scl_array.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3F3148E3566008FDADC /* scl_array.h */; };
@@ -57,8 +57,8 @@
 /* Begin PBXFileReference section */
 		0239C6B814FE8F4900873E36 /* DKNodePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKNodePool.h; sourceTree = "<group>"; };
 		0239C6BB14FE8F5600873E36 /* DKNodePool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNodePool.c; sourceTree = "<group>"; };
-		024918C718C136700046AA8B /* scl_avltree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scl_avltree.h; sourceTree = "<group>"; };
-		024918C918C1368B0046AA8B /* scl_avltree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scl_avltree.c; sourceTree = "<group>"; };
+		024918C718C136700046AA8B /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBinaryTree.h; sourceTree = "<group>"; };
+		024918C918C1368B0046AA8B /* DKBinaryTree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKBinaryTree.c; sourceTree = "<group>"; };
 		024EE3E2148E0B21008FDADC /* libDuck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDuck.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		024EE3E9148E0BA5008FDADC /* DKData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKData.h; sourceTree = "<group>"; };
 		024EE3EB148E0BBA008FDADC /* Duck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Duck.h; sourceTree = "<group>"; };
@@ -144,14 +144,14 @@
 				0278EA4A18CD92AC0028A755 /* DKList.c */,
 				024EE3F9148E42C9008FDADC /* DKLinkedList.h */,
 				024EE3FB148E42D6008FDADC /* DKLinkedList.c */,
+				024918C718C136700046AA8B /* DKBinaryTree.h */,
+				024918C918C1368B0046AA8B /* DKBinaryTree.c */,
 				027E976F148E830200AC8406 /* scl_value.h */,
 				027E9771148E84A500AC8406 /* scl_value.c */,
 				0274E6FD14901EFE00E6F451 /* scl_buffer.h */,
 				0274E6FF14901F0900E6F451 /* scl_buffer.c */,
 				024EE3F3148E3566008FDADC /* scl_array.h */,
 				024EE3F5148E3571008FDADC /* scl_array.c */,
-				024918C718C136700046AA8B /* scl_avltree.h */,
-				024918C918C1368B0046AA8B /* scl_avltree.c */,
 				02A5E25418C1A62400CFF9CA /* scl_string.h */,
 				02A5E25218C1A61A00CFF9CA /* scl_string.c */,
 				027E9781148F2D4400AC8406 /* DuckTestSuite */,
@@ -191,7 +191,7 @@
 				0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */,
 				0274E6FE14901EFE00E6F451 /* scl_buffer.h in Headers */,
 				0239C6B914FE8F4900873E36 /* DKNodePool.h in Headers */,
-				024918C818C136700046AA8B /* scl_avltree.h in Headers */,
+				024918C818C136700046AA8B /* DKBinaryTree.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
