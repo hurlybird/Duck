@@ -6,6 +6,7 @@
 //  Copyright (c) 2011 Derek W. Nylen. All rights reserved.
 //
 #include "DKData.h"
+#include "DKByteArray.h"
 #include "DKLifeCycle.h"
 #include "DKComparison.h"
 #include "DKCopying.h"

@@ -7,7 +7,7 @@
 //
 
 #include "DKEnv.h"
-#include "DKMemory.h"
+#include "DKElementArray.h"
 #include "DKRuntime.h"
 #include "DKLifeCycle.h"
 #include "DKReferenceCounting.h"

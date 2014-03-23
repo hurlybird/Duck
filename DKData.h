@@ -10,7 +10,6 @@
 #define _DK_DATA_H_
 
 #include "DKRuntime.h"
-#include "DKMemory.h"
 
 
 typedef const struct DKData * DKDataRef;

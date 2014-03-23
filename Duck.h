@@ -11,7 +11,11 @@
 
 
 #include "DKEnv.h"
-#include "DKMemory.h"
+
+#include "DKByteArray.h"
+#include "DKElementArray.h"
+#include "DKNodePool.h"
+
 #include "DKRuntime.h"
 
 #include "DKLifeCycle.h"
@@ -20,6 +24,7 @@
 #include "DKCopying.h"
 
 #include "DKData.h"
+
 #include "DKList.h"
 #include "DKLinkedList.h"
 
