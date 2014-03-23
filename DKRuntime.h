@@ -133,6 +133,51 @@ typedef const struct DKMethod DKMethod;
 
 
 
+// DKProperty ============================================================================
+typedef enum
+{
+    DKPropertyUndefined =       0,
+    DKPropertyObject,
+    DKPropertyString,
+    DKPropertyInt32,
+    DKPropertyInt64,
+    DKPropertyUnsignedInt32,
+    DKPropertyUnsignedInt64,
+    DKPropertyFloat32,
+    DKPropertyFloat64,
+    DKPropertyPointer,
+    DKPropertyStruct,
+
+} DKPropertyType;
+
+enum
+{
+    DKPropertyReadOnly =        (1 << 0),
+    DKPropertyWeak =            (1 << 1),
+    DKPropertyCopy =            (1 << 2)
+};
+
+struct DKProperty
+{
+    DKObjectHeader  _obj;
+    
+    const char *    name;
+    DKPropertyType  type;
+    int32_t         attributes;
+    size_t          offset;
+    size_t          size;
+    size_t          count;
+    DKSEL           interface;
+
+    void (*setter)( DKTypeRef ref, const struct DKProperty * property, const void * value );
+    void (*getter)( DKTypeRef ref, const struct DKProperty * property, void * value );
+};
+
+typedef const struct DKProperty DKProperty;
+
+
+
+
 // Root Classes ==========================================================================
 DKTypeRef   DKClassClass( void );
 DKTypeRef   DKSelectorClass( void );

@@ -19,7 +19,6 @@
 		0261EB8C18DE419A00974404 /* DKLinkedList.c in Sources */ = {isa = PBXBuildFile; fileRef = 024EE3FB148E42D6008FDADC /* DKLinkedList.c */; };
 		0261EB8F18DE7FE300974404 /* DKReferenceCounting.c in Sources */ = {isa = PBXBuildFile; fileRef = 0261EB8E18DE7FE300974404 /* DKReferenceCounting.c */; };
 		0261EB9118DE807100974404 /* DKComparison.c in Sources */ = {isa = PBXBuildFile; fileRef = 0261EB9018DE807100974404 /* DKComparison.c */; };
-		026B298A18CA6987003FC949 /* DKObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 026B298818CA6987003FC949 /* DKObject.h */; };
 		0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */ = {isa = PBXBuildFile; fileRef = 0274E6F914901BCF00E6F451 /* DKEnv.h */; };
 		0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */ = {isa = PBXBuildFile; fileRef = 0274E6FB14901BDA00E6F451 /* DKEnv.c */; };
 		0274E6FE14901EFE00E6F451 /* scl_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0274E6FD14901EFE00E6F451 /* scl_buffer.h */; };
@@ -72,8 +71,6 @@
 		0261EB8E18DE7FE300974404 /* DKReferenceCounting.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKReferenceCounting.c; sourceTree = "<group>"; };
 		0261EB9018DE807100974404 /* DKComparison.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKComparison.c; sourceTree = "<group>"; };
 		0261EB9218DE807B00974404 /* DKComparison.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKComparison.h; sourceTree = "<group>"; };
-		026B298718CA6987003FC949 /* DKObject.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKObject.c; sourceTree = "<group>"; };
-		026B298818CA6987003FC949 /* DKObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKObject.h; sourceTree = "<group>"; };
 		0274E6F914901BCF00E6F451 /* DKEnv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKEnv.h; sourceTree = "<group>"; };
 		0274E6FB14901BDA00E6F451 /* DKEnv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnv.c; sourceTree = "<group>"; };
 		0274E6FD14901EFE00E6F451 /* scl_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scl_buffer.h; sourceTree = "<group>"; };
@@ -131,8 +128,6 @@
 				0261EB9018DE807100974404 /* DKComparison.c */,
 				0283F5BD18D2D92A003B1734 /* DKCopying.h */,
 				0283F5BE18D2D93E003B1734 /* DKCopying.c */,
-				026B298818CA6987003FC949 /* DKObject.h */,
-				026B298718CA6987003FC949 /* DKObject.c */,
 				024EE3E9148E0BA5008FDADC /* DKData.h */,
 				024EE3ED148E0BCD008FDADC /* DKData.c */,
 				0278EA4818CD25170028A755 /* DKList.h */,
@@ -181,7 +176,6 @@
 				024EE3EA148E0BA5008FDADC /* DKData.h in Headers */,
 				024EE3EC148E0BBA008FDADC /* Duck.h in Headers */,
 				024EE3F4148E3566008FDADC /* scl_array.h in Headers */,
-				026B298A18CA6987003FC949 /* DKObject.h in Headers */,
 				024EE3FA148E42C9008FDADC /* DKLinkedList.h in Headers */,
 				027E9770148E830200AC8406 /* scl_value.h in Headers */,
 				0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */,
