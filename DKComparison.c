@@ -41,7 +41,7 @@ int DKDefaultCompareImp( DKTypeRef ref, DKTypeRef other )
 //
 DKHashIndex DKDefaultHashImp( DKTypeRef ref )
 {
-    assert( sizeof(DKHashIndex) == sizeof(DKTypeRef) );
+    DKAssert( sizeof(DKHashIndex) == sizeof(DKTypeRef) );
     return (DKHashIndex)ref;
 }
 

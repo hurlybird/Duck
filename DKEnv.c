@@ -5,25 +5,142 @@
 //  Created by Derek Nylen on 11-12-07.
 //  Copyright (c) 2011 Derek W. Nylen. All rights reserved.
 //
+#include <assert.h>
+
 #include "DKEnv.h"
 
 
-static void * (*DKAllocCallback)( size_t size ) = NULL;
-static void (*DKFreeCallback)( void * ptr ) = NULL;
+// Error Reporting =======================================================================
+static int (*PrintCallback)( const char * format, va_list arg_ptr ) = NULL;
+static int (*WarningCallback)( const char * format, va_list arg_ptr ) = NULL;
+static int (*ErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
+static int (*FatalErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
+
+void DKSetPrintCallback( int (*callback)( const char * format, va_list arg_ptr ) )
+{
+}
+
+void DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) )
+{
+}
+
+void DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) )
+{
+}
+
+void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) )
+{
+}
 
 
 ///
-//  DKSetAllocCallback()
+//  DKPrintf()
 //
+int DKPrintf( const char * format, ... )
+{
+    int result = 0;
+
+    va_list arg_ptr;
+    va_start( arg_ptr, format );
+    
+    if( PrintCallback )
+        result = PrintCallback( format, arg_ptr );
+    
+    else
+        result = vprintf( format, arg_ptr );
+    
+    va_end( arg_ptr );
+    
+    return result;
+}
+
+
+///
+//  DKWarning()
+//
+int _DKWarning( const char * format, ... )
+{
+    int result = 0;
+
+    va_list arg_ptr;
+    va_start( arg_ptr, format );
+    
+    if( WarningCallback )
+        result = WarningCallback( format, arg_ptr );
+    
+    else
+        result = vprintf( format, arg_ptr );
+    
+    va_end( arg_ptr );
+    
+    return result;
+}
+
+
+///
+//  DKError()
+//
+int _DKError( const char * format, ... )
+{
+    int result = 0;
+
+    va_list arg_ptr;
+    va_start( arg_ptr, format );
+    
+    if( ErrorCallback )
+        result = ErrorCallback( format, arg_ptr );
+    
+    else
+        result = vfprintf( stderr, format, arg_ptr );
+
+    va_end( arg_ptr );
+
+    assert( 0 );
+
+    return result;
+}
+
+
+///
+//  DKFatalError()
+//
+int _DKFatalError( const char * format, ... )
+{
+    int result = 0;
+
+    va_list arg_ptr;
+    va_start( arg_ptr, format );
+    
+    if( FatalErrorCallback )
+    {
+        result = FatalErrorCallback( format, arg_ptr );
+    }
+    
+    else
+    {
+        result = vfprintf( stderr, format, arg_ptr );
+    }
+    
+    va_end( arg_ptr );
+
+    assert( 0 );
+    abort();
+    
+    return result;
+}
+
+
+
+
+// Memory Allocation =====================================================================
+static void * (*DKAllocCallback)( size_t size ) = NULL;
+static void (*DKFreeCallback)( void * ptr ) = NULL;
+
 void DKSetAllocCallback( void * (*callback)( size_t ) )
 {
     DKAllocCallback = callback;
 }
 
-
-///
-//  DKSetFreeCallback()
-//
 void DKSetFreeCallback( void (*callback)( void * ptr ) )
 {
     DKFreeCallback = callback;
@@ -74,32 +191,18 @@ void DKFree( void * ptr )
 }
 
 
-///
-//  DKStrEqual()
-//
-int DKStrEqual( const void * a, const void * b )
-{
-    return strcmp( a, b ) != 0;
-}
 
 
-///
-//  DKStrLexicalCmp()
-//
-int DKStrLexicalCmp( const void * a, const void * b )
-{
-    return strcmp( a, b );
-}
-
+// Other Utilities =======================================================================
 
 ///
 //  DKStrHash()
 //
-DKHashIndex DKStrHash( const void * str )
+DKHashIndex DKStrHash( const char * str )
 {
     DKHashIndex hash = 0;
     
-    const char * c = (const char *)str;
+    const char * c = str;
     unsigned int i;
     
     for( i = 0; c[i] != '\0'; ++i )

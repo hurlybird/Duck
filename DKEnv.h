@@ -12,12 +12,13 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <assert.h>
 
 #include "DKEnvApple.h"
 
 
+// Basic Types ===========================================================================
 
+// Object Types
 typedef const void * DKTypeRef;
 
 
@@ -25,6 +26,8 @@ typedef const void * DKTypeRef;
 typedef intptr_t DKIndex;
 typedef uintptr_t DKHashIndex;
 
+
+// Ranges
 typedef struct
 {
     DKIndex location;
@@ -41,7 +44,56 @@ enum
 };
 
 
-// Memory Allocation
+
+
+// Error Reporting =======================================================================
+void   DKSetPrintCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+void   DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+void   DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+void   DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+
+// Print a message. This is ignored in non-debug builds. Objects can be printed with "%@".
+int    _DKPrintf( const char * format, ... );
+
+// Print a warning. This is ignored in non-debug builds if DK_WARNINGS_AS_ERRORS is not
+// defined. Objects can be printed with "%@".
+int    _DKWarning( const char * format, ... );
+
+// Print a error. In a debug build execution is halted with assert(0). In a non-debug
+// build the program will continue running. Objects can be printed with "%@".
+int    _DKError( const char * format, ... );
+
+// Print a error. In a debug build execution is halted with assert(0). In a non-debug
+// build the program is halted with abort(). Objects cannot be printed.
+int    _DKFatalError( const char * format, ... );
+
+#if defined(NDEBUG)
+#define DKPrintf( ... )
+#else
+#define DKPrintf( ... )     _DKPrintf( __VA_ARGS__ )
+#endif
+
+#if defined(NDEBUG) && !defined(DK_WARNINGS_AS_ERRORS)
+#define DKWarning( ... )
+#else
+#define DKWarning( ... )    _DKWarning( __VA_ARGS__ )
+#endif
+
+#define DKError( ... )      _DKError( __VA_ARGS__ )
+#define DKFatalError( ... ) _DKFatalError( __VA_ARGS__ )
+
+
+#if defined(NDEBUG) && !defined(DK_ASSERTIONS_AS_ERRORS)
+#define DKAssert( x )
+#define DKAssertMsg( x, ... )
+#else
+#define DKAssert( x )               if( !(x) ) _DKFatalError( "Assertion Failed: %s", #x )
+#define DKAssertMsg( x, msg, ... )  if( !(x) ) _DKFatalError( msg, __VA_ARGS__ )
+#endif
+
+
+
+// Memory Allocation =====================================================================
 void   DKSetAllocCallback( void * (*callback)( size_t size ) );
 void   DKSetFreeCallback( void (*callback)( void * ptr ) );
 
@@ -50,10 +102,10 @@ void * DKAllocAndZero( size_t size );
 void   DKFree( void * ptr );
 
 
-int DKStrEqual( const void * a, const void * b );
-int DKStrLexicalCmp( const void * a, const void * b );
 
-DKHashIndex DKStrHash( const void * str );
+
+// Other Utilities =======================================================================
+DKHashIndex DKStrHash( const char * str );
 DKHashIndex DKMemHash( const void * buffer, size_t buffer_size );
 
 

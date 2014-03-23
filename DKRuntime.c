@@ -182,14 +182,18 @@ static void InitMetaClasses( void )
 //
 DKTypeRef DKAllocObject( DKTypeRef _class, size_t size, int attributes )
 {
-    assert( _class );
+    if( _class )
+    {
+        struct DKObjectHeader * obj = DKAlloc( size );
+        
+        obj->isa = _class;
+        obj->refcount = 1;
+        obj->attributes = attributes;
+
+        return obj;
+    }
     
-    struct DKObjectHeader * obj = DKAlloc( size );
-    obj->isa = _class;
-    obj->refcount = 1;
-    obj->attributes = attributes;
-    
-    return obj;
+    return NULL;
 }
 
 
@@ -200,9 +204,9 @@ void DKFreeObject( DKTypeRef ref )
 {
     struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
     
-    assert( obj );
-    assert( obj->refcount == 0 );
-    assert( !DKTestObjectAttribute( obj, DKObjectIsStatic ) );
+    DKAssert( obj );
+    DKAssert( obj->refcount == 0 );
+    DKAssert( !DKTestObjectAttribute( obj, DKObjectIsStatic ) );
     
     const struct DKClass * classObject = obj->isa;
     
@@ -248,12 +252,15 @@ DKTypeRef DKAllocClass( DKTypeRef superclass )
 //
 DKTypeRef DKAllocInterface( DKSEL sel, size_t size )
 {
-    assert( sel );
-
-    struct DKInterface * interface = (struct DKInterface *)DKAllocObject( DKInterfaceClass(), size, 0 );
-    interface->sel = sel;
+    if( sel )
+    {
+        struct DKInterface * interface = (struct DKInterface *)DKAllocObject( DKInterfaceClass(), size, 0 );
+        interface->sel = sel;
     
-    return interface;
+        return interface;
+    }
+    
+    return NULL;
 }
 
 
@@ -262,20 +269,30 @@ DKTypeRef DKAllocInterface( DKSEL sel, size_t size )
 //
 void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
 {
-    assert( _class && interface );
+    if( !_class )
+    {
+        DKError( "DKInstallInterface: Trying to install an interface on a NULL class object." );
+        return;
+    }
+    
+    if( !interface )
+    {
+        DKError( "DKInstallInterface: Trying to install a NULL interface." );
+        return;
+    }
 
     struct DKClass * classObject = (struct DKClass *)_class;
     DKInterface * interfaceObject = interface;
 
-    assert( (classObject->_obj.isa == &__DKClassClass__) || (classObject->_obj.isa == &__DKMetaClass__) );
-    assert( (interfaceObject->_obj.isa == &__DKInterfaceClass__) || (interfaceObject->_obj.isa == &__DKMethodClass__) );
+    DKAssert( (classObject->_obj.isa == &__DKClassClass__) || (classObject->_obj.isa == &__DKMetaClass__) );
+    DKAssert( (interfaceObject->_obj.isa == &__DKInterfaceClass__) || (interfaceObject->_obj.isa == &__DKMethodClass__) );
 
     // Retain the interface
     DKRetain( interfaceObject );
     
     // Update the fast-lookup table
     int fastLookupIndex = DKFastLookupIndex( interfaceObject->sel );
-    assert( (fastLookupIndex >= 0) && (fastLookupIndex < DKFastLookupTableSize) );
+    DKAssert( (fastLookupIndex >= 0) && (fastLookupIndex < DKFastLookupTableSize) );
     
     if( fastLookupIndex )
     {
@@ -285,7 +302,7 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
         if( (oldInterface != NULL) && !DKEqual( interface, oldInterface ) )
         {
             // This likely means that two interfaces are trying to use the same fast lookup index
-            assert( 0 );
+            DKFatalError( "DKInstallInterface: Fast-Lookup selector doesn't match the installed interface." );
             return;
         }
     
@@ -347,7 +364,7 @@ DKTypeRef DKLookupInterface( DKTypeRef ref, DKSEL sel )
 
     // First check the fast lookup table
     int fastLookupIndex = DKFastLookupIndex( sel );
-    assert( (fastLookupIndex >= 0) && (fastLookupIndex < DKFastLookupTableSize) );
+    DKAssert( (fastLookupIndex >= 0) && (fastLookupIndex < DKFastLookupTableSize) );
     
     DKInterface * interface = classObject->fastLookupTable[fastLookupIndex];
     
@@ -398,7 +415,8 @@ static struct DKSEL DKMethodNotFoundSelector =
 
 static void DKMethodNotFoundImp( DKTypeRef ref, DKSEL sel )
 {
-    assert( 0 );
+    DKAssert( ref && sel );
+    DKFatalError( "DKMethodNotFound: Method '%s' not found on object 'FIX THIS'", sel->name );
 }
 
 static DKMethod DKMethodNotFound =
@@ -414,7 +432,7 @@ DKTypeRef DKLookupMethod( DKTypeRef ref, DKSEL sel )
     
     if( method )
     {
-        assert( DKIsMemberOfClass( method, DKMethodClass() ) );
+        DKAssertMsg( DKIsMemberOfClass( method, DKMethodClass() ), "DKLookupMethod: Installed interface '%s' is not a method.", sel->name );
         return method;
     }
     

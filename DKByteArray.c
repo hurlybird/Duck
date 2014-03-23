@@ -88,10 +88,10 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const void * b
 {
     DKIndex range_end = DKRangeEnd( range );
 
-    assert( range.location >= 0 );
-    assert( range.length >= 0 );
-    assert( range_end <= array->length );
-    assert( length >= 0 );
+    DKAssert( range.location >= 0 );
+    DKAssert( range.length >= 0 );
+    DKAssert( range_end <= array->length );
+    DKAssert( length >= 0 );
 
     // Do nothing
     if( (range.length == 0) && (length == 0) )
@@ -104,7 +104,7 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const void * b
 
     // Resize
     DKIndex newLength = array->length + length - range.length;
-    assert( newLength >= 0 );
+    DKAssert( newLength >= 0 );
 
     // Resize
     uint8_t * data = DKByteArrayResize( array->data, array->maxLength, newLength, &array->maxLength );

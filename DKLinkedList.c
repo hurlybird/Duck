@@ -241,28 +241,28 @@ static void DKLinkedListCheckForErrors( struct DKLinkedList * list )
     
     if( node == NULL )
     {
-        assert( list->last == NULL );
-        assert( list->cursor.node == NULL );
-        assert( list->cursor.index == 0 );
+        DKAssert( list->last == NULL );
+        DKAssert( list->cursor.node == NULL );
+        DKAssert( list->cursor.index == 0 );
     }
     
     while( node )
     {
-        assert( count < list->count );
+        DKAssert( count < list->count );
 
         if( node->prev )
         {
-            assert( node->prev->next == node );
+            DKAssert( node->prev->next == node );
         }
         
         if( node->next )
         {
-            assert( node->next->prev == node );
+            DKAssert( node->next->prev == node );
         }
         
         if( list->cursor.node == node )
         {
-            assert( list->cursor.index == count );
+            DKAssert( list->cursor.index == count );
         }
         
         node = node->next;
@@ -270,7 +270,7 @@ static void DKLinkedListCheckForErrors( struct DKLinkedList * list )
         count++;
     }
     
-    assert( count == list->count );
+    DKAssert( count == list->count );
 }
 #else
 #define DKLinkedListCheckForErrors( list )
@@ -300,7 +300,7 @@ static struct DKLinkedListNode * DKLinkedListAllocNode( struct DKLinkedList * li
 //
 static void DKLinkedListFreeNode( struct DKLinkedList * list, struct DKLinkedListNode * node )
 {
-    assert( list->count > 0 );
+    DKAssert( list->count > 0 );
     list->count--;
 
     DKRelease( node->object );
@@ -373,9 +373,9 @@ static struct DKLinkedListNode * DKLinkedListMoveCursor( struct DKLinkedList * l
 //
 static void DKLinkedListRemoveObjects( struct DKLinkedList * list, DKRange range )
 {
-    assert( range.location >= 0 );
-    assert( range.length >= 0 );
-    assert( DKRangeEnd( range ) <= list->count );
+    DKAssert( range.location >= 0 );
+    DKAssert( range.length >= 0 );
+    DKAssert( DKRangeEnd( range ) <= list->count );
 
     if( range.length == 0 )
         return;
@@ -419,12 +419,12 @@ static void DKLinkedListRemoveObjects( struct DKLinkedList * list, DKRange range
 //
 static void DKLinkedListInsertObject( struct DKLinkedList * list, DKIndex index, DKTypeRef object )
 {
-    assert( index >= 0 );
-    assert( index <= list->count );
+    DKAssert( index >= 0 );
+    DKAssert( index <= list->count );
 
     if( list->first == NULL )
     {
-        assert( index == 0 );
+        DKAssert( index == 0 );
 
         struct DKLinkedListNode * node = DKLinkedListAllocNode( list, object );
 
@@ -464,7 +464,7 @@ static void DKLinkedListInsertObject( struct DKLinkedList * list, DKIndex index,
         struct DKLinkedListNode * next = DKLinkedListMoveCursor( list, index );
         struct DKLinkedListNode * node = DKLinkedListAllocNode( list, object );
         
-        assert( next );
+        DKAssert( next );
         
         node->next = next;
         node->prev = next->prev;
@@ -495,10 +495,15 @@ static void DKLinkedListReplaceObjectsInternal( struct DKLinkedList * list, DKRa
 //
 static void DKLinkedListReplaceObjectsWithListInternal( struct DKLinkedList * list, DKRange range, DKListRef srcList )
 {
-    DKLinkedListRemoveObjects( list, range );
-
     DKList * srcListInterface = DKLookupInterface( srcList, DKSelector(List) );
-    assert( srcListInterface );
+    
+    if( !srcListInterface )
+    {
+        DKError( "DKLinkedListReplaceObjectsWithListInternal: Source object is not a list." );
+        return;
+    }
+
+    DKLinkedListRemoveObjects( list, range );
     
     DKIndex count = srcListInterface->getCount( srcList );
     
@@ -611,7 +616,7 @@ void DKLinkedListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef 
     {
         if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
-            assert( 0 );
+            DKError( "DKLinkedListReplaceObjects: Trying to modify an immutable object." );
             return;
         }
 
@@ -630,7 +635,7 @@ void DKLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DK
     {
         if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
-            assert( 0 );
+            DKError( "DKLinkedListReplaceObjectsWithList: Trying to modify an immutable object." );
             return;
         }
 

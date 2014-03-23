@@ -259,7 +259,7 @@ static void DKBinaryTreeFreeNode( struct DKBinaryTree * tree, struct DKBinaryTre
         DKRelease( node->key );
         DKRelease( node->object );
         
-        assert( tree->count > 0 );
+        DKAssert( tree->count > 0 );
         tree->count--;
         
         node = next;
@@ -599,7 +599,7 @@ void DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKType
     {
         if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
-            assert( 0 );
+            DKError( "DKBinaryTreeInsertObject: Trying to modify an immutable object." );
             return;
         }
         
@@ -640,7 +640,7 @@ void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
     {
         if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
-            assert( 0 );
+            DKError( "DKBinaryTreeRemoveObject: Trying to modify an immutable object." );
             return;
         }
         
@@ -664,7 +664,7 @@ void DKBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref )
     {
         if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
-            assert( 0 );
+            DKError( "DKBinaryTreeRemoveAllObjects: Trying to modify an immutable object." );
             return;
         }
         

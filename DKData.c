@@ -457,7 +457,7 @@ void * DKDataGetMutableBytePtr( DKMutableDataRef ref )
     {
         if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
-            assert( 0 );
+            DKError( "DKDataGetMutableBytePtr: Trying to modify an immutable object." );
             return NULL;
         }
         
@@ -477,7 +477,7 @@ void * DKDataGetMutableByteRange( DKMutableDataRef ref, DKRange range )
     {
         if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
-            assert( 0 );
+            DKError( "DKDataGetMutableByteRange: Trying to modify an immutable object." );
             return NULL;
         }
         
@@ -493,13 +493,20 @@ void * DKDataGetMutableByteRange( DKMutableDataRef ref, DKRange range )
 //
 DKIndex DKDataGetBytes( DKDataRef ref, DKRange range, void * buffer )
 {
-    const void * src = DKDataGetByteRange( ref, range );
-    
-    if( src )
+    if( buffer )
     {
-        assert( buffer );
-        memcpy( buffer, src, range.length );
-        return range.length;
+        const void * src = DKDataGetByteRange( ref, range );
+        
+        if( src )
+        {
+            memcpy( buffer, src, range.length );
+            return range.length;
+        }
+    }
+    
+    else
+    {
+        DKError( "DKDataGetBytes: Trying to copy to a NULL buffer." );
     }
     
     return 0;
@@ -596,7 +603,7 @@ DKIndex DKDataRead( DKTypeRef ref, void * buffer, DKIndex size, DKIndex count )
     {
         struct DKData * data = (struct DKData *)ref;
 
-        assert( (data->cursor >= 0) && (data->cursor <= data->byteArray.length) );
+        DKAssert( (data->cursor >= 0) && (data->cursor <= data->byteArray.length) );
         
         DKRange range = DKRangeMake( data->cursor, size * count );
         
@@ -621,13 +628,13 @@ DKIndex DKDataWrite( DKTypeRef ref, const void * buffer, DKIndex size, DKIndex c
     {
         if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
         {
-            assert( 0 );
+            DKError( "DKDataWrite: Trying to modify an immutable object." );
             return 0;
         }
 
         struct DKData * data = (struct DKData *)ref;
 
-        assert( (data->cursor >= 0) && (data->cursor <= data->byteArray.length) );
+        DKAssert( (data->cursor >= 0) && (data->cursor <= data->byteArray.length) );
         
         DKRange range = DKRangeMake( data->cursor, size * count );
         

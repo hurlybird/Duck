@@ -17,7 +17,7 @@ DKDefineFastLookupInterface( LifeCycle );
 //
 DKTypeRef DKDefaultAllocateImp( void )
 {
-    assert( 0 );
+    DKError( "DKLifeCycle: The allocate interface is undefined." );
     return NULL;
 }
 
