@@ -1,12 +1,223 @@
 //
-//  scl_avltree.c
-//  scl
+//  DKBinaryTree.c
+//  Duck
 //
 //  Created by Derek Nylen on 2014-02-28.
 //  Copyright (c) 2014 Derek W. Nylen. All rights reserved.
 //
+#include <stdarg.h>
 
-#include "scl_avltree.h"
+#include "DKBinaryTree.h"
+#include "DKNodePool.h"
+#include "DKLifeCycle.h"
+#include "DKCopying.h"
+
+
+struct DKBinaryTreeNode
+{
+    struct DKBinaryTreeNode * left;
+    struct DKBinaryTreeNode * right;
+    int level;
+    
+    DKHashIndex hash;
+    DKTypeRef key;
+    DKTypeRef object;
+};
+
+struct DKBinaryTree
+{
+    DKObjectHeader _obj;
+
+    DKNodePool nodePool;
+    struct DKBinaryTreeNode * root;
+    DKIndex count;
+};
+
+
+
+static DKTypeRef    DKBinaryTreeAllocate( void );
+static DKTypeRef    DKMutableBinaryTreeAllocate( void );
+static DKTypeRef    DKBinaryTreeInitialize( DKTypeRef ref );
+static void         DKBinaryTreeFinalize( DKTypeRef ref );
+static DKTypeRef    DKBinaryTreeCopy( DKTypeRef ref );
+static DKTypeRef    DKMutableBinaryTreeCopy( DKTypeRef ref );
+static DKTypeRef    DKBinaryTreeMutableCopy( DKTypeRef ref );
+
+
+///
+//  DKBinaryTreeClass()
+//
+DKTypeRef DKBinaryTreeClass( void )
+{
+    static DKTypeRef binaryTreeClass = NULL;
+
+    if( !binaryTreeClass )
+    {
+        binaryTreeClass = DKAllocClass( DKObjectClass() );
+        
+        // LifeCycle
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        lifeCycle->allocate = DKBinaryTreeAllocate;
+        lifeCycle->initialize = DKBinaryTreeInitialize;
+        lifeCycle->finalize = DKBinaryTreeFinalize;
+
+        DKInstallInterface( binaryTreeClass, lifeCycle );
+        DKRelease( lifeCycle );
+
+        // Copying
+        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        copying->copy = DKBinaryTreeCopy;
+        copying->mutableCopy = DKBinaryTreeMutableCopy;
+        
+        DKInstallInterface( binaryTreeClass, copying );
+        DKRelease( copying );
+        
+        // Dictionary
+        struct DKDictionary * dictionary = (struct DKDictionary *)DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+        dictionary->getCount = DKBinaryTreeGetCount;
+        dictionary->getObject = DKBinaryTreeGetObject;
+        dictionary->insertObject = DKBinaryTreeInsertObject;
+        dictionary->removeObject = DKBinaryTreeRemoveObject;
+        dictionary->removeAllObjects = DKBinaryTreeRemoveAllObjects;
+        dictionary->applyFunction = DKBinaryTreeApplyFunction;
+
+        DKInstallInterface( binaryTreeClass, dictionary );
+        DKRelease( dictionary );
+    }
+    
+    return binaryTreeClass;
+}
+
+
+///
+//  DKMutableBinaryTreeClass()
+//
+DKTypeRef DKMutableBinaryTreeClass( void )
+{
+    static DKTypeRef mutableBinaryTreeClass = NULL;
+
+    if( !mutableBinaryTreeClass )
+    {
+        mutableBinaryTreeClass = DKAllocClass( DKObjectClass() );
+        
+        // LifeCycle
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        lifeCycle->allocate = DKMutableBinaryTreeAllocate;
+        lifeCycle->initialize = DKBinaryTreeInitialize;
+        lifeCycle->finalize = DKBinaryTreeFinalize;
+
+        DKInstallInterface( mutableBinaryTreeClass, lifeCycle );
+        DKRelease( lifeCycle );
+
+        // Copying
+        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        copying->copy = DKMutableBinaryTreeCopy;
+        copying->mutableCopy = DKBinaryTreeMutableCopy;
+        
+        DKInstallInterface( mutableBinaryTreeClass, copying );
+        DKRelease( copying );
+
+        // Dictionary
+        struct DKDictionary * dictionary = (struct DKDictionary *)DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+        dictionary->getCount = DKBinaryTreeGetCount;
+        dictionary->getObject = DKBinaryTreeGetObject;
+        dictionary->insertObject = DKBinaryTreeInsertObject;
+        dictionary->removeObject = DKBinaryTreeRemoveObject;
+        dictionary->removeAllObjects = DKBinaryTreeRemoveAllObjects;
+        dictionary->applyFunction = DKBinaryTreeApplyFunction;
+
+        DKInstallInterface( mutableBinaryTreeClass, dictionary );
+        DKRelease( dictionary );
+    }
+    
+    return mutableBinaryTreeClass;
+}
+
+
+///
+//  DKBinaryTreeAllocate()
+//
+static DKTypeRef DKBinaryTreeAllocate( void )
+{
+    return DKAllocObject( DKBinaryTreeClass(), sizeof(struct DKBinaryTree), 0 );
+}
+
+
+///
+//  DKMutableBinaryTreeAllocate()
+//
+static DKTypeRef DKMutableBinaryTreeAllocate( void )
+{
+    return DKAllocObject( DKMutableBinaryTreeClass(), sizeof(struct DKBinaryTree), DKObjectIsMutable );
+}
+
+
+///
+//  DKBinaryTreeInitialize()
+//
+static DKTypeRef DKBinaryTreeInitialize( DKTypeRef ref )
+{
+    ref = DKObjectInitialize( ref );
+    
+    if( ref )
+    {
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+        
+        DKNodePoolInit( &tree->nodePool, sizeof(struct DKBinaryTreeNode), 0 );
+
+        tree->root = NULL;
+        tree->count = 0;
+    }
+    
+    return ref;
+}
+
+
+///
+//  DKBinaryTreeFinalize()
+//
+static void DKBinaryTreeFinalize( DKTypeRef ref )
+{
+    if( ref )
+    {
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+
+        DKBinaryTreeRemoveAllObjects( tree );
+        
+        DKNodePoolClear( &tree->nodePool );
+    }
+}
+
+
+///
+//  DKBinaryTreeCopy()
+//
+static DKTypeRef DKBinaryTreeCopy( DKTypeRef ref )
+{
+    return DKRetain( ref );
+}
+
+
+///
+//  DKMutableBinaryTreeCopy()
+//
+static DKTypeRef DKMutableBinaryTreeCopy( DKTypeRef ref )
+{
+    return DKBinaryTreeCreateCopy( ref );
+}
+
+
+///
+//  DKBinaryTreeMutableCopy()
+//
+static DKTypeRef DKBinaryTreeMutableCopy( DKTypeRef ref )
+{
+    return DKBinaryTreeCreateMutableCopy( ref );
+}
+
+
+
+
 
 
 // Internals =============================================================================
@@ -14,23 +225,19 @@
 ///
 //  alloc_node()
 //
-static scl_avltree_node * alloc_node( scl_avltree * tree, scl_value * key, scl_value * value )
+static struct DKBinaryTreeNode * DKBinaryTreeAllocNode( struct DKBinaryTree * tree, DKTypeRef key, DKTypeRef object )
 {
-    scl_avltree_node * node = scl_pool_alloc( &tree->node_pool );
+    struct DKBinaryTreeNode * node = DKNodePoolAlloc( &tree->nodePool );
 
     node->left = NULL;
     node->right = NULL;
     node->level = 0;
 
-    scl_value_init( &node->key );
-    scl_value_copy( &node->key, key );
-
-    scl_value_init( &node->value );
+    node->hash = DKHash( key );
+    node->key = DKRetain( key );
+    node->object = DKRetain( object );
     
-    if( value )
-        scl_value_copy( &node->value, value );
-    
-    tree->size++;
+    tree->count++;
     
     return node;
 }
@@ -39,34 +246,35 @@ static scl_avltree_node * alloc_node( scl_avltree * tree, scl_value * key, scl_v
 ///
 //  free_node()
 //
-static void free_node( scl_avltree * tree, scl_avltree_node * node )
+static void DKBinaryTreeFreeNode( struct DKBinaryTree * tree, struct DKBinaryTreeNode * node )
 {
-    if( node )
+    while( node )
     {
-        free_node( tree, node->left );
-        free_node( tree, node->right );
+        struct DKBinaryTreeNode * next = node->right;
+        
+        DKBinaryTreeFreeNode( tree, node->left );
 
         node->left = NULL;
         node->right = NULL;
         node->level = 0;
 
-        scl_value_finalize( &node->key );
-        scl_value_finalize( &node->value );
-
-        scl_pool_free( &tree->node_pool, node );
+        DKRelease( node->key );
+        DKRelease( node->object );
         
-        assert( tree->size > 0 );
-        tree->size--;
+        assert( tree->count > 0 );
+        tree->count--;
+        
+        node = next;
     }
 }
 
 
 ///
-//  rotate_left()
+//  DKBinaryTreeRotateLeft()
 //
-static scl_avltree_node * rotate_left( scl_avltree_node * k2 )
+static struct DKBinaryTreeNode * DKBinaryTreeRotateLeft( struct DKBinaryTreeNode * k2 )
 {
-    scl_avltree_node * k1 = k2->left;
+    struct DKBinaryTreeNode * k1 = k2->left;
     k2->left = k1->right;
     k1->right = k2;
     return k1;
@@ -74,11 +282,11 @@ static scl_avltree_node * rotate_left( scl_avltree_node * k2 )
 
 
 ///
-//  rotate_right()
+//  DKBinaryTreeRotateRight()
 //
-static scl_avltree_node * rotate_right( scl_avltree_node * k1 )
+static struct DKBinaryTreeNode * DKBinaryTreeRotateRight( struct DKBinaryTreeNode * k1 )
 {
-    scl_avltree_node * k2 = k1->right;
+    struct DKBinaryTreeNode * k2 = k1->right;
     k1->right = k2->left;
     k2->left = k1;
     return k2;
@@ -86,89 +294,107 @@ static scl_avltree_node * rotate_right( scl_avltree_node * k1 )
 
 
 ///
-//  skew()
+//  DKBinaryTreeSkew()
 //
-static void skew( scl_avltree_node ** node )
+static void DKBinaryTreeSkew( struct DKBinaryTreeNode ** node )
 {
-    scl_avltree_node * left = (*node)->left;
+    struct DKBinaryTreeNode * left = (*node)->left;
 
     if( left && (left->level == (*node)->level) )
     {
-        *node = rotate_left( *node );
+        *node = DKBinaryTreeRotateLeft( *node );
     }
 }
 
 
 ///
-//  split()
+//  DKBinaryTreeSplit()
 //
-static void split( scl_avltree_node ** node )
+static void DKBinaryTreeSplit( struct DKBinaryTreeNode ** node )
 {
-    scl_avltree_node * right = (*node)->right->right;
+    struct DKBinaryTreeNode * right = (*node)->right->right;
 
     if( right && (right->level == (*node)->level) )
     {
-        *node = rotate_right( *node );
+        *node = DKBinaryTreeRotateRight( *node );
         (*node)->level++;
     }
 }
 
 
 ///
-//  insert()
+//  DKBinaryTreeCompare()
 //
-enum
+static int DKBinaryTreeCompare( struct DKBinaryTreeNode * node, DKHashIndex hash, DKTypeRef key )
 {
-    InsertAlways,
-    InsertIfFound,
-    InsertIfNotFound
-};
-
-static void insert( scl_avltree * tree, scl_avltree_node ** node, scl_value * key, scl_value * value, int behaviour )
-{
-    if( *node == NULL )
-    {
-        if( behaviour != InsertIfFound )
-            *node = alloc_node( tree, key, value );
-        
-        return;
-    }
+    int cmp;
     
-    int cmp = tree->key_cmp( key, &((*node)->key) );
+    if( hash < node->hash )
+        cmp = 1;
     
-    if( cmp < 0 )
-    {
-        insert( tree, &(*node)->left, key, value, behaviour );
-    }
-        
-    else if( cmp > 0 )
-    {
-        insert( tree, &(*node)->right, key, value, behaviour );
-    }
-        
+    else if( hash > node->hash )
+        cmp = -1;
+    
     else
-    {
-        if( behaviour != InsertIfNotFound )
-            scl_value_copy( &(*node)->value, value );
-        
-        return;
-    }
+        cmp = DKCompare( key, node->key );
     
-    skew( node );
-    split( node );
+    return cmp;
 }
 
 
 ///
-//  find_node()
+//  DKBinaryTreeInsert()
 //
-static scl_avltree_node * find_node( scl_avltree * tree, scl_value * key )
+static void DKBinaryTreeInsert( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
+    DKHashIndex hash, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
 {
-    scl_avltree_node * node = tree->root;
+    if( *node == NULL )
+    {
+        if( policy != DKDictionaryInsertIfFound )
+            *node = DKBinaryTreeAllocNode( tree, key, object );
+        
+        return;
+    }
+    
+    int cmp = DKBinaryTreeCompare( *node, hash, key );
+    
+    if( cmp < 0 )
+    {
+        DKBinaryTreeInsert( tree, &(*node)->left, hash, key, object, policy );
+    }
+        
+    else if( cmp > 0 )
+    {
+        DKBinaryTreeInsert( tree, &(*node)->right, hash, key, object, policy );
+    }
+        
+    else
+    {
+        if( policy != DKDictionaryInsertIfNotFound )
+        {
+            DKRetain( object );
+            DKRelease( (*node)->object );
+            (*node)->object = object;
+        }
+        
+        return;
+    }
+    
+    DKBinaryTreeSkew( node );
+    DKBinaryTreeSplit( node );
+}
+
+
+///
+//  DKBinaryTreeFindNode()
+//
+static struct DKBinaryTreeNode * DKBinaryTreeFindNode( struct DKBinaryTree * tree, DKHashIndex hash, DKTypeRef key )
+{
+    struct DKBinaryTreeNode * node = tree->root;
 
     while( node )
     {
-        int cmp = tree->key_cmp( key, &node->key );
+        int cmp = DKBinaryTreeCompare( node, hash, key );
         
         if( cmp < 0 )
             node = node->left;
@@ -185,19 +411,41 @@ static scl_avltree_node * find_node( scl_avltree * tree, scl_value * key )
 
 
 ///
-//  erase()
+//  DKBinaryTreeSwap()
 //
-static void erase( scl_avltree * tree, scl_value * key, scl_avltree_node ** node, scl_avltree_node ** leaf_node, scl_avltree_node ** erase_node )
+static void DKBinaryTreeSwap( struct DKBinaryTreeNode * node1, struct DKBinaryTreeNode * node2 )
+{
+    DKHashIndex tmp_hash;
+    DKTypeRef tmp_ref;
+    
+    tmp_hash = node1->hash;
+    node1->hash = node2->hash;
+    node2->hash = tmp_hash;
+    
+    tmp_ref = node1->key;
+    node1->key = node2->key;
+    node2->key = tmp_hash;
+
+    tmp_ref = node1->object;
+    node1->object = node2->object;
+    node2->object = tmp_hash;
+}
+
+
+///
+//  DKBinaryTreeErase()
+//
+static void DKBinaryTreeErase( struct DKBinaryTree * tree, DKHashIndex hash, DKTypeRef key, struct DKBinaryTreeNode ** node, struct DKBinaryTreeNode ** leaf_node, struct DKBinaryTreeNode ** erase_node )
 {
     if( node )
     {
         *leaf_node = *node;
     
-        int cmp = tree->key_cmp( key, &((*node)->key) );
+        int cmp = DKBinaryTreeCompare( *node, hash, key );
         
         if( cmp < 0 )
         {
-            erase( tree, key, &(*node)->left, leaf_node, erase_node );
+            DKBinaryTreeErase( tree, hash, key, &(*node)->left, leaf_node, erase_node );
         }
             
         else
@@ -205,19 +453,19 @@ static void erase( scl_avltree * tree, scl_value * key, scl_avltree_node ** node
             if( cmp == 0 )
                 *erase_node = *node;
                 
-            erase( tree, key, &(*node)->right, leaf_node, erase_node );
+            DKBinaryTreeErase( tree, hash, key, &(*node)->right, leaf_node, erase_node );
         }
             
         if( *leaf_node == *node )
         {
             if( *erase_node )
             {
-                scl_value_swap( &(*erase_node)->key, &(*node)->key );
-                scl_value_swap( &(*erase_node)->value, &(*node)->value );
+                DKBinaryTreeSwap( *erase_node, *node );
                 *erase_node = NULL;
                 
                 *node = (*node)->right;
-                free_node( tree, *leaf_node );
+                
+                DKBinaryTreeFreeNode( tree, *leaf_node );
                 *leaf_node = NULL;
             }
         }
@@ -228,11 +476,11 @@ static void erase( scl_avltree * tree, scl_value * key, scl_avltree_node ** node
             if( (*node)->right->level > --((*node)->level) )
                 (*node)->right->level = (*node)->level;
         
-            skew( node );
-            skew( &(*node)->right );
-            skew( &(*node)->right->right );
-            split( node );
-            split( &(*node)->right );
+            DKBinaryTreeSkew( node );
+            DKBinaryTreeSkew( &(*node)->right );
+            DKBinaryTreeSkew( &(*node)->right->right );
+            DKBinaryTreeSplit( node );
+            DKBinaryTreeSplit( &(*node)->right );
         }
     }
 }
@@ -243,136 +491,217 @@ static void erase( scl_avltree * tree, scl_value * key, scl_avltree_node ** node
 // Interface =============================================================================
 
 ///
-//  scl_avltree_init()
+//  DKBinaryTreeCreate()
 //
-void scl_avltree_init( scl_avltree * tree, scl_value_cmp key_cmp )
+DKDictionaryRef DKBinaryTreeCreate( DKTypeRef keys[], DKTypeRef objects[], DKIndex count )
 {
-    scl_pool_init( &tree->node_pool, sizeof(scl_avltree_node), 0 );
+    DKMutableDictionaryRef ref = DKBinaryTreeCreateMutable();
     
-    tree->root = NULL;
-    tree->size = 0;
-    tree->key_cmp = key_cmp;
-}
- 
- 
-///
-//  scl_avltree_finalize()
-//
-void scl_avltree_finalize( scl_avltree * tree )
-{
-    scl_avltree_remove_all( tree );
-    scl_pool_finalize( &tree->node_pool );
- 
-    tree->root = NULL;
-    tree->size = 0;
-}
- 
- 
-///
-//  scl_avltree_size()
-//
-size_t scl_avltree_size( scl_avltree * dict )
-{
-    return dict->size;
-}
- 
- 
-///
-//  scl_avltree_set()
-//
-void scl_avltree_set( scl_avltree * tree, scl_value * key, scl_value * value )
-{
-    insert( tree, &tree->root, key, value, InsertAlways );
-}
-
-
-///
-//  scl_avltree_add()
-//
-void scl_avltree_add( scl_avltree * tree, scl_value * key, scl_value * value )
-{
-    insert( tree, &tree->root, key, value, InsertIfNotFound );
-}
-
-
-///
-//  scl_avltree_replace()
-//
-void scl_avltree_replace( scl_avltree * tree, scl_value * key, scl_value * value )
-{
-    insert( tree, &tree->root, key, value, InsertIfFound );
-}
-
-
-///
-//  scl_avltree_get()
-//
-scl_value * scl_avltree_get( scl_avltree * tree, scl_value * key )
-{
-    scl_avltree_node * node = find_node( tree, key );
+    for( DKIndex i = 0; i < count; ++i )
+    {
+        DKBinaryTreeInsertObject( ref, keys[i], objects[i], DKDictionaryInsertAlways );
+    }
     
-    if( node )
-        return &node->value;
+    // Turn the mutable tree into an immutable tree
+    struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+    obj->isa = DKBinaryTreeClass();
+    obj->attributes &= ~DKObjectIsMutable;
+    
+    return ref;
+}
+
+
+///
+//  DKBinaryTreeCreateWithKeysAndObjects()
+//
+DKDictionaryRef DKBinaryTreeCreateWithKeysAndObjects( DKTypeRef firstKey, ... )
+{
+    DKMutableDictionaryRef ref = DKBinaryTreeCreateMutable();
+
+    va_list arg_ptr;
+    va_start( arg_ptr, firstKey );
+
+    for( DKTypeRef key = firstKey; key != NULL; )
+    {
+        DKTypeRef object = va_arg( arg_ptr, DKTypeRef );
+
+        DKBinaryTreeInsertObject( ref, key, object, DKDictionaryInsertAlways );
+        
+        key = va_arg( arg_ptr, DKTypeRef );
+    }
+
+    va_end( arg_ptr );
+    
+    // Turn the mutable tree into an immutable tree
+    struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+    obj->isa = DKBinaryTreeClass();
+    obj->attributes &= ~DKObjectIsMutable;
+    
+    return ref;
+}
+
+
+///
+//  DKBinaryTreeCreateCopy()
+//
+DKDictionaryRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary )
+{
+    DKMutableDictionaryRef ref = DKBinaryTreeCreateMutableCopy( srcDictionary );
+
+    // Turn the mutable tree into an immutable tree
+    struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+    obj->isa = DKBinaryTreeClass();
+    obj->attributes &= ~DKObjectIsMutable;
+    
+    return ref;
+}
+
+
+///
+//  DKBinaryTreeCreateMutable()
+//
+DKMutableDictionaryRef DKBinaryTreeCreateMutable( void )
+{
+    return (DKMutableDictionaryRef)DKCreate( DKMutableBinaryTreeClass() );
+}
+
+
+///
+//  DKBinaryTreeCreateMutableCopy()
+//
+DKMutableDictionaryRef DKBinaryTreeCreateMutableCopy( DKDictionaryRef srcDictionary )
+{
+    DKMutableDictionaryRef ref = DKBinaryTreeCreateMutable();
+    DKDictionaryAddEntriesFromDictionary( ref, srcDictionary );
+    
+    return ref;
+}
+
+
+///
+//  DKBinaryTreeGetCount()
+//
+DKIndex DKBinaryTreeGetCount( DKDictionaryRef ref )
+{
+    if( ref )
+    {
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+        return tree->count;
+    }
+    
+    return 0;
+}
+
+///
+//  DKBinaryTreeInsertObject()
+//
+void DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
+{
+    if( ref )
+    {
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
+        {
+            assert( 0 );
+            return;
+        }
+        
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+        DKHashIndex hash = DKHash( key );
+
+        DKBinaryTreeInsert( tree, &tree->root, hash, key, object, policy );
+    }
+}
+
+
+///
+//  DKBinaryTreeGetObject()
+//
+DKTypeRef DKBinaryTreeGetObject( DKDictionaryRef ref, DKTypeRef key )
+{
+    if( ref )
+    {
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+        DKHashIndex hash = DKHash( key );
+    
+        struct DKBinaryTreeNode * node = DKBinaryTreeFindNode( tree, hash, key );
+    
+        if( node )
+            return node->object;
+    }
 
     return NULL;
 }
 
 
 ///
-//  scl_avltree_contains()
+//  DKBinaryTreeRemoveObject()
 //
-int scl_avltree_contains( scl_avltree * tree, scl_value * key )
+void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
 {
-    scl_avltree_node * node = find_node( tree, key );
-    return node != NULL;
+    if( ref )
+    {
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
+        {
+            assert( 0 );
+            return;
+        }
+        
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+        DKHashIndex hash = DKHash( key );
+
+        struct DKBinaryTreeNode * last_node = NULL;
+        struct DKBinaryTreeNode * erase_node = NULL;
+
+        DKBinaryTreeErase( tree, hash, key, &tree->root, &last_node, &erase_node );
+    }
 }
 
 
 ///
-//  scl_avltree_remove()
+//  DKBinaryTreeRemoveAllObjects()
 //
-void scl_avltree_remove( scl_avltree * tree, scl_value * key )
+void DKBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref )
 {
-    scl_avltree_node * last_node = NULL;
-    scl_avltree_node * erase_node = NULL;
+    if( ref )
+    {
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
+        {
+            assert( 0 );
+            return;
+        }
+        
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
 
-    erase( tree, key, &tree->root, &last_node, &erase_node );
+        DKBinaryTreeFreeNode( tree, tree->root );
+        
+        tree->root = NULL;
+        tree->count = 0;
+    }
 }
 
 
 ///
-//  scl_avltree_remove_all()
+//  DKBinaryTreeApplyFunction()
 //
-void scl_avltree_remove_all( scl_avltree * tree )
+int DKBinaryTreeApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context )
 {
-    free_node( tree, tree->root );
-    tree->root = NULL;
-    tree->size = 0;
+    return DKBinaryTreeTraverseInOrder( ref, callback, context );
 }
 
 
 ///
-//  scl_avltree_foreach()
+//  DKBinaryTreeTraverseInOrderInternal()
 //
-int scl_avltree_foreach( scl_avltree * tree, scl_avltree_traversal callback, void * context )
-{
-    return scl_avltree_inorder( tree, callback, context );
-}
-
-
-///
-//  scl_avltree_inorder()
-//
-static int inorder( scl_avltree_node * node, scl_avltree_traversal callback, void * context )
+static int DKBinaryTreeTraverseInOrderInternal( struct DKBinaryTreeNode * node, DKDictionaryApplierFunction callback, void * context )
 {
     int result = 0;
 
     while( node )
     {
-        if( (result = inorder( node->left, callback, context )) != 0 )
+        if( (result = DKBinaryTreeTraverseInOrderInternal( node->left, callback, context )) != 0 )
             break;
                 
-        if( (result = callback( context, &node->key, &node->value )) != 0 )
+        if( (result = callback( context, node->key, node->object )) != 0 )
             break;
 
         node = node->right;
@@ -381,9 +710,15 @@ static int inorder( scl_avltree_node * node, scl_avltree_traversal callback, voi
     return result;
 }
 
-int scl_avltree_inorder( scl_avltree * tree, scl_avltree_traversal callback, void * context )
+int DKBinaryTreeTraverseInOrder( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context )
 {
-    return inorder( tree->root, callback, context );
+    if( ref )
+    {
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+        return DKBinaryTreeTraverseInOrderInternal( tree->root, callback, context );
+    }
+    
+    return 0;
 }
 
 

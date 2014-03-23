@@ -1,62 +1,42 @@
 //
-//  scl_avltree.h
-//  scl
+//  DKBinaryTree.h
+//  Duck
 //
 //  Created by Derek Nylen on 2014-02-28.
 //  Copyright (c) 2014 Derek W. Nylen. All rights reserved.
 //
 
-#ifndef _SCL_AVLTREE_H_
-#define _SCL_AVLTREE_H_
+#ifndef _DK_BINARY_TREE_H_
+#define _DK_BINARY_TREE_H_
 
-#include "scl_value.h"
-#include "scl_env.h"
-#include "scl_pool.h"
+#include "DKDictionary.h"
 
 
-typedef struct scl_avltree_node
-{
-    struct scl_avltree_node * left;
-    struct scl_avltree_node * right;
-    int level;
-    
-    scl_value key;
-    scl_value value;
+DKTypeRef DKBinaryTreeClass( void );
+DKTypeRef DKMutableBinaryTreeClass( void );
 
-} scl_avltree_node;
+DKDictionaryRef DKBinaryTreeCreate( DKTypeRef keys[], DKTypeRef objects[], DKIndex count );
+DKDictionaryRef DKBinaryTreeCreateWithKeysAndObjects( DKTypeRef firstKey, ... );
+DKDictionaryRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary );
 
-typedef struct
-{
-    scl_pool node_pool;
-    scl_avltree_node * root;
-    size_t size;
-    scl_value_cmp key_cmp;
+DKMutableDictionaryRef DKBinaryTreeCreateMutable( void );
+DKMutableDictionaryRef DKBinaryTreeCreateMutableCopy( DKDictionaryRef srcDictionary );
 
-} scl_avltree;
+DKIndex DKBinaryTreeGetCount( DKDictionaryRef ref );
 
-typedef int (*scl_avltree_traversal)( void * context, scl_value * key, scl_value * value );
+void DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
 
-void scl_avltree_init( scl_avltree * tree, scl_value_cmp key_cmp );
-void scl_avltree_finalize( scl_avltree * tree );
- 
-size_t scl_avltree_size( scl_avltree * tree );
+DKTypeRef DKBinaryTreeGetObject( DKDictionaryRef ref, DKTypeRef key );
 
-void scl_avltree_set( scl_avltree * tree, scl_value * key, scl_value * value );
-void scl_avltree_add( scl_avltree * tree, scl_value * key, scl_value * value );
-void scl_avltree_replace( scl_avltree * tree, scl_value * key, scl_value * value );
+void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key );
+void DKBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref );
 
-scl_value * scl_avltree_get( scl_avltree * tree, scl_value * key );
-int scl_avltree_contains( scl_avltree * tree, scl_value * key );
-
-void scl_avltree_remove( scl_avltree * tree, scl_value * key );
-void scl_avltree_remove_all( scl_avltree * tree );
-
-int scl_avltree_foreach( scl_avltree * tree, scl_avltree_traversal callback, void * context );
-int scl_avltree_inorder( scl_avltree * tree, scl_avltree_traversal callback, void * context );
+int DKBinaryTreeApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
+int DKBinaryTreeTraverseInOrder( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
 
 
 
-#endif // _SCL_TREE_H_
+#endif // _DK_BINARY_TREE_H_
 
 
 

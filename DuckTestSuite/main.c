@@ -19,6 +19,7 @@
 void TestDKObject( void );
 void TestDKData( void );
 void TestDKList( DKTypeRef listClass );
+void TestDKDictionary( DKTypeRef dictionaryClass );
 void TestDKListPerformance( DKTypeRef listClass );
 
 
@@ -29,6 +30,8 @@ int main( int argc, const char * argv[] )
     TestDKObject();
     TestDKData();
     TestDKList( DKMutableLinkedListClass() );
+    TestDKDictionary( DKMutableBinaryTreeClass() );
+    
     //TestDKListPerformance( DKMutableLinkedListClass() );
 
     return 0;
@@ -248,6 +251,53 @@ void TestDKList( DKTypeRef listClass )
     DKRelease( c );
     DKRelease( d );
 }
+
+
+
+
+// TestDKDictionary ======================================================================
+void TestDKDictionary( DKTypeRef dictionaryClass )
+{
+    const int N = 100;
+    
+    DKTypeRef keys[N];
+    DKTypeRef values[N];
+
+    DKMutableDictionaryRef dict = (DKMutableDictionaryRef)DKCreate( dictionaryClass );
+    
+    for( int i = 0; i < N; i++ )
+    {
+        char buffer[32];
+        
+        sprintf( buffer, "Key%d", i );
+        keys[i] = DKDataCreate( buffer, strlen( buffer) + 1 );
+
+        sprintf( buffer, "Value%d", i );
+        values[i] = DKDataCreate( buffer, strlen( buffer) + 1 );
+
+        DKDictionarySetObject( dict, keys[i], values[i] );
+    }
+    
+    VERIFY( DKDictionaryGetCount( dict ) == N );
+
+    for( int i = 0; i < N; i++ )
+    {
+        DKTypeRef value = DKDictionaryGetObject( dict, keys[i] );
+        VERIFY( value == values[i] );
+    }
+    
+    DKDictionaryRemoveAllObjects( dict );
+    VERIFY( DKDictionaryGetCount( dict ) == 0 );
+
+    for( int i = 0; i < N; i++ )
+    {
+        DKRelease( keys[i] );
+        DKRelease( values[i] );
+    }
+    
+    DKRelease( dict );
+}
+
 
 
 

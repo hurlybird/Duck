@@ -28,5 +28,7 @@
 #include "DKList.h"
 #include "DKLinkedList.h"
 
+#include "DKDictionary.h"
+#include "DKBinaryTree.h"
 
 #endif

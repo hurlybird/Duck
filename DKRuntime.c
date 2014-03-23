@@ -206,12 +206,12 @@ void DKFreeObject( DKTypeRef ref )
     
     const struct DKClass * classObject = obj->isa;
     
-    while( classObject )
+    for( const struct DKClass * cls = classObject; cls != NULL; cls = cls->superclass )
     {
-        DKLifeCycle * lifeCycle = classObject->fastLookupTable[DKFastLookupLifeCycle];
+        DKLifeCycle * lifeCycle = cls->fastLookupTable[DKFastLookupLifeCycle];
         lifeCycle->finalize( obj );
         
-        classObject = classObject->superclass;
+        classObject = cls->superclass;
     }
     
     DKFree( obj );
