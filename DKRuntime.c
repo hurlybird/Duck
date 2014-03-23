@@ -9,7 +9,9 @@
 #include "DKEnv.h"
 #include "DKMemory.h"
 #include "DKRuntime.h"
-#include "DKCommonInterfaces.h"
+#include "DKLifeCycle.h"
+#include "DKReferenceCounting.h"
+#include "DKComparison.h"
 
 
 // Internal Class Structure ==============================================================

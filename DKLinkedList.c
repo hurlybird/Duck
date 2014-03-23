@@ -8,7 +8,7 @@
 
 #include "DKLinkedList.h"
 #include "DKMemory.h"
-#include "DKCommonInterfaces.h"
+#include "DKLifeCycle.h"
 #include "DKCopying.h"
 
 
@@ -48,10 +48,6 @@ static void         DKLinkedListFinalize( DKTypeRef ref );
 static DKTypeRef    DKLinkedListCopy( DKTypeRef ref );
 static DKTypeRef    DKMutableLinkedListCopy( DKTypeRef ref );
 static DKTypeRef    DKLinkedListMutableCopy( DKTypeRef ref );
-
-
-
-// DKObject Interface ====================================================================
 
 static void DKLinkedListReplaceObjectsInternal( struct DKLinkedList * list, DKRange range, DKTypeRef objects[], DKIndex count );
 static void DKLinkedListReplaceObjectsWithListInternal( struct DKLinkedList * list, DKRange range, DKListRef srcList );
