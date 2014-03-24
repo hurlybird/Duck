@@ -44,9 +44,6 @@ static DKTypeRef    DKLinkedListAllocate( void );
 static DKTypeRef    DKMutableLinkedListAllocate( void );
 static DKTypeRef    DKLinkedListInitialize( DKTypeRef ref );
 static void         DKLinkedListFinalize( DKTypeRef ref );
-static DKTypeRef    DKLinkedListCopy( DKTypeRef ref );
-static DKTypeRef    DKMutableLinkedListCopy( DKTypeRef ref );
-static DKTypeRef    DKLinkedListMutableCopy( DKTypeRef ref );
 
 static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKTypeRef objects[], DKIndex count );
 static void ReplaceObjectsWithList( struct DKLinkedList * list, DKRange range, DKListRef srcList );
@@ -74,8 +71,8 @@ DKTypeRef DKLinkedListClass( void )
 
         // Copying
         struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKLinkedListCopy;
-        copying->mutableCopy = DKLinkedListMutableCopy;
+        copying->copy = DKRetain;
+        copying->mutableCopy = DKLinkedListCreateMutableCopy;
         
         DKInstallInterface( linkedListClass, copying );
         DKRelease( copying );
@@ -119,8 +116,8 @@ DKTypeRef DKMutableLinkedListClass( void )
 
         // Copying
         struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKMutableLinkedListCopy;
-        copying->mutableCopy = DKLinkedListMutableCopy;
+        copying->copy = DKLinkedListCreateMutableCopy;
+        copying->mutableCopy = DKLinkedListCreateMutableCopy;
         
         DKInstallInterface( mutableLinkedListClass, copying );
         DKRelease( copying );
@@ -198,33 +195,6 @@ static void DKLinkedListFinalize( DKTypeRef ref )
         
         DKNodePoolClear( &list->nodePool );
     }
-}
-
-
-///
-//  DKLinkedListCopy()
-//
-static DKTypeRef DKLinkedListCopy( DKTypeRef ref )
-{
-    return DKRetain( ref );
-}
-
-
-///
-//  DKMutableLinkedListCopy()
-//
-static DKTypeRef DKMutableLinkedListCopy( DKTypeRef ref )
-{
-    return DKLinkedListCreateCopy( ref );
-}
-
-
-///
-//  DKLinkedListMutableCopy()
-//
-static DKTypeRef DKLinkedListMutableCopy( DKTypeRef ref )
-{
-    return DKLinkedListCreateMutableCopy( ref );
 }
 
 

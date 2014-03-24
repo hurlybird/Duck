@@ -12,8 +12,8 @@
 #include "DKRuntime.h"
 
 
-typedef const struct DKData * DKDataRef;
-typedef struct DKData * DKMutableDataRef;
+typedef DKTypeRef DKDataRef;
+typedef DKTypeRef DKMutableDataRef;
 
 
 DKTypeRef   DKDataClass( void );
@@ -42,11 +42,11 @@ void        DKDataReplaceBytes( DKMutableDataRef ref, DKRange range, const void 
 void        DKDataAppendBytes( DKMutableDataRef ref, const void * bytes, DKIndex length );
 void        DKDataDeleteBytes( DKMutableDataRef ref, DKRange range );
 
-int         DKDataSeek( DKTypeRef ref, DKIndex offset, int origin );
-DKIndex     DKDataTell( DKTypeRef ref );
+int         DKDataSeek( DKDataRef ref, DKIndex offset, int origin );
+DKIndex     DKDataTell( DKDataRef ref );
 
-DKIndex     DKDataRead( DKTypeRef ref, void * buffer, DKIndex size, DKIndex count );
-DKIndex     DKDataWrite( DKTypeRef ref, const void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKDataRead( DKDataRef ref, void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKDataWrite( DKDataRef ref, const void * buffer, DKIndex size, DKIndex count );
 
 
 #endif // _DK_DATA_H_

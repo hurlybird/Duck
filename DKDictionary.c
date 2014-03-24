@@ -104,7 +104,7 @@ void DKDictionaryAddEntriesFromDictionary( DKMutableDictionaryRef ref, DKDiction
 {
     if( ref )
     {
-        DKDictionaryApplyFunction( src, DKDictionaryAddEntriesCallback, ref );
+        DKDictionaryApplyFunction( src, DKDictionaryAddEntriesCallback, (void *)ref );
     }
 }
 

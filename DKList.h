@@ -15,8 +15,8 @@
 DKDeclareInterface( List );
 
 
-typedef const void * DKListRef;
-typedef void * DKMutableListRef;
+typedef DKTypeRef DKListRef;
+typedef DKTypeRef DKMutableListRef;
 
 typedef void (*DKListApplierFunction)( DKTypeRef object, void * context );
 

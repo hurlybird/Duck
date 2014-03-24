@@ -16,8 +16,8 @@
 DKDeclareInterface( Dictionary );
 
 
-typedef const void * DKDictionaryRef;
-typedef void * DKMutableDictionaryRef;
+typedef DKTypeRef DKDictionaryRef;
+typedef DKTypeRef DKMutableDictionaryRef;
 
 
 typedef int (*DKDictionaryApplierFunction)( void * context, DKTypeRef key, DKTypeRef value );

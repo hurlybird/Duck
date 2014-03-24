@@ -22,9 +22,6 @@ static DKTypeRef    DKArrayAllocate( void );
 static DKTypeRef    DKMutableArrayAllocate( void );
 static DKTypeRef    DKArrayInitialize( DKTypeRef ref );
 static void         DKArrayFinalize( DKTypeRef ref );
-static DKTypeRef    DKArrayCopy( DKTypeRef ref );
-static DKTypeRef    DKMutableArrayCopy( DKTypeRef ref );
-static DKTypeRef    DKArrayMutableCopy( DKTypeRef ref );
 
 ///
 //  DKArrayClass()
@@ -48,8 +45,8 @@ DKTypeRef DKArrayClass( void )
 
         // Copying
         struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKArrayCopy;
-        copying->mutableCopy = DKArrayMutableCopy;
+        copying->copy = DKRetain;
+        copying->mutableCopy = DKArrayCreateMutableCopy;
         
         DKInstallInterface( arrayClass, copying );
         DKRelease( copying );
@@ -93,8 +90,8 @@ DKTypeRef DKMutableArrayClass( void )
 
         // Copying
         struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKMutableArrayCopy;
-        copying->mutableCopy = DKArrayMutableCopy;
+        copying->copy = DKArrayCreateMutableCopy;
+        copying->mutableCopy = DKArrayCreateMutableCopy;
         
         DKInstallInterface( mutableArrayClass, copying );
         DKRelease( copying );
@@ -173,33 +170,6 @@ static void DKArrayFinalize( DKTypeRef ref )
             DKPointerArrayClear( &array->ptrArray );
         }
     }
-}
-
-
-///
-//  DKArrayCopy()
-//
-static DKTypeRef DKArrayCopy( DKTypeRef ref )
-{
-    return DKRetain( ref );
-}
-
-
-///
-//  DKMutableArrayCopy()
-//
-static DKTypeRef DKMutableArrayCopy( DKTypeRef ref )
-{
-    return DKArrayCreateCopy( ref );
-}
-
-
-///
-//  DKArrayMutableCopy()
-//
-static DKTypeRef DKArrayMutableCopy( DKTypeRef ref )
-{
-    return DKArrayCreateMutableCopy( ref );
 }
 
 

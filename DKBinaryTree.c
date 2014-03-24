@@ -36,9 +36,6 @@ static DKTypeRef    DKBinaryTreeAllocate( void );
 static DKTypeRef    DKMutableBinaryTreeAllocate( void );
 static DKTypeRef    DKBinaryTreeInitialize( DKTypeRef ref );
 static void         DKBinaryTreeFinalize( DKTypeRef ref );
-static DKTypeRef    DKBinaryTreeCopy( DKTypeRef ref );
-static DKTypeRef    DKMutableBinaryTreeCopy( DKTypeRef ref );
-static DKTypeRef    DKBinaryTreeMutableCopy( DKTypeRef ref );
 
 
 ///
@@ -63,8 +60,8 @@ DKTypeRef DKBinaryTreeClass( void )
 
         // Copying
         struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKBinaryTreeCopy;
-        copying->mutableCopy = DKBinaryTreeMutableCopy;
+        copying->copy = DKRetain;
+        copying->mutableCopy = DKBinaryTreeCreateMutableCopy;
         
         DKInstallInterface( binaryTreeClass, copying );
         DKRelease( copying );
@@ -108,8 +105,8 @@ DKTypeRef DKMutableBinaryTreeClass( void )
 
         // Copying
         struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKMutableBinaryTreeCopy;
-        copying->mutableCopy = DKBinaryTreeMutableCopy;
+        copying->copy = DKBinaryTreeCreateMutableCopy;
+        copying->mutableCopy = DKBinaryTreeCreateMutableCopy;
         
         DKInstallInterface( mutableBinaryTreeClass, copying );
         DKRelease( copying );
@@ -184,35 +181,6 @@ static void DKBinaryTreeFinalize( DKTypeRef ref )
         DKNodePoolClear( &tree->nodePool );
     }
 }
-
-
-///
-//  DKBinaryTreeCopy()
-//
-static DKTypeRef DKBinaryTreeCopy( DKTypeRef ref )
-{
-    return DKRetain( ref );
-}
-
-
-///
-//  DKMutableBinaryTreeCopy()
-//
-static DKTypeRef DKMutableBinaryTreeCopy( DKTypeRef ref )
-{
-    return DKBinaryTreeCreateCopy( ref );
-}
-
-
-///
-//  DKBinaryTreeMutableCopy()
-//
-static DKTypeRef DKBinaryTreeMutableCopy( DKTypeRef ref )
-{
-    return DKBinaryTreeCreateMutableCopy( ref );
-}
-
-
 
 
 
