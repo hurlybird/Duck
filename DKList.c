@@ -296,6 +296,32 @@ void DKListRemoveAllObjects( DKMutableListRef ref )
 }
 
 
+///
+//  DKListSort()
+//
+void DKListSort( DKMutableListRef ref, DKCompareFunction cmp )
+{
+    if( ref )
+    {
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
+        list->sort( ref, cmp );
+    }
+}
+
+
+///
+//  DKListShuffle()
+//
+void DKListShuffle( DKMutableListRef ref )
+{
+    if( ref )
+    {
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
+        list->shuffle( ref );
+    }
+}
+
+
 
 
 

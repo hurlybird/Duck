@@ -28,6 +28,8 @@ struct DKList
     DKIndex     (*getObjects)( DKListRef ref, DKRange range, DKTypeRef objects[] );
     void        (*replaceObjects)( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
     void        (*replaceObjectsWithList)( DKMutableListRef ref, DKRange range, DKListRef srcList );
+    void        (*sort)( DKMutableListRef ref, DKCompareFunction cmp );
+    void        (*shuffle)( DKMutableListRef ref );
 };
 
 typedef const struct DKList DKList;
@@ -54,6 +56,9 @@ void        DKListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef
 void        DKListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
 void        DKListRemoveObjectAtIndex( DKMutableListRef ref, DKIndex index );
 void        DKListRemoveAllObjects( DKMutableListRef ref );
+
+void        DKListSort( DKMutableListRef ref, DKCompareFunction cmp );
+void        DKListShuffle( DKMutableListRef ref );
 
 
 

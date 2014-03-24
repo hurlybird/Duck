@@ -22,6 +22,10 @@
 typedef const void * DKTypeRef;
 
 
+// Callback Types
+typedef int  (*DKCompareFunction)( DKTypeRef a, DKTypeRef b );
+
+
 // Index Types
 typedef intptr_t DKIndex;
 typedef uintptr_t DKHashIndex;
@@ -108,6 +112,7 @@ void   DKFree( void * ptr );
 DKHashIndex DKStrHash( const char * str );
 DKHashIndex DKMemHash( const void * buffer, size_t buffer_size );
 
+void DKShuffle( uintptr_t array[], DKIndex count );
 
 
 #endif // _DK_ENV_H_

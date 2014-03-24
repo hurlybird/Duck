@@ -26,6 +26,8 @@ DKIndex DKLinkedListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[
 void    DKLinkedListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
 void    DKLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
 
+void    DKLinkedListSort( DKMutableListRef ref, DKCompareFunction cmp );
+void    DKLinkedListShuffle( DKMutableListRef ref );
 
 
 #endif // _DK_LINKED_LIST_H_

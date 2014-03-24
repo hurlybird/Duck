@@ -229,7 +229,23 @@ DKHashIndex DKMemHash( const void * buffer, size_t buffer_size )
 }
 
 
-
+///
+//  DKShuffle()
+//
+void DKShuffle( uintptr_t array[], DKIndex count )
+{
+    if( count > 1 )
+    {
+        for( DKIndex i = 0; i < count - 1; ++i )
+        {
+            DKIndex j = rand() % (count - i);
+            
+            uintptr_t tmp = array[i];
+            array[i] = array[j];
+            array[j] = tmp;
+        }
+    }
+}
 
 
 

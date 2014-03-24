@@ -87,6 +87,8 @@ DKTypeRef DKLinkedListClass( void )
         list->getObjects = DKLinkedListGetObjects;
         list->replaceObjects = DKLinkedListReplaceObjects;
         list->replaceObjectsWithList = DKLinkedListReplaceObjectsWithList;
+        list->sort = DKLinkedListSort;
+        list->shuffle = DKLinkedListShuffle;
 
         DKInstallInterface( linkedListClass, list );
         DKRelease( list );
@@ -130,6 +132,8 @@ DKTypeRef DKMutableLinkedListClass( void )
         list->getObjects = DKLinkedListGetObjects;
         list->replaceObjects = DKLinkedListReplaceObjects;
         list->replaceObjectsWithList = DKLinkedListReplaceObjectsWithList;
+        list->sort = DKLinkedListSort;
+        list->shuffle = DKLinkedListShuffle;
 
         DKInstallInterface( mutableLinkedListClass, list );
         DKRelease( list );
@@ -643,6 +647,85 @@ void DKLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DK
         DKLinkedListReplaceObjectsWithListInternal( list, range, srcList );
     }
 }
+
+
+///
+//  DKLinkedListSort()
+//
+static void ListToBuffer( DKTypeRef buffer[], struct DKLinkedList * list )
+{
+    struct DKLinkedListNode * node = list->first;
+    
+    for( DKIndex i = 0; i < list->count; ++i )
+    {
+        buffer[i] = node->object;
+        node = node->next;
+    }
+}
+
+static void BufferToList( struct DKLinkedList * list, DKTypeRef buffer[] )
+{
+    struct DKLinkedListNode * node = list->first;
+    
+    for( DKIndex i = 0; i < list->count; ++i )
+    {
+        node->object = buffer[i];
+        node = node->next;
+    }
+}
+
+void DKLinkedListSort( DKMutableListRef ref, DKCompareFunction cmp )
+{
+    if( ref )
+    {
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
+        {
+            DKError( "DKLinkedListSort: Trying to modify an immutable object." );
+            return;
+        }
+
+        // This is absurd, yet probably not much slower than doing all the pointer
+        // gymnastics needed for sorting the list nodes.
+        struct DKLinkedList * list = (struct DKLinkedList *)ref;
+
+        DKTypeRef * buffer = DKAlloc( sizeof(DKTypeRef) * list->count );
+        ListToBuffer( buffer, list );
+
+        qsort( buffer, list->count, sizeof(DKTypeRef), cmp );
+
+        BufferToList( list, buffer );
+        DKFree( buffer );
+    }
+}
+
+
+///
+//  DKLinkedListShuffle()
+//
+void DKLinkedListShuffle( DKMutableListRef ref )
+{
+    if( ref )
+    {
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
+        {
+            DKError( "DKLinkedListShuffle: Trying to modify an immutable object." );
+            return;
+        }
+
+        // This is absurd, yet probably not much slower than doing all the pointer
+        // gymnastics needed for shuffling the list nodes.
+        struct DKLinkedList * list = (struct DKLinkedList *)ref;
+
+        DKTypeRef * buffer = DKAlloc( sizeof(DKTypeRef) * list->count );
+        ListToBuffer( buffer, list );
+
+        DKShuffle( (uintptr_t *)buffer, list->count );
+
+        BufferToList( list, buffer );
+        DKFree( buffer );
+    }
+}
+
 
 
 

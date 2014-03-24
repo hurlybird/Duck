@@ -61,6 +61,8 @@ DKTypeRef DKArrayClass( void )
         list->getObjects = DKArrayGetObjects;
         list->replaceObjects = DKArrayReplaceObjects;
         list->replaceObjectsWithList = DKArrayReplaceObjectsWithList;
+        list->sort = DKArraySort;
+        list->shuffle = DKArrayShuffle;
 
         DKInstallInterface( arrayClass, list );
         DKRelease( list );
@@ -104,6 +106,8 @@ DKTypeRef DKMutableArrayClass( void )
         list->getObjects = DKArrayGetObjects;
         list->replaceObjects = DKArrayReplaceObjects;
         list->replaceObjectsWithList = DKArrayReplaceObjectsWithList;
+        list->sort = DKArraySort;
+        list->shuffle = DKArrayShuffle;
 
         DKInstallInterface( mutableArrayClass, list );
         DKRelease( list );
@@ -392,6 +396,46 @@ void DKArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListR
         DKArrayReplaceObjectsWithListInternal( array, range, srcList );
     }
 }
+
+
+///
+//  DKArraySort()
+//
+void DKArraySort( DKMutableListRef ref, DKCompareFunction cmp )
+{
+    if( ref )
+    {
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
+        {
+            DKError( "DKArraySort: Trying to modify an immutable object." );
+            return;
+        }
+
+        struct DKArray * array = (struct DKArray *)ref;
+        qsort( array->ptrArray.data, array->ptrArray.length, sizeof(DKTypeRef), cmp );
+    }
+}
+
+
+///
+//  DKArrayShuffle()
+//
+void DKArrayShuffle( DKMutableListRef ref )
+{
+    if( ref )
+    {
+        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
+        {
+            DKError( "DKArrayShuffle: Trying to modify an immutable object." );
+            return;
+        }
+
+        struct DKArray * array = (struct DKArray *)ref;
+        DKShuffle( array->ptrArray.data, array->ptrArray.length );
+    }
+}
+
+
 
 
 

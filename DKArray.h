@@ -27,6 +27,8 @@ DKIndex DKArrayGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] );
 void    DKArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
 void    DKArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
 
+void    DKArraySort( DKMutableListRef ref, DKCompareFunction cmp );
+void    DKArrayShuffle( DKMutableListRef ref );
 
 
 #endif // _DK_ARRAY_H_
