@@ -7,7 +7,7 @@
 //
 
 #include "DKArray.h"
-#include "DKElementArray.h"
+#include "DKPointerArray.h"
 #include "DKLifeCycle.h"
 #include "DKCopying.h"
 
@@ -15,7 +15,7 @@
 struct DKArray
 {
     DKObjectHeader _obj;
-    DKElementArray elemArray;
+    DKPointerArray ptrArray;
 };
 
 
@@ -141,7 +141,7 @@ static DKTypeRef DKArrayInitialize( DKTypeRef ref )
     if( ref )
     {
         struct DKArray * array = (struct DKArray *)ref;
-        DKElementArrayInit( &array->elemArray, sizeof(DKTypeRef) );
+        DKPointerArrayInit( &array->ptrArray );
     }
     
     return ref;
@@ -157,17 +157,17 @@ static void DKArrayFinalize( DKTypeRef ref )
     {
         struct DKArray * array = (struct DKArray *)ref;
 
-        DKIndex count = DKElementArrayGetCount( &array->elemArray );
+        DKIndex count = array->ptrArray.length;
 
         if( !DKTestObjectAttribute( ref, DKObjectContentIsExternal ) )
         {
             for( DKIndex i = 0; i < count; ++i )
             {
-                DKTypeRef elem = DKElementArrayGetElementAtIndex( &array->elemArray, i, DKTypeRef );
+                DKTypeRef elem = array->ptrArray.data[i];
                 DKRelease( elem );
             }
             
-            DKElementArrayClear( &array->elemArray );
+            DKPointerArrayClear( &array->ptrArray );
         }
     }
 }
@@ -210,7 +210,7 @@ static DKTypeRef DKArrayMutableCopy( DKTypeRef ref )
 static void DKArrayReplaceObjectsInternal( struct DKArray * array, DKRange range, DKTypeRef objects[], DKIndex count )
 {
     DKAssert( range.location >= 0 );
-    DKAssert( DKRangeEnd( range ) <= DKElementArrayGetCount( &array->elemArray ) );
+    DKAssert( DKRangeEnd( range ) <= array->ptrArray.length );
     
     // Retain the incoming objects
     for( DKIndex i = 0; i < count; ++i )
@@ -221,12 +221,12 @@ static void DKArrayReplaceObjectsInternal( struct DKArray * array, DKRange range
     // Release the objects we're replacing
     for( DKIndex i = 0; i < range.length; ++i )
     {
-        DKTypeRef elem = DKElementArrayGetElementAtIndex( &array->elemArray, range.location + i, DKTypeRef );
+        DKTypeRef elem = array->ptrArray.data[range.location + i];
         DKRelease( elem );
     }
     
     // Copy the objects into the array
-    DKElementArrayReplaceElements( &array->elemArray, range, objects, count );
+    DKPointerArrayReplacePointers( &array->ptrArray, range, (const uintptr_t *)objects, count );
 }
 
 
@@ -280,10 +280,10 @@ DKListRef DKArrayCreateNoCopy( DKTypeRef objects[], DKIndex count )
 {
     struct DKArray * array = (struct DKArray *)DKAllocObject( DKArrayClass(), sizeof(struct DKArray), DKObjectContentIsExternal );
 
-    DKElementArrayInit( &array->elemArray, sizeof(DKTypeRef) );
-    array->elemArray.byteArray.data = (uint8_t *)objects;
-    array->elemArray.byteArray.length = sizeof(DKTypeRef) * count;
-    array->elemArray.byteArray.maxLength = sizeof(DKTypeRef) * count;
+    DKPointerArrayInit( &array->ptrArray );
+    array->ptrArray.data = (uintptr_t *)objects;
+    array->ptrArray.length = count;
+    array->ptrArray.maxLength = count;
     
     return array;
 }
@@ -332,7 +332,7 @@ DKIndex DKArrayGetCount( DKListRef ref )
     if( ref )
     {
         const struct DKArray * array = ref;
-        return DKElementArrayGetCount( &array->elemArray );
+        return array->ptrArray.length;
     }
     
     return 0;
@@ -349,9 +349,7 @@ DKIndex DKArrayGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] )
         struct DKArray * array = (struct DKArray *)ref;
         
         for( DKIndex i = 0; i < range.length; ++i )
-        {
-            objects[i] = DKElementArrayGetElementAtIndex( &array->elemArray, range.location + i, DKTypeRef );
-        }
+            objects[i] = array->ptrArray.data[range.location + i];
     }
     
     return 0;

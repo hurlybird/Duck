@@ -13,7 +13,7 @@
 #include "DKEnv.h"
 
 #include "DKByteArray.h"
-#include "DKElementArray.h"
+#include "DKPointerArray.h"
 #include "DKNodePool.h"
 
 #include "DKRuntime.h"

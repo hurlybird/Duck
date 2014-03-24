@@ -313,35 +313,38 @@ void TestDKDictionary( DKTypeRef dictionaryClass )
 // TestDKListPerformance =================================================================
 void TestDKListPerformance( DKTypeRef listClass )
 {
-    const int N = 10000000;
+    const int N = 1000000;
 
     DKDataRef foo = DKDataCreate( "foo", 4 );
     DKDataRef bar = NULL;
     
     // Array Setup
-    DKElementArray array;
-    DKElementArrayInit( &array, sizeof(DKDataRef) );
+    DKPointerArray array;
+    DKPointerArrayInit( &array );
     
     clock_t arraySetupStart = clock();
 
     for( int i = 0; i < N; ++i )
-        DKElementArrayAppendElement( &array, &foo );
+    {
+        DKRetain( foo );
+        DKPointerArrayAppendPointer( &array, foo );
+    }
     
     clock_t arraySetupEnd = clock();
 
     double arraySetupTime = (double)(arraySetupEnd - arraySetupStart) / (double)CLOCKS_PER_SEC;
-    printf( "Array Setup:  %lf\n", arraySetupTime );
+    printf( "C Array Write: %lf\n", arraySetupTime );
 
     // Array Access
     clock_t arrayAccessStart = clock();
     
     for( int i = 0; i < N; ++i )
-        bar = DKElementArrayGetElementAtIndex( &array, i, DKDataRef );
+        bar = array.data[i];
     
     clock_t arrayAccessEnd = clock();
 
     double arrayAccessTime = (double)(arrayAccessEnd - arrayAccessStart) / (double)CLOCKS_PER_SEC;
-    printf( "Array Access: %lf\n", arrayAccessTime );
+    printf( "C Array Read:  %lf\n", arrayAccessTime );
 
 
     // List Setup
@@ -355,7 +358,7 @@ void TestDKListPerformance( DKTypeRef listClass )
     clock_t listSetupEnd = clock();
 
     double listSetupTime = (double)(listSetupEnd - listSetupStart) / (double)CLOCKS_PER_SEC;
-    printf( "List Setup:   %lf\n", listSetupTime );
+    printf( "DKList Write:  %lf\n", listSetupTime );
     
     
     // List Access
@@ -367,12 +370,16 @@ void TestDKListPerformance( DKTypeRef listClass )
     clock_t listAccessEnd = clock();
     
     double listAccessTime = (double)(listAccessEnd - listAccessStart) / (double)CLOCKS_PER_SEC;
-    printf( "List Access:  %lf\n", listAccessTime );
+    printf( "DKList Read:   %lf\n", listAccessTime );
 
     
     // Cleanup
-    DKElementArrayClear( &array );
+    DKPointerArrayClear( &array );
     DKRelease( list );
+
+    for( int i = 0; i < N; ++i )
+        DKRelease( foo );
+    
     DKRelease( foo );
 }
 

@@ -15,8 +15,8 @@
 struct DKObjectHeader
 {
     const struct DKClass * isa;
-    DKAtomicInt refcount;
-    DKAtomicInt attributes;
+    volatile int32_t refcount;
+    uint32_t attributes;
 };
 
 typedef const struct DKObjectHeader DKObjectHeader;

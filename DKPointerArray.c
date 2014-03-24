@@ -1,21 +1,21 @@
 //
-//  DKByteArray.c
+//  DKPointerArray.c
 //  Duck
 //
 //  Created by Derek Nylen on 2014-03-23.
 //  Copyright (c) 2014 Derek W. Nylen. All rights reserved.
 //
 
-#include "DKByteArray.h"
+#include "DKPointerArray.h"
 
 
-#define MIN_BYTE_ARRAY_SIZE 64
+#define MIN_PTR_ARRAY_SIZE 32
 
 
 ///
-//  DKByteArrayInit()
+//  DKPointerArrayInit()
 //
-void DKByteArrayInit( DKByteArray * array )
+void DKPointerArrayInit( DKPointerArray * array )
 {
     array->data = NULL;
     array->length = 0;
@@ -24,20 +24,20 @@ void DKByteArrayInit( DKByteArray * array )
 
 
 ///
-//  DKByteArrayReserve()
+//  DKPointerArrayReserve()
 //
-void DKByteArrayReserve( DKByteArray * array, DKIndex length )
+void DKPointerArrayReserve( DKPointerArray * array, DKIndex length )
 {
     if( array->maxLength < length )
     {
-        if( length < MIN_BYTE_ARRAY_SIZE )
-            length = MIN_BYTE_ARRAY_SIZE;
+        if( length < MIN_PTR_ARRAY_SIZE )
+            length = MIN_PTR_ARRAY_SIZE;
     
-        uint8_t * data = DKAlloc( length );
+        uintptr_t * data = DKAlloc( length * sizeof(uintptr_t) );
         
         if( array->length > 0 )
         {
-            memcpy( data, array->data, array->length );
+            memcpy( data, array->data, array->length * sizeof(uintptr_t) );
             DKFree( array->data );
         }
         
@@ -48,9 +48,9 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
 
 
 ///
-//  DKByteArrayClear()
+//  DKPointerArrayClear()
 //
-void DKByteArrayClear( DKByteArray * array )
+void DKPointerArrayClear( DKPointerArray * array )
 {
     DKFree( array->data );
     array->data = NULL;
@@ -60,9 +60,9 @@ void DKByteArrayClear( DKByteArray * array )
 
 
 ///
-//  DKByteArrayResize()
+//  DKPointerArrayResize()
 //
-static uint8_t * DKByteArrayResize( void * ptr, DKIndex oldSize, DKIndex requestedSize, DKIndex * allocatedSize )
+static uintptr_t * DKPointerArrayResize( void * ptr, DKIndex oldSize, DKIndex requestedSize, DKIndex * allocatedSize )
 {
     if( requestedSize < oldSize )
         return ptr;
@@ -72,19 +72,19 @@ static uint8_t * DKByteArrayResize( void * ptr, DKIndex oldSize, DKIndex request
     if( newSize < requestedSize )
         newSize = requestedSize;
     
-    if( newSize < MIN_BYTE_ARRAY_SIZE )
-        newSize = MIN_BYTE_ARRAY_SIZE;
+    if( newSize < MIN_PTR_ARRAY_SIZE )
+        newSize = MIN_PTR_ARRAY_SIZE;
     
     *allocatedSize = newSize;
     
-    return DKAlloc( newSize );
+    return DKAlloc( newSize * sizeof(uintptr_t) );
 }
 
 
 ///
-//  DKByteArrayReplaceBytes()
+//  DKPointerArrayReplacePointers()
 //
-void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t bytes[], DKIndex length )
+void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const uintptr_t pointers[], DKIndex length )
 {
     DKIndex range_end = DKRangeEnd( range );
 
@@ -107,7 +107,7 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
     DKAssert( newLength >= 0 );
 
     // Resize
-    uint8_t * data = DKByteArrayResize( array->data, array->maxLength, newLength, &array->maxLength );
+    uintptr_t * data = DKPointerArrayResize( array->data, array->maxLength, newLength, &array->maxLength );
     
     if( array->data )
     {
@@ -116,15 +116,15 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
             // Copy prefix
             if( prefixRange.length > 0 )
             {
-                memcpy( data, array->data, prefixRange.length );
+                memcpy( data, array->data, prefixRange.length * sizeof(uintptr_t) );
             }
             
             // Copy suffix
             if( suffixRangeBeforeInsertion.length > 0 )
             {
-                uint8_t * dst = &data[suffixRangeAfterInsertion.location];
-                uint8_t * src = &array->data[suffixRangeBeforeInsertion.location];
-                memcpy( dst, src, suffixRangeBeforeInsertion.length );
+                uintptr_t * dst = &data[suffixRangeAfterInsertion.location];
+                uintptr_t * src = &array->data[suffixRangeBeforeInsertion.location];
+                memcpy( dst, src, suffixRangeBeforeInsertion.length * sizeof(uintptr_t) );
             }
             
             DKFree( array->data );
@@ -135,9 +135,9 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
             // Shift suffix
             if( suffixRangeBeforeInsertion.length > 0 )
             {
-                uint8_t * dst = &data[suffixRangeAfterInsertion.location];
-                uint8_t * src = &data[suffixRangeBeforeInsertion.location];
-                memmove( dst, src, suffixRangeBeforeInsertion.length );
+                uintptr_t * dst = &data[suffixRangeAfterInsertion.location];
+                uintptr_t * src = &data[suffixRangeBeforeInsertion.location];
+                memmove( dst, src, suffixRangeBeforeInsertion.length * sizeof(uintptr_t) );
             }
         }
     }
@@ -148,28 +148,28 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
     // Insert or Extend
     if( insertedRange.length > 0 )
     {
-        uint8_t * dst = &array->data[insertedRange.location];
+        uintptr_t * dst = &array->data[insertedRange.location];
         
-        if( bytes != NULL )
+        if( pointers != NULL )
         {
-            memcpy( dst, bytes, insertedRange.length );
+            memcpy( dst, pointers, insertedRange.length * sizeof(uintptr_t) );
         }
         
         else
         {
-            memset( dst, 0, insertedRange.length );
+            memset( dst, 0, insertedRange.length * sizeof(uintptr_t) );
         }
     }
 }
 
 
 ///
-//  DKByteArrayAppendBytes()
+//  DKPointerArrayAppendPointer()
 //
-void DKByteArrayAppendBytes( DKByteArray * array, const uint8_t bytes[], DKIndex length )
+void DKPointerArrayAppendPointer( DKPointerArray * array, uintptr_t pointer )
 {
     DKRange range = DKRangeMake( array->length, 0 );
-    DKByteArrayReplaceBytes( array, range, bytes, length );
+    DKPointerArrayReplacePointers( array, range, &pointer, 1 );
 }
 
 

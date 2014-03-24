@@ -24,8 +24,8 @@ typedef struct
 void DKByteArrayInit( DKByteArray * array );
 void DKByteArrayReserve( DKByteArray * array, DKIndex length );
 void DKByteArrayClear( DKByteArray * array );
-void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const void * bytes, DKIndex length );
-
+void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t bytes[], DKIndex length );
+void DKByteArrayAppendBytes( DKByteArray * array, const uint8_t bytes[], DKIndex length );
 
 
 #endif // _DK_BYTE_ARRAY_H_

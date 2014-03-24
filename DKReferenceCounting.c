@@ -20,7 +20,7 @@ DKTypeRef DKDefaultRetainImp( DKTypeRef ref )
     if( ref )
     {
         struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
-        DKAtomicIncrement( &obj->refcount );
+        DKAtomicIncrement32( &obj->refcount );
     }
 
     return ref;
@@ -35,7 +35,7 @@ void DKDefaultReleaseImp( DKTypeRef ref )
     if( ref )
     {
         struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
-        DKAtomicInt n = DKAtomicDecrement( &obj->refcount );
+        int32_t n = DKAtomicDecrement32( &obj->refcount );
         
         DKAssert( n >= 0 );
         

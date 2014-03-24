@@ -12,16 +12,12 @@
 #include <libkern/OSAtomic.h>
 
 
-// Atomic Integers
-//typedef int32_t DKAtomicInt;
+//#define DKAtomicIncrement32( ptr )    __sync_add_and_fetch( ptr, 1 )
+//#define DKAtomicDecrement32( ptr )    __sync_sub_and_fetch( ptr, 1 )
 
-//#define DKAtomicIncrement( ptr )    __sync_add_and_fetch( ptr, 1 )
-//#define DKAtomicDecrement( ptr )    __sync_sub_and_fetch( ptr, 1 )
 
-typedef int32_t DKAtomicInt;
-
-#define DKAtomicIncrement( ptr )    OSAtomicIncrement32( ptr )
-#define DKAtomicDecrement( ptr )    OSAtomicDecrement32( ptr )
+#define DKAtomicIncrement32( ptr )    OSAtomicIncrement32Barrier( ptr )
+#define DKAtomicDecrement32( ptr )    OSAtomicDecrement32Barrier( ptr )
 
 
 

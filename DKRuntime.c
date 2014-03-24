@@ -7,7 +7,7 @@
 //
 
 #include "DKEnv.h"
-#include "DKElementArray.h"
+#include "DKPointerArray.h"
 #include "DKRuntime.h"
 #include "DKLifeCycle.h"
 #include "DKReferenceCounting.h"
@@ -27,8 +27,8 @@ struct DKClass
 
     DKTypeRef               fastLookupTable[DKFastLookupTableSize];
     
-    DKElementArray          interfaces;
-    DKElementArray          properties;
+    DKPointerArray          interfaces;
+    DKPointerArray          properties;
 };
 
 typedef const struct DKClass DKClass;
@@ -102,12 +102,8 @@ static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa, str
     // The superclass may not be initialized, so don't retain it in this case
     metaclass->superclass = superclass;
 
-    DKElementArrayInit( &metaclass->interfaces, sizeof(DKTypeRef) );
-    DKElementArrayReserve( &metaclass->interfaces, 8 );
-    
-    DKElementArrayInit( &metaclass->properties, sizeof(DKTypeRef) );
-    DKElementArrayReserve( &metaclass->interfaces, 8 );
-
+    DKPointerArrayInit( &metaclass->interfaces );
+    DKPointerArrayInit( &metaclass->properties );
 }
 
 
@@ -235,11 +231,8 @@ DKTypeRef DKAllocClass( DKTypeRef superclass )
     
     classObject->superclass = DKRetain( superclass );
     
-    DKElementArrayInit( &classObject->interfaces, sizeof(DKTypeRef) );
-    DKElementArrayReserve( &classObject->interfaces, 16 );
-
-    DKElementArrayInit( &classObject->properties, sizeof(DKTypeRef) );
-    DKElementArrayReserve( &classObject->properties, 16 );
+    DKPointerArrayInit( &classObject->interfaces );
+    DKPointerArrayInit( &classObject->properties );
 
     memset( classObject->fastLookupTable, 0, sizeof(classObject->fastLookupTable) );
     
@@ -313,22 +306,22 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
     // Do stuff here...
 
     // Replace the interface in the interface table
-    DKIndex count = DKElementArrayGetCount( &classObject->interfaces );
+    DKIndex count = classObject->interfaces.length;
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        const DKInterface * oldInterfaceObject = DKElementArrayGetElementAtIndex( &classObject->interfaces, i, void * );
+        const DKInterface * oldInterfaceObject = classObject->interfaces.data[i];
         
         if( DKEqual( oldInterfaceObject->sel, interfaceObject->sel ) )
         {
             DKRelease( oldInterfaceObject );
-            DKElementArraySetElementAtIndex( &classObject->interfaces, i, &interfaceObject );
+            classObject->interfaces.data[i] = interfaceObject;
             return;
         }
     }
     
     // Add the interface to the interface table
-    DKElementArrayAppendElement( &classObject->interfaces, &interfaceObject );
+    DKPointerArrayAppendPointer( &classObject->interfaces, interfaceObject );
 }
 
 
@@ -377,11 +370,11 @@ DKTypeRef DKLookupInterface( DKTypeRef ref, DKSEL sel )
     // Finally search the interface tables for the selector
     for( DKClass * cls = classObject; cls != NULL; cls = cls->superclass )
     {
-        DKIndex count = DKElementArrayGetCount( &cls->interfaces );
+        DKIndex count = cls->interfaces.length;
         
         for( DKIndex i = 0; i < count; ++i )
         {
-            interface = DKElementArrayGetElementAtIndex( &cls->interfaces, i, DKInterface * );
+            interface = cls->interfaces.data[i];
             
             if( DKEqual( interface->sel, sel ) )
             {
