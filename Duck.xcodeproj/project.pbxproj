@@ -34,6 +34,8 @@
 		02C72E7518DEDCB6009CD44D /* DKDictionary.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E7418DEDCB6009CD44D /* DKDictionary.c */; };
 		02C72E7718DF606B009CD44D /* DKStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E7618DF606B009CD44D /* DKStream.c */; };
 		02C72E7B18DF704B009CD44D /* DKFile.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E7A18DF704B009CD44D /* DKFile.c */; };
+		02C72E7E18DFA4B7009CD44D /* DKArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E7C18DFA4B7009CD44D /* DKArray.c */; };
+		02C72E7F18DFA4B7009CD44D /* DKArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C72E7D18DFA4B7009CD44D /* DKArray.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,6 +106,8 @@
 		02C72E7818DF6074009CD44D /* DKStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKStream.h; sourceTree = "<group>"; };
 		02C72E7918DF7042009CD44D /* DKFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKFile.h; sourceTree = "<group>"; };
 		02C72E7A18DF704B009CD44D /* DKFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKFile.c; sourceTree = "<group>"; };
+		02C72E7C18DFA4B7009CD44D /* DKArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKArray.c; sourceTree = "<group>"; };
+		02C72E7D18DFA4B7009CD44D /* DKArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKArray.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +162,8 @@
 				0278EA4A18CD92AC0028A755 /* DKList.c */,
 				024EE3F9148E42C9008FDADC /* DKLinkedList.h */,
 				024EE3FB148E42D6008FDADC /* DKLinkedList.c */,
+				02C72E7D18DFA4B7009CD44D /* DKArray.h */,
+				02C72E7C18DFA4B7009CD44D /* DKArray.c */,
 				02C72E7318DEDCAE009CD44D /* DKDictionary.h */,
 				02C72E7418DEDCB6009CD44D /* DKDictionary.c */,
 				024918C718C136700046AA8B /* DKBinaryTree.h */,
@@ -202,6 +208,7 @@
 				024EE3EA148E0BA5008FDADC /* DKData.h in Headers */,
 				024EE3EC148E0BBA008FDADC /* Duck.h in Headers */,
 				024EE3F4148E3566008FDADC /* scl_array.h in Headers */,
+				02C72E7F18DFA4B7009CD44D /* DKArray.h in Headers */,
 				024EE3FA148E42C9008FDADC /* DKLinkedList.h in Headers */,
 				027E9770148E830200AC8406 /* scl_value.h in Headers */,
 				0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */,
@@ -290,6 +297,7 @@
 				02C72E7218DECE4C009CD44D /* DKBinaryTree.c in Sources */,
 				0261EB8918DE0C1600974404 /* DKLifeCycle.c in Sources */,
 				02C72E7B18DF704B009CD44D /* DKFile.c in Sources */,
+				02C72E7E18DFA4B7009CD44D /* DKArray.c in Sources */,
 				02C72E7718DF606B009CD44D /* DKStream.c in Sources */,
 				02C72E7518DEDCB6009CD44D /* DKDictionary.c in Sources */,
 				0261EB8F18DE7FE300974404 /* DKReferenceCounting.c in Sources */,

@@ -201,6 +201,20 @@ void DKListAppendObject( DKMutableListRef ref, DKTypeRef object )
 
 
 ///
+//  DKListAppendList()
+//
+void DKListAppendList( DKMutableListRef ref, DKTypeRef srcList )
+{
+    if( ref )
+    {
+        DKList * list = DKLookupInterface( ref, DKSelector(List) );
+        DKRange append = DKRangeMake( list->getCount( ref ), 0 );
+        list->replaceObjectsWithList( ref, append, srcList );
+    }
+}
+
+
+///
 //  DKListSetObjectAtIndex()
 //
 void DKListSetObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef object )

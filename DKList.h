@@ -47,6 +47,7 @@ DKIndex     DKListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] 
 void        DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * context );
 
 void        DKListAppendObject( DKMutableListRef ref, DKTypeRef object );
+void        DKListAppendList( DKMutableListRef ref, DKTypeRef srcList );
 void        DKListSetObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef object );
 void        DKListInsertObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef object );
 void        DKListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );

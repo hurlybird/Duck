@@ -30,9 +30,18 @@ int main( int argc, const char * argv[] )
     TestDKObject();
     TestDKData();
     TestDKList( DKMutableLinkedListClass() );
+    TestDKList( DKMutableArrayClass() );
     TestDKDictionary( DKMutableBinaryTreeClass() );
     
-    //TestDKListPerformance( DKMutableLinkedListClass() );
+#if 0
+    
+    printf( "\nTesting DKLinkedList Performance vs. a C Array\n" );
+    TestDKListPerformance( DKMutableLinkedListClass() );
+
+    printf( "\nTesting DKArray Performance vs. a C Array\n" );
+    TestDKListPerformance( DKMutableArrayClass() );
+    
+#endif
 
     return 0;
 }
@@ -304,7 +313,7 @@ void TestDKDictionary( DKTypeRef dictionaryClass )
 // TestDKListPerformance =================================================================
 void TestDKListPerformance( DKTypeRef listClass )
 {
-    const int N = 1000000;
+    const int N = 10000000;
 
     DKDataRef foo = DKDataCreate( "foo", 4 );
     DKDataRef bar = NULL;
@@ -338,29 +347,15 @@ void TestDKListPerformance( DKTypeRef listClass )
     // List Setup
     DKMutableListRef list = (DKMutableListRef)DKCreate( listClass );
 
-    clock_t listSetupStart1 = clock();
+    clock_t listSetupStart = clock();
     
     for( int i = 0; i < N; ++i )
         DKListAppendObject( list, foo );
     
-    clock_t listSetupEnd1 = clock();
+    clock_t listSetupEnd = clock();
 
-    double listSetupTime1 = (double)(listSetupEnd1 - listSetupStart1) / (double)CLOCKS_PER_SEC;
-    printf( "List Setup 1: %lf\n", listSetupTime1 );
-    
-    
-    // List Setup (preallocated nodes)
-    DKListRemoveAllObjects( list );
-    
-    clock_t listSetupStart2 = clock();
-    
-    for( int i = 0; i < N; ++i )
-        DKListAppendObject( list, foo );
-    
-    clock_t listSetupEnd2 = clock();
-
-    double listSetupTime2 = (double)(listSetupEnd2 - listSetupStart2) / (double)CLOCKS_PER_SEC;
-    printf( "List Setup 2: %lf\n", listSetupTime2 );
+    double listSetupTime = (double)(listSetupEnd - listSetupStart) / (double)CLOCKS_PER_SEC;
+    printf( "List Setup:   %lf\n", listSetupTime );
     
     
     // List Access

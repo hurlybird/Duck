@@ -12,7 +12,7 @@
 #include "DKCopying.h"
 
 
-#define DK_LINKED_LIST_ERROR_CHECKS 1
+#define DK_LINKED_LIST_ERROR_CHECKS 0
 
 
 struct DKLinkedListNode
