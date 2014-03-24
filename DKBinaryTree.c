@@ -7,7 +7,6 @@
 //
 #include "DKBinaryTree.h"
 #include "DKNodePool.h"
-#include "DKLifeCycle.h"
 #include "DKCopying.h"
 
 
@@ -51,10 +50,10 @@ DKTypeRef DKBinaryTreeClass( void )
 
     if( !binaryTreeClass )
     {
-        binaryTreeClass = DKAllocClass( DKObjectClass() );
+        binaryTreeClass = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKBinaryTreeAllocate;
         lifeCycle->initialize = DKBinaryTreeInitialize;
         lifeCycle->finalize = DKBinaryTreeFinalize;
@@ -63,7 +62,7 @@ DKTypeRef DKBinaryTreeClass( void )
         DKRelease( lifeCycle );
 
         // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKBinaryTreeCopy;
         copying->mutableCopy = DKBinaryTreeMutableCopy;
         
@@ -71,7 +70,7 @@ DKTypeRef DKBinaryTreeClass( void )
         DKRelease( copying );
         
         // Dictionary
-        struct DKDictionary * dictionary = (struct DKDictionary *)DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+        struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
         dictionary->getCount = DKBinaryTreeGetCount;
         dictionary->getObject = DKBinaryTreeGetObject;
         dictionary->insertObject = DKBinaryTreeInsertObject;
@@ -96,10 +95,10 @@ DKTypeRef DKMutableBinaryTreeClass( void )
 
     if( !mutableBinaryTreeClass )
     {
-        mutableBinaryTreeClass = DKAllocClass( DKObjectClass() );
+        mutableBinaryTreeClass = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKMutableBinaryTreeAllocate;
         lifeCycle->initialize = DKBinaryTreeInitialize;
         lifeCycle->finalize = DKBinaryTreeFinalize;
@@ -108,7 +107,7 @@ DKTypeRef DKMutableBinaryTreeClass( void )
         DKRelease( lifeCycle );
 
         // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKMutableBinaryTreeCopy;
         copying->mutableCopy = DKBinaryTreeMutableCopy;
         
@@ -116,7 +115,7 @@ DKTypeRef DKMutableBinaryTreeClass( void )
         DKRelease( copying );
 
         // Dictionary
-        struct DKDictionary * dictionary = (struct DKDictionary *)DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+        struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
         dictionary->getCount = DKBinaryTreeGetCount;
         dictionary->getObject = DKBinaryTreeGetObject;
         dictionary->insertObject = DKBinaryTreeInsertObject;

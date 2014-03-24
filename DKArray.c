@@ -8,7 +8,6 @@
 
 #include "DKArray.h"
 #include "DKPointerArray.h"
-#include "DKLifeCycle.h"
 #include "DKCopying.h"
 
 
@@ -36,10 +35,10 @@ DKTypeRef DKArrayClass( void )
 
     if( !arrayClass )
     {
-        arrayClass = DKAllocClass( DKObjectClass() );
+        arrayClass = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKArrayAllocate;
         lifeCycle->initialize = DKArrayInitialize;
         lifeCycle->finalize = DKArrayFinalize;
@@ -48,7 +47,7 @@ DKTypeRef DKArrayClass( void )
         DKRelease( lifeCycle );
 
         // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKArrayCopy;
         copying->mutableCopy = DKArrayMutableCopy;
         
@@ -56,7 +55,7 @@ DKTypeRef DKArrayClass( void )
         DKRelease( copying );
 
         // List
-        struct DKList * list = (struct DKList *)DKAllocInterface( DKSelector(List), sizeof(DKList) );
+        struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
         list->getCount = DKArrayGetCount;
         list->getObjects = DKArrayGetObjects;
         list->replaceObjects = DKArrayReplaceObjects;
@@ -81,10 +80,10 @@ DKTypeRef DKMutableArrayClass( void )
 
     if( !mutableArrayClass )
     {
-        mutableArrayClass = DKAllocClass( DKObjectClass() );
+        mutableArrayClass = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKMutableArrayAllocate;
         lifeCycle->initialize = DKArrayInitialize;
         lifeCycle->finalize = DKArrayFinalize;
@@ -93,7 +92,7 @@ DKTypeRef DKMutableArrayClass( void )
         DKRelease( lifeCycle );
 
         // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKMutableArrayCopy;
         copying->mutableCopy = DKArrayMutableCopy;
         
@@ -101,7 +100,7 @@ DKTypeRef DKMutableArrayClass( void )
         DKRelease( copying );
 
         // List
-        struct DKList * list = (struct DKList *)DKAllocInterface( DKSelector(List), sizeof(DKList) );
+        struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
         list->getCount = DKArrayGetCount;
         list->getObjects = DKArrayGetObjects;
         list->replaceObjects = DKArrayReplaceObjects;

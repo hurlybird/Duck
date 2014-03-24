@@ -179,22 +179,88 @@ typedef const struct DKProperty DKProperty;
 
 
 // Root Classes ==========================================================================
-DKTypeRef   DKClassClass( void );
-DKTypeRef   DKSelectorClass( void );
-DKTypeRef   DKInterfaceClass( void );
-DKTypeRef   DKMethodClass( void );
-DKTypeRef   DKPropertyClass( void );
-DKTypeRef   DKObjectClass( void );
+DKTypeRef DKClassClass( void );
+DKTypeRef DKSelectorClass( void );
+DKTypeRef DKInterfaceClass( void );
+DKTypeRef DKMethodClass( void );
+DKTypeRef DKPropertyClass( void );
+DKTypeRef DKObjectClass( void );
+
+
+
+
+// Default Interfaces ====================================================================
+
+// LifeCycle -----------------------------------------------------------------------------
+DKDeclareInterface( LifeCycle );
+
+struct DKLifeCycle
+{
+    DKInterface _interface;
+    
+    DKTypeRef   (*allocate)( void );
+    DKTypeRef   (*initialize)( DKTypeRef ref );
+    void        (*finalize)( DKTypeRef ref );
+};
+
+typedef const struct DKLifeCycle DKLifeCycle;
+
+DKTypeRef   DKDefaultAllocate( void );
+DKTypeRef   DKDefaultInitialize( DKTypeRef ref );
+void        DKDefaultFinalize( DKTypeRef ref );
+
+DKLifeCycle * DKDefaultLifeCycle( void );
+
+
+// ReferenceCounting ---------------------------------------------------------------------
+DKDeclareInterface( ReferenceCounting );
+
+struct DKReferenceCounting
+{
+    DKInterface _interface;
+    
+    DKTypeRef   (*retain)( DKTypeRef ref );
+    void        (*release)( DKTypeRef ref );
+};
+
+typedef const struct DKReferenceCounting DKReferenceCounting;
+
+DKTypeRef   DKDefaultRetain( DKTypeRef ref );
+void        DKDefaultRelease( DKTypeRef ref );
+
+DKReferenceCounting * DKDefaultReferenceCounting( void );
+
+
+// Comparison ----------------------------------------------------------------------------
+DKDeclareInterface( Comparison );
+
+struct DKComparison
+{
+    DKInterface _interface;
+    
+    int         (*equal)( DKTypeRef ref, DKTypeRef other );
+    int         (*compare)( DKTypeRef ref, DKTypeRef other );
+    DKHashIndex (*hash)( DKTypeRef ref );
+};
+
+typedef const struct DKComparison DKComparison;
+
+int         DKDefaultEqual( DKTypeRef ref, DKTypeRef other );
+int         DKDefaultCompare( DKTypeRef ref, DKTypeRef other );
+DKHashIndex DKDefaultHash( DKTypeRef ptr );
+
+DKComparison * DKDefaultComparison( void );
 
 
 
 
 // Alloc/Free Objects ====================================================================
 DKTypeRef   DKAllocObject( DKTypeRef _class, size_t size, int flags );
-void        DKFreeObject( DKTypeRef ref );
+void        DKDeallocObject( DKTypeRef ref );
 
-DKTypeRef   DKAllocClass( DKTypeRef superclass );
-DKTypeRef   DKAllocInterface( DKSEL sel, size_t size );
+DKTypeRef   DKCreateClass( DKTypeRef superclass );
+DKTypeRef   DKCreateInterface( DKSEL sel, size_t size );
+
 
 //void        DKRegisterClass( DKTypeRef classObject );
 
@@ -208,11 +274,11 @@ DKTypeRef   DKLookupMethod( DKTypeRef ref, DKSEL sel );
 
 
 // DKObject themed default implementations ===============================================
-#define DKObjectInitialize( ref )   DKDefaultInitializeImp( ref )
+#define DKObjectInitialize( ref )   DKDefaultInitialize( ref )
 
-#define DKObjectEqual( a, b )       DKDefaultEqualImp( a, b )
-#define DKObjectCompare( a, b )     DKDefaultCompareImp( a, b )
-#define DKObjectHash( ref )         DKDefaultHashImp( a, b )
+#define DKObjectEqual( a, b )       DKDefaultEqual( a, b )
+#define DKObjectCompare( a, b )     DKDefaultCompare( a, b )
+#define DKObjectHash( ref )         DKDefaultHash( a, b )
 
 
 

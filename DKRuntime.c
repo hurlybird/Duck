@@ -9,9 +9,6 @@
 #include "DKEnv.h"
 #include "DKPointerArray.h"
 #include "DKRuntime.h"
-#include "DKLifeCycle.h"
-#include "DKReferenceCounting.h"
-#include "DKComparison.h"
 
 
 // Internal Class Structure ==============================================================
@@ -87,6 +84,216 @@ DKTypeRef DKObjectClass( void )
 }
 
 
+
+
+// Default Interfaces ====================================================================
+
+#define DKStaticInterfaceObject( sel )                                                  \
+    {                                                                                   \
+        { &__DKInterfaceClass__, 1, DKObjectIsStatic },                                 \
+        DKSelector( sel )                                                               \
+    }
+
+
+// LifeCycle -----------------------------------------------------------------------------
+DKDefineFastLookupInterface( LifeCycle );
+
+static DKLifeCycle __DKDefaultLifeCycle__ =
+{
+    DKStaticInterfaceObject( LifeCycle ),
+    DKDefaultAllocate,
+    DKDefaultInitialize,
+    DKDefaultFinalize
+};
+
+DKTypeRef DKDefaultAllocate( void )
+{
+    DKError( "DKLifeCycle: The allocate interface is undefined." );
+    return NULL;
+}
+
+DKTypeRef DKDefaultInitialize( DKTypeRef ref )
+{
+    return ref;
+}
+
+void DKDefaultFinalize( DKTypeRef ref )
+{
+}
+
+DKLifeCycle * DKDefaultLifeCycle( void )
+{
+    return &__DKDefaultLifeCycle__;
+}
+
+
+// ReferenceCounting ---------------------------------------------------------------------
+DKDefineFastLookupInterface( ReferenceCounting );
+
+static DKReferenceCounting __DKDefaultReferenceCounting__ =
+{
+    DKStaticInterfaceObject( ReferenceCounting ),
+    DKDefaultRetain,
+    DKDefaultRelease
+};
+
+DKTypeRef DKDefaultRetain( DKTypeRef ref )
+{
+    if( ref )
+    {
+        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+        DKAtomicIncrement32( &obj->refcount );
+    }
+
+    return ref;
+}
+
+void DKDefaultRelease( DKTypeRef ref )
+{
+    if( ref )
+    {
+        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+        int32_t n = DKAtomicDecrement32( &obj->refcount );
+        
+        DKAssert( n >= 0 );
+        
+        if( n == 0 )
+        {
+            DKDeallocObject( ref );
+        }
+    }
+}
+
+DKReferenceCounting * DKDefaultReferenceCounting( void )
+{
+    return &__DKDefaultReferenceCounting__;
+}
+
+
+// Comparison ----------------------------------------------------------------------------
+DKDefineFastLookupInterface( Comparison );
+
+static DKComparison __DKDefaultComparison__ =
+{
+    DKStaticInterfaceObject( Comparison ),
+    DKDefaultEqual,
+    DKDefaultCompare,
+    DKDefaultHash
+};
+
+int DKDefaultEqual( DKTypeRef ref, DKTypeRef other )
+{
+    return ref == other;
+}
+
+int DKDefaultCompare( DKTypeRef ref, DKTypeRef other )
+{
+    if( ref < other )
+        return 1;
+    
+    if( ref > other )
+        return -1;
+    
+    return 0;
+}
+
+DKHashIndex DKDefaultHash( DKTypeRef ref )
+{
+    DKAssert( sizeof(DKHashIndex) == sizeof(DKTypeRef) );
+    return (DKHashIndex)ref;
+}
+
+DKComparison * DKDefaultComparison( void )
+{
+    return &__DKDefaultComparison__;
+}
+
+
+
+
+// Meta-Class Interfaces =================================================================
+static void DKClassFinalize( DKTypeRef ref );
+static void DKInterfaceFinalize( DKTypeRef ref );
+
+static DKTypeRef DKStaticObjectRetain( DKTypeRef ref );
+static void DKStaticObjectRelease( DKTypeRef ref );
+
+static int DKInterfaceEqual( DKTypeRef ref, DKTypeRef other );
+static int DKInterfaceCompare( DKTypeRef ref, DKTypeRef other );
+static DKHashIndex DKInterfaceHash( DKTypeRef ref );
+
+
+static DKLifeCycle __DKClassLifeCycle__ =
+{
+    DKStaticInterfaceObject( LifeCycle ),
+    DKDefaultAllocate,
+    DKDefaultInitialize,
+    DKClassFinalize
+};
+
+static DKLifeCycle __DKInterfaceLifeCycle__ =
+{
+    DKStaticInterfaceObject( LifeCycle ),
+    DKDefaultAllocate,
+    DKDefaultInitialize,
+    DKInterfaceFinalize
+};
+
+static DKReferenceCounting __DKStaticObjectReferenceCounting__ =
+{
+    DKStaticInterfaceObject( ReferenceCounting ),
+    DKStaticObjectRetain,
+    DKStaticObjectRelease
+};
+
+static DKComparison __DKInterfaceComparison__ =
+{
+    DKStaticInterfaceObject( Comparison ),
+    DKInterfaceEqual,
+    DKInterfaceCompare,
+    DKInterfaceHash
+};
+
+
+// Static Object Reference Counting
+static DKTypeRef DKStaticObjectRetain( DKTypeRef ref )
+{
+    return ref;
+}
+
+static void DKStaticObjectRelease( DKTypeRef ref )
+{
+}
+
+// Interface Comparison
+static int DKInterfaceEqual( DKTypeRef ref, DKTypeRef other )
+{
+    const DKInterface * thisInterface = ref;
+    const DKInterface * otherInterface = other;
+
+    return DKDefaultEqual( thisInterface->sel, otherInterface->sel );
+}
+
+static int DKInterfaceCompare( DKTypeRef ref, DKTypeRef other )
+{
+    const DKInterface * thisInterface = ref;
+    const DKInterface * otherInterface = other;
+
+    return DKDefaultCompare( thisInterface->sel, otherInterface->sel );
+}
+
+static DKHashIndex DKInterfaceHash( DKTypeRef ref )
+{
+    const DKInterface * interface = ref;
+    
+    return DKDefaultHash( interface->sel );
+}
+
+
+
+
+// Meta-Class Init =======================================================================
+
 ///
 //  InitMetaClass()
 //
@@ -94,12 +301,15 @@ static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa, str
 {
     memset( metaclass, 0, sizeof(struct DKClass) );
     
+    // NOTE: We don't retain the 'isa' or 'superclass' objects here since the reference
+    // counting interfaces haven't been installed yet. It doesn't really matter because
+    // the meta-classes are statically allocated anyway.
+
     struct DKObjectHeader * header = (struct DKObjectHeader *)metaclass;
     header->isa = isa;
     header->refcount = 1;
     header->attributes = DKObjectIsStatic;
 
-    // The superclass may not be initialized, so don't retain it in this case
     metaclass->superclass = superclass;
 
     DKPointerArrayInit( &metaclass->interfaces );
@@ -108,29 +318,23 @@ static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa, str
 
 
 ///
-//  PrecacheMetaClassInterfaces()
-//
-static void PrecacheMetaClassInterfaces( struct DKClass * metaclass,
-    DKReferenceCounting * referenceCounting, DKComparison * comparison )
-{
-    // Setup critical interfaces we need to construct the meta-classes. This is a bit
-    // backwards since we're prepping the fast-lookup table so we can use the interfaces
-    // before they're properly installed.
-    metaclass->fastLookupTable[DKFastLookupReferenceCounting] = referenceCounting;
-    metaclass->fastLookupTable[DKFastLookupComparison] = comparison;
-}
-
-
-///
 //  InstallMetaClassInterfaces()
 //
-static void InstallMetaClassInterfaces( struct DKClass * metaclass,
+static void InstallMetaClassInterfaces( struct DKClass * metaclass, DKLifeCycle * lifeCycle,
     DKReferenceCounting * referenceCounting, DKComparison * comparison )
 {
-    DKInstallInterface( metaclass, DKDefaultLifeCycle() );
-    DKInstallInterface( metaclass, referenceCounting );
-    DKInstallInterface( metaclass, comparison );
+    // Bypass the normal installation process here since the classes that allow it to
+    // work haven't been fully initialized yet.
+    metaclass->fastLookupTable[DKFastLookupLifeCycle] = lifeCycle;
+    DKPointerArrayAppendPointer( &metaclass->interfaces, lifeCycle );
+    
+    metaclass->fastLookupTable[DKFastLookupReferenceCounting] = referenceCounting;
+    DKPointerArrayAppendPointer( &metaclass->interfaces, referenceCounting );
+    
+    metaclass->fastLookupTable[DKFastLookupComparison] = comparison;
+    DKPointerArrayAppendPointer( &metaclass->interfaces, comparison );
 }
+
 
 
 ///
@@ -144,7 +348,6 @@ static void InitMetaClasses( void )
     {
         MetaClassesInitialized = 1;
 
-        // Step 1: initialize all the class objects
         InitMetaClass( &__DKMetaClass__,      &__DKMetaClass__, NULL );
         InitMetaClass( &__DKClassClass__,     &__DKMetaClass__, NULL );
         InitMetaClass( &__DKSelectorClass__,  &__DKMetaClass__, NULL );
@@ -153,21 +356,15 @@ static void InitMetaClasses( void )
         InitMetaClass( &__DKPropertyClass__,  &__DKMetaClass__, NULL );
         InitMetaClass( &__DKObjectClass__,    &__DKMetaClass__, NULL );
         
-        // Step 2: Precache critical interfaces needed for step 3
-        PrecacheMetaClassInterfaces( &__DKSelectorClass__,  DKStaticObjectReferenceCounting(), DKDefaultComparison() );
-        PrecacheMetaClassInterfaces( &__DKInterfaceClass__, DKDefaultReferenceCounting(),      DKInterfaceComparison() );
-        
-        // Step 3: Install common interfaces
-        InstallMetaClassInterfaces( &__DKMetaClass__,      DKStaticObjectReferenceCounting(), DKDefaultComparison() );
-        InstallMetaClassInterfaces( &__DKClassClass__,     DKDefaultReferenceCounting(),      DKDefaultComparison() );
-        InstallMetaClassInterfaces( &__DKSelectorClass__,  DKStaticObjectReferenceCounting(), DKDefaultComparison() );
-        InstallMetaClassInterfaces( &__DKInterfaceClass__, DKDefaultReferenceCounting(),      DKInterfaceComparison() );
-        InstallMetaClassInterfaces( &__DKMethodClass__,    DKDefaultReferenceCounting(),      DKInterfaceComparison() );
-        InstallMetaClassInterfaces( &__DKPropertyClass__,  DKDefaultReferenceCounting(),      DKDefaultComparison() );
-        InstallMetaClassInterfaces( &__DKObjectClass__,    DKDefaultReferenceCounting(),      DKDefaultComparison() );
+        InstallMetaClassInterfaces( &__DKMetaClass__,      &__DKClassLifeCycle__,     &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
+        InstallMetaClassInterfaces( &__DKClassClass__,     &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InstallMetaClassInterfaces( &__DKSelectorClass__,  &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
+        InstallMetaClassInterfaces( &__DKInterfaceClass__, &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
+        InstallMetaClassInterfaces( &__DKMethodClass__,    &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
+        InstallMetaClassInterfaces( &__DKPropertyClass__,  &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InstallMetaClassInterfaces( &__DKObjectClass__,    &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
     }
 }
-
 
 
 
@@ -182,7 +379,7 @@ DKTypeRef DKAllocObject( DKTypeRef _class, size_t size, int attributes )
     {
         struct DKObjectHeader * obj = DKAlloc( size );
         
-        obj->isa = _class;
+        obj->isa = DKRetain( _class );
         obj->refcount = 1;
         obj->attributes = attributes;
 
@@ -192,11 +389,10 @@ DKTypeRef DKAllocObject( DKTypeRef _class, size_t size, int attributes )
     return NULL;
 }
 
-
 ///
-//  DKFreeObject()
+//  DKDeallocObject()
 //
-void DKFreeObject( DKTypeRef ref )
+void DKDeallocObject( DKTypeRef ref )
 {
     struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
     
@@ -214,21 +410,18 @@ void DKFreeObject( DKTypeRef ref )
         classObject = cls->superclass;
     }
     
+    DKRelease( obj->isa );
     DKFree( obj );
 }
 
 
 ///
-//  DKAllocClass()
+//  DKCreateClass()
 //
-DKTypeRef DKAllocClass( DKTypeRef superclass )
+DKTypeRef DKCreateClass( DKTypeRef superclass )
 {
     struct DKClass * classObject = (struct DKClass *)DKAllocObject( DKClassClass(), sizeof(struct DKClass), 0 );
 
-    struct DKObjectHeader * header = (struct DKObjectHeader *)classObject;
-    header->isa = DKClassClass();
-    header->refcount = 1;
-    
     classObject->superclass = DKRetain( superclass );
     
     DKPointerArrayInit( &classObject->interfaces );
@@ -239,21 +432,48 @@ DKTypeRef DKAllocClass( DKTypeRef superclass )
     return classObject;
 }
 
+static void DKClassFinalize( DKTypeRef ref )
+{
+    struct DKClass * classObject = (struct DKClass *)ref;
+    
+    DKRelease( classObject->superclass );
+
+    // Release interfaces
+    DKIndex count = classObject->interfaces.length;
+    
+    for( DKIndex i = 0; i < count; ++i )
+    {
+        const DKInterface * interface = classObject->interfaces.data[i];
+        DKRelease( interface );
+    }
+    
+    DKPointerArrayClear( &classObject->interfaces );
+    
+    // Release properties
+    DKPointerArrayClear( &classObject->properties );
+}
+
 
 ///
-//  DKAllocInterface()
+//  DKCreateInterface()
 //
-DKTypeRef DKAllocInterface( DKSEL sel, size_t size )
+DKTypeRef DKCreateInterface( DKSEL sel, size_t size )
 {
     if( sel )
     {
         struct DKInterface * interface = (struct DKInterface *)DKAllocObject( DKInterfaceClass(), size, 0 );
-        interface->sel = sel;
+        interface->sel = DKRetain( sel );
     
         return interface;
     }
     
     return NULL;
+}
+
+static void DKInterfaceFinalize( DKTypeRef ref )
+{
+    struct DKInterface * interface = (struct DKInterface *)ref;
+    DKRelease( interface->sel );
 }
 
 

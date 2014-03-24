@@ -18,10 +18,8 @@
 
 #include "DKRuntime.h"
 
-#include "DKLifeCycle.h"
-#include "DKReferenceCounting.h"
-#include "DKComparison.h"
 #include "DKCopying.h"
+#include "DKStream.h"
 
 #include "DKData.h"
 

@@ -7,8 +7,6 @@
 //
 #include "DKData.h"
 #include "DKByteArray.h"
-#include "DKLifeCycle.h"
-#include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKStream.h"
 
@@ -45,10 +43,10 @@ DKTypeRef DKDataClass( void )
 
     if( !dataClass )
     {
-        dataClass = DKAllocClass( DKObjectClass() );
+        dataClass = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKDataAllocate;
         lifeCycle->initialize = DKDataInitialize;
         lifeCycle->finalize = DKDataFinalize;
@@ -57,7 +55,7 @@ DKTypeRef DKDataClass( void )
         DKRelease( lifeCycle );
 
         // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKDataCopy;
         copying->mutableCopy = DKDataMutableCopy;
         
@@ -65,7 +63,7 @@ DKTypeRef DKDataClass( void )
         DKRelease( copying );
 
         // Stream
-        struct DKStream * stream = (struct DKStream *)DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
+        struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
         stream->seek = DKDataSeek;
         stream->tell = DKDataTell;
         stream->read = DKDataRead;
@@ -88,10 +86,10 @@ DKTypeRef DKMutableDataClass( void )
 
     if( !mutableDataClass )
     {
-        mutableDataClass = DKAllocClass( DKObjectClass() );
+        mutableDataClass = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKMutableDataAllocate;
         lifeCycle->initialize = DKDataInitialize;
         lifeCycle->finalize = DKDataFinalize;
@@ -100,7 +98,7 @@ DKTypeRef DKMutableDataClass( void )
         DKRelease( lifeCycle );
 
         // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKMutableDataCopy;
         copying->mutableCopy = DKDataMutableCopy;
         
@@ -108,7 +106,7 @@ DKTypeRef DKMutableDataClass( void )
         DKRelease( copying );
         
         // Stream
-        struct DKStream * stream = (struct DKStream *)DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
+        struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
         stream->seek = DKDataSeek;
         stream->tell = DKDataTell;
         stream->read = DKDataRead;
@@ -235,7 +233,7 @@ static int DKDataCompare( DKTypeRef a, DKTypeRef b )
         return memcmp( da->byteArray.data, db->byteArray.data, da->byteArray.length );
     }
     
-    return DKDefaultCompareImp( a, b );
+    return DKDefaultCompare( a, b );
 }
 
 

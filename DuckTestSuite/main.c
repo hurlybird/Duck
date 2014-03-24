@@ -76,13 +76,13 @@ static int TestCube( DKTypeRef ref, DKSEL sel, int x )
 void TestDKObject( void )
 {
     // Define a sample class
-    TestClass = DKAllocClass( DKObjectClass() );
+    TestClass = DKCreateClass( DKObjectClass() );
     
     // Add a custom life-cycle interface
-    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
     lifeCycle->allocate = TestObjectAllocate;
-    lifeCycle->initialize = DKDefaultInitializeImp;
-    lifeCycle->finalize = DKDefaultFinalizeImp;
+    lifeCycle->initialize = DKDefaultInitialize;
+    lifeCycle->finalize = DKDefaultFinalize;
     
     DKInstallInterface( TestClass, lifeCycle );
     DKRelease( lifeCycle );

@@ -8,7 +8,6 @@
 
 #include "DKLinkedList.h"
 #include "DKNodePool.h"
-#include "DKLifeCycle.h"
 #include "DKCopying.h"
 
 
@@ -62,10 +61,10 @@ DKTypeRef DKLinkedListClass( void )
 
     if( !linkedListClass )
     {
-        linkedListClass = DKAllocClass( DKObjectClass() );
+        linkedListClass = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKLinkedListAllocate;
         lifeCycle->initialize = DKLinkedListInitialize;
         lifeCycle->finalize = DKLinkedListFinalize;
@@ -74,7 +73,7 @@ DKTypeRef DKLinkedListClass( void )
         DKRelease( lifeCycle );
 
         // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKLinkedListCopy;
         copying->mutableCopy = DKLinkedListMutableCopy;
         
@@ -82,7 +81,7 @@ DKTypeRef DKLinkedListClass( void )
         DKRelease( copying );
 
         // List
-        struct DKList * list = (struct DKList *)DKAllocInterface( DKSelector(List), sizeof(DKList) );
+        struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
         list->getCount = DKLinkedListGetCount;
         list->getObjects = DKLinkedListGetObjects;
         list->replaceObjects = DKLinkedListReplaceObjects;
@@ -107,10 +106,10 @@ DKTypeRef DKMutableLinkedListClass( void )
 
     if( !mutableLinkedListClass )
     {
-        mutableLinkedListClass = DKAllocClass( DKObjectClass() );
+        mutableLinkedListClass = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKMutableLinkedListAllocate;
         lifeCycle->initialize = DKLinkedListInitialize;
         lifeCycle->finalize = DKLinkedListFinalize;
@@ -119,7 +118,7 @@ DKTypeRef DKMutableLinkedListClass( void )
         DKRelease( lifeCycle );
 
         // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKMutableLinkedListCopy;
         copying->mutableCopy = DKLinkedListMutableCopy;
         
@@ -127,7 +126,7 @@ DKTypeRef DKMutableLinkedListClass( void )
         DKRelease( copying );
 
         // List
-        struct DKList * list = (struct DKList *)DKAllocInterface( DKSelector(List), sizeof(DKList) );
+        struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
         list->getCount = DKLinkedListGetCount;
         list->getObjects = DKLinkedListGetObjects;
         list->replaceObjects = DKLinkedListReplaceObjects;

@@ -7,7 +7,6 @@
 //
 
 #include "DKFile.h"
-#include "DKLifeCycle.h"
 #include "DKStream.h"
 
 
@@ -32,10 +31,10 @@ DKTypeRef DKFileClass( void )
     
     if( !fileClass )
     {
-        fileClass = DKAllocClass( DKObjectClass() );
+        fileClass = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
         lifeCycle->allocate = DKFileAllocate;
         lifeCycle->initialize = DKFileInitialize;
         lifeCycle->finalize = DKFileFinalize;
@@ -44,7 +43,7 @@ DKTypeRef DKFileClass( void )
         DKRelease( lifeCycle );
 
         // Stream
-        struct DKStream * stream = (struct DKStream *)DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
+        struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
         stream->seek = DKFileSeek;
         stream->tell = DKFileTell;
         stream->read = DKFileRead;
