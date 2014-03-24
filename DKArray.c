@@ -208,9 +208,9 @@ static DKTypeRef DKArrayMutableCopy( DKTypeRef ref )
 // Internals =============================================================================
 
 ///
-//  DKArrayReplaceObjectsInternal()
+//  ReplaceObjects()
 //
-static void DKArrayReplaceObjectsInternal( struct DKArray * array, DKRange range, DKTypeRef objects[], DKIndex count )
+static void ReplaceObjects( struct DKArray * array, DKRange range, DKTypeRef objects[], DKIndex count )
 {
     DKAssert( range.location >= 0 );
     DKAssert( DKRangeEnd( range ) <= array->ptrArray.length );
@@ -234,9 +234,9 @@ static void DKArrayReplaceObjectsInternal( struct DKArray * array, DKRange range
 
 
 ///
-//  DKArrayReplaceObjectsWithListInternal()
+//  ReplaceObjectsWithList()
 //
-static void DKArrayReplaceObjectsWithListInternal( struct DKArray * array, DKRange range, DKTypeRef srcList )
+static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKTypeRef srcList )
 {
     DKList * srcListInterface = DKLookupInterface( srcList, DKSelector(List) );
     
@@ -246,14 +246,14 @@ static void DKArrayReplaceObjectsWithListInternal( struct DKArray * array, DKRan
     {
         DKTypeRef buffer[128];
         srcListInterface->getObjects( srcList, DKRangeMake( 0, srcCount ), buffer );
-        DKArrayReplaceObjectsInternal( array, range, buffer, srcCount );
+        ReplaceObjects( array, range, buffer, srcCount );
     }
     
     else
     {
         DKTypeRef * buffer = DKAlloc( sizeof(DKTypeRef) * srcCount );
         srcListInterface->getObjects( srcList, DKRangeMake( 0, srcCount ), buffer );
-        DKArrayReplaceObjectsInternal( array, range, buffer, srcCount );
+        ReplaceObjects( array, range, buffer, srcCount );
         DKFree( buffer );
     }
 }
@@ -270,7 +270,7 @@ DKListRef DKArrayCreate( DKTypeRef objects[], DKIndex count )
 {
     struct DKArray * array = (struct DKArray *)DKCreate( DKArrayClass() );
     
-    DKArrayReplaceObjectsInternal( array, DKRangeMake( 0, 0 ), objects, count );
+    ReplaceObjects( array, DKRangeMake( 0, 0 ), objects, count );
     
     return array;
 }
@@ -299,7 +299,7 @@ DKListRef DKArrayCreateCopy( DKListRef srcList )
 {
     struct DKArray * array = (struct DKArray *)DKCreate( DKArrayClass() );
     
-    DKArrayReplaceObjectsWithListInternal( array, DKRangeMake( 0, 0 ), srcList );
+    ReplaceObjectsWithList( array, DKRangeMake( 0, 0 ), srcList );
     
     return array;
 }
@@ -321,7 +321,7 @@ DKMutableListRef DKArrayCreateMutableCopy( DKListRef srcList )
 {
     struct DKArray * array = (struct DKArray *)DKCreate( DKMutableArrayClass() );
     
-    DKArrayReplaceObjectsWithListInternal( array, DKRangeMake( 0, 0 ), srcList );
+    ReplaceObjectsWithList( array, DKRangeMake( 0, 0 ), srcList );
     
     return array;
 }
@@ -373,7 +373,7 @@ void DKArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objec
         }
 
         struct DKArray * array = (struct DKArray *)ref;
-        DKArrayReplaceObjectsInternal( array, range, objects, count );
+        ReplaceObjects( array, range, objects, count );
     }
 }
 
@@ -392,7 +392,7 @@ void DKArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListR
         }
 
         struct DKArray * array = (struct DKArray *)ref;
-        DKArrayReplaceObjectsWithListInternal( array, range, srcList );
+        ReplaceObjectsWithList( array, range, srcList );
     }
 }
 

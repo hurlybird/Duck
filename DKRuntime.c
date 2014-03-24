@@ -40,7 +40,7 @@ static void InitMetaClasses( void );
 
 static struct DKClass __DKMetaClass__;
 static struct DKClass __DKClassClass__;
-       struct DKClass __DKSelectorClass__;
+       struct DKClass __DKSelectorClass__; // Selectors are statically initialized
 static struct DKClass __DKInterfaceClass__;
 static struct DKClass __DKMethodClass__;
 static struct DKClass __DKPropertyClass__;
@@ -297,7 +297,8 @@ static DKHashIndex DKInterfaceHash( DKTypeRef ref )
 ///
 //  InitMetaClass()
 //
-static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa, struct DKClass * superclass )
+static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa, struct DKClass * superclass,
+    DKLifeCycle * lifeCycle, DKReferenceCounting * referenceCounting, DKComparison * comparison )
 {
     memset( metaclass, 0, sizeof(struct DKClass) );
     
@@ -314,15 +315,7 @@ static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa, str
 
     DKPointerArrayInit( &metaclass->interfaces );
     DKPointerArrayInit( &metaclass->properties );
-}
 
-
-///
-//  InstallMetaClassInterfaces()
-//
-static void InstallMetaClassInterfaces( struct DKClass * metaclass, DKLifeCycle * lifeCycle,
-    DKReferenceCounting * referenceCounting, DKComparison * comparison )
-{
     // Bypass the normal installation process here since the classes that allow it to
     // work haven't been fully initialized yet.
     metaclass->fastLookupTable[DKFastLookupLifeCycle] = lifeCycle;
@@ -335,8 +328,6 @@ static void InstallMetaClassInterfaces( struct DKClass * metaclass, DKLifeCycle 
     DKPointerArrayAppendPointer( &metaclass->interfaces, comparison );
 }
 
-
-
 ///
 //  InitMetaClasses()
 //
@@ -348,21 +339,13 @@ static void InitMetaClasses( void )
     {
         MetaClassesInitialized = 1;
 
-        InitMetaClass( &__DKMetaClass__,      &__DKMetaClass__, NULL );
-        InitMetaClass( &__DKClassClass__,     &__DKMetaClass__, NULL );
-        InitMetaClass( &__DKSelectorClass__,  &__DKMetaClass__, NULL );
-        InitMetaClass( &__DKInterfaceClass__, &__DKMetaClass__, NULL );
-        InitMetaClass( &__DKMethodClass__,    &__DKMetaClass__, &__DKInterfaceClass__ );
-        InitMetaClass( &__DKPropertyClass__,  &__DKMetaClass__, NULL );
-        InitMetaClass( &__DKObjectClass__,    &__DKMetaClass__, NULL );
-        
-        InstallMetaClassInterfaces( &__DKMetaClass__,      &__DKClassLifeCycle__,     &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
-        InstallMetaClassInterfaces( &__DKClassClass__,     &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
-        InstallMetaClassInterfaces( &__DKSelectorClass__,  &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
-        InstallMetaClassInterfaces( &__DKInterfaceClass__, &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
-        InstallMetaClassInterfaces( &__DKMethodClass__,    &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
-        InstallMetaClassInterfaces( &__DKPropertyClass__,  &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
-        InstallMetaClassInterfaces( &__DKObjectClass__,    &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitMetaClass( &__DKMetaClass__,      &__DKMetaClass__, NULL,                  &__DKClassLifeCycle__,     &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
+        InitMetaClass( &__DKClassClass__,     &__DKMetaClass__, NULL,                  &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitMetaClass( &__DKSelectorClass__,  &__DKMetaClass__, NULL,                  &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
+        InitMetaClass( &__DKInterfaceClass__, &__DKMetaClass__, NULL,                  &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
+        InitMetaClass( &__DKMethodClass__,    &__DKMetaClass__, &__DKInterfaceClass__, &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
+        InitMetaClass( &__DKPropertyClass__,  &__DKMetaClass__, NULL,                  &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitMetaClass( &__DKObjectClass__,    &__DKMetaClass__, NULL,                  &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
     }
 }
 
@@ -502,11 +485,11 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
 
     // Retain the interface
     DKRetain( interfaceObject );
-    
+
     // Update the fast-lookup table
     int fastLookupIndex = DKFastLookupIndex( interfaceObject->sel );
     DKAssert( (fastLookupIndex >= 0) && (fastLookupIndex < DKFastLookupTableSize) );
-    
+
     if( fastLookupIndex )
     {
         // If we're replacing a fast-lookup entry, make sure the selectors match
@@ -514,6 +497,8 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
 
         if( (oldInterface != NULL) && !DKEqual( interface, oldInterface ) )
         {
+            DKRetain( interfaceObject );
+
             // This likely means that two interfaces are trying to use the same fast lookup index
             DKFatalError( "DKInstallInterface: Fast-Lookup selector doesn't match the installed interface." );
             return;
@@ -521,7 +506,7 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
     
         classObject->fastLookupTable[fastLookupIndex] = interface;
     }
-    
+
     // Invalidate the interface cache
     // Do stuff here...
 

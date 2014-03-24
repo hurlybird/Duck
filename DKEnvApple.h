@@ -12,6 +12,14 @@
 #include <libkern/OSAtomic.h>
 
 
+typedef OSSpinLock DKSpinLock;
+
+#define DK_SPINLOCK_INIT            OS_SPINLOCK_INIT
+
+#define DKSpinLockLock( x )         OSSpinLockLock( x )
+#define DKSpinLockUnlock( x )       OSSpinLockUnlock( x )
+
+
 //#define DKAtomicIncrement32( ptr )    __sync_add_and_fetch( ptr, 1 )
 //#define DKAtomicDecrement32( ptr )    __sync_sub_and_fetch( ptr, 1 )
 
