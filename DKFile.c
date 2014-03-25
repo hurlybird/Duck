@@ -17,7 +17,6 @@ struct DKFile
 };
 
 
-static DKTypeRef DKFileInitialize( DKTypeRef ref );
 static void DKFileFinalize( DKTypeRef ref );
 
 
@@ -30,11 +29,10 @@ DKTypeRef DKFileClass( void )
     
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass(), sizeof(struct DKFile) );
+        SharedClassObject = DKCreateClass( "DKFile", DKObjectClass(), sizeof(struct DKFile) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->initialize = DKFileInitialize;
         lifeCycle->finalize = DKFileFinalize;
 
         DKInstallInterface( SharedClassObject, lifeCycle );
@@ -52,23 +50,6 @@ DKTypeRef DKFileClass( void )
     }
     
     return SharedClassObject;
-}
-
-
-///
-//  DKFileInitialize()
-//
-static DKTypeRef DKFileInitialize( DKTypeRef ref )
-{
-    ref = DKObjectInitialize( ref );
-    
-    if( ref )
-    {
-        struct DKFile * file = (struct DKFile *)ref;
-        file->file = NULL;
-    }
-    
-    return ref;
 }
 
 

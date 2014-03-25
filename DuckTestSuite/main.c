@@ -71,7 +71,7 @@ static int TestCube( DKTypeRef ref, DKSEL sel, int x )
 void TestDKObject( void )
 {
     // Define a sample class
-    TestClass = DKCreateClass( DKObjectClass(), sizeof(struct DKObjectHeader) );
+    TestClass = DKCreateClass( "Test", DKObjectClass(), sizeof(struct DKObjectHeader) );
     
     // Install some custom methods
     DKInstallMethod( TestClass, DKSelector(Square), TestSquare );
@@ -187,8 +187,6 @@ void TestDKList( DKTypeRef listClass )
     
     VERIFY( DKListGetCount( list ) == 4 );
     
-    //DKIndex n = DKCallMethod( list, Count );
-    
     VERIFY( DKListGetFirstIndexOfObject( list, a ) == 0 );
     VERIFY( DKListGetFirstIndexOfObject( list, b ) == 1 );
     VERIFY( DKListGetFirstIndexOfObject( list, c ) == 2 );
@@ -299,7 +297,7 @@ void TestDKDictionary( DKTypeRef dictionaryClass )
 // TestDKListPerformance =================================================================
 void TestDKListPerformance( DKTypeRef listClass )
 {
-    const int N = 1000000;
+    const int N = 10000000;
 
     DKDataRef foo = DKDataCreate( "foo", 4 );
     DKDataRef bar = NULL;
@@ -360,7 +358,7 @@ void TestDKListPerformance( DKTypeRef listClass )
 
     
     // Cleanup
-    DKPointerArrayClear( &array );
+    DKPointerArrayFinalize( &array );
     DKRelease( list );
 
     for( int i = 0; i < N; ++i )

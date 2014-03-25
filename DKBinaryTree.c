@@ -32,9 +32,12 @@ struct DKBinaryTree
 
 
 
-static DKTypeRef    DKBinaryTreeInitialize( DKTypeRef ref );
-static DKTypeRef    DKMutableBinaryTreeInitialize( DKTypeRef ref );
-static void         DKBinaryTreeFinalize( DKTypeRef ref );
+static DKTypeRef DKBinaryTreeInitialize( DKTypeRef ref );
+static void      DKBinaryTreeFinalize( DKTypeRef ref );
+
+static void      DKImmutableBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
+static void      DKImmutableBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key );
+static void      DKImmutableBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref );
 
 
 ///
@@ -46,7 +49,7 @@ DKTypeRef DKBinaryTreeClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass(), sizeof(struct DKBinaryTree) );
+        SharedClassObject = DKCreateClass( "DKBinaryTree", DKObjectClass(), sizeof(struct DKBinaryTree) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -68,10 +71,10 @@ DKTypeRef DKBinaryTreeClass( void )
         struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
         dictionary->getCount = DKBinaryTreeGetCount;
         dictionary->getObject = DKBinaryTreeGetObject;
-        dictionary->insertObject = DKBinaryTreeInsertObject;
-        dictionary->removeObject = DKBinaryTreeRemoveObject;
-        dictionary->removeAllObjects = DKBinaryTreeRemoveAllObjects;
         dictionary->applyFunction = DKBinaryTreeApplyFunction;
+        dictionary->insertObject = DKImmutableBinaryTreeInsertObject;
+        dictionary->removeObject = DKImmutableBinaryTreeRemoveObject;
+        dictionary->removeAllObjects = DKImmutableBinaryTreeRemoveAllObjects;
 
         DKInstallInterface( SharedClassObject, dictionary );
         DKRelease( dictionary );
@@ -90,16 +93,8 @@ DKTypeRef DKMutableBinaryTreeClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKBinaryTreeClass(), sizeof(struct DKBinaryTree) );
+        SharedClassObject = DKCreateClass( "DKMutableBinaryTree", DKBinaryTreeClass(), sizeof(struct DKBinaryTree) );
         
-        // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->initialize = DKMutableBinaryTreeInitialize;
-        lifeCycle->finalize = DKBinaryTreeFinalize;
-
-        DKInstallInterface( SharedClassObject, lifeCycle );
-        DKRelease( lifeCycle );
-
         // Copying
         struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKBinaryTreeCreateMutableCopy;
@@ -112,10 +107,10 @@ DKTypeRef DKMutableBinaryTreeClass( void )
         struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
         dictionary->getCount = DKBinaryTreeGetCount;
         dictionary->getObject = DKBinaryTreeGetObject;
+        dictionary->applyFunction = DKBinaryTreeApplyFunction;
         dictionary->insertObject = DKBinaryTreeInsertObject;
         dictionary->removeObject = DKBinaryTreeRemoveObject;
         dictionary->removeAllObjects = DKBinaryTreeRemoveAllObjects;
-        dictionary->applyFunction = DKBinaryTreeApplyFunction;
 
         DKInstallInterface( SharedClassObject, dictionary );
         DKRelease( dictionary );
@@ -130,33 +125,12 @@ DKTypeRef DKMutableBinaryTreeClass( void )
 //
 static DKTypeRef DKBinaryTreeInitialize( DKTypeRef ref )
 {
-    ref = DKObjectInitialize( ref );
+    struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
     
-    if( ref )
-    {
-        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
-        
-        DKNodePoolInit( &tree->nodePool, sizeof(struct DKBinaryTreeNode), 0 );
+    DKNodePoolInit( &tree->nodePool, sizeof(struct DKBinaryTreeNode), 0 );
 
-        tree->root = NULL;
-        tree->count = 0;
-    }
-    
-    return ref;
-}
-
-
-///
-//  DKMutableBinaryTreeInitialize()
-//
-static DKTypeRef DKMutableBinaryTreeInitialize( DKTypeRef ref )
-{
-    ref = DKBinaryTreeInitialize( ref );
-    
-    if( ref )
-    {
-        DKSetObjectAttribute( ref, DKObjectIsMutable, 1 );
-    }
+    tree->root = NULL;
+    tree->count = 0;
     
     return ref;
 }
@@ -167,14 +141,11 @@ static DKTypeRef DKMutableBinaryTreeInitialize( DKTypeRef ref )
 //
 static void DKBinaryTreeFinalize( DKTypeRef ref )
 {
-    if( ref )
-    {
-        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+    struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
 
-        DKBinaryTreeRemoveAllObjects( tree );
-        
-        DKNodePoolClear( &tree->nodePool );
-    }
+    DKBinaryTreeRemoveAllObjects( tree );
+    
+    DKNodePoolFinalize( &tree->nodePool );
 }
 
 
@@ -455,19 +426,15 @@ static void Erase( struct DKBinaryTree * tree, DKHashIndex hash, DKTypeRef key, 
 //
 DKDictionaryRef DKBinaryTreeCreate( DKTypeRef keys[], DKTypeRef objects[], DKIndex count )
 {
-    DKMutableDictionaryRef ref = DKBinaryTreeCreateMutable();
+    struct DKBinaryTree * tree = (struct DKBinaryTree *)DKCreate( DKBinaryTreeClass() );
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        DKBinaryTreeInsertObject( ref, keys[i], objects[i], DKDictionaryInsertAlways );
+        DKHashIndex hash = DKHash( keys[i] );
+        Insert( tree, &tree->root, hash, keys[i], objects[i], DKDictionaryInsertAlways );
     }
     
-    // Turn the mutable tree into an immutable tree
-    struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
-    obj->isa = DKBinaryTreeClass();
-    obj->attributes &= ~DKObjectIsMutable;
-    
-    return ref;
+    return tree;
 }
 
 
@@ -476,7 +443,7 @@ DKDictionaryRef DKBinaryTreeCreate( DKTypeRef keys[], DKTypeRef objects[], DKInd
 //
 DKDictionaryRef DKBinaryTreeCreateWithKeysAndObjects( DKTypeRef firstKey, ... )
 {
-    DKMutableDictionaryRef ref = DKBinaryTreeCreateMutable();
+    struct DKBinaryTree * tree = (struct DKBinaryTree *)DKCreate( DKBinaryTreeClass() );
 
     va_list arg_ptr;
     va_start( arg_ptr, firstKey );
@@ -485,19 +452,15 @@ DKDictionaryRef DKBinaryTreeCreateWithKeysAndObjects( DKTypeRef firstKey, ... )
     {
         DKTypeRef object = va_arg( arg_ptr, DKTypeRef );
 
-        DKBinaryTreeInsertObject( ref, key, object, DKDictionaryInsertAlways );
+        DKHashIndex hash = DKHash( key );
+        Insert( tree, &tree->root, hash, key, object, DKDictionaryInsertAlways );
         
         key = va_arg( arg_ptr, DKTypeRef );
     }
 
     va_end( arg_ptr );
     
-    // Turn the mutable tree into an immutable tree
-    struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
-    obj->isa = DKBinaryTreeClass();
-    obj->attributes &= ~DKObjectIsMutable;
-    
-    return ref;
+    return tree;
 }
 
 
@@ -510,8 +473,8 @@ DKDictionaryRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary )
 
     // Turn the mutable tree into an immutable tree
     struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
-    obj->isa = DKBinaryTreeClass();
-    obj->attributes &= ~DKObjectIsMutable;
+    DKRelease( obj->isa );
+    obj->isa = DKRetain( DKBinaryTreeClass() );
     
     return ref;
 }
@@ -553,27 +516,6 @@ DKIndex DKBinaryTreeGetCount( DKDictionaryRef ref )
 }
 
 ///
-//  DKBinaryTreeInsertObject()
-//
-void DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
-{
-    if( ref )
-    {
-        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
-        {
-            DKError( "DKBinaryTreeInsertObject: Trying to modify an immutable object." );
-            return;
-        }
-        
-        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
-        DKHashIndex hash = DKHash( key );
-
-        Insert( tree, &tree->root, hash, key, object, policy );
-    }
-}
-
-
-///
 //  DKBinaryTreeGetObject()
 //
 DKTypeRef DKBinaryTreeGetObject( DKDictionaryRef ref, DKTypeRef key )
@@ -590,53 +532,6 @@ DKTypeRef DKBinaryTreeGetObject( DKDictionaryRef ref, DKTypeRef key )
     }
 
     return NULL;
-}
-
-
-///
-//  DKBinaryTreeRemoveObject()
-//
-void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
-{
-    if( ref )
-    {
-        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
-        {
-            DKError( "DKBinaryTreeRemoveObject: Trying to modify an immutable object." );
-            return;
-        }
-        
-        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
-        DKHashIndex hash = DKHash( key );
-
-        struct DKBinaryTreeNode * last_node = NULL;
-        struct DKBinaryTreeNode * erase_node = NULL;
-
-        Erase( tree, hash, key, &tree->root, &last_node, &erase_node );
-    }
-}
-
-
-///
-//  DKBinaryTreeRemoveAllObjects()
-//
-void DKBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref )
-{
-    if( ref )
-    {
-        if( !DKTestObjectAttribute( ref, DKObjectIsMutable ) )
-        {
-            DKError( "DKBinaryTreeRemoveAllObjects: Trying to modify an immutable object." );
-            return;
-        }
-        
-        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
-
-        FreeNode( tree, tree->root );
-        
-        tree->root = NULL;
-        tree->count = 0;
-    }
 }
 
 
@@ -679,6 +574,71 @@ int DKBinaryTreeTraverseInOrder( DKDictionaryRef ref, DKDictionaryApplierFunctio
     }
     
     return 0;
+}
+
+
+///
+//  DKBinaryTreeInsertObject()
+//
+static void DKImmutableBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
+{
+    DKError( "DKBinaryTreeInsertObject: Trying to modify an immutable object." );
+}
+
+void DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
+{
+    if( ref )
+    {
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+        DKHashIndex hash = DKHash( key );
+
+        Insert( tree, &tree->root, hash, key, object, policy );
+    }
+}
+
+
+///
+//  DKBinaryTreeRemoveObject()
+//
+static void DKImmutableBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
+{
+    DKError( "DKBinaryTreeRemoveObject: Trying to modify an immutable object." );
+}
+
+void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
+{
+    if( ref )
+    {
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+        DKHashIndex hash = DKHash( key );
+
+        struct DKBinaryTreeNode * last_node = NULL;
+        struct DKBinaryTreeNode * erase_node = NULL;
+
+        Erase( tree, hash, key, &tree->root, &last_node, &erase_node );
+    }
+}
+
+
+///
+//  DKBinaryTreeRemoveAllObjects()
+//
+static void DKImmutableBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref )
+{
+    DKError( "DKBinaryTreeRemoveAllObjects: Trying to modify an immutable object." );
+}
+
+void DKBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref )
+{
+    if( ref )
+    {
+        struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
+
+        FreeNode( tree, tree->root );
+        
+        tree->root = NULL;
+        tree->count = 0;
+    }
 }
 
 

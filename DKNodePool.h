@@ -22,7 +22,7 @@ typedef struct
 
 
 void DKNodePoolInit( DKNodePool * pool, DKIndex nodeSize, DKIndex nodeCount );
-void DKNodePoolClear( DKNodePool * pool );
+void DKNodePoolFinalize( DKNodePool * pool );
 
 void * DKNodePoolAlloc( DKNodePool * pool );
 void DKNodePoolFree( DKNodePool * pool, void * node );

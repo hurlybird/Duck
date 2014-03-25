@@ -38,10 +38,12 @@ struct DKDictionary
 
     DKIndex     (*getCount)( DKDictionaryRef ref );
     DKTypeRef   (*getObject)( DKDictionaryRef ref, DKTypeRef key );
+
+    int         (*applyFunction)( DKDictionaryRef ref, DKDictionaryApplierFunction, void * context );
+    
     void        (*insertObject)( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
     void        (*removeObject)( DKMutableDictionaryRef ref, DKTypeRef key );
     void        (*removeAllObjects)( DKMutableDictionaryRef ref );
-    int         (*applyFunction)( DKDictionaryRef ref, DKDictionaryApplierFunction, void * context );
 };
 
 typedef const struct DKDictionary DKDictionary;

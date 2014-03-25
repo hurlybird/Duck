@@ -24,10 +24,37 @@ void DKPointerArrayInit( DKPointerArray * array )
 
 
 ///
+//  DKPointerArrayInitWithExternalStorage()
+//
+void DKPointerArrayInitWithExternalStorage( DKPointerArray * array, const uintptr_t pointers[], DKIndex length )
+{
+    array->data = (uintptr_t *)pointers;
+    array->length = length;
+    array->maxLength = -1;
+}
+
+
+///
+//  DKPointerArrayFinalize()
+//
+void DKPointerArrayFinalize( DKPointerArray * array )
+{
+    if( array->data && (array->maxLength > 0) )
+        dk_free( array->data );
+    
+    array->data = NULL;
+    array->length = 0;
+    array->maxLength = 0;
+}
+
+
+///
 //  DKPointerArrayReserve()
 //
 void DKPointerArrayReserve( DKPointerArray * array, DKIndex length )
 {
+    DKAssert( array->maxLength >= 0 );
+    
     if( array->maxLength < length )
     {
         if( length < MIN_PTR_ARRAY_SIZE )
@@ -48,14 +75,11 @@ void DKPointerArrayReserve( DKPointerArray * array, DKIndex length )
 
 
 ///
-//  DKPointerArrayClear()
+//  DKPointerArrayHasExternalStorage()
 //
-void DKPointerArrayClear( DKPointerArray * array )
+int DKPointerArrayHasExternalStorage( DKPointerArray * array )
 {
-    dk_free( array->data );
-    array->data = NULL;
-    array->length = 0;
-    array->maxLength = 0;
+    return array->maxLength < 0;
 }
 
 
@@ -86,6 +110,8 @@ static uintptr_t * DKPointerArrayResize( void * ptr, DKIndex oldSize, DKIndex re
 //
 void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const uintptr_t pointers[], DKIndex length )
 {
+    DKAssert( array->length >= 0 );
+
     DKIndex range_end = DKRangeEnd( range );
 
     DKAssert( range.location >= 0 );

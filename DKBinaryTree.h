@@ -22,17 +22,16 @@ DKDictionaryRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary );
 DKMutableDictionaryRef DKBinaryTreeCreateMutable( void );
 DKMutableDictionaryRef DKBinaryTreeCreateMutableCopy( DKDictionaryRef srcDictionary );
 
-DKIndex DKBinaryTreeGetCount( DKDictionaryRef ref );
+DKIndex     DKBinaryTreeGetCount( DKDictionaryRef ref );
+DKTypeRef   DKBinaryTreeGetObject( DKDictionaryRef ref, DKTypeRef key );
 
-void DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
+int         DKBinaryTreeApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
+int         DKBinaryTreeTraverseInOrder( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
 
-DKTypeRef DKBinaryTreeGetObject( DKDictionaryRef ref, DKTypeRef key );
+void        DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
+void        DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key );
+void        DKBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref );
 
-void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key );
-void DKBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref );
-
-int DKBinaryTreeApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
-int DKBinaryTreeTraverseInOrder( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
 
 
 

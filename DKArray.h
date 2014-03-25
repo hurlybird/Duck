@@ -24,6 +24,7 @@ DKMutableListRef DKArrayCreateMutableCopy( DKListRef srcList );
 
 DKIndex DKArrayGetCount( DKListRef ref );
 DKIndex DKArrayGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] );
+
 void    DKArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
 void    DKArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
 

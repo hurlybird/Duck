@@ -22,16 +22,15 @@ DKDictionaryRef DKHashTableCreateCopy( DKDictionaryRef srcDictionary );
 DKMutableDictionaryRef DKHashTableCreateMutable( void );
 DKMutableDictionaryRef DKHashTableCreateMutableCopy( DKDictionaryRef srcDictionary );
 
-DKIndex DKHashTableGetCount( DKDictionaryRef ref );
+DKIndex     DKHashTableGetCount( DKDictionaryRef ref );
+DKTypeRef   DKHashTableGetObject( DKDictionaryRef ref, DKTypeRef key );
 
-void DKHashTableInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
+int         DKHashTableApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
 
-DKTypeRef DKHashTableGetObject( DKDictionaryRef ref, DKTypeRef key );
+void        DKHashTableInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
+void        DKHashTableRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key );
+void        DKHashTableRemoveAllObjects( DKMutableDictionaryRef ref );
 
-void DKHashTableRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key );
-void DKHashTableRemoveAllObjects( DKMutableDictionaryRef ref );
-
-int DKHashTableApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
 
 
 

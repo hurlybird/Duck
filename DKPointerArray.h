@@ -22,8 +22,14 @@ typedef struct
 
 
 void DKPointerArrayInit( DKPointerArray * array );
+
+void DKPointerArrayInitWithExternalStorage( DKPointerArray * array, const uintptr_t pointers[], DKIndex length );
+int  DKPointerArrayHasExternalStorage( DKPointerArray * array );
+
+void DKPointerArrayFinalize( DKPointerArray * array );
+
 void DKPointerArrayReserve( DKPointerArray * array, DKIndex length );
-void DKPointerArrayClear( DKPointerArray * array );
+
 void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const uintptr_t pointers[], DKIndex length );
 void DKPointerArrayAppendPointer( DKPointerArray * array, uintptr_t pointer );
 

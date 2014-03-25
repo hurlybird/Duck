@@ -86,9 +86,9 @@ void DKNodePoolInit( DKNodePool * pool, DKIndex nodeSize, DKIndex nodeCount )
 
 
 ///
-//  DKNodePoolClear()
+//  DKNodePoolFinalize()
 //
-void DKNodePoolClear( DKNodePool * pool )
+void DKNodePoolFinalize( DKNodePool * pool )
 {
     DKNodePoolBlock * block = pool->blockList;
     

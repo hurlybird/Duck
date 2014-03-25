@@ -24,10 +24,37 @@ void DKByteArrayInit( DKByteArray * array )
 
 
 ///
+//  DKByteArrayInitWithExternalStorage()
+//
+void DKByteArrayInitWithExternalStorage( DKByteArray * array, const uint8_t bytes[], DKIndex length )
+{
+    array->data = (uint8_t *)bytes;
+    array->length = length;
+    array->maxLength = -1;
+}
+
+
+///
+//  DKByteArrayFinalize()
+//
+void DKByteArrayFinalize( DKByteArray * array )
+{
+    if( array->data && (array->maxLength > 0) )
+        dk_free( array->data );
+    
+    array->data = NULL;
+    array->length = 0;
+    array->maxLength = 0;
+}
+
+
+///
 //  DKByteArrayReserve()
 //
 void DKByteArrayReserve( DKByteArray * array, DKIndex length )
 {
+    DKAssert( array->length >= 0 );
+
     if( array->maxLength < length )
     {
         if( length < MIN_BYTE_ARRAY_SIZE )
@@ -48,14 +75,11 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
 
 
 ///
-//  DKByteArrayClear()
+//  DKByteArrayHasExternalStorage()
 //
-void DKByteArrayClear( DKByteArray * array )
+int DKByteArrayHasExternalStorage( DKByteArray * array )
 {
-    dk_free( array->data );
-    array->data = NULL;
-    array->length = 0;
-    array->maxLength = 0;
+    return array->maxLength < 0;
 }
 
 
@@ -86,6 +110,8 @@ static uint8_t * DKByteArrayResize( void * ptr, DKIndex oldSize, DKIndex request
 //
 void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t bytes[], DKIndex length )
 {
+    DKAssert( array->length >= 0 );
+
     DKIndex range_end = DKRangeEnd( range );
 
     DKAssert( range.location >= 0 );
