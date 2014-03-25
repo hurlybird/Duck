@@ -33,12 +33,12 @@ void DKPointerArrayReserve( DKPointerArray * array, DKIndex length )
         if( length < MIN_PTR_ARRAY_SIZE )
             length = MIN_PTR_ARRAY_SIZE;
     
-        uintptr_t * data = DKAlloc( length * sizeof(uintptr_t) );
+        uintptr_t * data = dk_malloc( length * sizeof(uintptr_t) );
         
         if( array->length > 0 )
         {
             memcpy( data, array->data, array->length * sizeof(uintptr_t) );
-            DKFree( array->data );
+            dk_free( array->data );
         }
         
         array->data = data;
@@ -52,7 +52,7 @@ void DKPointerArrayReserve( DKPointerArray * array, DKIndex length )
 //
 void DKPointerArrayClear( DKPointerArray * array )
 {
-    DKFree( array->data );
+    dk_free( array->data );
     array->data = NULL;
     array->length = 0;
     array->maxLength = 0;
@@ -77,7 +77,7 @@ static uintptr_t * DKPointerArrayResize( void * ptr, DKIndex oldSize, DKIndex re
     
     *allocatedSize = newSize;
     
-    return DKAlloc( newSize * sizeof(uintptr_t) );
+    return dk_malloc( newSize * sizeof(uintptr_t) );
 }
 
 
@@ -127,7 +127,7 @@ void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const
                 memcpy( dst, src, suffixRangeBeforeInsertion.length * sizeof(uintptr_t) );
             }
             
-            DKFree( array->data );
+            dk_free( array->data );
         }
         
         else

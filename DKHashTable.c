@@ -27,10 +27,8 @@ struct DKHashTable
 };
 
 
-
-static DKTypeRef    DKHashTableAllocate( void );
-static DKTypeRef    DKMutableHashTableAllocate( void );
 static DKTypeRef    DKHashTableInitialize( DKTypeRef ref );
+static DKTypeRef    DKMutableHashTableInitialize( DKTypeRef ref );
 static void         DKHashTableFinalize( DKTypeRef ref );
 
 
@@ -43,11 +41,10 @@ DKTypeRef DKHashTableClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass(), sizeof(struct DKHashTable) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKHashTableAllocate;
         lifeCycle->initialize = DKHashTableInitialize;
         lifeCycle->finalize = DKHashTableFinalize;
 
@@ -88,12 +85,11 @@ DKTypeRef DKMutableHashTableClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKHashTableClass(), sizeof(struct DKHashTable) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKMutableHashTableAllocate;
-        lifeCycle->initialize = DKHashTableInitialize;
+        lifeCycle->initialize = DKMutableHashTableInitialize;
         lifeCycle->finalize = DKHashTableFinalize;
 
         DKInstallInterface( SharedClassObject, lifeCycle );
@@ -125,24 +121,6 @@ DKTypeRef DKMutableHashTableClass( void )
 
 
 ///
-//  DKHashTableAllocate()
-//
-static DKTypeRef DKHashTableAllocate( void )
-{
-    return DKAllocObject( DKHashTableClass(), sizeof(struct DKHashTable), 0 );
-}
-
-
-///
-//  DKMutableHashTableAllocate()
-//
-static DKTypeRef DKMutableHashTableAllocate( void )
-{
-    return DKAllocObject( DKMutableHashTableClass(), sizeof(struct DKHashTable), DKObjectIsMutable );
-}
-
-
-///
 //  DKHashTableInitialize()
 //
 static DKTypeRef DKHashTableInitialize( DKTypeRef ref )
@@ -156,6 +134,22 @@ static DKTypeRef DKHashTableInitialize( DKTypeRef ref )
         hashTable->rows = NULL;
         hashTable->count = 0;
         hashTable->maxCount = 0;
+    }
+    
+    return ref;
+}
+
+
+///
+//  DKMutableHashTableInitialize()
+//
+static DKTypeRef DKMutableHashTableInitialize( DKTypeRef ref )
+{
+    ref = DKHashTableInitialize( ref );
+    
+    if( ref )
+    {
+        DKSetObjectAttribute( ref, DKObjectIsMutable, 1 );
     }
     
     return ref;

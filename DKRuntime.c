@@ -21,6 +21,7 @@ struct DKClass
     char                    name[MAX_CLASS_NAME_LENGTH];
 
     const struct DKClass *  superclass;
+    size_t                  structSize;
 
     DKTypeRef               fastLookupTable[DKFastLookupTableSize];
     
@@ -101,16 +102,11 @@ DKDefineFastLookupInterface( LifeCycle );
 static DKLifeCycle __DKDefaultLifeCycle__ =
 {
     DKStaticInterfaceObject( LifeCycle ),
-    DKDefaultAllocate,
     DKDefaultInitialize,
-    DKDefaultFinalize
+    DKDefaultFinalize,
+    NULL,
+    NULL
 };
-
-DKTypeRef DKDefaultAllocate( void )
-{
-    DKError( "DKLifeCycle: The allocate interface is undefined." );
-    return NULL;
-}
 
 DKTypeRef DKDefaultInitialize( DKTypeRef ref )
 {
@@ -226,17 +222,19 @@ static DKHashIndex DKInterfaceHash( DKTypeRef ref );
 static DKLifeCycle __DKClassLifeCycle__ =
 {
     DKStaticInterfaceObject( LifeCycle ),
-    DKDefaultAllocate,
     DKDefaultInitialize,
-    DKClassFinalize
+    DKClassFinalize,
+    NULL,
+    NULL
 };
 
 static DKLifeCycle __DKInterfaceLifeCycle__ =
 {
     DKStaticInterfaceObject( LifeCycle ),
-    DKDefaultAllocate,
     DKDefaultInitialize,
-    DKInterfaceFinalize
+    DKInterfaceFinalize,
+    NULL,
+    NULL
 };
 
 static DKReferenceCounting __DKStaticObjectReferenceCounting__ =
@@ -297,7 +295,7 @@ static DKHashIndex DKInterfaceHash( DKTypeRef ref )
 ///
 //  InitMetaClass()
 //
-static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa, struct DKClass * superclass,
+static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa, struct DKClass * superclass, size_t structSize,
     DKLifeCycle * lifeCycle, DKReferenceCounting * referenceCounting, DKComparison * comparison )
 {
     memset( metaclass, 0, sizeof(struct DKClass) );
@@ -312,7 +310,8 @@ static void InitMetaClass( struct DKClass * metaclass, struct DKClass * isa, str
     header->attributes = DKObjectIsStatic;
 
     metaclass->superclass = superclass;
-
+    metaclass->structSize = structSize;
+    
     DKPointerArrayInit( &metaclass->interfaces );
     DKPointerArrayInit( &metaclass->properties );
 
@@ -339,13 +338,13 @@ static void InitMetaClasses( void )
     {
         MetaClassesInitialized = 1;
 
-        InitMetaClass( &__DKMetaClass__,      &__DKMetaClass__, NULL,                  &__DKClassLifeCycle__,     &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
-        InitMetaClass( &__DKClassClass__,     &__DKMetaClass__, NULL,                  &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
-        InitMetaClass( &__DKSelectorClass__,  &__DKMetaClass__, NULL,                  &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
-        InitMetaClass( &__DKInterfaceClass__, &__DKMetaClass__, NULL,                  &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
-        InitMetaClass( &__DKMethodClass__,    &__DKMetaClass__, &__DKInterfaceClass__, &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
-        InitMetaClass( &__DKPropertyClass__,  &__DKMetaClass__, NULL,                  &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
-        InitMetaClass( &__DKObjectClass__,    &__DKMetaClass__, NULL,                  &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitMetaClass( &__DKMetaClass__,      &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
+        InitMetaClass( &__DKClassClass__,     &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitMetaClass( &__DKSelectorClass__,  &__DKMetaClass__, NULL,                  sizeof(struct DKSEL),   &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
+        InitMetaClass( &__DKInterfaceClass__, &__DKMetaClass__, NULL,                  sizeof(DKInterface),    &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
+        InitMetaClass( &__DKMethodClass__,    &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMethod),       &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
+        InitMetaClass( &__DKPropertyClass__,  &__DKMetaClass__, NULL,                  0,                      &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitMetaClass( &__DKObjectClass__,    &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader), &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
     }
 }
 
@@ -356,20 +355,41 @@ static void InitMetaClasses( void )
 ///
 //  DKAllocObject()
 //
-DKTypeRef DKAllocObject( DKTypeRef _class, size_t size, int attributes )
+DKTypeRef DKAllocObject( DKTypeRef isa, size_t extraBytes, uint32_t attributes )
 {
-    if( _class )
+    if( !isa )
     {
-        struct DKObjectHeader * obj = DKAlloc( size );
-        
-        obj->isa = DKRetain( _class );
-        obj->refcount = 1;
-        obj->attributes = attributes;
-
-        return obj;
+        DKFatalError( "DKAlloc: Specified class object 'isa' is NULL." );
+        return NULL;
     }
     
-    return NULL;
+    const struct DKClass * classObject = isa;
+    
+    if( classObject->structSize < sizeof(struct DKObjectHeader) )
+    {
+        DKFatalError( "DKAlloc: Requested size is smaller than DKObjectHeader." );
+        return NULL;
+    }
+    
+    // Allocate the structure + extra bytes
+    DKLifeCycle * lifeCycle = DKLookupInterface( isa, DKSelector(LifeCycle) );
+
+    struct DKObjectHeader * obj = NULL;
+
+    if( lifeCycle->alloc )
+        obj = lifeCycle->alloc( classObject->structSize + extraBytes );
+    
+    else
+        obj = dk_malloc( classObject->structSize + extraBytes );
+    
+    // Zero the structure bytes
+    memset( obj, 0, classObject->structSize );
+    
+    obj->isa = DKRetain( isa );
+    obj->refcount = 1;
+    obj->attributes = attributes;
+    
+    return obj;
 }
 
 ///
@@ -382,30 +402,41 @@ void DKDeallocObject( DKTypeRef ref )
     DKAssert( obj );
     DKAssert( obj->refcount == 0 );
     DKAssert( !DKTestObjectAttribute( obj, DKObjectIsStatic ) );
-    
-    const struct DKClass * classObject = obj->isa;
-    
-    for( const struct DKClass * cls = classObject; cls != NULL; cls = cls->superclass )
+
+    const struct DKClass * isa = obj->isa;
+
+    // Call the finalizers for the object
+    for( const struct DKClass * cls = isa; cls != NULL; cls = cls->superclass )
     {
         DKLifeCycle * lifeCycle = cls->fastLookupTable[DKFastLookupLifeCycle];
         lifeCycle->finalize( obj );
-        
-        classObject = cls->superclass;
     }
     
-    DKRelease( obj->isa );
-    DKFree( obj );
+    // Deallocate
+    DKLifeCycle * lifeCycle = DKLookupInterface( isa, DKSelector(LifeCycle) );
+    
+    if( lifeCycle->free )
+        lifeCycle->free( obj );
+    
+    else
+        dk_free( obj );
+    
+    // Finally release the class object
+    DKRelease( isa );
 }
 
 
 ///
 //  DKCreateClass()
 //
-DKTypeRef DKCreateClass( DKTypeRef superclass )
+DKTypeRef DKCreateClass( DKTypeRef superclass, size_t structSize )
 {
-    struct DKClass * classObject = (struct DKClass *)DKAllocObject( DKClassClass(), sizeof(struct DKClass), 0 );
+    struct DKClass * classObject = (struct DKClass *)DKAllocObject( DKClassClass(), 0, 0 );
+
+    // We should technically call an initializer for class objects here...
 
     classObject->superclass = DKRetain( superclass );
+    classObject->structSize = structSize;
     
     DKPointerArrayInit( &classObject->interfaces );
     DKPointerArrayInit( &classObject->properties );
@@ -440,12 +471,20 @@ static void DKClassFinalize( DKTypeRef ref )
 ///
 //  DKCreateInterface()
 //
-DKTypeRef DKCreateInterface( DKSEL sel, size_t size )
+DKTypeRef DKCreateInterface( DKSEL sel, size_t structSize )
 {
     if( sel )
     {
-        struct DKInterface * interface = (struct DKInterface *)DKAllocObject( DKInterfaceClass(), size, 0 );
+        size_t extraBytes = structSize - sizeof(DKInterface);
+        
+        struct DKInterface * interface = (struct DKInterface *)DKAllocObject( DKInterfaceClass(), extraBytes, 0 );
+
+        // We should technically call an initializer for interface objects here...
+
         interface->sel = DKRetain( sel );
+    
+        // Init all the function pointers to NULL
+        memset( interface + 1, 0, extraBytes );
     
         return interface;
     }
@@ -455,7 +494,7 @@ DKTypeRef DKCreateInterface( DKSEL sel, size_t size )
 
 static void DKInterfaceFinalize( DKTypeRef ref )
 {
-    struct DKInterface * interface = (struct DKInterface *)ref;
+    DKInterface * interface = ref;
     DKRelease( interface->sel );
 }
 
@@ -638,26 +677,59 @@ DKTypeRef DKLookupMethod( DKTypeRef ref, DKSEL sel )
 }
 
 
+///
+//  DKSetObjectAttribute()
+//
+void DKSetObjectAttribute( DKTypeRef ref, uint32_t attr, int value )
+{
+    if( ref )
+    {
+        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+        
+        DKAssert( (attr & DKFastLookupIndexMask) == 0 );
+        attr &= ~DKFastLookupIndexMask;
+        
+        if( value )
+            obj->attributes |= attr;
+        
+        else
+            obj->attributes &= ~attr;
+    }
+}
+
+
 
 
 // Polymorphic Wrappers ==================================================================
 
 ///
-//  DKCreate()
+//  DKAlloc()
 //
-DKTypeRef DKCreate( DKTypeRef _class )
+DKTypeRef DKAlloc( DKTypeRef _class )
 {
     if( _class )
     {
-        DKLifeCycle * lifeCycle = DKLookupInterface( _class, DKSelector(LifeCycle) );
+        return DKAllocObject( _class, 0, 0 );
+    }
+    
+    return NULL;
+}
 
-        DKTypeRef ref = lifeCycle->allocate();
-        
+
+///
+//  DKInit()
+//
+DKTypeRef DKInit( DKTypeRef ref )
+{
+    if( ref )
+    {
+        DKLifeCycle * lifeCycle = DKLookupInterface( ref, DKSelector(LifeCycle) );
         return lifeCycle->initialize( ref );
     }
     
     return NULL;
 }
+
 
 ///
 //  DKGetClass()

@@ -33,12 +33,12 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
         if( length < MIN_BYTE_ARRAY_SIZE )
             length = MIN_BYTE_ARRAY_SIZE;
     
-        uint8_t * data = DKAlloc( length );
+        uint8_t * data = dk_malloc( length );
         
         if( array->length > 0 )
         {
             memcpy( data, array->data, array->length );
-            DKFree( array->data );
+            dk_free( array->data );
         }
         
         array->data = data;
@@ -52,7 +52,7 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
 //
 void DKByteArrayClear( DKByteArray * array )
 {
-    DKFree( array->data );
+    dk_free( array->data );
     array->data = NULL;
     array->length = 0;
     array->maxLength = 0;
@@ -77,7 +77,7 @@ static uint8_t * DKByteArrayResize( void * ptr, DKIndex oldSize, DKIndex request
     
     *allocatedSize = newSize;
     
-    return DKAlloc( newSize );
+    return dk_malloc( newSize );
 }
 
 
@@ -127,7 +127,7 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
                 memcpy( dst, src, suffixRangeBeforeInsertion.length );
             }
             
-            DKFree( array->data );
+            dk_free( array->data );
         }
         
         else

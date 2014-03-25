@@ -40,9 +40,8 @@ struct DKLinkedList
 };
 
 
-static DKTypeRef    DKLinkedListAllocate( void );
-static DKTypeRef    DKMutableLinkedListAllocate( void );
 static DKTypeRef    DKLinkedListInitialize( DKTypeRef ref );
+static DKTypeRef    DKMutableLinkedListInitialize( DKTypeRef ref );
 static void         DKLinkedListFinalize( DKTypeRef ref );
 
 static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKTypeRef objects[], DKIndex count );
@@ -58,11 +57,10 @@ DKTypeRef DKLinkedListClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass(), sizeof(struct DKLinkedList) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKLinkedListAllocate;
         lifeCycle->initialize = DKLinkedListInitialize;
         lifeCycle->finalize = DKLinkedListFinalize;
 
@@ -99,19 +97,18 @@ DKTypeRef DKLinkedListClass( void )
 //
 DKTypeRef DKMutableLinkedListClass( void )
 {
-    static DKTypeRef mutableLinkedListClass = NULL;
+    static DKTypeRef SharedClassObject = NULL;
 
-    if( !mutableLinkedListClass )
+    if( !SharedClassObject )
     {
-        mutableLinkedListClass = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKLinkedListClass(), sizeof(struct DKLinkedList) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKMutableLinkedListAllocate;
-        lifeCycle->initialize = DKLinkedListInitialize;
+        lifeCycle->initialize = DKMutableLinkedListInitialize;
         lifeCycle->finalize = DKLinkedListFinalize;
 
-        DKInstallInterface( mutableLinkedListClass, lifeCycle );
+        DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
         // Copying
@@ -119,7 +116,7 @@ DKTypeRef DKMutableLinkedListClass( void )
         copying->copy = DKLinkedListCreateMutableCopy;
         copying->mutableCopy = DKLinkedListCreateMutableCopy;
         
-        DKInstallInterface( mutableLinkedListClass, copying );
+        DKInstallInterface( SharedClassObject, copying );
         DKRelease( copying );
 
         // List
@@ -131,29 +128,11 @@ DKTypeRef DKMutableLinkedListClass( void )
         list->sort = DKLinkedListSort;
         list->shuffle = DKLinkedListShuffle;
 
-        DKInstallInterface( mutableLinkedListClass, list );
+        DKInstallInterface( SharedClassObject, list );
         DKRelease( list );
     }
     
-    return mutableLinkedListClass;
-}
-
-
-///
-//  DKLinkedListAllocate()
-//
-static DKTypeRef DKLinkedListAllocate( void )
-{
-    return DKAllocObject( DKLinkedListClass(), sizeof(struct DKLinkedList), 0 );
-}
-
-
-///
-//  DKMutableLinkedListAllocate()
-//
-static DKTypeRef DKMutableLinkedListAllocate( void )
-{
-    return DKAllocObject( DKMutableLinkedListClass(), sizeof(struct DKLinkedList), DKObjectIsMutable );
+    return SharedClassObject;
 }
 
 
@@ -176,6 +155,22 @@ static DKTypeRef DKLinkedListInitialize( DKTypeRef ref )
         
         list->cursor.node = NULL;
         list->cursor.index = 0;
+    }
+    
+    return ref;
+}
+
+
+///
+//  DKMutableLinkedListInitialize()
+//
+static DKTypeRef DKMutableLinkedListInitialize( DKTypeRef ref )
+{
+    ref = DKLinkedListInitialize( ref );
+    
+    if( ref )
+    {
+        DKSetObjectAttribute( ref, DKObjectIsMutable, 1 );
     }
     
     return ref;
@@ -657,13 +652,13 @@ void DKLinkedListSort( DKMutableListRef ref, DKCompareFunction cmp )
         // gymnastics needed for sorting the list nodes.
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
 
-        DKTypeRef * buffer = DKAlloc( sizeof(DKTypeRef) * list->count );
+        DKTypeRef * buffer = dk_malloc( sizeof(DKTypeRef) * list->count );
         ListToBuffer( buffer, list );
 
         qsort( buffer, list->count, sizeof(DKTypeRef), cmp );
 
         BufferToList( list, buffer );
-        DKFree( buffer );
+        dk_free( buffer );
     }
 }
 
@@ -685,13 +680,13 @@ void DKLinkedListShuffle( DKMutableListRef ref )
         // gymnastics needed for shuffling the list nodes.
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
 
-        DKTypeRef * buffer = DKAlloc( sizeof(DKTypeRef) * list->count );
+        DKTypeRef * buffer = dk_malloc( sizeof(DKTypeRef) * list->count );
         ListToBuffer( buffer, list );
 
         DKShuffle( (uintptr_t *)buffer, list->count );
 
         BufferToList( list, buffer );
-        DKFree( buffer );
+        dk_free( buffer );
     }
 }
 

@@ -18,9 +18,8 @@ struct DKArray
 };
 
 
-static DKTypeRef    DKArrayAllocate( void );
-static DKTypeRef    DKMutableArrayAllocate( void );
 static DKTypeRef    DKArrayInitialize( DKTypeRef ref );
+static DKTypeRef    DKMutableArrayInitialize( DKTypeRef ref );
 static void         DKArrayFinalize( DKTypeRef ref );
 
 ///
@@ -32,11 +31,10 @@ DKTypeRef DKArrayClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass(), sizeof(struct DKArray) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKArrayAllocate;
         lifeCycle->initialize = DKArrayInitialize;
         lifeCycle->finalize = DKArrayFinalize;
 
@@ -77,12 +75,11 @@ DKTypeRef DKMutableArrayClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKArrayClass(), sizeof(struct DKArray) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKMutableArrayAllocate;
-        lifeCycle->initialize = DKArrayInitialize;
+        lifeCycle->initialize = DKMutableArrayInitialize;
         lifeCycle->finalize = DKArrayFinalize;
 
         DKInstallInterface( SharedClassObject, lifeCycle );
@@ -114,24 +111,6 @@ DKTypeRef DKMutableArrayClass( void )
 
 
 ///
-//  DKArrayAllocate()
-//
-static DKTypeRef DKArrayAllocate( void )
-{
-    return DKAllocObject( DKArrayClass(), sizeof(struct DKArray), 0 );
-}
-
-
-///
-//  DKMutableArrayAllocate()
-//
-static DKTypeRef DKMutableArrayAllocate( void )
-{
-    return DKAllocObject( DKMutableArrayClass(), sizeof(struct DKArray), DKObjectIsMutable );
-}
-
-
-///
 //  DKArrayInitialize()
 //
 static DKTypeRef DKArrayInitialize( DKTypeRef ref )
@@ -142,6 +121,22 @@ static DKTypeRef DKArrayInitialize( DKTypeRef ref )
     {
         struct DKArray * array = (struct DKArray *)ref;
         DKPointerArrayInit( &array->ptrArray );
+    }
+    
+    return ref;
+}
+
+
+///
+//  DKMutableArrayInitialize()
+//
+static DKTypeRef DKMutableArrayInitialize( DKTypeRef ref )
+{
+    ref = DKArrayInitialize( ref );
+    
+    if( ref )
+    {
+        DKSetObjectAttribute( ref, DKObjectIsMutable, 1 );
     }
     
     return ref;
@@ -221,10 +216,10 @@ static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKTyp
     
     else
     {
-        DKTypeRef * buffer = DKAlloc( sizeof(DKTypeRef) * srcCount );
+        DKTypeRef * buffer = dk_malloc( sizeof(DKTypeRef) * srcCount );
         srcListInterface->getObjects( srcList, DKRangeMake( 0, srcCount ), buffer );
         ReplaceObjects( array, range, buffer, srcCount );
-        DKFree( buffer );
+        dk_free( buffer );
     }
 }
 
@@ -240,7 +235,10 @@ DKListRef DKArrayCreate( DKTypeRef objects[], DKIndex count )
 {
     struct DKArray * array = (struct DKArray *)DKCreate( DKArrayClass() );
     
-    ReplaceObjects( array, DKRangeMake( 0, 0 ), objects, count );
+    if( array )
+    {
+        ReplaceObjects( array, DKRangeMake( 0, 0 ), objects, count );
+    }
     
     return array;
 }
@@ -251,12 +249,17 @@ DKListRef DKArrayCreate( DKTypeRef objects[], DKIndex count )
 //
 DKListRef DKArrayCreateNoCopy( DKTypeRef objects[], DKIndex count )
 {
-    struct DKArray * array = (struct DKArray *)DKAllocObject( DKArrayClass(), sizeof(struct DKArray), DKObjectContentIsExternal );
+    struct DKArray * array = (struct DKArray *)DKCreate( DKArrayClass() );
 
-    DKPointerArrayInit( &array->ptrArray );
-    array->ptrArray.data = (uintptr_t *)objects;
-    array->ptrArray.length = count;
-    array->ptrArray.maxLength = count;
+    if( array )
+    {
+        DKPointerArrayInit( &array->ptrArray );
+        array->ptrArray.data = (uintptr_t *)objects;
+        array->ptrArray.length = count;
+        array->ptrArray.maxLength = count;
+
+        DKSetObjectAttribute( array, DKObjectContentIsExternal, 1 );
+    }
     
     return array;
 }
@@ -269,7 +272,10 @@ DKListRef DKArrayCreateCopy( DKListRef srcList )
 {
     struct DKArray * array = (struct DKArray *)DKCreate( DKArrayClass() );
     
-    ReplaceObjectsWithList( array, DKRangeMake( 0, 0 ), srcList );
+    if( array )
+    {
+        ReplaceObjectsWithList( array, DKRangeMake( 0, 0 ), srcList );
+    }
     
     return array;
 }
@@ -291,7 +297,10 @@ DKMutableListRef DKArrayCreateMutableCopy( DKListRef srcList )
 {
     struct DKArray * array = (struct DKArray *)DKCreate( DKMutableArrayClass() );
     
-    ReplaceObjectsWithList( array, DKRangeMake( 0, 0 ), srcList );
+    if( array )
+    {
+        ReplaceObjectsWithList( array, DKRangeMake( 0, 0 ), srcList );
+    }
     
     return array;
 }

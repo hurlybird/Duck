@@ -145,7 +145,7 @@ DKListRef DKDictionaryCopyKeys( DKDictionaryRef ref )
 {
     DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableLinkedListClass() );
     
-    DKDictionaryApplyFunction( ref, DKDictionaryCopyKeysCallback, list );
+    DKDictionaryApplyFunction( ref, DKDictionaryCopyKeysCallback, (void *)list );
     
     return list;
 }
@@ -164,7 +164,7 @@ DKListRef DKDictionaryCopyObjects( DKDictionaryRef ref )
 {
     DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableLinkedListClass() );
     
-    DKDictionaryApplyFunction( ref, DKDictionaryCopyObjectsCallback, list );
+    DKDictionaryApplyFunction( ref, DKDictionaryCopyObjectsCallback, (void *)list );
     
     return list;
 }

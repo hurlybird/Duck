@@ -19,9 +19,8 @@ struct DKData
 };
 
 
-static DKTypeRef    DKDataAllocate( void );
-static DKTypeRef    DKMutableDataAllocate( void );
 static DKTypeRef    DKDataInitialize( DKTypeRef ref );
+static DKTypeRef    DKMutableDataInitialize( DKTypeRef ref );
 static void         DKDataFinalize( DKTypeRef ref );
 static int          DKDataEqual( DKTypeRef a, DKTypeRef b );
 static int          DKDataCompare( DKTypeRef a, DKTypeRef b );
@@ -40,11 +39,10 @@ DKTypeRef DKDataClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass(), sizeof(struct DKData) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKDataAllocate;
         lifeCycle->initialize = DKDataInitialize;
         lifeCycle->finalize = DKDataFinalize;
 
@@ -83,12 +81,11 @@ DKTypeRef DKMutableDataClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKDataClass(), sizeof(struct DKData) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKMutableDataAllocate;
-        lifeCycle->initialize = DKDataInitialize;
+        lifeCycle->initialize = DKMutableDataInitialize;
         lifeCycle->finalize = DKDataFinalize;
 
         DKInstallInterface( SharedClassObject, lifeCycle );
@@ -118,24 +115,6 @@ DKTypeRef DKMutableDataClass( void )
 
 
 ///
-//  DKDataAllocate()
-//
-static DKTypeRef DKDataAllocate( void )
-{
-    return DKAllocObject( DKDataClass(), sizeof(struct DKData), 0 );
-}
-
-
-///
-//  DKMutableDataAllocate()
-//
-static DKTypeRef DKMutableDataAllocate( void )
-{
-    return DKAllocObject( DKMutableDataClass(), sizeof(struct DKData), DKObjectIsMutable );
-}
-
-
-///
 //  DKDataInitialize()
 //
 static DKTypeRef DKDataInitialize( DKTypeRef ref )
@@ -147,6 +126,22 @@ static DKTypeRef DKDataInitialize( DKTypeRef ref )
         struct DKData * data = (struct DKData *)ref;
         DKByteArrayInit( &data->byteArray );
         data->cursor = 0;
+    }
+    
+    return ref;
+}
+
+
+///
+//  DKMutableDataInitialize()
+//
+static DKTypeRef DKMutableDataInitialize( DKTypeRef ref )
+{
+    ref = DKDataInitialize( ref );
+    
+    if( ref )
+    {
+        DKSetObjectAttribute( ref, DKObjectIsMutable, 1 );
     }
     
     return ref;
@@ -248,7 +243,7 @@ static void DKDataSetCursor( DKDataRef ref, DKIndex cursor )
 //
 DKDataRef DKDataCreate( const void * bytes, DKIndex length )
 {
-    DKDataRef ref = DKAllocObject( DKDataClass(), sizeof(struct DKData) + length, DKObjectContentIsInline );
+    DKDataRef ref = DKAllocObject( DKDataClass(), length, DKObjectContentIsInline );
 
     if( ref )
     {
@@ -292,7 +287,7 @@ DKDataRef DKDataCreateCopy( DKDataRef src )
 //
 DKDataRef DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length )
 {
-    DKDataRef ref = DKAllocObject( DKDataClass(), sizeof(struct DKData), DKObjectContentIsExternal );
+    DKDataRef ref = DKCreate( DKDataClass() );
 
     if( ref )
     {
@@ -303,6 +298,8 @@ DKDataRef DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length )
         data->byteArray.data = (void *)bytes;
         data->byteArray.length = length;
         data->byteArray.maxLength = length;
+        
+        DKSetObjectAttribute( ref, DKObjectContentIsExternal, 1 );
     }
     
     return ref;

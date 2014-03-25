@@ -133,29 +133,29 @@ int _DKFatalError( const char * format, ... )
 
 
 // Memory Allocation =====================================================================
-static void * (*DKAllocCallback)( size_t size ) = NULL;
-static void (*DKFreeCallback)( void * ptr ) = NULL;
+static dk_malloc_callback malloc_callback = NULL;
+static dk_free_callback free_callback = NULL;
 
-void DKSetAllocCallback( void * (*callback)( size_t ) )
-{
-    DKAllocCallback = callback;
-}
 
-void DKSetFreeCallback( void (*callback)( void * ptr ) )
+///
+//  DKSetExternalAllocator()
+//
+void DKSetExternalAllocator( dk_malloc_callback _malloc, dk_free_callback _free )
 {
-    DKFreeCallback = callback;
+    malloc_callback = _malloc;
+    free_callback = _free;
 }
 
 
 ///
-//  DKAlloc()
+//  dk_malloc()
 //
-void * DKAlloc( size_t size )
+void * dk_malloc( size_t size )
 {
     void * ptr;
     
-    if( DKAllocCallback )
-        ptr = DKAllocCallback( size );
+    if( malloc_callback )
+        ptr = malloc_callback( size );
     
     else
         ptr = malloc( size );
@@ -165,25 +165,14 @@ void * DKAlloc( size_t size )
 
 
 ///
-//  DKAllocAndZero()
+//  dk_free()
 //
-void * DKAllocAndZero( size_t size )
-{
-    void * ptr = DKAlloc( size );
-    memset( ptr, 0, size );
-    return ptr;
-}
-
-
-///
-//  DKFree()
-//
-void DKFree( void * ptr )
+void dk_free( void * ptr )
 {
     if( ptr )
     {
-        if( DKFreeCallback )
-            DKFreeCallback( ptr );
+        if( free_callback )
+            free_callback( ptr );
         
         else
             free( ptr );

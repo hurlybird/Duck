@@ -33,7 +33,7 @@ static DKNodePoolBlock * DKNodePoolAllocBlock( DKNodePool * pool, DKIndex count 
         count = MIN_RESERVE_NODE_COUNT;
 
     DKIndex bytes = sizeof(DKNodePoolBlock) + (pool->nodeSize * count);
-    DKNodePoolBlock * block = DKAlloc( bytes );
+    DKNodePoolBlock * block = dk_malloc( bytes );
     
     block->next = NULL;
     block->count = count;
@@ -96,8 +96,11 @@ void DKNodePoolClear( DKNodePool * pool )
     {
         DKNodePoolBlock * tmp = block;
         block = block->next;
-        DKFree( tmp );
+        dk_free( tmp );
     }
+    
+    pool->freeList = NULL;
+    pool->blockList = NULL;
 }
 
 

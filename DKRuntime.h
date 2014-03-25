@@ -50,6 +50,7 @@ enum
 #define DKTestObjectAttribute( ref, attr )  ((((const DKObjectHeader *)(ref))->attributes & (attr)) != 0)
 #define DKFastLookupIndex( ref )            (((const DKObjectHeader *)(ref))->attributes & DKFastLookupIndexMask)
 
+void DKSetObjectAttribute( DKTypeRef ref, uint32_t attr, int value );
 
 
 // DKSelector ============================================================================
@@ -198,14 +199,16 @@ struct DKLifeCycle
 {
     DKInterface _interface;
     
-    DKTypeRef   (*allocate)( void );
     DKTypeRef   (*initialize)( DKTypeRef ref );
     void        (*finalize)( DKTypeRef ref );
+
+    // Custom memory allocation (Optional - these may be NULL)
+    void *      (*alloc)( size_t size );
+    void        (*free)( void * ptr );
 };
 
 typedef const struct DKLifeCycle DKLifeCycle;
 
-DKTypeRef   DKDefaultAllocate( void );
 DKTypeRef   DKDefaultInitialize( DKTypeRef ref );
 void        DKDefaultFinalize( DKTypeRef ref );
 
@@ -255,11 +258,11 @@ DKComparison * DKDefaultComparison( void );
 
 
 // Alloc/Free Objects ====================================================================
-DKTypeRef   DKAllocObject( DKTypeRef _class, size_t size, int flags );
+DKTypeRef   DKAllocObject( DKTypeRef isa, size_t extraBytes, uint32_t attributes );
 void        DKDeallocObject( DKTypeRef ref );
 
-DKTypeRef   DKCreateClass( DKTypeRef superclass );
-DKTypeRef   DKCreateInterface( DKSEL sel, size_t size );
+DKTypeRef   DKCreateClass( DKTypeRef superclass, size_t structSize );
+DKTypeRef   DKCreateInterface( DKSEL sel, size_t structSize );
 
 
 //void        DKRegisterClass( DKTypeRef classObject );
@@ -285,8 +288,10 @@ DKTypeRef   DKLookupMethod( DKTypeRef ref, DKSEL sel );
 
 // Polymorphic Wrappers ==================================================================
 
-// Allocate a new object and call its default initializer
-DKTypeRef   DKCreate( DKTypeRef _class );
+DKTypeRef   DKAlloc( DKTypeRef _class );
+DKTypeRef   DKInit( DKTypeRef ref );
+
+#define     DKCreate( _class )  DKInit( DKAlloc( _class ) )
 
 DKTypeRef   DKGetClass( DKTypeRef ref );
 int         DKIsMemberOfClass( DKTypeRef ref, DKTypeRef _class );

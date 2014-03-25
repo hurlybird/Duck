@@ -32,9 +32,8 @@ struct DKBinaryTree
 
 
 
-static DKTypeRef    DKBinaryTreeAllocate( void );
-static DKTypeRef    DKMutableBinaryTreeAllocate( void );
 static DKTypeRef    DKBinaryTreeInitialize( DKTypeRef ref );
+static DKTypeRef    DKMutableBinaryTreeInitialize( DKTypeRef ref );
 static void         DKBinaryTreeFinalize( DKTypeRef ref );
 
 
@@ -47,11 +46,10 @@ DKTypeRef DKBinaryTreeClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass(), sizeof(struct DKBinaryTree) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKBinaryTreeAllocate;
         lifeCycle->initialize = DKBinaryTreeInitialize;
         lifeCycle->finalize = DKBinaryTreeFinalize;
 
@@ -92,12 +90,11 @@ DKTypeRef DKMutableBinaryTreeClass( void )
 
     if( !SharedClassObject )
     {
-        SharedClassObject = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKBinaryTreeClass(), sizeof(struct DKBinaryTree) );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->allocate = DKMutableBinaryTreeAllocate;
-        lifeCycle->initialize = DKBinaryTreeInitialize;
+        lifeCycle->initialize = DKMutableBinaryTreeInitialize;
         lifeCycle->finalize = DKBinaryTreeFinalize;
 
         DKInstallInterface( SharedClassObject, lifeCycle );
@@ -129,24 +126,6 @@ DKTypeRef DKMutableBinaryTreeClass( void )
 
 
 ///
-//  DKBinaryTreeAllocate()
-//
-static DKTypeRef DKBinaryTreeAllocate( void )
-{
-    return DKAllocObject( DKBinaryTreeClass(), sizeof(struct DKBinaryTree), 0 );
-}
-
-
-///
-//  DKMutableBinaryTreeAllocate()
-//
-static DKTypeRef DKMutableBinaryTreeAllocate( void )
-{
-    return DKAllocObject( DKMutableBinaryTreeClass(), sizeof(struct DKBinaryTree), DKObjectIsMutable );
-}
-
-
-///
 //  DKBinaryTreeInitialize()
 //
 static DKTypeRef DKBinaryTreeInitialize( DKTypeRef ref )
@@ -161,6 +140,22 @@ static DKTypeRef DKBinaryTreeInitialize( DKTypeRef ref )
 
         tree->root = NULL;
         tree->count = 0;
+    }
+    
+    return ref;
+}
+
+
+///
+//  DKMutableBinaryTreeInitialize()
+//
+static DKTypeRef DKMutableBinaryTreeInitialize( DKTypeRef ref )
+{
+    ref = DKBinaryTreeInitialize( ref );
+    
+    if( ref )
+    {
+        DKSetObjectAttribute( ref, DKObjectIsMutable, 1 );
     }
     
     return ref;

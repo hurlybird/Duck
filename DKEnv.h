@@ -98,12 +98,13 @@ int    _DKFatalError( const char * format, ... );
 
 
 // Memory Allocation =====================================================================
-void   DKSetAllocCallback( void * (*callback)( size_t size ) );
-void   DKSetFreeCallback( void (*callback)( void * ptr ) );
+typedef void * (*dk_malloc_callback)( size_t size );
+typedef void (*dk_free_callback)( void * ptr );
 
-void * DKAlloc( size_t size );
-void * DKAllocAndZero( size_t size );
-void   DKFree( void * ptr );
+void   DKSetExternalAllocator( dk_malloc_callback _malloc, dk_free_callback _free );
+
+void * dk_malloc( size_t size );
+void   dk_free( void * ptr );
 
 
 
