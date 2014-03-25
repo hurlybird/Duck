@@ -54,11 +54,11 @@ static void ReplaceObjectsWithList( struct DKLinkedList * list, DKRange range, D
 //
 DKTypeRef DKLinkedListClass( void )
 {
-    static DKTypeRef linkedListClass = NULL;
+    static DKTypeRef SharedClassObject = NULL;
 
-    if( !linkedListClass )
+    if( !SharedClassObject )
     {
-        linkedListClass = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -66,7 +66,7 @@ DKTypeRef DKLinkedListClass( void )
         lifeCycle->initialize = DKLinkedListInitialize;
         lifeCycle->finalize = DKLinkedListFinalize;
 
-        DKInstallInterface( linkedListClass, lifeCycle );
+        DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
         // Copying
@@ -74,7 +74,7 @@ DKTypeRef DKLinkedListClass( void )
         copying->copy = DKRetain;
         copying->mutableCopy = DKLinkedListCreateMutableCopy;
         
-        DKInstallInterface( linkedListClass, copying );
+        DKInstallInterface( SharedClassObject, copying );
         DKRelease( copying );
 
         // List
@@ -86,11 +86,11 @@ DKTypeRef DKLinkedListClass( void )
         list->sort = DKLinkedListSort;
         list->shuffle = DKLinkedListShuffle;
 
-        DKInstallInterface( linkedListClass, list );
+        DKInstallInterface( SharedClassObject, list );
         DKRelease( list );
     }
     
-    return linkedListClass;
+    return SharedClassObject;
 }
 
 

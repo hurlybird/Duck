@@ -43,11 +43,11 @@ static void         DKBinaryTreeFinalize( DKTypeRef ref );
 //
 DKTypeRef DKBinaryTreeClass( void )
 {
-    static DKTypeRef binaryTreeClass = NULL;
+    static DKTypeRef SharedClassObject = NULL;
 
-    if( !binaryTreeClass )
+    if( !SharedClassObject )
     {
-        binaryTreeClass = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -55,7 +55,7 @@ DKTypeRef DKBinaryTreeClass( void )
         lifeCycle->initialize = DKBinaryTreeInitialize;
         lifeCycle->finalize = DKBinaryTreeFinalize;
 
-        DKInstallInterface( binaryTreeClass, lifeCycle );
+        DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
         // Copying
@@ -63,7 +63,7 @@ DKTypeRef DKBinaryTreeClass( void )
         copying->copy = DKRetain;
         copying->mutableCopy = DKBinaryTreeCreateMutableCopy;
         
-        DKInstallInterface( binaryTreeClass, copying );
+        DKInstallInterface( SharedClassObject, copying );
         DKRelease( copying );
         
         // Dictionary
@@ -75,11 +75,11 @@ DKTypeRef DKBinaryTreeClass( void )
         dictionary->removeAllObjects = DKBinaryTreeRemoveAllObjects;
         dictionary->applyFunction = DKBinaryTreeApplyFunction;
 
-        DKInstallInterface( binaryTreeClass, dictionary );
+        DKInstallInterface( SharedClassObject, dictionary );
         DKRelease( dictionary );
     }
     
-    return binaryTreeClass;
+    return SharedClassObject;
 }
 
 
@@ -88,11 +88,11 @@ DKTypeRef DKBinaryTreeClass( void )
 //
 DKTypeRef DKMutableBinaryTreeClass( void )
 {
-    static DKTypeRef mutableBinaryTreeClass = NULL;
+    static DKTypeRef SharedClassObject = NULL;
 
-    if( !mutableBinaryTreeClass )
+    if( !SharedClassObject )
     {
-        mutableBinaryTreeClass = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -100,7 +100,7 @@ DKTypeRef DKMutableBinaryTreeClass( void )
         lifeCycle->initialize = DKBinaryTreeInitialize;
         lifeCycle->finalize = DKBinaryTreeFinalize;
 
-        DKInstallInterface( mutableBinaryTreeClass, lifeCycle );
+        DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
         // Copying
@@ -108,7 +108,7 @@ DKTypeRef DKMutableBinaryTreeClass( void )
         copying->copy = DKBinaryTreeCreateMutableCopy;
         copying->mutableCopy = DKBinaryTreeCreateMutableCopy;
         
-        DKInstallInterface( mutableBinaryTreeClass, copying );
+        DKInstallInterface( SharedClassObject, copying );
         DKRelease( copying );
 
         // Dictionary
@@ -120,11 +120,11 @@ DKTypeRef DKMutableBinaryTreeClass( void )
         dictionary->removeAllObjects = DKBinaryTreeRemoveAllObjects;
         dictionary->applyFunction = DKBinaryTreeApplyFunction;
 
-        DKInstallInterface( mutableBinaryTreeClass, dictionary );
+        DKInstallInterface( SharedClassObject, dictionary );
         DKRelease( dictionary );
     }
     
-    return mutableBinaryTreeClass;
+    return SharedClassObject;
 }
 
 

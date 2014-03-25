@@ -28,11 +28,11 @@ static void         DKArrayFinalize( DKTypeRef ref );
 //
 DKTypeRef DKArrayClass( void )
 {
-    static DKTypeRef arrayClass = NULL;
+    static DKTypeRef SharedClassObject = NULL;
 
-    if( !arrayClass )
+    if( !SharedClassObject )
     {
-        arrayClass = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -40,7 +40,7 @@ DKTypeRef DKArrayClass( void )
         lifeCycle->initialize = DKArrayInitialize;
         lifeCycle->finalize = DKArrayFinalize;
 
-        DKInstallInterface( arrayClass, lifeCycle );
+        DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
         // Copying
@@ -48,7 +48,7 @@ DKTypeRef DKArrayClass( void )
         copying->copy = DKRetain;
         copying->mutableCopy = DKArrayCreateMutableCopy;
         
-        DKInstallInterface( arrayClass, copying );
+        DKInstallInterface( SharedClassObject, copying );
         DKRelease( copying );
 
         // List
@@ -60,11 +60,11 @@ DKTypeRef DKArrayClass( void )
         list->sort = DKArraySort;
         list->shuffle = DKArrayShuffle;
 
-        DKInstallInterface( arrayClass, list );
+        DKInstallInterface( SharedClassObject, list );
         DKRelease( list );
     }
     
-    return arrayClass;
+    return SharedClassObject;
 }
 
 
@@ -73,11 +73,11 @@ DKTypeRef DKArrayClass( void )
 //
 DKTypeRef DKMutableArrayClass( void )
 {
-    static DKTypeRef mutableArrayClass = NULL;
+    static DKTypeRef SharedClassObject = NULL;
 
-    if( !mutableArrayClass )
+    if( !SharedClassObject )
     {
-        mutableArrayClass = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -85,7 +85,7 @@ DKTypeRef DKMutableArrayClass( void )
         lifeCycle->initialize = DKArrayInitialize;
         lifeCycle->finalize = DKArrayFinalize;
 
-        DKInstallInterface( mutableArrayClass, lifeCycle );
+        DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
         // Copying
@@ -93,7 +93,7 @@ DKTypeRef DKMutableArrayClass( void )
         copying->copy = DKArrayCreateMutableCopy;
         copying->mutableCopy = DKArrayCreateMutableCopy;
         
-        DKInstallInterface( mutableArrayClass, copying );
+        DKInstallInterface( SharedClassObject, copying );
         DKRelease( copying );
 
         // List
@@ -105,11 +105,11 @@ DKTypeRef DKMutableArrayClass( void )
         list->sort = DKArraySort;
         list->shuffle = DKArrayShuffle;
 
-        DKInstallInterface( mutableArrayClass, list );
+        DKInstallInterface( SharedClassObject, list );
         DKRelease( list );
     }
     
-    return mutableArrayClass;
+    return SharedClassObject;
 }
 
 

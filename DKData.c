@@ -36,11 +36,11 @@ static DKHashIndex  DKDataHash( DKTypeRef ref );
 //
 DKTypeRef DKDataClass( void )
 {
-    static DKTypeRef dataClass = NULL;
+    static DKTypeRef SharedClassObject = NULL;
 
-    if( !dataClass )
+    if( !SharedClassObject )
     {
-        dataClass = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -48,7 +48,7 @@ DKTypeRef DKDataClass( void )
         lifeCycle->initialize = DKDataInitialize;
         lifeCycle->finalize = DKDataFinalize;
 
-        DKInstallInterface( dataClass, lifeCycle );
+        DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
         // Copying
@@ -56,7 +56,7 @@ DKTypeRef DKDataClass( void )
         copying->copy = DKRetain;
         copying->mutableCopy = DKDataCreateMutableCopy;
         
-        DKInstallInterface( dataClass, copying );
+        DKInstallInterface( SharedClassObject, copying );
         DKRelease( copying );
 
         // Stream
@@ -66,11 +66,11 @@ DKTypeRef DKDataClass( void )
         stream->read = DKDataRead;
         stream->write = DKDataWrite;
         
-        DKInstallInterface( dataClass, stream );
+        DKInstallInterface( SharedClassObject, stream );
         DKRelease( stream );
     }
     
-    return dataClass;
+    return SharedClassObject;
 }
 
 
@@ -79,11 +79,11 @@ DKTypeRef DKDataClass( void )
 //
 DKTypeRef DKMutableDataClass( void )
 {
-    static DKTypeRef mutableDataClass = NULL;
+    static DKTypeRef SharedClassObject = NULL;
 
-    if( !mutableDataClass )
+    if( !SharedClassObject )
     {
-        mutableDataClass = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -91,7 +91,7 @@ DKTypeRef DKMutableDataClass( void )
         lifeCycle->initialize = DKDataInitialize;
         lifeCycle->finalize = DKDataFinalize;
 
-        DKInstallInterface( mutableDataClass, lifeCycle );
+        DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
         // Copying
@@ -99,7 +99,7 @@ DKTypeRef DKMutableDataClass( void )
         copying->copy = DKDataCreateMutableCopy;
         copying->mutableCopy = DKDataCreateMutableCopy;
         
-        DKInstallInterface( mutableDataClass, copying );
+        DKInstallInterface( SharedClassObject, copying );
         DKRelease( copying );
         
         // Stream
@@ -109,11 +109,11 @@ DKTypeRef DKMutableDataClass( void )
         stream->read = DKDataRead;
         stream->write = DKDataWrite;
         
-        DKInstallInterface( mutableDataClass, stream );
+        DKInstallInterface( SharedClassObject, stream );
         DKRelease( stream );
     }
     
-    return mutableDataClass;
+    return SharedClassObject;
 }
 
 

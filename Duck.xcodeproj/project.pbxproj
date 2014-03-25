@@ -16,6 +16,7 @@
 		0261EB8618DD83C000974404 /* DKData.c in Sources */ = {isa = PBXBuildFile; fileRef = 024EE3ED148E0BCD008FDADC /* DKData.c */; };
 		0261EB8B18DE3D8C00974404 /* DKList.c in Sources */ = {isa = PBXBuildFile; fileRef = 0278EA4A18CD92AC0028A755 /* DKList.c */; };
 		0261EB8C18DE419A00974404 /* DKLinkedList.c in Sources */ = {isa = PBXBuildFile; fileRef = 024EE3FB148E42D6008FDADC /* DKLinkedList.c */; };
+		026E1EB518E0FC730079B2F9 /* DKHashTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 026E1EB418E0FC730079B2F9 /* DKHashTable.c */; };
 		0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */ = {isa = PBXBuildFile; fileRef = 0274E6F914901BCF00E6F451 /* DKEnv.h */; };
 		0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */ = {isa = PBXBuildFile; fileRef = 0274E6FB14901BDA00E6F451 /* DKEnv.c */; };
 		0274E6FE14901EFE00E6F451 /* scl_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0274E6FD14901EFE00E6F451 /* scl_buffer.h */; };
@@ -70,6 +71,8 @@
 		024EE3F5148E3571008FDADC /* scl_array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scl_array.c; sourceTree = "<group>"; };
 		024EE3F9148E42C9008FDADC /* DKLinkedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKLinkedList.h; sourceTree = "<group>"; };
 		024EE3FB148E42D6008FDADC /* DKLinkedList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKLinkedList.c; sourceTree = "<group>"; };
+		026E1EB418E0FC730079B2F9 /* DKHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKHashTable.c; sourceTree = "<group>"; };
+		026E1EB618E0FC810079B2F9 /* DKHashTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKHashTable.h; sourceTree = "<group>"; };
 		0274E6F914901BCF00E6F451 /* DKEnv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKEnv.h; sourceTree = "<group>"; };
 		0274E6FB14901BDA00E6F451 /* DKEnv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnv.c; sourceTree = "<group>"; };
 		0274E6FD14901EFE00E6F451 /* scl_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scl_buffer.h; sourceTree = "<group>"; };
@@ -153,6 +156,8 @@
 				02C72E7418DEDCB6009CD44D /* DKDictionary.c */,
 				024918C718C136700046AA8B /* DKBinaryTree.h */,
 				024918C918C1368B0046AA8B /* DKBinaryTree.c */,
+				026E1EB618E0FC810079B2F9 /* DKHashTable.h */,
+				026E1EB418E0FC730079B2F9 /* DKHashTable.c */,
 				027E976F148E830200AC8406 /* scl_value.h */,
 				027E9771148E84A500AC8406 /* scl_value.c */,
 				0274E6FD14901EFE00E6F451 /* scl_buffer.h */,
@@ -273,6 +278,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				026E1EB518E0FC730079B2F9 /* DKHashTable.c in Sources */,
 				0283F5BF18D2D93E003B1734 /* DKCopying.c in Sources */,
 				0261EB8C18DE419A00974404 /* DKLinkedList.c in Sources */,
 				0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */,

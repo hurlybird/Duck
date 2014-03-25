@@ -27,11 +27,11 @@ static void DKFileFinalize( DKTypeRef ref );
 //
 DKTypeRef DKFileClass( void )
 {
-    DKTypeRef fileClass = NULL;
+    DKTypeRef SharedClassObject = NULL;
     
-    if( !fileClass )
+    if( !SharedClassObject )
     {
-        fileClass = DKCreateClass( DKObjectClass() );
+        SharedClassObject = DKCreateClass( DKObjectClass() );
         
         // LifeCycle
         struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -39,7 +39,7 @@ DKTypeRef DKFileClass( void )
         lifeCycle->initialize = DKFileInitialize;
         lifeCycle->finalize = DKFileFinalize;
 
-        DKInstallInterface( fileClass, lifeCycle );
+        DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
         // Stream
@@ -49,11 +49,11 @@ DKTypeRef DKFileClass( void )
         stream->read = DKFileRead;
         stream->write = DKFileWrite;
         
-        DKInstallInterface( fileClass, stream );
+        DKInstallInterface( SharedClassObject, stream );
         DKRelease( stream );
     }
     
-    return fileClass;
+    return SharedClassObject;
 }
 
 
