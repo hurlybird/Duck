@@ -23,7 +23,7 @@ static DKTypeRef    DKDataInitialize( DKTypeRef ref );
 static void         DKDataFinalize( DKTypeRef ref );
 static int          DKDataEqual( DKTypeRef a, DKTypeRef b );
 static int          DKDataCompare( DKTypeRef a, DKTypeRef b );
-static DKHashIndex  DKDataHash( DKTypeRef ref );
+static DKHashCode   DKDataHash( DKTypeRef ref );
 
 
 
@@ -169,7 +169,7 @@ static int DKDataCompare( DKTypeRef a, DKTypeRef b )
 ///
 //  DKDataHash()
 //
-static DKHashIndex DKDataHash( DKTypeRef ref )
+static DKHashCode DKDataHash( DKTypeRef ref )
 {
     const struct DKData * data = ref;
     

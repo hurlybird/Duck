@@ -28,7 +28,7 @@ typedef int  (*DKCompareFunction)( DKTypeRef a, DKTypeRef b );
 
 // Index Types
 typedef intptr_t DKIndex;
-typedef uintptr_t DKHashIndex;
+typedef uintptr_t DKHashCode;
 
 
 // Ranges
@@ -113,8 +113,8 @@ void   dk_free( void * ptr );
 
 
 // Other Utilities =======================================================================
-DKHashIndex DKStrHash( const char * str );
-DKHashIndex DKMemHash( const void * buffer, size_t buffer_size );
+DKHashCode DKStrHash( const char * str );
+DKHashCode DKMemHash( const void * buffer, size_t buffer_size );
 
 void DKShuffle( uintptr_t array[], DKIndex count );
 

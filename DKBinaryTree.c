@@ -16,7 +16,7 @@ struct DKBinaryTreeNode
     struct DKBinaryTreeNode * right;
     int level;
     
-    DKHashIndex hash;
+    DKHashCode hash;
     DKTypeRef key;
     DKTypeRef object;
 };
@@ -256,7 +256,7 @@ static void Split( struct DKBinaryTreeNode ** node )
 ///
 //  Compare()
 //
-static int Compare( struct DKBinaryTreeNode * node, DKHashIndex hash, DKTypeRef key )
+static int Compare( struct DKBinaryTreeNode * node, DKHashCode hash, DKTypeRef key )
 {
     int cmp;
     
@@ -277,7 +277,7 @@ static int Compare( struct DKBinaryTreeNode * node, DKHashIndex hash, DKTypeRef 
 //  Insert()
 //
 static void Insert( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
-    DKHashIndex hash, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
+    DKHashCode hash, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
 {
     if( *node == NULL )
     {
@@ -319,7 +319,7 @@ static void Insert( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
 ///
 //  FindNode()
 //
-static struct DKBinaryTreeNode * FindNode( struct DKBinaryTree * tree, DKHashIndex hash, DKTypeRef key )
+static struct DKBinaryTreeNode * FindNode( struct DKBinaryTree * tree, DKHashCode hash, DKTypeRef key )
 {
     struct DKBinaryTreeNode * node = tree->root;
 
@@ -346,7 +346,7 @@ static struct DKBinaryTreeNode * FindNode( struct DKBinaryTree * tree, DKHashInd
 //
 static void Swap( struct DKBinaryTreeNode * node1, struct DKBinaryTreeNode * node2 )
 {
-    DKHashIndex tmp_hash;
+    DKHashCode tmp_hash;
     DKTypeRef tmp_ref;
     
     tmp_hash = node1->hash;
@@ -366,7 +366,7 @@ static void Swap( struct DKBinaryTreeNode * node1, struct DKBinaryTreeNode * nod
 ///
 //  Erase()
 //
-static void Erase( struct DKBinaryTree * tree, DKHashIndex hash, DKTypeRef key, struct DKBinaryTreeNode ** node, struct DKBinaryTreeNode ** leaf_node, struct DKBinaryTreeNode ** erase_node )
+static void Erase( struct DKBinaryTree * tree, DKHashCode hash, DKTypeRef key, struct DKBinaryTreeNode ** node, struct DKBinaryTreeNode ** leaf_node, struct DKBinaryTreeNode ** erase_node )
 {
     if( node )
     {
@@ -430,7 +430,7 @@ DKDictionaryRef DKBinaryTreeCreate( DKTypeRef keys[], DKTypeRef objects[], DKInd
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        DKHashIndex hash = DKHash( keys[i] );
+        DKHashCode hash = DKHash( keys[i] );
         Insert( tree, &tree->root, hash, keys[i], objects[i], DKDictionaryInsertAlways );
     }
     
@@ -452,7 +452,7 @@ DKDictionaryRef DKBinaryTreeCreateWithKeysAndObjects( DKTypeRef firstKey, ... )
     {
         DKTypeRef object = va_arg( arg_ptr, DKTypeRef );
 
-        DKHashIndex hash = DKHash( key );
+        DKHashCode hash = DKHash( key );
         Insert( tree, &tree->root, hash, key, object, DKDictionaryInsertAlways );
         
         key = va_arg( arg_ptr, DKTypeRef );
@@ -523,7 +523,7 @@ DKTypeRef DKBinaryTreeGetObject( DKDictionaryRef ref, DKTypeRef key )
     if( ref )
     {
         struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
-        DKHashIndex hash = DKHash( key );
+        DKHashCode hash = DKHash( key );
     
         struct DKBinaryTreeNode * node = FindNode( tree, hash, key );
     
@@ -590,7 +590,7 @@ void DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKType
     if( ref )
     {
         struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
-        DKHashIndex hash = DKHash( key );
+        DKHashCode hash = DKHash( key );
 
         Insert( tree, &tree->root, hash, key, object, policy );
     }
@@ -610,7 +610,7 @@ void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
     if( ref )
     {
         struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
-        DKHashIndex hash = DKHash( key );
+        DKHashCode hash = DKHash( key );
 
         struct DKBinaryTreeNode * last_node = NULL;
         struct DKBinaryTreeNode * erase_node = NULL;

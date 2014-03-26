@@ -183,9 +183,9 @@ void dk_free( void * ptr )
 ///
 //  DKStrHash()
 //
-DKHashIndex DKStrHash( const char * str )
+DKHashCode DKStrHash( const char * str )
 {
-    DKHashIndex hash = 0;
+    DKHashCode hash = 0;
     
     const char * c = str;
     unsigned int i;
@@ -200,9 +200,9 @@ DKHashIndex DKStrHash( const char * str )
 ///
 //  DKMemHash()
 //
-DKHashIndex DKMemHash( const void * buffer, size_t buffer_size )
+DKHashCode DKMemHash( const void * buffer, size_t buffer_size )
 {
-    DKHashIndex hash = 0;
+    DKHashCode hash = 0;
 
     const char * c = (const char *)buffer;
     size_t i;

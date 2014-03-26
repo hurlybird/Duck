@@ -236,14 +236,14 @@ struct DKComparison
     
     int         (*equal)( DKTypeRef ref, DKTypeRef other );
     int         (*compare)( DKTypeRef ref, DKTypeRef other );
-    DKHashIndex (*hash)( DKTypeRef ref );
+    DKHashCode  (*hash)( DKTypeRef ref );
 };
 
 typedef const struct DKComparison DKComparison;
 
 int         DKDefaultEqual( DKTypeRef ref, DKTypeRef other );
 int         DKDefaultCompare( DKTypeRef ref, DKTypeRef other );
-DKHashIndex DKDefaultHash( DKTypeRef ptr );
+DKHashCode  DKDefaultHash( DKTypeRef ptr );
 
 DKComparison * DKDefaultComparison( void );
 
@@ -294,7 +294,7 @@ void        DKRelease( DKTypeRef ref );
 
 int         DKEqual( DKTypeRef a, DKTypeRef b );
 int         DKCompare( DKTypeRef a, DKTypeRef b );
-DKHashIndex DKHash( DKTypeRef ref );
+DKHashCode  DKHash( DKTypeRef ref );
 
 
 

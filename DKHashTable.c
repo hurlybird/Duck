@@ -12,7 +12,7 @@
 
 struct DKHashTableRow
 {
-    DKHashIndex hash;
+    DKHashCode  hash;
     DKTypeRef   key;
     DKTypeRef   object;
 };
@@ -146,7 +146,7 @@ static void DKHashTableFinalize( DKTypeRef ref )
 ///
 //  Find()
 //
-static struct DKHashTableRow * Find( struct DKHashTable * hashTable, DKHashIndex hash, DKTypeRef key )
+static struct DKHashTableRow * Find( struct DKHashTable * hashTable, DKHashCode hash, DKTypeRef key )
 {
     return NULL;
 }
@@ -155,7 +155,7 @@ static struct DKHashTableRow * Find( struct DKHashTable * hashTable, DKHashIndex
 ///
 //  Insert()
 //
-static void Insert( struct DKHashTable * hashTable, DKHashIndex hash, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
+static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
 {
 }
 
@@ -163,7 +163,7 @@ static void Insert( struct DKHashTable * hashTable, DKHashIndex hash, DKTypeRef 
 ///
 //  Erase()
 //
-static void Erase( struct DKHashTable * hashTable, DKHashIndex hash, DKTypeRef key )
+static void Erase( struct DKHashTable * hashTable, DKHashCode hash, DKTypeRef key )
 {
 }
 
@@ -183,7 +183,7 @@ DKDictionaryRef DKHashTableCreate( DKTypeRef keys[], DKTypeRef objects[], DKInde
     {
         for( DKIndex i = 0; i < count; ++i )
         {
-            DKHashIndex hash = DKHash( keys[i] );
+            DKHashCode hash = DKHash( keys[i] );
             Insert( hashTable, hash, keys[i], objects[i], DKDictionaryInsertAlways );
         }
     }
@@ -208,7 +208,7 @@ DKDictionaryRef DKHashTableCreateWithKeysAndObjects( DKTypeRef firstKey, ... )
         {
             DKTypeRef object = va_arg( arg_ptr, DKTypeRef );
 
-            DKHashIndex hash = DKHash( key );
+            DKHashCode hash = DKHash( key );
             Insert( hashTable, hash, key, object, DKDictionaryInsertAlways );
             
             key = va_arg( arg_ptr, DKTypeRef );
@@ -281,7 +281,7 @@ DKTypeRef DKHashTableGetObject( DKDictionaryRef ref, DKTypeRef key )
     if( ref )
     {
         struct DKHashTable * hashTable = (struct DKHashTable *)ref;
-        DKHashIndex hash = DKHash( key );
+        DKHashCode hash = DKHash( key );
     
         struct DKHashTableRow * row = Find( hashTable, hash, key );
     
@@ -315,7 +315,7 @@ void DKHashTableInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeR
     if( ref )
     {
         struct DKHashTable * hashTable = (struct DKHashTable *)ref;
-        DKHashIndex hash = DKHash( key );
+        DKHashCode hash = DKHash( key );
 
         Insert( hashTable, hash, key, object, policy );
     }
@@ -335,7 +335,7 @@ void DKHashTableRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
     if( ref )
     {
         struct DKHashTable * hashTable = (struct DKHashTable *)ref;
-        DKHashIndex hash = DKHash( key );
+        DKHashCode hash = DKHash( key );
 
         Erase( hashTable, hash, key );
     }

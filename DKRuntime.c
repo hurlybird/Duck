@@ -184,10 +184,10 @@ int DKDefaultCompare( DKTypeRef ref, DKTypeRef other )
     return 0;
 }
 
-DKHashIndex DKDefaultHash( DKTypeRef ref )
+DKHashCode DKDefaultHash( DKTypeRef ref )
 {
-    DKAssert( sizeof(DKHashIndex) == sizeof(DKTypeRef) );
-    return (DKHashIndex)ref;
+    DKAssert( sizeof(DKHashCode) == sizeof(DKTypeRef) );
+    return ((DKHashCode)ref) >> 2;
 }
 
 DKComparison * DKDefaultComparison( void )
@@ -207,7 +207,7 @@ static void         DKStaticObjectRelease( DKTypeRef ref );
 
 static int          DKInterfaceEqual( DKTypeRef ref, DKTypeRef other );
 static int          DKInterfaceCompare( DKTypeRef ref, DKTypeRef other );
-static DKHashIndex  DKInterfaceHash( DKTypeRef ref );
+static DKHashCode  DKInterfaceHash( DKTypeRef ref );
 
 
 static DKLifeCycle __DKClassLifeCycle__ =
@@ -271,7 +271,7 @@ static int DKInterfaceCompare( DKTypeRef ref, DKTypeRef other )
     return DKDefaultCompare( thisInterface->sel, otherInterface->sel );
 }
 
-static DKHashIndex DKInterfaceHash( DKTypeRef ref )
+static DKHashCode DKInterfaceHash( DKTypeRef ref )
 {
     const DKInterface * interface = ref;
     
@@ -871,7 +871,7 @@ int DKCompare( DKTypeRef a, DKTypeRef b )
 ///
 //  DKHash()
 //
-DKHashIndex DKHash( DKTypeRef ref )
+DKHashCode DKHash( DKTypeRef ref )
 {
     if( ref )
     {
