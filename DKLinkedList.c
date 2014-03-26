@@ -432,14 +432,20 @@ static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKTypeRef
 //
 static void ReplaceObjectsWithList( struct DKLinkedList * list, DKRange range, DKListRef srcList )
 {
+    if( DKRangeCheck( range, list->count ) )
+    {
+        DKError( "DKLinkedListReplaceObjectsWithList: Specified range is outside the bounds of the list." );
+        return;
+    }
+
     DKList * srcListInterface = DKLookupInterface( srcList, DKSelector(List) );
     
     if( !srcListInterface )
     {
-        DKError( "DKLinkedListReplaceObjectsWithListInternal: Source object is not a list." );
+        DKError( "DKLinkedListReplaceObjectsWithList: Source object is not a list." );
         return;
     }
-
+    
     RemoveObjects( list, range );
     
     DKIndex count = srcListInterface->getCount( srcList );

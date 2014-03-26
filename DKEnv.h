@@ -42,6 +42,9 @@ typedef struct
 #define DKRangeMake( loc, len )     (const DKRange){ loc, len }
 #define DKRangeEnd( range )         (((range).location) + ((range).length))
 
+// True if the range is outside 0..len OR is an empty sequence at len + 1
+#define DKRangeCheck( range, len )  (((range).location < 0) || ((range).length < 0) || (DKRangeEnd(range) > len))
+
 enum
 {
     DKNotFound = -1,

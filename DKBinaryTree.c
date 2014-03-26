@@ -355,11 +355,11 @@ static void Swap( struct DKBinaryTreeNode * node1, struct DKBinaryTreeNode * nod
     
     tmp_ref = node1->key;
     node1->key = node2->key;
-    node2->key = tmp_hash;
+    node2->key = tmp_ref;
 
     tmp_ref = node1->object;
     node1->object = node2->object;
-    node2->object = tmp_hash;
+    node2->object = tmp_ref;
 }
 
 

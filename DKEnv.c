@@ -82,22 +82,20 @@ int _DKWarning( const char * format, ... )
 //
 int _DKError( const char * format, ... )
 {
-    int result = 0;
-
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
     if( ErrorCallback )
-        result = ErrorCallback( format, arg_ptr );
+        ErrorCallback( format, arg_ptr );
     
     else
-        result = vfprintf( stderr, format, arg_ptr );
+        vfprintf( stderr, format, arg_ptr );
 
     va_end( arg_ptr );
 
     assert( 0 );
 
-    return result;
+    return 0;
 }
 
 
@@ -106,19 +104,17 @@ int _DKError( const char * format, ... )
 //
 int _DKFatalError( const char * format, ... )
 {
-    int result = 0;
-
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
     if( FatalErrorCallback )
     {
-        result = FatalErrorCallback( format, arg_ptr );
+        FatalErrorCallback( format, arg_ptr );
     }
     
     else
     {
-        result = vfprintf( stderr, format, arg_ptr );
+        vfprintf( stderr, format, arg_ptr );
     }
     
     va_end( arg_ptr );
@@ -126,7 +122,7 @@ int _DKFatalError( const char * format, ... )
     assert( 0 );
     abort();
     
-    return result;
+    return 0;
 }
 
 

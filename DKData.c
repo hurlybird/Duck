@@ -194,7 +194,7 @@ static void DKDataSetCursor( DKDataRef ref, DKIndex cursor )
         data->cursor = data->byteArray.length;
     
     else
-        data = cursor;
+        data->cursor = cursor;
 }
 
 
