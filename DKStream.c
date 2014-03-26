@@ -18,7 +18,7 @@ int DKSeek( DKTypeRef ref, DKIndex offset, int origin )
 {
     if( ref )
     {
-        DKStream * stream = DKLookupInterface( ref, DKSelector(Stream) );
+        DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
         return stream->seek( ref, offset, origin );
     }
     
@@ -33,7 +33,7 @@ DKIndex DKTell( DKTypeRef ref )
 {
     if( ref )
     {
-        DKStream * stream = DKLookupInterface( ref, DKSelector(Stream) );
+        DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
         return stream->tell( ref );
     }
     
@@ -48,7 +48,7 @@ DKIndex DKRead( DKTypeRef ref, void * data, DKIndex size, DKIndex count )
 {
     if( ref )
     {
-        DKStream * stream = DKLookupInterface( ref, DKSelector(Stream) );
+        DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
         return stream->read( ref, data, size, count );
     }
     
@@ -63,7 +63,7 @@ DKIndex DKWrite( DKTypeRef ref, const void * data, DKIndex size, DKIndex count )
 {
     if( ref )
     {
-        DKStream * stream = DKLookupInterface( ref, DKSelector(Stream) );
+        DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
         return stream->write( ref, data, size, count );
     }
     

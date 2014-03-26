@@ -91,7 +91,7 @@ void TestDKObject( void )
     VERIFY( !DKIsMemberOfClass( object, DKObjectClass() ) );
     
     // DKQueryInterface should return the same object when called on the class or an instance of the class
-    VERIFY( DKLookupInterface( TestClass, DKSelector(LifeCycle) ) == DKLookupInterface( object, DKSelector(LifeCycle) ) );
+    VERIFY( DKGetInterface( TestClass, DKSelector(LifeCycle) ) == DKGetInterface( object, DKSelector(LifeCycle) ) );
 
     // Try calling our custom methods
     VERIFY( DKCallMethod( object, Square, 2 ) == 4 );

@@ -44,7 +44,7 @@ DKIndex DKDictionaryGetCount( DKDictionaryRef ref )
 {
     if( ref )
     {
-        DKDictionary * dict = DKLookupInterface( ref, DKSelector(Dictionary) );
+        DKDictionary * dict = DKGetInterface( ref, DKSelector(Dictionary) );
         return dict->getCount( ref );
     }
     
@@ -59,7 +59,7 @@ void DKDictionarySetObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef
 {
     if( ref )
     {
-        DKDictionary * dict = DKLookupInterface( ref, DKSelector(Dictionary) );
+        DKDictionary * dict = DKGetInterface( ref, DKSelector(Dictionary) );
         dict->insertObject( ref, key, object, DKDictionaryInsertAlways );
     }
 }
@@ -72,7 +72,7 @@ void DKDictionaryAddObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef
 {
     if( ref )
     {
-        DKDictionary * dict = DKLookupInterface( ref, DKSelector(Dictionary) );
+        DKDictionary * dict = DKGetInterface( ref, DKSelector(Dictionary) );
         dict->insertObject( ref, key, object, DKDictionaryInsertIfNotFound );
     }
 }
@@ -85,7 +85,7 @@ void DKDictionaryReplaceObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTyp
 {
     if( ref )
     {
-        DKDictionary * dict = DKLookupInterface( ref, DKSelector(Dictionary) );
+        DKDictionary * dict = DKGetInterface( ref, DKSelector(Dictionary) );
         dict->insertObject( ref, key, object, DKDictionaryInsertIfFound );
     }
 }
@@ -177,7 +177,7 @@ DKTypeRef DKDictionaryGetObject( DKDictionaryRef ref, DKTypeRef key )
 {
     if( ref )
     {
-        DKDictionary * dict = DKLookupInterface( ref, DKSelector(Dictionary) );
+        DKDictionary * dict = DKGetInterface( ref, DKSelector(Dictionary) );
         return dict->getObject( ref, key );
     }
     
@@ -192,7 +192,7 @@ void DKDictionaryRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
 {
     if( ref )
     {
-        DKDictionary * dict = DKLookupInterface( ref, DKSelector(Dictionary) );
+        DKDictionary * dict = DKGetInterface( ref, DKSelector(Dictionary) );
         return dict->removeObject( ref, key );
     }
 }
@@ -205,7 +205,7 @@ void DKDictionaryRemoveAllObjects( DKMutableDictionaryRef ref )
 {
     if( ref )
     {
-        DKDictionary * dict = DKLookupInterface( ref, DKSelector(Dictionary) );
+        DKDictionary * dict = DKGetInterface( ref, DKSelector(Dictionary) );
         return dict->removeAllObjects( ref );
     }
 }
@@ -218,7 +218,7 @@ int DKDictionaryApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction 
 {
     if( ref )
     {
-        DKDictionary * dict = DKLookupInterface( ref, DKSelector(Dictionary) );
+        DKDictionary * dict = DKGetInterface( ref, DKSelector(Dictionary) );
         return dict->applyFunction( ref, callback, context );
     }
     

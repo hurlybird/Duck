@@ -19,7 +19,7 @@ DKTypeRef DKCopy( DKTypeRef ref )
 {
     if( ref )
     {
-        DKCopying * copying = DKLookupInterface( ref, DKSelector( Copying ) );
+        DKCopying * copying = DKGetInterface( ref, DKSelector( Copying ) );
         return copying->copy( ref );
     }
 
@@ -34,7 +34,7 @@ DKTypeRef DKMutableCopy( DKTypeRef ref )
 {
     if( ref )
     {
-        DKCopying * copying = DKLookupInterface( ref, DKSelector( Copying ) );
+        DKCopying * copying = DKGetInterface( ref, DKSelector( Copying ) );
         return copying->mutableCopy( ref );
     }
 

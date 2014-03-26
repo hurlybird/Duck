@@ -438,7 +438,7 @@ static void ReplaceObjectsWithList( struct DKLinkedList * list, DKRange range, D
         return;
     }
 
-    DKList * srcListInterface = DKLookupInterface( srcList, DKSelector(List) );
+    DKList * srcListInterface = DKGetInterface( srcList, DKSelector(List) );
     
     if( !srcListInterface )
     {

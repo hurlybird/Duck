@@ -176,7 +176,7 @@ static void ReplaceObjects( struct DKArray * array, DKRange range, DKTypeRef obj
 //
 static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKTypeRef srcList )
 {
-    DKList * srcListInterface = DKLookupInterface( srcList, DKSelector(List) );
+    DKList * srcListInterface = DKGetInterface( srcList, DKSelector(List) );
     
     DKIndex srcCount = srcListInterface->getCount( srcList );
     

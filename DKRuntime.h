@@ -263,8 +263,11 @@ DKTypeRef   DKCreateInterface( DKSEL sel, size_t structSize );
 void        DKInstallInterface( DKTypeRef _class, DKTypeRef interface );
 void        DKInstallMethod( DKTypeRef _class, DKSEL sel, const void * imp );
 
-DKTypeRef   DKLookupInterface( DKTypeRef ref, DKSEL sel );
-DKTypeRef   DKLookupMethod( DKTypeRef ref, DKSEL sel );
+int         DKHasInterface( DKTypeRef ref, DKSEL sel );
+DKTypeRef   DKGetInterface( DKTypeRef ref, DKSEL sel );
+
+int         DKHasMethod( DKTypeRef ref, DKSEL sel );
+DKTypeRef   DKGetMethod( DKTypeRef ref, DKSEL sel );
 
 
 
@@ -322,7 +325,7 @@ DKHashCode  DKHash( DKTypeRef ref );
 //    implementation that produces an error.
 
 #define DKCallMethod( ref, method, ... ) \
-    ((DKMethod_ ## method)((const DKMethod *)DKLookupMethod( ref, &DKSelector_ ## method ))->imp)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
+    ((DKMethod_ ## method)((const DKMethod *)DKGetMethod( ref, &DKSelector_ ## method ))->imp)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
 
 
 
