@@ -174,7 +174,7 @@ static DKHashCode DKDataHash( DKTypeRef ref )
     const struct DKData * data = ref;
     
     if( data->byteArray.length > 0 )
-        return DKMemHash( data->byteArray.data, data->byteArray.length );
+        return dk_memhash( data->byteArray.data, data->byteArray.length );
     
     return 0;
 }

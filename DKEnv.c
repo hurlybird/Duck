@@ -185,9 +185,9 @@ void dk_free( void * ptr )
 // Other Utilities =======================================================================
 
 ///
-//  DKStrHash()
+//  dk_strhash()
 //
-DKHashCode DKStrHash( const char * str )
+DKHashCode dk_strhash( const char * str )
 {
     DKHashCode hash = 0;
     
@@ -202,9 +202,9 @@ DKHashCode DKStrHash( const char * str )
 
 
 ///
-//  DKMemHash()
+//  dk_memhash()
 //
-DKHashCode DKMemHash( const void * buffer, size_t buffer_size )
+DKHashCode dk_memhash( const void * buffer, size_t buffer_size )
 {
     DKHashCode hash = 0;
 
@@ -219,9 +219,9 @@ DKHashCode DKMemHash( const void * buffer, size_t buffer_size )
 
 
 ///
-//  DKShuffle()
+//  dk_shuffle()
 //
-void DKShuffle( uintptr_t array[], DKIndex count )
+void dk_shuffle( uintptr_t array[], DKIndex count )
 {
     if( count > 1 )
     {

@@ -179,10 +179,12 @@ void   dk_free( void * ptr );
 
 
 // Other Utilities =======================================================================
-DKHashCode DKStrHash( const char * str );
-DKHashCode DKMemHash( const void * buffer, size_t buffer_size );
+DKHashCode dk_strhash( const char * str );
+DKHashCode dk_memhash( const void * buffer, size_t buffer_size );
 
-void DKShuffle( uintptr_t array[], DKIndex count );
+double dk_time( void );
+
+void dk_shuffle( uintptr_t array[], DKIndex count );
 
 
 #endif // _DK_ENV_H_

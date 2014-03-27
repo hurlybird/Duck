@@ -665,7 +665,7 @@ void DKLinkedListShuffle( DKMutableListRef ref )
         DKTypeRef * buffer = dk_malloc( sizeof(DKTypeRef) * list->count );
         ListToBuffer( buffer, list );
 
-        DKShuffle( (uintptr_t *)buffer, list->count );
+        dk_shuffle( (uintptr_t *)buffer, list->count );
 
         BufferToList( list, buffer );
         dk_free( buffer );

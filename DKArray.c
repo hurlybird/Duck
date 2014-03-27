@@ -395,7 +395,7 @@ void DKArrayShuffle( DKMutableListRef ref )
         DKVerifyKindOfClass( ref, DKMutableArrayClass() );
     
         struct DKArray * array = (struct DKArray *)ref;
-        DKShuffle( array->ptrArray.data, array->ptrArray.length );
+        dk_shuffle( array->ptrArray.data, array->ptrArray.length );
     }
 }
 
