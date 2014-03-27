@@ -56,7 +56,10 @@ DKDefineMessage( Square, int, int * );
 DKDeclareMessage( Cube, int, int * );
 DKDefineMessage( Cube, int, int * );
 
-static DKTypeRef TestClass = NULL;
+static void TestOne( DKTypeRef ref, DKSEL sel, int x, int * y )
+{
+    *y = 1;
+}
 
 static void TestSquare( DKTypeRef ref, DKSEL sel, int x, int * y )
 {
@@ -71,41 +74,51 @@ static void TestCube( DKTypeRef ref, DKSEL sel, int x, int * y )
 void TestDKObject( void )
 {
     // Define a sample class
-    TestClass = DKCreateClass( "Test", DKObjectClass(), sizeof(struct DKObjectHeader) );
+    DKTypeRef TestClassA = DKCreateClass( "A", DKObjectClass(), sizeof(struct DKObjectHeader) );
+    DKTypeRef TestClassB = DKCreateClass( "B", TestClassA, sizeof(struct DKObjectHeader) );
     
-    // Install some message handler
-    DKInstallMsgHandler( TestClass, DKSelector(Square), TestSquare );
-    DKInstallMsgHandler( TestClass, DKSelector(Cube), TestCube );
+    // Install some message handlers
+    DKInstallMsgHandler( TestClassA, DKSelector(Square), TestOne );
+    DKInstallMsgHandler( TestClassA, DKSelector(Cube), TestOne );
+
+    DKInstallMsgHandler( TestClassB, DKSelector(Square), TestSquare );
+    DKInstallMsgHandler( TestClassB, DKSelector(Cube), TestCube );
     
     // Create an instance of the object
-    DKTypeRef object = DKCreate( TestClass );
+    DKTypeRef object = DKCreate( TestClassB );
     
     // Test class membership
-    VERIFY( DKGetClass( TestClass ) == DKClassClass() );
-    VERIFY( DKGetClass( object ) == TestClass );
+    VERIFY( DKGetClass( TestClassB ) == DKClassClass() );
+    VERIFY( DKGetClass( object ) == TestClassB );
 
-    VERIFY( DKIsKindOfClass( object, TestClass ) );
+    VERIFY( DKIsKindOfClass( object, TestClassB ) );
     VERIFY( DKIsKindOfClass( object, DKObjectClass() ) );
 
-    VERIFY( DKIsMemberOfClass( object, TestClass ) );
+    VERIFY( DKIsMemberOfClass( object, TestClassB ) );
     VERIFY( !DKIsMemberOfClass( object, DKObjectClass() ) );
     
     // DKQueryInterface should return the same object when called on the class or an instance of the class
-    VERIFY( DKGetInterface( TestClass, DKSelector(LifeCycle) ) == DKGetInterface( object, DKSelector(LifeCycle) ) );
+    VERIFY( DKGetInterface( TestClassB, DKSelector(LifeCycle) ) == DKGetInterface( object, DKSelector(LifeCycle) ) );
 
     // Try calling our custom message handlers
     int y;
     
-    DKSendMsg( object, Square, 2, &y );
+    DKMsgSend( object, Square, 2, &y );
     VERIFY( y == 4 );
 
-    DKSendMsg( object, Cube, 2, &y );
+    DKMsgSend( object, Cube, 2, &y );
     VERIFY( y == 8 );
+
+    DKMsgSendSuper( object, Square, 2, &y );
+    VERIFY( y == 1 );
+
+    DKMsgSendSuper( object, Cube, 2, &y );
+    VERIFY( y == 1 );
 
     // Cleanup
     DKRelease( object );
-    DKRelease( TestClass );
-    TestClass = NULL;
+    DKRelease( TestClassA );
+    DKRelease( TestClassB );
 }
 
 

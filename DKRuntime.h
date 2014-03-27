@@ -288,6 +288,7 @@ DKTypeRef   DKCreate( DKTypeRef _class );
 
 DKTypeRef   DKGetClass( DKTypeRef ref );
 const char* DKGetClassName( DKTypeRef ref );
+DKTypeRef   DKGetSuperclass( DKTypeRef ref );
 
 int         DKIsMemberOfClass( DKTypeRef ref, DKTypeRef _class );
 int         DKIsKindOfClass( DKTypeRef ref, DKTypeRef _class );
@@ -324,8 +325,11 @@ DKHashCode  DKHash( DKTypeRef ref );
 //    If the method isn't defined for the object, DKLookupMethod returns a generic
 //    implementation that produces an error.
 
-#define DKSendMsg( ref, method, ... ) \
+#define DKMsgSend( ref, method, ... ) \
     ((DKMethod_ ## method)((const DKMsgHandler *)DKGetMsgHandler( ref, &DKSelector_ ## method ))->func)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
+
+#define DKMsgSendSuper( ref, method, ... ) \
+    ((DKMethod_ ## method)((const DKMsgHandler *)DKGetMsgHandler( DKGetSuperclass( ref ), &DKSelector_ ## method ))->func)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
 
 
 

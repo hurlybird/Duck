@@ -885,6 +885,9 @@ DKTypeRef DKGetClass( DKTypeRef ref )
 }
 
 
+///
+//  DKGetClassName()
+//
 const char * DKGetClassName( DKTypeRef ref )
 {
     if( ref )
@@ -899,6 +902,21 @@ const char * DKGetClassName( DKTypeRef ref )
     }
     
     return "";
+}
+
+
+///
+//  DKGetSuperclass()
+//
+DKTypeRef DKGetSuperclass( DKTypeRef ref )
+{
+    if( ref )
+    {
+        const DKObjectHeader * obj = ref;
+        return obj->isa->superclass;
+    }
+    
+    return NULL;
 }
 
 
