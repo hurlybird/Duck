@@ -90,35 +90,35 @@ typedef const struct DKInterface DKInterface;
 
 
 
-// DKMethod ==============================================================================
-struct DKMethod
+// DKMessage =============================================================================
+struct DKMsgHandler
 {
     DKObjectHeader  _obj;
     DKSEL           sel;
-    const void *    imp;
+    const void *    func;
 };
 
-typedef const struct DKMethod DKMethod;
+typedef const struct DKMsgHandler DKMsgHandler;
 
-#define DKDeclareMethod( ret, name, ... )                                               \
+#define DKDeclareMessage( name, ... )                                                   \
     extern struct DKSEL DKSelector_ ## name;                                            \
-    typedef ret (*DKMethod_ ## name)( DKTypeRef, DKSEL , ## __VA_ARGS__ )
+    typedef void (*DKMethod_ ## name)( DKTypeRef, DKSEL , ## __VA_ARGS__ )
 
-#define DKDefineMethod( ret, name, ... )                                                \
+#define DKDefineMessage( name, ... )                                                    \
     struct DKSEL DKSelector_ ## name =                                                  \
     {                                                                                   \
         { &__DKSelectorClass__, 1 },                                                    \
         #name,                                                                          \
-        #ret " " #name "( " #__VA_ARGS__ " )",                                          \
+        #name "( " #__VA_ARGS__ " )",                                                   \
         0                                                                               \
     }
 
-#define DKDefineFastLookupMethod( ret, name, ... )                                      \
+#define DKDefineFastLookupMethod( name, ... )                                           \
     struct DKSEL DKSelector_ ## name =                                                  \
     {                                                                                   \
         { &__DKSelectorClass__, 1 },                                                    \
         #name,                                                                          \
-        #ret " " #name "( " #__VA_ARGS__ " )",                                          \
+        #name "( " #__VA_ARGS__ " )",                                                   \
         DKVTable_ ## name                                                               \
     }
 
@@ -174,7 +174,7 @@ typedef const struct DKProperty DKProperty;
 DKTypeRef DKClassClass( void );
 DKTypeRef DKSelectorClass( void );
 DKTypeRef DKInterfaceClass( void );
-DKTypeRef DKMethodClass( void );
+DKTypeRef DKMsgHandlerClass( void );
 DKTypeRef DKPropertyClass( void );
 DKTypeRef DKObjectClass( void );
 
@@ -261,13 +261,13 @@ DKTypeRef   DKCreateInterface( DKSEL sel, size_t structSize );
 //void        DKRegisterClass( DKTypeRef classObject );
 
 void        DKInstallInterface( DKTypeRef _class, DKTypeRef interface );
-void        DKInstallMethod( DKTypeRef _class, DKSEL sel, const void * imp );
+void        DKInstallMsgHandler( DKTypeRef _class, DKSEL sel, const void * func );
 
 int         DKHasInterface( DKTypeRef ref, DKSEL sel );
 DKTypeRef   DKGetInterface( DKTypeRef ref, DKSEL sel );
 
-int         DKHasMethod( DKTypeRef ref, DKSEL sel );
-DKTypeRef   DKGetMethod( DKTypeRef ref, DKSEL sel );
+int         DKHasMsgHandler( DKTypeRef ref, DKSEL sel );
+DKTypeRef   DKGetMsgHandler( DKTypeRef ref, DKSEL sel );
 
 
 
@@ -301,7 +301,7 @@ DKHashCode  DKHash( DKTypeRef ref );
 
 
 
-// Method Calling ========================================================================
+// Message Passing =======================================================================
 
 // This is a monstrosity. It's also necessary to make method calling somewhat "pretty".
 //
@@ -324,8 +324,8 @@ DKHashCode  DKHash( DKTypeRef ref );
 //    If the method isn't defined for the object, DKLookupMethod returns a generic
 //    implementation that produces an error.
 
-#define DKCallMethod( ref, method, ... ) \
-    ((DKMethod_ ## method)((const DKMethod *)DKGetMethod( ref, &DKSelector_ ## method ))->imp)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
+#define DKSendMsg( ref, method, ... ) \
+    ((DKMethod_ ## method)((const DKMsgHandler *)DKGetMsgHandler( ref, &DKSelector_ ## method ))->func)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
 
 
 

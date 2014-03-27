@@ -50,22 +50,22 @@ int main( int argc, const char * argv[] )
 
 // TestDKObject ==========================================================================
 
-DKDeclareMethod( int, Square, int );
-DKDefineMethod( int, Square, int );
+DKDeclareMessage( Square, int, int * );
+DKDefineMessage( Square, int, int * );
 
-DKDeclareMethod( int, Cube, int );
-DKDefineMethod( int, Cube, int );
+DKDeclareMessage( Cube, int, int * );
+DKDefineMessage( Cube, int, int * );
 
 static DKTypeRef TestClass = NULL;
 
-static int TestSquare( DKTypeRef ref, DKSEL sel, int x )
+static void TestSquare( DKTypeRef ref, DKSEL sel, int x, int * y )
 {
-    return x * x;
+    *y = x * x;
 }
 
-static int TestCube( DKTypeRef ref, DKSEL sel, int x )
+static void TestCube( DKTypeRef ref, DKSEL sel, int x, int * y )
 {
-    return x * x * x;
+    *y = x * x * x;
 }
 
 void TestDKObject( void )
@@ -74,8 +74,8 @@ void TestDKObject( void )
     TestClass = DKCreateClass( "Test", DKObjectClass(), sizeof(struct DKObjectHeader) );
     
     // Install some custom methods
-    DKInstallMethod( TestClass, DKSelector(Square), TestSquare );
-    DKInstallMethod( TestClass, DKSelector(Cube), TestCube );
+    DKInstallMsgHandler( TestClass, DKSelector(Square), TestSquare );
+    DKInstallMsgHandler( TestClass, DKSelector(Cube), TestCube );
     
     // Create an instance of the object
     DKTypeRef object = DKCreate( TestClass );
@@ -94,8 +94,13 @@ void TestDKObject( void )
     VERIFY( DKGetInterface( TestClass, DKSelector(LifeCycle) ) == DKGetInterface( object, DKSelector(LifeCycle) ) );
 
     // Try calling our custom methods
-    VERIFY( DKCallMethod( object, Square, 2 ) == 4 );
-    VERIFY( DKCallMethod( object, Cube, 2 ) == 8 );
+    int y;
+    
+    DKSendMsg( object, Square, 2, &y );
+    VERIFY( y == 4 );
+
+    DKSendMsg( object, Cube, 2, &y );
+    VERIFY( y == 8 );
 
     // Cleanup
     DKRelease( object );

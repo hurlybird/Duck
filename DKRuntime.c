@@ -44,7 +44,7 @@ static struct DKClass __DKMetaClass__;
 static struct DKClass __DKClassClass__;
        struct DKClass __DKSelectorClass__; // Selectors are statically initialized
 static struct DKClass __DKInterfaceClass__;
-static struct DKClass __DKMethodClass__;
+static struct DKClass __DKMsgHandlerClass__;
 static struct DKClass __DKPropertyClass__;
 static struct DKClass __DKObjectClass__;
 
@@ -67,10 +67,10 @@ DKTypeRef DKInterfaceClass( void )
     return &__DKInterfaceClass__;
 }
 
-DKTypeRef DKMethodClass( void )
+DKTypeRef DKMsgHandlerClass( void )
 {
     DKRuntimeInit();
-    return &__DKMethodClass__;
+    return &__DKMsgHandlerClass__;
 }
 
 DKTypeRef DKPropertyClass( void )
@@ -96,8 +96,8 @@ DKTypeRef DKObjectClass( void )
         DKSelector( sel )                                                               \
     }
 
-#define DKStaticMethodObject( sel )                                                     \
-    { &__DKMethodClass__, 1 },                                                          \
+#define DKStaticMsgHandlerObject( sel )                                                 \
+    { &__DKMsgHandlerClass__, 1 },                                                      \
     DKSelector( sel )
 
 
@@ -108,10 +108,17 @@ static struct DKSEL DKSelector_InterfaceNotFound =
 {
     { &__DKSelectorClass__, 1 },
     "InterfaceNotFound",
-    "void DKInterfaceNotFound( ??? )"
+    "InterfaceNotFound"
 };
 
-typedef void (*DKInterfaceNotFoundFunction)( struct DKObjectHeader * obj, DKSEL sel );
+static struct DKSEL DKSelector_MsgHandlerNotFound =
+{
+    { &__DKSelectorClass__, 1 },
+    "MsgHandlerNotFound",
+    "DKMsgHandlerHotFound( ??? )"
+};
+
+typedef void (*DKInterfaceNotFoundFunction)( struct DKObjectHeader * obj );
 
 struct DKInterfaceNotFoundInterface
 {
@@ -119,17 +126,21 @@ struct DKInterfaceNotFoundInterface
     DKInterfaceNotFoundFunction func[DK_MAX_INTERFACE_SIZE];
 };
 
-static void DKInterfaceNotFound( struct DKObjectHeader * obj, DKSEL sel )
+static void DKInterfaceNotFound( struct DKObjectHeader * obj )
 {
-    // Note: 'obj' and 'sel' are for debugging only and may not be valid. Methods require
-    // both, and most interface functions take an object as a first arguement, but it's
-    // not actually required.
+    // Note: 'obj' is for debugging only and may not be valid. Most interface functions
+    // take an object as a first arguement, but it's not actually required.
 
     // The only time this code is ever likely to be called is when calling an interface
-    // function or method on a NULL object. We don't have the Objective-C luxury of
-    // tweaking the call stack and return value in assembly for such cases.
+    // function on a NULL object. We don't have the Objective-C luxury of tweaking the
+    // call stack and return value in assembly for such cases.
 
-    DKFatalError( "DKRuntime: Invalid interface/method call.\n" );
+    DKFatalError( "DKRuntime: Invalid interface call.\n" );
+}
+
+static void DKMsgHandlerNotFound( struct DKObjectHeader * obj, DKSEL sel )
+{
+    // This handles silently failing when sending messages to NULL objects.
 }
 
 static struct DKInterfaceNotFoundInterface __DKInterfaceNotFound__ =
@@ -137,6 +148,13 @@ static struct DKInterfaceNotFoundInterface __DKInterfaceNotFound__ =
     DKStaticInterfaceObject( InterfaceNotFound ),
     // Function pointers initialized in DKRuntimeInit()
 };
+
+static DKMsgHandler __DKMsgHandlerNotFound__ =
+{
+    DKStaticMsgHandlerObject( MsgHandlerNotFound ),
+    DKMsgHandlerNotFound
+};
+
 
 
 
@@ -251,7 +269,7 @@ static void         DKStaticObjectRelease( DKTypeRef ref );
 
 static int          DKInterfaceEqual( DKTypeRef ref, DKTypeRef other );
 static int          DKInterfaceCompare( DKTypeRef ref, DKTypeRef other );
-static DKHashCode  DKInterfaceHash( DKTypeRef ref );
+static DKHashCode   DKInterfaceHash( DKTypeRef ref );
 
 
 static DKLifeCycle __DKClassLifeCycle__ =
@@ -382,13 +400,13 @@ static void DKRuntimeInit( void )
             __DKInterfaceNotFound__.func[i] = DKInterfaceNotFound;
 
         // Init root classes
-        InitRootClass( &__DKMetaClass__,      "Root",      &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
-        InitRootClass( &__DKClassClass__,     "Class",     &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
-        InitRootClass( &__DKSelectorClass__,  "Selector",  &__DKMetaClass__, NULL,                  sizeof(struct DKSEL),   &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
-        InitRootClass( &__DKInterfaceClass__, "Interface", &__DKMetaClass__, NULL,                  sizeof(DKInterface),    &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
-        InitRootClass( &__DKMethodClass__,    "Method",    &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMethod),       &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
-        InitRootClass( &__DKPropertyClass__,  "Property",  &__DKMetaClass__, NULL,                  0,                      &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
-        InitRootClass( &__DKObjectClass__,    "Object",    &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader), &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitRootClass( &__DKMetaClass__,       "Root",       &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
+        InitRootClass( &__DKClassClass__,      "Class",      &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitRootClass( &__DKSelectorClass__,   "Selector",   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL),   &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
+        InitRootClass( &__DKInterfaceClass__,  "Interface",  &__DKMetaClass__, NULL,                  sizeof(DKInterface),    &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
+        InitRootClass( &__DKMsgHandlerClass__, "MsgHandler", &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),   &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
+        InitRootClass( &__DKPropertyClass__,   "Property",   &__DKMetaClass__, NULL,                  0,                      &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitRootClass( &__DKObjectClass__,     "Object",     &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader), &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
     }
 }
 
@@ -599,8 +617,10 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
     struct DKClass * cls = (struct DKClass *)_class;
     DKInterface * interfaceObject = interface;
 
+    // *** ARE THESE ASSERTS CORRECT? ***
+
     DKAssert( (cls->_obj.isa == &__DKClassClass__) || (cls->_obj.isa == &__DKMetaClass__) );
-    DKAssert( (interfaceObject->_obj.isa == &__DKInterfaceClass__) || (interfaceObject->_obj.isa == &__DKMethodClass__) );
+    DKAssert( (interfaceObject->_obj.isa == &__DKInterfaceClass__) || (interfaceObject->_obj.isa == &__DKMsgHandlerClass__) );
 
     // Retain the interface
     DKRetain( interfaceObject );
@@ -652,18 +672,18 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
 
 
 ///
-//  DKInstallMethod()
+//  DKInstallMsgHandler()
 //
-void DKInstallMethod( DKTypeRef _class, DKSEL sel, const void * imp )
+void DKInstallMsgHandler( DKTypeRef _class, DKSEL sel, const void * func )
 {
-    struct DKMethod * method = (struct DKMethod *)DKAllocObject( DKMethodClass(), sizeof(DKMethod) );
+    struct DKMsgHandler * msgHandler = (struct DKMsgHandler *)DKAllocObject( DKMsgHandlerClass(), sizeof(DKMsgHandler) );
 
-    method->sel = sel;
-    method->imp = imp;
+    msgHandler->sel = sel;
+    msgHandler->func = func;
     
-    DKInstallInterface( _class, method );
+    DKInstallInterface( _class, msgHandler );
     
-    DKRelease( method );
+    DKRelease( msgHandler );
 }
 
 
@@ -777,9 +797,9 @@ DKTypeRef DKGetInterface( DKTypeRef ref, DKSEL sel )
 
 
 ///
-//  DKHasMethod()
+//  DKHasMsgHandler()
 //
-int DKHasMethod( DKTypeRef ref, DKSEL sel )
+int DKHasMsgHandler( DKTypeRef ref, DKSEL sel )
 {
     if( ref )
     {
@@ -790,11 +810,11 @@ int DKHasMethod( DKTypeRef ref, DKSEL sel )
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
             cls = (struct DKClass *)ref;
 
-        DKMethod * method = (DKMethod *)DKLookupInterface( cls, sel );
+        DKMsgHandler * msgHandler = (DKMsgHandler *)DKLookupInterface( cls, sel );
 
-        if( method )
+        if( msgHandler )
         {
-            DKVerifyKindOfClass( method, DKMethodClass(), 0 );
+            DKVerifyKindOfClass( msgHandler, DKMsgHandlerClass(), 0 );
             return 1;
         }
     }
@@ -804,9 +824,9 @@ int DKHasMethod( DKTypeRef ref, DKSEL sel )
 
 
 ///
-//  DKGetMethod()
+//  DKGetMsgHandler()
 //
-DKTypeRef DKGetMethod( DKTypeRef ref, DKSEL sel )
+DKTypeRef DKGetMsgHandler( DKTypeRef ref, DKSEL sel )
 {
     if( ref )
     {
@@ -817,18 +837,18 @@ DKTypeRef DKGetMethod( DKTypeRef ref, DKSEL sel )
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
             cls = (struct DKClass *)ref;
 
-        DKMethod * method = (DKMethod *)DKLookupInterface( cls, sel );
+        DKMsgHandler * msgHandler = (DKMsgHandler *)DKLookupInterface( cls, sel );
 
-        if( method )
+        if( msgHandler )
         {
-            DKVerifyKindOfClass( method, DKMethodClass(), &__DKInterfaceNotFound__ );
-            return method;
+            DKVerifyKindOfClass( msgHandler, DKMsgHandlerClass(), &__DKMsgHandlerNotFound__ );
+            return msgHandler;
         }
 
-        DKFatalError( "DKRuntime: Method '%s' not found on object '%s'\n", sel->name, obj->isa->name );
+        DKWarning( "DKRuntime: Message handler for '%s' not found on object '%s'\n", sel->name, obj->isa->name );
     }
 
-    return &__DKInterfaceNotFound__;
+    return &__DKMsgHandlerNotFound__;
 }
 
 
