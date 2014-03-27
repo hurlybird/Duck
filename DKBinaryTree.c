@@ -508,6 +508,8 @@ DKIndex DKBinaryTreeGetCount( DKDictionaryRef ref )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKBinaryTreeClass(), 0 );
+
         struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
         return tree->count;
     }
@@ -522,6 +524,8 @@ DKTypeRef DKBinaryTreeGetObject( DKDictionaryRef ref, DKTypeRef key )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKBinaryTreeClass(), NULL );
+
         struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
         DKHashCode hash = DKHash( key );
     
@@ -569,6 +573,8 @@ int DKBinaryTreeTraverseInOrder( DKDictionaryRef ref, DKDictionaryApplierFunctio
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKBinaryTreeClass(), 0 );
+
         struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
         return DKBinaryTreeTraverseInOrderInternal( tree->root, callback, context );
     }
@@ -589,6 +595,8 @@ void DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKType
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableBinaryTreeClass() );
+
         struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
         DKHashCode hash = DKHash( key );
 
@@ -609,6 +617,8 @@ void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableBinaryTreeClass() );
+
         struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
         DKHashCode hash = DKHash( key );
 
@@ -632,6 +642,8 @@ void DKBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableBinaryTreeClass() );
+        
         struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
 
         FreeNode( tree, tree->root );

@@ -73,7 +73,7 @@ void TestDKObject( void )
     // Define a sample class
     TestClass = DKCreateClass( "Test", DKObjectClass(), sizeof(struct DKObjectHeader) );
     
-    // Install some custom methods
+    // Install some message handler
     DKInstallMsgHandler( TestClass, DKSelector(Square), TestSquare );
     DKInstallMsgHandler( TestClass, DKSelector(Cube), TestCube );
     
@@ -93,7 +93,7 @@ void TestDKObject( void )
     // DKQueryInterface should return the same object when called on the class or an instance of the class
     VERIFY( DKGetInterface( TestClass, DKSelector(LifeCycle) ) == DKGetInterface( object, DKSelector(LifeCycle) ) );
 
-    // Try calling our custom methods
+    // Try calling our custom message handlers
     int y;
     
     DKSendMsg( object, Square, 2, &y );
@@ -121,6 +121,8 @@ void TestDKData( void )
     const char * c = "cccccccc";
     const char * d = "dddddddd";
     const char * e = "eeeeeeee";
+    
+    DKDataAppendBytes( data, NULL, 0 );
     
     DKDataAppendBytes( data, a, 10 );
     DKDataAppendBytes( data, b, 10 );

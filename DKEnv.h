@@ -73,7 +73,7 @@ int    _DKError( const char * format, ... );
 
 // Print a error. In a debug build execution is halted with assert(0). In a non-debug
 // build the program is halted with abort().
-int    _DKFatalError( const char * format, ... );
+int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noreturn));
 
 #if defined(NDEBUG)
 #define DKDebug( ... )

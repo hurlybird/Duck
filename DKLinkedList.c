@@ -322,6 +322,9 @@ static void RemoveObjects( struct DKLinkedList * list, DKRange range )
     for( DKIndex i = 0; i < range.length; ++i )
     {
         struct DKLinkedListNode * node = list->cursor.node;
+
+        DKAssert( node != NULL );
+
         struct DKLinkedListNode * next = node->next;
 
         if( node->prev )
@@ -401,7 +404,7 @@ static void InsertObject( struct DKLinkedList * list, DKIndex index, DKTypeRef o
         struct DKLinkedListNode * next = MoveCursor( list, index );
         struct DKLinkedListNode * node = AllocNode( list, object );
         
-        DKAssert( next );
+        DKAssert( next != NULL );
         
         node->next = next;
         node->prev = next->prev;
@@ -521,6 +524,8 @@ DKIndex DKLinkedListGetCount( DKListRef ref )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKLinkedListClass(), 0 );
+
         const struct DKLinkedList * list = ref;
         return list->count;
     }
@@ -536,6 +541,8 @@ DKIndex DKLinkedListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKLinkedListClass(), 0 );
+
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
         
         for( DKIndex i = 0; i < range.length; ++i )
@@ -561,6 +568,8 @@ void DKLinkedListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef 
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableLinkedListClass() );
+
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
         ReplaceObjects( list, range, objects, count );
     }
@@ -579,6 +588,8 @@ void DKLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DK
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableLinkedListClass() );
+
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
         ReplaceObjectsWithList( list, range, srcList );
     }
@@ -619,6 +630,8 @@ void DKLinkedListSort( DKMutableListRef ref, DKCompareFunction cmp )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableLinkedListClass() );
+
         // This is absurd, yet probably not much slower than doing all the pointer
         // gymnastics needed for sorting the list nodes.
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
@@ -646,6 +659,8 @@ void DKLinkedListShuffle( DKMutableListRef ref )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableLinkedListClass() );
+        
         // This is absurd, yet probably not much slower than doing all the pointer
         // gymnastics needed for shuffling the list nodes.
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
