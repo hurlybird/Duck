@@ -122,8 +122,6 @@ void TestDKData( void )
     const char * d = "dddddddd";
     const char * e = "eeeeeeee";
     
-    DKDataAppendBytes( data, NULL, 0 );
-    
     DKDataAppendBytes( data, a, 10 );
     DKDataAppendBytes( data, b, 10 );
     DKDataAppendBytes( data, c, 10 );
@@ -286,8 +284,11 @@ void TestDKDictionary( DKTypeRef dictionaryClass )
         VERIFY( value == values[i] );
     }
     
-    DKDictionaryRemoveAllObjects( dict );
-    VERIFY( DKDictionaryGetCount( dict ) == 0 );
+    for( int i = 0; i < N; i++ )
+    {
+        DKDictionaryRemoveObject( dict, keys[i] );
+        VERIFY( DKDictionaryGetCount( dict ) == N - (i + 1) );
+    }
 
     for( int i = 0; i < N; i++ )
     {

@@ -11,9 +11,6 @@
 #include "DKCopying.h"
 
 
-#define DK_LINKED_LIST_ERROR_CHECKS 0
-
-
 struct DKLinkedListNode
 {
     struct DKLinkedListNode * prev;
@@ -167,10 +164,10 @@ static void DKLinkedListFinalize( DKTypeRef ref )
 // Internals =============================================================================
 
 ///
-//  CheckForErrors()
+//  CheckListIntegrity()
 //
-#if DK_LINKED_LIST_ERROR_CHECKS
-static void CheckForErrors( struct DKLinkedList * list )
+#if DK_RUNTIME_INTEGRITY_CHECKS
+static void CheckListIntegrity( struct DKLinkedList * list )
 {
     DKIndex count = 0;
     
@@ -210,7 +207,7 @@ static void CheckForErrors( struct DKLinkedList * list )
     DKAssert( count == list->count );
 }
 #else
-#define CheckForErrors( list )
+#define CheckListIntegrity( list )
 #endif
 
 
@@ -253,7 +250,7 @@ static struct DKLinkedListNode * MoveCursor( struct DKLinkedList * list, DKIndex
 {
     if( list->first == NULL )
     {
-        CheckForErrors( list );
+        CheckListIntegrity( list );
         return NULL;
     }
 
@@ -299,7 +296,7 @@ static struct DKLinkedListNode * MoveCursor( struct DKLinkedList * list, DKIndex
     
     list->cursor.index = index;
 
-    CheckForErrors( list );
+    CheckListIntegrity( list );
     
     return list->cursor.node;
 }
@@ -350,7 +347,7 @@ static void RemoveObjects( struct DKLinkedList * list, DKRange range )
         list->cursor.index = list->count;
     }
 
-    CheckForErrors( list );
+    CheckListIntegrity( list );
 }
 
 
@@ -414,7 +411,7 @@ static void InsertObject( struct DKLinkedList * list, DKIndex index, DKTypeRef o
         list->cursor.node = node;
     }
 
-    CheckForErrors( list );
+    CheckListIntegrity( list );
 }
 
 

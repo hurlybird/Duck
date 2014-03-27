@@ -108,6 +108,10 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
     #ifndef DK_RUNTIME_RANGE_CHECKS
     #define DK_RUNTIME_RANGE_CHECKS 0
     #endif
+
+    #ifndef DK_RUNTIME_INTEGRITY_CHECKS
+    #define DK_RUNTIME_INTEGRITY_CHECKS 0
+    #endif
 #else
     #ifndef DK_RUNTIME_TYPE_CHECKS
     #define DK_RUNTIME_TYPE_CHECKS  1
@@ -115,6 +119,10 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 
     #ifndef DK_RUNTIME_RANGE_CHECKS
     #define DK_RUNTIME_RANGE_CHECKS 1
+    #endif
+
+    #ifndef DK_RUNTIME_INTEGRITY_CHECKS
+    #define DK_RUNTIME_INTEGRITY_CHECKS 1
     #endif
 #endif
 
