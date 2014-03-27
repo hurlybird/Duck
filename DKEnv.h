@@ -42,8 +42,8 @@ typedef struct
 #define DKRangeMake( loc, len )     (const DKRange){ loc, len }
 #define DKRangeEnd( range )         (((range).location) + ((range).length))
 
-// True if the range is outside 0..len OR is an empty sequence at len + 1
-#define DKRangeCheck( range, len )  (((range).location < 0) || ((range).length < 0) || (DKRangeEnd(range) > len))
+// False if the range is outside 0..len OR is an empty sequence at len + 1
+#define DKRangeCheck( range, len )  (((range).location >= 0) && ((range).length >= 0) && (DKRangeEnd(range) <= len))
 
 enum
 {
@@ -94,9 +94,66 @@ int    _DKFatalError( const char * format, ... );
 #define DKAssert( x )
 #define DKAssertMsg( x, ... )
 #else
-#define DKAssert( x )               if( !(x) ) _DKFatalError( "Assertion Failed: %s", #x )
+#define DKAssert( x )               if( !(x) ) _DKFatalError( "%s %d: Failed Assert( %s )\n", __FILE__, __LINE__, #x )
 #define DKAssertMsg( x, msg, ... )  if( !(x) ) _DKFatalError( msg, __VA_ARGS__ )
 #endif
+
+
+#ifdef NDEBUG
+    #ifndef DK_RUNTIME_TYPE_CHECKS
+    #define DK_RUNTIME_TYPE_CHECKS  0
+    #endif
+
+    #ifndef DK_RUNTIME_RANGE_CHECKS
+    #define DK_RUNTIME_RANGE_CHECKS 0
+    #endif
+#else
+    #ifndef DK_RUNTIME_TYPE_CHECKS
+    #define DK_RUNTIME_TYPE_CHECKS  1
+    #endif
+
+    #ifndef DK_RUNTIME_RANGE_CHECKS
+    #define DK_RUNTIME_RANGE_CHECKS 1
+    #endif
+#endif
+
+
+
+#if DK_RUNTIME_TYPE_CHECKS
+#define DKVerifyKindOfClass( ref, cls, ... )                                            \
+    if( !DKIsKindOfClass( ref, cls ) )                                                  \
+    {                                                                                   \
+        _DKFatalError( "%s: Expected kind of class %s, received %s\n",               \
+            __func__, DKGetClassName( cls ), DKGetClassName( ref ) );         \
+        return __VA_ARGS__;                                                             \
+    }
+
+#define DKVerifyMemberOfClass( ref, cls, ... )                                          \
+    if( !DKIsKindOfClass( ref, cls ) )                                                  \
+    {                                                                                   \
+        _DKFatalError( "%s: Expected member of class %s, received %s\n",             \
+            __func__, DKGetClassName( cls ), DKGetClassName( ref ) );         \
+        return __VA_ARGS__;                                                             \
+    }
+#else
+#define DKVerifyKindOfClass( ref, cls, ... )
+#define DKVerifyMemberOfClass( ref, cls, ... )
+#endif
+
+
+
+#if DK_RUNTIME_RANGE_CHECKS
+#define DKVerifyRange( range, length, ... )                                             \
+    if( !DKRangeCheck( range, length ) )                                                \
+    {                                                                                   \
+        _DKFatalError( "%s: Range %d..%d is outside %d..%d\n",                       \
+            __func__, range.location, DKRangeEnd( range ), 0, length );       \
+        return __VA_ARGS__;                                                             \
+    }
+#else
+#define DKVerifyRange( range, length, ... )
+#endif
+
 
 
 

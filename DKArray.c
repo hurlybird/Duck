@@ -150,8 +150,7 @@ static void DKArrayFinalize( DKTypeRef ref )
 //
 static void ReplaceObjects( struct DKArray * array, DKRange range, DKTypeRef objects[], DKIndex count )
 {
-    DKAssert( range.location >= 0 );
-    DKAssert( DKRangeEnd( range ) <= array->ptrArray.length );
+    DKVerifyRange( range, array->ptrArray.length );
     
     // Retain the incoming objects
     for( DKIndex i = 0; i < count; ++i )
@@ -176,23 +175,33 @@ static void ReplaceObjects( struct DKArray * array, DKRange range, DKTypeRef obj
 //
 static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKTypeRef srcList )
 {
-    DKList * srcListInterface = DKGetInterface( srcList, DKSelector(List) );
-    
-    DKIndex srcCount = srcListInterface->getCount( srcList );
-    
-    if( srcCount <= 128 )
+    if( srcList )
     {
-        DKTypeRef buffer[128];
-        srcListInterface->getObjects( srcList, DKRangeMake( 0, srcCount ), buffer );
-        ReplaceObjects( array, range, buffer, srcCount );
+        DKVerifyRange( range, array->ptrArray.length );
+
+        DKList * srcListInterface = DKGetInterface( srcList, DKSelector(List) );
+        
+        DKIndex srcCount = srcListInterface->getCount( srcList );
+        
+        if( srcCount <= 128 )
+        {
+            DKTypeRef buffer[128];
+            srcListInterface->getObjects( srcList, DKRangeMake( 0, srcCount ), buffer );
+            ReplaceObjects( array, range, buffer, srcCount );
+        }
+        
+        else
+        {
+            DKTypeRef * buffer = dk_malloc( sizeof(DKTypeRef) * srcCount );
+            srcListInterface->getObjects( srcList, DKRangeMake( 0, srcCount ), buffer );
+            ReplaceObjects( array, range, buffer, srcCount );
+            dk_free( buffer );
+        }
     }
     
     else
     {
-        DKTypeRef * buffer = dk_malloc( sizeof(DKTypeRef) * srcCount );
-        srcListInterface->getObjects( srcList, DKRangeMake( 0, srcCount ), buffer );
-        ReplaceObjects( array, range, buffer, srcCount );
-        dk_free( buffer );
+        ReplaceObjects( array, range, NULL, 0 );
     }
 }
 
@@ -281,6 +290,8 @@ DKIndex DKArrayGetCount( DKListRef ref )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKArrayClass(), 0 );
+
         const struct DKArray * array = ref;
         return array->ptrArray.length;
     }
@@ -297,6 +308,9 @@ DKIndex DKArrayGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] )
     if( ref )
     {
         struct DKArray * array = (struct DKArray *)ref;
+
+        DKVerifyKindOfClass( ref, DKArrayClass(), 0 );
+        DKVerifyRange( range, array->ptrArray.length, 0 );
         
         for( DKIndex i = 0; i < range.length; ++i )
             objects[i] = array->ptrArray.data[range.location + i];
@@ -318,6 +332,8 @@ void DKArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objec
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableArrayClass() );
+
         struct DKArray * array = (struct DKArray *)ref;
         ReplaceObjects( array, range, objects, count );
     }
@@ -336,6 +352,8 @@ void DKArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListR
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableArrayClass() );
+
         struct DKArray * array = (struct DKArray *)ref;
         ReplaceObjectsWithList( array, range, srcList );
     }
@@ -354,6 +372,8 @@ void DKArraySort( DKMutableListRef ref, DKCompareFunction cmp )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableArrayClass() );
+
         struct DKArray * array = (struct DKArray *)ref;
         qsort( array->ptrArray.data, array->ptrArray.length, sizeof(DKTypeRef), cmp );
     }
@@ -372,6 +392,8 @@ void DKArrayShuffle( DKMutableListRef ref )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableArrayClass() );
+    
         struct DKArray * array = (struct DKArray *)ref;
         DKShuffle( array->ptrArray.data, array->ptrArray.length );
     }

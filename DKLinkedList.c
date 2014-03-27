@@ -420,6 +420,8 @@ static void InsertObject( struct DKLinkedList * list, DKIndex index, DKTypeRef o
 //
 static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKTypeRef objects[], DKIndex count )
 {
+    DKVerifyRange( range, list->count );
+
     RemoveObjects( list, range );
     
     for( DKIndex i = 0; i < count; i++ )
@@ -432,31 +434,29 @@ static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKTypeRef
 //
 static void ReplaceObjectsWithList( struct DKLinkedList * list, DKRange range, DKListRef srcList )
 {
-    if( DKRangeCheck( range, list->count ) )
+    if( srcList )
     {
-        DKError( "DKLinkedListReplaceObjectsWithList: Specified range is outside the bounds of the list." );
-        return;
-    }
+        DKVerifyRange( range, list->count );
 
-    DKList * srcListInterface = DKGetInterface( srcList, DKSelector(List) );
-    
-    if( !srcListInterface )
-    {
-        DKError( "DKLinkedListReplaceObjectsWithList: Source object is not a list." );
-        return;
-    }
-    
-    RemoveObjects( list, range );
-    
-    DKIndex count = srcListInterface->getCount( srcList );
-    
-    for( DKIndex i = 0; i < count; ++i )
-    {
-        DKTypeRef object;
+        DKList * srcListInterface = DKGetInterface( srcList, DKSelector(List) );
         
-        srcListInterface->getObjects( srcList, DKRangeMake( i, 1 ), &object );
+        RemoveObjects( list, range );
+        
+        DKIndex count = srcListInterface->getCount( srcList );
+        
+        for( DKIndex i = 0; i < count; ++i )
+        {
+            DKTypeRef object;
+            
+            srcListInterface->getObjects( srcList, DKRangeMake( i, 1 ), &object );
 
-        InsertObject( list, range.location + i, object );
+            InsertObject( list, range.location + i, object );
+        }
+    }
+    
+    else
+    {
+        ReplaceObjects( list, range, NULL, 0 );
     }
 }
 

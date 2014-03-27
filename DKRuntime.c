@@ -111,14 +111,7 @@ static struct DKSEL DKSelector_InterfaceNotFound =
     "void DKInterfaceNotFound( ??? )"
 };
 
-static struct DKSEL DKSelector_MethodNotFound =
-{
-    { &__DKSelectorClass__, 1 },
-    "MethodNotFound",
-    "void DKMethodNotFound( DKTypeRef, DKSEL, ??? )"
-};
-
-typedef void (*DKInterfaceNotFoundFunction)( struct DKObjectHeader * obj );
+typedef void (*DKInterfaceNotFoundFunction)( struct DKObjectHeader * obj, DKSEL sel );
 
 struct DKInterfaceNotFoundInterface
 {
@@ -126,29 +119,23 @@ struct DKInterfaceNotFoundInterface
     DKInterfaceNotFoundFunction func[DK_MAX_INTERFACE_SIZE];
 };
 
-static void DKInterfaceNotFound( struct DKObjectHeader * obj )
+static void DKInterfaceNotFound( struct DKObjectHeader * obj, DKSEL sel )
 {
-    // Note: 'obj' may not be valid. Although most interface functions take a DKTypeRef as
-    // their first argument, it's not actually required.
+    // Note: 'obj' and 'sel' are for debugging only and may not be valid. Methods require
+    // both, and most interface functions take an object as a first arguement, but it's
+    // not actually required.
 
-    DKFatalError( "DKRuntime: Interface not found." );
-}
+    // The only time this code is ever likely to be called is when calling an interface
+    // function or method on a NULL object. We don't have the Objective-C luxury of
+    // tweaking the call stack and return value in assembly for such cases.
 
-static void DKMethodNotFound( struct DKObjectHeader * obj, DKSEL sel )
-{
-    DKFatalError( "DKRuntime: Method '%s' not found on object '%s'", sel->name, obj->isa->name );
+    DKFatalError( "DKRuntime: Invalid interface/method call.\n" );
 }
 
 static struct DKInterfaceNotFoundInterface __DKInterfaceNotFound__ =
 {
     DKStaticInterfaceObject( InterfaceNotFound ),
     // Function pointers initialized in DKRuntimeInit()
-};
-
-static DKMethod __DKMethodNotFound__ =
-{
-    DKStaticMethodObject( MethodNotFound ),
-    DKMethodNotFound
 };
 
 
@@ -599,13 +586,13 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
 {
     if( !_class )
     {
-        DKError( "DKInstallInterface: Trying to install an interface on a NULL class object." );
+        DKError( "DKInstallInterface: Trying to install an interface on a NULL class object.\n" );
         return;
     }
     
     if( !interface )
     {
-        DKError( "DKInstallInterface: Trying to install a NULL interface." );
+        DKError( "DKInstallInterface: Trying to install a NULL interface.\n" );
         return;
     }
 
@@ -625,14 +612,16 @@ void DKInstallInterface( DKTypeRef _class, DKTypeRef interface )
     if( vtableIndex )
     {
         // If we're replacing a fast-lookup entry, make sure the selectors match
-        DKTypeRef oldInterface = cls->vtable[vtableIndex];
+        DKInterface * oldInterface = cls->vtable[vtableIndex];
 
         if( (oldInterface != NULL) && !DKEqual( interface, oldInterface ) )
         {
             DKRetain( interfaceObject );
 
             // This likely means that two interfaces are trying to use the same fast lookup index
-            DKFatalError( "DKInstallInterface: Fast-Lookup selector doesn't match the installed interface." );
+            DKFatalError( "DKInstallInterface: Selector '%s' doesn't match the current vtable entry '%s'.\n",
+                interfaceObject->sel->name, oldInterface->sel->name );
+            
             return;
         }
     
@@ -779,8 +768,10 @@ DKTypeRef DKGetInterface( DKTypeRef ref, DKSEL sel )
         
         if( interface )
             return interface;
+
+        DKFatalError( "DKRuntime: Interface '%s' not found on object '%s'\n", sel->name, cls->name );
     }
-    
+
     return &__DKInterfaceNotFound__;
 }
 
@@ -803,10 +794,8 @@ int DKHasMethod( DKTypeRef ref, DKSEL sel )
 
         if( method )
         {
-            if( DKIsMemberOfClass( method, DKMethodClass() ) )
-                return 1;
-            
-            DKError( "DKLookupMethod: Installed interface '%s' is not a method.", sel->name );
+            DKVerifyKindOfClass( method, DKMethodClass(), 0 );
+            return 1;
         }
     }
 
@@ -832,12 +821,14 @@ DKTypeRef DKGetMethod( DKTypeRef ref, DKSEL sel )
 
         if( method )
         {
-            DKAssertMsg( DKIsMemberOfClass( method, DKMethodClass() ), "DKLookupMethod: Installed interface '%s' is not a method.", sel->name );
+            DKVerifyKindOfClass( method, DKMethodClass(), &__DKInterfaceNotFound__ );
             return method;
         }
+
+        DKFatalError( "DKRuntime: Method '%s' not found on object '%s'\n", sel->name, obj->isa->name );
     }
 
-    return &__DKMethodNotFound__;
+    return &__DKInterfaceNotFound__;
 }
 
 
