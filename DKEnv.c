@@ -11,40 +11,44 @@
 
 
 // Error Reporting =======================================================================
-static int (*PrintCallback)( const char * format, va_list arg_ptr ) = NULL;
+static int (*DebugCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*WarningCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*ErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*FatalErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
 
-void DKSetPrintCallback( int (*callback)( const char * format, va_list arg_ptr ) )
+void DKSetDebugCallback( int (*callback)( const char * format, va_list arg_ptr ) )
 {
+    DebugCallback = callback;
 }
 
 void DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) )
 {
+    WarningCallback = callback;
 }
 
 void DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) )
 {
+    ErrorCallback = callback;
 }
 
 void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) )
 {
+    FatalErrorCallback = callback;
 }
 
 
 ///
-//  DKPrintf()
+//  DKDebug()
 //
-int DKPrintf( const char * format, ... )
+int _DKDebug( const char * format, ... )
 {
     int result = 0;
 
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
-    if( PrintCallback )
-        result = PrintCallback( format, arg_ptr );
+    if( DebugCallback )
+        result = DebugCallback( format, arg_ptr );
     
     else
         result = vprintf( format, arg_ptr );

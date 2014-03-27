@@ -54,30 +54,31 @@ enum
 
 
 // Error Reporting =======================================================================
-void   DKSetPrintCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+void   DKSetDebugCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 void   DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 void   DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 void   DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 
-// Print a message. This is ignored in non-debug builds. Objects can be printed with "%@".
-int    _DKPrintf( const char * format, ... );
+// Print a message. This is ignored in non-debug builds. Object descriptions can be
+// printed using the Foundation/CoreFoundation idiom "%@".
+int    _DKDebug( const char * format, ... );
 
 // Print a warning. This is ignored in non-debug builds if DK_WARNINGS_AS_ERRORS is not
-// defined. Objects can be printed with "%@".
+// defined.
 int    _DKWarning( const char * format, ... );
 
 // Print a error. In a debug build execution is halted with assert(0). In a non-debug
-// build the program will continue running. Objects can be printed with "%@".
+// build the program will continue running.
 int    _DKError( const char * format, ... );
 
 // Print a error. In a debug build execution is halted with assert(0). In a non-debug
-// build the program is halted with abort(). Objects cannot be printed.
+// build the program is halted with abort().
 int    _DKFatalError( const char * format, ... );
 
 #if defined(NDEBUG)
-#define DKPrintf( ... )
+#define DKDebug( ... )
 #else
-#define DKPrintf( ... )     _DKPrintf( __VA_ARGS__ )
+#define DKDebug( ... )      _DKDebug( __VA_ARGS__ )
 #endif
 
 #if defined(NDEBUG) && !defined(DK_WARNINGS_AS_ERRORS)
