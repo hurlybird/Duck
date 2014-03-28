@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0211F36218E46D59005544BA /* DKEnv_Posix.c in Sources */ = {isa = PBXBuildFile; fileRef = 0211F36118E46D59005544BA /* DKEnv_Posix.c */; };
+		0211F36218E46D59005544BA /* DKEnvPosix.c in Sources */ = {isa = PBXBuildFile; fileRef = 0211F36118E46D59005544BA /* DKEnvPosix.c */; };
 		0239C6B914FE8F4900873E36 /* DKNodePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 0239C6B814FE8F4900873E36 /* DKNodePool.h */; };
 		024918C818C136700046AA8B /* DKBinaryTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 024918C718C136700046AA8B /* DKBinaryTree.h */; };
 		024EE3EA148E0BA5008FDADC /* DKData.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3E9148E0BA5008FDADC /* DKData.h */; };
@@ -52,7 +52,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0211F36118E46D59005544BA /* DKEnv_Posix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnv_Posix.c; sourceTree = "<group>"; };
+		0211F36118E46D59005544BA /* DKEnvPosix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnvPosix.c; sourceTree = "<group>"; };
 		0239C6B814FE8F4900873E36 /* DKNodePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKNodePool.h; sourceTree = "<group>"; };
 		0239C6BB14FE8F5600873E36 /* DKNodePool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNodePool.c; sourceTree = "<group>"; };
 		024918C718C136700046AA8B /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBinaryTree.h; sourceTree = "<group>"; };
@@ -124,9 +124,9 @@
 			children = (
 				024EE3EB148E0BBA008FDADC /* Duck.h */,
 				0274E6F914901BCF00E6F451 /* DKEnv.h */,
-				0283F5BC18D2AF7B003B1734 /* DKEnvApple.h */,
 				0274E6FB14901BDA00E6F451 /* DKEnv.c */,
-				0211F36118E46D59005544BA /* DKEnv_Posix.c */,
+				0283F5BC18D2AF7B003B1734 /* DKEnvApple.h */,
+				0211F36118E46D59005544BA /* DKEnvPosix.c */,
 				0239C6B814FE8F4900873E36 /* DKNodePool.h */,
 				0239C6BB14FE8F5600873E36 /* DKNodePool.c */,
 				02C72E6C18DEC80C009CD44D /* DKByteArray.h */,
@@ -315,7 +315,7 @@
 				02C72E7018DEC861009CD44D /* DKPointerArray.c in Sources */,
 				02C72E7218DECE4C009CD44D /* DKBinaryTree.c in Sources */,
 				02C72E7B18DF704B009CD44D /* DKFile.c in Sources */,
-				0211F36218E46D59005544BA /* DKEnv_Posix.c in Sources */,
+				0211F36218E46D59005544BA /* DKEnvPosix.c in Sources */,
 				02C72E7E18DFA4B7009CD44D /* DKArray.c in Sources */,
 				02C72E7718DF606B009CD44D /* DKStream.c in Sources */,
 				02C72E7518DEDCB6009CD44D /* DKDictionary.c in Sources */,
@@ -521,6 +521,7 @@
 				02D00FC518E6258C00FC3054 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
