@@ -12,7 +12,6 @@
 		024918C818C136700046AA8B /* DKBinaryTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 024918C718C136700046AA8B /* DKBinaryTree.h */; };
 		024EE3EA148E0BA5008FDADC /* DKData.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3E9148E0BA5008FDADC /* DKData.h */; };
 		024EE3EC148E0BBA008FDADC /* Duck.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3EB148E0BBA008FDADC /* Duck.h */; };
-		024EE3F4148E3566008FDADC /* scl_array.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3F3148E3566008FDADC /* scl_array.h */; };
 		024EE3FA148E42C9008FDADC /* DKLinkedList.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3F9148E42C9008FDADC /* DKLinkedList.h */; };
 		0261EB8618DD83C000974404 /* DKData.c in Sources */ = {isa = PBXBuildFile; fileRef = 024EE3ED148E0BCD008FDADC /* DKData.c */; };
 		0261EB8B18DE3D8C00974404 /* DKList.c in Sources */ = {isa = PBXBuildFile; fileRef = 0278EA4A18CD92AC0028A755 /* DKList.c */; };
@@ -20,9 +19,7 @@
 		026E1EB518E0FC730079B2F9 /* DKHashTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 026E1EB418E0FC730079B2F9 /* DKHashTable.c */; };
 		0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */ = {isa = PBXBuildFile; fileRef = 0274E6F914901BCF00E6F451 /* DKEnv.h */; };
 		0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */ = {isa = PBXBuildFile; fileRef = 0274E6FB14901BDA00E6F451 /* DKEnv.c */; };
-		0274E6FE14901EFE00E6F451 /* scl_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0274E6FD14901EFE00E6F451 /* scl_buffer.h */; };
 		0278EA4918CD811B0028A755 /* DKNodePool.c in Sources */ = {isa = PBXBuildFile; fileRef = 0239C6BB14FE8F5600873E36 /* DKNodePool.c */; };
-		027E9770148E830200AC8406 /* scl_value.h in Headers */ = {isa = PBXBuildFile; fileRef = 027E976F148E830200AC8406 /* scl_value.h */; };
 		027E9783148F2D4400AC8406 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 027E9782148F2D4400AC8406 /* main.c */; };
 		027E9789148F2D6A00AC8406 /* libDuck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libDuck.a */; };
 		0283F5BF18D2D93E003B1734 /* DKCopying.c in Sources */ = {isa = PBXBuildFile; fileRef = 0283F5BE18D2D93E003B1734 /* DKCopying.c */; };
@@ -35,6 +32,8 @@
 		02C72E7B18DF704B009CD44D /* DKFile.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E7A18DF704B009CD44D /* DKFile.c */; };
 		02C72E7E18DFA4B7009CD44D /* DKArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E7C18DFA4B7009CD44D /* DKArray.c */; };
 		02C72E7F18DFA4B7009CD44D /* DKArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C72E7D18DFA4B7009CD44D /* DKArray.h */; };
+		02D00FAE18E5FE8600FC3054 /* DKString.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FAC18E5FE8600FC3054 /* DKString.c */; };
+		02D00FAF18E5FE8600FC3054 /* DKString.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D00FAD18E5FE8600FC3054 /* DKString.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,27 +68,19 @@
 		024EE3E9148E0BA5008FDADC /* DKData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKData.h; sourceTree = "<group>"; };
 		024EE3EB148E0BBA008FDADC /* Duck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Duck.h; sourceTree = "<group>"; };
 		024EE3ED148E0BCD008FDADC /* DKData.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKData.c; sourceTree = "<group>"; };
-		024EE3F3148E3566008FDADC /* scl_array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scl_array.h; sourceTree = "<group>"; };
-		024EE3F5148E3571008FDADC /* scl_array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scl_array.c; sourceTree = "<group>"; };
 		024EE3F9148E42C9008FDADC /* DKLinkedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKLinkedList.h; sourceTree = "<group>"; };
 		024EE3FB148E42D6008FDADC /* DKLinkedList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKLinkedList.c; sourceTree = "<group>"; };
 		026E1EB418E0FC730079B2F9 /* DKHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKHashTable.c; sourceTree = "<group>"; };
 		026E1EB618E0FC810079B2F9 /* DKHashTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKHashTable.h; sourceTree = "<group>"; };
 		0274E6F914901BCF00E6F451 /* DKEnv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKEnv.h; sourceTree = "<group>"; };
 		0274E6FB14901BDA00E6F451 /* DKEnv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnv.c; sourceTree = "<group>"; };
-		0274E6FD14901EFE00E6F451 /* scl_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scl_buffer.h; sourceTree = "<group>"; };
-		0274E6FF14901F0900E6F451 /* scl_buffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scl_buffer.c; sourceTree = "<group>"; };
 		0278EA4818CD25170028A755 /* DKList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKList.h; sourceTree = "<group>"; };
 		0278EA4A18CD92AC0028A755 /* DKList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKList.c; sourceTree = "<group>"; };
-		027E976F148E830200AC8406 /* scl_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scl_value.h; sourceTree = "<group>"; };
-		027E9771148E84A500AC8406 /* scl_value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scl_value.c; sourceTree = "<group>"; };
 		027E977F148F2D4400AC8406 /* DuckTestSuite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DuckTestSuite; sourceTree = BUILT_PRODUCTS_DIR; };
 		027E9782148F2D4400AC8406 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		0283F5BC18D2AF7B003B1734 /* DKEnvApple.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKEnvApple.h; sourceTree = "<group>"; };
 		0283F5BD18D2D92A003B1734 /* DKCopying.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKCopying.h; sourceTree = "<group>"; };
 		0283F5BE18D2D93E003B1734 /* DKCopying.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKCopying.c; sourceTree = "<group>"; };
-		02A5E25218C1A61A00CFF9CA /* scl_string.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scl_string.c; sourceTree = "<group>"; };
-		02A5E25418C1A62400CFF9CA /* scl_string.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = scl_string.h; sourceTree = "<group>"; };
 		02BF4B6018DBED2200A1D6C9 /* DKRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKRuntime.h; sourceTree = "<group>"; };
 		02BF4B6118DBED2F00A1D6C9 /* DKRuntime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKRuntime.c; sourceTree = "<group>"; };
 		02C72E6C18DEC80C009CD44D /* DKByteArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKByteArray.h; sourceTree = "<group>"; };
@@ -104,6 +95,8 @@
 		02C72E7A18DF704B009CD44D /* DKFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKFile.c; sourceTree = "<group>"; };
 		02C72E7C18DFA4B7009CD44D /* DKArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKArray.c; sourceTree = "<group>"; };
 		02C72E7D18DFA4B7009CD44D /* DKArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKArray.h; sourceTree = "<group>"; };
+		02D00FAC18E5FE8600FC3054 /* DKString.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKString.c; sourceTree = "<group>"; };
+		02D00FAD18E5FE8600FC3054 /* DKString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKString.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +142,8 @@
 				02C72E7A18DF704B009CD44D /* DKFile.c */,
 				024EE3E9148E0BA5008FDADC /* DKData.h */,
 				024EE3ED148E0BCD008FDADC /* DKData.c */,
+				02D00FAD18E5FE8600FC3054 /* DKString.h */,
+				02D00FAC18E5FE8600FC3054 /* DKString.c */,
 				0278EA4818CD25170028A755 /* DKList.h */,
 				0278EA4A18CD92AC0028A755 /* DKList.c */,
 				024EE3F9148E42C9008FDADC /* DKLinkedList.h */,
@@ -161,14 +156,6 @@
 				024918C918C1368B0046AA8B /* DKBinaryTree.c */,
 				026E1EB618E0FC810079B2F9 /* DKHashTable.h */,
 				026E1EB418E0FC730079B2F9 /* DKHashTable.c */,
-				027E976F148E830200AC8406 /* scl_value.h */,
-				027E9771148E84A500AC8406 /* scl_value.c */,
-				0274E6FD14901EFE00E6F451 /* scl_buffer.h */,
-				0274E6FF14901F0900E6F451 /* scl_buffer.c */,
-				024EE3F3148E3566008FDADC /* scl_array.h */,
-				024EE3F5148E3571008FDADC /* scl_array.c */,
-				02A5E25418C1A62400CFF9CA /* scl_string.h */,
-				02A5E25218C1A61A00CFF9CA /* scl_string.c */,
 				027E9781148F2D4400AC8406 /* DuckTestSuite */,
 				024EE3E3148E0B21008FDADC /* Products */,
 			);
@@ -200,13 +187,11 @@
 			files = (
 				024EE3EA148E0BA5008FDADC /* DKData.h in Headers */,
 				024EE3EC148E0BBA008FDADC /* Duck.h in Headers */,
-				024EE3F4148E3566008FDADC /* scl_array.h in Headers */,
 				02C72E7F18DFA4B7009CD44D /* DKArray.h in Headers */,
 				024EE3FA148E42C9008FDADC /* DKLinkedList.h in Headers */,
-				027E9770148E830200AC8406 /* scl_value.h in Headers */,
 				0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */,
-				0274E6FE14901EFE00E6F451 /* scl_buffer.h in Headers */,
 				0239C6B914FE8F4900873E36 /* DKNodePool.h in Headers */,
+				02D00FAF18E5FE8600FC3054 /* DKString.h in Headers */,
 				024918C818C136700046AA8B /* DKBinaryTree.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -284,6 +269,7 @@
 				026E1EB518E0FC730079B2F9 /* DKHashTable.c in Sources */,
 				0283F5BF18D2D93E003B1734 /* DKCopying.c in Sources */,
 				0261EB8C18DE419A00974404 /* DKLinkedList.c in Sources */,
+				02D00FAE18E5FE8600FC3054 /* DKString.c in Sources */,
 				0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */,
 				0278EA4918CD811B0028A755 /* DKNodePool.c in Sources */,
 				02C72E7018DEC861009CD44D /* DKPointerArray.c in Sources */,

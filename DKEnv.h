@@ -27,6 +27,12 @@ typedef intptr_t DKIndex;
 typedef uintptr_t DKHashCode;
 
 
+// UTF32 character - C11 provides this type
+#ifndef char32_t
+typedef int32_t char32_t;
+#endif
+
+
 // Ranges
 typedef struct
 {
@@ -184,7 +190,23 @@ DKHashCode dk_memhash( const void * buffer, size_t buffer_size );
 
 double dk_time( void );
 
+// Shuffle an array of pointer-sized integers
 void dk_shuffle( uintptr_t array[], DKIndex count );
+
+
+// UTF8 aware versions of standard string functions
+const char * dk_ustrchr( const char * str, int ch );
+const char * dk_ustrrchr( const char * str, int ch );
+
+int dk_ustrcmp( const char * str1, const char * str2 );
+int dk_ustrncmp( const char * str1, const char * str2, size_t count );
+
+int dk_ustrcasecmp( const char * str1, const char * str2 );
+int dk_ustrncasecmp( const char * str1, const char * str2, size_t count );
+
+size_t dk_ustrlen( const char * str );
+
+size_t dk_ustrscan( const char * str, char32_t * ch );
 
 
 #endif // _DK_ENV_H_
