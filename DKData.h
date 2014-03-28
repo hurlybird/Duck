@@ -19,8 +19,9 @@ typedef DKTypeRef DKMutableDataRef;
 DKTypeRef   DKDataClass( void );
 DKTypeRef   DKMutableDataClass( void );
 
-DKDataRef   DKDataCreate( const void * bytes, DKIndex length );
+DKDataRef   DKDataCreate( void );
 DKDataRef   DKDataCreateCopy( DKDataRef srcData );
+DKDataRef   DKDataCreateWithBytes( const void * bytes, DKIndex length );
 DKDataRef   DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length );
 
 DKMutableDataRef DKDataCreateMutable( void );

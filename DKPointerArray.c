@@ -111,7 +111,7 @@ static uintptr_t * DKPointerArrayResize( void * ptr, DKIndex oldSize, DKIndex re
 void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const uintptr_t pointers[], DKIndex length )
 {
     DKAssert( array->length >= 0 );
-
+    
     DKIndex range_end = DKRangeEnd( range );
 
     DKAssert( range.location >= 0 );

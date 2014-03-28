@@ -212,7 +212,7 @@ static int CountNodes( void * context, DKTypeRef key, DKTypeRef object )
     return 0;
 }
 
-static void CheckTreeIntegrity( const struct DKBinaryTree * tree, const struct DKBinaryTreeNode * node )
+static void CheckTreeIntegrity( const struct DKBinaryTree * tree )
 {
     DKAssert( tree->null_node.left == &tree->null_node );
     DKAssert( tree->null_node.right == &tree->null_node );
@@ -222,7 +222,7 @@ static void CheckTreeIntegrity( const struct DKBinaryTree * tree, const struct D
     DKAssert( tree->null_node.key == NULL );
     DKAssert( tree->null_node.object == NULL );
 
-    DKIndex count = CheckTreeIntegrityRecursive( tree, node );
+    DKIndex count = CheckTreeIntegrityRecursive( tree, tree->root );
     DKAssert( count == tree->count );
 }
 #else
@@ -504,7 +504,7 @@ static void RemoveAll( struct DKBinaryTree * tree, struct DKBinaryTreeNode * nod
     tree->root = &tree->null_node;
     tree->count = 0;
 
-    CheckTreeIntegrity( tree, tree->root );
+    CheckTreeIntegrity( tree );
 }
 
 
@@ -525,7 +525,7 @@ DKDictionaryRef DKBinaryTreeCreate( DKTypeRef keys[], DKTypeRef objects[], DKInd
         Insert( tree, &tree->root, hash, keys[i], objects[i], DKDictionaryInsertAlways );
     }
 
-    CheckTreeIntegrity( tree, tree->root );
+    CheckTreeIntegrity( tree );
     
     return tree;
 }
@@ -553,7 +553,7 @@ DKDictionaryRef DKBinaryTreeCreateWithKeysAndObjects( DKTypeRef firstKey, ... )
 
     va_end( arg_ptr );
 
-    CheckTreeIntegrity( tree, tree->root );
+    CheckTreeIntegrity( tree );
     
     return tree;
 }
@@ -697,7 +697,7 @@ void DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKType
 
         Insert( tree, &tree->root, hash, key, object, policy );
 
-        CheckTreeIntegrity( tree, tree->root );
+        CheckTreeIntegrity( tree );
     }
 }
 
@@ -728,7 +728,7 @@ void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
         
         DKAssert( n == (tree->count + 1) );
 
-        CheckTreeIntegrity( tree, tree->root );
+        CheckTreeIntegrity( tree );
     }
 }
 

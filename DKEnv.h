@@ -44,7 +44,7 @@ typedef struct
 #define DKRangeMake( loc, len )     (const DKRange){ loc, len }
 #define DKRangeEnd( range )         (((range).location) + ((range).length))
 
-// False if the range is outside 0..len OR is an empty sequence at len + 1
+// False if the range is outside 0..len OR is not the empty sequence at len + 1
 #define DKRangeCheck( range, len )  (((range).location >= 0) && ((range).length >= 0) && (DKRangeEnd(range) <= len))
 
 enum
@@ -128,7 +128,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
     #endif
 
     #ifndef DK_RUNTIME_INTEGRITY_CHECKS
-    #define DK_RUNTIME_INTEGRITY_CHECKS 1
+    #define DK_RUNTIME_INTEGRITY_CHECKS 0
     #endif
 #endif
 
@@ -138,16 +138,16 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #define DKVerifyKindOfClass( ref, cls, ... )                                            \
     if( !DKIsKindOfClass( ref, cls ) )                                                  \
     {                                                                                   \
-        _DKFatalError( "%s: Expected kind of class %s, received %s\n",               \
-            __func__, DKGetClassName( cls ), DKGetClassName( ref ) );         \
+        _DKFatalError( "%s: Expected kind of class %s, received %s\n",                  \
+            __func__, DKGetClassName( cls ), DKGetClassName( ref ) );                   \
         return __VA_ARGS__;                                                             \
     }
 
 #define DKVerifyMemberOfClass( ref, cls, ... )                                          \
     if( !DKIsKindOfClass( ref, cls ) )                                                  \
     {                                                                                   \
-        _DKFatalError( "%s: Expected member of class %s, received %s\n",             \
-            __func__, DKGetClassName( cls ), DKGetClassName( ref ) );         \
+        _DKFatalError( "%s: Expected member of class %s, received %s\n",                \
+            __func__, DKGetClassName( cls ), DKGetClassName( ref ) );                   \
         return __VA_ARGS__;                                                             \
     }
 #else
@@ -161,8 +161,8 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #define DKVerifyRange( range, length, ... )                                             \
     if( !DKRangeCheck( range, length ) )                                                \
     {                                                                                   \
-        _DKFatalError( "%s: Range %d..%d is outside %d..%d\n",                       \
-            __func__, range.location, DKRangeEnd( range ), 0, length );       \
+        _DKFatalError( "%s: Range %d..%d is outside %d..%d\n",                          \
+            __func__, range.location, DKRangeEnd( range ), 0, length );                 \
         return __VA_ARGS__;                                                             \
     }
 #else

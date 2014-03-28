@@ -180,7 +180,6 @@ void TestDKData( void )
 
     DKDataDeleteBytes( data, DKRangeMake( 40, 10 ) );
     VERIFY( DKDataGetLength( data ) == 40 );
-    VERIFY( DKDataGetByteRange( data, DKRangeMake( 40, 10 ) ) == NULL );
     
     DKDataDeleteBytes( data, DKRangeMake( 0, DKDataGetLength( data ) ) );
     
@@ -195,10 +194,10 @@ void TestDKList( DKTypeRef listClass )
 {
     printf( "Testing List %s\n", DKGetClassName( listClass ) );
 
-    DKDataRef a = DKDataCreate( "a", 2 );
-    DKDataRef b = DKDataCreate( "b", 2 );
-    DKDataRef c = DKDataCreate( "c", 2 );
-    DKDataRef d = DKDataCreate( "d", 2 );
+    DKDataRef a = DKDataCreateWithBytes( "a", 2 );
+    DKDataRef b = DKDataCreateWithBytes( "b", 2 );
+    DKDataRef c = DKDataCreateWithBytes( "c", 2 );
+    DKDataRef d = DKDataCreateWithBytes( "d", 2 );
     
     DKMutableListRef list = (DKMutableListRef)DKCreate( listClass );
     
@@ -288,10 +287,10 @@ void TestDKDictionary( DKTypeRef dictionaryClass )
         char buffer[32];
         
         sprintf( buffer, "Key%d", i );
-        keys[i] = DKDataCreate( buffer, strlen( buffer) + 1 );
+        keys[i] = DKDataCreateWithBytes( buffer, strlen( buffer) + 1 );
 
         sprintf( buffer, "Value%d", i );
-        values[i] = DKDataCreate( buffer, strlen( buffer) + 1 );
+        values[i] = DKDataCreateWithBytes( buffer, strlen( buffer) + 1 );
 
         DKDictionarySetObject( dict, keys[i], values[i] );
 
@@ -334,7 +333,7 @@ void TestDKListPerformance( DKTypeRef listClass )
 {
     const int N = 10000000;
 
-    DKDataRef foo = DKDataCreate( "foo", 4 );
+    DKDataRef foo = DKDataCreateWithBytes( "foo", 4 );
     DKDataRef bar = NULL;
     
     // Array Setup
