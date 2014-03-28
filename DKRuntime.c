@@ -249,6 +249,9 @@ int DKDefaultCompare( DKTypeRef ref, DKTypeRef other )
 DKHashCode DKDefaultHash( DKTypeRef ref )
 {
     DKAssert( sizeof(DKHashCode) == sizeof(DKTypeRef) );
+    
+    // Assuming allocated memory is at least 4-byte aligned, this will make hashes
+    // derived from pointers a bit more useful
     return ((DKHashCode)ref) >> 2;
 }
 

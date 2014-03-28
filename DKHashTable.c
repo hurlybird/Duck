@@ -23,12 +23,20 @@ struct DKHashTable
     
     struct DKHashTableRow * rows;
     DKIndex count;
-    DKIndex maxCount;
+    DKIndex capacity;
+    DKIndex rowCount;
 };
+
+
+#define MIN_HASHTABLE_SIZE  11
+#define DELETED_KEY         ((void *)-1)
 
 
 static DKTypeRef DKHashTableInitialize( DKTypeRef ref );
 static void      DKHashTableFinalize( DKTypeRef ref );
+
+static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
+static void RemoveAll( struct DKHashTable * hashTable );
 
 static void DKImmutableHashTableInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
 static void DKImmutableHashTableRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key );
@@ -121,9 +129,12 @@ static DKTypeRef DKHashTableInitialize( DKTypeRef ref )
 {
     struct DKHashTable * hashTable = (struct DKHashTable *)ref;
 
-    hashTable->rows = NULL;
     hashTable->count = 0;
-    hashTable->maxCount = 0;
+    hashTable->rowCount = MIN_HASHTABLE_SIZE;
+    hashTable->capacity = hashTable->rowCount / 2;
+    hashTable->rows = dk_malloc( sizeof(struct DKHashTableRow) * MIN_HASHTABLE_SIZE );
+
+    memset( hashTable->rows, 0, sizeof(struct DKHashTableRow) * MIN_HASHTABLE_SIZE );
     
     return ref;
 }
@@ -135,7 +146,7 @@ static DKTypeRef DKHashTableInitialize( DKTypeRef ref )
 static void DKHashTableFinalize( DKTypeRef ref )
 {
     struct DKHashTable * hashTable = (struct DKHashTable *)ref;
-    DKHashTableRemoveAllObjects( hashTable );
+    RemoveAll( hashTable );
 }
 
 
@@ -144,10 +155,117 @@ static void DKHashTableFinalize( DKTypeRef ref )
 // Internals =============================================================================
 
 ///
+//  IsPrime()
+//
+static bool IsPrime( DKIndex x )
+{
+    for( DKIndex i = 3; (i * i) < x; i += 2 )
+    {
+        if( (x % i) == 0 )
+            return false;
+    }
+    
+    return true;
+}
+
+
+///
+//  NextPrime()
+//
+static DKIndex NextPrime( DKIndex x )
+{
+    if( (x & 1) == 0 )
+        x++;
+    
+    for( ; !IsPrime( x ); x += 2 )
+        ;
+    
+    return x;
+}
+
+
+///
+//  RowIsActive()
+//
+static bool RowIsActive( struct DKHashTableRow * row )
+{
+    return (row->key != NULL) && (row->key != DELETED_KEY);
+}
+
+
+///
+//  RowIsEmpty()
+//
+static bool RowIsEmpty( struct DKHashTableRow * row )
+{
+    return row->key == NULL;
+}
+
+
+///
+//  ResizeAndRehash()
+//
+static void ResizeAndRehash( struct DKHashTable * hashTable )
+{
+    if( hashTable->count < hashTable->capacity )
+        return;
+    
+    struct DKHashTableRow * oldRows = hashTable->rows;
+    DKIndex oldRowCount = hashTable->rowCount;
+    
+    hashTable->rowCount = NextPrime( oldRowCount * 2 );
+    hashTable->capacity = hashTable->rowCount / 2;
+    hashTable->count = 0;
+    hashTable->rows = dk_malloc( sizeof(struct DKHashTableRow) * hashTable->rowCount );
+    
+    memset( hashTable->rows, 0, sizeof(struct DKHashTableRow) * hashTable->rowCount );
+    
+    for( DKIndex i = 0; i < oldRowCount; ++i )
+    {
+        struct DKHashTableRow * row = &oldRows[i];
+        
+        if( RowIsActive( row ) )
+        {
+            Insert( hashTable, row->hash, row->key, row->object, DKDictionaryInsertAlways );
+        
+            DKRelease( row->key );
+            DKRelease( row->object );
+        }
+    }
+    
+    dk_free( oldRows );
+}
+
+
+///
 //  Find()
 //
 static struct DKHashTableRow * Find( struct DKHashTable * hashTable, DKHashCode hash, DKTypeRef key )
 {
+    DKIndex i = 0;
+    DKIndex x = hash % hashTable->rowCount;
+    
+    while( 1 )
+    {
+        struct DKHashTableRow * row = &hashTable->rows[x];
+
+        if( RowIsEmpty( row ) )
+            return row;
+           
+        if( row->hash == hash )
+        {
+            if( DKEqual( row->key, key ) )
+                return row;
+        }
+        
+        i++;
+        x += (2 * i) - 1;
+        
+        if( x >= hashTable->rowCount )
+            x -= hashTable->rowCount;
+    }
+        
+    DKAssert( 0 );
     return NULL;
 }
 
@@ -157,14 +275,88 @@ static struct DKHashTableRow * Find( struct DKHashTable * hashTable, DKHashCode 
 //
 static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy )
 {
+    // It should be impossible for a key object to exist at the max addressable byte in
+    // memory... but lets's not be surprised.
+    DKAssert( key != DELETED_KEY );
+
+    struct DKHashTableRow * row = Find( hashTable, hash, key );
+    bool active = RowIsActive( row );
+
+    if( !active && (policy == DKDictionaryInsertIfFound) )
+        return;
+    
+    if( active && (policy == DKDictionaryInsertIfNotFound) )
+        return;
+
+    row->hash = hash;
+
+    if( active )
+    {
+        DKRetain( key );
+        DKRelease( row->key );
+        row->key = key;
+
+        DKRetain( object );
+        DKRelease( row->object );
+        row->object = object;
+    }
+    
+    else
+    {
+        row->key = DKRetain( key );
+        row->object = DKRetain( object );
+
+        hashTable->count++;
+    }
+    
+    ResizeAndRehash( hashTable );
 }
 
 
 ///
-//  Erase()
+//  Remove()
 //
-static void Erase( struct DKHashTable * hashTable, DKHashCode hash, DKTypeRef key )
+static void Remove( struct DKHashTable * hashTable, DKHashCode hash, DKTypeRef key )
 {
+    struct DKHashTableRow * row = Find( hashTable, hash, key );
+    
+    if( RowIsActive( row ) )
+    {
+        DKAssert( row->hash == hash );
+        DKAssert( DKEqual( row->key, key ) );
+    
+        DKRelease( row->key );
+        row->key = DELETED_KEY;
+        
+        DKRelease( row->object );
+        row->object = NULL;
+        
+        hashTable->count--;
+    }
+}
+
+
+///
+//  RemoveAll()
+//
+static void RemoveAll( struct DKHashTable * hashTable )
+{
+    for( DKIndex i = 0; i < hashTable->count; ++i )
+    {
+        struct DKHashTableRow * row = &hashTable->rows[i];
+        
+        if( RowIsActive( row ) )
+        {
+            DKRelease( row->key );
+            DKRelease( row->object );
+        }
+        
+        row->hash = 0;
+        row->key = NULL;
+        row->object = NULL;
+    }
+    
+    hashTable->count = 0;
 }
 
 
@@ -265,6 +457,8 @@ DKIndex DKHashTableGetCount( DKDictionaryRef ref )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKHashTableClass(), 0 );
+        
         struct DKHashTable * hashTable = (struct DKHashTable *)ref;
         return hashTable->count;
     }
@@ -280,6 +474,8 @@ DKTypeRef DKHashTableGetObject( DKDictionaryRef ref, DKTypeRef key )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKHashTableClass(), NULL );
+
         struct DKHashTable * hashTable = (struct DKHashTable *)ref;
         DKHashCode hash = DKHash( key );
     
@@ -298,7 +494,27 @@ DKTypeRef DKHashTableGetObject( DKDictionaryRef ref, DKTypeRef key )
 //
 int DKHashTableApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context )
 {
-    return 0;
+    int result = 0;
+    
+    if( ref )
+    {
+        DKVerifyKindOfClass( ref, DKHashTableClass(), 0 );
+
+        struct DKHashTable * hashTable = (struct DKHashTable *)ref;
+        
+        for( DKIndex i = 0; i < hashTable->count; ++i )
+        {
+            struct DKHashTableRow * row = &hashTable->rows[i];
+            
+            if( row->key )
+            {
+                if( (result = callback( context, row->key, row->object )) != 0 )
+                    break;
+            }
+        }
+    }
+    
+    return result;
 }
 
 
@@ -314,6 +530,8 @@ void DKHashTableInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeR
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableHashTableClass() );
+
         struct DKHashTable * hashTable = (struct DKHashTable *)ref;
         DKHashCode hash = DKHash( key );
 
@@ -334,10 +552,12 @@ void DKHashTableRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
 {
     if( ref )
     {
+        DKVerifyKindOfClass( ref, DKMutableHashTableClass() );
+
         struct DKHashTable * hashTable = (struct DKHashTable *)ref;
         DKHashCode hash = DKHash( key );
 
-        Erase( hashTable, hash, key );
+        Remove( hashTable, hash, key );
     }
 }
 
@@ -354,7 +574,10 @@ void DKHashTableRemoveAllObjects( DKMutableDictionaryRef ref )
 {
     if( ref )
     {
-        //struct DKHashTable * hashTable = (struct DKHashTable *)ref;
+        DKVerifyKindOfClass( ref, DKMutableHashTableClass() );
+
+        struct DKHashTable * hashTable = (struct DKHashTable *)ref;
+        RemoveAll( hashTable );
     }
 }
 

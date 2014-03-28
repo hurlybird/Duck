@@ -166,8 +166,10 @@ DKIndex DKListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] )
 ///
 //  DKListApplyFunction()
 //
-void DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * context )
+int DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * context )
 {
+    int result = 0;
+    
     if( ref )
     {
         DKList * list = DKGetInterface( ref, DKSelector(List) );
@@ -180,9 +182,12 @@ void DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * 
             
             list->getObjects( ref, DKRangeMake( i, 1 ), &object );
 
-            callback( object, context );
+            if( (result = callback( object, context )) != 0 )
+                break;
         }
     }
+    
+    return result;
 }
 
 

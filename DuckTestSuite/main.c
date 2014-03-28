@@ -13,7 +13,7 @@
 #include "Duck.h"
 
 
-#define VERIFY( x )     if( !(x) ) printf( "FAILED: %s\n", #x )
+#define VERIFY( x )     do { if( !(x) ) printf( "FAILED: %s\n", #x ); } while( 0 )
 
 
 void TestDKObject( void );
@@ -32,6 +32,7 @@ int main( int argc, const char * argv[] )
     TestDKList( DKMutableLinkedListClass() );
     TestDKList( DKMutableArrayClass() );
     TestDKDictionary( DKMutableBinaryTreeClass() );
+    TestDKDictionary( DKMutableHashTableClass() );
     
 #if 0
     
@@ -127,6 +128,8 @@ void TestDKObject( void )
 // TestDKData ============================================================================
 void TestDKData( void )
 {
+    printf( "Testing Dictionary %s\n", DKGetClassName( DKMutableDataClass() ) );
+
     DKMutableDataRef data = DKDataCreateMutable();
     
     const char * a = "aaaaaaaa";
@@ -190,6 +193,8 @@ void TestDKData( void )
 // TestDKList ============================================================================
 void TestDKList( DKTypeRef listClass )
 {
+    printf( "Testing List %s\n", DKGetClassName( listClass ) );
+
     DKDataRef a = DKDataCreate( "a", 2 );
     DKDataRef b = DKDataCreate( "b", 2 );
     DKDataRef c = DKDataCreate( "c", 2 );
@@ -269,10 +274,12 @@ void TestDKList( DKTypeRef listClass )
 // TestDKDictionary ======================================================================
 void TestDKDictionary( DKTypeRef dictionaryClass )
 {
-    const int N = 100;
+    const int N = 10000;
     
-    DKTypeRef keys[N];
-    DKTypeRef values[N];
+    DKTypeRef * keys = dk_malloc( sizeof(DKTypeRef) * N );
+    DKTypeRef * values = dk_malloc( sizeof(DKTypeRef) * N );
+
+    printf( "Testing Dictionary interface with %s\n", DKGetClassName( dictionaryClass ) );
 
     DKMutableDictionaryRef dict = (DKMutableDictionaryRef)DKCreate( dictionaryClass );
     
@@ -287,6 +294,9 @@ void TestDKDictionary( DKTypeRef dictionaryClass )
         values[i] = DKDataCreate( buffer, strlen( buffer) + 1 );
 
         DKDictionarySetObject( dict, keys[i], values[i] );
+
+        VERIFY( DKDictionaryGetCount( dict ) == (i + 1) );
+        VERIFY( DKDictionaryContainsKey( dict, keys[i] ) );
     }
     
     VERIFY( DKDictionaryGetCount( dict ) == N );
@@ -296,6 +306,8 @@ void TestDKDictionary( DKTypeRef dictionaryClass )
         DKTypeRef value = DKDictionaryGetObject( dict, keys[i] );
         VERIFY( value == values[i] );
     }
+    
+    dk_shuffle( (uintptr_t *)keys, N );
     
     for( int i = 0; i < N; i++ )
     {
@@ -310,6 +322,8 @@ void TestDKDictionary( DKTypeRef dictionaryClass )
     }
     
     DKRelease( dict );
+    dk_free( keys );
+    dk_free( values );
 }
 
 

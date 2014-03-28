@@ -18,15 +18,11 @@
 
 // Basic Types ===========================================================================
 
-// Object Types
+// Objects
 typedef const void * DKTypeRef;
 
 
-// Callback Types
-typedef int  (*DKCompareFunction)( DKTypeRef a, DKTypeRef b );
-
-
-// Index Types
+// Indexes
 typedef intptr_t DKIndex;
 typedef uintptr_t DKHashCode;
 
@@ -49,6 +45,10 @@ enum
 {
     DKNotFound = -1,
 };
+
+
+// Callback Types
+typedef int  (*DKCompareFunction)( DKTypeRef a, DKTypeRef b );
 
 
 

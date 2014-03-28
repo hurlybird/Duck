@@ -18,7 +18,7 @@ DKDeclareInterface( List );
 typedef DKTypeRef DKListRef;
 typedef DKTypeRef DKMutableListRef;
 
-typedef void (*DKListApplierFunction)( DKTypeRef object, void * context );
+typedef int (*DKListApplierFunction)( DKTypeRef object, void * context );
 
 struct DKList
 {
@@ -46,7 +46,7 @@ DKIndex     DKListGetLastIndexOfObject( DKListRef ref, DKTypeRef object );
 const void * DKListGetObjectAtIndex( DKListRef ref, DKIndex index );
 DKIndex     DKListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] );
 
-void        DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * context );
+int         DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * context );
 
 void        DKListAppendObject( DKMutableListRef ref, DKTypeRef object );
 void        DKListAppendList( DKMutableListRef ref, DKTypeRef srcList );

@@ -29,5 +29,6 @@
 
 #include "DKDictionary.h"
 #include "DKBinaryTree.h"
+#include "DKHashTable.h"
 
 #endif
