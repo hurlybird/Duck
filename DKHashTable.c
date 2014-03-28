@@ -154,12 +154,53 @@ static void DKHashTableFinalize( DKTypeRef ref )
 
 // Internals =============================================================================
 
-///
-//  IsPrime()
-//
-static bool IsPrime( DKIndex x )
+struct HashTableSize
 {
-    for( DKIndex i = 3; (i * i) < x; i += 2 )
+    DKIndex rowCount; // prime
+    DKIndex capacity; // rowCount / 2
+};
+
+static const struct HashTableSize HashTableSizes[] =
+{
+    { 11, 5 },
+    { 23, 11 },
+    { 47, 23 },
+    { 97, 48 },
+    { 197, 98 },
+    { 397, 198 },
+    { 797, 398 },
+    { 1597, 798 },
+    { 3203, 1601 },
+    { 6421, 3210 },
+    { 12853, 6426 },
+    { 25717, 12858 },
+    { 51437, 25718 },
+    { 102877, 51438 },
+    { 205759, 102879 },
+    { 411527, 205763 },
+    { 823117, 411558 },
+    { 1646237, 823118 },
+    { 3292489, 1646244 },
+    { 6584983, 3292491 },
+    { 13169977, 6584988 },
+    { 26339969, 13169984 },
+    { 52679969, 26339984 },
+    { 105359939, 52679969 },
+    { 210719881, 105359940 },
+    { 421439783, 210719891 },
+    { 842879579, 421439789 },
+    { 1685759167, 842879583 },
+    
+    // This could be larger on 64-bit architectures...
+    
+    { 0, 0 }
+};
+
+// Size table generation for load < 0.5
+#if 0
+static bool IsPrime( int64_t x )
+{
+    for( int64_t i = 3; (i * i) < x; i += 2 )
     {
         if( (x % i) == 0 )
             return false;
@@ -168,11 +209,7 @@ static bool IsPrime( DKIndex x )
     return true;
 }
 
-
-///
-//  NextPrime()
-//
-static DKIndex NextPrime( DKIndex x )
+static int64_t NextPrime( int64_t x )
 {
     if( (x & 1) == 0 )
         x++;
@@ -181,6 +218,36 @@ static DKIndex NextPrime( DKIndex x )
         ;
     
     return x;
+}
+
+static void GenerateHashTableSizes( void )
+{
+    int64_t max = 0x7fffffff;
+
+    for( int64_t i = 11; i <= max; )
+    {
+        printf( "    { %lld, %lld },\n", i, i / 2 );
+        i = NextPrime( i * 2 );
+    }
+}
+#endif
+
+
+///
+//  NextHashTableSize()
+//
+static struct HashTableSize NextHashTableSize( DKIndex rowCount )
+{
+    for( int i = 0; HashTableSizes[i].rowCount != 0; i++ )
+    {
+        if( HashTableSizes[i].rowCount > rowCount )
+            return HashTableSizes[i];
+    }
+    
+    DKFatalError( "DKHashTable: Exceeded maximum table size (~843 million entries).\n" );
+
+    struct HashTableSize zero = { 0, 0 };
+    return zero;
 }
 
 
@@ -213,8 +280,10 @@ static void ResizeAndRehash( struct DKHashTable * hashTable )
     struct DKHashTableRow * oldRows = hashTable->rows;
     DKIndex oldRowCount = hashTable->rowCount;
     
-    hashTable->rowCount = NextPrime( oldRowCount * 2 );
-    hashTable->capacity = hashTable->rowCount / 2;
+    struct HashTableSize newSize = NextHashTableSize( hashTable->rowCount );
+    
+    hashTable->rowCount = newSize.rowCount;
+    hashTable->capacity = newSize.capacity;
     hashTable->count = 0;
     hashTable->rows = dk_malloc( sizeof(struct DKHashTableRow) * hashTable->rowCount );
     
@@ -258,6 +327,7 @@ static struct DKHashTableRow * Find( struct DKHashTable * hashTable, DKHashCode 
                 return row;
         }
         
+        // Quadratic probing
         i++;
         x += (2 * i) - 1;
         
