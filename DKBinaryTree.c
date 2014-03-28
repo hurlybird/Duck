@@ -722,11 +722,7 @@ void DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
         struct DKBinaryTreeNode * leaf_node = NULL;
         struct DKBinaryTreeNode * erase_node = &tree->null_node;
 
-        DKIndex n = tree->count;
-
         Remove( tree, hash, key, &tree->root, &leaf_node, &erase_node );
-        
-        DKAssert( n == (tree->count + 1) );
 
         CheckTreeIntegrity( tree );
     }

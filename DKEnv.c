@@ -90,14 +90,17 @@ int _DKError( const char * format, ... )
     va_start( arg_ptr, format );
     
     if( ErrorCallback )
+    {
         ErrorCallback( format, arg_ptr );
+    }
     
     else
+    {
         vfprintf( stderr, format, arg_ptr );
+        assert( 0 );
+    }
 
     va_end( arg_ptr );
-
-    assert( 0 );
 
     return 0;
 }

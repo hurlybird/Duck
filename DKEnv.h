@@ -81,44 +81,36 @@ int    _DKError( const char * format, ... );
 // build the program is halted with abort().
 int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noreturn));
 
-#if defined(NDEBUG)
-#define DKDebug( ... )
-#else
-#define DKDebug( ... )      _DKDebug( __VA_ARGS__ )
-#endif
-
-#if defined(NDEBUG) && !defined(DK_WARNINGS_AS_ERRORS)
-#define DKWarning( ... )
-#else
-#define DKWarning( ... )    _DKWarning( __VA_ARGS__ )
-#endif
-
-#define DKError( ... )      _DKError( __VA_ARGS__ )
-#define DKFatalError( ... ) _DKFatalError( __VA_ARGS__ )
-
-
-#if defined(NDEBUG) && !defined(DK_ASSERTIONS_AS_ERRORS)
-#define DKAssert( x )
-#define DKAssertMsg( x, ... )
-#else
-#define DKAssert( x )               if( !(x) ) _DKFatalError( "%s %d: Failed Assert( %s )\n", __FILE__, __LINE__, #x )
-#define DKAssertMsg( x, msg, ... )  if( !(x) ) _DKFatalError( msg, __VA_ARGS__ )
-#endif
-
 
 #ifdef NDEBUG
+    #ifndef DK_RUNTIME_WARNINGS
+    #define DK_RUNTIME_WARNINGS 0
+    #endif
+
+    #ifndef DK_RUNTIME_ASSERTIONS
+    #define DK_RUNTIME_ASSERTIONS 0
+    #endif
+
     #ifndef DK_RUNTIME_TYPE_CHECKS
-    #define DK_RUNTIME_TYPE_CHECKS  0
+    #define DK_RUNTIME_TYPE_CHECKS 1
     #endif
 
     #ifndef DK_RUNTIME_RANGE_CHECKS
-    #define DK_RUNTIME_RANGE_CHECKS 0
+    #define DK_RUNTIME_RANGE_CHECKS 1
     #endif
 
     #ifndef DK_RUNTIME_INTEGRITY_CHECKS
     #define DK_RUNTIME_INTEGRITY_CHECKS 0
     #endif
 #else
+    #ifndef DK_RUNTIME_WARNINGS
+    #define DK_RUNTIME_WARNINGS 1
+    #endif
+
+    #ifndef DK_RUNTIME_ASSERTIONS
+    #define DK_RUNTIME_ASSERTIONS 1
+    #endif
+
     #ifndef DK_RUNTIME_TYPE_CHECKS
     #define DK_RUNTIME_TYPE_CHECKS  1
     #endif
@@ -133,12 +125,43 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #endif
 
 
+// Debug Messages
+#ifdef NDEBUG
+#define DKDebug( ... )
+#else
+#define DKDebug( ... )      _DKDebug( __VA_ARGS__ )
+#endif
 
+
+// Warnings
+#if DK_RUNTIME_WARNINGS
+#define DKWarning( ... )    _DKWarning( __VA_ARGS__ )
+#else
+#define DKWarning( ... )
+#endif
+
+
+// Errors
+#define DKError( ... )      _DKError( __VA_ARGS__ )
+#define DKFatalError( ... ) _DKFatalError( __VA_ARGS__ )
+
+
+// Assertions
+#if DK_RUNTIME_ASSERTIONS
+#define DKAssert( x )               if( !(x) ) _DKFatalError( "%s %d: Failed Assert( %s )\n", __FILE__, __LINE__, #x )
+#define DKAssertMsg( x, msg, ... )  if( !(x) ) _DKFatalError( msg, __VA_ARGS__ )
+#else
+#define DKAssert( x )
+#define DKAssertMsg( x, ... )
+#endif
+
+
+// Type Checks
 #if DK_RUNTIME_TYPE_CHECKS
 #define DKVerifyKindOfClass( ref, cls, ... )                                            \
     if( !DKIsKindOfClass( ref, cls ) )                                                  \
     {                                                                                   \
-        _DKFatalError( "%s: Expected kind of class %s, received %s\n",                  \
+        _DKError( "%s: Expected kind of class %s, received %s\n",                       \
             __func__, DKGetClassName( cls ), DKGetClassName( ref ) );                   \
         return __VA_ARGS__;                                                             \
     }
@@ -146,7 +169,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #define DKVerifyMemberOfClass( ref, cls, ... )                                          \
     if( !DKIsKindOfClass( ref, cls ) )                                                  \
     {                                                                                   \
-        _DKFatalError( "%s: Expected member of class %s, received %s\n",                \
+        _DKError( "%s: Expected member of class %s, received %s\n",                     \
             __func__, DKGetClassName( cls ), DKGetClassName( ref ) );                   \
         return __VA_ARGS__;                                                             \
     }
@@ -156,12 +179,12 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #endif
 
 
-
+// Range Checks
 #if DK_RUNTIME_RANGE_CHECKS
 #define DKVerifyRange( range, length, ... )                                             \
     if( !DKRangeCheck( range, length ) )                                                \
     {                                                                                   \
-        _DKFatalError( "%s: Range %d..%d is outside %d..%d\n",                          \
+        _DKError( "%s: Range %d..%d is outside %d..%d\n",                               \
             __func__, range.location, DKRangeEnd( range ), 0, length );                 \
         return __VA_ARGS__;                                                             \
     }

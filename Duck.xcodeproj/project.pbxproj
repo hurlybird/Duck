@@ -20,8 +20,6 @@
 		0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */ = {isa = PBXBuildFile; fileRef = 0274E6F914901BCF00E6F451 /* DKEnv.h */; };
 		0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */ = {isa = PBXBuildFile; fileRef = 0274E6FB14901BDA00E6F451 /* DKEnv.c */; };
 		0278EA4918CD811B0028A755 /* DKNodePool.c in Sources */ = {isa = PBXBuildFile; fileRef = 0239C6BB14FE8F5600873E36 /* DKNodePool.c */; };
-		027E9783148F2D4400AC8406 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 027E9782148F2D4400AC8406 /* main.c */; };
-		027E9789148F2D6A00AC8406 /* libDuck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libDuck.a */; };
 		0283F5BF18D2D93E003B1734 /* DKCopying.c in Sources */ = {isa = PBXBuildFile; fileRef = 0283F5BE18D2D93E003B1734 /* DKCopying.c */; };
 		02BF4B6218DBED2F00A1D6C9 /* DKRuntime.c in Sources */ = {isa = PBXBuildFile; fileRef = 02BF4B6118DBED2F00A1D6C9 /* DKRuntime.c */; };
 		02C72E6E18DEC817009CD44D /* DKByteArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C72E6D18DEC817009CD44D /* DKByteArray.c */; };
@@ -34,10 +32,17 @@
 		02C72E7F18DFA4B7009CD44D /* DKArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C72E7D18DFA4B7009CD44D /* DKArray.h */; };
 		02D00FAE18E5FE8600FC3054 /* DKString.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FAC18E5FE8600FC3054 /* DKString.c */; };
 		02D00FAF18E5FE8600FC3054 /* DKString.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D00FAD18E5FE8600FC3054 /* DKString.h */; };
+		02D00FB718E6258C00FC3054 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02D00FB618E6258C00FC3054 /* XCTest.framework */; };
+		02D00FBD18E6258C00FC3054 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 02D00FBB18E6258C00FC3054 /* InfoPlist.strings */; };
+		02D00FBF18E6258C00FC3054 /* TestDKList.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FBE18E6258C00FC3054 /* TestDKList.m */; };
+		02D00FC718E625DA00FC3054 /* TestDKObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FC618E625DA00FC3054 /* TestDKObject.m */; };
+		02D00FC818E627D300FC3054 /* libDuck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libDuck.a */; };
+		02D00FCA18E62A1100FC3054 /* TestDKData.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FC918E62A1100FC3054 /* TestDKData.m */; };
+		02D00FCC18E62A9B00FC3054 /* TestDKDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FCB18E62A9B00FC3054 /* TestDKDictionary.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		02C4204B18CF76BE0039D084 /* PBXContainerItemProxy */ = {
+		02D00FC118E6258C00FC3054 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 024EE3D9148E0B21008FDADC /* Project object */;
 			proxyType = 1;
@@ -45,18 +50,6 @@
 			remoteInfo = Duck;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		027E977D148F2D4400AC8406 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0211F36118E46D59005544BA /* DKEnv_Posix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnv_Posix.c; sourceTree = "<group>"; };
@@ -76,8 +69,6 @@
 		0274E6FB14901BDA00E6F451 /* DKEnv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnv.c; sourceTree = "<group>"; };
 		0278EA4818CD25170028A755 /* DKList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKList.h; sourceTree = "<group>"; };
 		0278EA4A18CD92AC0028A755 /* DKList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKList.c; sourceTree = "<group>"; };
-		027E977F148F2D4400AC8406 /* DuckTestSuite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DuckTestSuite; sourceTree = BUILT_PRODUCTS_DIR; };
-		027E9782148F2D4400AC8406 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		0283F5BC18D2AF7B003B1734 /* DKEnvApple.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKEnvApple.h; sourceTree = "<group>"; };
 		0283F5BD18D2D92A003B1734 /* DKCopying.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKCopying.h; sourceTree = "<group>"; };
 		0283F5BE18D2D93E003B1734 /* DKCopying.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKCopying.c; sourceTree = "<group>"; };
@@ -97,6 +88,15 @@
 		02C72E7D18DFA4B7009CD44D /* DKArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKArray.h; sourceTree = "<group>"; };
 		02D00FAC18E5FE8600FC3054 /* DKString.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKString.c; sourceTree = "<group>"; };
 		02D00FAD18E5FE8600FC3054 /* DKString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKString.h; sourceTree = "<group>"; };
+		02D00FB418E6258C00FC3054 /* Duck Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Duck Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		02D00FB618E6258C00FC3054 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		02D00FBA18E6258C00FC3054 /* Duck Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Duck Tests-Info.plist"; sourceTree = "<group>"; };
+		02D00FBC18E6258C00FC3054 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		02D00FBE18E6258C00FC3054 /* TestDKList.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestDKList.m; sourceTree = "<group>"; };
+		02D00FC018E6258C00FC3054 /* Duck Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Duck Tests-Prefix.pch"; sourceTree = "<group>"; };
+		02D00FC618E625DA00FC3054 /* TestDKObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKObject.m; sourceTree = "<group>"; };
+		02D00FC918E62A1100FC3054 /* TestDKData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKData.m; sourceTree = "<group>"; };
+		02D00FCB18E62A9B00FC3054 /* TestDKDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKDictionary.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,11 +107,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		027E977C148F2D4400AC8406 /* Frameworks */ = {
+		02D00FB118E6258C00FC3054 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				027E9789148F2D6A00AC8406 /* libDuck.a in Frameworks */,
+				02D00FC818E627D300FC3054 /* libDuck.a in Frameworks */,
+				02D00FB718E6258C00FC3054 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,7 +157,8 @@
 				024918C918C1368B0046AA8B /* DKBinaryTree.c */,
 				026E1EB618E0FC810079B2F9 /* DKHashTable.h */,
 				026E1EB418E0FC730079B2F9 /* DKHashTable.c */,
-				027E9781148F2D4400AC8406 /* DuckTestSuite */,
+				02D00FB818E6258C00FC3054 /* Duck Tests */,
+				02D00FB518E6258C00FC3054 /* Frameworks */,
 				024EE3E3148E0B21008FDADC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -165,17 +167,39 @@
 			isa = PBXGroup;
 			children = (
 				024EE3E2148E0B21008FDADC /* libDuck.a */,
-				027E977F148F2D4400AC8406 /* DuckTestSuite */,
+				02D00FB418E6258C00FC3054 /* Duck Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		027E9781148F2D4400AC8406 /* DuckTestSuite */ = {
+		02D00FB518E6258C00FC3054 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				027E9782148F2D4400AC8406 /* main.c */,
+				02D00FB618E6258C00FC3054 /* XCTest.framework */,
 			);
-			path = DuckTestSuite;
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		02D00FB818E6258C00FC3054 /* Duck Tests */ = {
+			isa = PBXGroup;
+			children = (
+				02D00FCB18E62A9B00FC3054 /* TestDKDictionary.m */,
+				02D00FC918E62A1100FC3054 /* TestDKData.m */,
+				02D00FC618E625DA00FC3054 /* TestDKObject.m */,
+				02D00FBE18E6258C00FC3054 /* TestDKList.m */,
+				02D00FB918E6258C00FC3054 /* Supporting Files */,
+			);
+			path = "Duck Tests";
+			sourceTree = "<group>";
+		};
+		02D00FB918E6258C00FC3054 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				02D00FBA18E6258C00FC3054 /* Duck Tests-Info.plist */,
+				02D00FBB18E6258C00FC3054 /* InfoPlist.strings */,
+				02D00FC018E6258C00FC3054 /* Duck Tests-Prefix.pch */,
+			);
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -216,23 +240,23 @@
 			productReference = 024EE3E2148E0B21008FDADC /* libDuck.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		027E977E148F2D4400AC8406 /* DuckTestSuite */ = {
+		02D00FB318E6258C00FC3054 /* Duck Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 027E9786148F2D4400AC8406 /* Build configuration list for PBXNativeTarget "DuckTestSuite" */;
+			buildConfigurationList = 02D00FC318E6258C00FC3054 /* Build configuration list for PBXNativeTarget "Duck Tests" */;
 			buildPhases = (
-				027E977B148F2D4400AC8406 /* Sources */,
-				027E977C148F2D4400AC8406 /* Frameworks */,
-				027E977D148F2D4400AC8406 /* CopyFiles */,
+				02D00FB018E6258C00FC3054 /* Sources */,
+				02D00FB118E6258C00FC3054 /* Frameworks */,
+				02D00FB218E6258C00FC3054 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				02C4204C18CF76BE0039D084 /* PBXTargetDependency */,
+				02D00FC218E6258C00FC3054 /* PBXTargetDependency */,
 			);
-			name = DuckTestSuite;
-			productName = scl_test;
-			productReference = 027E977F148F2D4400AC8406 /* DuckTestSuite */;
-			productType = "com.apple.product-type.tool";
+			name = "Duck Tests";
+			productName = "Duck Tests";
+			productReference = 02D00FB418E6258C00FC3054 /* Duck Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -242,6 +266,11 @@
 			attributes = {
 				LastUpgradeCheck = 0420;
 				ORGANIZATIONNAME = "Derek W. Nylen";
+				TargetAttributes = {
+					02D00FB318E6258C00FC3054 = {
+						TestTargetID = 024EE3E1148E0B21008FDADC;
+					};
+				};
 			};
 			buildConfigurationList = 024EE3DC148E0B21008FDADC /* Build configuration list for PBXProject "Duck" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -256,10 +285,21 @@
 			projectRoot = "";
 			targets = (
 				024EE3E1148E0B21008FDADC /* Duck */,
-				027E977E148F2D4400AC8406 /* DuckTestSuite */,
+				02D00FB318E6258C00FC3054 /* Duck Tests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		02D00FB218E6258C00FC3054 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02D00FBD18E6258C00FC3054 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		024EE3DE148E0B21008FDADC /* Sources */ = {
@@ -286,23 +326,37 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		027E977B148F2D4400AC8406 /* Sources */ = {
+		02D00FB018E6258C00FC3054 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				027E9783148F2D4400AC8406 /* main.c in Sources */,
+				02D00FCA18E62A1100FC3054 /* TestDKData.m in Sources */,
+				02D00FBF18E6258C00FC3054 /* TestDKList.m in Sources */,
+				02D00FCC18E62A9B00FC3054 /* TestDKDictionary.m in Sources */,
+				02D00FC718E625DA00FC3054 /* TestDKObject.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		02C4204C18CF76BE0039D084 /* PBXTargetDependency */ = {
+		02D00FC218E6258C00FC3054 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 024EE3E1148E0B21008FDADC /* Duck */;
-			targetProxy = 02C4204B18CF76BE0039D084 /* PBXContainerItemProxy */;
+			targetProxy = 02D00FC118E6258C00FC3054 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		02D00FBB18E6258C00FC3054 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				02D00FBC18E6258C00FC3054 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		024EE3E4148E0B21008FDADC /* Debug */ = {
@@ -370,17 +424,72 @@
 			};
 			name = Release;
 		};
-		027E9787148F2D4400AC8406 /* Debug */ = {
+		02D00FC418E6258C00FC3054 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Duck Tests/Duck Tests-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "Duck Tests/Duck Tests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
 		};
-		027E9788148F2D4400AC8406 /* Release */ = {
+		02D00FC518E6258C00FC3054 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Duck Tests/Duck Tests-Prefix.pch";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "Duck Tests/Duck Tests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
@@ -405,14 +514,13 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		027E9786148F2D4400AC8406 /* Build configuration list for PBXNativeTarget "DuckTestSuite" */ = {
+		02D00FC318E6258C00FC3054 /* Build configuration list for PBXNativeTarget "Duck Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				027E9787148F2D4400AC8406 /* Debug */,
-				027E9788148F2D4400AC8406 /* Release */,
+				02D00FC418E6258C00FC3054 /* Debug */,
+				02D00FC518E6258C00FC3054 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
