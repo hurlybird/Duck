@@ -23,8 +23,13 @@ typedef const void * DKTypeRef;
 
 
 // Indexes
-typedef intptr_t DKIndex;
-typedef uintptr_t DKHashCode;
+typedef intptr_t  DKIndex;    // Indexes are basically a signed size_t
+typedef uintptr_t DKHashCode; // Pointers can be used as hash codes
+
+enum
+{
+    DKNotFound = -1,
+};
 
 
 // UTF32 character - C11 provides this type
@@ -46,11 +51,6 @@ typedef struct
 
 // False if the range is outside 0..len OR is not the empty sequence at len + 1
 #define DKRangeCheck( range, len )  (((range).location >= 0) && ((range).length >= 0) && (DKRangeEnd(range) <= len))
-
-enum
-{
-    DKNotFound = -1,
-};
 
 
 // Callback Types

@@ -49,6 +49,15 @@ DKTypeRef DKDataClass( void )
         DKInstallInterface( SharedClassObject, lifeCycle );
         DKRelease( lifeCycle );
 
+        // Comparison
+        struct DKComparison * comparison = (struct DKComparison *)DKCreateInterface( DKSelector(Comparison), sizeof(DKComparison) );
+        comparison->equal = DKDataEqual;
+        comparison->compare = DKDataCompare;
+        comparison->hash = DKDataHash;
+
+        DKInstallInterface( SharedClassObject, comparison );
+        DKRelease( comparison );
+
         // Copying
         struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
         copying->copy = DKRetain;

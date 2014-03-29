@@ -248,10 +248,15 @@ int DKDefaultCompare( DKTypeRef ref, DKTypeRef other )
 
 DKHashCode DKDefaultHash( DKTypeRef ref )
 {
+    // Just in case someone changes the size of DKHashCode
     DKAssert( sizeof(DKHashCode) == sizeof(DKTypeRef) );
+
+    // Make sure object pointers are 4-byte aligned
+    DKAssert( ((DKHashCode)ref & 0x3) == 0 );
     
-    // Assuming allocated memory is at least 4-byte aligned, this will make hashes
-    // derived from pointers a bit more useful
+    // Assuming object pointers are at least 4-byte aligned, this will make hash codes
+    // derived from pointers a bit more random. This is particularly important in a hash
+    // table which uses (hashcode % prime) as an internal hash code.
     return ((DKHashCode)ref) >> 2;
 }
 
@@ -269,6 +274,10 @@ static void         DKInterfaceFinalize( DKTypeRef ref );
 
 static DKTypeRef    DKStaticObjectRetain( DKTypeRef ref );
 static void         DKStaticObjectRelease( DKTypeRef ref );
+
+static int          DKSelectorEqual( DKTypeRef ref, DKTypeRef other );
+static int          DKSelectorCompare( DKTypeRef ref, DKTypeRef other );
+#define             DKSelectorHash DKDefaultHash
 
 static int          DKInterfaceEqual( DKTypeRef ref, DKTypeRef other );
 static int          DKInterfaceCompare( DKTypeRef ref, DKTypeRef other );
@@ -300,6 +309,14 @@ static DKReferenceCounting __DKStaticObjectReferenceCounting__ =
     DKStaticObjectRelease
 };
 
+static DKComparison __DKSelectorComparison__ =
+{
+    DKStaticInterfaceObject( Comparison ),
+    DKSelectorEqual,
+    DKSelectorCompare,
+    DKSelectorHash
+};
+
 static DKComparison __DKInterfaceComparison__ =
 {
     DKStaticInterfaceObject( Comparison ),
@@ -319,13 +336,42 @@ static void DKStaticObjectRelease( DKTypeRef ref )
 {
 }
 
+
+// Selector Comparison
+#define DKFastSelectorEqual( a, b )     (a == b)
+
+static int DKSelectorEqual( DKTypeRef ref, DKTypeRef other )
+{
+    #if DK_RUNTIME_INTEGRITY_CHECKS
+    // Do stuff here
+    #endif
+
+    return ref == other;
+}
+
+static int DKSelectorCompare( DKTypeRef ref, DKTypeRef other )
+{
+    #if DK_RUNTIME_INTEGRITY_CHECKS
+    // Do stuff here
+    #endif
+
+    if( ref < other )
+        return 1;
+    
+    if( ref > other )
+        return -1;
+    
+    return 0;
+}
+
+
 // Interface Comparison
 static int DKInterfaceEqual( DKTypeRef ref, DKTypeRef other )
 {
     const DKInterface * thisInterface = ref;
     const DKInterface * otherInterface = other;
 
-    return DKDefaultEqual( thisInterface->sel, otherInterface->sel );
+    return DKSelectorEqual( thisInterface->sel, otherInterface->sel );
 }
 
 static int DKInterfaceCompare( DKTypeRef ref, DKTypeRef other )
@@ -333,14 +379,14 @@ static int DKInterfaceCompare( DKTypeRef ref, DKTypeRef other )
     const DKInterface * thisInterface = ref;
     const DKInterface * otherInterface = other;
 
-    return DKDefaultCompare( thisInterface->sel, otherInterface->sel );
+    return DKSelectorCompare( thisInterface->sel, otherInterface->sel );
 }
 
 static DKHashCode DKInterfaceHash( DKTypeRef ref )
 {
     const DKInterface * interface = ref;
     
-    return DKDefaultHash( interface->sel );
+    return DKSelectorHash( interface->sel );
 }
 
 
@@ -405,7 +451,7 @@ static void DKRuntimeInit( void )
         // Init root classes
         InitRootClass( &__DKMetaClass__,       "Root",       &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
         InitRootClass( &__DKClassClass__,      "Class",      &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
-        InitRootClass( &__DKSelectorClass__,   "Selector",   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL),   &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
+        InitRootClass( &__DKSelectorClass__,   "Selector",   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL),   &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKSelectorComparison__ );
         InitRootClass( &__DKInterfaceClass__,  "Interface",  &__DKMetaClass__, NULL,                  sizeof(DKInterface),    &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
         InitRootClass( &__DKMsgHandlerClass__, "MsgHandler", &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),   &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
         InitRootClass( &__DKPropertyClass__,   "Property",   &__DKMetaClass__, NULL,                  0,                      &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
@@ -703,7 +749,7 @@ static DKInterface * DKSearchForInterface( const struct DKClass * cls, DKSEL sel
         DKInterface * interface = cls->interfaces.data[i];
         
         // DKEqual( interface->sel, sel );
-        if( interface->sel == sel )
+        if( DKFastSelectorEqual( interface->sel, sel ) )
             return interface;
     }
     
