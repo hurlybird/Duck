@@ -8,19 +8,25 @@
 
 #import <XCTest/XCTest.h>
 
+static int RaiseException( const char * format, va_list arg_ptr )
+{
+    @throw NSGenericException;
+}
+
 @interface TestDKString : XCTestCase
 
 @end
 
 @implementation TestDKString
 
-- (void)setUp
+- (void) setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+
+    DKSetErrorCallback( RaiseException );
 }
 
-- (void)tearDown
+- (void) tearDown
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
@@ -28,23 +34,58 @@
 
 - (void) testDKString
 {
-    const char * _quickFox = "The quick brown fox jumps over a lazy dog.";
-    const char * _quick = "quick";
-
-    DKStringRef quickFox = DKStringCreateWithCString( _quickFox );
-    DKStringRef quick = DKStringCreateWithCString( _quick );
+    DKStringRef quickFox = DKSTR( "The quick brown fox jumps over a lazy dog." );
+    DKStringRef quick = DKSTR( "quick" );
     
-    XCTAssert( strcmp( DKStringGetCStringPtr( quickFox ), _quickFox ) == 0 );
+    XCTAssert( strcmp( DKStringGetCStringPtr( quick ), "quick" ) == 0 );
+    XCTAssert( DKStringGetCStringPtr( quick ) == "quick" );
     
     DKRange range = DKStringGetRangeOfString( quickFox, quick, 0 );
     XCTAssert( (range.location == 4) && (range.length == 5) );
 
     DKStringRef substring = DKStringCopySubstring( quickFox, range );
-    XCTAssert( DKEqual( quick, substring ) );
+    XCTAssert( DKStringEqual( quick, substring ) );
     DKRelease( substring );
+
+    DKMutableStringRef mutableString = DKStringCreateMutableCopy( quickFox );
+    XCTAssert( DKStringEqual( quickFox, mutableString ) );
     
-    DKRelease( quickFox );
-    DKRelease( quick );
+    range = DKStringGetRangeOfString( mutableString, quick, 0 );
+    XCTAssert( (range.location == 4) && (range.length == 5) );
+    range.length += 1;
+    
+    DKStringReplaceSubstring( mutableString, range, DKSTR( "slow " ) );
+    XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox jumps over a lazy dog." ) ) );
+    
+    DKRelease( mutableString );
+}
+
+- (void) testDKStringStream
+{
+
+    const char * a = "aaaaaaaaaa";
+    const char * b = "bbbbbbbbbb";
+    const char * c = "cccccccccc";
+
+    DKMutableStringRef str = DKStringCreateMutable();
+    
+    XCTAssert( DKWrite( str, a, 1, 10 ) == 10 );
+    XCTAssert( DKTell( str ) == 10 );
+    
+    XCTAssert( DKWrite( str, b, 1, 10 ) == 10 );
+    XCTAssert( DKTell( str ) == 20 );
+
+    XCTAssert( DKWrite( str, c, 1, 10 ) == 10 );
+    XCTAssert( DKTell( str ) == 30 );
+    
+    char buffer[11];
+    buffer[10] = '\0';
+    
+    XCTAssert( DKSeek( str, 10, SEEK_SET ) == 0 );
+    XCTAssert( DKRead( str, buffer, 1, 10 ) == 10 );
+    XCTAssert( strcmp( buffer, b ) == 0 );
+    
+    DKRelease( str );
 }
 
 @end

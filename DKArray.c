@@ -30,80 +30,70 @@ static void      DKImmutableArrayShuffle( DKMutableListRef ref );
 ///
 //  DKArrayClass()
 //
-DKTypeRef DKArrayClass( void )
+DKThreadSafeClassInit( DKArrayClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKArray", DKObjectClass(), sizeof(struct DKArray) );
-        
-        // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->initialize = DKArrayInitialize;
-        lifeCycle->finalize = DKArrayFinalize;
-
-        DKInstallInterface( SharedClassObject, lifeCycle );
-        DKRelease( lifeCycle );
-
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKRetain;
-        copying->mutableCopy = DKArrayCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-
-        // List
-        struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
-        list->getCount = DKArrayGetCount;
-        list->getObjects = DKArrayGetObjects;
-        list->replaceObjects = DKImmutableArrayReplaceObjects;
-        list->replaceObjectsWithList = DKImmutableArrayReplaceObjectsWithList;
-        list->sort = DKImmutableArraySort;
-        list->shuffle = DKImmutableArrayShuffle;
-
-        DKInstallInterface( SharedClassObject, list );
-        DKRelease( list );
-    }
+    DKTypeRef cls = DKCreateClass( "DKArray", DKObjectClass(), sizeof(struct DKArray) );
     
-    return SharedClassObject;
+    // LifeCycle
+    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    lifeCycle->initialize = DKArrayInitialize;
+    lifeCycle->finalize = DKArrayFinalize;
+
+    DKInstallInterface( cls, lifeCycle );
+    DKRelease( lifeCycle );
+
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKRetain;
+    copying->mutableCopy = DKArrayCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
+    // List
+    struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
+    list->getCount = DKArrayGetCount;
+    list->getObjects = DKArrayGetObjects;
+    list->replaceObjects = DKImmutableArrayReplaceObjects;
+    list->replaceObjectsWithList = DKImmutableArrayReplaceObjectsWithList;
+    list->sort = DKImmutableArraySort;
+    list->shuffle = DKImmutableArrayShuffle;
+
+    DKInstallInterface( cls, list );
+    DKRelease( list );
+    
+    return cls;
 }
 
 
 ///
 //  DKMutableArrayClass()
 //
-DKTypeRef DKMutableArrayClass( void )
+DKThreadSafeClassInit( DKMutableArrayClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKMutableArray", DKArrayClass(), sizeof(struct DKArray) );
-        
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKArrayCreateMutableCopy;
-        copying->mutableCopy = DKArrayCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-
-        // List
-        struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
-        list->getCount = DKArrayGetCount;
-        list->getObjects = DKArrayGetObjects;
-        list->replaceObjects = DKArrayReplaceObjects;
-        list->replaceObjectsWithList = DKArrayReplaceObjectsWithList;
-        list->sort = DKArraySort;
-        list->shuffle = DKArrayShuffle;
-
-        DKInstallInterface( SharedClassObject, list );
-        DKRelease( list );
-    }
+    DKTypeRef cls = DKCreateClass( "DKMutableArray", DKArrayClass(), sizeof(struct DKArray) );
     
-    return SharedClassObject;
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKArrayCreateMutableCopy;
+    copying->mutableCopy = DKArrayCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
+    // List
+    struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
+    list->getCount = DKArrayGetCount;
+    list->getObjects = DKArrayGetObjects;
+    list->replaceObjects = DKArrayReplaceObjects;
+    list->replaceObjectsWithList = DKArrayReplaceObjectsWithList;
+    list->sort = DKArraySort;
+    list->shuffle = DKArrayShuffle;
+
+    DKInstallInterface( cls, list );
+    DKRelease( list );
+    
+    return cls;
 }
 
 

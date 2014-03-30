@@ -8,32 +8,32 @@
 
 #import <XCTest/XCTest.h>
 
+static int RaiseException( const char * format, va_list arg_ptr )
+{
+    @throw NSGenericException;
+}
+
 @interface TestDKData : XCTestCase
 
 @end
 
 @implementation TestDKData
 
-- (void)setUp
+- (void) setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+
+    DKSetErrorCallback( RaiseException );
 }
 
-- (void)tearDown
+- (void) tearDown
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
 
-static int RaiseException( const char * format, va_list arg_ptr )
-{
-    @throw NSGenericException;
-}
-
 - (void) testDKData
 {
-    DKSetErrorCallback( RaiseException );
 
     DKMutableDataRef data = DKDataCreateMutable();
     
@@ -88,6 +88,34 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssertThrows( DKDataGetByteRange( data, DKRangeMake( 40, 10 ) ) );
     
     DKDataDeleteBytes( data, DKRangeMake( 0, DKDataGetLength( data ) ) );
+    
+    DKRelease( data );
+}
+
+- (void) testDKDataStream
+{
+    DKSetErrorCallback( RaiseException );
+
+    const char * a = "aaaaaaaa";
+    const char * b = "bbbbbbbb";
+    const char * c = "cccccccc";
+
+    DKMutableDataRef data = DKDataCreateMutable();
+    
+    XCTAssert( DKWrite( data, a, 1, 10 ) == 10 );
+    XCTAssert( DKTell( data ) == 10 );
+    
+    XCTAssert( DKWrite( data, b, 1, 10 ) == 10 );
+    XCTAssert( DKTell( data ) == 20 );
+
+    XCTAssert( DKWrite( data, c, 1, 10 ) == 10 );
+    XCTAssert( DKTell( data ) == 30 );
+    
+    char buffer[10];
+    
+    XCTAssert( DKSeek( data, 10, SEEK_SET ) == 0 );
+    XCTAssert( DKRead( data, buffer, 1, 10 ) == 10 );
+    XCTAssert( strcmp( buffer, b ) == 0 );
     
     DKRelease( data );
 }

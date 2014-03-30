@@ -8,19 +8,25 @@
 
 #import <XCTest/XCTest.h>
 
+static int RaiseException( const char * format, va_list arg_ptr )
+{
+    @throw NSGenericException;
+}
+
 @interface TestDKDictionary : XCTestCase
 
 @end
 
 @implementation TestDKDictionary
 
-- (void)setUp
+- (void) setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+
+    DKSetErrorCallback( RaiseException );
 }
 
-- (void)tearDown
+- (void) tearDown
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];

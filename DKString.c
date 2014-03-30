@@ -9,6 +9,7 @@
 #include "DKByteArray.h"
 #include "DKCopying.h"
 #include "DKStream.h"
+#include "DKHashTable.h"
 
 
 struct DKString
@@ -22,7 +23,7 @@ struct DKString
 static DKTypeRef    DKStringInitialize( DKTypeRef ref );
 static void         DKStringFinalize( DKTypeRef ref );
 
-static DKIndex DKImmutableStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size, DKIndex count );
+static DKIndex      DKImmutableStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size, DKIndex count );
 
 
 
@@ -31,85 +32,74 @@ static DKIndex DKImmutableStringWrite( DKMutableStringRef ref, const void * buff
 ///
 //  DKStringClass()
 //
-DKTypeRef DKStringClass( void )
+DKThreadSafeClassInit( DKStringClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKString", DKObjectClass(), sizeof(struct DKString) );
-        
-        // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->initialize = DKStringInitialize;
-        lifeCycle->finalize = DKStringFinalize;
-
-        DKInstallInterface( SharedClassObject, lifeCycle );
-        DKRelease( lifeCycle );
-
-        // Comparison
-        struct DKComparison * comparison = (struct DKComparison *)DKCreateInterface( DKSelector(Comparison), sizeof(DKComparison) );
-        comparison->equal = DKStringEqual;
-        comparison->compare = DKStringCompare;
-        comparison->hash = DKStringHash;
-
-        DKInstallInterface( SharedClassObject, comparison );
-        DKRelease( comparison );
-
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKRetain;
-        copying->mutableCopy = DKStringCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-
-        // Stream
-        struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
-        stream->seek = DKStringSeek;
-        stream->tell = DKStringTell;
-        stream->read = DKStringRead;
-        stream->write = DKImmutableStringWrite;
-        
-        DKInstallInterface( SharedClassObject, stream );
-        DKRelease( stream );
-    }
+    DKTypeRef cls = DKCreateClass( "DKString", DKObjectClass(), sizeof(struct DKString) );
     
-    return SharedClassObject;
-}
+    // LifeCycle
+    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    lifeCycle->initialize = DKStringInitialize;
+    lifeCycle->finalize = DKStringFinalize;
 
+    DKInstallInterface( cls, lifeCycle );
+    DKRelease( lifeCycle );
+
+    // Comparison
+    struct DKComparison * comparison = (struct DKComparison *)DKCreateInterface( DKSelector(Comparison), sizeof(DKComparison) );
+    comparison->equal = DKStringEqual;
+    comparison->compare = DKStringCompare;
+    comparison->hash = DKStringHash;
+
+    DKInstallInterface( cls, comparison );
+    DKRelease( comparison );
+
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKRetain;
+    copying->mutableCopy = DKStringCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
+    // Stream
+    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    stream->seek = DKStringSeek;
+    stream->tell = DKStringTell;
+    stream->read = DKStringRead;
+    stream->write = DKImmutableStringWrite;
+    
+    DKInstallInterface( cls, stream );
+    DKRelease( stream );
+    
+    return cls;
+}
 
 ///
 //  DKMutableStringClass()
 //
-DKTypeRef DKMutableStringClass( void )
+DKThreadSafeClassInit( DKMutableStringClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKMutableString", DKStringClass(), sizeof(struct DKString) );
-        
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKStringCreateMutableCopy;
-        copying->mutableCopy = DKStringCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-        
-        // Stream
-        struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
-        stream->seek = DKStringSeek;
-        stream->tell = DKStringTell;
-        stream->read = DKStringRead;
-        stream->write = DKStringWrite;
-        
-        DKInstallInterface( SharedClassObject, stream );
-        DKRelease( stream );
-    }
+    DKTypeRef cls = DKCreateClass( "DKMutableString", DKStringClass(), sizeof(struct DKString) );
     
-    return SharedClassObject;
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKStringCreateMutableCopy;
+    copying->mutableCopy = DKStringCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+    
+    // Stream
+    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    stream->seek = DKStringSeek;
+    stream->tell = DKStringTell;
+    stream->read = DKStringRead;
+    stream->write = DKStringWrite;
+    
+    DKInstallInterface( cls, stream );
+    DKRelease( stream );
+    
+    return cls;
 }
 
 
@@ -700,6 +690,8 @@ int DKStringSeek( DKStringRef ref, DKIndex offset, int origin )
             cursor = string->byteArray.length + cursor;
 
         SetCursor( string, cursor );
+        
+        return 0;
     }
     
     return -1;
@@ -778,7 +770,7 @@ DKIndex DKStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size
         
         DKByteArrayReplaceBytes( &string->byteArray, range, buffer, size * count );
 
-        SetCursor( string, string->cursor + range.length );
+        SetCursor( string, string->cursor + (size * count) );
         
         return count;
     }
@@ -786,5 +778,88 @@ DKIndex DKStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size
     return 0;
 }
 
+
+
+
+// Constant Strings ======================================================================
+
+static volatile DKSpinLock DKConstantStringLock = DKSpinLockInit;
+static DKTypeRef DKConstantStringClassObject = NULL;
+static DKTypeRef DKConstantStringTable = NULL;
+
+
+///
+//  __DKStringDefineConstantString()
+//
+DKStringRef __DKStringDefineConstantString( const char * str )
+{
+    if( DKConstantStringClassObject == NULL )
+    {
+        // Create the objects
+        DKTypeRef cls = DKCreateClass( "DKConstantString", DKStringClass(), sizeof(struct DKString) );
+        DKInstallInterface( cls, DKStaticReferenceCounting() );
+        
+        DKTypeRef table = DKHashTableCreateMutable();
+        
+        // Store the objects while locked
+        DKSpinLockLock( &DKConstantStringLock );
+        
+        if( DKConstantStringClassObject == NULL )
+            DKConstantStringClassObject = cls;
+        
+        if( DKConstantStringTable == NULL )
+            DKConstantStringTable = table;
+        
+        DKSpinLockUnlock( &DKConstantStringLock );
+
+        // If the objects weren't stored, release them
+        if( DKConstantStringClassObject != cls )
+            DKRelease( cls );
+        
+        if( DKConstantStringTable != table )
+            DKRelease( table );
+    }
+
+    // Create a temporary stack object for the table lookup
+    struct DKString key =
+    {
+        { DKConstantStringClassObject, 1 }, // isa, refcount
+    };
+    
+    DKIndex length = strlen( str );
+    DKByteArrayInitWithExternalStorage( &key.byteArray, (const uint8_t *)str, length );
+    
+    // Check the table for an existing version
+    DKSpinLockLock( &DKConstantStringLock );
+    DKTypeRef constantString = DKHashTableGetObject( DKConstantStringTable, &key );
+    DKSpinLockUnlock( &DKConstantStringLock );
+    
+    if( !constantString )
+    {
+        // Create a new constant string
+        DKStringRef newConstantString = DKAllocObject( DKConstantStringClassObject, 0 );
+        DKByteArrayInitWithExternalStorage( &((struct DKString *)newConstantString)->byteArray, (const uint8_t *)str, length );
+
+        // Try to insert it in the table
+        DKSpinLockLock( &DKConstantStringLock );
+        DKIndex count = DKHashTableGetCount( DKConstantStringTable );
+        DKHashTableInsertObject( DKConstantStringTable, newConstantString, newConstantString, DKDictionaryInsertIfNotFound );
+        
+        // Did someone sneak in and insert it before us?
+        if( DKHashTableGetCount( DKConstantStringTable ) == count )
+            constantString = DKHashTableGetObject( DKConstantStringTable, newConstantString );
+        
+        else
+            constantString = newConstantString;
+        
+        DKSpinLockUnlock( &DKConstantStringLock );
+
+        // This either removes the extra retain on an added entry, or releases the object
+        // if the insert failed
+        DKRelease( newConstantString );
+    }
+    
+    return constantString;
+}
 
 

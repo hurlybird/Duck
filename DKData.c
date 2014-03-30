@@ -31,85 +31,75 @@ static DKIndex DKImmutableDataWrite( DKMutableDataRef ref, const void * buffer, 
 ///
 //  DKDataClass()
 //
-DKTypeRef DKDataClass( void )
+DKThreadSafeClassInit( DKDataClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKData", DKObjectClass(), sizeof(struct DKData) );
-        
-        // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->initialize = DKDataInitialize;
-        lifeCycle->finalize = DKDataFinalize;
-
-        DKInstallInterface( SharedClassObject, lifeCycle );
-        DKRelease( lifeCycle );
-
-        // Comparison
-        struct DKComparison * comparison = (struct DKComparison *)DKCreateInterface( DKSelector(Comparison), sizeof(DKComparison) );
-        comparison->equal = DKDataEqual;
-        comparison->compare = DKDataCompare;
-        comparison->hash = DKDataHash;
-
-        DKInstallInterface( SharedClassObject, comparison );
-        DKRelease( comparison );
-
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKRetain;
-        copying->mutableCopy = DKDataCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-
-        // Stream
-        struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
-        stream->seek = DKDataSeek;
-        stream->tell = DKDataTell;
-        stream->read = DKDataRead;
-        stream->write = DKImmutableDataWrite;
-        
-        DKInstallInterface( SharedClassObject, stream );
-        DKRelease( stream );
-    }
+    DKTypeRef cls = DKCreateClass( "DKData", DKObjectClass(), sizeof(struct DKData) );
     
-    return SharedClassObject;
+    // LifeCycle
+    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    lifeCycle->initialize = DKDataInitialize;
+    lifeCycle->finalize = DKDataFinalize;
+
+    DKInstallInterface( cls, lifeCycle );
+    DKRelease( lifeCycle );
+
+    // Comparison
+    struct DKComparison * comparison = (struct DKComparison *)DKCreateInterface( DKSelector(Comparison), sizeof(DKComparison) );
+    comparison->equal = DKDataEqual;
+    comparison->compare = DKDataCompare;
+    comparison->hash = DKDataHash;
+
+    DKInstallInterface( cls, comparison );
+    DKRelease( comparison );
+
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKRetain;
+    copying->mutableCopy = DKDataCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
+    // Stream
+    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    stream->seek = DKDataSeek;
+    stream->tell = DKDataTell;
+    stream->read = DKDataRead;
+    stream->write = DKImmutableDataWrite;
+    
+    DKInstallInterface( cls, stream );
+    DKRelease( stream );
+    
+    return cls;
 }
 
 
 ///
 //  DKMutableDataClass()
 //
-DKTypeRef DKMutableDataClass( void )
+DKThreadSafeClassInit( DKMutableDataClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKMutableData", DKDataClass(), sizeof(struct DKData) );
-        
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKDataCreateMutableCopy;
-        copying->mutableCopy = DKDataCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-        
-        // Stream
-        struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
-        stream->seek = DKDataSeek;
-        stream->tell = DKDataTell;
-        stream->read = DKDataRead;
-        stream->write = DKDataWrite;
-        
-        DKInstallInterface( SharedClassObject, stream );
-        DKRelease( stream );
-    }
+    DKTypeRef cls = DKCreateClass( "DKMutableData", DKDataClass(), sizeof(struct DKData) );
     
-    return SharedClassObject;
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKDataCreateMutableCopy;
+    copying->mutableCopy = DKDataCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+    
+    // Stream
+    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    stream->seek = DKDataSeek;
+    stream->tell = DKDataTell;
+    stream->read = DKDataRead;
+    stream->write = DKDataWrite;
+    
+    DKInstallInterface( cls, stream );
+    DKRelease( stream );
+    
+    return cls;
 }
 
 
@@ -557,6 +547,8 @@ int DKDataSeek( DKDataRef ref, DKIndex offset, int origin )
             cursor = data->byteArray.length + cursor;
 
         SetCursor( data, cursor );
+        
+        return 0;
     }
     
     return -1;
@@ -635,7 +627,7 @@ DKIndex DKDataWrite( DKMutableDataRef ref, const void * buffer, DKIndex size, DK
         
         DKByteArrayReplaceBytes( &data->byteArray, range, buffer, size * count );
 
-        SetCursor( data, data->cursor + range.length );
+        SetCursor( data, data->cursor + (size * count) );
         
         return count;
     }

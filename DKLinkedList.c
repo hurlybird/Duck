@@ -50,80 +50,70 @@ static void      DKImmutableLinkedListShuffle( DKMutableListRef ref );
 ///
 //  DKLinkedListClass()
 //
-DKTypeRef DKLinkedListClass( void )
+DKThreadSafeClassInit( DKLinkedListClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKLinkedList", DKObjectClass(), sizeof(struct DKLinkedList) );
-        
-        // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->initialize = DKLinkedListInitialize;
-        lifeCycle->finalize = DKLinkedListFinalize;
-
-        DKInstallInterface( SharedClassObject, lifeCycle );
-        DKRelease( lifeCycle );
-
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKRetain;
-        copying->mutableCopy = DKLinkedListCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-
-        // List
-        struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
-        list->getCount = DKLinkedListGetCount;
-        list->getObjects = DKLinkedListGetObjects;
-        list->replaceObjects = DKImmutableLinkedListReplaceObjects;
-        list->replaceObjectsWithList = DKImmutableLinkedListReplaceObjectsWithList;
-        list->sort = DKImmutableLinkedListSort;
-        list->shuffle = DKImmutableLinkedListShuffle;
-
-        DKInstallInterface( SharedClassObject, list );
-        DKRelease( list );
-    }
+    DKTypeRef cls = DKCreateClass( "DKLinkedList", DKObjectClass(), sizeof(struct DKLinkedList) );
     
-    return SharedClassObject;
+    // LifeCycle
+    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    lifeCycle->initialize = DKLinkedListInitialize;
+    lifeCycle->finalize = DKLinkedListFinalize;
+
+    DKInstallInterface( cls, lifeCycle );
+    DKRelease( lifeCycle );
+
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKRetain;
+    copying->mutableCopy = DKLinkedListCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
+    // List
+    struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
+    list->getCount = DKLinkedListGetCount;
+    list->getObjects = DKLinkedListGetObjects;
+    list->replaceObjects = DKImmutableLinkedListReplaceObjects;
+    list->replaceObjectsWithList = DKImmutableLinkedListReplaceObjectsWithList;
+    list->sort = DKImmutableLinkedListSort;
+    list->shuffle = DKImmutableLinkedListShuffle;
+
+    DKInstallInterface( cls, list );
+    DKRelease( list );
+    
+    return cls;
 }
 
 
 ///
 //  DKMutableLinkedListClass()
 //
-DKTypeRef DKMutableLinkedListClass( void )
+DKThreadSafeClassInit( DKMutableLinkedListClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKMutableLinkedList", DKLinkedListClass(), sizeof(struct DKLinkedList) );
-        
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKLinkedListCreateMutableCopy;
-        copying->mutableCopy = DKLinkedListCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-
-        // List
-        struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
-        list->getCount = DKLinkedListGetCount;
-        list->getObjects = DKLinkedListGetObjects;
-        list->replaceObjects = DKLinkedListReplaceObjects;
-        list->replaceObjectsWithList = DKLinkedListReplaceObjectsWithList;
-        list->sort = DKLinkedListSort;
-        list->shuffle = DKLinkedListShuffle;
-
-        DKInstallInterface( SharedClassObject, list );
-        DKRelease( list );
-    }
+    DKTypeRef cls = DKCreateClass( "DKMutableLinkedList", DKLinkedListClass(), sizeof(struct DKLinkedList) );
     
-    return SharedClassObject;
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKLinkedListCreateMutableCopy;
+    copying->mutableCopy = DKLinkedListCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
+    // List
+    struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
+    list->getCount = DKLinkedListGetCount;
+    list->getObjects = DKLinkedListGetObjects;
+    list->replaceObjects = DKLinkedListReplaceObjects;
+    list->replaceObjectsWithList = DKLinkedListReplaceObjectsWithList;
+    list->sort = DKLinkedListSort;
+    list->shuffle = DKLinkedListShuffle;
+
+    DKInstallInterface( cls, list );
+    DKRelease( list );
+    
+    return cls;
 }
 
 

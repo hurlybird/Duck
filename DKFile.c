@@ -23,33 +23,28 @@ static void DKFileFinalize( DKTypeRef ref );
 ///
 //  DKFileClass()
 //
-DKTypeRef DKFileClass( void )
+DKThreadSafeClassInit( DKFileClass )
 {
-    DKTypeRef SharedClassObject = NULL;
+    DKTypeRef cls = DKCreateClass( "DKFile", DKObjectClass(), sizeof(struct DKFile) );
     
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKFile", DKObjectClass(), sizeof(struct DKFile) );
-        
-        // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->finalize = DKFileFinalize;
+    // LifeCycle
+    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    lifeCycle->finalize = DKFileFinalize;
 
-        DKInstallInterface( SharedClassObject, lifeCycle );
-        DKRelease( lifeCycle );
+    DKInstallInterface( cls, lifeCycle );
+    DKRelease( lifeCycle );
 
-        // Stream
-        struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
-        stream->seek = DKFileSeek;
-        stream->tell = DKFileTell;
-        stream->read = DKFileRead;
-        stream->write = DKFileWrite;
-        
-        DKInstallInterface( SharedClassObject, stream );
-        DKRelease( stream );
-    }
+    // Stream
+    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    stream->seek = DKFileSeek;
+    stream->tell = DKFileTell;
+    stream->read = DKFileRead;
+    stream->write = DKFileWrite;
     
-    return SharedClassObject;
+    DKInstallInterface( cls, stream );
+    DKRelease( stream );
+    
+    return cls;
 }
 
 

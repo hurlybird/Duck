@@ -14,10 +14,10 @@
 
 typedef OSSpinLock DKSpinLock;
 
-#define DK_SPINLOCK_INIT            OS_SPINLOCK_INIT
+#define DKSpinLockInit              OS_SPINLOCK_INIT
 
-#define DKSpinLockLock( x )         OSSpinLockLock( x )
-#define DKSpinLockUnlock( x )       OSSpinLockUnlock( x )
+#define DKSpinLockLock( s )         OSSpinLockLock( s )
+#define DKSpinLockUnlock( s )       OSSpinLockUnlock( s )
 
 
 //#define DKAtomicIncrement32( ptr )    __sync_add_and_fetch( ptr, 1 )

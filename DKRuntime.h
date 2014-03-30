@@ -102,7 +102,7 @@ typedef const struct DKMsgHandler DKMsgHandler;
 
 #define DKDeclareMessage( name, ... )                                                   \
     extern struct DKSEL DKSelector_ ## name;                                            \
-    typedef void (*DKMethod_ ## name)( DKTypeRef, DKSEL , ## __VA_ARGS__ )
+    typedef void (*DKMsgHandler_ ## name)( DKTypeRef, DKSEL , ## __VA_ARGS__ )
 
 #define DKDefineMessage( name, ... )                                                    \
     struct DKSEL DKSelector_ ## name =                                                  \
@@ -113,7 +113,7 @@ typedef const struct DKMsgHandler DKMsgHandler;
         0                                                                               \
     }
 
-#define DKDefineFastLookupMethod( name, ... )                                           \
+#define DKDefineFastLookupMessage( name, ... )                                          \
     struct DKSEL DKSelector_ ## name =                                                  \
     {                                                                                   \
         { &__DKSelectorClass__, 1 },                                                    \
@@ -224,7 +224,11 @@ typedef const struct DKReferenceCounting DKReferenceCounting;
 DKTypeRef   DKDefaultRetain( DKTypeRef ref );
 void        DKDefaultRelease( DKTypeRef ref );
 
+DKTypeRef   DKStaticRetain( DKTypeRef ref );
+void        DKStaticRelease( DKTypeRef ref );
+
 DKReferenceCounting * DKDefaultReferenceCounting( void );
+DKReferenceCounting * DKStaticReferenceCounting( void );
 
 
 // Comparison ----------------------------------------------------------------------------
@@ -255,12 +259,13 @@ DKTypeRef   DKAllocObject( DKTypeRef isa, size_t extraBytes );
 void        DKDeallocObject( DKTypeRef ref );
 
 DKTypeRef   DKCreateClass( const char * name, DKTypeRef superclass, size_t structSize );
-DKTypeRef   DKCreateInterface( DKSEL sel, size_t structSize );
 
 
 //void        DKRegisterClass( DKTypeRef classObject );
 
+DKTypeRef   DKCreateInterface( DKSEL sel, size_t structSize );
 void        DKInstallInterface( DKTypeRef _class, DKTypeRef interface );
+
 void        DKInstallMsgHandler( DKTypeRef _class, DKSEL sel, const void * func );
 
 int         DKHasInterface( DKTypeRef ref, DKSEL sel );
@@ -325,13 +330,42 @@ DKHashCode  DKHash( DKTypeRef ref );
 //    If the method isn't defined for the object, DKLookupMethod returns a generic
 //    implementation that produces an error.
 
-#define DKMsgSend( ref, method, ... ) \
-    ((DKMethod_ ## method)((const DKMsgHandler *)DKGetMsgHandler( ref, &DKSelector_ ## method ))->func)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
+#define DKMsgSend( ref, msg, ... ) \
+    ((DKMsgHandler_ ## msg)((const DKMsgHandler *)DKGetMsgHandler( ref, &DKSelector_ ## msg ))->func)( ref, &DKSelector_ ## msg , ## __VA_ARGS__ )
 
-#define DKMsgSendSuper( ref, method, ... ) \
-    ((DKMethod_ ## method)((const DKMsgHandler *)DKGetMsgHandler( DKGetSuperclass( ref ), &DKSelector_ ## method ))->func)( ref, &DKSelector_ ## method , ## __VA_ARGS__ )
+#define DKMsgSendSuper( ref, msg, ... ) \
+    ((DKMsgHandler_ ## msg)((const DKMsgHandler *)DKGetMsgHandler( DKGetSuperclass( ref ), &DKSelector_ ## msg ))->func)( ref, &DKSelector_ ## msg , ## __VA_ARGS__ )
 
 
+
+
+// Thread-Safe Class Construction ========================================================
+#define DKThreadSafeClassInit( name )                                                   \
+    static DKTypeRef  name ## _SharedObject = NULL;                                     \
+    static DKTypeRef  name ## _Create( void );                                          \
+    static DKSpinLock name ## _Lock = DKSpinLockInit;                                   \
+                                                                                        \
+    DKTypeRef name( void )                                                              \
+    {                                                                                   \
+        if( name ## _SharedObject == NULL )                                             \
+        {                                                                               \
+            DKTypeRef cls = name ## _Create();                                          \
+                                                                                        \
+            DKSpinLockLock( &name ## _Lock );                                           \
+                                                                                        \
+            if( name ## _SharedObject == NULL )                                         \
+                name ## _SharedObject = cls;                                            \
+                                                                                        \
+            DKSpinLockUnlock( &name ## _Lock );                                         \
+                                                                                        \
+            if( name ## _SharedObject != cls )                                          \
+                DKRelease( cls );                                                       \
+        }                                                                               \
+                                                                                        \
+        return name ## _SharedObject;                                                   \
+    }                                                                                   \
+                                                                                        \
+    static DKTypeRef name ## _Create( void )
 
 
 #endif // _DK_RUNTIME_H_

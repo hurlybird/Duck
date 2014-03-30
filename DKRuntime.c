@@ -186,6 +186,13 @@ static DKReferenceCounting __DKDefaultReferenceCounting__ =
     DKDefaultRelease
 };
 
+static DKReferenceCounting __DKStaticReferenceCounting__ =
+{
+    DKStaticInterfaceObject( ReferenceCounting ),
+    DKStaticRetain,
+    DKStaticRelease
+};
+
 DKTypeRef DKDefaultRetain( DKTypeRef ref )
 {
     if( ref )
@@ -213,9 +220,23 @@ void DKDefaultRelease( DKTypeRef ref )
     }
 }
 
+DKTypeRef DKStaticRetain( DKTypeRef ref )
+{
+    return ref;
+}
+
+void DKStaticRelease( DKTypeRef ref )
+{
+}
+
 DKReferenceCounting * DKDefaultReferenceCounting( void )
 {
     return &__DKDefaultReferenceCounting__;
+}
+
+DKReferenceCounting * DKStaticReferenceCounting( void )
+{
+    return &__DKStaticReferenceCounting__;
 }
 
 
@@ -272,9 +293,6 @@ DKComparison * DKDefaultComparison( void )
 static void         DKClassFinalize( DKTypeRef ref );
 static void         DKInterfaceFinalize( DKTypeRef ref );
 
-static DKTypeRef    DKStaticObjectRetain( DKTypeRef ref );
-static void         DKStaticObjectRelease( DKTypeRef ref );
-
 static int          DKSelectorEqual( DKTypeRef ref, DKTypeRef other );
 static int          DKSelectorCompare( DKTypeRef ref, DKTypeRef other );
 #define             DKSelectorHash DKDefaultHash
@@ -302,13 +320,6 @@ static DKLifeCycle __DKInterfaceLifeCycle__ =
     NULL
 };
 
-static DKReferenceCounting __DKStaticObjectReferenceCounting__ =
-{
-    DKStaticInterfaceObject( ReferenceCounting ),
-    DKStaticObjectRetain,
-    DKStaticObjectRelease
-};
-
 static DKComparison __DKSelectorComparison__ =
 {
     DKStaticInterfaceObject( Comparison ),
@@ -324,17 +335,6 @@ static DKComparison __DKInterfaceComparison__ =
     DKInterfaceCompare,
     DKInterfaceHash
 };
-
-
-// Static Object Reference Counting
-static DKTypeRef DKStaticObjectRetain( DKTypeRef ref )
-{
-    return ref;
-}
-
-static void DKStaticObjectRelease( DKTypeRef ref )
-{
-}
 
 
 // Selector Comparison
@@ -449,13 +449,13 @@ static void DKRuntimeInit( void )
             __DKInterfaceNotFound__.func[i] = DKInterfaceNotFound;
 
         // Init root classes
-        InitRootClass( &__DKMetaClass__,       "Root",       &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKStaticObjectReferenceCounting__, &__DKDefaultComparison__ );
-        InitRootClass( &__DKClassClass__,      "Class",      &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
-        InitRootClass( &__DKSelectorClass__,   "Selector",   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL),   &__DKDefaultLifeCycle__,   &__DKStaticObjectReferenceCounting__, &__DKSelectorComparison__ );
-        InitRootClass( &__DKInterfaceClass__,  "Interface",  &__DKMetaClass__, NULL,                  sizeof(DKInterface),    &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
-        InitRootClass( &__DKMsgHandlerClass__, "MsgHandler", &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),   &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__,      &__DKInterfaceComparison__ );
-        InitRootClass( &__DKPropertyClass__,   "Property",   &__DKMetaClass__, NULL,                  0,                      &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
-        InitRootClass( &__DKObjectClass__,     "Object",     &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader), &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__,      &__DKDefaultComparison__ );
+        InitRootClass( &__DKMetaClass__,       "Root",       &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKStaticReferenceCounting__,  &__DKDefaultComparison__ );
+        InitRootClass( &__DKClassClass__,      "Class",      &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__, &__DKDefaultComparison__ );
+        InitRootClass( &__DKSelectorClass__,   "Selector",   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL),   &__DKDefaultLifeCycle__,   &__DKStaticReferenceCounting__,  &__DKSelectorComparison__ );
+        InitRootClass( &__DKInterfaceClass__,  "Interface",  &__DKMetaClass__, NULL,                  sizeof(DKInterface),    &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__, &__DKInterfaceComparison__ );
+        InitRootClass( &__DKMsgHandlerClass__, "MsgHandler", &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),   &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__, &__DKInterfaceComparison__ );
+        InitRootClass( &__DKPropertyClass__,   "Property",   &__DKMetaClass__, NULL,                  0,                      &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__, &__DKDefaultComparison__ );
+        InitRootClass( &__DKObjectClass__,     "Object",     &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader), &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__, &__DKDefaultComparison__ );
     }
 }
 

@@ -45,80 +45,70 @@ static void DKImmutableHashTableRemoveAllObjects( DKMutableDictionaryRef ref );
 ///
 //  DKHashTableClass()
 //
-DKTypeRef DKHashTableClass( void )
+DKThreadSafeClassInit( DKHashTableClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKHashTable", DKObjectClass(), sizeof(struct DKHashTable) );
-        
-        // LifeCycle
-        struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-        lifeCycle->initialize = DKHashTableInitialize;
-        lifeCycle->finalize = DKHashTableFinalize;
-
-        DKInstallInterface( SharedClassObject, lifeCycle );
-        DKRelease( lifeCycle );
-
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKRetain;
-        copying->mutableCopy = DKHashTableCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-        
-        // Dictionary
-        struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
-        dictionary->getCount = DKHashTableGetCount;
-        dictionary->getObject = DKHashTableGetObject;
-        dictionary->applyFunction = DKHashTableApplyFunction;
-        dictionary->insertObject = DKImmutableHashTableInsertObject;
-        dictionary->removeObject = DKImmutableHashTableRemoveObject;
-        dictionary->removeAllObjects = DKImmutableHashTableRemoveAllObjects;
-
-        DKInstallInterface( SharedClassObject, dictionary );
-        DKRelease( dictionary );
-    }
+    DKTypeRef cls = DKCreateClass( "DKHashTable", DKObjectClass(), sizeof(struct DKHashTable) );
     
-    return SharedClassObject;
+    // LifeCycle
+    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    lifeCycle->initialize = DKHashTableInitialize;
+    lifeCycle->finalize = DKHashTableFinalize;
+
+    DKInstallInterface( cls, lifeCycle );
+    DKRelease( lifeCycle );
+
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKRetain;
+    copying->mutableCopy = DKHashTableCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+    
+    // Dictionary
+    struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+    dictionary->getCount = DKHashTableGetCount;
+    dictionary->getObject = DKHashTableGetObject;
+    dictionary->applyFunction = DKHashTableApplyFunction;
+    dictionary->insertObject = DKImmutableHashTableInsertObject;
+    dictionary->removeObject = DKImmutableHashTableRemoveObject;
+    dictionary->removeAllObjects = DKImmutableHashTableRemoveAllObjects;
+
+    DKInstallInterface( cls, dictionary );
+    DKRelease( dictionary );
+    
+    return cls;
 }
 
 
 ///
 //  DKMutableHashTableClass()
 //
-DKTypeRef DKMutableHashTableClass( void )
+DKThreadSafeClassInit(  DKMutableHashTableClass )
 {
-    static DKTypeRef SharedClassObject = NULL;
-
-    if( !SharedClassObject )
-    {
-        SharedClassObject = DKCreateClass( "DKMutableHashTable", DKHashTableClass(), sizeof(struct DKHashTable) );
-        
-        // Copying
-        struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
-        copying->copy = DKHashTableCreateMutableCopy;
-        copying->mutableCopy = DKHashTableCreateMutableCopy;
-        
-        DKInstallInterface( SharedClassObject, copying );
-        DKRelease( copying );
-
-        // Dictionary
-        struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
-        dictionary->getCount = DKHashTableGetCount;
-        dictionary->getObject = DKHashTableGetObject;
-        dictionary->applyFunction = DKHashTableApplyFunction;
-        dictionary->insertObject = DKHashTableInsertObject;
-        dictionary->removeObject = DKHashTableRemoveObject;
-        dictionary->removeAllObjects = DKHashTableRemoveAllObjects;
-
-        DKInstallInterface( SharedClassObject, dictionary );
-        DKRelease( dictionary );
-    }
+    DKTypeRef cls = DKCreateClass( "DKMutableHashTable", DKHashTableClass(), sizeof(struct DKHashTable) );
     
-    return SharedClassObject;
+    // Copying
+    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    copying->copy = DKHashTableCreateMutableCopy;
+    copying->mutableCopy = DKHashTableCreateMutableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
+    // Dictionary
+    struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+    dictionary->getCount = DKHashTableGetCount;
+    dictionary->getObject = DKHashTableGetObject;
+    dictionary->applyFunction = DKHashTableApplyFunction;
+    dictionary->insertObject = DKHashTableInsertObject;
+    dictionary->removeObject = DKHashTableRemoveObject;
+    dictionary->removeAllObjects = DKHashTableRemoveAllObjects;
+
+    DKInstallInterface( cls, dictionary );
+    DKRelease( dictionary );
+    
+    return cls;
 }
 
 
