@@ -44,8 +44,6 @@ DKRange     DKStringGetRangeOfString( DKStringRef ref, DKStringRef str, DKIndex 
 
 void        DKStringSetString( DKMutableStringRef ref, DKStringRef str );
 
-/*
-void        DKStringAppend( DKMutableStringRef ref, const char * str );
 void        DKStringAppendString( DKMutableStringRef ref, DKStringRef str );
 void        DKStringAppendFormat( DKMutableStringRef ref, DKStringRef format, ... );
 
@@ -55,8 +53,8 @@ void        DKStringDeleteSubstring( DKMutableStringRef ref, DKRange range );
 int         DKStringSeek( DKStringRef ref, DKIndex offset, int origin );
 DKIndex     DKStringTell( DKStringRef ref );
 DKIndex     DKStringRead( DKStringRef ref, void * buffer, DKIndex size, DKIndex count );
-DKIndex     DKStringWrite( DKStringRef ref, const void * buffer, DKIndex size, DKIndex count );
-*/
+DKIndex     DKStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size, DKIndex count );
+
 
 #endif // _DK_DATA_H_
 

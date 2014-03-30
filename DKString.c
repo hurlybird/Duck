@@ -22,6 +22,7 @@ struct DKString
 static DKTypeRef    DKStringInitialize( DKTypeRef ref );
 static void         DKStringFinalize( DKTypeRef ref );
 
+static DKIndex DKImmutableStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size, DKIndex count );
 
 
 
@@ -64,16 +65,14 @@ DKTypeRef DKStringClass( void )
         DKRelease( copying );
 
         // Stream
-        /*
         struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
         stream->seek = DKStringSeek;
         stream->tell = DKStringTell;
         stream->read = DKStringRead;
-        stream->write = DKStringWrite;
+        stream->write = DKImmutableStringWrite;
         
         DKInstallInterface( SharedClassObject, stream );
         DKRelease( stream );
-        */
     }
     
     return SharedClassObject;
@@ -100,7 +99,6 @@ DKTypeRef DKMutableStringClass( void )
         DKRelease( copying );
         
         // Stream
-        /*
         struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
         stream->seek = DKStringSeek;
         stream->tell = DKStringTell;
@@ -109,7 +107,6 @@ DKTypeRef DKMutableStringClass( void )
         
         DKInstallInterface( SharedClassObject, stream );
         DKRelease( stream );
-        */
     }
     
     return SharedClassObject;
@@ -201,21 +198,25 @@ DKHashCode DKStringHash( DKTypeRef ref )
 }
 
 
+
+
+// Internals =============================================================================
+
 ///
-//  DKStringUpdateCursor()
+//  SetCursor()
 //
-static void DKStringUpdateCursor( DKStringRef ref, DKIndex cursor )
+static void SetCursor( const struct DKString * string, DKIndex cursor )
 {
-    struct DKString * string = (struct DKString *)ref;
+    struct DKString * _string = (struct DKString *)string;
     
     if( cursor < 0 )
-        string->cursor = 0;
+        _string->cursor = 0;
     
-    else if( cursor > string->byteArray.length )
-        string->cursor = string->byteArray.length;
+    else if( cursor > _string->byteArray.length )
+        _string->cursor = _string->byteArray.length;
     
     else
-        string->cursor = cursor;
+        _string->cursor = cursor;
 }
 
 
@@ -234,9 +235,8 @@ static DKTypeRef CopySubstring( const struct DKString * string, DKRange byteRang
 
         const uint8_t * src = &string->byteArray.data[byteRange.location];
         
-        DKByteArrayReserve( &substring->byteArray, byteRange.length + 1 );
-        DKByteArrayReplaceBytes( &substring->byteArray, DKRangeMake( 0, 0 ), src, byteRange.length + 1 );
-        substring->byteArray.data[byteRange.length] = '\0';
+        DKByteArrayReserve( &substring->byteArray, byteRange.length );
+        DKByteArrayReplaceBytes( &substring->byteArray, DKRangeMake( 0, 0 ), src, byteRange.length );
         
         return substring;
     }
@@ -283,17 +283,17 @@ DKStringRef DKStringCreateWithCString( const char * str )
 {
     if( str && (*str != '\0') )
     {
-        DKIndex bytes = strlen( str ) + 1;
+        DKIndex length = strlen( str );
 
-        DKStringRef ref = DKAllocObject( DKStringClass(), bytes );
+        DKStringRef ref = DKAllocObject( DKStringClass(), length + 1 );
 
         if( ref )
         {
             struct DKString * string = (struct DKString *)ref;
             
-            DKByteArrayInitWithExternalStorage( &string->byteArray, (const void *)(string + 1), bytes );
+            DKByteArrayInitWithExternalStorage( &string->byteArray, (const void *)(string + 1), length );
             
-            memcpy( string->byteArray.data, str, bytes );
+            memcpy( string->byteArray.data, str, length + 1 );
         }
 
         return ref;
@@ -314,7 +314,7 @@ DKStringRef DKStringCreateWithCStringNoCopy( const char * str )
     {
         struct DKString * string = (struct DKString *)ref;
         
-        DKIndex length = strlen( str ) + 1;
+        DKIndex length = strlen( str );
         
         DKByteArrayInitWithExternalStorage( &string->byteArray, (const uint8_t *)str, length );
     }
@@ -356,7 +356,7 @@ DKIndex DKStringGetLength( DKStringRef ref )
         const struct DKString * string = ref;
         
         if( string->byteArray.data )
-            return strlen( (const char *)string->byteArray.data );
+            return dk_ustrlen( (const char *)string->byteArray.data );
     }
     
     return 0;
@@ -373,10 +373,7 @@ DKIndex DKStringGetByteLength( DKStringRef ref )
         DKVerifyKindOfClass( ref, DKStringClass(), 0 );
         
         const struct DKString * string = ref;
-        
-        // The byte length doesn't include the NULL terminator
-        if( string->byteArray.length > 1 )
-            return string->byteArray.length - 1;
+        return string->byteArray.length;
     }
     
     return 0;
@@ -415,7 +412,7 @@ DKTypeRef DKStringCopySubstring( DKStringRef ref, DKRange range )
 
         if( range.length > 0 )
         {
-            if( string->byteArray.length > 1 )
+            if( string->byteArray.length > 0 )
             {
                 const uint8_t * loc = (const uint8_t *)dk_ustridx( (const char *)string->byteArray.data, range.location );
                 
@@ -456,7 +453,7 @@ DKTypeRef DKStringCopySubstringFromIndex( DKStringRef ref, DKIndex index )
 
         if( index >= 0 )
         {
-            if( string->byteArray.length > 1 )
+            if( string->byteArray.length > 0 )
             {
                 const uint8_t * loc = (const uint8_t *)dk_ustridx( (const char *)string->byteArray.data, index );
                     
@@ -464,7 +461,7 @@ DKTypeRef DKStringCopySubstringFromIndex( DKStringRef ref, DKIndex index )
                 {
                     DKRange byteRange;
                     byteRange.location = loc = string->byteArray.data;
-                    byteRange.length = string->byteArray.length - byteRange.location - 1;
+                    byteRange.length = string->byteArray.length - byteRange.location;
 
                     return CopySubstring( string, byteRange );
                 }
@@ -492,7 +489,7 @@ DKTypeRef DKStringCopySubstringToIndex( DKStringRef ref, DKIndex index )
 
         if( index >= 0 )
         {
-            if( string->byteArray.length > 1 )
+            if( string->byteArray.length > 0 )
             {
                 const uint8_t * end = (const uint8_t *)dk_ustridx( (const char *)string->byteArray.data, index );
                     
@@ -601,173 +598,97 @@ void DKStringSetString( DKMutableStringRef ref, DKStringRef str )
 }
 
 
-
-
-
-
-
-
-
-#if 0
-
 ///
-//  DKDataGetBytePtr()
+//  DKStringAppendString()
 //
-const void * DKDataGetBytePtr( DKDataRef ref )
+void DKStringAppendString( DKMutableStringRef ref, DKStringRef str )
 {
-    if( ref )
+    if( ref && str )
     {
-        DKAssert( DKIsKindOfClass( ref, DKDataClass() ) );
-
-        const struct DKData * data = ref;
+        DKVerifyKindOfClass( ref, DKMutableStringClass() );
+        DKVerifyKindOfClass( str, DKStringClass() );
         
-        if( data->byteArray.length > 0 )
-            return data->byteArray.data;
-    }
-    
-    return NULL;
-}
-
-
-///
-//  DKDataGetByteRange()
-//
-const void * DKDataGetByteRange( DKDataRef ref, DKRange range )
-{
-    if( ref )
-    {
-        DKAssert( DKIsKindOfClass( ref, DKDataClass() ) );
-
-        const struct DKData * data = ref;
-
-        if( (range.location < data->byteArray.length) && (DKRangeEnd( range ) <= data->byteArray.length) )
-            return data->byteArray.data + range.location;
-    }
-    
-    return NULL;
-}
-
-
-///
-//  DKDataGetMutableBytePtr()
-//
-void * DKDataGetMutableBytePtr( DKMutableDataRef ref )
-{
-    if( ref )
-    {
-        if( !DKIsKindOfClass( ref, DKMutableDataClass() ) )
-        {
-            DKError( "DKDataGetMutableBytePtr: Trying to modify an immutable object." );
-            return NULL;
-        }
+        struct DKString * dst = (struct DKString *)ref;
+        const struct DKString * src = str;
         
-        return (void *)DKDataGetBytePtr( ref );
+        DKRange dstRange = DKRangeMake( dst->byteArray.length, 0 );
+        DKByteArrayReplaceBytes( &dst->byteArray, dstRange, src->byteArray.data, src->byteArray.length );
     }
-    
-    return NULL;
 }
 
 
 ///
-//  DKDataGetMutableByteRange()
+//  DKStringAppendFormat()
 //
-void * DKDataGetMutableByteRange( DKMutableDataRef ref, DKRange range )
+void DKStringAppendFormat( DKMutableStringRef ref, DKStringRef format, ... )
 {
     if( ref )
     {
-        if( !DKIsKindOfClass( ref, DKMutableDataClass() ) )
-        {
-            DKError( "DKDataGetMutableByteRange: Trying to modify an immutable object." );
-            return NULL;
-        }
+        DKVerifyKindOfClass( ref, DKMutableStringClass() );
+
+        const struct DKString * string = (struct DKString *)ref;
+        SetCursor( string, string->byteArray.length );
+
+        va_list arg_ptr;
+        va_start( arg_ptr, format );
         
-        return (void *)DKDataGetByteRange( ref, range );
-    }
-    
-    return NULL;
-}
-
-
-///
-//  DKDataGetBytes()
-//
-DKIndex DKDataGetBytes( DKDataRef ref, DKRange range, void * buffer )
-{
-    if( buffer )
-    {
-        const void * src = DKDataGetByteRange( ref, range );
+        DKVSPrintf( ref, format, arg_ptr );
         
-        if( src )
-        {
-            memcpy( buffer, src, range.length );
-            return range.length;
-        }
-    }
-    
-    else
-    {
-        DKError( "DKDataGetBytes: Trying to copy to a NULL buffer." );
-    }
-    
-    return 0;
-}
-
-
-///
-//  DKDataAppendBytes()
-//
-void DKDataAppendBytes( DKMutableDataRef ref, const void * bytes, DKIndex length )
-{
-    if( ref )
-    {
-        struct DKData * data = (struct DKData *)ref;
-
-        DKRange range = DKRangeMake( data->byteArray.length, 0 );
-        DKByteArrayReplaceBytes( &data->byteArray, range, bytes, length );
+        va_end( arg_ptr );
     }
 }
 
 
 ///
-//  DKDataReplaceBytes()
+//  DKStringReplaceSubstring()
 //
-void DKDataReplaceBytes( DKMutableDataRef ref, DKRange range, const void * bytes, DKIndex length )
+void DKStringReplaceSubstring( DKMutableStringRef ref, DKRange range, DKStringRef str )
 {
     if( ref )
     {
-        struct DKData * data = (struct DKData *)ref;
+        DKVerifyKindOfClass( ref, DKMutableStringClass() );
+        DKVerifyKindOfClass( str, DKStringClass() );
 
-        DKByteArrayReplaceBytes( &data->byteArray, range, bytes, length );
-        DKDataSetCursor( data, data->cursor );
-    }
-}
-
-
-///
-//  DKDataDeleteBytes()
-//
-void DKDataDeleteBytes( DKMutableDataRef ref, DKRange range )
-{
-    if( ref )
-    {
-        struct DKData * data = (struct DKData *)ref;
-
-        DKByteArrayReplaceBytes( &data->byteArray, range, NULL, 0 );
-        DKDataSetCursor( data, data->cursor );
-    }
-}
-
-
-///
-//  DKDataSeek()
-//
-int DKDataSeek( DKDataRef ref, DKIndex offset, int origin )
-{
-    if( ref )
-    {
-        struct DKData * data = (struct DKData *)ref;
+        struct DKString * dst = (struct DKString *)ref;
+        const struct DKString * src = (struct DKString *)str;
         
-        DKIndex cursor = data->cursor;
+        DKVerifyRange( range, dst->byteArray.length );
+        
+        DKByteArrayReplaceBytes( &dst->byteArray, range, src->byteArray.data, src->byteArray.length );
+    }
+}
+
+
+///
+//  DKStringDeleteSubstring()
+//
+void DKStringDeleteSubstring( DKMutableStringRef ref, DKRange range )
+{
+    if( ref )
+    {
+        DKVerifyKindOfClass( ref, DKMutableStringClass() );
+
+        struct DKString * dst = (struct DKString *)ref;
+        
+        DKVerifyRange( range, dst->byteArray.length );
+        
+        DKByteArrayReplaceBytes( &dst->byteArray, range, NULL, 0 );
+    }
+}
+
+
+///
+//  DKStringSeek()
+//
+int DKStringSeek( DKStringRef ref, DKIndex offset, int origin )
+{
+    if( ref )
+    {
+        DKVerifyKindOfClass( ref, DKStringClass(), -1 );
+
+        struct DKString * string = (struct DKString *)ref;
+        
+        DKIndex cursor = string->cursor;
         
         if( origin == DKSeekSet )
             cursor = offset;
@@ -776,9 +697,9 @@ int DKDataSeek( DKDataRef ref, DKIndex offset, int origin )
             cursor += offset;
         
         else
-            cursor = data->byteArray.length + cursor;
+            cursor = string->byteArray.length + cursor;
 
-        DKDataSetCursor( data, cursor );
+        SetCursor( string, cursor );
     }
     
     return -1;
@@ -786,14 +707,16 @@ int DKDataSeek( DKDataRef ref, DKIndex offset, int origin )
 
 
 ///
-//  DKDataTell()
+//  DKStringTell()
 //
-DKIndex DKDataTell( DKDataRef ref )
+DKIndex DKStringTell( DKStringRef ref )
 {
     if( ref )
     {
-        struct DKData * data = (struct DKData *)ref;
-        return data->cursor;
+        DKVerifyKindOfClass( ref, DKStringClass(), -1 );
+
+        struct DKString * string = (struct DKString *)ref;
+        return string->cursor;
     }
     
     return -1;
@@ -801,22 +724,26 @@ DKIndex DKDataTell( DKDataRef ref )
 
 
 ///
-//  DKDataRead()
+//  DKStringRead()
 //
-DKIndex DKDataRead( DKDataRef ref, void * buffer, DKIndex size, DKIndex count )
+DKIndex DKStringRead( DKStringRef ref, void * buffer, DKIndex size, DKIndex count )
 {
     if( ref )
     {
-        struct DKData * data = (struct DKData *)ref;
+        DKVerifyKindOfClass( ref, DKStringClass(), 0 );
 
-        DKAssert( (data->cursor >= 0) && (data->cursor <= data->byteArray.length) );
+        struct DKString * string = (struct DKString *)ref;
+
+        SetCursor( string, string->cursor );
         
-        DKRange range = DKRangeMake( data->cursor, size * count );
+        DKRange range = DKRangeMake( string->cursor, size * count );
         
-        if( range.length > (data->byteArray.length - data->cursor) )
-            range.length = data->byteArray.length - data->cursor;
+        if( range.length > (string->byteArray.length - string->cursor) )
+            range.length = string->byteArray.length - string->cursor;
         
-        DKDataGetBytes( data, range, buffer );
+        memcpy( buffer, &string->byteArray.data[range.location], range.length );
+        
+        SetCursor( string, string->cursor + range.length );
         
         return range.length / size;
     }
@@ -826,28 +753,32 @@ DKIndex DKDataRead( DKDataRef ref, void * buffer, DKIndex size, DKIndex count )
 
 
 ///
-//  DKDataWrite()
+//  DKStringWrite()
 //
-DKIndex DKDataWrite( DKDataRef ref, const void * buffer, DKIndex size, DKIndex count )
+static DKIndex DKImmutableStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size, DKIndex count )
+{
+    DKError( "DKStringWrite: Trying to modify an immutable object." );
+    return 0;
+}
+
+DKIndex DKStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size, DKIndex count )
 {
     if( ref )
     {
-        if( !DKIsKindOfClass( ref, DKMutableDataClass() ) )
-        {
-            DKError( "DKDataWrite: Trying to modify an immutable object." );
-            return 0;
-        }
+        DKVerifyKindOfClass( ref, DKMutableStringClass(), 0 );
 
-        struct DKData * data = (struct DKData *)ref;
+        struct DKString * string = (struct DKString *)ref;
 
-        DKAssert( (data->cursor >= 0) && (data->cursor <= data->byteArray.length) );
+        SetCursor( string, string->cursor );
         
-        DKRange range = DKRangeMake( data->cursor, size * count );
+        DKRange range = DKRangeMake( string->cursor, size * count );
         
-        if( range.length > (data->byteArray.length - data->cursor) )
-            range.length = data->byteArray.length - data->cursor;
+        if( range.length > (string->byteArray.length - string->cursor) )
+            range.length = string->byteArray.length - string->cursor;
         
-        DKDataReplaceBytes( data, range, buffer, size * count );
+        DKByteArrayReplaceBytes( &string->byteArray, range, buffer, size * count );
+
+        SetCursor( string, string->cursor + range.length );
         
         return count;
     }
@@ -855,6 +786,5 @@ DKIndex DKDataWrite( DKDataRef ref, const void * buffer, DKIndex size, DKIndex c
     return 0;
 }
 
-#endif
 
 

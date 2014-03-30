@@ -12,6 +12,10 @@
 #include "DKEnv.h"
 
 
+// Note: DKByteArray internally stores a NULL ('\0') byte at data[length] to make
+// storing strings easier. The NULL isn't included in the length or maxLength of the
+// array.
+
 typedef struct
 {
     uint8_t * data;

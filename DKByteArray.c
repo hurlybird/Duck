@@ -60,7 +60,8 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
         if( length < MIN_BYTE_ARRAY_SIZE )
             length = MIN_BYTE_ARRAY_SIZE;
     
-        uint8_t * data = dk_malloc( length );
+        // Allocate an extra byte for the NULL terminator
+        uint8_t * data = dk_malloc( length + 1 );
         
         if( array->length > 0 )
         {
@@ -70,6 +71,9 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
         
         array->data = data;
         array->maxLength = length;
+
+        // Set the NULL terminator
+        array->data[array->length] = '\0';
     }
 }
 
@@ -101,7 +105,8 @@ static uint8_t * DKByteArrayResize( void * ptr, DKIndex oldSize, DKIndex request
     
     *allocatedSize = newSize;
     
-    return dk_malloc( newSize );
+    // Allocate an extra byte for the NULL terminator
+    return dk_malloc( newSize + 1 );
 }
 
 
@@ -187,6 +192,9 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
             memset( dst, 0, insertedRange.length );
         }
     }
+    
+    // Set the NULL terminator
+    array->data[array->length] = '\0';
 }
 
 

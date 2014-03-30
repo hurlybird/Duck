@@ -51,7 +51,7 @@ int         DKDataSeek( DKDataRef ref, DKIndex offset, int origin );
 DKIndex     DKDataTell( DKDataRef ref );
 
 DKIndex     DKDataRead( DKDataRef ref, void * buffer, DKIndex size, DKIndex count );
-DKIndex     DKDataWrite( DKDataRef ref, const void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKDataWrite( DKMutableDataRef ref, const void * buffer, DKIndex size, DKIndex count );
 
 
 #endif // _DK_DATA_H_
