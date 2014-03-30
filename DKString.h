@@ -19,24 +19,32 @@ typedef DKTypeRef DKMutableStringRef;
 DKTypeRef   DKStringClass( void );
 DKTypeRef   DKMutableStringClass( void );
 
-DKStringRef   DKStringCreate( const char * str );
-DKStringRef   DKStringCreateCopy( DKStringRef srcString );
-DKStringRef   DKStringCreateNoCopy( const char * str );
+DKStringRef DKStringCreate( void );
+DKStringRef DKStringCreateCopy( DKStringRef srcString );
+DKStringRef DKStringCreateWithCString( const char * str );
+DKStringRef DKStringCreateWithCStringNoCopy( const char * str );
 
 DKMutableStringRef DKStringCreateMutable( void );
 DKMutableStringRef DKStringCreateMutableCopy( DKStringRef srcString );
+
+int         DKStringEqual( DKStringRef a, DKTypeRef b );
+int         DKStringCompare( DKStringRef a, DKStringRef b );
+DKHashCode  DKStringHash( DKStringRef ref );
 
 DKIndex     DKStringGetLength( DKStringRef ref );
 DKIndex     DKStringGetByteLength( DKStringRef ref );
 
 const char* DKStringGetCStringPtr( DKStringRef ref );
-DKIndex     DKStringGetSubstring( DKStringRef ref, DKRange range, char * buffer );
+
 DKStringRef DKStringCopySubstring( DKStringRef ref, DKRange range );
+DKStringRef DKStringCopySubstringFromIndex( DKStringRef ref, DKIndex index );
+DKStringRef DKStringCopySubstringToIndex( DKStringRef ref, DKIndex index );
 
 DKRange     DKStringGetRangeOfString( DKStringRef ref, DKStringRef str, DKIndex startLoc );
 
 void        DKStringSetString( DKMutableStringRef ref, DKStringRef str );
 
+/*
 void        DKStringAppend( DKMutableStringRef ref, const char * str );
 void        DKStringAppendString( DKMutableStringRef ref, DKStringRef str );
 void        DKStringAppendFormat( DKMutableStringRef ref, DKStringRef format, ... );
@@ -48,7 +56,7 @@ int         DKStringSeek( DKStringRef ref, DKIndex offset, int origin );
 DKIndex     DKStringTell( DKStringRef ref );
 DKIndex     DKStringRead( DKStringRef ref, void * buffer, DKIndex size, DKIndex count );
 DKIndex     DKStringWrite( DKStringRef ref, const void * buffer, DKIndex size, DKIndex count );
-
+*/
 
 #endif // _DK_DATA_H_
 

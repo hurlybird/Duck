@@ -181,15 +181,23 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 
 // Range Checks
 #if DK_RUNTIME_RANGE_CHECKS
-#define DKVerifyRange( range, length, ... )                                             \
-    if( !DKRangeCheck( range, length ) )                                                \
+#define DKVerifyIndex( range, len, ... )                                                \
+    if( ((index) < 0) || ((index) >= len) )                                             \
     {                                                                                   \
-        _DKError( "%s: Range %d..%d is outside %d..%d\n",                               \
-            __func__, range.location, DKRangeEnd( range ), 0, length );                 \
+        _DKError( "%s: Index %ld is outside 0,%ld\n", __func__, (index), len );         \
+        return __VA_ARGS__;                                                             \
+    }
+
+#define DKVerifyRange( range, len, ... )                                                \
+    if( !DKRangeCheck( range, len ) )                                                   \
+    {                                                                                   \
+        _DKError( "%s: Range %ld,%ld is outside 0,%ld\n",                               \
+            __func__, (range).location, (range).length, len );                          \
         return __VA_ARGS__;                                                             \
     }
 #else
-#define DKVerifyRange( range, length, ... )
+#define DKVerifyIndex( index, len, ... )
+#define DKVerifyRange( range, len, ... )
 #endif
 
 
@@ -208,27 +216,26 @@ void   dk_free( void * ptr );
 
 
 // Other Utilities =======================================================================
+
+// Basic hashing
 DKHashCode dk_strhash( const char * str );
 DKHashCode dk_memhash( const void * buffer, size_t buffer_size );
 
+// Time in seconds since midnight January 1, 1970 (i.e. gettimeofday())
 double dk_time( void );
 
 // Shuffle an array of pointer-sized integers
 void dk_shuffle( uintptr_t array[], DKIndex count );
 
-
 // UTF8 aware versions of standard string functions
 const char * dk_ustrchr( const char * str, int ch );
 const char * dk_ustrrchr( const char * str, int ch );
 
-int dk_ustrcmp( const char * str1, const char * str2 );
-int dk_ustrncmp( const char * str1, const char * str2, size_t count );
-
-int dk_ustrcasecmp( const char * str1, const char * str2 );
-int dk_ustrncasecmp( const char * str1, const char * str2, size_t count );
+int dk_ustrcmp( const char * str1, const char * str2, int options );
 
 size_t dk_ustrlen( const char * str );
 
+const char * dk_ustridx( const char * str, size_t idx );
 size_t dk_ustrscan( const char * str, char32_t * ch );
 
 

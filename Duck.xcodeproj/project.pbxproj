@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0211F36218E46D59005544BA /* DKEnvPosix.c in Sources */ = {isa = PBXBuildFile; fileRef = 0211F36118E46D59005544BA /* DKEnvPosix.c */; };
+		0227273D18E793C100902BDB /* TestDKString.m in Sources */ = {isa = PBXBuildFile; fileRef = 0227273C18E793C100902BDB /* TestDKString.m */; };
 		0239C6B914FE8F4900873E36 /* DKNodePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 0239C6B814FE8F4900873E36 /* DKNodePool.h */; };
 		024918C818C136700046AA8B /* DKBinaryTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 024918C718C136700046AA8B /* DKBinaryTree.h */; };
 		024EE3EA148E0BA5008FDADC /* DKData.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3E9148E0BA5008FDADC /* DKData.h */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		0211F36118E46D59005544BA /* DKEnvPosix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnvPosix.c; sourceTree = "<group>"; };
+		0227273C18E793C100902BDB /* TestDKString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKString.m; sourceTree = "<group>"; };
 		0239C6B814FE8F4900873E36 /* DKNodePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKNodePool.h; sourceTree = "<group>"; };
 		0239C6BB14FE8F5600873E36 /* DKNodePool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNodePool.c; sourceTree = "<group>"; };
 		024918C718C136700046AA8B /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBinaryTree.h; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 		02D00FB818E6258C00FC3054 /* Duck Tests */ = {
 			isa = PBXGroup;
 			children = (
+				0227273C18E793C100902BDB /* TestDKString.m */,
 				02D00FCB18E62A9B00FC3054 /* TestDKDictionary.m */,
 				02D00FC918E62A1100FC3054 /* TestDKData.m */,
 				02D00FC618E625DA00FC3054 /* TestDKObject.m */,
@@ -331,6 +334,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				02D00FCA18E62A1100FC3054 /* TestDKData.m in Sources */,
+				0227273D18E793C100902BDB /* TestDKString.m in Sources */,
 				02D00FBF18E6258C00FC3054 /* TestDKList.m in Sources */,
 				02D00FCC18E62A9B00FC3054 /* TestDKDictionary.m in Sources */,
 				02D00FC718E625DA00FC3054 /* TestDKObject.m in Sources */,

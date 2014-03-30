@@ -21,9 +21,6 @@ struct DKData
 
 static DKTypeRef    DKDataInitialize( DKTypeRef ref );
 static void         DKDataFinalize( DKTypeRef ref );
-static int          DKDataEqual( DKTypeRef a, DKTypeRef b );
-static int          DKDataCompare( DKTypeRef a, DKTypeRef b );
-static DKHashCode   DKDataHash( DKTypeRef ref );
 
 
 
@@ -141,29 +138,33 @@ static void DKDataFinalize( DKTypeRef ref )
 ///
 //  DKDataEqual()
 //
-static int DKDataEqual( DKTypeRef a, DKTypeRef b )
+int DKDataEqual( DKDataRef a, DKTypeRef b )
 {
-    return DKDataCompare( a, b ) == 0;
+    if( DKIsKindOfClass( b, DKDataClass() ) )
+        return DKDataCompare( a, b ) == 0;
+    
+    return 0;
 }
 
 
 ///
 //  DKDataCompare()
 //
-static int DKDataCompare( DKTypeRef a, DKTypeRef b )
+int DKDataCompare( DKDataRef a, DKDataRef b )
 {
-    DKTypeRef btype = DKGetClass( b );
-    
-    if( (btype == DKDataClass()) || (btype == DKMutableDataClass()) )
+    if( a )
     {
+        DKVerifyKindOfClass( a, DKDataClass(), DKDefaultCompare( a, b ) );
+        DKVerifyKindOfClass( b, DKDataClass(), DKDefaultCompare( a, b ) );
+
         const struct DKData * da = a;
         const struct DKData * db = b;
         
         if( da->byteArray.length < db->byteArray.length )
-            return -1;
+            return 1;
         
         if( da->byteArray.length > db->byteArray.length )
-            return 1;
+            return -1;
         
         if( da->byteArray.length == 0 )
             return 0;
@@ -178,12 +179,17 @@ static int DKDataCompare( DKTypeRef a, DKTypeRef b )
 ///
 //  DKDataHash()
 //
-static DKHashCode DKDataHash( DKTypeRef ref )
+DKHashCode DKDataHash( DKDataRef ref )
 {
-    const struct DKData * data = ref;
+    if( ref )
+    {
+        DKVerifyKindOfClass( ref, DKDataClass(), 0 );
     
-    if( data->byteArray.length > 0 )
-        return dk_memhash( data->byteArray.data, data->byteArray.length );
+        const struct DKData * data = ref;
+        
+        if( data->byteArray.length > 0 )
+            return dk_memhash( data->byteArray.data, data->byteArray.length );
+    }
     
     return 0;
 }

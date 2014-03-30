@@ -22,6 +22,7 @@
 #include "DKStream.h"
 
 #include "DKData.h"
+#include "DKString.h"
 
 #include "DKList.h"
 #include "DKLinkedList.h"

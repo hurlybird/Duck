@@ -27,6 +27,10 @@ DKDataRef   DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length );
 DKMutableDataRef DKDataCreateMutable( void );
 DKMutableDataRef DKDataCreateMutableCopy( DKDataRef srcData );
 
+int         DKDataEqual( DKDataRef a, DKTypeRef b );
+int         DKDataCompare( DKDataRef a, DKDataRef b );
+DKHashCode  DKDataHash( DKDataRef ref );
+
 DKIndex     DKDataGetLength( DKDataRef ref );
 void        DKDataSetLength( DKMutableDataRef ref, DKIndex length );
 void        DKDataIncreaseLength( DKMutableDataRef ref, DKIndex length );

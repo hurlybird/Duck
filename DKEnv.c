@@ -240,5 +240,96 @@ void dk_shuffle( uintptr_t array[], DKIndex count )
 }
 
 
+///
+//  dk_ustrchr()
+//
+const char * dk_ustrchr( const char * str, int ch )
+{
+    const char * cur = str;
+
+    while( *cur != '\0' )
+    {
+        char32_t _ch;
+        size_t n = dk_ustrscan( cur, &_ch );
+
+        if( _ch == ch )
+            return cur;
+
+        cur += n;
+    }
+
+    return NULL;
+}
+
+
+///
+//  dk_ustrrchr()
+//
+const char * dk_ustrrchr( const char * str, int ch )
+{
+    return strrchr( str, ch );
+}
+
+
+///
+//  dk_ustrcmp()
+//
+int dk_ustrcmp( const char * str1, const char * str2, int options )
+{
+    return strcmp( str1, str2 );
+}
+
+
+///
+//  dk_ustrlen()
+//
+size_t dk_ustrlen( const char * str )
+{
+    size_t length = 0;
+    const char * cur = str;
+
+    while( *cur != '\0' )
+    {
+        char32_t ch;
+        cur += dk_ustrscan( cur, &ch );
+
+        length++;
+    }
+
+    return length;
+}
+
+
+///
+//  dk_ustridx()
+//
+const char * dk_ustridx( const char * str, size_t idx )
+{
+    const char * cur = str;
+    
+    for( size_t i = 0; i < idx; ++i )
+    {
+        char32_t ch;
+        cur += dk_ustrscan( cur, &ch );
+        
+        if( ch == '\0' )
+            return NULL;
+    }
+    
+    return cur;
+}
+
+
+///
+//  dk_ustrscan()
+//
+size_t dk_ustrscan( const char * str, char32_t * ch )
+{
+    *ch = str[0];
+    return 1;
+}
+
+
+
 
 
