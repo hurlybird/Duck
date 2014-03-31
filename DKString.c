@@ -54,6 +54,13 @@ DKThreadSafeClassInit( DKStringClass )
 
     DKInstallInterface( cls, comparison );
     DKRelease( comparison );
+    
+    // Description
+    struct DKDescription * description = (struct DKDescription *)DKCreateInterface( DKSelector(Description), sizeof(DKDescription) );
+    description->copyDescription = DKRetain;
+    
+    DKInstallInterface( cls, description );
+    DKRelease( description );
 
     // Copying
     struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
@@ -83,6 +90,13 @@ DKThreadSafeClassInit( DKMutableStringClass )
 {
     DKTypeRef cls = DKCreateClass( "DKMutableString", DKStringClass(), sizeof(struct DKString) );
     
+    // Description
+    struct DKDescription * description = (struct DKDescription *)DKCreateInterface( DKSelector(Description), sizeof(DKDescription) );
+    description->copyDescription = DKStringCreateCopy;
+    
+    DKInstallInterface( cls, description );
+    DKRelease( description );
+
     // Copying
     struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKStringCreateMutableCopy;

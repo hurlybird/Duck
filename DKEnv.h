@@ -20,6 +20,7 @@
 
 // Objects
 typedef const void * DKTypeRef;
+typedef DKTypeRef    DKStringRef;
 
 
 // Indexes

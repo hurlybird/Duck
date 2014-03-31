@@ -7,6 +7,7 @@
 //
 
 #include "DKStream.h"
+#include "DKString.h"
 
 DKDefineInterface( Stream );
 
@@ -90,7 +91,7 @@ DKIndex DKSPrintf( DKTypeRef ref, const char * format, ... )
 ///
 //  DKVSPrintf()
 //
-static size_t WriteNumber( DKTypeRef ref, const struct DKStream * stream, const char * format, size_t formatLength, va_list arg_ptr )
+static size_t WriteNumber( DKTypeRef ref, DKStream * stream, const char * format, size_t formatLength, va_list arg_ptr )
 {
     char fmt[32];
     char num[32];
@@ -111,7 +112,7 @@ DKIndex DKVSPrintf( DKTypeRef ref, const char * format, va_list arg_ptr )
     if( !ref )
         return 0;
     
-    const struct DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
+    DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
     
     size_t write_count = 0;
     
@@ -119,6 +120,7 @@ DKIndex DKVSPrintf( DKTypeRef ref, const char * format, va_list arg_ptr )
     size_t seq_count = 0;
 
     DKTypeRef object;
+    DKTypeRef desc;
     const char * string;
     int * counter;
 
@@ -165,7 +167,7 @@ DKIndex DKVSPrintf( DKTypeRef ref, const char * format, va_list arg_ptr )
         */
         
         // Find the format token
-        size_t tok = strcspn( cursor + 1, "cdieEfgGosuxXpn@" ) + 1;
+        size_t tok = strcspn( cursor + 1, "cdieEfgGosuxXpn@%" ) + 1;
         
         seq_start = cursor + tok + 1;
         seq_count = 0;
@@ -189,8 +191,10 @@ DKIndex DKVSPrintf( DKTypeRef ref, const char * format, va_list arg_ptr )
         // %@
         case '@':
             object = va_arg( arg_ptr, DKTypeRef );
-            string = DKGetClassName( object );
+            desc = DKCopyDescription( object );
+            string = DKStringGetCStringPtr( desc );
             write_count += stream->write( ref, string, 1, strlen( string ) );
+            DKRelease( desc );
             break;
         
         // %n

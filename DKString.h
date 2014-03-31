@@ -16,7 +16,7 @@
 #define DKSTR( s )      __DKStringDefineConstantString( "" s "" )
 
 
-typedef DKTypeRef DKStringRef;
+// typedef DKTypeRef DKStringRef; -- defined in DKEnv.h
 typedef DKTypeRef DKMutableStringRef;
 
 

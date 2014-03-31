@@ -252,6 +252,23 @@ DKHashCode  DKDefaultHash( DKTypeRef ptr );
 DKComparison * DKDefaultComparison( void );
 
 
+// Description ---------------------------------------------------------------------------
+DKDeclareInterface( Description );
+
+struct DKDescription
+{
+    DKInterface _interface;
+    
+    DKStringRef (*copyDescription)( DKTypeRef ref );
+};
+
+typedef const struct DKDescription DKDescription;
+
+DKStringRef DKDefaultCopyDescription( DKTypeRef ref );
+
+DKDescription * DKDefaultDescription( void );
+
+
 
 
 // Alloc/Free Objects ====================================================================
@@ -292,7 +309,7 @@ DKTypeRef   DKGetMsgHandler( DKTypeRef ref, DKSEL sel );
 DKTypeRef   DKCreate( DKTypeRef _class );
 
 DKTypeRef   DKGetClass( DKTypeRef ref );
-const char* DKGetClassName( DKTypeRef ref );
+DKStringRef DKGetClassName( DKTypeRef ref );
 DKTypeRef   DKGetSuperclass( DKTypeRef ref );
 
 int         DKIsMemberOfClass( DKTypeRef ref, DKTypeRef _class );
@@ -305,6 +322,7 @@ int         DKEqual( DKTypeRef a, DKTypeRef b );
 int         DKCompare( DKTypeRef a, DKTypeRef b );
 DKHashCode  DKHash( DKTypeRef ref );
 
+DKStringRef DKCopyDescription( DKTypeRef ref );
 
 
 // Message Passing =======================================================================

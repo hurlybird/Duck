@@ -9,6 +9,7 @@
 #include "DKEnv.h"
 #include "DKPointerArray.h"
 #include "DKRuntime.h"
+#include "DKString.h"
 
 
 static void DKRuntimeInit( void );
@@ -23,9 +24,12 @@ struct DKClass
     const DKObjectHeader    _obj;
     
     char                    name[MAX_CLASS_NAME_LENGTH];
+    DKStringRef             nameString;
 
     const struct DKClass *  superclass;
     size_t                  structSize;
+
+    DKSpinLock              lock;
 
     DKTypeRef               vtable[DKVTableSize];
     
@@ -154,8 +158,6 @@ static DKMsgHandler __DKMsgHandlerNotFound__ =
     DKStaticMsgHandlerObject( MsgHandlerNotFound ),
     DKMsgHandlerNotFound
 };
-
-
 
 
 // LifeCycle -----------------------------------------------------------------------------
@@ -287,6 +289,26 @@ DKComparison * DKDefaultComparison( void )
 }
 
 
+// Description ---------------------------------------------------------------------------
+DKDefineInterface( Description );
+
+static DKDescription __DKDefaultDescription__ =
+{
+    DKStaticInterfaceObject( Description ),
+    DKDefaultCopyDescription,
+};
+
+DKStringRef DKDefaultCopyDescription( DKTypeRef ref )
+{
+    return DKGetClassName( ref );
+}
+
+DKDescription * DKDefaultDescription( void )
+{
+    return &__DKDefaultDescription__;
+}
+
+
 
 
 // Meta-Class Interfaces =================================================================
@@ -394,52 +416,58 @@ static DKHashCode DKInterfaceHash( DKTypeRef ref )
 
 // Runtime Init ==========================================================================
 
-static volatile int32_t DKRuntimeInitialized = 0;
+static DKSpinLock DKRuntimeInitLock = DKSpinLockInit;
+static int32_t DKRuntimeInitialized = 0;
 
 ///
 //  InitRootClass()
 //
-static void InitRootClass( struct DKClass * metaclass, const char * name, struct DKClass * isa,
-    struct DKClass * superclass, size_t structSize, DKLifeCycle * lifeCycle,
-    DKReferenceCounting * referenceCounting, DKComparison * comparison )
+static void InitRootClass( struct DKClass * _class, const char * name,
+    struct DKClass * isa, struct DKClass * superclass, size_t structSize,
+    DKLifeCycle * lifeCycle, DKReferenceCounting * referenceCounting, DKComparison * comparison )
 {
-    memset( metaclass, 0, sizeof(struct DKClass) );
+    memset( _class, 0, sizeof(struct DKClass) );
     
     // NOTE: We don't retain the 'isa' or 'superclass' objects here since the reference
     // counting interfaces haven't been installed yet. It doesn't really matter because
     // the meta-classes are statically allocated anyway.
 
-    struct DKObjectHeader * header = (struct DKObjectHeader *)metaclass;
+    struct DKObjectHeader * header = (struct DKObjectHeader *)_class;
     header->isa = isa;
     header->refcount = 1;
 
-    strncpy( metaclass->name, name, MAX_CLASS_NAME_LENGTH - 1 );
+    strncpy( _class->name, name, MAX_CLASS_NAME_LENGTH - 1 );
 
-    metaclass->superclass = superclass;
-    metaclass->structSize = structSize;
+    _class->nameString = NULL;
+    _class->superclass = superclass;
+    _class->structSize = structSize;
+    _class->lock = DKSpinLockInit;
     
-    DKPointerArrayInit( &metaclass->interfaces );
-    DKPointerArrayInit( &metaclass->properties );
+    DKPointerArrayInit( &_class->interfaces );
+    DKPointerArrayInit( &_class->properties );
 
     // Bypass the normal installation process here since the classes that allow it to
     // work haven't been fully initialized yet.
-    metaclass->vtable[DKVTable_LifeCycle] = lifeCycle;
-    DKPointerArrayAppendPointer( &metaclass->interfaces, lifeCycle );
+    _class->vtable[DKVTable_LifeCycle] = lifeCycle;
+    DKPointerArrayAppendPointer( &_class->interfaces, lifeCycle );
     
-    metaclass->vtable[DKVTable_ReferenceCounting] = referenceCounting;
-    DKPointerArrayAppendPointer( &metaclass->interfaces, referenceCounting );
+    _class->vtable[DKVTable_ReferenceCounting] = referenceCounting;
+    DKPointerArrayAppendPointer( &_class->interfaces, referenceCounting );
     
-    metaclass->vtable[DKVTable_Comparison] = comparison;
-    DKPointerArrayAppendPointer( &metaclass->interfaces, comparison );
+    _class->vtable[DKVTable_Comparison] = comparison;
+    DKPointerArrayAppendPointer( &_class->interfaces, comparison );
+    
+    DKPointerArrayAppendPointer( &_class->interfaces, &__DKDefaultDescription__ );
 }
+
 
 ///
 //  DKRuntimeInit()
 //
 static void DKRuntimeInit( void )
 {
-    // *** SPIN LOCK HERE ***
-    
+    DKSpinLockLock( &DKRuntimeInitLock );
+
     if( !DKRuntimeInitialized )
     {
         DKRuntimeInitialized = 1;
@@ -457,6 +485,8 @@ static void DKRuntimeInit( void )
         InitRootClass( &__DKPropertyClass__,   "Property",   &__DKMetaClass__, NULL,                  0,                      &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__, &__DKDefaultComparison__ );
         InitRootClass( &__DKObjectClass__,     "Object",     &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader), &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__, &__DKDefaultComparison__ );
     }
+
+    DKSpinLockUnlock( &DKRuntimeInitLock );
 }
 
 
@@ -594,6 +624,7 @@ static void DKClassFinalize( DKTypeRef ref )
     
     DKAssert( cls->_obj.isa == &__DKClassClass__ );
     
+    DKRelease( cls->nameString );
     DKRelease( cls->superclass );
 
     // Release interfaces
@@ -937,20 +968,35 @@ DKTypeRef DKGetClass( DKTypeRef ref )
 ///
 //  DKGetClassName()
 //
-const char * DKGetClassName( DKTypeRef ref )
+DKStringRef DKGetClassName( DKTypeRef ref )
 {
     if( ref )
     {
         const DKObjectHeader * obj = ref;
-        const struct DKClass * cls = obj->isa;
+        struct DKClass * cls = (struct DKClass *)obj->isa;
         
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
-            cls = ref;
+            cls = (struct DKClass *)ref;
         
-        return cls->name;
+        if( cls->nameString == NULL )
+        {
+            DKStringRef nameString = DKStringCreateWithCStringNoCopy( cls->name );
+            
+            DKSpinLockLock( &cls->lock );
+            
+            if( cls->nameString == NULL )
+                cls->nameString = nameString;
+            
+            DKSpinLockUnlock( &cls->lock );
+            
+            if( cls->nameString != nameString )
+                DKRelease( nameString );
+        }
+        
+        return cls->nameString;
     }
     
-    return "null";
+    return DKSTR( "null" );
 }
 
 
@@ -1084,6 +1130,21 @@ DKHashCode DKHash( DKTypeRef ref )
     }
     
     return 0;
+}
+
+
+///
+//  DKCopyDescription()
+//
+DKStringRef DKCopyDescription( DKTypeRef ref )
+{
+    if( ref )
+    {
+        DKDescription * description = DKGetInterface( ref, DKSelector(Description) );
+        return description->copyDescription( ref );
+    }
+    
+    return DKSTR( "null" );
 }
 
 
