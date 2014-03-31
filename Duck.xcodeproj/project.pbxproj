@@ -9,6 +9,20 @@
 /* Begin PBXBuildFile section */
 		0211F36218E46D59005544BA /* DKEnvPosix.c in Sources */ = {isa = PBXBuildFile; fileRef = 0211F36118E46D59005544BA /* DKEnvPosix.c */; };
 		0227273D18E793C100902BDB /* TestDKString.m in Sources */ = {isa = PBXBuildFile; fileRef = 0227273C18E793C100902BDB /* TestDKString.m */; };
+		0227277E18E94C3F00902BDB /* platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277018E94C3F00902BDB /* platform.h */; };
+		0227277F18E94C3F00902BDB /* ptypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277118E94C3F00902BDB /* ptypes.h */; };
+		0227278018E94C3F00902BDB /* uconfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277218E94C3F00902BDB /* uconfig.h */; };
+		0227278118E94C3F00902BDB /* umachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277318E94C3F00902BDB /* umachine.h */; };
+		0227278218E94C3F00902BDB /* urename.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277418E94C3F00902BDB /* urename.h */; };
+		0227278318E94C3F00902BDB /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 0227277518E94C3F00902BDB /* utf_impl.c */; };
+		0227278418E94C3F00902BDB /* utf_old.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277618E94C3F00902BDB /* utf_old.h */; };
+		0227278518E94C3F00902BDB /* utf.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277718E94C3F00902BDB /* utf.h */; };
+		0227278618E94C3F00902BDB /* utf8.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277818E94C3F00902BDB /* utf8.h */; };
+		0227278718E94C3F00902BDB /* utf16.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277918E94C3F00902BDB /* utf16.h */; };
+		0227278818E94C3F00902BDB /* utf32.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277A18E94C3F00902BDB /* utf32.h */; };
+		0227278918E94C3F00902BDB /* utypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277B18E94C3F00902BDB /* utypes.h */; };
+		0227278A18E94C3F00902BDB /* uvernum.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277C18E94C3F00902BDB /* uvernum.h */; };
+		0227278B18E94C3F00902BDB /* uversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277D18E94C3F00902BDB /* uversion.h */; };
 		0239C6B914FE8F4900873E36 /* DKNodePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 0239C6B814FE8F4900873E36 /* DKNodePool.h */; };
 		024918C818C136700046AA8B /* DKBinaryTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 024918C718C136700046AA8B /* DKBinaryTree.h */; };
 		024EE3EA148E0BA5008FDADC /* DKData.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3E9148E0BA5008FDADC /* DKData.h */; };
@@ -55,6 +69,20 @@
 /* Begin PBXFileReference section */
 		0211F36118E46D59005544BA /* DKEnvPosix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnvPosix.c; sourceTree = "<group>"; };
 		0227273C18E793C100902BDB /* TestDKString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKString.m; sourceTree = "<group>"; };
+		0227277018E94C3F00902BDB /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
+		0227277118E94C3F00902BDB /* ptypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ptypes.h; sourceTree = "<group>"; };
+		0227277218E94C3F00902BDB /* uconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uconfig.h; sourceTree = "<group>"; };
+		0227277318E94C3F00902BDB /* umachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = umachine.h; sourceTree = "<group>"; };
+		0227277418E94C3F00902BDB /* urename.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = urename.h; sourceTree = "<group>"; };
+		0227277518E94C3F00902BDB /* utf_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf_impl.c; sourceTree = "<group>"; };
+		0227277618E94C3F00902BDB /* utf_old.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf_old.h; sourceTree = "<group>"; };
+		0227277718E94C3F00902BDB /* utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf.h; sourceTree = "<group>"; };
+		0227277818E94C3F00902BDB /* utf8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf8.h; sourceTree = "<group>"; };
+		0227277918E94C3F00902BDB /* utf16.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf16.h; sourceTree = "<group>"; };
+		0227277A18E94C3F00902BDB /* utf32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf32.h; sourceTree = "<group>"; };
+		0227277B18E94C3F00902BDB /* utypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utypes.h; sourceTree = "<group>"; };
+		0227277C18E94C3F00902BDB /* uvernum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uvernum.h; sourceTree = "<group>"; };
+		0227277D18E94C3F00902BDB /* uversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uversion.h; sourceTree = "<group>"; };
 		0239C6B814FE8F4900873E36 /* DKNodePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKNodePool.h; sourceTree = "<group>"; };
 		0239C6BB14FE8F5600873E36 /* DKNodePool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNodePool.c; sourceTree = "<group>"; };
 		024918C718C136700046AA8B /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBinaryTree.h; sourceTree = "<group>"; };
@@ -121,6 +149,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0227275918E94A3D00902BDB /* Unicode */ = {
+			isa = PBXGroup;
+			children = (
+				0227277018E94C3F00902BDB /* platform.h */,
+				0227277118E94C3F00902BDB /* ptypes.h */,
+				0227277218E94C3F00902BDB /* uconfig.h */,
+				0227277318E94C3F00902BDB /* umachine.h */,
+				0227277418E94C3F00902BDB /* urename.h */,
+				0227277518E94C3F00902BDB /* utf_impl.c */,
+				0227277618E94C3F00902BDB /* utf_old.h */,
+				0227277718E94C3F00902BDB /* utf.h */,
+				0227277818E94C3F00902BDB /* utf8.h */,
+				0227277918E94C3F00902BDB /* utf16.h */,
+				0227277A18E94C3F00902BDB /* utf32.h */,
+				0227277B18E94C3F00902BDB /* utypes.h */,
+				0227277C18E94C3F00902BDB /* uvernum.h */,
+				0227277D18E94C3F00902BDB /* uversion.h */,
+			);
+			path = Unicode;
+			sourceTree = "<group>";
+		};
 		024EE3D7148E0B21008FDADC = {
 			isa = PBXGroup;
 			children = (
@@ -159,6 +208,7 @@
 				024918C918C1368B0046AA8B /* DKBinaryTree.c */,
 				026E1EB618E0FC810079B2F9 /* DKHashTable.h */,
 				026E1EB418E0FC730079B2F9 /* DKHashTable.c */,
+				0227275918E94A3D00902BDB /* Unicode */,
 				02D00FB818E6258C00FC3054 /* Duck Tests */,
 				02D00FB518E6258C00FC3054 /* Frameworks */,
 				024EE3E3148E0B21008FDADC /* Products */,
@@ -213,11 +263,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				024EE3EA148E0BA5008FDADC /* DKData.h in Headers */,
+				0227277F18E94C3F00902BDB /* ptypes.h in Headers */,
+				0227278218E94C3F00902BDB /* urename.h in Headers */,
+				0227278818E94C3F00902BDB /* utf32.h in Headers */,
+				0227278618E94C3F00902BDB /* utf8.h in Headers */,
+				0227278118E94C3F00902BDB /* umachine.h in Headers */,
+				0227278718E94C3F00902BDB /* utf16.h in Headers */,
 				024EE3EC148E0BBA008FDADC /* Duck.h in Headers */,
 				02C72E7F18DFA4B7009CD44D /* DKArray.h in Headers */,
+				0227278A18E94C3F00902BDB /* uvernum.h in Headers */,
 				024EE3FA148E42C9008FDADC /* DKLinkedList.h in Headers */,
+				0227278018E94C3F00902BDB /* uconfig.h in Headers */,
+				0227278918E94C3F00902BDB /* utypes.h in Headers */,
 				0274E6FA14901BCF00E6F451 /* DKEnv.h in Headers */,
 				0239C6B914FE8F4900873E36 /* DKNodePool.h in Headers */,
+				0227278418E94C3F00902BDB /* utf_old.h in Headers */,
+				0227277E18E94C3F00902BDB /* platform.h in Headers */,
+				0227278B18E94C3F00902BDB /* uversion.h in Headers */,
+				0227278518E94C3F00902BDB /* utf.h in Headers */,
 				02D00FAF18E5FE8600FC3054 /* DKString.h in Headers */,
 				024918C818C136700046AA8B /* DKBinaryTree.h in Headers */,
 			);
@@ -316,6 +379,7 @@
 				0274E6FC14901BDA00E6F451 /* DKEnv.c in Sources */,
 				0278EA4918CD811B0028A755 /* DKNodePool.c in Sources */,
 				02C72E7018DEC861009CD44D /* DKPointerArray.c in Sources */,
+				0227278318E94C3F00902BDB /* utf_impl.c in Sources */,
 				02C72E7218DECE4C009CD44D /* DKBinaryTree.c in Sources */,
 				02C72E7B18DF704B009CD44D /* DKFile.c in Sources */,
 				0211F36218E46D59005544BA /* DKEnvPosix.c in Sources */,

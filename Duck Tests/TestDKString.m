@@ -128,6 +128,16 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKRelease( str );
 }
 
+- (void) testDKStringUTF8
+{
+    DKStringRef fruit = DKSTR( "🍒🍐🍋🍓" );
+    XCTAssert( DKStringGetLength( fruit ) == 4 );
+
+    DKStringRef lemon = DKStringCopySubstring( fruit, DKRangeMake( 2, 1 ) );
+    XCTAssert( DKStringEqual( lemon, DKSTR( "🍋" ) ) );
+    DKRelease( lemon );
+}
+
 
 @end
 
