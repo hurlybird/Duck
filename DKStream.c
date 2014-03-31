@@ -98,6 +98,7 @@ static size_t WriteNumber( DKTypeRef ref, DKStream * stream, const char * format
 
     DKAssert( formatLength < (sizeof(fmt) -1) );
     strncpy( fmt, format, formatLength );
+    fmt[formatLength] = '\0';
     
     size_t n = vsprintf( num, fmt, arg_ptr );
     

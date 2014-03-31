@@ -9,6 +9,11 @@
 #ifndef _DUCK_LIBRARY_H_
 #define _DUCK_LIBRARY_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 #include "DKEnv.h"
 
@@ -23,6 +28,7 @@
 
 #include "DKData.h"
 #include "DKString.h"
+#include "DKNumber.h"
 
 #include "DKList.h"
 #include "DKLinkedList.h"
@@ -31,5 +37,11 @@
 #include "DKDictionary.h"
 #include "DKBinaryTree.h"
 #include "DKHashTable.h"
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

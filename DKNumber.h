@@ -33,7 +33,7 @@ typedef enum
 
 DKTypeRef   DKNumberClass( void );
 
-DKNumberRef DKNumberCreate( DKNumberType type, size_t count, const void * value );
+DKNumberRef DKNumberCreate( const void * value, DKNumberType type, size_t count );
 
 DKNumberRef DKNumberCreateInt32( int32_t x );
 DKNumberRef DKNumberCreateInt64( int64_t x );
@@ -49,16 +49,20 @@ size_t      DKNumberGetValue( DKNumberRef ref, void * value );
 size_t      DKNumberCastValue( DKNumberRef ref, void * value, DKNumberType type );
 const void* DKNumberGetValuePtr( DKNumberRef ref );
 
-#define DKNumberGetValueAs( ref, type )     (*((type *)DKNumberGetValuePtr( ref ))
+#define DKNumberGetValueAs( ref, type )     (*((type *)DKNumberGetValuePtr( ref )))
 
-#define DKNumberGetInt32( ref )     (*((int32_t *)DKNumberGetValuePtr( ref ))
-#define DKNumberGetInt64( ref )     (*((int64_t *)DKNumberGetValuePtr( ref ))
-#define DKNumberGetUInt32( ref )    (*((uint32_t *)DKNumberGetValuePtr( ref ))
-#define DKNumberGetUInt64( ref )    (*((uint64_t *)DKNumberGetValuePtr( ref ))
-#define DKNumberGetFloat( ref )     (*((float *)DKNumberGetValuePtr( ref ))
-#define DKNumberGetDouble( ref )    (*((double *)DKNumberGetValuePtr( ref ))
+#define DKNumberGetInt32( ref )     (*((int32_t *)DKNumberGetValuePtr( ref )))
+#define DKNumberGetInt64( ref )     (*((int64_t *)DKNumberGetValuePtr( ref )))
+#define DKNumberGetUInt32( ref )    (*((uint32_t *)DKNumberGetValuePtr( ref )))
+#define DKNumberGetUInt64( ref )    (*((uint64_t *)DKNumberGetValuePtr( ref )))
+#define DKNumberGetFloat( ref )     (*((float *)DKNumberGetValuePtr( ref )))
+#define DKNumberGetDouble( ref )    (*((double *)DKNumberGetValuePtr( ref )))
 
+int         DKNumberEqual( DKNumberRef a, DKNumberRef b );
+int         DKNumberCompare( DKNumberRef a, DKNumberRef b );
+DKHashCode  DKNumberHash( DKNumberRef ref );
 
+DKStringRef DKNumberCopyDescription( DKNumberRef ref );
 
 
 
