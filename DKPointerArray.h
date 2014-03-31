@@ -33,6 +33,8 @@ void DKPointerArrayReserve( DKPointerArray * array, DKIndex length );
 void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const uintptr_t pointers[], DKIndex length );
 void DKPointerArrayAppendPointer( DKPointerArray * array, uintptr_t pointer );
 
+void DKPointerArraySort( DKPointerArray * array, DKCompareFunction cmp );
+void DKPointerArrayShuffle( DKPointerArray * array );
 
 
 

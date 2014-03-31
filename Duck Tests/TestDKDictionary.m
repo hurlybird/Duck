@@ -46,9 +46,16 @@ static int RaiseException( const char * format, va_list arg_ptr )
 {
     const int N = 10000;
     
-    DKTypeRef * keys = dk_malloc( sizeof(DKTypeRef) * N );
-    DKTypeRef * values = dk_malloc( sizeof(DKTypeRef) * N );
+    DKPointerArray keys;
+    DKPointerArrayInit( &keys );
+    DKPointerArrayReserve( &keys, N );
+    keys.length = N;
 
+    DKPointerArray values;
+    DKPointerArrayInit( &values );
+    DKPointerArrayReserve( &values, N );
+    values.length = N;
+    
     DKMutableDictionaryRef dict = (DKMutableDictionaryRef)DKCreate( dictionaryClass );
     
     for( int i = 0; i < N; i++ )
@@ -56,42 +63,43 @@ static int RaiseException( const char * format, va_list arg_ptr )
         char buffer[32];
         
         sprintf( buffer, "Key%d", i );
-        keys[i] = DKDataCreateWithBytes( buffer, strlen( buffer) + 1 );
+        keys.data[i] = (uintptr_t)DKStringCreateWithCString( buffer );
 
         sprintf( buffer, "Value%d", i );
-        values[i] = DKDataCreateWithBytes( buffer, strlen( buffer) + 1 );
+        values.data[i] = (uintptr_t)DKStringCreateWithCString( buffer );
 
-        DKDictionarySetObject( dict, keys[i], values[i] );
+        DKDictionarySetObject( dict, (DKTypeRef)keys.data[i], (DKTypeRef)values.data[i] );
 
         XCTAssert( DKDictionaryGetCount( dict ) == (i + 1) );
-        XCTAssert( DKDictionaryContainsKey( dict, keys[i] ) );
+        XCTAssert( DKDictionaryContainsKey( dict, (DKTypeRef)keys.data[i] ) );
     }
     
     XCTAssert( DKDictionaryGetCount( dict ) == N );
 
     for( int i = 0; i < N; i++ )
     {
-        DKTypeRef value = DKDictionaryGetObject( dict, keys[i] );
-        XCTAssert( value == values[i] );
+        DKTypeRef value = DKDictionaryGetObject( dict, (DKTypeRef)keys.data[i] );
+        XCTAssert( value == (DKTypeRef)values.data[i] );
     }
     
-    dk_shuffle( (uintptr_t *)keys, N );
+    DKPointerArrayShuffle( &keys );
     
     for( int i = 0; i < N; i++ )
     {
-        DKDictionaryRemoveObject( dict, keys[i] );
+        DKDictionaryRemoveObject( dict, (DKTypeRef)keys.data[i] );
         XCTAssert( DKDictionaryGetCount( dict ) == N - (i + 1) );
     }
 
     for( int i = 0; i < N; i++ )
     {
-        DKRelease( keys[i] );
-        DKRelease( values[i] );
+        DKRelease( (DKTypeRef)keys.data[i] );
+        DKRelease( (DKTypeRef)values.data[i] );
     }
     
     DKRelease( dict );
-    dk_free( keys );
-    dk_free( values );
+    
+    DKPointerArrayFinalize( &keys );
+    DKPointerArrayFinalize( &values );
 }
 
 @end

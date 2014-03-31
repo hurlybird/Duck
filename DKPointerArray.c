@@ -200,6 +200,36 @@ void DKPointerArrayAppendPointer( DKPointerArray * array, uintptr_t pointer )
 }
 
 
+///
+//  DKPointerArraySort()
+//
+void DKPointerArraySort( DKPointerArray * array, DKCompareFunction cmp )
+{
+    qsort( array->data, array->length, sizeof(uintptr_t), cmp );
+}
+
+
+///
+//  DKPointerArrayShuffle()
+//
+void DKPointerArrayShuffle( DKPointerArray * array )
+{
+    DKIndex n = array->length - 1;
+
+    if( n > 0 )
+    {
+        for( DKIndex i = 0; i < n; ++i )
+        {
+            DKIndex j = rand() % n;
+            
+            uintptr_t tmp = array->data[i];
+            array->data[i] = array->data[j];
+            array->data[j] = tmp;
+        }
+    }
+}
+
+
 
 
 

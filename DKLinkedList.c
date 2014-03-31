@@ -9,6 +9,7 @@
 #include "DKLinkedList.h"
 #include "DKNodePool.h"
 #include "DKCopying.h"
+#include "DKPointerArray.h"
 
 
 struct DKLinkedListNode
@@ -586,24 +587,26 @@ void DKLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DK
 ///
 //  DKLinkedListSort()
 //
-static void ListToBuffer( DKTypeRef buffer[], struct DKLinkedList * list )
+static void ListToArray( DKPointerArray * array, struct DKLinkedList * list )
 {
     struct DKLinkedListNode * node = list->first;
     
     for( DKIndex i = 0; i < list->count; ++i )
     {
-        buffer[i] = node->object;
+        array->data[i] = node->object;
         node = node->next;
     }
+    
+    array->length = list->count;
 }
 
-static void BufferToList( struct DKLinkedList * list, DKTypeRef buffer[] )
+static void ArrayToList( struct DKLinkedList * list, DKPointerArray * array )
 {
     struct DKLinkedListNode * node = list->first;
     
     for( DKIndex i = 0; i < list->count; ++i )
     {
-        node->object = buffer[i];
+        node->object = array->data[i];
         node = node->next;
     }
 }
@@ -623,13 +626,15 @@ void DKLinkedListSort( DKMutableListRef ref, DKCompareFunction cmp )
         // gymnastics needed for sorting the list nodes.
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
 
-        DKTypeRef * buffer = dk_malloc( sizeof(DKTypeRef) * list->count );
-        ListToBuffer( buffer, list );
+        DKPointerArray array;
+        DKPointerArrayInit( &array );
+        DKPointerArrayReserve( &array, list->count );
+        ListToArray( &array, list );
 
-        qsort( buffer, list->count, sizeof(DKTypeRef), cmp );
+        DKPointerArraySort( &array, cmp );
 
-        BufferToList( list, buffer );
-        dk_free( buffer );
+        ArrayToList( list, &array );
+        DKPointerArrayFinalize( &array );
     }
 }
 
@@ -652,13 +657,15 @@ void DKLinkedListShuffle( DKMutableListRef ref )
         // gymnastics needed for shuffling the list nodes.
         struct DKLinkedList * list = (struct DKLinkedList *)ref;
 
-        DKTypeRef * buffer = dk_malloc( sizeof(DKTypeRef) * list->count );
-        ListToBuffer( buffer, list );
+        DKPointerArray array;
+        DKPointerArrayInit( &array );
+        DKPointerArrayReserve( &array, list->count );
+        ListToArray( &array, list );
 
-        dk_shuffle( (uintptr_t *)buffer, list->count );
+        DKPointerArrayShuffle( &array );
 
-        BufferToList( list, buffer );
-        dk_free( buffer );
+        ArrayToList( list, &array );
+        DKPointerArrayFinalize( &array );
     }
 }
 

@@ -233,19 +233,6 @@ DKHashCode dk_memhash( const void * buffer, size_t buffer_size );
 // Time in seconds since midnight January 1, 1970 (i.e. gettimeofday())
 double dk_time( void );
 
-// Shuffle an array of pointer-sized integers
-void dk_shuffle( uintptr_t array[], DKIndex count );
-
-// UTF8 aware versions of standard string functions
-const char * dk_ustrchr( const char * str, int ch );
-const char * dk_ustrrchr( const char * str, int ch );
-
-int dk_ustrcmp( const char * str1, const char * str2, int options );
-
-size_t dk_ustrlen( const char * str );
-
-const char * dk_ustridx( const char * str, size_t idx );
-size_t dk_ustrscan( const char * str, char32_t * ch );
 
 
 #endif // _DK_ENV_H_

@@ -6,6 +6,7 @@
 //  Copyright (c) 2011 Derek W. Nylen. All rights reserved.
 //
 #include "DKString.h"
+#include "DKUnicode.h"
 #include "DKByteArray.h"
 #include "DKCopying.h"
 #include "DKStream.h"

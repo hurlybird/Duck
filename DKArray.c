@@ -365,7 +365,7 @@ void DKArraySort( DKMutableListRef ref, DKCompareFunction cmp )
         DKVerifyKindOfClass( ref, DKMutableArrayClass() );
 
         struct DKArray * array = (struct DKArray *)ref;
-        qsort( array->ptrArray.data, array->ptrArray.length, sizeof(DKTypeRef), cmp );
+        DKPointerArraySort( &array->ptrArray, cmp );
     }
 }
 
@@ -385,7 +385,7 @@ void DKArrayShuffle( DKMutableListRef ref )
         DKVerifyKindOfClass( ref, DKMutableArrayClass() );
     
         struct DKArray * array = (struct DKArray *)ref;
-        dk_shuffle( array->ptrArray.data, array->ptrArray.length );
+        DKPointerArrayShuffle( array->ptrArray.data );
     }
 }
 

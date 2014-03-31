@@ -8,6 +8,8 @@
 
 #include "DKStream.h"
 #include "DKString.h"
+#include "DKUnicode.h"
+
 
 DKDefineInterface( Stream );
 
