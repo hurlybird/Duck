@@ -10,6 +10,8 @@
 #include "DKCopying.h"
 #include "DKStream.h"
 #include "DKHashTable.h"
+#include "DKList.h"
+#include "DKArray.h"
 
 
 struct DKString
@@ -515,7 +517,7 @@ DKRange DKStringGetRangeOfString( DKStringRef ref, DKStringRef str, DKIndex star
 
         const struct DKString * string = ref;
 
-        if( string->byteArray.length > 1 )
+        if( string->byteArray.length > 0 )
         {
             const char * s = (const char *)string->byteArray.data;
         
@@ -557,6 +559,87 @@ DKRange DKStringGetRangeOfString( DKStringRef ref, DKStringRef str, DKIndex star
     }
 
     return range;
+}
+
+
+///
+//  DKStringCreateListBySeparatingStrings()
+//
+DKTypeRef DKStringCreateListBySeparatingStrings( DKStringRef ref, DKStringRef separator )
+{
+    DKListRef array = DKArrayCreateMutable();
+
+    if( ref )
+    {
+        DKVerifyKindOfClass( ref, DKStringClass(), array );
+        DKVerifyKindOfClass( separator, DKStringClass(), array );
+        
+        DKRange prev = DKRangeMake( 0, 0 );
+        DKRange next = DKStringGetRangeOfString( ref, separator, 0 );
+        DKRange copyRange;
+        
+        while( next.location != DKNotFound )
+        {
+            copyRange.location = prev.location + prev.length;
+            copyRange.length = next.location - copyRange.location;
+            
+            if( copyRange.length > 0 )
+            {
+                DKStringRef copy = DKStringCopySubstring( ref, copyRange );
+                DKListAppendObject( array, copy );
+                DKRelease( copy );
+            }
+            
+            prev = next;
+            next = DKStringGetRangeOfString( ref, separator, next.location + next.length );
+        }
+        
+        copyRange.location = prev.location + prev.length;
+        copyRange.length = DKStringGetLength( ref ) - copyRange.location;
+        
+        if( copyRange.length > 0 )
+        {
+            DKStringRef copy = DKStringCopySubstring( ref, copyRange );
+            DKListAppendObject( array, copy );
+            DKRelease( copy );
+        }
+    }
+    
+    return array;
+}
+
+
+///
+//  DKStringCreateByCombiningStrings()
+//
+DKStringRef DKStringCreateByCombiningStrings( DKTypeRef list, DKStringRef separator )
+{
+    DKMutableStringRef combinedString = DKStringCreateMutable();
+
+    if( list )
+    {
+        DKVerifyInterface( list, DKSelector(List), combinedString );
+        
+        DKIndex count = DKListGetCount( list );
+     
+        if( count > 0 )
+        {
+            for( DKIndex i = 0; i < count; ++i )
+            {
+                DKStringRef str = DKListGetObjectAtIndex( list, i );
+                DKVerifyKindOfClass( str, DKStringClass(), combinedString );
+                
+                DKStringAppendString( combinedString, str );
+                
+                if( separator && (i < (count - 1)) )
+                    DKStringAppendString( combinedString, separator );
+            }
+            
+            return combinedString;
+        }
+    }
+    
+    return combinedString;
 }
 
 
@@ -610,7 +693,7 @@ void DKStringAppendString( DKMutableStringRef ref, DKStringRef str )
 ///
 //  DKStringAppendFormat()
 //
-void DKStringAppendFormat( DKMutableStringRef ref, DKStringRef format, ... )
+void DKStringAppendFormat( DKMutableStringRef ref, const char * format, ... )
 {
     if( ref )
     {
@@ -645,6 +728,27 @@ void DKStringReplaceSubstring( DKMutableStringRef ref, DKRange range, DKStringRe
         DKVerifyRange( range, dst->byteArray.length );
         
         DKByteArrayReplaceBytes( &dst->byteArray, range, src->byteArray.data, src->byteArray.length );
+    }
+}
+
+
+///
+//  DKStringReplaceOccurrencesOfString()
+//
+void DKStringReplaceOccurrencesOfString( DKMutableStringRef ref, DKStringRef pattern, DKStringRef replacement )
+{
+    if( ref )
+    {
+        DKVerifyKindOfClass( ref, DKMutableStringClass() );
+        
+        DKRange range = DKStringGetRangeOfString( ref, pattern, 0 );
+        DKIndex length = DKStringGetLength( replacement );
+        
+        while( range.location != DKNotFound )
+        {
+            DKStringReplaceSubstring( ref, range, replacement );
+            range = DKStringGetRangeOfString( ref, pattern, range.location + length );
+        }
     }
 }
 

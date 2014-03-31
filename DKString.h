@@ -47,13 +47,19 @@ DKStringRef DKStringCopySubstringToIndex( DKStringRef ref, DKIndex index );
 
 DKRange     DKStringGetRangeOfString( DKStringRef ref, DKStringRef str, DKIndex startLoc );
 
+// Separating and concatenating strings
+DKTypeRef   DKStringCreateListBySeparatingStrings( DKStringRef ref, DKStringRef separator );
+DKStringRef DKStringCreateByCombiningStrings( DKTypeRef list, DKStringRef separator );
+
 // Modifying mutable strings
 void        DKStringSetString( DKMutableStringRef ref, DKStringRef str );
 
 void        DKStringAppendString( DKMutableStringRef ref, DKStringRef str );
-void        DKStringAppendFormat( DKMutableStringRef ref, DKStringRef format, ... );
+void        DKStringAppendFormat( DKMutableStringRef ref, const char * format, ... );
 
 void        DKStringReplaceSubstring( DKMutableStringRef ref, DKRange range, DKStringRef str );
+void        DKStringReplaceOccurrencesOfString( DKMutableStringRef ref, DKStringRef pattern, DKStringRef replacement );
+
 void        DKStringDeleteSubstring( DKMutableStringRef ref, DKRange range );
 
 // Stream interface

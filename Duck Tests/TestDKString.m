@@ -50,19 +50,23 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKMutableStringRef mutableString = DKStringCreateMutableCopy( quickFox );
     XCTAssert( DKStringEqual( quickFox, mutableString ) );
     
-    range = DKStringGetRangeOfString( mutableString, quick, 0 );
-    XCTAssert( (range.location == 4) && (range.length == 5) );
-    range.length += 1;
+    range = DKStringGetRangeOfString( mutableString, DKSTR( "quick " ), 0 );
+    XCTAssert( (range.location == 4) && (range.length == 6) );
     
     DKStringReplaceSubstring( mutableString, range, DKSTR( "slow " ) );
     XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox jumps over a lazy dog." ) ) );
+
+    DKStringReplaceOccurrencesOfString( mutableString, DKSTR( "jumps " ), DKSTR( "hops " ) );
+    XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox hops over a lazy dog." ) ) );
+    
+    DKStringReplaceOccurrencesOfString( mutableString, DKSTR( "lazy " ), DKSTR( "" ) );
+    XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox hops over a dog." ) ) );
     
     DKRelease( mutableString );
 }
 
 - (void) testDKStringStream
 {
-
     const char * a = "aaaaaaaaaa";
     const char * b = "bbbbbbbbbb";
     const char * c = "cccccccccc";
@@ -88,4 +92,23 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKRelease( str );
 }
 
+- (void) testDKStringConcatenation
+{
+    DKStringRef str = DKSTR( "She sells sea shells by the sea shore" );
+    
+    DKListRef list = DKStringCreateListBySeparatingStrings( str, DKSTR( " " ) );
+    XCTAssert( DKListGetCount( list ) == 8 );
+    
+    DKStringRef cat = DKStringCreateByCombiningStrings( list, DKSTR( " " ) );
+    XCTAssert( DKStringEqual( str, cat ) );
+    
+    DKRelease( list );
+    DKRelease( cat );
+}
+
+
 @end
+
+
+
+

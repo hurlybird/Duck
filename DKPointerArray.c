@@ -117,7 +117,7 @@ void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const
     DKAssert( range.location >= 0 );
     DKAssert( range.length >= 0 );
     DKAssert( range_end <= array->length );
-    DKAssert( ((pointers != NULL) && (length > 0)) || ((pointers == NULL) && (length == 0)) );
+    DKAssert( ((pointers != NULL) && (length >= 0)) || ((pointers == NULL) && (length == 0)) );
 
     // Do nothing
     if( (range.length == 0) && (length == 0) )
