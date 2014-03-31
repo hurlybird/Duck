@@ -9,7 +9,7 @@
 #ifndef _DK_NODE_POOL_H_
 #define _DK_NODE_POOL_H_
 
-#include "DKEnv.h"
+#include "DKPlatform.h"
 
 
 typedef struct

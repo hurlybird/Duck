@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Derek W. Nylen. All rights reserved.
 //
 
-#include "DKEnv.h"
+#include "DKPlatform.h"
 #include "DKPointerArray.h"
 #include "DKRuntime.h"
 #include "DKString.h"

@@ -9,7 +9,7 @@
 #ifndef _DK_UNICODE_H_
 #define _DK_UNICODE_H_
 
-#include "DKEnv.h"
+#include "DKPlatform.h"
 
 
 // UTF8 aware versions of standard string functions

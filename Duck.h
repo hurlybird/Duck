@@ -15,7 +15,7 @@ extern "C"
 #endif
 
 
-#include "DKEnv.h"
+#include "DKPlatform.h"
 
 #include "DKByteArray.h"
 #include "DKPointerArray.h"

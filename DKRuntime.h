@@ -8,7 +8,7 @@
 #ifndef _DK_RUNTIME_H_
 #define _DK_RUNTIME_H_
 
-#include "DKEnv.h"
+#include "DKPlatform.h"
 
 
 // DKObjectHeader ========================================================================

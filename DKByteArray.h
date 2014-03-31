@@ -9,7 +9,7 @@
 #ifndef _DK_BYTE_ARRAY_H_
 #define _DK_BYTE_ARRAY_H_
 
-#include "DKEnv.h"
+#include "DKPlatform.h"
 
 
 // Note: DKByteArray internally stores a NULL ('\0') byte at data[length] to make

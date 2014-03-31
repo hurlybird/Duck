@@ -9,7 +9,7 @@
 #ifndef _DK_NUMBER_H_
 #define _DK_NUMBER_H_
 
-#include "DKEnv.h"
+#include "DKPlatform.h"
 
 
 typedef DKTypeRef DKNumberRef;

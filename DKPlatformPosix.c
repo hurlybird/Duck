@@ -1,5 +1,5 @@
 //
-//  DKEnvPosix.c
+//  DKPlatformPosix.c
 //  Duck
 //
 //  Created by Derek Nylen on 2014-03-27.
@@ -7,7 +7,7 @@
 //
 #include <sys/time.h>
 
-#include "DKEnv.h"
+#include "DKPlatform.h"
 
 
 

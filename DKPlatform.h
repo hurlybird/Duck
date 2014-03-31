@@ -1,5 +1,5 @@
 //
-//  DKEnv.h
+//  DKPlatform.h
 //  Duck
 //
 //  Created by Derek Nylen on 11-12-07.
@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "DKEnvApple.h"
+#include "DKPlatformApple.h"
 
 
 // Basic Types ===========================================================================

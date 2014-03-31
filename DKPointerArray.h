@@ -9,7 +9,7 @@
 #ifndef _DK_POINTER_ARRAY_H_
 #define _DK_POINTER_ARRAY_H_
 
-#include "DKEnv.h"
+#include "DKPlatform.h"
 
 
 typedef struct
