@@ -23,6 +23,7 @@
 		0227278918E94C3F00902BDB /* utypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277B18E94C3F00902BDB /* utypes.h */; };
 		0227278A18E94C3F00902BDB /* uvernum.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277C18E94C3F00902BDB /* uvernum.h */; };
 		0227278B18E94C3F00902BDB /* uversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0227277D18E94C3F00902BDB /* uversion.h */; };
+		0227278E18E9538800902BDB /* DKNumber.c in Sources */ = {isa = PBXBuildFile; fileRef = 0227278D18E9538800902BDB /* DKNumber.c */; };
 		0239C6B914FE8F4900873E36 /* DKNodePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 0239C6B814FE8F4900873E36 /* DKNodePool.h */; };
 		024918C818C136700046AA8B /* DKBinaryTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 024918C718C136700046AA8B /* DKBinaryTree.h */; };
 		024EE3EA148E0BA5008FDADC /* DKData.h in Headers */ = {isa = PBXBuildFile; fileRef = 024EE3E9148E0BA5008FDADC /* DKData.h */; };
@@ -83,6 +84,8 @@
 		0227277B18E94C3F00902BDB /* utypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utypes.h; sourceTree = "<group>"; };
 		0227277C18E94C3F00902BDB /* uvernum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uvernum.h; sourceTree = "<group>"; };
 		0227277D18E94C3F00902BDB /* uversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uversion.h; sourceTree = "<group>"; };
+		0227278C18E9538000902BDB /* DKNumber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKNumber.h; sourceTree = "<group>"; };
+		0227278D18E9538800902BDB /* DKNumber.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNumber.c; sourceTree = "<group>"; };
 		0239C6B814FE8F4900873E36 /* DKNodePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKNodePool.h; sourceTree = "<group>"; };
 		0239C6BB14FE8F5600873E36 /* DKNodePool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNodePool.c; sourceTree = "<group>"; };
 		024918C718C136700046AA8B /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBinaryTree.h; sourceTree = "<group>"; };
@@ -208,6 +211,8 @@
 				024918C918C1368B0046AA8B /* DKBinaryTree.c */,
 				026E1EB618E0FC810079B2F9 /* DKHashTable.h */,
 				026E1EB418E0FC730079B2F9 /* DKHashTable.c */,
+				0227278C18E9538000902BDB /* DKNumber.h */,
+				0227278D18E9538800902BDB /* DKNumber.c */,
 				0227275918E94A3D00902BDB /* Unicode */,
 				02D00FB818E6258C00FC3054 /* Duck Tests */,
 				02D00FB518E6258C00FC3054 /* Frameworks */,
@@ -380,6 +385,7 @@
 				0278EA4918CD811B0028A755 /* DKNodePool.c in Sources */,
 				02C72E7018DEC861009CD44D /* DKPointerArray.c in Sources */,
 				0227278318E94C3F00902BDB /* utf_impl.c in Sources */,
+				0227278E18E9538800902BDB /* DKNumber.c in Sources */,
 				02C72E7218DECE4C009CD44D /* DKBinaryTree.c in Sources */,
 				02C72E7B18DF704B009CD44D /* DKFile.c in Sources */,
 				0211F36218E46D59005544BA /* DKEnvPosix.c in Sources */,
