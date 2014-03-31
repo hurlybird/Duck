@@ -325,6 +325,9 @@ const char * dk_ustridx( const char * str, size_t idx )
 //
 size_t dk_ustrscan( const char * str, char32_t * ch )
 {
+    if( *str == '\0' )
+        return 0;
+    
     *ch = str[0];
     return 1;
 }

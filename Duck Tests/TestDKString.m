@@ -106,6 +106,24 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKRelease( cat );
 }
 
+- (void) testDKStringPrintf
+{
+    DKMutableStringRef str = DKStringCreateMutable();
+    
+    DKSPrintf( str, "%d", 100 );
+    XCTAssert( DKStringEqual( str, DKSTR( "100" ) ) );
+    
+    DKStringSetString( str, DKSTR( "" ) );
+    DKSPrintf( str, "%s", "Hello" );
+    XCTAssert( DKStringEqual( str, DKSTR( "Hello" ) ) );
+
+    DKStringSetString( str, DKSTR( "" ) );
+    DKSPrintf( str, "%@", str );
+    XCTAssert( DKStringEqual( str, DKSTR( "DKMutableString" ) ) );
+    
+    DKRelease( str );
+}
+
 
 @end
 

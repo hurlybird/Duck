@@ -950,7 +950,7 @@ const char * DKGetClassName( DKTypeRef ref )
         return cls->name;
     }
     
-    return "";
+    return "null";
 }
 
 

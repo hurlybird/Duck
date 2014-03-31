@@ -44,10 +44,8 @@ DKIndex DKRead( DKTypeRef ref, void * data, DKIndex size, DKIndex count );
 DKIndex DKWrite( DKTypeRef ref, const void * data, DKIndex size, DKIndex count );
 
 DKIndex DKSPrintf( DKTypeRef ref, const char * format, ... );
-DKIndex DKSScanf( DKTypeRef ref, const char * format, ... );
 
 DKIndex DKVSPrintf( DKTypeRef ref, const char * format, va_list arg_ptr );
-DKIndex DKVSScanf( DKTypeRef ref, const char * format, va_list arg_ptr );
 
 
 
