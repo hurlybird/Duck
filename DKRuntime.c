@@ -16,7 +16,10 @@ static void DKRuntimeInit( void );
 static DKInterface * DKLookupInterface( const struct DKClass * cls, DKSEL sel );
 
 
-// Internal Class Structure ==============================================================
+// Internal Types ========================================================================
+
+
+// DKClass
 #define MAX_CLASS_NAME_LENGTH   40
 
 struct DKClass
@@ -28,7 +31,6 @@ struct DKClass
 
     const struct DKClass *  superclass;
     size_t                  structSize;
-
     DKSpinLock              lock;
 
     DKTypeRef               vtable[DKVTableSize];
@@ -38,6 +40,17 @@ struct DKClass
 };
 
 typedef const struct DKClass DKClass;
+
+
+// DKWeak
+struct DKWeak
+{
+    DKObjectHeader  _obj;
+    DKSpinLock      lock;
+    DKTypeRef       target;
+};
+
+typedef const struct DKWeak DKWeak;
 
 
 
@@ -51,6 +64,7 @@ static struct DKClass __DKInterfaceClass__;
 static struct DKClass __DKMsgHandlerClass__;
 static struct DKClass __DKPropertyClass__;
 static struct DKClass __DKObjectClass__;
+static struct DKClass __DKWeakClass__;
 
 
 DKTypeRef DKClassClass( void )
@@ -89,6 +103,12 @@ DKTypeRef DKObjectClass( void )
     return &__DKObjectClass__;
 }
 
+static DKTypeRef DKWeakClass( void )
+{
+    DKRuntimeInit();
+    return &__DKWeakClass__;
+}
+
 
 
 
@@ -96,13 +116,9 @@ DKTypeRef DKObjectClass( void )
 
 #define DKStaticInterfaceObject( sel )                                                  \
     {                                                                                   \
-        { &__DKInterfaceClass__, 1 },                                                   \
+        DKStaticObjectHeader( &__DKInterfaceClass__ ),                                  \
         DKSelector( sel )                                                               \
     }
-
-#define DKStaticMsgHandlerObject( sel )                                                 \
-    { &__DKMsgHandlerClass__, 1 },                                                      \
-    DKSelector( sel )
 
 
 // Not Found -----------------------------------------------------------------------------
@@ -110,14 +126,14 @@ DKTypeRef DKObjectClass( void )
 
 static struct DKSEL DKSelector_InterfaceNotFound =
 {
-    { &__DKSelectorClass__, 1 },
+    DKStaticObjectHeader( &__DKSelectorClass__ ),
     "InterfaceNotFound",
     "InterfaceNotFound"
 };
 
 static struct DKSEL DKSelector_MsgHandlerNotFound =
 {
-    { &__DKSelectorClass__, 1 },
+    DKStaticObjectHeader( &__DKSelectorClass__ ),
     "MsgHandlerNotFound",
     "DKMsgHandlerHotFound( ??? )"
 };
@@ -155,7 +171,8 @@ static struct DKInterfaceNotFoundInterface __DKInterfaceNotFound__ =
 
 static DKMsgHandler __DKMsgHandlerNotFound__ =
 {
-    DKStaticMsgHandlerObject( MsgHandlerNotFound ),
+    DKStaticObjectHeader( &__DKMsgHandlerClass__ ),
+    DKSelector( MsgHandlerNotFound ),
     DKMsgHandlerNotFound
 };
 
@@ -175,70 +192,6 @@ static DKLifeCycle __DKDefaultLifeCycle__ =
 DKLifeCycle * DKDefaultLifeCycle( void )
 {
     return &__DKDefaultLifeCycle__;
-}
-
-
-// ReferenceCounting ---------------------------------------------------------------------
-DKDefineFastLookupInterface( ReferenceCounting );
-
-static DKReferenceCounting __DKDefaultReferenceCounting__ =
-{
-    DKStaticInterfaceObject( ReferenceCounting ),
-    DKDefaultRetain,
-    DKDefaultRelease
-};
-
-static DKReferenceCounting __DKStaticReferenceCounting__ =
-{
-    DKStaticInterfaceObject( ReferenceCounting ),
-    DKStaticRetain,
-    DKStaticRelease
-};
-
-DKTypeRef DKDefaultRetain( DKTypeRef ref )
-{
-    if( ref )
-    {
-        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
-        DKAtomicIncrement32( &obj->refcount );
-    }
-
-    return ref;
-}
-
-void DKDefaultRelease( DKTypeRef ref )
-{
-    if( ref )
-    {
-        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
-        int32_t n = DKAtomicDecrement32( &obj->refcount );
-        
-        DKAssert( n >= 0 );
-        
-        if( n == 0 )
-        {
-            DKDeallocObject( ref );
-        }
-    }
-}
-
-DKTypeRef DKStaticRetain( DKTypeRef ref )
-{
-    return ref;
-}
-
-void DKStaticRelease( DKTypeRef ref )
-{
-}
-
-DKReferenceCounting * DKDefaultReferenceCounting( void )
-{
-    return &__DKDefaultReferenceCounting__;
-}
-
-DKReferenceCounting * DKStaticReferenceCounting( void )
-{
-    return &__DKStaticReferenceCounting__;
 }
 
 
@@ -424,22 +377,18 @@ static int32_t DKRuntimeInitialized = 0;
 //
 static void InitRootClass( struct DKClass * _class, const char * name,
     struct DKClass * isa, struct DKClass * superclass, size_t structSize,
-    DKLifeCycle * lifeCycle, DKReferenceCounting * referenceCounting, DKComparison * comparison )
+    DKLifeCycle * lifeCycle, DKComparison * comparison )
 {
     memset( _class, 0, sizeof(struct DKClass) );
     
-    // NOTE: We don't retain the 'isa' or 'superclass' objects here since the reference
-    // counting interfaces haven't been installed yet. It doesn't really matter because
-    // the meta-classes are statically allocated anyway.
-
     struct DKObjectHeader * header = (struct DKObjectHeader *)_class;
-    header->isa = isa;
+    header->isa = DKRetain( isa );
     header->refcount = 1;
 
     strncpy( _class->name, name, MAX_CLASS_NAME_LENGTH - 1 );
 
     _class->nameString = NULL;
-    _class->superclass = superclass;
+    _class->superclass = DKRetain( superclass );
     _class->structSize = structSize;
     _class->lock = DKSpinLockInit;
     
@@ -448,15 +397,15 @@ static void InitRootClass( struct DKClass * _class, const char * name,
 
     // Bypass the normal installation process here since the classes that allow it to
     // work haven't been fully initialized yet.
+    DKRetain( lifeCycle );
     _class->vtable[DKVTable_LifeCycle] = lifeCycle;
     DKPointerArrayAppendPointer( &_class->interfaces, lifeCycle );
     
-    _class->vtable[DKVTable_ReferenceCounting] = referenceCounting;
-    DKPointerArrayAppendPointer( &_class->interfaces, referenceCounting );
-    
+    DKRetain( comparison );
     _class->vtable[DKVTable_Comparison] = comparison;
     DKPointerArrayAppendPointer( &_class->interfaces, comparison );
     
+    DKRetain( &__DKDefaultDescription__ );
     DKPointerArrayAppendPointer( &_class->interfaces, &__DKDefaultDescription__ );
 }
 
@@ -477,13 +426,14 @@ static void DKRuntimeInit( void )
             __DKInterfaceNotFound__.func[i] = DKInterfaceNotFound;
 
         // Init root classes
-        InitRootClass( &__DKMetaClass__,       "Root",       &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKStaticReferenceCounting__,  &__DKDefaultComparison__ );
-        InitRootClass( &__DKClassClass__,      "Class",      &__DKMetaClass__, NULL,                  sizeof(struct DKClass), &__DKClassLifeCycle__,     &__DKDefaultReferenceCounting__, &__DKDefaultComparison__ );
-        InitRootClass( &__DKSelectorClass__,   "Selector",   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL),   &__DKDefaultLifeCycle__,   &__DKStaticReferenceCounting__,  &__DKSelectorComparison__ );
-        InitRootClass( &__DKInterfaceClass__,  "Interface",  &__DKMetaClass__, NULL,                  sizeof(DKInterface),    &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__, &__DKInterfaceComparison__ );
-        InitRootClass( &__DKMsgHandlerClass__, "MsgHandler", &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),   &__DKInterfaceLifeCycle__, &__DKDefaultReferenceCounting__, &__DKInterfaceComparison__ );
-        InitRootClass( &__DKPropertyClass__,   "Property",   &__DKMetaClass__, NULL,                  0,                      &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__, &__DKDefaultComparison__ );
-        InitRootClass( &__DKObjectClass__,     "Object",     &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader), &__DKDefaultLifeCycle__,   &__DKDefaultReferenceCounting__, &__DKDefaultComparison__ );
+        InitRootClass( &__DKMetaClass__,       "Root",       &__DKMetaClass__, NULL,                  sizeof(DKClass),        &__DKClassLifeCycle__,     &__DKDefaultComparison__ );
+        InitRootClass( &__DKClassClass__,      "Class",      &__DKMetaClass__, NULL,                  sizeof(DKClass),        &__DKClassLifeCycle__,     &__DKDefaultComparison__ );
+        InitRootClass( &__DKSelectorClass__,   "Selector",   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL),   &__DKDefaultLifeCycle__,   &__DKSelectorComparison__ );
+        InitRootClass( &__DKInterfaceClass__,  "Interface",  &__DKMetaClass__, NULL,                  sizeof(DKInterface),    &__DKInterfaceLifeCycle__, &__DKInterfaceComparison__ );
+        InitRootClass( &__DKMsgHandlerClass__, "MsgHandler", &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),   &__DKDefaultLifeCycle__,   &__DKInterfaceComparison__ );
+        InitRootClass( &__DKPropertyClass__,   "Property",   &__DKMetaClass__, NULL,                  0,                      &__DKDefaultLifeCycle__,   &__DKDefaultComparison__ );
+        InitRootClass( &__DKObjectClass__,     "Object",     &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader), &__DKDefaultLifeCycle__,   &__DKDefaultComparison__ );
+        InitRootClass( &__DKWeakClass__,       "Weak",       &__DKMetaClass__, NULL,                  sizeof(DKWeak),         &__DKDefaultLifeCycle__,   &__DKDefaultComparison__ );
     }
 
     DKSpinLockUnlock( &DKRuntimeInitLock );
@@ -546,6 +496,7 @@ DKTypeRef DKAllocObject( DKTypeRef isa, size_t extraBytes )
     
     // Setup the object header
     obj->isa = DKRetain( isa );
+    obj->weakref = NULL;
     obj->refcount = 1;
     
     // Call the initializer chain
@@ -574,6 +525,7 @@ void DKDeallocObject( DKTypeRef ref )
     
     DKAssert( obj );
     DKAssert( obj->refcount == 0 );
+    DKAssert( obj->weakref == NULL );
 
     const struct DKClass * isa = obj->isa;
 
@@ -758,7 +710,7 @@ void DKInstallMsgHandler( DKTypeRef _class, DKSEL sel, const void * func )
 {
     struct DKMsgHandler * msgHandler = (struct DKMsgHandler *)DKAllocObject( DKMsgHandlerClass(), sizeof(DKMsgHandler) );
 
-    msgHandler->sel = sel;
+    msgHandler->sel = DKRetain( sel );
     msgHandler->func = func;
     
     DKInstallInterface( _class, msgHandler );
@@ -934,6 +886,114 @@ DKTypeRef DKGetMsgHandler( DKTypeRef ref, DKSEL sel )
 
 
 
+// Reference Counting ====================================================================
+
+DKTypeRef DKRetain( DKTypeRef ref )
+{
+    if( ref )
+    {
+        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+        DKAtomicIncrement32( &obj->refcount );
+    }
+
+    return ref;
+}
+
+void DKRelease( DKTypeRef ref )
+{
+    if( ref )
+    {
+        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+        struct DKWeak * weakref = (struct DKWeak *)obj->weakref;
+        
+        int32_t n;
+        
+        if( weakref )
+        {
+
+            DKSpinLockLock( &weakref->lock );
+            
+            n = DKAtomicDecrement32( &obj->refcount );
+
+            if( n == 0 )
+            {
+                obj->weakref = NULL;
+                weakref->target = NULL;
+            }
+            
+            DKSpinLockUnlock( &weakref->lock );
+        }
+        
+        else
+        {
+            n = DKAtomicDecrement32( &obj->refcount );
+        }
+        
+        DKAssert( n >= 0 );
+        
+        if( n == 0 )
+        {
+            DKRelease( weakref );
+            DKDeallocObject( ref );
+        }
+    }
+}
+
+
+///
+//  DKRetainWeak()
+//
+DKWeakRef DKRetainWeak( DKTypeRef ref )
+{
+    if( ref )
+    {
+        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+        
+        if( !obj->weakref )
+        {
+            struct DKWeak * weakref = (struct DKWeak *)DKAllocObject( DKWeakClass(), 0 );
+            
+            weakref->lock = DKSpinLockInit;
+            weakref->target = obj;
+            
+            if( !OSAtomicCmpAndSwapPtr( &obj->weakref, NULL, weakref ) )
+                DKRelease( weakref );
+        }
+        
+        return DKRetain( obj->weakref );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKResolveWeak()
+//
+DKTypeRef DKResolveWeak( DKWeakRef weak_ref )
+{
+    if( weak_ref )
+    {
+        struct DKWeak * weakref = (struct DKWeak *)weak_ref;
+        
+        if( weakref->target )
+        {
+            DKSpinLockLock( &weakref->lock );
+            
+            DKTypeRef target = DKRetain( weakref->target );
+            
+            DKSpinLockUnlock( &weakref->lock );
+            
+            return target;
+        }
+    }
+    
+    return NULL;
+}
+
+
+
+
 // Polymorphic Wrappers ==================================================================
 
 ///
@@ -1047,34 +1107,6 @@ int DKIsKindOfClass( DKTypeRef ref, DKTypeRef _class )
     }
     
     return 0;
-}
-
-
-///
-//  DKRetain()
-//
-DKTypeRef DKRetain( DKTypeRef ref )
-{
-    if( ref )
-    {
-        DKReferenceCounting * referenceCounting = DKGetInterface( ref, DKSelector(ReferenceCounting) );
-        return referenceCounting->retain( ref );
-    }
-
-    return ref;
-}
-
-
-///
-//  DKRelease()
-//
-void DKRelease( DKTypeRef ref )
-{
-    if( ref )
-    {
-        DKReferenceCounting * referenceCounting = DKGetInterface( ref, DKSelector(ReferenceCounting) );
-        referenceCounting->release( ref );
-    }
 }
 
 

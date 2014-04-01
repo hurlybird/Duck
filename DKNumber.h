@@ -17,7 +17,7 @@ typedef DKTypeRef DKNumberRef;
 
 typedef enum
 {
-    DKNumberTypeUnspecified = 0,
+    DKNumberVoid = 0,
     
     DKNumberInt32,
     DKNumberInt64,

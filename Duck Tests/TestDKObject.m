@@ -69,7 +69,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     // Install some message handlers
     DKInstallMsgHandler( TestClassA, DKSelector(Square), TestOne );
     XCTAssert( DKGetMsgHandler( TestClassA, DKSelector(Square) ) );
-    
+
     DKInstallMsgHandler( TestClassA, DKSelector(Cube), TestOne );
     XCTAssert( DKGetMsgHandler( TestClassA, DKSelector(Cube) ) );
 

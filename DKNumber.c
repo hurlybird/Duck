@@ -215,13 +215,13 @@ DKNumberType DKNumberGetType( DKNumberRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKNumberClass(), DKNumberTypeUnspecified );
+        DKVerifyKindOfClass( ref, DKNumberClass(), DKNumberVoid );
         
         const struct DKNumber * number = ref;
         return number->type;
     }
     
-    return DKNumberTypeUnspecified;
+    return DKNumberVoid;
 }
 
 

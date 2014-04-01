@@ -916,8 +916,6 @@ DKStringRef __DKStringDefineConstantString( const char * str )
     {
         // Create the objects
         DKTypeRef cls = DKCreateClass( "DKConstantString", DKStringClass(), sizeof(struct DKString) );
-        DKInstallInterface( cls, DKStaticReferenceCounting() );
-        
         DKTypeRef table = DKHashTableCreateMutable();
         
         // Store the objects while locked
@@ -942,7 +940,7 @@ DKStringRef __DKStringDefineConstantString( const char * str )
     // Create a temporary stack object for the table lookup
     struct DKString key =
     {
-        { DKConstantStringClassObject, 1 }, // isa, refcount
+        DKStaticObjectHeader( DKConstantStringClassObject ),
     };
     
     DKIndex length = strlen( str );

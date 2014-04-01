@@ -20,13 +20,14 @@ typedef OSSpinLock DKSpinLock;
 #define DKSpinLockUnlock( s )       OSSpinLockUnlock( s )
 
 
+// GCC and Clang built-in syntax
 //#define DKAtomicIncrement32( ptr )    __sync_add_and_fetch( ptr, 1 )
 //#define DKAtomicDecrement32( ptr )    __sync_sub_and_fetch( ptr, 1 )
-
+//#define DKAtomicCmpAndSwapPtr( val, old, new )    __sync_bool_compare_and_swap( val, old, new )
 
 #define DKAtomicIncrement32( ptr )    OSAtomicIncrement32Barrier( ptr )
 #define DKAtomicDecrement32( ptr )    OSAtomicDecrement32Barrier( ptr )
-
+#define OSAtomicCmpAndSwapPtr( val, old, new )  OSAtomicCompareAndSwapPtrBarrier( old, new, val )
 
 
 #endif // _DK_ENV_APPLE_H_

@@ -20,6 +20,7 @@
 
 // Objects
 typedef const void * DKTypeRef;
+typedef DKTypeRef    DKWeakRef;
 typedef DKTypeRef    DKStringRef;
 
 

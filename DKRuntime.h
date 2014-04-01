@@ -15,11 +15,13 @@
 struct DKObjectHeader
 {
     const struct DKClass * isa;
+    void * volatile weakref;
     volatile int32_t refcount;
 };
 
 typedef const struct DKObjectHeader DKObjectHeader;
 
+#define DKStaticObjectHeader( cls )     { cls, NULL, 1 }
 
 
 
@@ -29,7 +31,6 @@ typedef enum
     DKVTableUnspecified =       0,
     
     DKVTable_LifeCycle,
-    DKVTable_ReferenceCounting,
     DKVTable_Comparison,
     DKVTable_List,
     DKVTable_Dictionary,
@@ -72,7 +73,7 @@ typedef const struct DKInterface DKInterface;
 #define DKDefineInterface( name )                                                       \
     struct DKSEL DKSelector_ ## name =                                                  \
     {                                                                                   \
-        { &__DKSelectorClass__, 1 },                                                    \
+        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
         #name,                                                                          \
         #name,                                                                          \
         0                                                                               \
@@ -81,7 +82,7 @@ typedef const struct DKInterface DKInterface;
 #define DKDefineFastLookupInterface( name )                                             \
     struct DKSEL DKSelector_ ## name =                                                  \
     {                                                                                   \
-        { &__DKSelectorClass__, 1 },                                                    \
+        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
         #name,                                                                          \
         #name,                                                                          \
         DKVTable_ ## name                                                               \
@@ -107,7 +108,7 @@ typedef const struct DKMsgHandler DKMsgHandler;
 #define DKDefineMessage( name, ... )                                                    \
     struct DKSEL DKSelector_ ## name =                                                  \
     {                                                                                   \
-        { &__DKSelectorClass__, 1 },                                                    \
+        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
         #name,                                                                          \
         #name "( " #__VA_ARGS__ " )",                                                   \
         0                                                                               \
@@ -116,7 +117,7 @@ typedef const struct DKMsgHandler DKMsgHandler;
 #define DKDefineFastLookupMessage( name, ... )                                          \
     struct DKSEL DKSelector_ ## name =                                                  \
     {                                                                                   \
-        { &__DKSelectorClass__, 1 },                                                    \
+        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
         #name,                                                                          \
         #name "( " #__VA_ARGS__ " )",                                                   \
         DKVTable_ ## name                                                               \
@@ -128,16 +129,24 @@ typedef const struct DKMsgHandler DKMsgHandler;
 // DKProperty ============================================================================
 typedef enum
 {
-    DKPropertyUndefined =       0,
-    DKPropertyObject,
-    DKPropertyString,
+    DKPropertyType_void =       0,
+    
+    // Number Types
     DKPropertyInt32,
     DKPropertyInt64,
-    DKPropertyUnsignedInt32,
-    DKPropertyUnsignedInt64,
-    DKPropertyFloat32,
-    DKPropertyFloat64,
+    DKPropertyUInt32,
+    DKPropertyUInt64,
+    DKPropertyFloat,
+    DKPropertyDouble,
+
+    // Object Types
+    DKPropertyObject,
+    DKPropertyString,
+    
+    // Unretained Pointers
     DKPropertyPointer,
+    
+    // Arbitrary Structures
     DKPropertyStruct,
 
 } DKPropertyType;
@@ -153,13 +162,15 @@ struct DKProperty
 {
     DKObjectHeader  _obj;
     
-    const char *    name;
+    DKSEL           sel;
     DKPropertyType  type;
     int32_t         attributes;
     size_t          offset;
     size_t          size;
     size_t          count;
-    DKSEL           interface;
+    
+    DKTypeRef       requiredClass;
+    DKSEL           requiredInterface;
 
     void (*setter)( DKTypeRef ref, const struct DKProperty * property, const void * value );
     void (*getter)( DKTypeRef ref, const struct DKProperty * property, void * value );
@@ -206,29 +217,6 @@ struct DKLifeCycle
 typedef const struct DKLifeCycle DKLifeCycle;
 
 DKLifeCycle * DKDefaultLifeCycle( void );
-
-
-// ReferenceCounting ---------------------------------------------------------------------
-DKDeclareInterface( ReferenceCounting );
-
-struct DKReferenceCounting
-{
-    DKInterface _interface;
-    
-    DKTypeRef   (*retain)( DKTypeRef ref );
-    void        (*release)( DKTypeRef ref );
-};
-
-typedef const struct DKReferenceCounting DKReferenceCounting;
-
-DKTypeRef   DKDefaultRetain( DKTypeRef ref );
-void        DKDefaultRelease( DKTypeRef ref );
-
-DKTypeRef   DKStaticRetain( DKTypeRef ref );
-void        DKStaticRelease( DKTypeRef ref );
-
-DKReferenceCounting * DKDefaultReferenceCounting( void );
-DKReferenceCounting * DKStaticReferenceCounting( void );
 
 
 // Comparison ----------------------------------------------------------------------------
@@ -294,12 +282,13 @@ DKTypeRef   DKGetMsgHandler( DKTypeRef ref, DKSEL sel );
 
 
 
-// DKObject themed default implementations ===============================================
-#define DKObjectInitialize( ref )   DKDefaultInitialize( ref )
+// Reference Counting ====================================================================
 
-#define DKObjectEqual( a, b )       DKDefaultEqual( a, b )
-#define DKObjectCompare( a, b )     DKDefaultCompare( a, b )
-#define DKObjectHash( ref )         DKDefaultHash( a, b )
+DKTypeRef   DKRetain( DKTypeRef ref );
+void        DKRelease( DKTypeRef ref );
+
+DKWeakRef   DKRetainWeak( DKTypeRef ref );
+DKTypeRef   DKResolveWeak( DKWeakRef weak_ref );
 
 
 
@@ -314,9 +303,6 @@ DKTypeRef   DKGetSuperclass( DKTypeRef ref );
 
 int         DKIsMemberOfClass( DKTypeRef ref, DKTypeRef _class );
 int         DKIsKindOfClass( DKTypeRef ref, DKTypeRef _class );
-
-DKTypeRef   DKRetain( DKTypeRef ref );
-void        DKRelease( DKTypeRef ref );
 
 int         DKEqual( DKTypeRef a, DKTypeRef b );
 int         DKCompare( DKTypeRef a, DKTypeRef b );
