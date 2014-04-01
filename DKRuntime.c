@@ -956,7 +956,7 @@ DKWeakRef DKRetainWeak( DKTypeRef ref )
             weakref->lock = DKSpinLockInit;
             weakref->target = obj;
             
-            if( !OSAtomicCmpAndSwapPtr( &obj->weakref, NULL, weakref ) )
+            if( !DKAtomicCmpAndSwapPtr( (void * volatile *)&obj->weakref, NULL, weakref ) )
                 DKRelease( weakref );
         }
         

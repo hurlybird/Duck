@@ -15,8 +15,8 @@
 struct DKObjectHeader
 {
     const struct DKClass * isa;
-    void * volatile weakref;
-    volatile int32_t refcount;
+    const struct DKWeak * weakref;
+    int32_t refcount;
 };
 
 typedef const struct DKObjectHeader DKObjectHeader;

@@ -27,7 +27,7 @@ typedef OSSpinLock DKSpinLock;
 
 #define DKAtomicIncrement32( ptr )    OSAtomicIncrement32Barrier( ptr )
 #define DKAtomicDecrement32( ptr )    OSAtomicDecrement32Barrier( ptr )
-#define OSAtomicCmpAndSwapPtr( val, old, new )  OSAtomicCompareAndSwapPtrBarrier( old, new, val )
+#define DKAtomicCmpAndSwapPtr( val, old, new )  OSAtomicCompareAndSwapPtrBarrier( old, new, val )
 
 
 #endif // _DK_ENV_APPLE_H_
