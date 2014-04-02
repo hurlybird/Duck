@@ -15,7 +15,9 @@
 DKTypeRef DKLinkedListClass( void );
 DKTypeRef DKMutableLinkedListClass( void );
 
-DKListRef DKLinkedListCreate( DKTypeRef objects[], DKIndex count );
+DKListRef DKLinkedListCreate( void );
+DKListRef DKLinkedListCreateWithObjects( DKTypeRef firstObject, ... );
+DKListRef DKLinkedListCreateWithCArray( DKTypeRef objects[], DKIndex count );
 DKListRef DKLinkedListCreateCopy( DKListRef srcList );
 
 DKMutableListRef DKLinkedListCreateMutable( void );

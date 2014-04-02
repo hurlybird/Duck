@@ -15,7 +15,7 @@
 DKTypeRef DKHashTableClass( void );
 DKTypeRef DKMutableHashTableClass( void );
 
-DKDictionaryRef DKHashTableCreate( DKTypeRef keys[], DKTypeRef objects[], DKIndex count );
+DKDictionaryRef DKHashTableCreate( void );
 DKDictionaryRef DKHashTableCreateWithKeysAndObjects( DKTypeRef firstKey, ... );
 DKDictionaryRef DKHashTableCreateCopy( DKDictionaryRef srcDictionary );
 

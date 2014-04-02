@@ -506,19 +506,9 @@ static void RemoveAll( struct DKBinaryTree * tree, struct DKBinaryTreeNode * nod
 ///
 //  DKBinaryTreeCreate()
 //
-DKDictionaryRef DKBinaryTreeCreate( DKTypeRef keys[], DKTypeRef objects[], DKIndex count )
+DKDictionaryRef DKBinaryTreeCreate( void )
 {
-    struct DKBinaryTree * tree = (struct DKBinaryTree *)DKCreate( DKBinaryTreeClass() );
-    
-    for( DKIndex i = 0; i < count; ++i )
-    {
-        DKHashCode hash = DKHash( keys[i] );
-        Insert( tree, &tree->root, hash, keys[i], objects[i], DKDictionaryInsertAlways );
-    }
-
-    CheckTreeIntegrity( tree );
-    
-    return tree;
+    return DKAllocObject( DKBinaryTreeClass(), 0 );
 }
 
 
@@ -527,7 +517,7 @@ DKDictionaryRef DKBinaryTreeCreate( DKTypeRef keys[], DKTypeRef objects[], DKInd
 //
 DKDictionaryRef DKBinaryTreeCreateWithKeysAndObjects( DKTypeRef firstKey, ... )
 {
-    struct DKBinaryTree * tree = (struct DKBinaryTree *)DKCreate( DKBinaryTreeClass() );
+    struct DKBinaryTree * tree = DKAllocObject( DKBinaryTreeClass(), 0 );
 
     va_list arg_ptr;
     va_start( arg_ptr, firstKey );
@@ -571,7 +561,7 @@ DKDictionaryRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary )
 //
 DKMutableDictionaryRef DKBinaryTreeCreateMutable( void )
 {
-    return (DKMutableDictionaryRef)DKCreate( DKMutableBinaryTreeClass() );
+    return DKAllocObject( DKMutableBinaryTreeClass(), 0 );
 }
 
 

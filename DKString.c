@@ -353,7 +353,7 @@ DKStringRef DKStringCreateWithCStringNoCopy( const char * str )
 //
 DKMutableStringRef DKStringCreateMutable( void )
 {
-    return (DKMutableStringRef)DKCreate( DKMutableStringClass() );
+    return DKAllocObject( DKMutableStringClass(), 0 );
 }
 
 
@@ -362,7 +362,7 @@ DKMutableStringRef DKStringCreateMutable( void )
 //
 DKMutableStringRef DKStringCreateMutableCopy( DKStringRef src )
 {
-    DKStringRef ref = DKStringCreateMutable();
+    DKStringRef ref = DKAllocObject( DKMutableStringClass(), 0 );
     DKStringSetString( ref, src );
     
     return ref;

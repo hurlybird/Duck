@@ -15,8 +15,10 @@
 DKTypeRef DKArrayClass( void );
 DKTypeRef DKMutableArrayClass( void );
 
-DKListRef DKArrayCreate( DKTypeRef objects[], DKIndex count );
-DKListRef DKArrayCreateNoCopy( DKTypeRef objects[], DKIndex count );
+DKListRef DKArrayCreate( void );
+DKListRef DKArrayCreateWithObjects( DKTypeRef firstObject, ... );
+DKListRef DKArrayCreateWithCArray( DKTypeRef objects[], DKIndex count );
+DKListRef DKArrayCreateWithCArrayNoCopy( DKTypeRef objects[], DKIndex count );
 DKListRef DKArrayCreateCopy( DKListRef srcList );
 
 DKMutableListRef DKArrayCreateMutable( void );

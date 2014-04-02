@@ -456,15 +456,46 @@ static void ReplaceObjectsWithList( struct DKLinkedList * list, DKRange range, D
 
 // DKLinkedList Interface ================================================================
 
-///
-//  DKLinkedListCreate()
-//
-DKListRef DKLinkedListCreate( DKTypeRef objects[], DKIndex count )
+DKListRef DKLinkedListCreate( void )
 {
-    struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKLinkedListClass() );
+    return DKAllocObject( DKLinkedListClass(), 0 );
+}
+
+
+///
+//  DKLinkedListCreateWithObjects()
+//
+DKListRef DKLinkedListCreateWithObjects( DKTypeRef firstObject, ... )
+{
+    struct DKLinkedList * list = DKAllocObject( DKLinkedListClass(), 0 );
+
+    va_list arg_ptr;
+    va_start( arg_ptr, firstObject );
+
+    for( DKTypeRef object = firstObject; object != NULL; )
+    {
+        ReplaceObjects( list, DKRangeMake( list->count, 0 ), &object, 1 );
+        
+        object = va_arg( arg_ptr, DKTypeRef );
+    }
+
+    va_end( arg_ptr );
+
+    CheckListIntegrity( list );
     
+    return list;
+}
+
+
+///
+//  DKLinkedListCreateWithCArray()
+//
+DKListRef DKLinkedListCreateWithCArray( DKTypeRef objects[], DKIndex count )
+{
+    struct DKLinkedList * list = DKAllocObject( DKLinkedListClass(), 0 );
+
     ReplaceObjects( list, DKRangeMake( 0, 0 ), objects, count );
-    
+
     return list;
 }
 
@@ -474,7 +505,7 @@ DKListRef DKLinkedListCreate( DKTypeRef objects[], DKIndex count )
 //
 DKListRef DKLinkedListCreateCopy( DKListRef srcList )
 {
-    struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKLinkedListClass() );
+    struct DKLinkedList * list = DKAllocObject( DKLinkedListClass(), 0 );
     
     ReplaceObjectsWithList( list, DKRangeMake( 0, 0 ), srcList );
     
@@ -487,9 +518,7 @@ DKListRef DKLinkedListCreateCopy( DKListRef srcList )
 //
 DKMutableListRef DKLinkedListCreateMutable( void )
 {
-    struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKMutableLinkedListClass() );
-    
-    return list;
+    return DKAllocObject( DKMutableLinkedListClass(), 0 );
 }
 
 
@@ -498,7 +527,7 @@ DKMutableListRef DKLinkedListCreateMutable( void )
 //
 DKMutableListRef DKLinkedListCreateMutableCopy( DKListRef srcList )
 {
-    struct DKLinkedList * list = (struct DKLinkedList *)DKCreate( DKMutableLinkedListClass() );
+    struct DKLinkedList * list = DKAllocObject( DKMutableLinkedListClass(), 0 );
     
     ReplaceObjectsWithList( list, DKRangeMake( 0, 0 ), srcList );
     

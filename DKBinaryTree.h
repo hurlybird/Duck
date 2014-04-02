@@ -15,7 +15,7 @@
 DKTypeRef DKBinaryTreeClass( void );
 DKTypeRef DKMutableBinaryTreeClass( void );
 
-DKDictionaryRef DKBinaryTreeCreate( DKTypeRef keys[], DKTypeRef objects[], DKIndex count );
+DKDictionaryRef DKBinaryTreeCreate( void );
 DKDictionaryRef DKBinaryTreeCreateWithKeysAndObjects( DKTypeRef firstKey, ... );
 DKDictionaryRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary );
 

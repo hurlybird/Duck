@@ -204,25 +204,54 @@ static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKTyp
 ///
 //  DKArrayCreate()
 //
-DKListRef DKArrayCreate( DKTypeRef objects[], DKIndex count )
+DKListRef DKArrayCreate( void )
 {
-    struct DKArray * array = (struct DKArray *)DKCreate( DKArrayClass() );
-    
-    if( array )
+    return DKAllocObject( DKArrayClass(), 0 );
+}
+
+
+///
+//  DKArrayCreateWithObjects()
+//
+DKListRef DKArrayCreateWithObjects( DKTypeRef firstObject, ... )
+{
+    struct DKArray * array = DKAllocObject( DKArrayClass(), 0 );
+
+    va_list arg_ptr;
+    va_start( arg_ptr, firstObject );
+
+    for( DKTypeRef object = firstObject; object != NULL; )
     {
-        ReplaceObjects( array, DKRangeMake( 0, 0 ), objects, count );
+        ReplaceObjects( array, DKRangeMake( array->ptrArray.length, 0 ), &object, 1 );
+        
+        object = va_arg( arg_ptr, DKTypeRef );
     }
-    
+
+    va_end( arg_ptr );
+
     return array;
 }
 
 
 ///
-//  DKArrayCreateNoCopy()
+//  DKArrayCreateWithCArray()
 //
-DKListRef DKArrayCreateNoCopy( DKTypeRef objects[], DKIndex count )
+DKListRef DKArrayCreateWithCArray( DKTypeRef objects[], DKIndex count )
 {
-    struct DKArray * array = (struct DKArray *)DKCreate( DKArrayClass() );
+    struct DKArray * array = DKAllocObject( DKArrayClass(), 0 );
+
+    ReplaceObjects( array, DKRangeMake( 0, 0 ), objects, count );
+
+    return array;
+}
+
+
+///
+//  DKArrayCreateWithCArrayNoCopy()
+//
+DKListRef DKArrayCreateWithCArrayNoCopy( DKTypeRef objects[], DKIndex count )
+{
+    struct DKArray * array = DKAllocObject( DKArrayClass(), 0 );
 
     if( array )
     {
@@ -238,7 +267,7 @@ DKListRef DKArrayCreateNoCopy( DKTypeRef objects[], DKIndex count )
 //
 DKListRef DKArrayCreateCopy( DKListRef srcList )
 {
-    struct DKArray * array = (struct DKArray *)DKCreate( DKArrayClass() );
+    struct DKArray * array = DKAllocObject( DKArrayClass(), 0 );
     
     if( array )
     {
@@ -254,7 +283,7 @@ DKListRef DKArrayCreateCopy( DKListRef srcList )
 //
 DKMutableListRef DKArrayCreateMutable( void )
 {
-    return (DKMutableListRef)DKCreate( DKMutableArrayClass() );
+    return DKAllocObject( DKMutableArrayClass(), 0 );
 }
 
 
@@ -263,7 +292,7 @@ DKMutableListRef DKArrayCreateMutable( void )
 //
 DKMutableListRef DKArrayCreateMutableCopy( DKListRef srcList )
 {
-    struct DKArray * array = (struct DKArray *)DKCreate( DKMutableArrayClass() );
+    struct DKArray * array = DKAllocObject( DKMutableArrayClass(), 0 );
     
     if( array )
     {

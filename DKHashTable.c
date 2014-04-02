@@ -434,20 +434,9 @@ static void RemoveAll( struct DKHashTable * hashTable )
 ///
 //  DKHashTableCreate()
 //
-DKDictionaryRef DKHashTableCreate( DKTypeRef keys[], DKTypeRef objects[], DKIndex count )
+DKDictionaryRef DKHashTableCreate( void )
 {
-    struct DKHashTable * hashTable = (struct DKHashTable *)DKCreate( DKHashTableClass() );
-    
-    if( hashTable )
-    {
-        for( DKIndex i = 0; i < count; ++i )
-        {
-            DKHashCode hash = DKHash( keys[i] );
-            Insert( hashTable, hash, keys[i], objects[i], DKDictionaryInsertAlways );
-        }
-    }
-    
-    return hashTable;
+    return DKAllocObject( DKHashTableClass(), 0 );
 }
 
 
@@ -456,7 +445,7 @@ DKDictionaryRef DKHashTableCreate( DKTypeRef keys[], DKTypeRef objects[], DKInde
 //
 DKDictionaryRef DKHashTableCreateWithKeysAndObjects( DKTypeRef firstKey, ... )
 {
-    struct DKHashTable * hashTable = (struct DKHashTable *)DKCreate( DKHashTableClass() );
+    struct DKHashTable * hashTable = DKAllocObject( DKHashTableClass(), 0 );
     
     if( hashTable )
     {
@@ -501,7 +490,7 @@ DKDictionaryRef DKHashTableCreateCopy( DKDictionaryRef srcDictionary )
 //
 DKMutableDictionaryRef DKHashTableCreateMutable( void )
 {
-    return (DKMutableDictionaryRef)DKCreate( DKMutableHashTableClass() );
+    return DKAllocObject( DKMutableHashTableClass(), 0 );
 }
 
 
@@ -510,7 +499,7 @@ DKMutableDictionaryRef DKHashTableCreateMutable( void )
 //
 DKMutableDictionaryRef DKHashTableCreateMutableCopy( DKDictionaryRef srcDictionary )
 {
-    DKMutableDictionaryRef ref = DKHashTableCreateMutable();
+    DKMutableDictionaryRef ref = DKAllocObject( DKMutableHashTableClass(), 0 );
     DKDictionaryAddEntriesFromDictionary( ref, srcDictionary );
     
     return ref;
