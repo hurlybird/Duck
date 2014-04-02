@@ -119,10 +119,10 @@ static CastFunction CastFunctions[DKNumberMaxTypes][DKNumberMaxTypes] =
 //
 DKThreadSafeClassInit( DKNumberClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKNumber", DKObjectClass(), sizeof(struct DKNumber) );
+    DKTypeRef cls = DKAllocClass( "DKNumber", DKObjectClass(), sizeof(struct DKNumber) );
     
     // Copying
-    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKRetain;
     copying->mutableCopy = DKRetain;
     
@@ -130,7 +130,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( copying );
     
     // Comparison
-    struct DKComparison * comparison = (struct DKComparison *)DKCreateInterface( DKSelector(Comparison), sizeof(DKComparison) );
+    struct DKComparison * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(DKComparison) );
     comparison->equal = DKNumberEqual;
     comparison->compare = DKNumberCompare;
     comparison->hash = DKNumberHash;
@@ -139,7 +139,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( comparison );
     
     // Description
-    struct DKDescription * description = (struct DKDescription *)DKCreateInterface( DKSelector(Description), sizeof(DKDescription) );
+    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
     description->copyDescription = DKNumberCopyDescription;
     
     DKInstallInterface( cls, description );

@@ -10,7 +10,7 @@
 #include "DKLinkedList.h"
 
 
-DKDefineFastLookupInterface( List );
+DKThreadSafeFastSelectorInit( List );
 
 
 ///

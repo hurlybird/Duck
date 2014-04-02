@@ -12,7 +12,7 @@
 #include "DKRuntime.h"
 
 
-DKDeclareInterface( List );
+DKDeclareInterfaceSelector( List );
 
 
 typedef DKTypeRef DKListRef;

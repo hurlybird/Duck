@@ -12,7 +12,7 @@
 
 #include "DKRuntime.h"
 
-DKDeclareInterface( Stream );
+DKDeclareInterfaceSelector( Stream );
 
 
 enum

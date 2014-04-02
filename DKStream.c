@@ -11,7 +11,7 @@
 #include "DKUnicode.h"
 
 
-DKDefineInterface( Stream );
+DKThreadSafeSelectorInit( Stream );
 
 
 ///

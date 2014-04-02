@@ -33,10 +33,10 @@ static DKIndex DKImmutableDataWrite( DKMutableDataRef ref, const void * buffer, 
 //
 DKThreadSafeClassInit( DKDataClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKData", DKObjectClass(), sizeof(struct DKData) );
+    DKTypeRef cls = DKAllocClass( "DKData", DKObjectClass(), sizeof(struct DKData) );
     
     // LifeCycle
-    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
     lifeCycle->initialize = DKDataInitialize;
     lifeCycle->finalize = DKDataFinalize;
 
@@ -44,7 +44,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( lifeCycle );
 
     // Comparison
-    struct DKComparison * comparison = (struct DKComparison *)DKCreateInterface( DKSelector(Comparison), sizeof(DKComparison) );
+    struct DKComparison * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(DKComparison) );
     comparison->equal = DKDataEqual;
     comparison->compare = DKDataCompare;
     comparison->hash = DKDataHash;
@@ -53,7 +53,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( comparison );
 
     // Copying
-    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKRetain;
     copying->mutableCopy = DKDataCreateMutableCopy;
     
@@ -61,7 +61,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( copying );
 
     // Stream
-    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    struct DKStream * stream =DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
     stream->seek = DKDataSeek;
     stream->tell = DKDataTell;
     stream->read = DKDataRead;
@@ -79,10 +79,10 @@ DKThreadSafeClassInit( DKDataClass )
 //
 DKThreadSafeClassInit( DKMutableDataClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKMutableData", DKDataClass(), sizeof(struct DKData) );
+    DKTypeRef cls = DKAllocClass( "DKMutableData", DKDataClass(), sizeof(struct DKData) );
     
     // Copying
-    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKDataCreateMutableCopy;
     copying->mutableCopy = DKDataCreateMutableCopy;
     
@@ -90,7 +90,7 @@ DKThreadSafeClassInit( DKMutableDataClass )
     DKRelease( copying );
     
     // Stream
-    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    struct DKStream * stream = DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
     stream->seek = DKDataSeek;
     stream->tell = DKDataTell;
     stream->read = DKDataRead;

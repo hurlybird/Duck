@@ -44,16 +44,13 @@ typedef enum
 struct DKSEL
 {
     DKObjectHeader  _obj;
-    const char *    name;
     const char *    suid;
     DKVTableIndex   vidx;
 };
 
 typedef const struct DKSEL * DKSEL;
 
-extern struct DKClass __DKSelectorClass__;
-
-#define DKSelector( name )  &(DKSelector_ ## name)
+#define DKSelector( name )      DKSelector_ ## name()
 
 
 
@@ -67,26 +64,10 @@ struct DKInterface
 
 typedef const struct DKInterface DKInterface;
 
-#define DKDeclareInterface( name )                                                      \
-    extern struct DKSEL DKSelector_ ## name
+#define DKDeclareInterfaceSelector( name )                                              \
+    DKSEL DKSelector_ ## name( void )
 
-#define DKDefineInterface( name )                                                       \
-    struct DKSEL DKSelector_ ## name =                                                  \
-    {                                                                                   \
-        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
-        #name,                                                                          \
-        #name,                                                                          \
-        0                                                                               \
-    }
-
-#define DKDefineFastLookupInterface( name )                                             \
-    struct DKSEL DKSelector_ ## name =                                                  \
-    {                                                                                   \
-        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
-        #name,                                                                          \
-        #name,                                                                          \
-        DKVTable_ ## name                                                               \
-    }
+DKTypeRef DKInterfaceNotFound( void );
 
 
 
@@ -101,27 +82,11 @@ struct DKMsgHandler
 
 typedef const struct DKMsgHandler DKMsgHandler;
 
-#define DKDeclareMessage( name, ... )                                                   \
-    extern struct DKSEL DKSelector_ ## name;                                            \
+#define DKDeclareMessageSelector( name, ... )                                           \
+    DKSEL DKSelector_ ## name( void );                                                  \
     typedef void (*DKMsgHandler_ ## name)( DKTypeRef, DKSEL , ## __VA_ARGS__ )
 
-#define DKDefineMessage( name, ... )                                                    \
-    struct DKSEL DKSelector_ ## name =                                                  \
-    {                                                                                   \
-        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
-        #name,                                                                          \
-        #name "( " #__VA_ARGS__ " )",                                                   \
-        0                                                                               \
-    }
-
-#define DKDefineFastLookupMessage( name, ... )                                          \
-    struct DKSEL DKSelector_ ## name =                                                  \
-    {                                                                                   \
-        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
-        #name,                                                                          \
-        #name "( " #__VA_ARGS__ " )",                                                   \
-        DKVTable_ ## name                                                               \
-    }
+DKTypeRef DKMsgHandlerNotFound( void );
 
 
 
@@ -195,7 +160,7 @@ DKTypeRef DKObjectClass( void );
 // Default Interfaces ====================================================================
 
 // LifeCycle -----------------------------------------------------------------------------
-DKDeclareInterface( LifeCycle );
+DKDeclareInterfaceSelector( LifeCycle );
 
 struct DKLifeCycle
 {
@@ -216,11 +181,11 @@ struct DKLifeCycle
 
 typedef const struct DKLifeCycle DKLifeCycle;
 
-DKLifeCycle * DKDefaultLifeCycle( void );
+DKTypeRef   DKDefaultLifeCycle( void );
 
 
 // Comparison ----------------------------------------------------------------------------
-DKDeclareInterface( Comparison );
+DKDeclareInterfaceSelector( Comparison );
 
 struct DKComparison
 {
@@ -237,11 +202,11 @@ int         DKDefaultEqual( DKTypeRef ref, DKTypeRef other );
 int         DKDefaultCompare( DKTypeRef ref, DKTypeRef other );
 DKHashCode  DKDefaultHash( DKTypeRef ptr );
 
-DKComparison * DKDefaultComparison( void );
+DKTypeRef   DKDefaultComparison( void );
 
 
 // Description ---------------------------------------------------------------------------
-DKDeclareInterface( Description );
+DKDeclareInterfaceSelector( Description );
 
 struct DKDescription
 {
@@ -254,23 +219,19 @@ typedef const struct DKDescription DKDescription;
 
 DKStringRef DKDefaultCopyDescription( DKTypeRef ref );
 
-DKDescription * DKDefaultDescription( void );
+DKTypeRef   DKDefaultDescription( void );
 
 
 
 
 // Alloc/Free Objects ====================================================================
-DKTypeRef   DKAllocObject( DKTypeRef isa, size_t extraBytes );
+void *      DKAllocObject( DKTypeRef isa, size_t extraBytes );
 void        DKDeallocObject( DKTypeRef ref );
 
-DKTypeRef   DKCreateClass( const char * name, DKTypeRef superclass, size_t structSize );
+void *      DKAllocClass( const char * name, DKTypeRef superclass, size_t structSize );
+void *      DKAllocInterface( DKSEL sel, size_t structSize );
 
-
-//void        DKRegisterClass( DKTypeRef classObject );
-
-DKTypeRef   DKCreateInterface( DKSEL sel, size_t structSize );
 void        DKInstallInterface( DKTypeRef _class, DKTypeRef interface );
-
 void        DKInstallMsgHandler( DKTypeRef _class, DKSEL sel, const void * func );
 
 int         DKHasInterface( DKTypeRef ref, DKSEL sel );
@@ -335,15 +296,60 @@ DKStringRef DKCopyDescription( DKTypeRef ref );
 //    implementation that produces an error.
 
 #define DKMsgSend( ref, msg, ... ) \
-    ((DKMsgHandler_ ## msg)((const DKMsgHandler *)DKGetMsgHandler( ref, &DKSelector_ ## msg ))->func)( ref, &DKSelector_ ## msg , ## __VA_ARGS__ )
+    ((DKMsgHandler_ ## msg)((const DKMsgHandler *)DKGetMsgHandler( ref, DKSelector(msg) ))->func)( ref, DKSelector(msg) , ## __VA_ARGS__ )
 
 #define DKMsgSendSuper( ref, msg, ... ) \
-    ((DKMsgHandler_ ## msg)((const DKMsgHandler *)DKGetMsgHandler( DKGetSuperclass( ref ), &DKSelector_ ## msg ))->func)( ref, &DKSelector_ ## msg , ## __VA_ARGS__ )
+    ((DKMsgHandler_ ## msg)((const DKMsgHandler *)DKGetMsgHandler( DKGetSuperclass( ref ), DKSelector(msg) ))->func)( ref, DKSelector(msg) , ## __VA_ARGS__ )
 
 
 
 
 // Thread-Safe Class Construction ========================================================
+#define DKThreadSafeSharedObjectInit( accessor, type )                                  \
+    static type accessor ## _SharedObject = NULL;                                       \
+    static type accessor ## _Create( void );                                            \
+                                                                                        \
+    type accessor( void )                                                               \
+    {                                                                                   \
+        if( accessor ## _SharedObject == NULL )                                         \
+        {                                                                               \
+            type tmp = accessor ## _Create();                                           \
+                                                                                        \
+            if( !DKAtomicCmpAndSwapPtr( (void * volatile *)&(accessor ## _SharedObject), NULL, (void *)tmp ) ) \
+                DKRelease( tmp );                                                       \
+        }                                                                               \
+                                                                                        \
+        return accessor ## _SharedObject;                                               \
+    }                                                                                   \
+                                                                                        \
+    static type accessor ## _Create( void )
+
+
+#define DKThreadSafeClassInit( accessor )                                               \
+    DKThreadSafeSharedObjectInit( accessor, DKTypeRef )
+
+
+#define DKThreadSafeSelectorInit( name )                                                \
+    DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
+    {                                                                                   \
+        struct DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                     \
+        sel->suid = #name;                                                              \
+        sel->vidx = 0;                                                                  \
+        return sel;                                                                     \
+    }
+
+#define DKThreadSafeFastSelectorInit( name )                                            \
+    DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
+    {                                                                                   \
+        struct DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                     \
+        sel->suid = #name;                                                              \
+        sel->vidx = DKVTable_ ## name;                                                  \
+        return sel;                                                                     \
+    }
+
+
+/*
+
 #define DKThreadSafeClassInit( name )                                                   \
     static DKTypeRef  name ## _SharedObject = NULL;                                     \
     static DKTypeRef  name ## _Create( void );                                          \
@@ -370,6 +376,7 @@ DKStringRef DKCopyDescription( DKTypeRef ref );
     }                                                                                   \
                                                                                         \
     static DKTypeRef name ## _Create( void )
+*/
 
 
 #endif // _DK_RUNTIME_H_

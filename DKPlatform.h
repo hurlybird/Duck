@@ -180,7 +180,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
     if( !DKHasInterface( ref, sel ) )                                                   \
     {                                                                                   \
         _DKError( "%s: Expected interface %s on class %s\n",                            \
-            __func__, (sel)->name, DKGetClassName( ref ) );                             \
+            __func__, (sel)->suid, DKGetClassName( ref ) );                             \
         return __VA_ARGS__;                                                             \
     }
 #else

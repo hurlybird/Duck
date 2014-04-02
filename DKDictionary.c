@@ -11,7 +11,7 @@
 #include "DKLinkedList.h"
 
 
-DKDefineFastLookupInterface( Dictionary );
+DKThreadSafeFastSelectorInit( Dictionary );
 
 
 ///

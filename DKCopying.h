@@ -11,7 +11,7 @@
 
 #include "DKRuntime.h"
 
-DKDeclareInterface( Copying );
+DKDeclareInterfaceSelector( Copying );
 
 struct DKCopying
 {

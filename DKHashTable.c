@@ -47,10 +47,10 @@ static void DKImmutableHashTableRemoveAllObjects( DKMutableDictionaryRef ref );
 //
 DKThreadSafeClassInit( DKHashTableClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKHashTable", DKObjectClass(), sizeof(struct DKHashTable) );
+    DKTypeRef cls = DKAllocClass( "DKHashTable", DKObjectClass(), sizeof(struct DKHashTable) );
     
     // LifeCycle
-    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
     lifeCycle->initialize = DKHashTableInitialize;
     lifeCycle->finalize = DKHashTableFinalize;
 
@@ -58,7 +58,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( lifeCycle );
 
     // Copying
-    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKRetain;
     copying->mutableCopy = DKHashTableCreateMutableCopy;
     
@@ -66,7 +66,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( copying );
     
     // Dictionary
-    struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+    struct DKDictionary * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
     dictionary->getCount = DKHashTableGetCount;
     dictionary->getObject = DKHashTableGetObject;
     dictionary->applyFunction = DKHashTableApplyFunction;
@@ -86,10 +86,10 @@ DKThreadSafeClassInit( DKHashTableClass )
 //
 DKThreadSafeClassInit(  DKMutableHashTableClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKMutableHashTable", DKHashTableClass(), sizeof(struct DKHashTable) );
+    DKTypeRef cls = DKAllocClass( "DKMutableHashTable", DKHashTableClass(), sizeof(struct DKHashTable) );
     
     // Copying
-    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKHashTableCreateMutableCopy;
     copying->mutableCopy = DKHashTableCreateMutableCopy;
     
@@ -97,7 +97,7 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     DKRelease( copying );
 
     // Dictionary
-    struct DKDictionary * dictionary = (struct DKDictionary *)DKCreateInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+    struct DKDictionary * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
     dictionary->getCount = DKHashTableGetCount;
     dictionary->getObject = DKHashTableGetObject;
     dictionary->applyFunction = DKHashTableApplyFunction;

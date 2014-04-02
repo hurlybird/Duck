@@ -13,7 +13,7 @@
 #include "DKList.h"
 
 
-DKDeclareInterface( Dictionary );
+DKDeclareInterfaceSelector( Dictionary );
 
 
 typedef DKTypeRef DKDictionaryRef;

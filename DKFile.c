@@ -25,17 +25,17 @@ static void DKFileFinalize( DKTypeRef ref );
 //
 DKThreadSafeClassInit( DKFileClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKFile", DKObjectClass(), sizeof(struct DKFile) );
+    DKTypeRef cls = DKAllocClass( "DKFile", DKObjectClass(), sizeof(struct DKFile) );
     
     // LifeCycle
-    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
     lifeCycle->finalize = DKFileFinalize;
 
     DKInstallInterface( cls, lifeCycle );
     DKRelease( lifeCycle );
 
     // Stream
-    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    struct DKStream * stream = DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
     stream->seek = DKFileSeek;
     stream->tell = DKFileTell;
     stream->read = DKFileRead;

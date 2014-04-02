@@ -9,7 +9,7 @@
 #include "DKCopying.h"
 
 
-DKDefineInterface( Copying );
+DKThreadSafeSelectorInit( Copying );
 
 
 ///

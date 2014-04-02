@@ -37,10 +37,10 @@ static DKIndex      DKImmutableStringWrite( DKMutableStringRef ref, const void *
 //
 DKThreadSafeClassInit( DKStringClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKString", DKObjectClass(), sizeof(struct DKString) );
+    DKTypeRef cls = DKAllocClass( "DKString", DKObjectClass(), sizeof(struct DKString) );
     
     // LifeCycle
-    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
     lifeCycle->initialize = DKStringInitialize;
     lifeCycle->finalize = DKStringFinalize;
 
@@ -48,7 +48,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( lifeCycle );
 
     // Comparison
-    struct DKComparison * comparison = (struct DKComparison *)DKCreateInterface( DKSelector(Comparison), sizeof(DKComparison) );
+    struct DKComparison * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(DKComparison) );
     comparison->equal = DKStringEqual;
     comparison->compare = DKStringCompare;
     comparison->hash = DKStringHash;
@@ -57,14 +57,14 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( comparison );
     
     // Description
-    struct DKDescription * description = (struct DKDescription *)DKCreateInterface( DKSelector(Description), sizeof(DKDescription) );
+    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
     description->copyDescription = DKRetain;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
     // Copying
-    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKRetain;
     copying->mutableCopy = DKStringCreateMutableCopy;
     
@@ -72,7 +72,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( copying );
 
     // Stream
-    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    struct DKStream * stream = DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
     stream->seek = DKStringSeek;
     stream->tell = DKStringTell;
     stream->read = DKStringRead;
@@ -89,17 +89,17 @@ DKThreadSafeClassInit( DKStringClass )
 //
 DKThreadSafeClassInit( DKMutableStringClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKMutableString", DKStringClass(), sizeof(struct DKString) );
+    DKTypeRef cls = DKAllocClass( "DKMutableString", DKStringClass(), sizeof(struct DKString) );
     
     // Description
-    struct DKDescription * description = (struct DKDescription *)DKCreateInterface( DKSelector(Description), sizeof(DKDescription) );
+    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
     description->copyDescription = DKStringCreateCopy;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
     // Copying
-    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKStringCreateMutableCopy;
     copying->mutableCopy = DKStringCreateMutableCopy;
     
@@ -107,7 +107,7 @@ DKThreadSafeClassInit( DKMutableStringClass )
     DKRelease( copying );
     
     // Stream
-    struct DKStream * stream = (struct DKStream *)DKCreateInterface( DKSelector(Stream), sizeof(DKStream) );
+    struct DKStream * stream = DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
     stream->seek = DKStringSeek;
     stream->tell = DKStringTell;
     stream->read = DKStringRead;
@@ -915,7 +915,7 @@ DKStringRef __DKStringDefineConstantString( const char * str )
     if( DKConstantStringClassObject == NULL )
     {
         // Create the objects
-        DKTypeRef cls = DKCreateClass( "DKConstantString", DKStringClass(), sizeof(struct DKString) );
+        DKTypeRef cls = DKAllocClass( "DKConstantString", DKStringClass(), sizeof(struct DKString) );
         DKTypeRef table = DKHashTableCreateMutable();
         
         // Store the objects while locked

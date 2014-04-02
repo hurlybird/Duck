@@ -32,10 +32,10 @@ static void      DKImmutableArrayShuffle( DKMutableListRef ref );
 //
 DKThreadSafeClassInit( DKArrayClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKArray", DKObjectClass(), sizeof(struct DKArray) );
+    DKTypeRef cls = DKAllocClass( "DKArray", DKObjectClass(), sizeof(struct DKArray) );
     
     // LifeCycle
-    struct DKLifeCycle * lifeCycle = (struct DKLifeCycle *)DKCreateInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
+    struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
     lifeCycle->initialize = DKArrayInitialize;
     lifeCycle->finalize = DKArrayFinalize;
 
@@ -43,7 +43,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( lifeCycle );
 
     // Copying
-    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKRetain;
     copying->mutableCopy = DKArrayCreateMutableCopy;
     
@@ -51,7 +51,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( copying );
 
     // List
-    struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
+    struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );
     list->getCount = DKArrayGetCount;
     list->getObjects = DKArrayGetObjects;
     list->replaceObjects = DKImmutableArrayReplaceObjects;
@@ -71,10 +71,10 @@ DKThreadSafeClassInit( DKArrayClass )
 //
 DKThreadSafeClassInit( DKMutableArrayClass )
 {
-    DKTypeRef cls = DKCreateClass( "DKMutableArray", DKArrayClass(), sizeof(struct DKArray) );
+    DKTypeRef cls = DKAllocClass( "DKMutableArray", DKArrayClass(), sizeof(struct DKArray) );
     
     // Copying
-    struct DKCopying * copying = (struct DKCopying *)DKCreateInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKArrayCreateMutableCopy;
     copying->mutableCopy = DKArrayCreateMutableCopy;
     
@@ -82,7 +82,7 @@ DKThreadSafeClassInit( DKMutableArrayClass )
     DKRelease( copying );
 
     // List
-    struct DKList * list = (struct DKList *)DKCreateInterface( DKSelector(List), sizeof(DKList) );
+    struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );
     list->getCount = DKArrayGetCount;
     list->getObjects = DKArrayGetObjects;
     list->replaceObjects = DKArrayReplaceObjects;
