@@ -8,6 +8,7 @@
 
 #include "DKHashTable.h"
 #include "DKCopying.h"
+#include "DKString.h"
 
 
 struct DKHashTableRow
@@ -47,7 +48,10 @@ static void DKImmutableHashTableRemoveAllObjects( DKMutableDictionaryRef ref );
 //
 DKThreadSafeClassInit( DKHashTableClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKHashTable", DKObjectClass(), sizeof(struct DKHashTable) );
+    // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
+    // involved in creating constant strings, the names for these classes are
+    // initialized in DKRuntimeInit().
+    DKTypeRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKHashTable) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -86,7 +90,10 @@ DKThreadSafeClassInit( DKHashTableClass )
 //
 DKThreadSafeClassInit(  DKMutableHashTableClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKMutableHashTable", DKHashTableClass(), sizeof(struct DKHashTable) );
+    // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
+    // involved in creating constant strings, the names for these classes are
+    // initialized in DKRuntimeInit().
+    DKTypeRef cls = DKAllocClass( NULL, DKHashTableClass(), sizeof(struct DKHashTable) );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

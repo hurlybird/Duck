@@ -49,7 +49,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     DKMutableStringRef mutableString = DKStringCreateMutableCopy( quickFox );
     XCTAssert( DKStringEqual( quickFox, mutableString ) );
-    
+
     range = DKStringGetRangeOfString( mutableString, DKSTR( "quick " ), 0 );
     XCTAssert( (range.location == 4) && (range.length == 6) );
     

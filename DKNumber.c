@@ -119,7 +119,7 @@ static CastFunction CastFunctions[DKNumberMaxTypes][DKNumberMaxTypes] =
 //
 DKThreadSafeClassInit( DKNumberClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKNumber", DKObjectClass(), sizeof(struct DKNumber) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(struct DKNumber) );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

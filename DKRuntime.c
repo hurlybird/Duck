@@ -10,6 +10,7 @@
 #include "DKPointerArray.h"
 #include "DKRuntime.h"
 #include "DKString.h"
+#include "DKHashTable.h"
 
 
 static void DKRuntimeInit( void );
@@ -25,6 +26,7 @@ struct DKClass
 {
     const DKObjectHeader    _obj;
     
+    DKStringRef             name;
     const struct DKClass *  superclass;
     size_t                  structSize;
 
@@ -34,9 +36,6 @@ struct DKClass
     
     DKPointerArray          interfaces;
     DKPointerArray          properties;
-
-    DKStringRef             nameString;
-    char                    name[MAX_CLASS_NAME_LENGTH];
 };
 
 typedef const struct DKClass DKClass;
@@ -423,8 +422,7 @@ static int32_t DKRuntimeInitialized = 0;
 ///
 //  InitRootClass()
 //
-static void InitRootClass( struct DKClass * _class, const char * name,
-    struct DKClass * isa, struct DKClass * superclass, size_t structSize )
+static void InitRootClass( struct DKClass * _class, struct DKClass * isa, struct DKClass * superclass, size_t structSize )
 {
     memset( _class, 0, sizeof(struct DKClass) );
     
@@ -432,9 +430,7 @@ static void InitRootClass( struct DKClass * _class, const char * name,
     header->isa = DKRetain( isa );
     header->refcount = 1;
 
-    strncpy( _class->name, name, MAX_CLASS_NAME_LENGTH - 1 );
-
-    _class->nameString = NULL;
+    _class->name = NULL;
     _class->superclass = DKRetain( superclass );
     _class->structSize = structSize;
     _class->lock = DKSpinLockInit;
@@ -466,19 +462,19 @@ static void InstallRootClassInterface( struct DKClass * _class, DKInterface * in
 static void DKRuntimeInit( void )
 {
     DKSpinLockLock( &DKRuntimeInitLock );
-
+    
     if( !DKRuntimeInitialized )
     {
         DKRuntimeInitialized = 1;
 
-        InitRootClass( &__DKMetaClass__,       "MetaClass",  &__DKMetaClass__, NULL,                  sizeof(DKClass)        );
-        InitRootClass( &__DKClassClass__,      "Class",      &__DKMetaClass__, NULL,                  sizeof(DKClass)        );
-        InitRootClass( &__DKSelectorClass__,   "Selector",   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL)   );
-        InitRootClass( &__DKInterfaceClass__,  "Interface",  &__DKMetaClass__, NULL,                  sizeof(DKInterface)    );
-        InitRootClass( &__DKMsgHandlerClass__, "MsgHandler", &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler)   );
-        InitRootClass( &__DKPropertyClass__,   "Property",   &__DKMetaClass__, NULL,                  0                      );
-        InitRootClass( &__DKObjectClass__,     "Object",     &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader) );
-        InitRootClass( &__DKWeakClass__,       "Weak",       &__DKMetaClass__, NULL,                  sizeof(DKWeak)         );
+        InitRootClass( &__DKMetaClass__,       &__DKMetaClass__, NULL,                  sizeof(DKClass)        );
+        InitRootClass( &__DKClassClass__,      &__DKMetaClass__, NULL,                  sizeof(DKClass)        );
+        InitRootClass( &__DKSelectorClass__,   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL)   );
+        InitRootClass( &__DKInterfaceClass__,  &__DKMetaClass__, NULL,                  sizeof(DKInterface)    );
+        InitRootClass( &__DKMsgHandlerClass__, &__DKMetaClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler)   );
+        InitRootClass( &__DKPropertyClass__,   &__DKMetaClass__, NULL,                  0                      );
+        InitRootClass( &__DKObjectClass__,     &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader) );
+        InitRootClass( &__DKWeakClass__,       &__DKMetaClass__, NULL,                  sizeof(DKWeak)         );
         
         InstallRootClassInterface( &__DKMetaClass__, DKClassLifeCycle() );
         InstallRootClassInterface( &__DKMetaClass__, DKDefaultComparison() );
@@ -511,9 +507,41 @@ static void DKRuntimeInit( void )
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultLifeCycle() );
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultComparison() );
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultDescription() );
-    }
 
-    DKSpinLockUnlock( &DKRuntimeInitLock );
+        DKSpinLockUnlock( &DKRuntimeInitLock );
+
+        // Both DKString and DKConstantString must be initialized to set the class names,
+        // so do this after unlocking the spin lock. Because the names are all constant
+        // strings, the worst that can happen is they get set multiple times.
+        __DKMetaClass__.name = DKSTR( "DKMetaClass" );
+        __DKClassClass__.name = DKSTR( "DKClass" );
+        __DKSelectorClass__.name = DKSTR( "DKSelector" );
+        __DKInterfaceClass__.name = DKSTR( "DKInterface" );
+        __DKMsgHandlerClass__.name = DKSTR( "DKMsgHandler" );
+        __DKPropertyClass__.name = DKSTR( "DKProperty" );
+        __DKObjectClass__.name = DKSTR( "DKObject" );
+        __DKWeakClass__.name = DKSTR( "DKWeak" );
+        
+        // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
+        // involved in creating constant strings, the names for these classes are
+        // initialized in DKRuntimeInit().
+        struct DKClass * stringClass = (struct DKClass *)DKStringClass();
+        stringClass->name = DKSTR( "DKString" );
+        
+        struct DKClass * constantStringClass = (struct DKClass *)DKConstantStringClass();
+        constantStringClass->name = DKSTR( "DKConstantString" );
+
+        struct DKClass * hashTableClass = (struct DKClass *)DKHashTableClass();
+        hashTableClass->name = DKSTR( "DKHashTable" );
+
+        struct DKClass * mutableHashTableClass = (struct DKClass *)DKMutableHashTableClass();
+        mutableHashTableClass->name = DKSTR( "DKMutableHashTable" );
+    }
+    
+    else
+    {
+        DKSpinLockUnlock( &DKRuntimeInitLock );
+    }
 }
 
 
@@ -636,12 +664,11 @@ void DKDeallocObject( DKTypeRef ref )
 ///
 //  DKAllocClass()
 //
-void * DKAllocClass( const char * name, DKTypeRef superclass, size_t structSize )
+void * DKAllocClass( DKStringRef name, DKTypeRef superclass, size_t structSize )
 {
     struct DKClass * cls = (struct DKClass *)DKAllocObject( DKClassClass(), 0 );
 
-    strncpy( cls->name, name, MAX_CLASS_NAME_LENGTH - 1 );
-
+    cls->name = DKRetain( name );
     cls->superclass = DKRetain( superclass );
     cls->structSize = structSize;
     
@@ -667,7 +694,7 @@ static void DKClassFinalize( DKTypeRef ref )
     
     DKAssert( cls->_obj.isa == &__DKClassClass__ );
     
-    DKRelease( cls->nameString );
+    DKRelease( cls->name );
     DKRelease( cls->superclass );
 
     // Release interfaces
@@ -1118,22 +1145,7 @@ DKStringRef DKGetClassName( DKTypeRef ref )
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
             cls = (struct DKClass *)ref;
         
-        if( cls->nameString == NULL )
-        {
-            DKStringRef nameString = DKStringCreateWithCStringNoCopy( cls->name );
-            
-            DKSpinLockLock( &cls->lock );
-            
-            if( cls->nameString == NULL )
-                cls->nameString = nameString;
-            
-            DKSpinLockUnlock( &cls->lock );
-            
-            if( cls->nameString != nameString )
-                DKRelease( nameString );
-        }
-        
-        return cls->nameString;
+        return cls->name;
     }
     
     return DKSTR( "null" );

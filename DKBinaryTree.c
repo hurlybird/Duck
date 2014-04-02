@@ -8,6 +8,7 @@
 #include "DKBinaryTree.h"
 #include "DKNodePool.h"
 #include "DKCopying.h"
+#include "DKString.h"
 
 
 struct DKBinaryTreeNode
@@ -48,7 +49,7 @@ static void      DKImmutableBinaryTreeRemoveAllObjects( DKMutableDictionaryRef r
 //
 DKThreadSafeClassInit(  DKBinaryTreeClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKBinaryTree", DKObjectClass(), sizeof(struct DKBinaryTree) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKBinaryTree" ), DKObjectClass(), sizeof(struct DKBinaryTree) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -87,7 +88,7 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
 //
 DKThreadSafeClassInit( DKMutableBinaryTreeClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKMutableBinaryTree", DKBinaryTreeClass(), sizeof(struct DKBinaryTree) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKMutableBinaryTree" ), DKBinaryTreeClass(), sizeof(struct DKBinaryTree) );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

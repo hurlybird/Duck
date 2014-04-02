@@ -37,7 +37,10 @@ static DKIndex      DKImmutableStringWrite( DKMutableStringRef ref, const void *
 //
 DKThreadSafeClassInit( DKStringClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKString", DKObjectClass(), sizeof(struct DKString) );
+    // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
+    // involved in creating constant strings, the names for these classes are
+    // initialized in DKRuntimeInit().
+    DKTypeRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -84,12 +87,27 @@ DKThreadSafeClassInit( DKStringClass )
     return cls;
 }
 
+
+///
+//  DKConstantStringClass()
+//
+DKThreadSafeClassInit( DKConstantStringClass )
+{
+    // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
+    // involved in creating constant strings, the names for these classes are
+    // initialized in DKRuntimeInit().
+    DKTypeRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString) );
+    
+    return cls;
+}
+
+
 ///
 //  DKMutableStringClass()
 //
 DKThreadSafeClassInit( DKMutableStringClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKMutableString", DKStringClass(), sizeof(struct DKString) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKMutableString" ), DKStringClass(), sizeof(struct DKString) );
     
     // Description
     struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
@@ -901,64 +919,53 @@ DKIndex DKStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size
 
 
 // Constant Strings ======================================================================
-
-static volatile DKSpinLock DKConstantStringLock = DKSpinLockInit;
-static DKTypeRef DKConstantStringClassObject = NULL;
 static DKTypeRef DKConstantStringTable = NULL;
-
+static DKSpinLock DKConstantStringTableLock = DKSpinLockInit;
 
 ///
 //  __DKStringDefineConstantString()
 //
 DKStringRef __DKStringDefineConstantString( const char * str )
 {
-    if( DKConstantStringClassObject == NULL )
+    if( DKConstantStringTable == NULL )
     {
-        // Create the objects
-        DKTypeRef cls = DKAllocClass( "DKConstantString", DKStringClass(), sizeof(struct DKString) );
         DKTypeRef table = DKHashTableCreateMutable();
         
-        // Store the objects while locked
-        DKSpinLockLock( &DKConstantStringLock );
-        
-        if( DKConstantStringClassObject == NULL )
-            DKConstantStringClassObject = cls;
+        DKSpinLockLock( &DKConstantStringTableLock );
         
         if( DKConstantStringTable == NULL )
             DKConstantStringTable = table;
         
-        DKSpinLockUnlock( &DKConstantStringLock );
+        DKSpinLockUnlock( &DKConstantStringTableLock );
 
-        // If the objects weren't stored, release them
-        if( DKConstantStringClassObject != cls )
-            DKRelease( cls );
-        
         if( DKConstantStringTable != table )
             DKRelease( table );
     }
 
     // Create a temporary stack object for the table lookup
+    DKTypeRef constantStringClass = DKConstantStringClass();
+    
     struct DKString key =
     {
-        DKStaticObjectHeader( DKConstantStringClassObject ),
+        DKStaticObjectHeader( constantStringClass ),
     };
     
     DKIndex length = strlen( str );
     DKByteArrayInitWithExternalStorage( &key.byteArray, (const uint8_t *)str, length );
     
     // Check the table for an existing version
-    DKSpinLockLock( &DKConstantStringLock );
+    DKSpinLockLock( &DKConstantStringTableLock );
     DKTypeRef constantString = DKHashTableGetObject( DKConstantStringTable, &key );
-    DKSpinLockUnlock( &DKConstantStringLock );
+    DKSpinLockUnlock( &DKConstantStringTableLock );
     
     if( !constantString )
     {
         // Create a new constant string
-        DKStringRef newConstantString = DKAllocObject( DKConstantStringClassObject, 0 );
+        DKStringRef newConstantString = DKAllocObject( constantStringClass, 0 );
         DKByteArrayInitWithExternalStorage( &((struct DKString *)newConstantString)->byteArray, (const uint8_t *)str, length );
 
         // Try to insert it in the table
-        DKSpinLockLock( &DKConstantStringLock );
+        DKSpinLockLock( &DKConstantStringTableLock );
         DKIndex count = DKHashTableGetCount( DKConstantStringTable );
         DKHashTableInsertObject( DKConstantStringTable, newConstantString, newConstantString, DKDictionaryInsertIfNotFound );
         
@@ -969,7 +976,7 @@ DKStringRef __DKStringDefineConstantString( const char * str )
         else
             constantString = newConstantString;
         
-        DKSpinLockUnlock( &DKConstantStringLock );
+        DKSpinLockUnlock( &DKConstantStringTableLock );
 
         // This either removes the extra retain on an added entry, or releases the object
         // if the insert failed

@@ -9,6 +9,7 @@
 #include "DKByteArray.h"
 #include "DKCopying.h"
 #include "DKStream.h"
+#include "DKString.h"
 
 
 struct DKData
@@ -33,7 +34,7 @@ static DKIndex DKImmutableDataWrite( DKMutableDataRef ref, const void * buffer, 
 //
 DKThreadSafeClassInit( DKDataClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKData", DKObjectClass(), sizeof(struct DKData) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -79,7 +80,7 @@ DKThreadSafeClassInit( DKDataClass )
 //
 DKThreadSafeClassInit( DKMutableDataClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKMutableData", DKDataClass(), sizeof(struct DKData) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKMutableData" ), DKDataClass(), sizeof(struct DKData) );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

@@ -8,6 +8,7 @@
 
 #include "DKFile.h"
 #include "DKStream.h"
+#include "DKString.h"
 
 
 struct DKFile
@@ -25,7 +26,7 @@ static void DKFileFinalize( DKTypeRef ref );
 //
 DKThreadSafeClassInit( DKFileClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKFile", DKObjectClass(), sizeof(struct DKFile) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKFile" ), DKObjectClass(), sizeof(struct DKFile) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );

@@ -10,6 +10,7 @@
 #include "DKNodePool.h"
 #include "DKCopying.h"
 #include "DKPointerArray.h"
+#include "DKString.h"
 
 
 struct DKLinkedListNode
@@ -53,7 +54,7 @@ static void      DKImmutableLinkedListShuffle( DKMutableListRef ref );
 //
 DKThreadSafeClassInit( DKLinkedListClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKLinkedList", DKObjectClass(), sizeof(struct DKLinkedList) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKLinkedList" ), DKObjectClass(), sizeof(struct DKLinkedList) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -92,7 +93,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
 //
 DKThreadSafeClassInit( DKMutableLinkedListClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKMutableLinkedList", DKLinkedListClass(), sizeof(struct DKLinkedList) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKMutableLinkedList" ), DKLinkedListClass(), sizeof(struct DKLinkedList) );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

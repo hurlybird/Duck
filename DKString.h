@@ -21,6 +21,7 @@ typedef DKTypeRef DKMutableStringRef;
 
 
 DKTypeRef   DKStringClass( void );
+DKTypeRef   DKConstantStringClass( void );
 DKTypeRef   DKMutableStringClass( void );
 
 DKStringRef DKStringCreate( void );

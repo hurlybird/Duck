@@ -11,10 +11,10 @@
 
 
 DKDeclareMessageSelector( Square, int, int * );
-DKThreadSafeSelectorInit( Square, int, int * );
+DKThreadSafeSelectorInit( Square );
 
 DKDeclareMessageSelector( Cube, int, int * );
-DKThreadSafeSelectorInit( Cube, int, int * );
+DKThreadSafeSelectorInit( Cube );
 
 static void TestOne( DKTypeRef ref, DKSEL sel, int x, int * y )
 {
@@ -60,10 +60,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
 - (void) testRuntime
 {
     // Define a sample class
-    DKTypeRef TestClassA = DKAllocClass( "A", DKObjectClass(), sizeof(struct DKObjectHeader) );
+    DKTypeRef TestClassA = DKAllocClass( DKSTR( "A" ), DKObjectClass(), sizeof(struct DKObjectHeader) );
     XCTAssert( TestClassA );
     
-    DKTypeRef TestClassB = DKAllocClass( "B", TestClassA, sizeof(struct DKObjectHeader) );
+    DKTypeRef TestClassB = DKAllocClass( DKSTR( "B" ), TestClassA, sizeof(struct DKObjectHeader) );
     XCTAssert( TestClassB );
     
     // Install some message handlers

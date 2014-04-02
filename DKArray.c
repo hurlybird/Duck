@@ -9,6 +9,7 @@
 #include "DKArray.h"
 #include "DKPointerArray.h"
 #include "DKCopying.h"
+#include "DKString.h"
 
 
 struct DKArray
@@ -32,7 +33,7 @@ static void      DKImmutableArrayShuffle( DKMutableListRef ref );
 //
 DKThreadSafeClassInit( DKArrayClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKArray", DKObjectClass(), sizeof(struct DKArray) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKArray" ), DKObjectClass(), sizeof(struct DKArray) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -71,7 +72,7 @@ DKThreadSafeClassInit( DKArrayClass )
 //
 DKThreadSafeClassInit( DKMutableArrayClass )
 {
-    DKTypeRef cls = DKAllocClass( "DKMutableArray", DKArrayClass(), sizeof(struct DKArray) );
+    DKTypeRef cls = DKAllocClass( DKSTR( "DKMutableArray" ), DKArrayClass(), sizeof(struct DKArray) );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

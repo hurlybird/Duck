@@ -127,7 +127,7 @@ struct DKProperty
 {
     DKObjectHeader  _obj;
     
-    DKSEL           sel;
+    DKStringRef     name;
     DKPropertyType  type;
     int32_t         attributes;
     size_t          offset;
@@ -228,7 +228,7 @@ DKTypeRef   DKDefaultDescription( void );
 void *      DKAllocObject( DKTypeRef isa, size_t extraBytes );
 void        DKDeallocObject( DKTypeRef ref );
 
-void *      DKAllocClass( const char * name, DKTypeRef superclass, size_t structSize );
+void *      DKAllocClass( DKStringRef name, DKTypeRef superclass, size_t structSize );
 void *      DKAllocInterface( DKSEL sel, size_t structSize );
 
 void        DKInstallInterface( DKTypeRef _class, DKTypeRef interface );
