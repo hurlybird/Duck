@@ -33,7 +33,7 @@
 		0261EB8B18DE3D8C00974404 /* DKList.c in Sources */ = {isa = PBXBuildFile; fileRef = 0278EA4A18CD92AC0028A755 /* DKList.c */; };
 		0261EB8C18DE419A00974404 /* DKLinkedList.c in Sources */ = {isa = PBXBuildFile; fileRef = 024EE3FB148E42D6008FDADC /* DKLinkedList.c */; };
 		026E1EB518E0FC730079B2F9 /* DKHashTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 026E1EB418E0FC730079B2F9 /* DKHashTable.c */; };
-		0272048E18E9FA8700A9F866 /* testDKNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 0272048D18E9FA8700A9F866 /* testDKNumber.m */; };
+		0272048E18E9FA8700A9F866 /* TestDKNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 0272048D18E9FA8700A9F866 /* TestDKNumber.m */; };
 		0272049018EA103400A9F866 /* DKUnicode.c in Sources */ = {isa = PBXBuildFile; fileRef = 0272048F18EA103400A9F866 /* DKUnicode.c */; };
 		0274E6FA14901BCF00E6F451 /* DKPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 0274E6F914901BCF00E6F451 /* DKPlatform.h */; };
 		0274E6FC14901BDA00E6F451 /* DKPlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 0274E6FB14901BDA00E6F451 /* DKPlatform.c */; };
@@ -53,7 +53,7 @@
 		02D00FB718E6258C00FC3054 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02D00FB618E6258C00FC3054 /* XCTest.framework */; };
 		02D00FBD18E6258C00FC3054 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 02D00FBB18E6258C00FC3054 /* InfoPlist.strings */; };
 		02D00FBF18E6258C00FC3054 /* TestDKList.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FBE18E6258C00FC3054 /* TestDKList.m */; };
-		02D00FC718E625DA00FC3054 /* TestDKObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FC618E625DA00FC3054 /* TestDKObject.m */; };
+		02D00FC718E625DA00FC3054 /* TestDKRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FC618E625DA00FC3054 /* TestDKRuntime.m */; };
 		02D00FC818E627D300FC3054 /* libDuck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libDuck.a */; };
 		02D00FCA18E62A1100FC3054 /* TestDKData.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FC918E62A1100FC3054 /* TestDKData.m */; };
 		02D00FCC18E62A9B00FC3054 /* TestDKDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 02D00FCB18E62A9B00FC3054 /* TestDKDictionary.m */; };
@@ -100,7 +100,7 @@
 		024EE3FB148E42D6008FDADC /* DKLinkedList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKLinkedList.c; sourceTree = "<group>"; };
 		026E1EB418E0FC730079B2F9 /* DKHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKHashTable.c; sourceTree = "<group>"; };
 		026E1EB618E0FC810079B2F9 /* DKHashTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKHashTable.h; sourceTree = "<group>"; };
-		0272048D18E9FA8700A9F866 /* testDKNumber.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = testDKNumber.m; sourceTree = "<group>"; };
+		0272048D18E9FA8700A9F866 /* TestDKNumber.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKNumber.m; sourceTree = "<group>"; };
 		0272048F18EA103400A9F866 /* DKUnicode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKUnicode.c; sourceTree = "<group>"; };
 		0272049118EA103E00A9F866 /* DKUnicode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKUnicode.h; sourceTree = "<group>"; };
 		0274E6F914901BCF00E6F451 /* DKPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKPlatform.h; sourceTree = "<group>"; };
@@ -132,7 +132,7 @@
 		02D00FBC18E6258C00FC3054 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		02D00FBE18E6258C00FC3054 /* TestDKList.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestDKList.m; sourceTree = "<group>"; };
 		02D00FC018E6258C00FC3054 /* Duck Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Duck Tests-Prefix.pch"; sourceTree = "<group>"; };
-		02D00FC618E625DA00FC3054 /* TestDKObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKObject.m; sourceTree = "<group>"; };
+		02D00FC618E625DA00FC3054 /* TestDKRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKRuntime.m; sourceTree = "<group>"; };
 		02D00FC918E62A1100FC3054 /* TestDKData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKData.m; sourceTree = "<group>"; };
 		02D00FCB18E62A9B00FC3054 /* TestDKDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKDictionary.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -247,11 +247,11 @@
 		02D00FB818E6258C00FC3054 /* Duck Tests */ = {
 			isa = PBXGroup;
 			children = (
-				0272048D18E9FA8700A9F866 /* testDKNumber.m */,
+				0272048D18E9FA8700A9F866 /* TestDKNumber.m */,
 				0227273C18E793C100902BDB /* TestDKString.m */,
 				02D00FCB18E62A9B00FC3054 /* TestDKDictionary.m */,
 				02D00FC918E62A1100FC3054 /* TestDKData.m */,
-				02D00FC618E625DA00FC3054 /* TestDKObject.m */,
+				02D00FC618E625DA00FC3054 /* TestDKRuntime.m */,
 				02D00FBE18E6258C00FC3054 /* TestDKList.m */,
 				02D00FB918E6258C00FC3054 /* Supporting Files */,
 			);
@@ -415,9 +415,9 @@
 				02D00FCA18E62A1100FC3054 /* TestDKData.m in Sources */,
 				0227273D18E793C100902BDB /* TestDKString.m in Sources */,
 				02D00FBF18E6258C00FC3054 /* TestDKList.m in Sources */,
-				0272048E18E9FA8700A9F866 /* testDKNumber.m in Sources */,
+				0272048E18E9FA8700A9F866 /* TestDKNumber.m in Sources */,
 				02D00FCC18E62A9B00FC3054 /* TestDKDictionary.m in Sources */,
-				02D00FC718E625DA00FC3054 /* TestDKObject.m in Sources */,
+				02D00FC718E625DA00FC3054 /* TestDKRuntime.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

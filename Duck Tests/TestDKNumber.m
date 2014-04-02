@@ -1,5 +1,5 @@
 //
-//  testDKNumber.m
+//  TestDKNumber.m
 //  Duck
 //
 //  Created by Derek Nylen on 2014-03-31.
@@ -13,11 +13,11 @@ static int RaiseException( const char * format, va_list arg_ptr )
     @throw NSGenericException;
 }
 
-@interface testDKNumber : XCTestCase
+@interface TestDKNumber : XCTestCase
 
 @end
 
-@implementation testDKNumber
+@implementation TestDKNumber
 
 - (void)setUp
 {
