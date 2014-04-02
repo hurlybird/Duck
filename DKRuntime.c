@@ -1016,11 +1016,18 @@ void DKRelease( DKTypeRef ref )
         
         int32_t n;
         
-        if( weakref )
+        if( weakref == NULL )
+        {
+            n = DKAtomicDecrement32( &obj->refcount );
+            DKAssert( n >= 0 );
+        }
+        
+        else
         {
             DKSpinLockLock( &weakref->lock );
             
             n = DKAtomicDecrement32( &obj->refcount );
+            DKAssert( n >= 0 );
 
             if( n == 0 )
             {
@@ -1030,13 +1037,6 @@ void DKRelease( DKTypeRef ref )
             
             DKSpinLockUnlock( &weakref->lock );
         }
-        
-        else
-        {
-            n = DKAtomicDecrement32( &obj->refcount );
-        }
-        
-        DKAssert( n >= 0 );
         
         if( n == 0 )
         {
