@@ -211,13 +211,13 @@ DKNumberRef DKNumberCreateDouble( double x )
 ///
 //  DKNumberGetType()
 //
-DKNumberType DKNumberGetType( DKNumberRef ref )
+DKNumberType DKNumberGetType( DKNumberRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKNumberClass() );
+        DKAssertKindOfClass( _self, DKNumberClass() );
         
-        const struct DKNumber * number = ref;
+        const struct DKNumber * number = _self;
         return number->type;
     }
     
@@ -228,13 +228,13 @@ DKNumberType DKNumberGetType( DKNumberRef ref )
 ///
 //  DKNumberGetCount()
 //
-size_t DKNumberGetCount( DKNumberRef ref )
+size_t DKNumberGetCount( DKNumberRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKNumberClass() );
+        DKAssertKindOfClass( _self, DKNumberClass() );
         
-        const struct DKNumber * number = ref;
+        const struct DKNumber * number = _self;
         return number->count;
     }
     
@@ -245,13 +245,13 @@ size_t DKNumberGetCount( DKNumberRef ref )
 ///
 //  DKNumberGetValue()
 //
-size_t DKNumberGetValue( DKNumberRef ref, void * value )
+size_t DKNumberGetValue( DKNumberRef _self, void * value )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKNumberClass() );
+        DKAssertKindOfClass( _self, DKNumberClass() );
         
-        const struct DKNumber * number = ref;
+        const struct DKNumber * number = _self;
 
         size_t size = FieldSize[number->type];
         memcpy( value, &number->value, size * number->count );
@@ -266,15 +266,15 @@ size_t DKNumberGetValue( DKNumberRef ref, void * value )
 ///
 //  DKNumberCastValue()
 //
-size_t DKNumberCastValue( DKNumberRef ref, void * value, DKNumberType type )
+size_t DKNumberCastValue( DKNumberRef _self, void * value, DKNumberType type )
 {
     DKAssert( (type > 0) && (type < DKNumberMaxTypes) );
 
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKNumberClass() );
+        DKAssertKindOfClass( _self, DKNumberClass() );
         
-        const struct DKNumber * number = ref;
+        const struct DKNumber * number = _self;
 
         const uint8_t * src = (const uint8_t *)&number->value;
         uint8_t * dst = value;
@@ -295,15 +295,15 @@ size_t DKNumberCastValue( DKNumberRef ref, void * value, DKNumberType type )
 ///
 //  DKNumberGetValuePtr()
 //
-const void * DKNumberGetValuePtr( DKNumberRef ref )
+const void * DKNumberGetValuePtr( DKNumberRef _self )
 {
     static int64_t zero = 0;
 
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKNumberClass() );
+        DKAssertKindOfClass( _self, DKNumberClass() );
         
-        const struct DKNumber * number = ref;
+        const struct DKNumber * number = _self;
         return &number->value;
     }
     
@@ -375,13 +375,13 @@ int DKNumberCompare( DKNumberRef a, DKNumberRef b )
 ///
 //  DKNumberHash()
 //
-DKHashCode DKNumberHash( DKNumberRef ref )
+DKHashCode DKNumberHash( DKNumberRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKNumberClass() );
+        DKAssertKindOfClass( _self, DKNumberClass() );
     
-        const struct DKNumber * number = ref;
+        const struct DKNumber * number = _self;
         size_t size = FieldSize[number->type] * number->count;
 
         if( (number->count == 1) && (size < sizeof(DKHashCode)) )
@@ -410,12 +410,12 @@ DKHashCode DKNumberHash( DKNumberRef ref )
 ///
 //  DKNumberCopyDescription()
 //
-DKStringRef DKNumberCopyDescription( DKNumberRef ref )
+DKStringRef DKNumberCopyDescription( DKNumberRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKNumberClass() );
-        const struct DKNumber * number = ref;
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        const struct DKNumber * number = _self;
         
         DKMutableStringRef desc = DKStringCreateMutable();
         

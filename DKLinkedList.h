@@ -27,13 +27,13 @@ DKLinkedListRef DKLinkedListCreateCopy( DKListRef srcList );
 DKMutableLinkedListRef DKLinkedListCreateMutable( void );
 DKMutableLinkedListRef DKLinkedListCreateMutableCopy( DKListRef srcList );
 
-DKIndex   DKLinkedListGetCount( DKLinkedListRef ref );
-DKIndex   DKLinkedListGetObjects( DKLinkedListRef ref, DKRange range, DKObjectRef objects[] );
+DKIndex   DKLinkedListGetCount( DKLinkedListRef _self );
+DKIndex   DKLinkedListGetObjects( DKLinkedListRef _self, DKRange range, DKObjectRef objects[] );
 
-void      DKLinkedListReplaceObjects( DKMutableLinkedListRef ref, DKRange range, DKObjectRef objects[], DKIndex count );
-void      DKLinkedListReplaceObjectsWithList( DKMutableLinkedListRef ref, DKRange range, DKListRef srcList );
-void      DKLinkedListSort( DKMutableLinkedListRef ref, DKCompareFunction cmp );
-void      DKLinkedListShuffle( DKMutableLinkedListRef ref );
+void      DKLinkedListReplaceObjects( DKMutableLinkedListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
+void      DKLinkedListReplaceObjectsWithList( DKMutableLinkedListRef _self, DKRange range, DKListRef srcList );
+void      DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp );
+void      DKLinkedListShuffle( DKMutableLinkedListRef _self );
 
 
 

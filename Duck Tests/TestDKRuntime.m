@@ -16,17 +16,17 @@ DKThreadSafeSelectorInit( Square );
 DKDeclareMessageSelector( Cube, int, int * );
 DKThreadSafeSelectorInit( Cube );
 
-static void TestOne( DKObjectRef ref, DKSEL sel, int x, int * y )
+static void TestOne( DKObjectRef _self, DKSEL sel, int x, int * y )
 {
     *y = 1;
 }
 
-static void TestSquare( DKObjectRef ref, DKSEL sel, int x, int * y )
+static void TestSquare( DKObjectRef _self, DKSEL sel, int x, int * y )
 {
     *y = x * x;
 }
 
-static void TestCube( DKObjectRef ref, DKSEL sel, int x, int * y )
+static void TestCube( DKObjectRef _self, DKSEL sel, int x, int * y )
 {
     *y = x * x * x;
 }

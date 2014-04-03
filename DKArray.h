@@ -28,14 +28,14 @@ DKArrayRef DKArrayCreateCopy( DKListRef srcList );
 DKMutableArrayRef DKArrayCreateMutable( void );
 DKMutableArrayRef DKArrayCreateMutableCopy( DKListRef srcList );
 
-DKIndex DKArrayGetCount( DKArrayRef ref );
-DKIndex DKArrayGetObjects( DKArrayRef ref, DKRange range, DKObjectRef objects[] );
+DKIndex DKArrayGetCount( DKArrayRef _self );
+DKIndex DKArrayGetObjects( DKArrayRef _self, DKRange range, DKObjectRef objects[] );
 
-void    DKArrayReplaceObjects( DKMutableArrayRef ref, DKRange range, DKObjectRef objects[], DKIndex count );
-void    DKArrayReplaceObjectsWithList( DKMutableArrayRef ref, DKRange range, DKListRef srcList );
+void    DKArrayReplaceObjects( DKMutableArrayRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
+void    DKArrayReplaceObjectsWithList( DKMutableArrayRef _self, DKRange range, DKListRef srcList );
 
-void    DKArraySort( DKMutableArrayRef ref, DKCompareFunction cmp );
-void    DKArrayShuffle( DKMutableArrayRef ref );
+void    DKArraySort( DKMutableArrayRef _self, DKCompareFunction cmp );
+void    DKArrayShuffle( DKMutableArrayRef _self );
 
 
 #endif // _DK_ARRAY_H_

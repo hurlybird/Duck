@@ -42,27 +42,27 @@ DKNumberRef DKNumberCreateUInt64( uint64_t x );
 DKNumberRef DKNumberCreateFloat( float x );
 DKNumberRef DKNumberCreateDouble( double x );
 
-DKNumberType DKNumberGetType( DKNumberRef ref );
-size_t      DKNumberGetCount( DKNumberRef ref );
+DKNumberType DKNumberGetType( DKNumberRef _self );
+size_t      DKNumberGetCount( DKNumberRef _self );
 
-size_t      DKNumberGetValue( DKNumberRef ref, void * value );
-size_t      DKNumberCastValue( DKNumberRef ref, void * value, DKNumberType type );
-const void* DKNumberGetValuePtr( DKNumberRef ref );
+size_t      DKNumberGetValue( DKNumberRef _self, void * value );
+size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKNumberType type );
+const void* DKNumberGetValuePtr( DKNumberRef _self );
 
-#define DKNumberGetValueAs( ref, type )     (*((type *)DKNumberGetValuePtr( ref )))
+#define DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
 
-#define DKNumberGetInt32( ref )     (*((int32_t *)DKNumberGetValuePtr( ref )))
-#define DKNumberGetInt64( ref )     (*((int64_t *)DKNumberGetValuePtr( ref )))
-#define DKNumberGetUInt32( ref )    (*((uint32_t *)DKNumberGetValuePtr( ref )))
-#define DKNumberGetUInt64( ref )    (*((uint64_t *)DKNumberGetValuePtr( ref )))
-#define DKNumberGetFloat( ref )     (*((float *)DKNumberGetValuePtr( ref )))
-#define DKNumberGetDouble( ref )    (*((double *)DKNumberGetValuePtr( ref )))
+#define DKNumberGetInt32( _self )     (*((int32_t *)DKNumberGetValuePtr( _self )))
+#define DKNumberGetInt64( _self )     (*((int64_t *)DKNumberGetValuePtr( _self )))
+#define DKNumberGetUInt32( _self )    (*((uint32_t *)DKNumberGetValuePtr( _self )))
+#define DKNumberGetUInt64( _self )    (*((uint64_t *)DKNumberGetValuePtr( _self )))
+#define DKNumberGetFloat( _self )     (*((float *)DKNumberGetValuePtr( _self )))
+#define DKNumberGetDouble( _self )    (*((double *)DKNumberGetValuePtr( _self )))
 
 int         DKNumberEqual( DKNumberRef a, DKNumberRef b );
 int         DKNumberCompare( DKNumberRef a, DKNumberRef b );
-DKHashCode  DKNumberHash( DKNumberRef ref );
+DKHashCode  DKNumberHash( DKNumberRef _self );
 
-DKStringRef DKNumberCopyDescription( DKNumberRef ref );
+DKStringRef DKNumberCopyDescription( DKNumberRef _self );
 
 
 

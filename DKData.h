@@ -27,31 +27,31 @@ DKDataRef   DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length );
 DKMutableDataRef DKDataCreateMutable( void );
 DKMutableDataRef DKDataCreateMutableCopy( DKDataRef srcData );
 
-int         DKDataEqual( DKDataRef a, DKObjectRef b );
-int         DKDataCompare( DKDataRef a, DKDataRef b );
-DKHashCode  DKDataHash( DKDataRef ref );
+int         DKDataEqual( DKDataRef _self, DKObjectRef other );
+int         DKDataCompare( DKDataRef _self, DKDataRef other );
+DKHashCode  DKDataHash( DKDataRef _self );
 
-DKIndex     DKDataGetLength( DKDataRef ref );
-void        DKDataSetLength( DKMutableDataRef ref, DKIndex length );
-void        DKDataIncreaseLength( DKMutableDataRef ref, DKIndex length );
+DKIndex     DKDataGetLength( DKDataRef _self );
+void        DKDataSetLength( DKMutableDataRef _self, DKIndex length );
+void        DKDataIncreaseLength( DKMutableDataRef _self, DKIndex length );
 
-const void * DKDataGetBytePtr( DKDataRef ref );
-const void * DKDataGetByteRange( DKDataRef ref, DKRange range );
+const void * DKDataGetBytePtr( DKDataRef _self );
+const void * DKDataGetByteRange( DKDataRef _self, DKRange range );
 
-void *      DKDataGetMutableBytePtr( DKMutableDataRef ref );
-void *      DKDataGetMutableByteRange( DKMutableDataRef ref, DKRange range );
+void *      DKDataGetMutableBytePtr( DKMutableDataRef _self );
+void *      DKDataGetMutableByteRange( DKMutableDataRef _self, DKRange range );
 
-DKIndex     DKDataGetBytes( DKDataRef ref, DKRange range, void * buffer );
+DKIndex     DKDataGetBytes( DKDataRef _self, DKRange range, void * buffer );
 
-void        DKDataReplaceBytes( DKMutableDataRef ref, DKRange range, const void * bytes, DKIndex length );
-void        DKDataAppendBytes( DKMutableDataRef ref, const void * bytes, DKIndex length );
-void        DKDataDeleteBytes( DKMutableDataRef ref, DKRange range );
+void        DKDataReplaceBytes( DKMutableDataRef _self, DKRange range, const void * bytes, DKIndex length );
+void        DKDataAppendBytes( DKMutableDataRef _self, const void * bytes, DKIndex length );
+void        DKDataDeleteBytes( DKMutableDataRef _self, DKRange range );
 
-int         DKDataSeek( DKDataRef ref, DKIndex offset, int origin );
-DKIndex     DKDataTell( DKDataRef ref );
+int         DKDataSeek( DKDataRef _self, DKIndex offset, int origin );
+DKIndex     DKDataTell( DKDataRef _self );
 
-DKIndex     DKDataRead( DKDataRef ref, void * buffer, DKIndex size, DKIndex count );
-DKIndex     DKDataWrite( DKMutableDataRef ref, const void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKDataRead( DKDataRef _self, void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKDataWrite( DKMutableDataRef _self, const void * buffer, DKIndex size, DKIndex count );
 
 
 #endif // _DK_DATA_H_

@@ -19,13 +19,13 @@ struct DKArray
 };
 
 
-static DKObjectRef DKArrayInitialize( DKObjectRef ref );
-static void      DKArrayFinalize( DKObjectRef ref );
+static DKObjectRef DKArrayInitialize( DKObjectRef _self );
+static void      DKArrayFinalize( DKObjectRef _self );
 
-static void      DKImmutableArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKObjectRef objects[], DKIndex count );
-static void      DKImmutableArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
-static void      DKImmutableArraySort( DKMutableListRef ref, DKCompareFunction cmp );
-static void      DKImmutableArrayShuffle( DKMutableListRef ref );
+static void      DKImmutableArrayReplaceObjects( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
+static void      DKImmutableArrayReplaceObjectsWithList( DKMutableListRef _self, DKRange range, DKListRef srcList );
+static void      DKImmutableArraySort( DKMutableListRef _self, DKCompareFunction cmp );
+static void      DKImmutableArrayShuffle( DKMutableListRef _self );
 
 
 ///
@@ -101,21 +101,21 @@ DKThreadSafeClassInit( DKMutableArrayClass )
 ///
 //  DKArrayInitialize()
 //
-static DKObjectRef DKArrayInitialize( DKObjectRef ref )
+static DKObjectRef DKArrayInitialize( DKObjectRef _self )
 {
-    struct DKArray * array = (struct DKArray *)ref;
+    struct DKArray * array = (struct DKArray *)_self;
     DKPointerArrayInit( &array->ptrArray );
     
-    return ref;
+    return _self;
 }
 
 
 ///
 //  DKArrayFinalize()
 //
-static void DKArrayFinalize( DKObjectRef ref )
+static void DKArrayFinalize( DKObjectRef _self )
 {
-    struct DKArray * array = (struct DKArray *)ref;
+    struct DKArray * array = (struct DKArray *)_self;
 
     if( !DKPointerArrayHasExternalStorage( &array->ptrArray ) )
     {
@@ -306,12 +306,12 @@ DKMutableArrayRef DKArrayCreateMutableCopy( DKListRef srcList )
 ///
 //  DKArrayGetCount()
 //
-DKIndex DKArrayGetCount( DKArrayRef ref )
+DKIndex DKArrayGetCount( DKArrayRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKArrayClass() );
-        return ref->ptrArray.length;
+        DKAssertKindOfClass( _self, DKArrayClass() );
+        return _self->ptrArray.length;
     }
     
     return 0;
@@ -321,15 +321,15 @@ DKIndex DKArrayGetCount( DKArrayRef ref )
 ///
 //  DKArrayGetObjects()
 //
-DKIndex DKArrayGetObjects( DKArrayRef ref, DKRange range, DKObjectRef objects[] )
+DKIndex DKArrayGetObjects( DKArrayRef _self, DKRange range, DKObjectRef objects[] )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKArrayClass() );
-        DKCheckRange( range, ref->ptrArray.length, 0 );
+        DKAssertKindOfClass( _self, DKArrayClass() );
+        DKCheckRange( range, _self->ptrArray.length, 0 );
         
         for( DKIndex i = 0; i < range.length; ++i )
-            objects[i] = ref->ptrArray.data[range.location + i];
+            objects[i] = _self->ptrArray.data[range.location + i];
     }
     
     return 0;
@@ -339,17 +339,17 @@ DKIndex DKArrayGetObjects( DKArrayRef ref, DKRange range, DKObjectRef objects[] 
 ///
 //  DKArrayReplaceObjects()
 //
-static void DKImmutableArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKObjectRef objects[], DKIndex count )
+static void DKImmutableArrayReplaceObjects( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count )
 {
     DKError( "DKArrayReplaceObjects: Trying to modify an immutable object." );
 }
 
-void DKArrayReplaceObjects( DKMutableArrayRef ref, DKRange range, DKObjectRef objects[], DKIndex count )
+void DKArrayReplaceObjects( DKMutableArrayRef _self, DKRange range, DKObjectRef objects[], DKIndex count )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKMutableArrayClass() );
-        ReplaceObjects( ref, range, objects, count );
+        DKAssertKindOfClass( _self, DKMutableArrayClass() );
+        ReplaceObjects( _self, range, objects, count );
     }
 }
 
@@ -357,17 +357,17 @@ void DKArrayReplaceObjects( DKMutableArrayRef ref, DKRange range, DKObjectRef ob
 ///
 //  DKArrayReplaceObjectsWithList()
 //
-static void DKImmutableArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList )
+static void DKImmutableArrayReplaceObjectsWithList( DKMutableListRef _self, DKRange range, DKListRef srcList )
 {
     DKError( "DKLinkedListReplaceObjectsWithList: Trying to modify an immutable object." );
 }
 
-void DKArrayReplaceObjectsWithList( DKMutableArrayRef ref, DKRange range, DKListRef srcList )
+void DKArrayReplaceObjectsWithList( DKMutableArrayRef _self, DKRange range, DKListRef srcList )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKMutableArrayClass() );
-        ReplaceObjectsWithList( ref, range, srcList );
+        DKAssertKindOfClass( _self, DKMutableArrayClass() );
+        ReplaceObjectsWithList( _self, range, srcList );
     }
 }
 
@@ -375,17 +375,17 @@ void DKArrayReplaceObjectsWithList( DKMutableArrayRef ref, DKRange range, DKList
 ///
 //  DKArraySort()
 //
-static void DKImmutableArraySort( DKMutableListRef ref, DKCompareFunction cmp )
+static void DKImmutableArraySort( DKMutableListRef _self, DKCompareFunction cmp )
 {
     DKError( "DKArraySort: Trying to modify an immutable object." );
 }
 
-void DKArraySort( DKMutableArrayRef ref, DKCompareFunction cmp )
+void DKArraySort( DKMutableArrayRef _self, DKCompareFunction cmp )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKMutableArrayClass() );
-        DKPointerArraySort( &ref->ptrArray, cmp );
+        DKAssertKindOfClass( _self, DKMutableArrayClass() );
+        DKPointerArraySort( &_self->ptrArray, cmp );
     }
 }
 
@@ -393,17 +393,17 @@ void DKArraySort( DKMutableArrayRef ref, DKCompareFunction cmp )
 ///
 //  DKArrayShuffle()
 //
-static void DKImmutableArrayShuffle( DKMutableListRef ref )
+static void DKImmutableArrayShuffle( DKMutableListRef _self )
 {
     DKError( "DKArrayShuffle: Trying to modify an immutable object." );
 }
 
-void DKArrayShuffle( DKMutableArrayRef ref )
+void DKArrayShuffle( DKMutableArrayRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKMutableArrayClass() );
-        DKPointerArrayShuffle( &ref->ptrArray );
+        DKAssertKindOfClass( _self, DKMutableArrayClass() );
+        DKPointerArrayShuffle( &_self->ptrArray );
     }
 }
 

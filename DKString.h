@@ -32,43 +32,45 @@ DKStringRef DKStringCreateWithCStringNoCopy( const char * str );
 DKMutableStringRef DKStringCreateMutable( void );
 DKMutableStringRef DKStringCreateMutableCopy( DKStringRef srcString );
 
-int         DKStringEqual( DKStringRef a, DKObjectRef b );
-//int         DKStringEqualToString( DKStringRef a, DKStringRef b );
-int         DKStringCompare( DKStringRef a, DKStringRef b );
-DKHashCode  DKStringHash( DKStringRef ref );
+int         DKStringEqual( DKStringRef _self, DKObjectRef other );
+int         DKStringCompare( DKStringRef _self, DKStringRef other );
+DKHashCode  DKStringHash( DKStringRef _self );
 
-DKIndex     DKStringGetLength( DKStringRef ref );
-DKIndex     DKStringGetByteLength( DKStringRef ref );
+//int         DKStringEqualToString( DKStringRef _self, DKStringRef other );
+//int         DKStringCompareString( DKStringRef _self, DKStringRef other );
 
-const char * DKStringGetCStringPtr( DKStringRef ref );
+DKIndex     DKStringGetLength( DKStringRef _self );
+DKIndex     DKStringGetByteLength( DKStringRef _self );
+
+const char * DKStringGetCStringPtr( DKStringRef _self );
 
 // Substrings
-DKStringRef DKStringCopySubstring( DKStringRef ref, DKRange range );
-DKStringRef DKStringCopySubstringFromIndex( DKStringRef ref, DKIndex index );
-DKStringRef DKStringCopySubstringToIndex( DKStringRef ref, DKIndex index );
+DKStringRef DKStringCopySubstring( DKStringRef _self, DKRange range );
+DKStringRef DKStringCopySubstringFromIndex( DKStringRef _self, DKIndex index );
+DKStringRef DKStringCopySubstringToIndex( DKStringRef _self, DKIndex index );
 
-DKRange     DKStringGetRangeOfString( DKStringRef ref, DKStringRef str, DKIndex startLoc );
+DKRange     DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex startLoc );
 
 // Separating and concatenating strings
-DKListRef   DKStringCreateListBySeparatingStrings( DKStringRef ref, DKStringRef separator );
+DKListRef   DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef separator );
 DKStringRef DKStringCreateByCombiningStrings( DKListRef list, DKStringRef separator );
 
 // Modifying mutable strings
-void        DKStringSetString( DKMutableStringRef ref, DKStringRef str );
+void        DKStringSetString( DKMutableStringRef _self, DKStringRef str );
 
-void        DKStringAppendString( DKMutableStringRef ref, DKStringRef str );
-void        DKStringAppendFormat( DKMutableStringRef ref, const char * format, ... );
+void        DKStringAppendString( DKMutableStringRef _self, DKStringRef str );
+void        DKStringAppendFormat( DKMutableStringRef _self, const char * format, ... );
 
-void        DKStringReplaceSubstring( DKMutableStringRef ref, DKRange range, DKStringRef str );
-void        DKStringReplaceOccurrencesOfString( DKMutableStringRef ref, DKStringRef pattern, DKStringRef replacement );
+void        DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKStringRef str );
+void        DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement );
 
-void        DKStringDeleteSubstring( DKMutableStringRef ref, DKRange range );
+void        DKStringDeleteSubstring( DKMutableStringRef _self, DKRange range );
 
 // Stream interface
-int         DKStringSeek( DKStringRef ref, DKIndex offset, int origin );
-DKIndex     DKStringTell( DKStringRef ref );
-DKIndex     DKStringRead( DKStringRef ref, void * buffer, DKIndex size, DKIndex count );
-DKIndex     DKStringWrite( DKMutableStringRef ref, const void * buffer, DKIndex size, DKIndex count );
+int         DKStringSeek( DKStringRef _self, DKIndex offset, int origin );
+DKIndex     DKStringTell( DKStringRef _self );
+DKIndex     DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex size, DKIndex count );
 
 // Paths
 // Do stuff here...

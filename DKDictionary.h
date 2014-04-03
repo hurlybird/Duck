@@ -31,12 +31,12 @@ typedef enum
     
 } DKDictionaryInsertPolicy;
 
-typedef DKIndex     (*DKDictionaryGetCountMethod)( DKDictionaryRef ref );
-typedef DKObjectRef (*DKDictionaryGetObjectMethod)( DKDictionaryRef ref, DKObjectRef key );
-typedef int         (*DKDictionaryApplyFunctionMethod)( DKDictionaryRef ref, DKDictionaryApplierFunction, void * context );
-typedef void        (*DKDictionaryInsertObjectMethod)( DKMutableDictionaryRef ref, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
-typedef void        (*DKDictionaryRemoveObjectMethod)( DKMutableDictionaryRef ref, DKObjectRef key );
-typedef void        (*DKDictionaryRemoveAllObjectsMethod)( DKMutableDictionaryRef ref );
+typedef DKIndex     (*DKDictionaryGetCountMethod)( DKDictionaryRef _self );
+typedef DKObjectRef (*DKDictionaryGetObjectMethod)( DKDictionaryRef _self, DKObjectRef key );
+typedef int         (*DKDictionaryApplyFunctionMethod)( DKDictionaryRef _self, DKDictionaryApplierFunction, void * context );
+typedef void        (*DKDictionaryInsertObjectMethod)( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
+typedef void        (*DKDictionaryRemoveObjectMethod)( DKMutableDictionaryRef _self, DKObjectRef key );
+typedef void        (*DKDictionaryRemoveAllObjectsMethod)( DKMutableDictionaryRef _self );
 
 struct DKDictionary
 {
@@ -54,27 +54,27 @@ typedef const struct DKDictionary DKDictionary;
 
 
 DKClassRef  DKDictionaryClass( void );
-void        DKSetDictionaryClass( DKClassRef ref );
+void        DKSetDictionaryClass( DKClassRef _self );
 
-DKIndex DKDictionaryGetCount( DKDictionaryRef ref );
+DKIndex DKDictionaryGetCount( DKDictionaryRef _self );
 
-void DKDictionarySetObject( DKMutableDictionaryRef ref, DKObjectRef key, DKObjectRef object );
-void DKDictionaryAddObject( DKMutableDictionaryRef ref, DKObjectRef key, DKObjectRef object );
-void DKDictionaryReplaceObject( DKMutableDictionaryRef ref, DKObjectRef key, DKObjectRef object );
-void DKDictionaryAddEntriesFromDictionary( DKMutableDictionaryRef ref, DKDictionaryRef src );
+void DKDictionarySetObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
+void DKDictionaryAddObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
+void DKDictionaryReplaceObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
+void DKDictionaryAddEntriesFromDictionary( DKMutableDictionaryRef _self, DKDictionaryRef src );
 
-int DKDictionaryContainsKey( DKDictionaryRef ref, DKObjectRef key );
-int DKDictionaryContainsObject( DKDictionaryRef ref, DKObjectRef object );
+int DKDictionaryContainsKey( DKDictionaryRef _self, DKObjectRef key );
+int DKDictionaryContainsObject( DKDictionaryRef _self, DKObjectRef object );
 
-DKListRef DKDictionaryCopyKeys( DKDictionaryRef ref );
-DKListRef DKDictionaryCopyObjects( DKDictionaryRef ref );
+DKListRef DKDictionaryCopyKeys( DKDictionaryRef _self );
+DKListRef DKDictionaryCopyObjects( DKDictionaryRef _self );
 
-DKObjectRef DKDictionaryGetObject( DKDictionaryRef ref, DKObjectRef key );
+DKObjectRef DKDictionaryGetObject( DKDictionaryRef _self, DKObjectRef key );
 
-void DKDictionaryRemoveObject( DKMutableDictionaryRef ref, DKObjectRef key );
-void DKDictionaryRemoveAllObjects( DKMutableDictionaryRef ref );
+void DKDictionaryRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );
+void DKDictionaryRemoveAllObjects( DKMutableDictionaryRef _self );
 
-int DKDictionaryApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
+int DKDictionaryApplyFunction( DKDictionaryRef _self, DKDictionaryApplierFunction callback, void * context );
 
 
 #endif // _DK_DICTIONARY_H_

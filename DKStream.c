@@ -17,12 +17,12 @@ DKThreadSafeSelectorInit( Stream );
 ///
 //  DKSeek()
 //
-int DKSeek( DKObjectRef ref, DKIndex offset, int origin )
+int DKSeek( DKObjectRef _self, DKIndex offset, int origin )
 {
-    if( ref )
+    if( _self )
     {
-        DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
-        return stream->seek( ref, offset, origin );
+        DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
+        return stream->seek( _self, offset, origin );
     }
     
     return -1;
@@ -32,12 +32,12 @@ int DKSeek( DKObjectRef ref, DKIndex offset, int origin )
 ///
 //  DKTell()
 //
-DKIndex DKTell( DKObjectRef ref )
+DKIndex DKTell( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
-        return stream->tell( ref );
+        DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
+        return stream->tell( _self );
     }
     
     return -1;
@@ -47,12 +47,12 @@ DKIndex DKTell( DKObjectRef ref )
 ///
 //  DKRead()
 //
-DKIndex DKRead( DKObjectRef ref, void * data, DKIndex size, DKIndex count )
+DKIndex DKRead( DKObjectRef _self, void * data, DKIndex size, DKIndex count )
 {
-    if( ref )
+    if( _self )
     {
-        DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
-        return stream->read( ref, data, size, count );
+        DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
+        return stream->read( _self, data, size, count );
     }
     
     return 0;
@@ -62,12 +62,12 @@ DKIndex DKRead( DKObjectRef ref, void * data, DKIndex size, DKIndex count )
 ///
 //  DKWrite()
 //
-DKIndex DKWrite( DKMutableObjectRef ref, const void * data, DKIndex size, DKIndex count )
+DKIndex DKWrite( DKMutableObjectRef _self, const void * data, DKIndex size, DKIndex count )
 {
-    if( ref )
+    if( _self )
     {
-        DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
-        return stream->write( ref, data, size, count );
+        DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
+        return stream->write( _self, data, size, count );
     }
     
     return 0;
@@ -77,12 +77,12 @@ DKIndex DKWrite( DKMutableObjectRef ref, const void * data, DKIndex size, DKInde
 ///
 //  DKSPrintf()
 //
-DKIndex DKSPrintf( DKMutableObjectRef ref, const char * format, ... )
+DKIndex DKSPrintf( DKMutableObjectRef _self, const char * format, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
-    DKIndex result = DKVSPrintf( ref, format, arg_ptr );
+    DKIndex result = DKVSPrintf( _self, format, arg_ptr );
     
     va_end( arg_ptr );
     
@@ -93,7 +93,7 @@ DKIndex DKSPrintf( DKMutableObjectRef ref, const char * format, ... )
 ///
 //  DKVSPrintf()
 //
-static size_t WriteNumber( DKMutableObjectRef ref, DKStream * stream, const char * format, size_t formatLength, va_list arg_ptr )
+static size_t WriteNumber( DKMutableObjectRef _self, DKStream * stream, const char * format, size_t formatLength, va_list arg_ptr )
 {
     char fmt[32];
     char num[32];
@@ -105,17 +105,17 @@ static size_t WriteNumber( DKMutableObjectRef ref, DKStream * stream, const char
     size_t n = vsprintf( num, fmt, arg_ptr );
     
     if( n > 0 )
-        stream->write( ref, num, 1, n );
+        stream->write( _self, num, 1, n );
     
     return n;
 }
 
-DKIndex DKVSPrintf( DKMutableObjectRef ref, const char * format, va_list arg_ptr )
+DKIndex DKVSPrintf( DKMutableObjectRef _self, const char * format, va_list arg_ptr )
 {
-    if( !ref )
+    if( !_self )
         return 0;
     
-    DKStream * stream = DKGetInterface( ref, DKSelector(Stream) );
+    DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
     
     size_t write_count = 0;
     
@@ -145,7 +145,7 @@ DKIndex DKVSPrintf( DKMutableObjectRef ref, const char * format, va_list arg_ptr
         // Flush the current sequence
         if( seq_count > 0 )
         {
-            write_count += stream->write( ref, seq_start, 1, seq_count );
+            write_count += stream->write( _self, seq_start, 1, seq_count );
         }
 
         /*
@@ -188,7 +188,7 @@ DKIndex DKVSPrintf( DKMutableObjectRef ref, const char * format, va_list arg_ptr
         // %s
         case 's':
             cstr = va_arg( arg_ptr, const char * );
-            write_count += stream->write( ref, cstr, 1, strlen( cstr ) );
+            write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
             break;
         
         // %@
@@ -196,7 +196,7 @@ DKIndex DKVSPrintf( DKMutableObjectRef ref, const char * format, va_list arg_ptr
             object = va_arg( arg_ptr, DKObjectRef );
             desc = DKCopyDescription( object );
             cstr = DKStringGetCStringPtr( desc );
-            write_count += stream->write( ref, cstr, 1, strlen( cstr ) );
+            write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
             DKRelease( desc );
             break;
         
@@ -208,7 +208,7 @@ DKIndex DKVSPrintf( DKMutableObjectRef ref, const char * format, va_list arg_ptr
         
         // All numeric types
         default:
-            write_count += WriteNumber( ref, stream, cursor, tok + 1, arg_ptr );
+            write_count += WriteNumber( _self, stream, cursor, tok + 1, arg_ptr );
             break;
         }
         
@@ -219,7 +219,7 @@ DKIndex DKVSPrintf( DKMutableObjectRef ref, const char * format, va_list arg_ptr
     // Write anything left in the current sequence
     if( seq_count > 0 )
     {
-        write_count += stream->write( ref, seq_start, 1, seq_count );
+        write_count += stream->write( _self, seq_start, 1, seq_count );
     }
     
     return write_count;

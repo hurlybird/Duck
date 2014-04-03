@@ -18,14 +18,14 @@ DKClassRef  DKFileClass( void );
 
 DKFileRef   DKFileCreate( void );
 
-int         DKFileOpen( DKFileRef ref, const char * fname, const char * mode );
-int         DKFileClose( DKFileRef ref );
+int         DKFileOpen( DKFileRef _self, const char * fname, const char * mode );
+int         DKFileClose( DKFileRef _self );
 
-int         DKFileSeek( DKFileRef ref, DKIndex offset, int origin );
-DKIndex     DKFileTell( DKFileRef ref );
+int         DKFileSeek( DKFileRef _self, DKIndex offset, int origin );
+DKIndex     DKFileTell( DKFileRef _self );
 
-DKIndex     DKFileRead( DKFileRef ref, void * buffer, DKIndex size, DKIndex count );
-DKIndex     DKFileWrite( DKFileRef ref, const void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKFileRead( DKFileRef _self, void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKFileWrite( DKFileRef _self, const void * buffer, DKIndex size, DKIndex count );
 
 
 

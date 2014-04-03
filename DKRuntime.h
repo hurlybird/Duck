@@ -150,8 +150,8 @@ struct DKProperty
     DKClassRef      requiredClass;
     DKSEL           requiredInterface;
 
-    void (*setter)( DKObjectRef ref, DKPropertyRef property, const void * value );
-    void (*getter)( DKObjectRef ref, DKPropertyRef property, void * value );
+    void (*setter)( DKObjectRef _self, DKPropertyRef property, const void * value );
+    void (*getter)( DKObjectRef _self, DKPropertyRef property, void * value );
 };
 
 typedef const struct DKProperty DKProperty;
@@ -175,8 +175,8 @@ DKClassRef DKObjectClass( void );
 // LifeCycle -----------------------------------------------------------------------------
 DKDeclareInterfaceSelector( LifeCycle );
 
-typedef DKObjectRef (*DKInitializeMethod)( DKObjectRef ref );
-typedef void (*DKFinalizeMethod)( DKObjectRef ref );
+typedef DKObjectRef (*DKInitializeMethod)( DKObjectRef _self );
+typedef void (*DKFinalizeMethod)( DKObjectRef _self );
 typedef void * (*DKAllocMethod)( size_t size );
 typedef void (*DKFreeMethod)( void * ptr );
 
@@ -207,7 +207,7 @@ DKDeclareInterfaceSelector( Comparison );
 
 typedef int (*DKEqualMethod)( DKObjectRef a, DKObjectRef b );
 typedef int (*DKCompareMethod)( DKObjectRef a, DKObjectRef b );
-typedef DKHashCode (*DKHashMethod)( DKObjectRef ref );
+typedef DKHashCode (*DKHashMethod)( DKObjectRef _self );
 
 struct DKComparison
 {
@@ -220,8 +220,8 @@ struct DKComparison
 
 typedef const struct DKComparison DKComparison;
 
-int         DKDefaultEqual( DKObjectRef ref, DKObjectRef other );
-int         DKDefaultCompare( DKObjectRef ref, DKObjectRef other );
+int         DKDefaultEqual( DKObjectRef _self, DKObjectRef other );
+int         DKDefaultCompare( DKObjectRef _self, DKObjectRef other );
 DKHashCode  DKDefaultHash( DKObjectRef ptr );
 
 DKInterfaceRef DKDefaultComparison( void );
@@ -230,7 +230,7 @@ DKInterfaceRef DKDefaultComparison( void );
 // Description ---------------------------------------------------------------------------
 DKDeclareInterfaceSelector( Description );
 
-typedef DKStringRef (*DKCopyDescriptionMethod)( DKObjectRef ref );
+typedef DKStringRef (*DKCopyDescriptionMethod)( DKObjectRef _self );
 
 struct DKDescription
 {
@@ -241,7 +241,7 @@ struct DKDescription
 
 typedef const struct DKDescription DKDescription;
 
-DKStringRef DKDefaultCopyDescription( DKObjectRef ref );
+DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
 
 DKInterfaceRef DKDefaultDescription( void );
 
@@ -250,7 +250,7 @@ DKInterfaceRef DKDefaultDescription( void );
 
 // Alloc/Free Objects ====================================================================
 void *      DKAllocObject( DKClassRef cls, size_t extraBytes );
-void        DKDeallocObject( DKObjectRef ref );
+void        DKDeallocObject( DKObjectRef _self );
 
 DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize );
 void *      DKAllocInterface( DKSEL sel, size_t structSize );
@@ -258,21 +258,21 @@ void *      DKAllocInterface( DKSEL sel, size_t structSize );
 void        DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
 void        DKInstallMsgHandler( DKClassRef cls, DKSEL sel, const void * func );
 
-int         DKHasInterface( DKObjectRef ref, DKSEL sel );
-DKInterfaceRef DKGetInterface( DKObjectRef ref, DKSEL sel );
+int         DKHasInterface( DKObjectRef _self, DKSEL sel );
+DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel );
 
-int         DKHasMsgHandler( DKObjectRef ref, DKSEL sel );
-DKMsgHandlerRef DKGetMsgHandler( DKObjectRef ref, DKSEL sel );
+int         DKHasMsgHandler( DKObjectRef _self, DKSEL sel );
+DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel );
 
 
 
 
 // Reference Counting ====================================================================
 
-DKObjectRef DKRetain( DKObjectRef ref );
-void        DKRelease( DKObjectRef ref );
+DKObjectRef DKRetain( DKObjectRef _self );
+void        DKRelease( DKObjectRef _self );
 
-DKWeakRef   DKRetainWeak( DKObjectRef ref );
+DKWeakRef   DKRetainWeak( DKObjectRef _self );
 DKObjectRef DKResolveWeak( DKWeakRef weak_ref );
 
 
@@ -282,18 +282,18 @@ DKObjectRef DKResolveWeak( DKWeakRef weak_ref );
 
 DKObjectRef DKCreate( DKClassRef _class );
 
-DKClassRef  DKGetClass( DKObjectRef ref );
-DKStringRef DKGetClassName( DKObjectRef ref );
-DKClassRef  DKGetSuperclass( DKObjectRef ref );
+DKClassRef  DKGetClass( DKObjectRef _self );
+DKStringRef DKGetClassName( DKObjectRef _self );
+DKClassRef  DKGetSuperclass( DKObjectRef _self );
 
-int         DKIsMemberOfClass( DKObjectRef ref, DKClassRef _class );
-int         DKIsKindOfClass( DKObjectRef ref, DKClassRef _class );
+int         DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class );
+int         DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
 
 int         DKEqual( DKObjectRef a, DKObjectRef b );
 int         DKCompare( DKObjectRef a, DKObjectRef b );
-DKHashCode  DKHash( DKObjectRef ref );
+DKHashCode  DKHash( DKObjectRef _self );
 
-DKStringRef DKCopyDescription( DKObjectRef ref );
+DKStringRef DKCopyDescription( DKObjectRef _self );
 
 
 // Message Passing =======================================================================
@@ -319,11 +319,11 @@ DKStringRef DKCopyDescription( DKObjectRef ref );
 //    If the method isn't defined for the object, DKLookupMethod returns a generic
 //    implementation that produces an error.
 
-#define DKMsgSend( ref, msg, ... ) \
-    ((DKMsgHandler_ ## msg)DKGetMsgHandler( ref, DKSelector(msg) )->func)( ref, DKSelector(msg) , ## __VA_ARGS__ )
+#define DKMsgSend( _self, msg, ... ) \
+    ((DKMsgHandler_ ## msg)DKGetMsgHandler( _self, DKSelector(msg) )->func)( _self, DKSelector(msg) , ## __VA_ARGS__ )
 
-#define DKMsgSendSuper( ref, msg, ... ) \
-    ((DKMsgHandler_ ## msg)DKGetMsgHandler( DKGetSuperclass( ref ), DKSelector(msg) )->func)( ref, DKSelector(msg) , ## __VA_ARGS__ )
+#define DKMsgSendSuper( _self, msg, ... ) \
+    ((DKMsgHandler_ ## msg)DKGetMsgHandler( DKGetSuperclass( _self ), DKSelector(msg) )->func)( _self, DKSelector(msg) , ## __VA_ARGS__ )
 
 
 

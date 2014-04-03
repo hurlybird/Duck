@@ -18,7 +18,7 @@ struct DKFile
 };
 
 
-static void DKFileFinalize( DKObjectRef ref );
+static void DKFileFinalize( DKObjectRef _self );
 
 
 ///
@@ -52,9 +52,9 @@ DKThreadSafeClassInit( DKFileClass )
 ///
 //  DKFileFinalize()
 //
-static void DKFileFinalize( DKObjectRef ref )
+static void DKFileFinalize( DKObjectRef _self )
 {
-    DKFileClose( ref );
+    DKFileClose( _self );
 }
 
 
@@ -70,15 +70,15 @@ DKFileRef DKFileCreate( void )
 ///
 //  DKFileOpen()
 //
-int DKFileOpen( DKFileRef ref, const char * fname, const char * mode )
+int DKFileOpen( DKFileRef _self, const char * fname, const char * mode )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKFileClass() );
+        DKAssertKindOfClass( _self, DKFileClass() );
     
-        DKFileClose( ref );
+        DKFileClose( _self );
 
-        struct DKFile * file = (struct DKFile *)ref;
+        struct DKFile * file = (struct DKFile *)_self;
         
         file->file = fopen( fname, mode );
         
@@ -93,15 +93,15 @@ int DKFileOpen( DKFileRef ref, const char * fname, const char * mode )
 ///
 //  DKFileClose()
 //
-int DKFileClose( DKFileRef ref )
+int DKFileClose( DKFileRef _self )
 {
     int result = EOF;
 
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKFileClass() );
+        DKAssertKindOfClass( _self, DKFileClass() );
 
-        struct DKFile * file = (struct DKFile *)ref;
+        struct DKFile * file = (struct DKFile *)_self;
         
         if( file->file )
         {
@@ -117,14 +117,14 @@ int DKFileClose( DKFileRef ref )
 ///
 //  DKFileSeek()
 //
-int DKFileSeek( DKFileRef ref, DKIndex offset, int origin )
+int DKFileSeek( DKFileRef _self, DKIndex offset, int origin )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKFileClass() );
+        DKAssertKindOfClass( _self, DKFileClass() );
 
-        if( ref->file )
-            return fseek( ref->file, offset, origin );
+        if( _self->file )
+            return fseek( _self->file, offset, origin );
     }
     
     return -1;
@@ -134,14 +134,14 @@ int DKFileSeek( DKFileRef ref, DKIndex offset, int origin )
 ///
 //  DKFileTell()
 //
-DKIndex DKFileTell( DKFileRef ref )
+DKIndex DKFileTell( DKFileRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKFileClass() );
+        DKAssertKindOfClass( _self, DKFileClass() );
 
-        if( ref->file )
-            return ftell( ref->file );
+        if( _self->file )
+            return ftell( _self->file );
     }
     
     return -1;
@@ -151,14 +151,14 @@ DKIndex DKFileTell( DKFileRef ref )
 ///
 //  DKFileRead()
 //
-DKIndex DKFileRead( DKFileRef ref, void * buffer, DKIndex size, DKIndex count )
+DKIndex DKFileRead( DKFileRef _self, void * buffer, DKIndex size, DKIndex count )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKFileClass() );
+        DKAssertKindOfClass( _self, DKFileClass() );
 
-        if( ref->file )
-            return fread( buffer, size, count, ref->file );
+        if( _self->file )
+            return fread( buffer, size, count, _self->file );
     }
     
     return 0;
@@ -168,13 +168,13 @@ DKIndex DKFileRead( DKFileRef ref, void * buffer, DKIndex size, DKIndex count )
 ///
 //  DKFileWrite()
 //
-DKIndex DKFileWrite( DKFileRef ref, const void * buffer, DKIndex size, DKIndex count )
+DKIndex DKFileWrite( DKFileRef _self, const void * buffer, DKIndex size, DKIndex count )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKFileClass() );
+        DKAssertKindOfClass( _self, DKFileClass() );
 
-        struct DKFile * file = (struct DKFile *)ref;
+        struct DKFile * file = (struct DKFile *)_self;
         
         if( file->file )
             return fwrite( buffer, size, count, file->file );

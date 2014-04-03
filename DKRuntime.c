@@ -231,34 +231,34 @@ DKInterfaceRef DKDefaultComparison( void )
     return &DKDefaultComparison_StaticObject;
 }
 
-int DKDefaultEqual( DKObjectRef ref, DKObjectRef other )
+int DKDefaultEqual( DKObjectRef _self, DKObjectRef other )
 {
-    return ref == other;
+    return _self == other;
 }
 
-int DKDefaultCompare( DKObjectRef ref, DKObjectRef other )
+int DKDefaultCompare( DKObjectRef _self, DKObjectRef other )
 {
-    if( ref < other )
+    if( _self < other )
         return 1;
     
-    if( ref > other )
+    if( _self > other )
         return -1;
     
     return 0;
 }
 
-DKHashCode DKDefaultHash( DKObjectRef ref )
+DKHashCode DKDefaultHash( DKObjectRef _self )
 {
     // Just in case someone changes the size of DKHashCode
     DKAssert( sizeof(DKHashCode) == sizeof(DKObjectRef) );
 
     // Make sure object pointers are 4-byte aligned
-    DKAssert( ((DKHashCode)ref & 0x3) == 0 );
+    DKAssert( ((DKHashCode)_self & 0x3) == 0 );
     
     // Assuming object pointers are at least 4-byte aligned, this will make hash codes
     // derived from pointers a bit more random. This is particularly important in a hash
     // table which uses (hashcode % prime) as an internal hash code.
-    return ((DKHashCode)ref) >> 2;
+    return ((DKHashCode)_self) >> 2;
 }
 
 
@@ -276,9 +276,9 @@ DKInterfaceRef DKDefaultDescription( void )
     return &DKDefaultDescription_StaticObject;
 }
 
-DKStringRef DKDefaultCopyDescription( DKObjectRef ref )
+DKStringRef DKDefaultCopyDescription( DKObjectRef _self )
 {
-    return DKGetClassName( ref );
+    return DKGetClassName( _self );
 }
 
 
@@ -287,7 +287,7 @@ DKStringRef DKDefaultCopyDescription( DKObjectRef ref )
 // Meta-Class Interfaces =================================================================
 
 // Class LifeCycle -----------------------------------------------------------------------
-static void DKClassFinalize( DKObjectRef ref );
+static void DKClassFinalize( DKObjectRef _self );
 
 static struct DKLifeCycle DKClassLifeCycle_StaticObject =
 {
@@ -305,7 +305,7 @@ static DKInterfaceRef DKClassLifeCycle( void )
 
 
 // Interface LifeCycle -------------------------------------------------------------------
-static void DKInterfaceFinalize( DKObjectRef ref );
+static void DKInterfaceFinalize( DKObjectRef _self );
 
 static struct DKLifeCycle DKInterfaceLifeCycle_StaticObject =
 {
@@ -325,7 +325,7 @@ static DKInterfaceRef DKInterfaceLifeCycle( void )
 // Selector Comparison -------------------------------------------------------------------
 static int          DKSelectorEqual( DKSEL a, DKSEL b );
 static int          DKSelectorCompare( DKSEL a, DKSEL b );
-#define             DKSelectorHash( ref )           DKDefaultHash( ref )
+#define             DKSelectorHash( _self )           DKDefaultHash( _self )
 #define             DKFastSelectorEqual( a, b )     (a == b)
 
 static struct DKComparison DKSelectorComparison_StaticObject =
@@ -620,9 +620,9 @@ static void DKFinalizeObject( struct DKObjectHeader * obj )
 ///
 //  DKDeallocObject()
 //
-void DKDeallocObject( DKObjectRef ref )
+void DKDeallocObject( DKObjectRef _self )
 {
-    struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+    struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
     
     DKAssert( obj );
     DKAssert( obj->refcount == 0 );
@@ -674,9 +674,9 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
 ///
 //  DKClassFinalize()
 //
-static void DKClassFinalize( DKObjectRef ref )
+static void DKClassFinalize( DKObjectRef _self )
 {
-    struct DKClass * cls = (struct DKClass *)ref;
+    struct DKClass * cls = (struct DKClass *)_self;
     
     DKAssert( cls->_obj.isa == &__DKClassClass__ );
     
@@ -730,9 +730,9 @@ void * DKAllocInterface( DKSEL sel, size_t structSize )
 ///
 //  DKInterfaceFinalize()
 //
-static void DKInterfaceFinalize( DKObjectRef ref )
+static void DKInterfaceFinalize( DKObjectRef _self )
 {
-    DKInterface * interface = ref;
+    DKInterface * interface = _self;
     DKRelease( interface->sel );
 }
 
@@ -876,16 +876,16 @@ static DKInterface * DKLookupInterface( DKClassRef cls, DKSEL sel )
 ///
 //  DKHasInterface()
 //
-int DKHasInterface( DKObjectRef ref, DKSEL sel )
+int DKHasInterface( DKObjectRef _self, DKSEL sel )
 {
-    if( ref )
+    if( _self )
     {
-        DKObjectHeader * obj = ref;
+        DKObjectHeader * obj = _self;
         DKClassRef cls = obj->isa;
         
         // If this object is a class, look in its own interfaces
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
-            cls = ref;
+            cls = _self;
         
         DKInterface * interface = DKLookupInterface( cls, sel );
 
@@ -899,16 +899,16 @@ int DKHasInterface( DKObjectRef ref, DKSEL sel )
 ///
 //  DKGetInterface()
 //
-DKInterfaceRef DKGetInterface( DKObjectRef ref, DKSEL sel )
+DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
 {
-    if( ref )
+    if( _self )
     {
-        DKObjectHeader * obj = ref;
+        DKObjectHeader * obj = _self;
         DKClassRef cls = obj->isa;
         
         // If this object is a class, look in its own interfaces
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
-            cls = (struct DKClass *)ref;
+            cls = (struct DKClass *)_self;
         
         DKInterfaceRef interface = DKLookupInterface( cls, sel );
         
@@ -925,25 +925,25 @@ DKInterfaceRef DKGetInterface( DKObjectRef ref, DKSEL sel )
 ///
 //  DKHasMsgHandler()
 //
-int DKHasMsgHandler( DKObjectRef ref, DKSEL sel )
+int DKHasMsgHandler( DKObjectRef _self, DKSEL sel )
 {
-    return DKGetMsgHandler( ref, sel ) != DKMsgHandlerNotFound();
+    return DKGetMsgHandler( _self, sel ) != DKMsgHandlerNotFound();
 }
 
 
 ///
 //  DKGetMsgHandler()
 //
-DKMsgHandlerRef DKGetMsgHandler( DKObjectRef ref, DKSEL sel )
+DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
 {
-    if( ref )
+    if( _self )
     {
-        DKObjectHeader * obj = ref;
+        DKObjectHeader * obj = _self;
         DKClassRef cls = obj->isa;
         
         // If this object is a class, look in its own interfaces
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
-            cls = (struct DKClass *)ref;
+            cls = (struct DKClass *)_self;
 
         DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKLookupInterface( cls, sel );
 
@@ -964,22 +964,22 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef ref, DKSEL sel )
 
 // Reference Counting ====================================================================
 
-DKObjectRef DKRetain( DKObjectRef ref )
+DKObjectRef DKRetain( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+        struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
         DKAtomicIncrement32( &obj->refcount );
     }
 
-    return ref;
+    return _self;
 }
 
-void DKRelease( DKObjectRef ref )
+void DKRelease( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+        struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
         struct DKWeak * weakref = (struct DKWeak *)obj->weakref;
         
         int32_t n;
@@ -1009,7 +1009,7 @@ void DKRelease( DKObjectRef ref )
         if( n == 0 )
         {
             DKRelease( weakref );
-            DKDeallocObject( ref );
+            DKDeallocObject( _self );
         }
     }
 }
@@ -1018,11 +1018,11 @@ void DKRelease( DKObjectRef ref )
 ///
 //  DKRetainWeak()
 //
-DKWeakRef DKRetainWeak( DKObjectRef ref )
+DKWeakRef DKRetainWeak( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        struct DKObjectHeader * obj = (struct DKObjectHeader *)ref;
+        struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
         
         if( !obj->weakref )
         {
@@ -1088,11 +1088,11 @@ DKObjectRef DKCreate( DKClassRef _class )
 ///
 //  DKGetClass()
 //
-DKClassRef DKGetClass( DKObjectRef ref )
+DKClassRef DKGetClass( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        const DKObjectHeader * obj = ref;
+        const DKObjectHeader * obj = _self;
         return obj->isa;
     }
     
@@ -1103,15 +1103,15 @@ DKClassRef DKGetClass( DKObjectRef ref )
 ///
 //  DKGetClassName()
 //
-DKStringRef DKGetClassName( DKObjectRef ref )
+DKStringRef DKGetClassName( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        const DKObjectHeader * obj = ref;
+        const DKObjectHeader * obj = _self;
         DKClassRef cls = obj->isa;
         
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
-            cls = (struct DKClass *)ref;
+            cls = (struct DKClass *)_self;
         
         return cls->name;
     }
@@ -1123,11 +1123,11 @@ DKStringRef DKGetClassName( DKObjectRef ref )
 ///
 //  DKGetSuperclass()
 //
-DKClassRef DKGetSuperclass( DKObjectRef ref )
+DKClassRef DKGetSuperclass( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        const DKObjectHeader * obj = ref;
+        const DKObjectHeader * obj = _self;
         return obj->isa->superclass;
     }
     
@@ -1138,11 +1138,11 @@ DKClassRef DKGetSuperclass( DKObjectRef ref )
 ///
 //  DKIsMemberOfClass()
 //
-int DKIsMemberOfClass( DKObjectRef ref, DKClassRef _class )
+int DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class )
 {
-    if( ref )
+    if( _self )
     {
-        const DKObjectHeader * obj = ref;
+        const DKObjectHeader * obj = _self;
         return obj->isa == _class;
     }
     
@@ -1153,11 +1153,11 @@ int DKIsMemberOfClass( DKObjectRef ref, DKClassRef _class )
 ///
 //  DKIsKindOfClass()
 //
-int DKIsKindOfClass( DKObjectRef ref, DKClassRef _class )
+int DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
 {
-    if( ref )
+    if( _self )
     {
-        const DKObjectHeader * obj = ref;
+        const DKObjectHeader * obj = _self;
         
         for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
         {
@@ -1213,12 +1213,12 @@ int DKCompare( DKObjectRef a, DKObjectRef b )
 ///
 //  DKHash()
 //
-DKHashCode DKHash( DKObjectRef ref )
+DKHashCode DKHash( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKComparison * comparison = DKGetInterface( ref, DKSelector(Comparison) );
-        return comparison->hash( ref );
+        DKComparison * comparison = DKGetInterface( _self, DKSelector(Comparison) );
+        return comparison->hash( _self );
     }
     
     return 0;
@@ -1228,12 +1228,12 @@ DKHashCode DKHash( DKObjectRef ref )
 ///
 //  DKCopyDescription()
 //
-DKStringRef DKCopyDescription( DKObjectRef ref )
+DKStringRef DKCopyDescription( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKDescription * description = DKGetInterface( ref, DKSelector(Description) );
-        return description->copyDescription( ref );
+        DKDescription * description = DKGetInterface( _self, DKSelector(Description) );
+        return description->copyDescription( _self );
     }
     
     return DKSTR( "null" );

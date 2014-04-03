@@ -161,76 +161,76 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
         }                                                                               \
     } while( 0 )
 
-#define DKAssertKindOfClass( ref, cls )                                                 \
+#define DKAssertKindOfClass( _self, cls )                                                 \
     do                                                                                  \
     {                                                                                   \
-        if( !DKIsKindOfClass( ref, cls ) )                                              \
+        if( !DKIsKindOfClass( _self, cls ) )                                              \
         {                                                                               \
             _DKFatalError( "%s: Required kind of class %s, received %s\n",              \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
-                DKStringGetCStringPtr( DKGetClassName( ref ) ) );                       \
+                DKStringGetCStringPtr( DKGetClassName( _self ) ) );                       \
         }                                                                               \
     } while( 0 )
 
-#define DKAssertMemberOfClass( ref, cls )                                               \
+#define DKAssertMemberOfClass( _self, cls )                                               \
     do                                                                                  \
     {                                                                                   \
-        if( !DKIsKindOfClass( ref, cls ) )                                              \
+        if( !DKIsKindOfClass( _self, cls ) )                                              \
         {                                                                               \
             _DKFatalError( "%s: Required kind of class %s, received %s\n",              \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
-                DKStringGetCStringPtr( DKGetClassName( ref ) ) );                       \
+                DKStringGetCStringPtr( DKGetClassName( _self ) ) );                       \
         }                                                                               \
     } while( 0 )
 
 #else
 #define DKAssert( x )
 #define DKAssertMsg( x, ... )
-#define DKAssertKindOfClass( ref, cls, ... )
+#define DKAssertKindOfClass( _self, cls, ... )
 #endif
 
 
 // Type Checks
 #if DK_RUNTIME_TYPE_CHECKS
-#define DKCheckKindOfClass( ref, cls, ... )                                             \
+#define DKCheckKindOfClass( _self, cls, ... )                                             \
     do                                                                                  \
     {                                                                                   \
-        if( !DKIsKindOfClass( ref, cls ) )                                              \
+        if( !DKIsKindOfClass( _self, cls ) )                                              \
         {                                                                               \
             _DKError( "%s: Expected kind of class %s, received %s\n",                   \
-                __func__, DKGetClassName( cls ), DKGetClassName( ref ) );               \
+                __func__, DKGetClassName( cls ), DKGetClassName( _self ) );               \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
 
-#define DKCheckMemberOfClass( ref, cls, ... )                                           \
+#define DKCheckMemberOfClass( _self, cls, ... )                                           \
     do                                                                                  \
     {                                                                                   \
-        if( !DKIsKindOfClass( ref, cls ) )                                              \
+        if( !DKIsKindOfClass( _self, cls ) )                                              \
         {                                                                               \
             _DKError( "%s: Expected member of class %s, received %s\n",                 \
-                __func__, DKGetClassName( cls ), DKGetClassName( ref ) );               \
+                __func__, DKGetClassName( cls ), DKGetClassName( _self ) );               \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
 
-#define DKCheckInterface( ref, sel, ... )                                               \
+#define DKCheckInterface( _self, sel, ... )                                               \
     do                                                                                  \
     {                                                                                   \
-        if( !DKHasInterface( ref, sel ) )                                               \
+        if( !DKHasInterface( _self, sel ) )                                               \
         {                                                                               \
             _DKError( "%s: Expected interface %s on class %s\n",                        \
-                __func__, (sel)->suid, DKGetClassName( ref ) );                         \
+                __func__, (sel)->suid, DKGetClassName( _self ) );                         \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
 
 #else
-#define DKCheckKindOfClass( ref, cls, ... )
-#define DKCheckMemberOfClass( ref, cls, ... )
-#define DKCheckInterface( ref, sel, ... )
+#define DKCheckKindOfClass( _self, cls, ... )
+#define DKCheckMemberOfClass( _self, cls, ... )
+#define DKCheckInterface( _self, sel, ... )
 #endif
 
 

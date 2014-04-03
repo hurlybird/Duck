@@ -39,13 +39,13 @@ struct DKLinkedList
 };
 
 
-static DKObjectRef DKLinkedListInitialize( DKObjectRef ref );
-static void      DKLinkedListFinalize( DKObjectRef ref );
+static DKObjectRef DKLinkedListInitialize( DKObjectRef _self );
+static void      DKLinkedListFinalize( DKObjectRef _self );
 
-static void      DKImmutableLinkedListReplaceObjects( DKMutableListRef ref, DKRange range, DKObjectRef objects[], DKIndex count );
-static void      DKImmutableLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
-static void      DKImmutableLinkedListSort( DKMutableListRef ref, DKCompareFunction cmp );
-static void      DKImmutableLinkedListShuffle( DKMutableListRef ref );
+static void      DKImmutableLinkedListReplaceObjects( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
+static void      DKImmutableLinkedListReplaceObjectsWithList( DKMutableListRef _self, DKRange range, DKListRef srcList );
+static void      DKImmutableLinkedListSort( DKMutableListRef _self, DKCompareFunction cmp );
+static void      DKImmutableLinkedListShuffle( DKMutableListRef _self );
 
 static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKObjectRef objects[], DKIndex count );
 
@@ -124,9 +124,9 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
 ///
 //  DKLinkedListInitialize()
 //
-static DKObjectRef DKLinkedListInitialize( DKObjectRef ref )
+static DKObjectRef DKLinkedListInitialize( DKObjectRef _self )
 {
-    struct DKLinkedList * list = (struct DKLinkedList *)ref;
+    struct DKLinkedList * list = (struct DKLinkedList *)_self;
     
     DKNodePoolInit( &list->nodePool, sizeof(struct DKLinkedListNode), 0 );
 
@@ -137,16 +137,16 @@ static DKObjectRef DKLinkedListInitialize( DKObjectRef ref )
     list->cursor.node = NULL;
     list->cursor.index = 0;
     
-    return ref;
+    return _self;
 }
 
 
 ///
 //  DKLinkedListFinalize()
 //
-static void DKLinkedListFinalize( DKObjectRef ref )
+static void DKLinkedListFinalize( DKObjectRef _self )
 {
-    struct DKLinkedList * list = (struct DKLinkedList *)ref;
+    struct DKLinkedList * list = (struct DKLinkedList *)_self;
 
     ReplaceObjects( list, DKRangeMake( 0, list->count ), NULL, 0 );
     DKNodePoolFinalize( &list->nodePool );
@@ -540,12 +540,12 @@ DKMutableLinkedListRef DKLinkedListCreateMutableCopy( DKListRef srcList )
 ///
 //  DKLinkedListGetCount()
 //
-DKIndex DKLinkedListGetCount( DKLinkedListRef ref )
+DKIndex DKLinkedListGetCount( DKLinkedListRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKLinkedListClass() );
-        return ref->count;
+        DKAssertKindOfClass( _self, DKLinkedListClass() );
+        return _self->count;
     }
     
     return 0;
@@ -555,13 +555,13 @@ DKIndex DKLinkedListGetCount( DKLinkedListRef ref )
 ///
 //  DKLinkedListGetObjects()
 //
-DKIndex DKLinkedListGetObjects( DKLinkedListRef ref, DKRange range, DKObjectRef objects[] )
+DKIndex DKLinkedListGetObjects( DKLinkedListRef _self, DKRange range, DKObjectRef objects[] )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKLinkedListClass() );
+        DKAssertKindOfClass( _self, DKLinkedListClass() );
 
-        struct DKLinkedList * list = (struct DKLinkedList *)ref;
+        struct DKLinkedList * list = (struct DKLinkedList *)_self;
         
         for( DKIndex i = 0; i < range.length; ++i )
         {
@@ -577,17 +577,17 @@ DKIndex DKLinkedListGetObjects( DKLinkedListRef ref, DKRange range, DKObjectRef 
 ///
 //  DKLinkedListReplaceObjects()
 //
-static void DKImmutableLinkedListReplaceObjects( DKMutableListRef ref, DKRange range, DKObjectRef objects[], DKIndex count )
+static void DKImmutableLinkedListReplaceObjects( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count )
 {
     DKError( "DKLinkedListReplaceObjects: Trying to modify an immutable object." );
 }
 
-void DKLinkedListReplaceObjects( DKMutableLinkedListRef ref, DKRange range, DKObjectRef objects[], DKIndex count )
+void DKLinkedListReplaceObjects( DKMutableLinkedListRef _self, DKRange range, DKObjectRef objects[], DKIndex count )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKMutableLinkedListClass() );
-        ReplaceObjects( ref, range, objects, count );
+        DKAssertKindOfClass( _self, DKMutableLinkedListClass() );
+        ReplaceObjects( _self, range, objects, count );
     }
 }
 
@@ -595,17 +595,17 @@ void DKLinkedListReplaceObjects( DKMutableLinkedListRef ref, DKRange range, DKOb
 ///
 //  DKLinkedListReplaceObjectsWithList()
 //
-static void DKImmutableLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList )
+static void DKImmutableLinkedListReplaceObjectsWithList( DKMutableListRef _self, DKRange range, DKListRef srcList )
 {
     DKError( "DKLinkedListReplaceObjectsWithList: Trying to modify an immutable object." );
 }
 
-void DKLinkedListReplaceObjectsWithList( DKMutableLinkedListRef ref, DKRange range, DKListRef srcList )
+void DKLinkedListReplaceObjectsWithList( DKMutableLinkedListRef _self, DKRange range, DKListRef srcList )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKMutableLinkedListClass() );
-        ReplaceObjectsWithList( ref, range, srcList );
+        DKAssertKindOfClass( _self, DKMutableLinkedListClass() );
+        ReplaceObjectsWithList( _self, range, srcList );
     }
 }
 
@@ -637,27 +637,27 @@ static void ArrayToList( struct DKLinkedList * list, DKPointerArray * array )
     }
 }
 
-static void DKImmutableLinkedListSort( DKMutableListRef ref, DKCompareFunction cmp )
+static void DKImmutableLinkedListSort( DKMutableListRef _self, DKCompareFunction cmp )
 {
     DKError( "DKLinkedListSort: Trying to modify an immutable object." );
 }
 
-void DKLinkedListSort( DKMutableLinkedListRef ref, DKCompareFunction cmp )
+void DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKMutableLinkedListClass() );
+        DKAssertKindOfClass( _self, DKMutableLinkedListClass() );
 
         // This is absurd, yet probably not much slower than doing all the pointer
         // gymnastics needed for sorting the list nodes.
         DKPointerArray array;
         DKPointerArrayInit( &array );
-        DKPointerArrayReserve( &array, ref->count );
-        ListToArray( &array, ref );
+        DKPointerArrayReserve( &array, _self->count );
+        ListToArray( &array, _self );
 
         DKPointerArraySort( &array, cmp );
 
-        ArrayToList( ref, &array );
+        ArrayToList( _self, &array );
         DKPointerArrayFinalize( &array );
     }
 }
@@ -666,27 +666,27 @@ void DKLinkedListSort( DKMutableLinkedListRef ref, DKCompareFunction cmp )
 ///
 //  DKLinkedListShuffle()
 //
-static void DKImmutableLinkedListShuffle( DKMutableListRef ref )
+static void DKImmutableLinkedListShuffle( DKMutableListRef _self )
 {
     DKError( "DKLinkedListShuffle: Trying to modify an immutable object." );
 }
 
-void DKLinkedListShuffle( DKMutableLinkedListRef ref )
+void DKLinkedListShuffle( DKMutableLinkedListRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKAssertKindOfClass( ref, DKMutableLinkedListClass() );
+        DKAssertKindOfClass( _self, DKMutableLinkedListClass() );
         
         // This is absurd, yet probably not much slower than doing all the pointer
         // gymnastics needed for shuffling the list nodes.
         DKPointerArray array;
         DKPointerArrayInit( &array );
-        DKPointerArrayReserve( &array, ref->count );
-        ListToArray( &array, ref );
+        DKPointerArrayReserve( &array, _self->count );
+        ListToArray( &array, _self );
 
         DKPointerArrayShuffle( &array );
 
-        ArrayToList( ref, &array );
+        ArrayToList( _self, &array );
         DKPointerArrayFinalize( &array );
     }
 }

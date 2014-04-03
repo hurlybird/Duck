@@ -27,8 +27,8 @@ struct DKCopying
 typedef const struct DKCopying DKCopying;
 
 
-DKObjectRef DKCopy( DKObjectRef ref );
-DKMutableObjectRef DKMutableCopy( DKObjectRef ref );
+DKObjectRef DKCopy( DKObjectRef _self );
+DKMutableObjectRef DKMutableCopy( DKObjectRef _self );
 
 
 

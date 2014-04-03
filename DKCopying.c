@@ -15,27 +15,27 @@ DKThreadSafeSelectorInit( Copying );
 ///
 //  DKCopy()
 //
-DKObjectRef DKCopy( DKObjectRef ref )
+DKObjectRef DKCopy( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKCopying * copying = DKGetInterface( ref, DKSelector( Copying ) );
-        return copying->copy( ref );
+        DKCopying * copying = DKGetInterface( _self, DKSelector( Copying ) );
+        return copying->copy( _self );
     }
 
-    return ref;
+    return _self;
 }
 
 
 ///
 //  DKMutableCopy()
 //
-DKMutableObjectRef DKMutableCopy( DKObjectRef ref )
+DKMutableObjectRef DKMutableCopy( DKObjectRef _self )
 {
-    if( ref )
+    if( _self )
     {
-        DKCopying * copying = DKGetInterface( ref, DKSelector( Copying ) );
-        return copying->mutableCopy( ref );
+        DKCopying * copying = DKGetInterface( _self, DKSelector( Copying ) );
+        return copying->mutableCopy( _self );
     }
 
     return NULL;
