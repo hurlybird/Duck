@@ -742,8 +742,8 @@ static void DKInterfaceFinalize( DKObjectRef ref )
 //
 void DKInstallInterface( DKClassRef _class, DKInterfaceRef interface )
 {
-    DKVerifyMemberOfClass( _class, DKClassClass() );
-    DKVerifyKindOfClass( interface, DKInterfaceClass() );
+    DKAssertMemberOfClass( _class, DKClassClass() );
+    DKAssertKindOfClass( interface, DKInterfaceClass() );
 
     struct DKClass * cls = (struct DKClass *)_class;
     DKInterface * interfaceObject = interface;
@@ -949,7 +949,7 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef ref, DKSEL sel )
 
         if( msgHandler )
         {
-            DKVerifyKindOfClass( msgHandler, DKMsgHandlerClass(), DKMsgHandlerNotFound() );
+            DKCheckKindOfClass( msgHandler, DKMsgHandlerClass(), DKMsgHandlerNotFound() );
             return msgHandler;
         }
 

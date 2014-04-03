@@ -141,7 +141,7 @@ static void DKArrayFinalize( DKObjectRef ref )
 //
 static void ReplaceObjects( struct DKArray * array, DKRange range, DKObjectRef objects[], DKIndex count )
 {
-    DKVerifyRange( range, array->ptrArray.length );
+    DKCheckRange( range, array->ptrArray.length );
     
     // Retain the incoming objects
     for( DKIndex i = 0; i < count; ++i )
@@ -168,7 +168,7 @@ static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKLis
 {
     if( srcList )
     {
-        DKVerifyRange( range, array->ptrArray.length );
+        DKCheckRange( range, array->ptrArray.length );
 
         DKList * srcListInterface = DKGetInterface( srcList, DKSelector(List) );
         
@@ -310,7 +310,7 @@ DKIndex DKArrayGetCount( DKArrayRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKArrayClass(), 0 );
+        DKAssertKindOfClass( ref, DKArrayClass() );
         return ref->ptrArray.length;
     }
     
@@ -325,8 +325,8 @@ DKIndex DKArrayGetObjects( DKArrayRef ref, DKRange range, DKObjectRef objects[] 
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKArrayClass(), 0 );
-        DKVerifyRange( range, ref->ptrArray.length, 0 );
+        DKAssertKindOfClass( ref, DKArrayClass() );
+        DKCheckRange( range, ref->ptrArray.length, 0 );
         
         for( DKIndex i = 0; i < range.length; ++i )
             objects[i] = ref->ptrArray.data[range.location + i];
@@ -348,7 +348,7 @@ void DKArrayReplaceObjects( DKMutableArrayRef ref, DKRange range, DKObjectRef ob
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableArrayClass() );
+        DKAssertKindOfClass( ref, DKMutableArrayClass() );
         ReplaceObjects( ref, range, objects, count );
     }
 }
@@ -366,7 +366,7 @@ void DKArrayReplaceObjectsWithList( DKMutableArrayRef ref, DKRange range, DKList
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableArrayClass() );
+        DKAssertKindOfClass( ref, DKMutableArrayClass() );
         ReplaceObjectsWithList( ref, range, srcList );
     }
 }
@@ -384,7 +384,7 @@ void DKArraySort( DKMutableArrayRef ref, DKCompareFunction cmp )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableArrayClass() );
+        DKAssertKindOfClass( ref, DKMutableArrayClass() );
         DKPointerArraySort( &ref->ptrArray, cmp );
     }
 }
@@ -402,7 +402,7 @@ void DKArrayShuffle( DKMutableArrayRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableArrayClass() );
+        DKAssertKindOfClass( ref, DKMutableArrayClass() );
         DKPointerArrayShuffle( &ref->ptrArray );
     }
 }

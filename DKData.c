@@ -132,6 +132,8 @@ static void DKDataFinalize( DKObjectRef ref )
 //
 int DKDataEqual( DKDataRef a, DKObjectRef b )
 {
+    DKAssertKindOfClass( a, DKDataClass() );
+
     if( DKIsKindOfClass( b, DKDataClass() ) )
         return DKDataCompare( a, b ) == 0;
     
@@ -146,8 +148,11 @@ int DKDataCompare( DKDataRef a, DKDataRef b )
 {
     if( a )
     {
-        DKVerifyKindOfClass( a, DKDataClass(), DKDefaultCompare( a, b ) );
-        DKVerifyKindOfClass( b, DKDataClass(), DKDefaultCompare( a, b ) );
+        DKAssertKindOfClass( a, DKDataClass() );
+        
+        // DKCompare doesn't require that a and b be the same type, so if b isn't a data
+        // object, fall back to comparing pointers.
+        DKCheckKindOfClass( b, DKDataClass(), DKDefaultCompare( a, b ) );
 
         if( a->byteArray.length < b->byteArray.length )
             return 1;
@@ -172,7 +177,7 @@ DKHashCode DKDataHash( DKDataRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKDataClass(), 0 );
+        DKAssertKindOfClass( ref, DKDataClass() );
     
         if( ref->byteArray.length > 0 )
             return dk_memhash( ref->byteArray.data, ref->byteArray.length );
@@ -227,7 +232,7 @@ DKDataRef DKDataCreateCopy( DKDataRef src )
 
     if( src )
     {
-        DKVerifyKindOfClass( src, DKDataClass(), NULL );
+        DKAssertKindOfClass( src, DKDataClass() );
 
         srcBytes = DKDataGetBytePtr( src );
         srcLength = DKDataGetLength( src );
@@ -307,10 +312,8 @@ DKIndex DKDataGetLength( DKDataRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKDataClass(), 0 );
-
-        const struct DKData * data = ref;
-        return data->byteArray.length;
+        DKAssertKindOfClass( ref, DKDataClass() );
+        return ref->byteArray.length;
     }
     
     return 0;
@@ -324,20 +327,18 @@ void DKDataSetLength( DKMutableDataRef ref, DKIndex length )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableDataClass() );
+        DKAssertKindOfClass( ref, DKMutableDataClass() );
 
-        struct DKData * data = (struct DKData *)ref;
-
-        if( length > data->byteArray.length )
+        if( length > ref->byteArray.length )
         {
-            DKRange range = DKRangeMake( data->byteArray.length, 0 );
-            DKByteArrayReplaceBytes( &data->byteArray, range, NULL, length - data->byteArray.length );
+            DKRange range = DKRangeMake( ref->byteArray.length, 0 );
+            DKByteArrayReplaceBytes( &ref->byteArray, range, NULL, length - ref->byteArray.length );
         }
         
-        else if( length < data->byteArray.length )
+        else if( length < ref->byteArray.length )
         {
-            DKRange range = DKRangeMake( length, data->byteArray.length - length );
-            DKByteArrayReplaceBytes( &data->byteArray, range, NULL, 0 );
+            DKRange range = DKRangeMake( length, ref->byteArray.length - length );
+            DKByteArrayReplaceBytes( &ref->byteArray, range, NULL, 0 );
         }
     }
 }
@@ -350,12 +351,10 @@ void DKDataIncreaseLength( DKMutableDataRef ref, DKIndex length )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableDataClass() );
+        DKAssertKindOfClass( ref, DKMutableDataClass() );
 
-        struct DKData * data = (struct DKData *)ref;
-
-        DKRange range = DKRangeMake( data->byteArray.length, 0 );
-        DKByteArrayReplaceBytes( &data->byteArray, range, NULL, length );
+        DKRange range = DKRangeMake( ref->byteArray.length, 0 );
+        DKByteArrayReplaceBytes( &ref->byteArray, range, NULL, length );
     }
 }
 
@@ -367,12 +366,10 @@ const void * DKDataGetBytePtr( DKDataRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKDataClass(), NULL );
-
-        const struct DKData * data = ref;
+        DKAssertKindOfClass( ref, DKDataClass() );
         
-        if( data->byteArray.length > 0 )
-            return data->byteArray.data;
+        if( ref->byteArray.length > 0 )
+            return ref->byteArray.data;
     }
     
     return NULL;
@@ -386,15 +383,12 @@ const void * DKDataGetByteRange( DKDataRef ref, DKRange range )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKDataClass(), NULL );
+        DKAssertKindOfClass( ref, DKDataClass() );
+        DKCheckRange( range, ref->byteArray.length, NULL );
 
-        const struct DKData * data = ref;
-
-        DKVerifyRange( range, data->byteArray.length, NULL );
-
-        // DKVerifyRange allows a 0-length range at the end of the sequence
-        if( range.location < data->byteArray.length )
-            return data->byteArray.data + range.location;
+        // DKCheckRange allows a 0-length range at the end of the sequence
+        if( range.location < ref->byteArray.length )
+            return ref->byteArray.data + range.location;
     }
     
     return NULL;
@@ -408,12 +402,10 @@ void * DKDataGetMutableBytePtr( DKMutableDataRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableDataClass(), NULL );
-
-        const struct DKData * data = ref;
+        DKAssertKindOfClass( ref, DKMutableDataClass() );
         
-        if( data->byteArray.length > 0 )
-            return data->byteArray.data;
+        if( ref->byteArray.length > 0 )
+            return ref->byteArray.data;
     }
     
     return NULL;
@@ -427,15 +419,12 @@ void * DKDataGetMutableByteRange( DKMutableDataRef ref, DKRange range )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableDataClass(), NULL );
+        DKAssertKindOfClass( ref, DKMutableDataClass() );
+        DKCheckRange( range, ref->byteArray.length, NULL );
 
-        const struct DKData * data = ref;
-
-        DKVerifyRange( range, data->byteArray.length, NULL );
-
-        // DKVerifyRange allows a 0-length range at the end of the sequence
-        if( range.location < data->byteArray.length )
-            return data->byteArray.data + range.location;
+        // DKCheckRange allows a 0-length range at the end of the sequence
+        if( range.location < ref->byteArray.length )
+            return ref->byteArray.data + range.location;
     }
     
     return NULL;
@@ -474,12 +463,10 @@ void DKDataAppendBytes( DKMutableDataRef ref, const void * bytes, DKIndex length
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableDataClass() );
+        DKAssertKindOfClass( ref, DKMutableDataClass() );
 
-        struct DKData * data = (struct DKData *)ref;
-
-        DKRange range = DKRangeMake( data->byteArray.length, 0 );
-        DKByteArrayReplaceBytes( &data->byteArray, range, bytes, length );
+        DKRange range = DKRangeMake( ref->byteArray.length, 0 );
+        DKByteArrayReplaceBytes( &ref->byteArray, range, bytes, length );
     }
 }
 
@@ -491,13 +478,10 @@ void DKDataReplaceBytes( DKMutableDataRef ref, DKRange range, const void * bytes
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableDataClass() );
+        DKAssertKindOfClass( ref, DKMutableDataClass() );
+        DKCheckRange( range, ref->byteArray.length );
 
-        struct DKData * data = (struct DKData *)ref;
-
-        DKVerifyRange( range, data->byteArray.length );
-
-        DKByteArrayReplaceBytes( &data->byteArray, range, bytes, length );
+        DKByteArrayReplaceBytes( &ref->byteArray, range, bytes, length );
     }
 }
 
@@ -509,13 +493,10 @@ void DKDataDeleteBytes( DKMutableDataRef ref, DKRange range )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableDataClass() );
+        DKAssertKindOfClass( ref, DKMutableDataClass() );
+        DKCheckRange( range, ref->byteArray.length );
 
-        struct DKData * data = (struct DKData *)ref;
-
-        DKVerifyRange( range, data->byteArray.length );
-
-        DKByteArrayReplaceBytes( &data->byteArray, range, NULL, 0 );
+        DKByteArrayReplaceBytes( &ref->byteArray, range, NULL, 0 );
     }
 }
 
@@ -527,7 +508,7 @@ int DKDataSeek( DKDataRef ref, DKIndex offset, int origin )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKDataClass(), -1 );
+        DKAssertKindOfClass( ref, DKDataClass() );
 
         struct DKData * data = (struct DKData *)ref;
         
@@ -558,7 +539,7 @@ DKIndex DKDataTell( DKDataRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKDataClass(), -1 );
+        DKAssertKindOfClass( ref, DKDataClass() );
 
         struct DKData * data = (struct DKData *)ref;
         return data->cursor;
@@ -575,7 +556,7 @@ DKIndex DKDataRead( DKDataRef ref, void * buffer, DKIndex size, DKIndex count )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKDataClass(), 0 );
+        DKAssertKindOfClass( ref, DKDataClass() );
 
         struct DKData * data = (struct DKData *)ref;
 
@@ -610,7 +591,7 @@ DKIndex DKDataWrite( DKMutableDataRef ref, const void * buffer, DKIndex size, DK
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableDataClass(), 0 );
+        DKAssertKindOfClass( ref, DKMutableDataClass() );
 
         struct DKData * data = (struct DKData *)ref;
 

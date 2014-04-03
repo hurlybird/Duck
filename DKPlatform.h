@@ -54,7 +54,7 @@ typedef struct
 #define DKRangeEnd( range )         (((range).location) + ((range).length))
 
 // False if the range is outside 0..len OR is not the empty sequence at len + 1
-#define DKRangeCheck( range, len )  (((range).location >= 0) && ((range).length >= 0) && (DKRangeEnd(range) <= len))
+#define DKRangeInsideOrEnd( range, len )    (((range).location >= 0) && ((range).length >= 0) && (DKRangeEnd(range) <= len))
 
 
 // Callback Types
@@ -152,64 +152,114 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 
 // Assertions
 #if DK_RUNTIME_ASSERTIONS
-#define DKAssert( x )               if( !(x) ) _DKFatalError( "%s %d: Failed Assert( %s )\n", __FILE__, __LINE__, #x )
-#define DKAssertMsg( x, msg, ... )  if( !(x) ) _DKFatalError( msg, __VA_ARGS__ )
+#define DKAssert( x )                                                                   \
+    do                                                                                  \
+    {                                                                                   \
+        if( !(x) )                                                                      \
+        {                                                                               \
+            _DKFatalError( "%s: Failed Assert( %s )\n", __func__, #x );                 \
+        }                                                                               \
+    } while( 0 )
+
+#define DKAssertKindOfClass( ref, cls )                                                 \
+    do                                                                                  \
+    {                                                                                   \
+        if( !DKIsKindOfClass( ref, cls ) )                                              \
+        {                                                                               \
+            _DKFatalError( "%s: Required kind of class %s, received %s\n",              \
+                __func__,                                                               \
+                DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
+                DKStringGetCStringPtr( DKGetClassName( ref ) ) );                       \
+        }                                                                               \
+    } while( 0 )
+
+#define DKAssertMemberOfClass( ref, cls )                                               \
+    do                                                                                  \
+    {                                                                                   \
+        if( !DKIsKindOfClass( ref, cls ) )                                              \
+        {                                                                               \
+            _DKFatalError( "%s: Required kind of class %s, received %s\n",              \
+                __func__,                                                               \
+                DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
+                DKStringGetCStringPtr( DKGetClassName( ref ) ) );                       \
+        }                                                                               \
+    } while( 0 )
+
 #else
 #define DKAssert( x )
 #define DKAssertMsg( x, ... )
+#define DKAssertKindOfClass( ref, cls, ... )
 #endif
 
 
 // Type Checks
 #if DK_RUNTIME_TYPE_CHECKS
-#define DKVerifyKindOfClass( ref, cls, ... )                                            \
-    if( !DKIsKindOfClass( ref, cls ) )                                                  \
+#define DKCheckKindOfClass( ref, cls, ... )                                             \
+    do                                                                                  \
     {                                                                                   \
-        _DKError( "%s: Expected kind of class %s, received %s\n",                       \
-            __func__, DKGetClassName( cls ), DKGetClassName( ref ) );                   \
-        return __VA_ARGS__;                                                             \
-    }
+        if( !DKIsKindOfClass( ref, cls ) )                                              \
+        {                                                                               \
+            _DKError( "%s: Expected kind of class %s, received %s\n",                   \
+                __func__, DKGetClassName( cls ), DKGetClassName( ref ) );               \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
 
-#define DKVerifyMemberOfClass( ref, cls, ... )                                          \
-    if( !DKIsKindOfClass( ref, cls ) )                                                  \
+#define DKCheckMemberOfClass( ref, cls, ... )                                           \
+    do                                                                                  \
     {                                                                                   \
-        _DKError( "%s: Expected member of class %s, received %s\n",                     \
-            __func__, DKGetClassName( cls ), DKGetClassName( ref ) );                   \
-        return __VA_ARGS__;                                                             \
-    }
+        if( !DKIsKindOfClass( ref, cls ) )                                              \
+        {                                                                               \
+            _DKError( "%s: Expected member of class %s, received %s\n",                 \
+                __func__, DKGetClassName( cls ), DKGetClassName( ref ) );               \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
 
-#define DKVerifyInterface( ref, sel, ... )                                              \
-    if( !DKHasInterface( ref, sel ) )                                                   \
+#define DKCheckInterface( ref, sel, ... )                                               \
+    do                                                                                  \
     {                                                                                   \
-        _DKError( "%s: Expected interface %s on class %s\n",                            \
-            __func__, (sel)->suid, DKGetClassName( ref ) );                             \
-        return __VA_ARGS__;                                                             \
-    }
+        if( !DKHasInterface( ref, sel ) )                                               \
+        {                                                                               \
+            _DKError( "%s: Expected interface %s on class %s\n",                        \
+                __func__, (sel)->suid, DKGetClassName( ref ) );                         \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
+
 #else
-#define DKVerifyKindOfClass( ref, cls, ... )
-#define DKVerifyMemberOfClass( ref, cls, ... )
+#define DKCheckKindOfClass( ref, cls, ... )
+#define DKCheckMemberOfClass( ref, cls, ... )
+#define DKCheckInterface( ref, sel, ... )
 #endif
 
 
 // Range Checks
 #if DK_RUNTIME_RANGE_CHECKS
-#define DKVerifyIndex( range, len, ... )                                                \
-    if( ((index) < 0) || ((index) >= len) )                                             \
+#define DKCheckIndex( range, len, ... )                                                 \
+    do                                                                                  \
     {                                                                                   \
-        _DKError( "%s: Index %ld is outside 0,%ld\n", __func__, (index), len );         \
-        return __VA_ARGS__;                                                             \
-    }
+        if( ((index) < 0) || ((index) >= len) )                                         \
+        {                                                                               \
+            _DKError( "%s: Index %ld is outside 0,%ld\n", __func__, (index), len );     \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
 
-#define DKVerifyRange( range, len, ... )                                                \
-    if( !DKRangeCheck( range, len ) )                                                   \
+#define DKCheckRange( range, len, ... )                                                 \
+    do                                                                                  \
     {                                                                                   \
-        _DKError( "%s: Range %ld,%ld is outside 0,%ld\n",                               \
-            __func__, (range).location, (range).length, len );                          \
-        return __VA_ARGS__;                                                             \
-    }
+        if( !DKRangeInsideOrEnd( range, len ) )                                         \
+        {                                                                               \
+            _DKError( "%s: Range %ld,%ld is outside 0,%ld\n",                           \
+                __func__, (range).location, (range).length, len );                      \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
+
 #else
-#define DKVerifyIndex( index, len, ... )
-#define DKVerifyRange( range, len, ... )
+#define DKCheckIndex( index, len, ... )
+#define DKCheckRange( range, len, ... )
 #endif
 
 

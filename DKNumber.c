@@ -215,7 +215,7 @@ DKNumberType DKNumberGetType( DKNumberRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKNumberClass(), DKNumberVoid );
+        DKAssertKindOfClass( ref, DKNumberClass() );
         
         const struct DKNumber * number = ref;
         return number->type;
@@ -232,7 +232,7 @@ size_t DKNumberGetCount( DKNumberRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKNumberClass(), 0 );
+        DKAssertKindOfClass( ref, DKNumberClass() );
         
         const struct DKNumber * number = ref;
         return number->count;
@@ -249,7 +249,7 @@ size_t DKNumberGetValue( DKNumberRef ref, void * value )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKNumberClass(), 0 );
+        DKAssertKindOfClass( ref, DKNumberClass() );
         
         const struct DKNumber * number = ref;
 
@@ -272,7 +272,7 @@ size_t DKNumberCastValue( DKNumberRef ref, void * value, DKNumberType type )
 
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKNumberClass(), 0 );
+        DKAssertKindOfClass( ref, DKNumberClass() );
         
         const struct DKNumber * number = ref;
 
@@ -301,7 +301,7 @@ const void * DKNumberGetValuePtr( DKNumberRef ref )
 
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKNumberClass(), &zero );
+        DKAssertKindOfClass( ref, DKNumberClass() );
         
         const struct DKNumber * number = ref;
         return &number->value;
@@ -330,8 +330,8 @@ int DKNumberCompare( DKNumberRef a, DKNumberRef b )
 {
     if( a )
     {
-        DKVerifyKindOfClass( a, DKNumberClass(), DKDefaultCompare( a, b ) );
-        DKVerifyKindOfClass( b, DKNumberClass(), DKDefaultCompare( a, b ) );
+        DKAssertKindOfClass( a, DKNumberClass() );
+        DKAssertKindOfClass( b, DKNumberClass() );
 
         const struct DKNumber * na = a;
         const struct DKNumber * nb = b;
@@ -379,7 +379,7 @@ DKHashCode DKNumberHash( DKNumberRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKNumberClass(), 0 );
+        DKAssertKindOfClass( ref, DKNumberClass() );
     
         const struct DKNumber * number = ref;
         size_t size = FieldSize[number->type] * number->count;
@@ -414,7 +414,7 @@ DKStringRef DKNumberCopyDescription( DKNumberRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKNumberClass(), NULL );
+        DKAssertKindOfClass( ref, DKNumberClass() );
         const struct DKNumber * number = ref;
         
         DKMutableStringRef desc = DKStringCreateMutable();

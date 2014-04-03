@@ -195,7 +195,7 @@ static DKIndex CheckTreeIntegrityRecursive( const struct DKBinaryTree * tree, co
     return count;
 }
 
-static int CountNodes( void * context, DKTypeRef key, DKTypeRef object )
+static int CountNodes( void * context, DKObjectRef key, DKObjectRef object )
 {
     DKIndex * count = context;
     (*count)++;
@@ -584,7 +584,7 @@ DKIndex DKBinaryTreeGetCount( DKBinaryTreeRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKBinaryTreeClass(), 0 );
+        DKAssertKindOfClass( ref, DKBinaryTreeClass() );
         return ref->count;
     }
     
@@ -598,7 +598,7 @@ DKObjectRef DKBinaryTreeGetObject( DKBinaryTreeRef ref, DKObjectRef key )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKBinaryTreeClass(), NULL );
+        DKAssertKindOfClass( ref, DKBinaryTreeClass() );
 
         const struct DKBinaryTree * tree = (struct DKBinaryTree *)ref;
         DKHashCode hash = DKHash( key );
@@ -647,7 +647,7 @@ int DKBinaryTreeTraverseInOrder( DKBinaryTreeRef ref, DKDictionaryApplierFunctio
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKBinaryTreeClass(), 0 );
+        DKAssertKindOfClass( ref, DKBinaryTreeClass() );
 
         const struct DKBinaryTree * tree = ref;
         return DKBinaryTreeTraverseInOrderInternal( tree, tree->root, callback, context );
@@ -669,7 +669,7 @@ void DKBinaryTreeInsertObject( DKMutableBinaryTreeRef ref, DKObjectRef key, DKOb
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableBinaryTreeClass() );
+        DKAssertKindOfClass( ref, DKMutableBinaryTreeClass() );
 
         DKHashCode hash = DKHash( key );
         Insert( ref, &ref->root, hash, key, object, policy );
@@ -691,7 +691,7 @@ void DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef ref, DKObjectRef key )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableBinaryTreeClass() );
+        DKAssertKindOfClass( ref, DKMutableBinaryTreeClass() );
 
         DKHashCode hash = DKHash( key );
 
@@ -700,7 +700,7 @@ void DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef ref, DKObjectRef key )
 
         Remove( ref, hash, key, &ref->root, &leaf_node, &erase_node );
 
-        CheckTreeIntegrity( tree );
+        CheckTreeIntegrity( ref );
     }
 }
 
@@ -717,7 +717,7 @@ void DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableBinaryTreeClass() );
+        DKAssertKindOfClass( ref, DKMutableBinaryTreeClass() );
         
         RemoveAll( ref, ref->root );
     }

@@ -513,7 +513,7 @@ DKIndex DKHashTableGetCount( DKHashTableRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKHashTableClass(), 0 );
+        DKAssertKindOfClass( ref, DKHashTableClass() );
         return ref->count;
     }
     
@@ -528,7 +528,7 @@ DKObjectRef DKHashTableGetObject( DKHashTableRef ref, DKObjectRef key )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKHashTableClass(), NULL );
+        DKAssertKindOfClass( ref, DKHashTableClass() );
 
         struct DKHashTable * hashTable = (struct DKHashTable *)ref;
         DKHashCode hash = DKHash( key );
@@ -552,7 +552,7 @@ int DKHashTableApplyFunction( DKHashTableRef ref, DKDictionaryApplierFunction ca
     
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKHashTableClass(), 0 );
+        DKAssertKindOfClass( ref, DKHashTableClass() );
 
         for( DKIndex i = 0; i < ref->count; ++i )
         {
@@ -582,7 +582,7 @@ void DKHashTableInsertObject( DKMutableHashTableRef ref, DKObjectRef key, DKObje
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableHashTableClass() );
+        DKAssertKindOfClass( ref, DKMutableHashTableClass() );
 
         DKHashCode hash = DKHash( key );
 
@@ -603,7 +603,7 @@ void DKHashTableRemoveObject( DKMutableHashTableRef ref, DKObjectRef key )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableHashTableClass() );
+        DKAssertKindOfClass( ref, DKMutableHashTableClass() );
 
         DKHashCode hash = DKHash( key );
         
@@ -624,7 +624,7 @@ void DKHashTableRemoveAllObjects( DKMutableHashTableRef ref )
 {
     if( ref )
     {
-        DKVerifyKindOfClass( ref, DKMutableHashTableClass() );
+        DKAssertKindOfClass( ref, DKMutableHashTableClass() );
         RemoveAll( ref );
     }
 }
