@@ -9,7 +9,13 @@
 #include "DKByteArray.h"
 
 
-#define MIN_BYTE_ARRAY_SIZE 64
+#define MIN_BYTE_ARRAY_SIZE             64
+#define HAS_ALLOCATED_STORAGE( array )  (((array)->data != NULL_DATA) && ((array)->maxLength > 0))
+#define HAS_EXTERNAL_STORAGE( array )   ((array)->maxLength < 0)
+
+
+// This allows an unallocated byte array to point to an empty string instead of NULL
+static uint8_t NULL_DATA[4] = { '\0', '\0', '\0', '\0' };
 
 
 ///
@@ -17,7 +23,7 @@
 //
 void DKByteArrayInit( DKByteArray * array )
 {
-    array->data = NULL;
+    array->data = NULL_DATA;
     array->length = 0;
     array->maxLength = 0;
 }
@@ -39,10 +45,10 @@ void DKByteArrayInitWithExternalStorage( DKByteArray * array, const uint8_t byte
 //
 void DKByteArrayFinalize( DKByteArray * array )
 {
-    if( array->data && (array->maxLength > 0) )
+    if( HAS_ALLOCATED_STORAGE( array ) )
         dk_free( array->data );
     
-    array->data = NULL;
+    array->data = NULL_DATA;
     array->length = 0;
     array->maxLength = 0;
 }
@@ -54,6 +60,7 @@ void DKByteArrayFinalize( DKByteArray * array )
 void DKByteArrayReserve( DKByteArray * array, DKIndex length )
 {
     DKAssert( array->length >= 0 );
+    DKAssert( !HAS_EXTERNAL_STORAGE( array ) );
 
     if( array->maxLength < length )
     {
@@ -63,9 +70,11 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
         // Allocate an extra byte for the NULL terminator
         uint8_t * data = dk_malloc( length + 1 );
         
-        if( array->length > 0 )
+        if( HAS_ALLOCATED_STORAGE( array ) )
         {
-            memcpy( data, array->data, array->length );
+            if( array->length > 0 )
+                memcpy( data, array->data, array->length );
+            
             dk_free( array->data );
         }
         
@@ -83,7 +92,7 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
 //
 int DKByteArrayHasExternalStorage( DKByteArray * array )
 {
-    return array->maxLength < 0;
+    return HAS_EXTERNAL_STORAGE( array );
 }
 
 
@@ -116,6 +125,7 @@ static uint8_t * DKByteArrayResize( void * ptr, DKIndex oldSize, DKIndex request
 void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t bytes[], DKIndex length )
 {
     DKAssert( array->length >= 0 );
+    DKAssert( !HAS_EXTERNAL_STORAGE( array ) );
 
     DKIndex range_end = DKRangeEnd( range );
 
@@ -141,7 +151,7 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
     uint8_t * data = DKByteArrayResize( array->data, array->maxLength, newLength, &array->maxLength );
     DKAssert( data != NULL );
     
-    if( array->data )
+    if( array->data != NULL_DATA )
     {
         if( array->data != data )
         {

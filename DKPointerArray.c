@@ -9,7 +9,9 @@
 #include "DKPointerArray.h"
 
 
-#define MIN_PTR_ARRAY_SIZE 32
+#define MIN_PTR_ARRAY_SIZE              32
+#define HAS_ALLOCATED_STORAGE( array )  (((array)->data != NULL) && ((array)->maxLength > 0))
+#define HAS_EXTERNAL_STORAGE( array )   ((array)->maxLength < 0)
 
 
 ///
@@ -39,7 +41,7 @@ void DKPointerArrayInitWithExternalStorage( DKPointerArray * array, const uintpt
 //
 void DKPointerArrayFinalize( DKPointerArray * array )
 {
-    if( array->data && (array->maxLength > 0) )
+    if( HAS_ALLOCATED_STORAGE( array ) )
         dk_free( array->data );
     
     array->data = NULL;
@@ -54,6 +56,7 @@ void DKPointerArrayFinalize( DKPointerArray * array )
 void DKPointerArrayReserve( DKPointerArray * array, DKIndex length )
 {
     DKAssert( array->maxLength >= 0 );
+    DKAssert( !HAS_EXTERNAL_STORAGE( array ) );
     
     if( array->maxLength < length )
     {
@@ -62,9 +65,11 @@ void DKPointerArrayReserve( DKPointerArray * array, DKIndex length )
     
         uintptr_t * data = dk_malloc( length * sizeof(uintptr_t) );
         
-        if( array->length > 0 )
+        if( array->data != NULL )
         {
-            memcpy( data, array->data, array->length * sizeof(uintptr_t) );
+            if( array->length > 0 )
+                memcpy( data, array->data, array->length * sizeof(uintptr_t) );
+            
             dk_free( array->data );
         }
         
@@ -79,7 +84,7 @@ void DKPointerArrayReserve( DKPointerArray * array, DKIndex length )
 //
 int DKPointerArrayHasExternalStorage( DKPointerArray * array )
 {
-    return array->maxLength < 0;
+    return HAS_EXTERNAL_STORAGE( array );
 }
 
 
@@ -111,6 +116,7 @@ static uintptr_t * DKPointerArrayResize( void * ptr, DKIndex oldSize, DKIndex re
 void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const uintptr_t pointers[], DKIndex length )
 {
     DKAssert( array->length >= 0 );
+    DKAssert( !HAS_EXTERNAL_STORAGE( array ) );
     
     DKIndex range_end = DKRangeEnd( range );
 
@@ -136,7 +142,7 @@ void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const
     uintptr_t * data = DKPointerArrayResize( array->data, array->maxLength, newLength, &array->maxLength );
     DKAssert( data != NULL );
     
-    if( array->data )
+    if( array->data != NULL )
     {
         if( array->data != data )
         {
