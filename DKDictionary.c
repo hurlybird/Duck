@@ -17,9 +17,9 @@ DKThreadSafeFastSelectorInit( Dictionary );
 ///
 //  DKDictionaryClass()
 //
-static DKTypeRef DefaultDictionaryClass = NULL;
+static DKClassRef DefaultDictionaryClass = NULL;
 
-DKTypeRef DKDictionaryClass( void )
+DKClassRef DKDictionaryClass( void )
 {
     if( DefaultDictionaryClass )
         return DefaultDictionaryClass;
@@ -31,7 +31,7 @@ DKTypeRef DKDictionaryClass( void )
 ///
 //  DKSetDictionaryClass()
 //
-void DKSetDictionaryClass( DKTypeRef ref )
+void DKSetDictionaryClass( DKClassRef ref )
 {
     DefaultDictionaryClass = ref;
 }
@@ -55,7 +55,7 @@ DKIndex DKDictionaryGetCount( DKDictionaryRef ref )
 ///
 //  DKDictionarySetObject()
 //
-void DKDictionarySetObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object )
+void DKDictionarySetObject( DKMutableDictionaryRef ref, DKObjectRef key, DKObjectRef object )
 {
     if( ref )
     {
@@ -68,7 +68,7 @@ void DKDictionarySetObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef
 ///
 //  DKDictionaryAddObject()
 //
-void DKDictionaryAddObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object )
+void DKDictionaryAddObject( DKMutableDictionaryRef ref, DKObjectRef key, DKObjectRef object )
 {
     if( ref )
     {
@@ -81,7 +81,7 @@ void DKDictionaryAddObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef
 ///
 //  DKDictionaryReplaceObject()
 //
-void DKDictionaryReplaceObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object )
+void DKDictionaryReplaceObject( DKMutableDictionaryRef ref, DKObjectRef key, DKObjectRef object )
 {
     if( ref )
     {
@@ -94,7 +94,7 @@ void DKDictionaryReplaceObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTyp
 ///
 //  DKDictionaryAddEntriesFromDictionary()
 //
-static int DKDictionaryAddEntriesCallback( void * context, DKTypeRef key, DKTypeRef object )
+static int DKDictionaryAddEntriesCallback( void * context, DKObjectRef key, DKObjectRef object )
 {
     DKDictionaryAddObject( context, key, object );
     return 0;
@@ -112,7 +112,7 @@ void DKDictionaryAddEntriesFromDictionary( DKMutableDictionaryRef ref, DKDiction
 ///
 //  DKDictionaryContainsKey()
 //
-int DKDictionaryContainsKey( DKDictionaryRef ref, DKTypeRef key )
+int DKDictionaryContainsKey( DKDictionaryRef ref, DKObjectRef key )
 {
     return DKDictionaryGetObject( ref, key ) != NULL;
 }
@@ -121,12 +121,12 @@ int DKDictionaryContainsKey( DKDictionaryRef ref, DKTypeRef key )
 ///
 //  DKDictionaryContainsObject()
 //
-static int DKDictionaryContainsObjectCallback( void * context, DKTypeRef key, DKTypeRef object )
+static int DKDictionaryContainsObjectCallback( void * context, DKObjectRef key, DKObjectRef object )
 {
     return object == context;
 }
 
-int DKDictionaryContainsObject( DKDictionaryRef ref, DKTypeRef object )
+int DKDictionaryContainsObject( DKDictionaryRef ref, DKObjectRef object )
 {
     return DKDictionaryApplyFunction( ref, DKDictionaryContainsObjectCallback, (void *)object );
 }
@@ -135,7 +135,7 @@ int DKDictionaryContainsObject( DKDictionaryRef ref, DKTypeRef object )
 ///
 //  DKDictionaryCopyKeys()
 //
-static int DKDictionaryCopyKeysCallback( void * context, DKTypeRef key, DKTypeRef object )
+static int DKDictionaryCopyKeysCallback( void * context, DKObjectRef key, DKObjectRef object )
 {
     DKListAppendObject( context, key );
     return 0;
@@ -154,7 +154,7 @@ DKListRef DKDictionaryCopyKeys( DKDictionaryRef ref )
 ///
 //  DKDictionaryCopyObjects()
 //
-static int DKDictionaryCopyObjectsCallback( void * context, DKTypeRef key, DKTypeRef object )
+static int DKDictionaryCopyObjectsCallback( void * context, DKObjectRef key, DKObjectRef object )
 {
     DKListAppendObject( context, object );
     return 0;
@@ -173,7 +173,7 @@ DKListRef DKDictionaryCopyObjects( DKDictionaryRef ref )
 ///
 //  DKDictionaryGetObject()
 //
-DKTypeRef DKDictionaryGetObject( DKDictionaryRef ref, DKTypeRef key )
+DKObjectRef DKDictionaryGetObject( DKDictionaryRef ref, DKObjectRef key )
 {
     if( ref )
     {
@@ -188,7 +188,7 @@ DKTypeRef DKDictionaryGetObject( DKDictionaryRef ref, DKTypeRef key )
 ///
 //  DKDictionaryRemoveObject()
 //
-void DKDictionaryRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key )
+void DKDictionaryRemoveObject( DKMutableDictionaryRef ref, DKObjectRef key )
 {
     if( ref )
     {

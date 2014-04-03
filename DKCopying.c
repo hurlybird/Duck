@@ -15,7 +15,7 @@ DKThreadSafeSelectorInit( Copying );
 ///
 //  DKCopy()
 //
-DKTypeRef DKCopy( DKTypeRef ref )
+DKObjectRef DKCopy( DKObjectRef ref )
 {
     if( ref )
     {
@@ -30,7 +30,7 @@ DKTypeRef DKCopy( DKTypeRef ref )
 ///
 //  DKMutableCopy()
 //
-DKTypeRef DKMutableCopy( DKTypeRef ref )
+DKMutableObjectRef DKMutableCopy( DKObjectRef ref )
 {
     if( ref )
     {
@@ -38,7 +38,7 @@ DKTypeRef DKMutableCopy( DKTypeRef ref )
         return copying->mutableCopy( ref );
     }
 
-    return ref;
+    return NULL;
 }
 
 

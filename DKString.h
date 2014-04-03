@@ -16,13 +16,13 @@
 #define DKSTR( s )      __DKStringDefineConstantString( "" s "" )
 
 
-// typedef DKTypeRef DKStringRef; -- defined in DKPlatform.h
-typedef DKTypeRef DKMutableStringRef;
+// typedef const struct DKString * DKStringRef; -- Declared in DKPlatform.h
+typedef struct DKString * DKMutableStringRef;
 
 
-DKTypeRef   DKStringClass( void );
-DKTypeRef   DKConstantStringClass( void );
-DKTypeRef   DKMutableStringClass( void );
+DKClassRef   DKStringClass( void );
+DKClassRef   DKConstantStringClass( void );
+DKClassRef   DKMutableStringClass( void );
 
 DKStringRef DKStringCreate( void );
 DKStringRef DKStringCreateCopy( DKStringRef srcString );
@@ -32,7 +32,8 @@ DKStringRef DKStringCreateWithCStringNoCopy( const char * str );
 DKMutableStringRef DKStringCreateMutable( void );
 DKMutableStringRef DKStringCreateMutableCopy( DKStringRef srcString );
 
-int         DKStringEqual( DKStringRef a, DKTypeRef b );
+int         DKStringEqual( DKStringRef a, DKObjectRef b );
+//int         DKStringEqualToString( DKStringRef a, DKStringRef b );
 int         DKStringCompare( DKStringRef a, DKStringRef b );
 DKHashCode  DKStringHash( DKStringRef ref );
 
@@ -49,8 +50,8 @@ DKStringRef DKStringCopySubstringToIndex( DKStringRef ref, DKIndex index );
 DKRange     DKStringGetRangeOfString( DKStringRef ref, DKStringRef str, DKIndex startLoc );
 
 // Separating and concatenating strings
-DKTypeRef   DKStringCreateListBySeparatingStrings( DKStringRef ref, DKStringRef separator );
-DKStringRef DKStringCreateByCombiningStrings( DKTypeRef list, DKStringRef separator );
+DKListRef   DKStringCreateListBySeparatingStrings( DKStringRef ref, DKStringRef separator );
+DKStringRef DKStringCreateByCombiningStrings( DKListRef list, DKStringRef separator );
 
 // Modifying mutable strings
 void        DKStringSetString( DKMutableStringRef ref, DKStringRef str );

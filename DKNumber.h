@@ -9,10 +9,10 @@
 #ifndef _DK_NUMBER_H_
 #define _DK_NUMBER_H_
 
-#include "DKPlatform.h"
+#include "DKRuntime.h"
 
 
-typedef DKTypeRef DKNumberRef;
+typedef const struct DKNumber * DKNumberRef;
 
 
 typedef enum
@@ -31,7 +31,7 @@ typedef enum
 } DKNumberType;
 
 
-DKTypeRef   DKNumberClass( void );
+DKClassRef  DKNumberClass( void );
 
 DKNumberRef DKNumberCreate( const void * value, DKNumberType type, size_t count );
 

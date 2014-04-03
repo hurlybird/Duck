@@ -12,26 +12,30 @@
 #include "DKList.h"
 
 
-DKTypeRef DKArrayClass( void );
-DKTypeRef DKMutableArrayClass( void );
+typedef const struct DKArray * DKArrayRef;
+typedef struct DKArray * DKMutableArrayRef;
 
-DKListRef DKArrayCreate( void );
-DKListRef DKArrayCreateWithObjects( DKTypeRef firstObject, ... );
-DKListRef DKArrayCreateWithCArray( DKTypeRef objects[], DKIndex count );
-DKListRef DKArrayCreateWithCArrayNoCopy( DKTypeRef objects[], DKIndex count );
-DKListRef DKArrayCreateCopy( DKListRef srcList );
 
-DKMutableListRef DKArrayCreateMutable( void );
-DKMutableListRef DKArrayCreateMutableCopy( DKListRef srcList );
+DKClassRef DKArrayClass( void );
+DKClassRef DKMutableArrayClass( void );
 
-DKIndex DKArrayGetCount( DKListRef ref );
-DKIndex DKArrayGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] );
+DKArrayRef DKArrayCreate( void );
+DKArrayRef DKArrayCreateWithObjects( DKObjectRef firstObject, ... );
+DKArrayRef DKArrayCreateWithCArray( DKObjectRef objects[], DKIndex count );
+DKArrayRef DKArrayCreateWithCArrayNoCopy( DKObjectRef objects[], DKIndex count );
+DKArrayRef DKArrayCreateCopy( DKListRef srcList );
 
-void    DKArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
-void    DKArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
+DKMutableArrayRef DKArrayCreateMutable( void );
+DKMutableArrayRef DKArrayCreateMutableCopy( DKListRef srcList );
 
-void    DKArraySort( DKMutableListRef ref, DKCompareFunction cmp );
-void    DKArrayShuffle( DKMutableListRef ref );
+DKIndex DKArrayGetCount( DKArrayRef ref );
+DKIndex DKArrayGetObjects( DKArrayRef ref, DKRange range, DKObjectRef objects[] );
+
+void    DKArrayReplaceObjects( DKMutableArrayRef ref, DKRange range, DKObjectRef objects[], DKIndex count );
+void    DKArrayReplaceObjectsWithList( DKMutableArrayRef ref, DKRange range, DKListRef srcList );
+
+void    DKArraySort( DKMutableArrayRef ref, DKCompareFunction cmp );
+void    DKArrayShuffle( DKMutableArrayRef ref );
 
 
 #endif // _DK_ARRAY_H_

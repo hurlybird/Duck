@@ -19,10 +19,10 @@ struct DKArray
 };
 
 
-static DKTypeRef DKArrayInitialize( DKTypeRef ref );
-static void      DKArrayFinalize( DKTypeRef ref );
+static DKObjectRef DKArrayInitialize( DKObjectRef ref );
+static void      DKArrayFinalize( DKObjectRef ref );
 
-static void      DKImmutableArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
+static void      DKImmutableArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKObjectRef objects[], DKIndex count );
 static void      DKImmutableArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
 static void      DKImmutableArraySort( DKMutableListRef ref, DKCompareFunction cmp );
 static void      DKImmutableArrayShuffle( DKMutableListRef ref );
@@ -33,7 +33,7 @@ static void      DKImmutableArrayShuffle( DKMutableListRef ref );
 //
 DKThreadSafeClassInit( DKArrayClass )
 {
-    DKTypeRef cls = DKAllocClass( DKSTR( "DKArray" ), DKObjectClass(), sizeof(struct DKArray) );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKArray" ), DKObjectClass(), sizeof(struct DKArray) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -46,15 +46,15 @@ DKThreadSafeClassInit( DKArrayClass )
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKRetain;
-    copying->mutableCopy = DKArrayCreateMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKArrayCreateMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
     // List
     struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );
-    list->getCount = DKArrayGetCount;
-    list->getObjects = DKArrayGetObjects;
+    list->getCount = (DKListGetCountMethod)DKArrayGetCount;
+    list->getObjects = (DKListGetObjectsMethod)DKArrayGetObjects;
     list->replaceObjects = DKImmutableArrayReplaceObjects;
     list->replaceObjectsWithList = DKImmutableArrayReplaceObjectsWithList;
     list->sort = DKImmutableArraySort;
@@ -72,24 +72,24 @@ DKThreadSafeClassInit( DKArrayClass )
 //
 DKThreadSafeClassInit( DKMutableArrayClass )
 {
-    DKTypeRef cls = DKAllocClass( DKSTR( "DKMutableArray" ), DKArrayClass(), sizeof(struct DKArray) );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableArray" ), DKArrayClass(), sizeof(struct DKArray) );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
-    copying->copy = DKArrayCreateMutableCopy;
-    copying->mutableCopy = DKArrayCreateMutableCopy;
+    copying->copy = (DKCopyMethod)DKArrayCreateMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKArrayCreateMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
     // List
     struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );
-    list->getCount = DKArrayGetCount;
-    list->getObjects = DKArrayGetObjects;
-    list->replaceObjects = DKArrayReplaceObjects;
-    list->replaceObjectsWithList = DKArrayReplaceObjectsWithList;
-    list->sort = DKArraySort;
-    list->shuffle = DKArrayShuffle;
+    list->getCount = (DKListGetCountMethod)DKArrayGetCount;
+    list->getObjects = (DKListGetObjectsMethod)DKArrayGetObjects;
+    list->replaceObjects = (DKListReplaceObjectsMethod)DKArrayReplaceObjects;
+    list->replaceObjectsWithList = (DKListReplaceObjectsWithListMethod)DKArrayReplaceObjectsWithList;
+    list->sort = (DKListSortMethod)DKArraySort;
+    list->shuffle = (DKListShuffleMethod)DKArrayShuffle;
 
     DKInstallInterface( cls, list );
     DKRelease( list );
@@ -101,7 +101,7 @@ DKThreadSafeClassInit( DKMutableArrayClass )
 ///
 //  DKArrayInitialize()
 //
-static DKTypeRef DKArrayInitialize( DKTypeRef ref )
+static DKObjectRef DKArrayInitialize( DKObjectRef ref )
 {
     struct DKArray * array = (struct DKArray *)ref;
     DKPointerArrayInit( &array->ptrArray );
@@ -113,7 +113,7 @@ static DKTypeRef DKArrayInitialize( DKTypeRef ref )
 ///
 //  DKArrayFinalize()
 //
-static void DKArrayFinalize( DKTypeRef ref )
+static void DKArrayFinalize( DKObjectRef ref )
 {
     struct DKArray * array = (struct DKArray *)ref;
 
@@ -123,7 +123,7 @@ static void DKArrayFinalize( DKTypeRef ref )
 
         for( DKIndex i = 0; i < count; ++i )
         {
-            DKTypeRef elem = array->ptrArray.data[i];
+            DKObjectRef elem = array->ptrArray.data[i];
             DKRelease( elem );
         }
     }
@@ -139,7 +139,7 @@ static void DKArrayFinalize( DKTypeRef ref )
 ///
 //  ReplaceObjects()
 //
-static void ReplaceObjects( struct DKArray * array, DKRange range, DKTypeRef objects[], DKIndex count )
+static void ReplaceObjects( struct DKArray * array, DKRange range, DKObjectRef objects[], DKIndex count )
 {
     DKVerifyRange( range, array->ptrArray.length );
     
@@ -152,7 +152,7 @@ static void ReplaceObjects( struct DKArray * array, DKRange range, DKTypeRef obj
     // Release the objects we're replacing
     for( DKIndex i = 0; i < range.length; ++i )
     {
-        DKTypeRef elem = array->ptrArray.data[range.location + i];
+        DKObjectRef elem = array->ptrArray.data[range.location + i];
         DKRelease( elem );
     }
     
@@ -164,7 +164,7 @@ static void ReplaceObjects( struct DKArray * array, DKRange range, DKTypeRef obj
 ///
 //  ReplaceObjectsWithList()
 //
-static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKTypeRef srcList )
+static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKListRef srcList )
 {
     if( srcList )
     {
@@ -176,14 +176,14 @@ static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKTyp
         
         if( srcCount <= 128 )
         {
-            DKTypeRef buffer[128];
+            DKObjectRef buffer[128];
             srcListInterface->getObjects( srcList, DKRangeMake( 0, srcCount ), buffer );
             ReplaceObjects( array, range, buffer, srcCount );
         }
         
         else
         {
-            DKTypeRef * buffer = dk_malloc( sizeof(DKTypeRef) * srcCount );
+            DKObjectRef * buffer = dk_malloc( sizeof(DKObjectRef) * srcCount );
             srcListInterface->getObjects( srcList, DKRangeMake( 0, srcCount ), buffer );
             ReplaceObjects( array, range, buffer, srcCount );
             dk_free( buffer );
@@ -204,7 +204,7 @@ static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKTyp
 ///
 //  DKArrayCreate()
 //
-DKListRef DKArrayCreate( void )
+DKArrayRef DKArrayCreate( void )
 {
     return DKAllocObject( DKArrayClass(), 0 );
 }
@@ -213,18 +213,18 @@ DKListRef DKArrayCreate( void )
 ///
 //  DKArrayCreateWithObjects()
 //
-DKListRef DKArrayCreateWithObjects( DKTypeRef firstObject, ... )
+DKArrayRef DKArrayCreateWithObjects( DKObjectRef firstObject, ... )
 {
     struct DKArray * array = DKAllocObject( DKArrayClass(), 0 );
 
     va_list arg_ptr;
     va_start( arg_ptr, firstObject );
 
-    for( DKTypeRef object = firstObject; object != NULL; )
+    for( DKObjectRef object = firstObject; object != NULL; )
     {
         ReplaceObjects( array, DKRangeMake( array->ptrArray.length, 0 ), &object, 1 );
         
-        object = va_arg( arg_ptr, DKTypeRef );
+        object = va_arg( arg_ptr, DKObjectRef );
     }
 
     va_end( arg_ptr );
@@ -236,7 +236,7 @@ DKListRef DKArrayCreateWithObjects( DKTypeRef firstObject, ... )
 ///
 //  DKArrayCreateWithCArray()
 //
-DKListRef DKArrayCreateWithCArray( DKTypeRef objects[], DKIndex count )
+DKArrayRef DKArrayCreateWithCArray( DKObjectRef objects[], DKIndex count )
 {
     struct DKArray * array = DKAllocObject( DKArrayClass(), 0 );
 
@@ -249,7 +249,7 @@ DKListRef DKArrayCreateWithCArray( DKTypeRef objects[], DKIndex count )
 ///
 //  DKArrayCreateWithCArrayNoCopy()
 //
-DKListRef DKArrayCreateWithCArrayNoCopy( DKTypeRef objects[], DKIndex count )
+DKArrayRef DKArrayCreateWithCArrayNoCopy( DKObjectRef objects[], DKIndex count )
 {
     struct DKArray * array = DKAllocObject( DKArrayClass(), 0 );
 
@@ -265,7 +265,7 @@ DKListRef DKArrayCreateWithCArrayNoCopy( DKTypeRef objects[], DKIndex count )
 ///
 //  DKArrayCreateCopy()
 //
-DKListRef DKArrayCreateCopy( DKListRef srcList )
+DKArrayRef DKArrayCreateCopy( DKListRef srcList )
 {
     struct DKArray * array = DKAllocObject( DKArrayClass(), 0 );
     
@@ -281,7 +281,7 @@ DKListRef DKArrayCreateCopy( DKListRef srcList )
 ///
 //  DKArrayCreateMutable()
 //
-DKMutableListRef DKArrayCreateMutable( void )
+DKMutableArrayRef DKArrayCreateMutable( void )
 {
     return DKAllocObject( DKMutableArrayClass(), 0 );
 }
@@ -290,7 +290,7 @@ DKMutableListRef DKArrayCreateMutable( void )
 ///
 //  DKArrayCreateMutableCopy()
 //
-DKMutableListRef DKArrayCreateMutableCopy( DKListRef srcList )
+DKMutableArrayRef DKArrayCreateMutableCopy( DKListRef srcList )
 {
     struct DKArray * array = DKAllocObject( DKMutableArrayClass(), 0 );
     
@@ -306,14 +306,12 @@ DKMutableListRef DKArrayCreateMutableCopy( DKListRef srcList )
 ///
 //  DKArrayGetCount()
 //
-DKIndex DKArrayGetCount( DKListRef ref )
+DKIndex DKArrayGetCount( DKArrayRef ref )
 {
     if( ref )
     {
         DKVerifyKindOfClass( ref, DKArrayClass(), 0 );
-
-        const struct DKArray * array = ref;
-        return array->ptrArray.length;
+        return ref->ptrArray.length;
     }
     
     return 0;
@@ -323,17 +321,15 @@ DKIndex DKArrayGetCount( DKListRef ref )
 ///
 //  DKArrayGetObjects()
 //
-DKIndex DKArrayGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] )
+DKIndex DKArrayGetObjects( DKArrayRef ref, DKRange range, DKObjectRef objects[] )
 {
     if( ref )
     {
-        struct DKArray * array = (struct DKArray *)ref;
-
         DKVerifyKindOfClass( ref, DKArrayClass(), 0 );
-        DKVerifyRange( range, array->ptrArray.length, 0 );
+        DKVerifyRange( range, ref->ptrArray.length, 0 );
         
         for( DKIndex i = 0; i < range.length; ++i )
-            objects[i] = array->ptrArray.data[range.location + i];
+            objects[i] = ref->ptrArray.data[range.location + i];
     }
     
     return 0;
@@ -343,19 +339,17 @@ DKIndex DKArrayGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] )
 ///
 //  DKArrayReplaceObjects()
 //
-static void DKImmutableArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count )
+static void DKImmutableArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKObjectRef objects[], DKIndex count )
 {
     DKError( "DKArrayReplaceObjects: Trying to modify an immutable object." );
 }
 
-void DKArrayReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count )
+void DKArrayReplaceObjects( DKMutableArrayRef ref, DKRange range, DKObjectRef objects[], DKIndex count )
 {
     if( ref )
     {
         DKVerifyKindOfClass( ref, DKMutableArrayClass() );
-
-        struct DKArray * array = (struct DKArray *)ref;
-        ReplaceObjects( array, range, objects, count );
+        ReplaceObjects( ref, range, objects, count );
     }
 }
 
@@ -368,14 +362,12 @@ static void DKImmutableArrayReplaceObjectsWithList( DKMutableListRef ref, DKRang
     DKError( "DKLinkedListReplaceObjectsWithList: Trying to modify an immutable object." );
 }
 
-void DKArrayReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList )
+void DKArrayReplaceObjectsWithList( DKMutableArrayRef ref, DKRange range, DKListRef srcList )
 {
     if( ref )
     {
         DKVerifyKindOfClass( ref, DKMutableArrayClass() );
-
-        struct DKArray * array = (struct DKArray *)ref;
-        ReplaceObjectsWithList( array, range, srcList );
+        ReplaceObjectsWithList( ref, range, srcList );
     }
 }
 
@@ -388,14 +380,12 @@ static void DKImmutableArraySort( DKMutableListRef ref, DKCompareFunction cmp )
     DKError( "DKArraySort: Trying to modify an immutable object." );
 }
 
-void DKArraySort( DKMutableListRef ref, DKCompareFunction cmp )
+void DKArraySort( DKMutableArrayRef ref, DKCompareFunction cmp )
 {
     if( ref )
     {
         DKVerifyKindOfClass( ref, DKMutableArrayClass() );
-
-        struct DKArray * array = (struct DKArray *)ref;
-        DKPointerArraySort( &array->ptrArray, cmp );
+        DKPointerArraySort( &ref->ptrArray, cmp );
     }
 }
 
@@ -408,14 +398,12 @@ static void DKImmutableArrayShuffle( DKMutableListRef ref )
     DKError( "DKArrayShuffle: Trying to modify an immutable object." );
 }
 
-void DKArrayShuffle( DKMutableListRef ref )
+void DKArrayShuffle( DKMutableArrayRef ref )
 {
     if( ref )
     {
         DKVerifyKindOfClass( ref, DKMutableArrayClass() );
-    
-        struct DKArray * array = (struct DKArray *)ref;
-        DKPointerArrayShuffle( &array->ptrArray );
+        DKPointerArrayShuffle( &ref->ptrArray );
     }
 }
 

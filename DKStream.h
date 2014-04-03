@@ -22,30 +22,33 @@ enum
     DKSeekEnd = SEEK_END
 };
 
+typedef int (*DKStreamSeekMethod)( DKObjectRef ref, DKIndex offset, int origin );
+typedef DKIndex (*DKStreamTellMethod)( DKObjectRef ref );
+typedef DKIndex (*DKStreamReadMethod)( DKObjectRef ref, void * data, DKIndex size, DKIndex count );
+typedef DKIndex (*DKStreamWriteMethod)( DKMutableObjectRef ref, const void * data, DKIndex size, DKIndex count );
 
 struct DKStream
 {
     DKInterface _interface;
     
-    int     (*seek)( DKTypeRef ref, DKIndex offset, int origin );
-    DKIndex (*tell)( DKTypeRef ref );
-    
-    DKIndex (*read)( DKTypeRef ref, void * data, DKIndex size, DKIndex count );
-    DKIndex (*write)( DKTypeRef ref, const void * data, DKIndex size, DKIndex count );
+    DKStreamSeekMethod seek;
+    DKStreamTellMethod tell;
+    DKStreamReadMethod read;
+    DKStreamWriteMethod write;
 };
 
 typedef const struct DKStream DKStream;
 
 
-int DKSeek( DKTypeRef ref, DKIndex offset, int origin );
-DKIndex DKTell( DKTypeRef ref );
+int DKSeek( DKObjectRef ref, DKIndex offset, int origin );
+DKIndex DKTell( DKObjectRef ref );
 
-DKIndex DKRead( DKTypeRef ref, void * data, DKIndex size, DKIndex count );
-DKIndex DKWrite( DKTypeRef ref, const void * data, DKIndex size, DKIndex count );
+DKIndex DKRead( DKObjectRef ref, void * data, DKIndex size, DKIndex count );
+DKIndex DKWrite( DKMutableObjectRef ref, const void * data, DKIndex size, DKIndex count );
 
-DKIndex DKSPrintf( DKTypeRef ref, const char * format, ... );
+DKIndex DKSPrintf( DKMutableObjectRef ref, const char * format, ... );
 
-DKIndex DKVSPrintf( DKTypeRef ref, const char * format, va_list arg_ptr );
+DKIndex DKVSPrintf( DKMutableObjectRef ref, const char * format, va_list arg_ptr );
 
 
 

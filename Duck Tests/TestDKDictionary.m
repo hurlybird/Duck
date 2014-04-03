@@ -42,7 +42,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     [self testDKDictionaryClass:DKMutableBinaryTreeClass()];
 }
 
-- (void) testDKDictionaryClass:(DKTypeRef)dictionaryClass
+- (void) testDKDictionaryClass:(DKClassRef)dictionaryClass
 {
     const int N = 10000;
     
@@ -68,32 +68,32 @@ static int RaiseException( const char * format, va_list arg_ptr )
         sprintf( buffer, "Value%d", i );
         values.data[i] = (uintptr_t)DKStringCreateWithCString( buffer );
 
-        DKDictionarySetObject( dict, (DKTypeRef)keys.data[i], (DKTypeRef)values.data[i] );
+        DKDictionarySetObject( dict, (DKObjectRef)keys.data[i], (DKObjectRef)values.data[i] );
 
         XCTAssert( DKDictionaryGetCount( dict ) == (i + 1) );
-        XCTAssert( DKDictionaryContainsKey( dict, (DKTypeRef)keys.data[i] ) );
+        XCTAssert( DKDictionaryContainsKey( dict, (DKObjectRef)keys.data[i] ) );
     }
     
     XCTAssert( DKDictionaryGetCount( dict ) == N );
 
     for( int i = 0; i < N; i++ )
     {
-        DKTypeRef value = DKDictionaryGetObject( dict, (DKTypeRef)keys.data[i] );
-        XCTAssert( value == (DKTypeRef)values.data[i] );
+        DKObjectRef value = DKDictionaryGetObject( dict, (DKObjectRef)keys.data[i] );
+        XCTAssert( value == (DKObjectRef)values.data[i] );
     }
     
     DKPointerArrayShuffle( &keys );
     
     for( int i = 0; i < N; i++ )
     {
-        DKDictionaryRemoveObject( dict, (DKTypeRef)keys.data[i] );
+        DKDictionaryRemoveObject( dict, (DKObjectRef)keys.data[i] );
         XCTAssert( DKDictionaryGetCount( dict ) == N - (i + 1) );
     }
 
     for( int i = 0; i < N; i++ )
     {
-        DKRelease( (DKTypeRef)keys.data[i] );
-        DKRelease( (DKTypeRef)values.data[i] );
+        DKRelease( (DKObjectRef)keys.data[i] );
+        DKRelease( (DKObjectRef)values.data[i] );
     }
     
     DKRelease( dict );

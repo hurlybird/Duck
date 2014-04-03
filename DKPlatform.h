@@ -19,9 +19,11 @@
 // Basic Types ===========================================================================
 
 // Objects
-typedef const void * DKTypeRef;
-typedef DKTypeRef    DKWeakRef;
-typedef DKTypeRef    DKStringRef;
+typedef const void * DKObjectRef;
+typedef void * DKMutableObjectRef;
+
+typedef const struct DKString * DKStringRef;
+typedef const void * DKListRef;
 
 
 // Indexes
@@ -56,7 +58,7 @@ typedef struct
 
 
 // Callback Types
-typedef int  (*DKCompareFunction)( DKTypeRef a, DKTypeRef b );
+typedef int  (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
 
 
 

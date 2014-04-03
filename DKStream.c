@@ -17,7 +17,7 @@ DKThreadSafeSelectorInit( Stream );
 ///
 //  DKSeek()
 //
-int DKSeek( DKTypeRef ref, DKIndex offset, int origin )
+int DKSeek( DKObjectRef ref, DKIndex offset, int origin )
 {
     if( ref )
     {
@@ -32,7 +32,7 @@ int DKSeek( DKTypeRef ref, DKIndex offset, int origin )
 ///
 //  DKTell()
 //
-DKIndex DKTell( DKTypeRef ref )
+DKIndex DKTell( DKObjectRef ref )
 {
     if( ref )
     {
@@ -47,7 +47,7 @@ DKIndex DKTell( DKTypeRef ref )
 ///
 //  DKRead()
 //
-DKIndex DKRead( DKTypeRef ref, void * data, DKIndex size, DKIndex count )
+DKIndex DKRead( DKObjectRef ref, void * data, DKIndex size, DKIndex count )
 {
     if( ref )
     {
@@ -62,7 +62,7 @@ DKIndex DKRead( DKTypeRef ref, void * data, DKIndex size, DKIndex count )
 ///
 //  DKWrite()
 //
-DKIndex DKWrite( DKTypeRef ref, const void * data, DKIndex size, DKIndex count )
+DKIndex DKWrite( DKMutableObjectRef ref, const void * data, DKIndex size, DKIndex count )
 {
     if( ref )
     {
@@ -77,7 +77,7 @@ DKIndex DKWrite( DKTypeRef ref, const void * data, DKIndex size, DKIndex count )
 ///
 //  DKSPrintf()
 //
-DKIndex DKSPrintf( DKTypeRef ref, const char * format, ... )
+DKIndex DKSPrintf( DKMutableObjectRef ref, const char * format, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, format );
@@ -93,7 +93,7 @@ DKIndex DKSPrintf( DKTypeRef ref, const char * format, ... )
 ///
 //  DKVSPrintf()
 //
-static size_t WriteNumber( DKTypeRef ref, DKStream * stream, const char * format, size_t formatLength, va_list arg_ptr )
+static size_t WriteNumber( DKMutableObjectRef ref, DKStream * stream, const char * format, size_t formatLength, va_list arg_ptr )
 {
     char fmt[32];
     char num[32];
@@ -110,7 +110,7 @@ static size_t WriteNumber( DKTypeRef ref, DKStream * stream, const char * format
     return n;
 }
 
-DKIndex DKVSPrintf( DKTypeRef ref, const char * format, va_list arg_ptr )
+DKIndex DKVSPrintf( DKMutableObjectRef ref, const char * format, va_list arg_ptr )
 {
     if( !ref )
         return 0;
@@ -122,9 +122,9 @@ DKIndex DKVSPrintf( DKTypeRef ref, const char * format, va_list arg_ptr )
     const char * seq_start = format;
     size_t seq_count = 0;
 
-    DKTypeRef object;
-    DKTypeRef desc;
-    const char * string;
+    DKObjectRef object;
+    DKStringRef desc;
+    const char * cstr;
     int * counter;
 
     const char * cursor = format;
@@ -187,16 +187,16 @@ DKIndex DKVSPrintf( DKTypeRef ref, const char * format, va_list arg_ptr )
             
         // %s
         case 's':
-            string = va_arg( arg_ptr, const char * );
-            write_count += stream->write( ref, string, 1, strlen( string ) );
+            cstr = va_arg( arg_ptr, const char * );
+            write_count += stream->write( ref, cstr, 1, strlen( cstr ) );
             break;
         
         // %@
         case '@':
-            object = va_arg( arg_ptr, DKTypeRef );
+            object = va_arg( arg_ptr, DKObjectRef );
             desc = DKCopyDescription( object );
-            string = DKStringGetCStringPtr( desc );
-            write_count += stream->write( ref, string, 1, strlen( string ) );
+            cstr = DKStringGetCStringPtr( desc );
+            write_count += stream->write( ref, cstr, 1, strlen( cstr ) );
             DKRelease( desc );
             break;
         

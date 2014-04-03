@@ -12,25 +12,29 @@
 #include "DKDictionary.h"
 
 
-DKTypeRef DKBinaryTreeClass( void );
-DKTypeRef DKMutableBinaryTreeClass( void );
+typedef const struct DKBinaryTree * DKBinaryTreeRef;
+typedef struct DKBinaryTree * DKMutableBinaryTreeRef;
 
-DKDictionaryRef DKBinaryTreeCreate( void );
-DKDictionaryRef DKBinaryTreeCreateWithKeysAndObjects( DKTypeRef firstKey, ... );
-DKDictionaryRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary );
 
-DKMutableDictionaryRef DKBinaryTreeCreateMutable( void );
-DKMutableDictionaryRef DKBinaryTreeCreateMutableCopy( DKDictionaryRef srcDictionary );
+DKClassRef DKBinaryTreeClass( void );
+DKClassRef DKMutableBinaryTreeClass( void );
 
-DKIndex     DKBinaryTreeGetCount( DKDictionaryRef ref );
-DKTypeRef   DKBinaryTreeGetObject( DKDictionaryRef ref, DKTypeRef key );
+DKBinaryTreeRef DKBinaryTreeCreate( void );
+DKBinaryTreeRef DKBinaryTreeCreateWithKeysAndObjects( DKObjectRef firstKey, ... );
+DKBinaryTreeRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary );
 
-int         DKBinaryTreeApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
-int         DKBinaryTreeTraverseInOrder( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
+DKMutableBinaryTreeRef DKBinaryTreeCreateMutable( void );
+DKMutableBinaryTreeRef DKBinaryTreeCreateMutableCopy( DKDictionaryRef srcDictionary );
 
-void        DKBinaryTreeInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
-void        DKBinaryTreeRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key );
-void        DKBinaryTreeRemoveAllObjects( DKMutableDictionaryRef ref );
+DKIndex     DKBinaryTreeGetCount( DKBinaryTreeRef ref );
+DKObjectRef DKBinaryTreeGetObject( DKBinaryTreeRef ref, DKObjectRef key );
+
+int         DKBinaryTreeApplyFunction( DKBinaryTreeRef ref, DKDictionaryApplierFunction callback, void * context );
+int         DKBinaryTreeTraverseInOrder( DKBinaryTreeRef ref, DKDictionaryApplierFunction callback, void * context );
+
+void        DKBinaryTreeInsertObject( DKMutableBinaryTreeRef ref, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
+void        DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef ref, DKObjectRef key );
+void        DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef ref );
 
 
 

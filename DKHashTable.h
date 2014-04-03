@@ -12,24 +12,28 @@
 #include "DKDictionary.h"
 
 
-DKTypeRef DKHashTableClass( void );
-DKTypeRef DKMutableHashTableClass( void );
+typedef const struct DKHashTable * DKHashTableRef;
+typedef struct DKHashTable * DKMutableHashTableRef;
 
-DKDictionaryRef DKHashTableCreate( void );
-DKDictionaryRef DKHashTableCreateWithKeysAndObjects( DKTypeRef firstKey, ... );
-DKDictionaryRef DKHashTableCreateCopy( DKDictionaryRef srcDictionary );
 
-DKMutableDictionaryRef DKHashTableCreateMutable( void );
-DKMutableDictionaryRef DKHashTableCreateMutableCopy( DKDictionaryRef srcDictionary );
+DKClassRef DKHashTableClass( void );
+DKClassRef DKMutableHashTableClass( void );
 
-DKIndex     DKHashTableGetCount( DKDictionaryRef ref );
-DKTypeRef   DKHashTableGetObject( DKDictionaryRef ref, DKTypeRef key );
+DKHashTableRef DKHashTableCreate( void );
+DKHashTableRef DKHashTableCreateWithKeysAndObjects( DKObjectRef firstKey, ... );
+DKHashTableRef DKHashTableCreateCopy( DKDictionaryRef srcDictionary );
 
-int         DKHashTableApplyFunction( DKDictionaryRef ref, DKDictionaryApplierFunction callback, void * context );
+DKMutableHashTableRef DKHashTableCreateMutable( void );
+DKMutableHashTableRef DKHashTableCreateMutableCopy( DKDictionaryRef srcDictionary );
 
-void        DKHashTableInsertObject( DKMutableDictionaryRef ref, DKTypeRef key, DKTypeRef object, DKDictionaryInsertPolicy policy );
-void        DKHashTableRemoveObject( DKMutableDictionaryRef ref, DKTypeRef key );
-void        DKHashTableRemoveAllObjects( DKMutableDictionaryRef ref );
+DKIndex     DKHashTableGetCount( DKHashTableRef ref );
+DKObjectRef DKHashTableGetObject( DKHashTableRef ref, DKObjectRef key );
+
+int         DKHashTableApplyFunction( DKHashTableRef ref, DKDictionaryApplierFunction callback, void * context );
+
+void        DKHashTableInsertObject( DKMutableHashTableRef ref, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
+void        DKHashTableRemoveObject( DKMutableHashTableRef ref, DKObjectRef key );
+void        DKHashTableRemoveAllObjects( DKMutableHashTableRef ref );
 
 
 

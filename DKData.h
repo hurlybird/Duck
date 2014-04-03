@@ -12,12 +12,12 @@
 #include "DKRuntime.h"
 
 
-typedef DKTypeRef DKDataRef;
-typedef DKTypeRef DKMutableDataRef;
+typedef const struct DKData * DKDataRef;
+typedef struct DKData * DKMutableDataRef;
 
 
-DKTypeRef   DKDataClass( void );
-DKTypeRef   DKMutableDataClass( void );
+DKClassRef  DKDataClass( void );
+DKClassRef  DKMutableDataClass( void );
 
 DKDataRef   DKDataCreate( void );
 DKDataRef   DKDataCreateCopy( DKDataRef srcData );
@@ -27,7 +27,7 @@ DKDataRef   DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length );
 DKMutableDataRef DKDataCreateMutable( void );
 DKMutableDataRef DKDataCreateMutableCopy( DKDataRef srcData );
 
-int         DKDataEqual( DKDataRef a, DKTypeRef b );
+int         DKDataEqual( DKDataRef a, DKObjectRef b );
 int         DKDataCompare( DKDataRef a, DKDataRef b );
 DKHashCode  DKDataHash( DKDataRef ref );
 

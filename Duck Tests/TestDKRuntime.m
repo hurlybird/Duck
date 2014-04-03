@@ -16,17 +16,17 @@ DKThreadSafeSelectorInit( Square );
 DKDeclareMessageSelector( Cube, int, int * );
 DKThreadSafeSelectorInit( Cube );
 
-static void TestOne( DKTypeRef ref, DKSEL sel, int x, int * y )
+static void TestOne( DKObjectRef ref, DKSEL sel, int x, int * y )
 {
     *y = 1;
 }
 
-static void TestSquare( DKTypeRef ref, DKSEL sel, int x, int * y )
+static void TestSquare( DKObjectRef ref, DKSEL sel, int x, int * y )
 {
     *y = x * x;
 }
 
-static void TestCube( DKTypeRef ref, DKSEL sel, int x, int * y )
+static void TestCube( DKObjectRef ref, DKSEL sel, int x, int * y )
 {
     *y = x * x * x;
 }
@@ -60,10 +60,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
 - (void) testRuntime
 {
     // Define a sample class
-    DKTypeRef TestClassA = DKAllocClass( DKSTR( "A" ), DKObjectClass(), sizeof(struct DKObjectHeader) );
+    DKClassRef TestClassA = DKAllocClass( DKSTR( "A" ), DKObjectClass(), sizeof(struct DKObjectHeader) );
     XCTAssert( TestClassA );
     
-    DKTypeRef TestClassB = DKAllocClass( DKSTR( "B" ), TestClassA, sizeof(struct DKObjectHeader) );
+    DKClassRef TestClassB = DKAllocClass( DKSTR( "B" ), TestClassA, sizeof(struct DKObjectHeader) );
     XCTAssert( TestClassB );
     
     // Install some message handlers
@@ -80,7 +80,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( DKGetMsgHandler( TestClassB, DKSelector(Cube) ) );
     
     // Create an instance of the object
-    DKTypeRef object = DKCreate( TestClassB );
+    DKObjectRef object = DKCreate( TestClassB );
     XCTAssert( object );
     
     // Test class membership
@@ -139,7 +139,7 @@ static void * ResolveWeakThread( void * list )
     for( DKIndex i = 0; i < count; ++i )
     {
         DKWeakRef weakref = DKListGetObjectAtIndex( list, i );
-        DKTypeRef strongref = DKResolveWeak( weakref );
+        DKObjectRef strongref = DKResolveWeak( weakref );
         
         n += (strongref != NULL);
         

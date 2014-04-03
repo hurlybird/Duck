@@ -11,19 +11,21 @@
 
 #include "DKRuntime.h"
 
+typedef const struct DKFile * DKFileRef;
 
-DKTypeRef   DKFileClass( void );
 
-DKTypeRef   DKFileCreate( void );
+DKClassRef  DKFileClass( void );
 
-int         DKFileOpen( DKTypeRef ref, const char * fname, const char * mode );
-int         DKFileClose( DKTypeRef ref );
+DKFileRef   DKFileCreate( void );
 
-int         DKFileSeek( DKTypeRef ref, DKIndex offset, int origin );
-DKIndex     DKFileTell( DKTypeRef ref );
+int         DKFileOpen( DKFileRef ref, const char * fname, const char * mode );
+int         DKFileClose( DKFileRef ref );
 
-DKIndex     DKFileRead( DKTypeRef ref, void * buffer, DKIndex size, DKIndex count );
-DKIndex     DKFileWrite( DKTypeRef ref, const void * buffer, DKIndex size, DKIndex count );
+int         DKFileSeek( DKFileRef ref, DKIndex offset, int origin );
+DKIndex     DKFileTell( DKFileRef ref );
+
+DKIndex     DKFileRead( DKFileRef ref, void * buffer, DKIndex size, DKIndex count );
+DKIndex     DKFileWrite( DKFileRef ref, const void * buffer, DKIndex size, DKIndex count );
 
 
 

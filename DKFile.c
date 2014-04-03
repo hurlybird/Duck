@@ -18,7 +18,7 @@ struct DKFile
 };
 
 
-static void DKFileFinalize( DKTypeRef ref );
+static void DKFileFinalize( DKObjectRef ref );
 
 
 ///
@@ -26,7 +26,7 @@ static void DKFileFinalize( DKTypeRef ref );
 //
 DKThreadSafeClassInit( DKFileClass )
 {
-    DKTypeRef cls = DKAllocClass( DKSTR( "DKFile" ), DKObjectClass(), sizeof(struct DKFile) );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKFile" ), DKObjectClass(), sizeof(struct DKFile) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -37,10 +37,10 @@ DKThreadSafeClassInit( DKFileClass )
 
     // Stream
     struct DKStream * stream = DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
-    stream->seek = DKFileSeek;
-    stream->tell = DKFileTell;
-    stream->read = DKFileRead;
-    stream->write = DKFileWrite;
+    stream->seek = (DKStreamSeekMethod)DKFileSeek;
+    stream->tell = (DKStreamTellMethod)DKFileTell;
+    stream->read = (DKStreamReadMethod)DKFileRead;
+    stream->write = (DKStreamWriteMethod)DKFileWrite;
     
     DKInstallInterface( cls, stream );
     DKRelease( stream );
@@ -52,7 +52,7 @@ DKThreadSafeClassInit( DKFileClass )
 ///
 //  DKFileFinalize()
 //
-static void DKFileFinalize( DKTypeRef ref )
+static void DKFileFinalize( DKObjectRef ref )
 {
     DKFileClose( ref );
 }
@@ -61,7 +61,7 @@ static void DKFileFinalize( DKTypeRef ref )
 ///
 //  DKFileCreate()
 //
-DKTypeRef DKFileCreate( void )
+DKFileRef DKFileCreate( void )
 {
     return DKAllocObject( DKFileClass(), 0 );
 }
@@ -70,7 +70,7 @@ DKTypeRef DKFileCreate( void )
 ///
 //  DKFileOpen()
 //
-int DKFileOpen( DKTypeRef ref, const char * fname, const char * mode )
+int DKFileOpen( DKFileRef ref, const char * fname, const char * mode )
 {
     if( ref )
     {
@@ -79,6 +79,7 @@ int DKFileOpen( DKTypeRef ref, const char * fname, const char * mode )
         DKFileClose( ref );
 
         struct DKFile * file = (struct DKFile *)ref;
+        
         file->file = fopen( fname, mode );
         
         if( file->file )
@@ -92,14 +93,14 @@ int DKFileOpen( DKTypeRef ref, const char * fname, const char * mode )
 ///
 //  DKFileClose()
 //
-int DKFileClose( DKTypeRef ref )
+int DKFileClose( DKFileRef ref )
 {
     int result = EOF;
 
     if( ref )
     {
         DKVerifyKindOfClass( ref, DKFileClass(), -1 );
-        
+
         struct DKFile * file = (struct DKFile *)ref;
         
         if( file->file )
@@ -116,16 +117,14 @@ int DKFileClose( DKTypeRef ref )
 ///
 //  DKFileSeek()
 //
-int DKFileSeek( DKTypeRef ref, DKIndex offset, int origin )
+int DKFileSeek( DKFileRef ref, DKIndex offset, int origin )
 {
     if( ref )
     {
         DKVerifyKindOfClass( ref, DKFileClass(), -1 );
 
-        struct DKFile * file = (struct DKFile *)ref;
-        
-        if( file->file )
-            return fseek( file->file, offset, origin );
+        if( ref->file )
+            return fseek( ref->file, offset, origin );
     }
     
     return -1;
@@ -135,16 +134,14 @@ int DKFileSeek( DKTypeRef ref, DKIndex offset, int origin )
 ///
 //  DKFileTell()
 //
-DKIndex DKFileTell( DKTypeRef ref )
+DKIndex DKFileTell( DKFileRef ref )
 {
     if( ref )
     {
         DKVerifyKindOfClass( ref, DKFileClass(), -1 );
 
-        struct DKFile * file = (struct DKFile *)ref;
-        
-        if( file->file )
-            return ftell( file->file );
+        if( ref->file )
+            return ftell( ref->file );
     }
     
     return -1;
@@ -154,16 +151,14 @@ DKIndex DKFileTell( DKTypeRef ref )
 ///
 //  DKFileRead()
 //
-DKIndex DKFileRead( DKTypeRef ref, void * buffer, DKIndex size, DKIndex count )
+DKIndex DKFileRead( DKFileRef ref, void * buffer, DKIndex size, DKIndex count )
 {
     if( ref )
     {
         DKVerifyKindOfClass( ref, DKFileClass(), -1 );
 
-        struct DKFile * file = (struct DKFile *)ref;
-        
-        if( file->file )
-            return fread( buffer, size, count, file->file );
+        if( ref->file )
+            return fread( buffer, size, count, ref->file );
     }
     
     return 0;
@@ -173,7 +168,7 @@ DKIndex DKFileRead( DKTypeRef ref, void * buffer, DKIndex size, DKIndex count )
 ///
 //  DKFileWrite()
 //
-DKIndex DKFileWrite( DKTypeRef ref, const void * buffer, DKIndex size, DKIndex count )
+DKIndex DKFileWrite( DKFileRef ref, const void * buffer, DKIndex size, DKIndex count )
 {
     if( ref )
     {

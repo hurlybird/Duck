@@ -42,7 +42,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     [self testListClass:DKMutableLinkedListClass()];
 }
 
-- (void) testListClass:(DKTypeRef)listClass
+- (void) testListClass:(DKClassRef)listClass
 {
     DKDataRef a = DKDataCreateWithBytes( "a", 2 );
     DKDataRef b = DKDataCreateWithBytes( "b", 2 );
@@ -99,7 +99,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     
     XCTAssert( DKListGetCount( list ) == 4 );
     
-    DKTypeRef copy = DKCopy( list );
+    DKListRef copy = DKCopy( list );
     
     XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 0 ) ), "a" ) == 0 );
     XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 1 ) ), "b" ) == 0 );

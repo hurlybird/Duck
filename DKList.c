@@ -16,9 +16,9 @@ DKThreadSafeFastSelectorInit( List );
 ///
 //  DKListClass()
 //
-static DKTypeRef DefaultListClass = NULL;
+static DKClassRef DefaultListClass = NULL;
 
-DKTypeRef DKListClass( void )
+DKClassRef DKListClass( void )
 {
     if( DefaultListClass )
         return DefaultListClass;
@@ -30,7 +30,7 @@ DKTypeRef DKListClass( void )
 ///
 //  DKSetListClass()
 //
-void DKSetListClass( DKTypeRef ref )
+void DKSetListClass( DKClassRef ref )
 {
     DefaultListClass = ref;
 }
@@ -54,7 +54,7 @@ DKIndex DKListGetCount( DKListRef ref )
 ///
 //  DKListGetCountOfObject()
 //
-DKIndex DKListGetCountOfObject( DKListRef ref, DKTypeRef object )
+DKIndex DKListGetCountOfObject( DKListRef ref, DKObjectRef object )
 {
     DKIndex count = 0;
 
@@ -66,7 +66,7 @@ DKIndex DKListGetCountOfObject( DKListRef ref, DKTypeRef object )
         
         for( DKIndex i = 0; i < n; i++ )
         {
-            DKTypeRef object2;
+            DKObjectRef object2;
             
             list->getObjects( ref, DKRangeMake( i, 1 ), &object2 );
             
@@ -82,7 +82,7 @@ DKIndex DKListGetCountOfObject( DKListRef ref, DKTypeRef object )
 ///
 //  DKListGetFirstIndexOfObject()
 //
-DKIndex DKListGetFirstIndexOfObject( DKListRef ref, DKTypeRef object )
+DKIndex DKListGetFirstIndexOfObject( DKListRef ref, DKObjectRef object )
 {
     if( ref )
     {
@@ -92,7 +92,7 @@ DKIndex DKListGetFirstIndexOfObject( DKListRef ref, DKTypeRef object )
         
         for( DKIndex i = 0; i < n; ++i )
         {
-            DKTypeRef object2;
+            DKObjectRef object2;
             
             list->getObjects( ref, DKRangeMake( i, 1 ), &object2 );
             
@@ -108,7 +108,7 @@ DKIndex DKListGetFirstIndexOfObject( DKListRef ref, DKTypeRef object )
 ///
 //  DKListGetLastIndexOfObject()
 //
-DKIndex DKListGetLastIndexOfObject( DKListRef ref, DKTypeRef object )
+DKIndex DKListGetLastIndexOfObject( DKListRef ref, DKObjectRef object )
 {
     if( ref )
     {
@@ -118,7 +118,7 @@ DKIndex DKListGetLastIndexOfObject( DKListRef ref, DKTypeRef object )
         
         for( DKIndex i = n - 1; i >= 0; --i )
         {
-            DKTypeRef object2;
+            DKObjectRef object2;
             
             list->getObjects( ref, DKRangeMake( i, 1 ), &object2 );
             
@@ -134,9 +134,9 @@ DKIndex DKListGetLastIndexOfObject( DKListRef ref, DKTypeRef object )
 ///
 //  DKListGetObjectAtIndex()
 //
-DKTypeRef DKListGetObjectAtIndex( DKListRef ref, DKIndex index )
+DKObjectRef DKListGetObjectAtIndex( DKListRef ref, DKIndex index )
 {
-    DKTypeRef object = NULL;
+    DKObjectRef object = NULL;
 
     if( ref )
     {
@@ -151,7 +151,7 @@ DKTypeRef DKListGetObjectAtIndex( DKListRef ref, DKIndex index )
 ///
 //  DKListGetObjects()
 //
-DKIndex DKListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] )
+DKIndex DKListGetObjects( DKListRef ref, DKRange range, DKObjectRef objects[] )
 {
     if( ref )
     {
@@ -178,7 +178,7 @@ int DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * c
         
         for( DKIndex i = 0; i < n; ++i )
         {
-            DKTypeRef object;
+            DKObjectRef object;
             
             list->getObjects( ref, DKRangeMake( i, 1 ), &object );
 
@@ -194,7 +194,7 @@ int DKListApplyFunction( DKListRef ref, DKListApplierFunction callback, void * c
 ///
 //  DKListAppendObject()
 //
-void DKListAppendObject( DKMutableListRef ref, DKTypeRef object )
+void DKListAppendObject( DKMutableListRef ref, DKObjectRef object )
 {
     if( ref )
     {
@@ -208,7 +208,7 @@ void DKListAppendObject( DKMutableListRef ref, DKTypeRef object )
 ///
 //  DKListAppendList()
 //
-void DKListAppendList( DKMutableListRef ref, DKTypeRef srcList )
+void DKListAppendList( DKMutableListRef ref, DKListRef srcList )
 {
     if( ref )
     {
@@ -222,7 +222,7 @@ void DKListAppendList( DKMutableListRef ref, DKTypeRef srcList )
 ///
 //  DKListSetObjectAtIndex()
 //
-void DKListSetObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef object )
+void DKListSetObjectAtIndex( DKMutableListRef ref, DKIndex index, DKObjectRef object )
 {
     if( ref )
     {
@@ -236,7 +236,7 @@ void DKListSetObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef obje
 ///
 //  DKListInsertObjectAtIndex()
 //
-void DKListInsertObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef object )
+void DKListInsertObjectAtIndex( DKMutableListRef ref, DKIndex index, DKObjectRef object )
 {
     if( ref )
     {
@@ -250,7 +250,7 @@ void DKListInsertObjectAtIndex( DKMutableListRef ref, DKIndex index, DKTypeRef o
 ///
 //  DKListReplaceObjects()
 //
-void DKListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count )
+void DKListReplaceObjects( DKMutableListRef ref, DKRange range, DKObjectRef objects[], DKIndex count )
 {
     if( ref )
     {

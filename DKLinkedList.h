@@ -12,24 +12,28 @@
 #include "DKList.h"
 
 
-DKTypeRef DKLinkedListClass( void );
-DKTypeRef DKMutableLinkedListClass( void );
+typedef const struct DKLinkedList * DKLinkedListRef;
+typedef struct DKLinkedList * DKMutableLinkedListRef;
 
-DKListRef DKLinkedListCreate( void );
-DKListRef DKLinkedListCreateWithObjects( DKTypeRef firstObject, ... );
-DKListRef DKLinkedListCreateWithCArray( DKTypeRef objects[], DKIndex count );
-DKListRef DKLinkedListCreateCopy( DKListRef srcList );
 
-DKMutableListRef DKLinkedListCreateMutable( void );
-DKMutableListRef DKLinkedListCreateMutableCopy( DKListRef srcList );
+DKClassRef DKLinkedListClass( void );
+DKClassRef DKMutableLinkedListClass( void );
 
-DKIndex   DKLinkedListGetCount( DKListRef ref );
-DKIndex   DKLinkedListGetObjects( DKListRef ref, DKRange range, DKTypeRef objects[] );
+DKLinkedListRef DKLinkedListCreate( void );
+DKLinkedListRef DKLinkedListCreateWithObjects( DKObjectRef firstObject, ... );
+DKLinkedListRef DKLinkedListCreateWithCArray( DKObjectRef objects[], DKIndex count );
+DKLinkedListRef DKLinkedListCreateCopy( DKListRef srcList );
 
-void      DKLinkedListReplaceObjects( DKMutableListRef ref, DKRange range, DKTypeRef objects[], DKIndex count );
-void      DKLinkedListReplaceObjectsWithList( DKMutableListRef ref, DKRange range, DKListRef srcList );
-void      DKLinkedListSort( DKMutableListRef ref, DKCompareFunction cmp );
-void      DKLinkedListShuffle( DKMutableListRef ref );
+DKMutableLinkedListRef DKLinkedListCreateMutable( void );
+DKMutableLinkedListRef DKLinkedListCreateMutableCopy( DKListRef srcList );
+
+DKIndex   DKLinkedListGetCount( DKLinkedListRef ref );
+DKIndex   DKLinkedListGetObjects( DKLinkedListRef ref, DKRange range, DKObjectRef objects[] );
+
+void      DKLinkedListReplaceObjects( DKMutableLinkedListRef ref, DKRange range, DKObjectRef objects[], DKIndex count );
+void      DKLinkedListReplaceObjectsWithList( DKMutableLinkedListRef ref, DKRange range, DKListRef srcList );
+void      DKLinkedListSort( DKMutableLinkedListRef ref, DKCompareFunction cmp );
+void      DKLinkedListShuffle( DKMutableLinkedListRef ref );
 
 
 

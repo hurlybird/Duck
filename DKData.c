@@ -20,8 +20,8 @@ struct DKData
 };
 
 
-static DKTypeRef    DKDataInitialize( DKTypeRef ref );
-static void         DKDataFinalize( DKTypeRef ref );
+static DKObjectRef  DKDataInitialize( DKObjectRef ref );
+static void         DKDataFinalize( DKObjectRef ref );
 
 static DKIndex DKImmutableDataWrite( DKMutableDataRef ref, const void * buffer, DKIndex size, DKIndex count );
 
@@ -34,7 +34,7 @@ static DKIndex DKImmutableDataWrite( DKMutableDataRef ref, const void * buffer, 
 //
 DKThreadSafeClassInit( DKDataClass )
 {
-    DKTypeRef cls = DKAllocClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData) );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData) );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -46,9 +46,9 @@ DKThreadSafeClassInit( DKDataClass )
 
     // Comparison
     struct DKComparison * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(DKComparison) );
-    comparison->equal = DKDataEqual;
-    comparison->compare = DKDataCompare;
-    comparison->hash = DKDataHash;
+    comparison->equal = (DKEqualMethod)DKDataEqual;
+    comparison->compare = (DKCompareMethod)DKDataCompare;
+    comparison->hash = (DKHashMethod)DKDataHash;
 
     DKInstallInterface( cls, comparison );
     DKRelease( comparison );
@@ -56,17 +56,17 @@ DKThreadSafeClassInit( DKDataClass )
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
     copying->copy = DKRetain;
-    copying->mutableCopy = DKDataCreateMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKDataCreateMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
     // Stream
     struct DKStream * stream =DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
-    stream->seek = DKDataSeek;
-    stream->tell = DKDataTell;
-    stream->read = DKDataRead;
-    stream->write = DKImmutableDataWrite;
+    stream->seek = (DKStreamSeekMethod)DKDataSeek;
+    stream->tell = (DKStreamTellMethod)DKDataTell;
+    stream->read = (DKStreamReadMethod)DKDataRead;
+    stream->write = (DKStreamWriteMethod)DKImmutableDataWrite;
     
     DKInstallInterface( cls, stream );
     DKRelease( stream );
@@ -80,22 +80,22 @@ DKThreadSafeClassInit( DKDataClass )
 //
 DKThreadSafeClassInit( DKMutableDataClass )
 {
-    DKTypeRef cls = DKAllocClass( DKSTR( "DKMutableData" ), DKDataClass(), sizeof(struct DKData) );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableData" ), DKDataClass(), sizeof(struct DKData) );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
-    copying->copy = DKDataCreateMutableCopy;
-    copying->mutableCopy = DKDataCreateMutableCopy;
+    copying->copy = (DKCopyMethod)DKDataCreateMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKDataCreateMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
     
     // Stream
     struct DKStream * stream = DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
-    stream->seek = DKDataSeek;
-    stream->tell = DKDataTell;
-    stream->read = DKDataRead;
-    stream->write = DKDataWrite;
+    stream->seek = (DKStreamSeekMethod)DKDataSeek;
+    stream->tell = (DKStreamTellMethod)DKDataTell;
+    stream->read = (DKStreamReadMethod)DKDataRead;
+    stream->write = (DKStreamWriteMethod)DKDataWrite;
     
     DKInstallInterface( cls, stream );
     DKRelease( stream );
@@ -107,7 +107,7 @@ DKThreadSafeClassInit( DKMutableDataClass )
 ///
 //  DKDataInitialize()
 //
-static DKTypeRef DKDataInitialize( DKTypeRef ref )
+static DKObjectRef DKDataInitialize( DKObjectRef ref )
 {
     struct DKData * data = (struct DKData *)ref;
     DKByteArrayInit( &data->byteArray );
@@ -120,7 +120,7 @@ static DKTypeRef DKDataInitialize( DKTypeRef ref )
 ///
 //  DKDataFinalize()
 //
-static void DKDataFinalize( DKTypeRef ref )
+static void DKDataFinalize( DKObjectRef ref )
 {
     struct DKData * data = (struct DKData *)ref;
     DKByteArrayFinalize( &data->byteArray );
@@ -130,7 +130,7 @@ static void DKDataFinalize( DKTypeRef ref )
 ///
 //  DKDataEqual()
 //
-int DKDataEqual( DKDataRef a, DKTypeRef b )
+int DKDataEqual( DKDataRef a, DKObjectRef b )
 {
     if( DKIsKindOfClass( b, DKDataClass() ) )
         return DKDataCompare( a, b ) == 0;
@@ -149,19 +149,16 @@ int DKDataCompare( DKDataRef a, DKDataRef b )
         DKVerifyKindOfClass( a, DKDataClass(), DKDefaultCompare( a, b ) );
         DKVerifyKindOfClass( b, DKDataClass(), DKDefaultCompare( a, b ) );
 
-        const struct DKData * da = a;
-        const struct DKData * db = b;
-        
-        if( da->byteArray.length < db->byteArray.length )
+        if( a->byteArray.length < b->byteArray.length )
             return 1;
         
-        if( da->byteArray.length > db->byteArray.length )
+        if( a->byteArray.length > b->byteArray.length )
             return -1;
         
-        if( da->byteArray.length == 0 )
+        if( a->byteArray.length == 0 )
             return 0;
 
-        return memcmp( da->byteArray.data, db->byteArray.data, da->byteArray.length );
+        return memcmp( a->byteArray.data, b->byteArray.data, a->byteArray.length );
     }
     
     return DKDefaultCompare( a, b );
@@ -177,10 +174,8 @@ DKHashCode DKDataHash( DKDataRef ref )
     {
         DKVerifyKindOfClass( ref, DKDataClass(), 0 );
     
-        const struct DKData * data = ref;
-        
-        if( data->byteArray.length > 0 )
-            return dk_memhash( data->byteArray.data, data->byteArray.length );
+        if( ref->byteArray.length > 0 )
+            return dk_memhash( ref->byteArray.data, ref->byteArray.length );
     }
     
     return 0;
