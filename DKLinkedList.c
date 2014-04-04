@@ -560,6 +560,7 @@ DKIndex DKLinkedListGetObjects( DKLinkedListRef _self, DKRange range, DKObjectRe
     if( _self )
     {
         DKAssertKindOfClass( _self, DKLinkedListClass() );
+        DKCheckRange( range, _self->count, 0 );
 
         struct DKLinkedList * list = (struct DKLinkedList *)_self;
         

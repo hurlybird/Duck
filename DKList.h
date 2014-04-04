@@ -50,7 +50,7 @@ DKIndex     DKListGetCountOfObject( DKListRef _self, DKObjectRef object );
 DKIndex     DKListGetFirstIndexOfObject( DKListRef _self, DKObjectRef object );
 DKIndex     DKListGetLastIndexOfObject( DKListRef _self, DKObjectRef object );
 
-const void * DKListGetObjectAtIndex( DKListRef _self, DKIndex index );
+DKObjectRef DKListGetObjectAtIndex( DKListRef _self, DKIndex index );
 DKIndex     DKListGetObjects( DKListRef _self, DKRange range, DKObjectRef objects[] );
 
 int         DKListApplyFunction( DKListRef _self, DKListApplierFunction callback, void * context );
