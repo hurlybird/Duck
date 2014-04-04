@@ -256,10 +256,13 @@ void        DKDeallocObject( DKObjectRef _self );
 enum
 {
     // Instances are never allocated
-    DKClassInstancesNeverAllocated = (1 << 0),
+    DKInstancesNeverAllocated =     (1 << 0),
 
     // Instances are never deallocated (disables reference counting)
-    DKClassInstancesNeverDeallocated = (1 << 1)
+    DKInstancesNeverDeallocated =   (1 << 1),
+    
+    // This class cannot be subclassed
+    DKPreventSubclassing =          (1 << 2)
 };
 
 typedef uint32_t DKClassOptions;

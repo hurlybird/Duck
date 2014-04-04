@@ -457,7 +457,7 @@ static void DKRuntimeInit( void )
     {
         DKRuntimeInitialized = 1;
 
-        InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass),      DKClassInstancesNeverAllocated | DKClassInstancesNeverDeallocated );
+        InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass),      DKInstancesNeverAllocated | DKInstancesNeverDeallocated );
         InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass),      0 );
         InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct DKSEL),        0 );
         InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),         0 );
@@ -568,7 +568,7 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
 {
     if( !cls )
     {
-        DKFatalError( "DKAllocObject: Specified class object 'isa' is NULL.\n" );
+        DKError( "DKAllocObject: Specified class object is NULL.\n" );
         return NULL;
     }
     
@@ -578,9 +578,9 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
         return NULL;
     }
     
-    if( (cls->options & DKClassInstancesNeverAllocated) != 0 )
+    if( (cls->options & DKInstancesNeverAllocated) != 0 )
     {
-        DKError( "DKAllocObject: Class '%s' does not allow allocation of instances.\n", DKStringGetCStringPtr( cls->name ) );
+        DKFatalError( "DKAllocObject: Class '%s' does not allow allocation of instances.\n", DKStringGetCStringPtr( cls->name ) );
         return NULL;
     }
     
@@ -664,6 +664,12 @@ void DKDeallocObject( DKObjectRef _self )
 //
 DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize, DKClassOptions options )
 {
+    if( superclass && ((superclass->options & DKPreventSubclassing) != 0) )
+    {
+        DKFatalError( "DKAllocClass: Class '%s' does not allow subclasses.\n", DKStringGetCStringPtr( superclass->name ) );
+        return NULL;
+    }
+
     struct DKClass * cls = (struct DKClass *)DKAllocObject( DKClassClass(), 0 );
 
     cls->name = DKRetain( name );
@@ -983,7 +989,7 @@ DKObjectRef DKRetain( DKObjectRef _self )
     {
         struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
 
-        if( (obj->isa->options & DKClassInstancesNeverDeallocated) == 0 )
+        if( (obj->isa->options & DKInstancesNeverDeallocated) == 0 )
         {
             DKAtomicIncrement32( &obj->refcount );
         }
@@ -998,7 +1004,7 @@ void DKRelease( DKObjectRef _self )
     {
         struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
 
-        if( (obj->isa->options & DKClassInstancesNeverDeallocated) == 0 )
+        if( (obj->isa->options & DKInstancesNeverDeallocated) == 0 )
         {
             struct DKWeak * weakref = (struct DKWeak *)obj->weakref;
             
