@@ -401,10 +401,8 @@ const char * DKStringGetCStringPtr( DKStringRef _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
 
-        const struct DKString * string = _self;
-        
-        if( string->byteArray.data )
-            return (const char *)string->byteArray.data;
+        // Note: ByteArray data is never null.
+        return (const char *)_self->byteArray.data;
     }
     
     return "";
