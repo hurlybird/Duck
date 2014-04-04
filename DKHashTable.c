@@ -51,7 +51,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
     // involved in creating constant strings, the names for these classes are
     // initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKHashTable) );
+    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKHashTable), 0 );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -93,7 +93,7 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
     // involved in creating constant strings, the names for these classes are
     // initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKHashTableClass(), sizeof(struct DKHashTable) );
+    DKClassRef cls = DKAllocClass( NULL, DKHashTableClass(), sizeof(struct DKHashTable), 0 );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

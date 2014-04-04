@@ -139,6 +139,203 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
+struct PathTestCase
+{
+    DKStringRef path;
+    DKStringRef result;
+};
+
+struct PathAppendTestCase
+{
+    DKStringRef path1;
+    DKStringRef path2;
+    DKStringRef result;
+};
+
+- (void) testDKStringCopyLastPathComponent
+{
+    struct PathTestCase tests[] =
+    {
+        { DKSTR( "/path/file.ext" ),    DKSTR( "file.ext" ) },
+        { DKSTR( "/path/file" ),        DKSTR( "file" ) },
+        { DKSTR( "/path/" ),            DKSTR( "path" ) },
+        { DKSTR( "/path" ),             DKSTR( "path" ) },
+        { DKSTR( "/" ),                 DKSTR( "" ) },
+        { DKSTR( "path" ),              DKSTR( "path" ) },
+        { DKSTR( "" ),                  DKSTR( "" ) },
+        { NULL, NULL }
+    };
+
+    for( int i = 0; tests[i].path != NULL; i++ )
+    {
+        struct PathTestCase * test = &tests[i];
+        
+        DKStringRef result = DKStringCopyLastPathComponent( test->path );
+        XCTAssert( DKStringEqual( result, test->result ) );
+        DKRelease( result );
+    }
+}
+
+- (void) testDKStringAppendPathComponent
+{
+    struct PathAppendTestCase tests[] =
+    {
+        { DKSTR( "/a" ),    DKSTR( "b" ),       DKSTR( "/a/b" )  },
+        { DKSTR( "/a" ),    DKSTR( "/b" ),      DKSTR( "/a/b" )  },
+        { DKSTR( "/a" ),    DKSTR( "b/" ),      DKSTR( "/a/b" )  },
+        { DKSTR( "/a" ),    DKSTR( "/b/" ),     DKSTR( "/a/b" )  },
+        { DKSTR( "/a/" ),   DKSTR( "b" ),       DKSTR( "/a/b" )  },
+        { DKSTR( "/a/" ),   DKSTR( "/b" ),      DKSTR( "/a/b" )  },
+        { DKSTR( "/a/" ),   DKSTR( "b/" ),      DKSTR( "/a/b" )  },
+        { DKSTR( "/a/" ),   DKSTR( "/b/" ),     DKSTR( "/a/b" )  },
+
+        { DKSTR( "a" ),     DKSTR( "b" ),       DKSTR( "a/b" )   },
+        { DKSTR( "a" ),     DKSTR( "/b" ),      DKSTR( "a/b" )   },
+        { DKSTR( "a" ),     DKSTR( "b/" ),      DKSTR( "a/b" )   },
+        { DKSTR( "a" ),     DKSTR( "/b/" ),     DKSTR( "a/b" )   },
+        { DKSTR( "a/" ),    DKSTR( "b" ),       DKSTR( "a/b" )   },
+        { DKSTR( "a/" ),    DKSTR( "/b" ),      DKSTR( "a/b" )   },
+        { DKSTR( "a/" ),    DKSTR( "b/" ),      DKSTR( "a/b" )   },
+        { DKSTR( "a/" ),    DKSTR( "/b/" ),     DKSTR( "a/b" )   },
+
+        { DKSTR( "" ),      DKSTR( "b" ),       DKSTR( "b" )     },
+        { DKSTR( "" ),      DKSTR( "/b" ),      DKSTR( "/b" )    },
+        { DKSTR( "" ),      DKSTR( "b/" ),      DKSTR( "b" )     },
+        { DKSTR( "" ),      DKSTR( "/b/" ),     DKSTR( "/b" )    },
+        { DKSTR( "/" ),     DKSTR( "b" ),       DKSTR( "/b" )    },
+        { DKSTR( "/" ),     DKSTR( "/b" ),      DKSTR( "/b" )    },
+        { DKSTR( "/" ),     DKSTR( "b/" ),      DKSTR( "/b" )    },
+        { DKSTR( "/" ),     DKSTR( "/b/" ),     DKSTR( "/b" )    },
+
+        { DKSTR( "a" ),     DKSTR( "" ),        DKSTR( "a" )     },
+        { DKSTR( "a/" ),    DKSTR( "" ),        DKSTR( "a" )     },
+        { DKSTR( "/a" ),    DKSTR( "" ),        DKSTR( "/a" )    },
+        { DKSTR( "/a/" ),   DKSTR( "" ),        DKSTR( "/a" )    },
+        { DKSTR( "a" ),     DKSTR( "/" ),       DKSTR( "a" )     },
+        { DKSTR( "a/" ),    DKSTR( "/" ),       DKSTR( "a" )     },
+        { DKSTR( "/a" ),    DKSTR( "/" ),       DKSTR( "/a" )    },
+        { DKSTR( "/a/" ),   DKSTR( "/" ),       DKSTR( "/a" )    },
+        
+        { DKSTR( "" ),      DKSTR( "" ),        DKSTR( "" )      },
+        { DKSTR( "/" ),     DKSTR( "" ),        DKSTR( "/" )     },
+        { DKSTR( "" ),      DKSTR( "/" ),       DKSTR( "/" )     },
+        { DKSTR( "/" ),     DKSTR( "/" ),       DKSTR( "/" )     },
+        
+        { DKSTR( "//a" ),   DKSTR( "" ),        DKSTR( "/a" )    },
+        { DKSTR( "a//" ),   DKSTR( "" ),        DKSTR( "a" )     },
+        { DKSTR( "" ),      DKSTR( "//b" ),     DKSTR( "/b" )    },
+        { DKSTR( "" ),      DKSTR( "b//" ),     DKSTR( "b" )     },
+        { DKSTR( "//a//" ), DKSTR( "//b//" ),   DKSTR( "/a/b" )  },
+        { NULL, NULL, NULL }
+    };
+
+    for( int i = 0; tests[i].path1 != NULL; i++ )
+    {
+        struct PathAppendTestCase * test = &tests[i];
+        
+        DKMutableStringRef result = DKStringCreateMutableCopy( test->path1 );
+        DKStringAppendPathComponent( result, test->path2 );
+        XCTAssert( DKStringEqual( result, test->result ) );
+        DKRelease( result );
+    }
+}
+
+- (void) testDKStringRemoveLastPathComponent
+{
+    struct PathTestCase tests[] =
+    {
+        { DKSTR( "/path/file.ext" ),    DKSTR( "/path" ) },
+        { DKSTR( "/path/file" ),        DKSTR( "/path" ) },
+        { DKSTR( "/path/" ),            DKSTR( "/" ) },
+        { DKSTR( "/path" ),             DKSTR( "/" ) },
+        { DKSTR( "/" ),                 DKSTR( "/" ) },
+        { DKSTR( "path" ),              DKSTR( "" ) },
+        { DKSTR( "" ),                  DKSTR( "" ) },
+        { NULL, NULL }
+    };
+
+    for( int i = 0; tests[i].path != NULL; i++ )
+    {
+        struct PathTestCase * test = &tests[i];
+        
+        DKMutableStringRef result = DKStringCreateMutableCopy( test->path );
+        DKStringRemoveLastPathComponent( result );
+        XCTAssert( DKStringEqual( result, test->result ) );
+        DKRelease( result );
+    }
+}
+
+- (void) testDKStringCopyPathExtension
+{
+    struct PathTestCase tests[] =
+    {
+        { DKSTR( "file.ext" ),          DKSTR( "ext" ) },
+        { DKSTR( "file.foo.ext" ),      DKSTR( "ext" ) },
+        { DKSTR( "path.foo/file.ext" ), DKSTR( "ext" ) },
+        { DKSTR( "path.foo/file" ),     DKSTR( "" ) },
+        { DKSTR( "path.foo/" ),         DKSTR( "" ) },
+        { DKSTR( "/" ),                 DKSTR( "" ) },
+        { DKSTR( "" ),                  DKSTR( "" ) },
+        { NULL, NULL }
+    };
+    
+    for( int i = 0; tests[i].path != NULL; i++ )
+    {
+        struct PathTestCase * test = &tests[i];
+        
+        DKStringRef result = DKStringCopyPathExtension( test->path );
+        XCTAssert( DKStringEqual( result, test->result ) );
+        DKRelease( result );
+    }
+}
+
+- (void) testDKStringAppendPathExtension
+{
+    struct PathTestCase tests[] =
+    {
+        { DKSTR( "file" ),          DKSTR( "file.ext" ) },
+        { DKSTR( "/dir/file" ),     DKSTR( "/dir/file.ext" ) },
+        { DKSTR( "/dir/file.ext" ), DKSTR( "/dir/file.ext.ext" ) },
+        { NULL, NULL }
+    };
+
+    for( int i = 0; tests[i].path != NULL; i++ )
+    {
+        struct PathTestCase * test = &tests[i];
+        
+        DKMutableStringRef result = DKStringCreateMutableCopy( test->path );
+        DKStringAppendPathExtension( result, DKSTR( "ext" ) );
+        XCTAssert( DKStringEqual( result, test->result ) );
+        DKRelease( result );
+    }
+}
+
+- (void) testDKStringRemovePathExtension
+{
+    struct PathTestCase tests[] =
+    {
+        { DKSTR( "/path/file.ext" ),        DKSTR( "/path/file" ) },
+        { DKSTR( "/path/file" ),            DKSTR( "/path/file" ) },
+        { DKSTR( "/path.ext/file.ext" ),    DKSTR( "/path.ext/file" ) },
+        { DKSTR( "/path.ext/file" ),        DKSTR( "/path.ext/file" ) },
+        { DKSTR( "/path.ext/" ),            DKSTR( "/path" ) },
+        { DKSTR( "/" ),                     DKSTR( "/" ) },
+        { DKSTR( "" ),                      DKSTR( "" ) },
+        { NULL, NULL }
+    };
+    
+    for( int i = 0; tests[i].path != NULL; i++ )
+    {
+        struct PathTestCase * test = &tests[i];
+        
+        DKMutableStringRef result = DKStringCreateMutableCopy( test->path );
+        DKStringRemovePathExtension( result );
+        XCTAssert( DKStringEqual( result, test->result ) );
+        DKRelease( result );
+    }
+}
+
+
 @end
 
 

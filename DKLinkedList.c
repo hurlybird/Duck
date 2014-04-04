@@ -56,7 +56,7 @@ static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKObjectR
 //
 DKThreadSafeClassInit( DKLinkedListClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKLinkedList" ), DKObjectClass(), sizeof(struct DKLinkedList) );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKLinkedList" ), DKObjectClass(), sizeof(struct DKLinkedList), 0 );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -95,7 +95,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
 //
 DKThreadSafeClassInit( DKMutableLinkedListClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableLinkedList" ), DKLinkedListClass(), sizeof(struct DKLinkedList) );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableLinkedList" ), DKLinkedListClass(), sizeof(struct DKLinkedList), 0 );
     
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

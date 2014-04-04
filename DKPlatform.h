@@ -61,6 +61,10 @@ typedef struct
 typedef int  (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
 
 
+// Path Constants
+#define DKPathComponentSeparator    '/'
+#define DKPathExtensionSeparator    '.'
+
 
 
 // Error Reporting =======================================================================

@@ -8,6 +8,8 @@
 #include <assert.h>
 
 #include "DKPlatform.h"
+#include "DKString.h"
+#include "DKStream.h"
 
 
 // Error Reporting =======================================================================
@@ -40,7 +42,7 @@ void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_
 ///
 //  DKDebug()
 //
-int _DKDebug( const char * format, ... )
+static int _DKDebugInternal( const char * format, ... )
 {
     int result = 0;
 
@@ -52,8 +54,25 @@ int _DKDebug( const char * format, ... )
     
     else
         result = vprintf( format, arg_ptr );
-    
+
     va_end( arg_ptr );
+    
+    return result;
+}
+
+int _DKDebug( const char * format, ... )
+{
+    va_list arg_ptr;
+    va_start( arg_ptr, format );
+    
+    DKMutableStringRef tmp = DKStringCreateMutable();
+    DKVSPrintf( tmp, format, arg_ptr );
+
+    va_end( arg_ptr );
+    
+    int result = _DKDebugInternal( "%s", DKStringGetCStringPtr( tmp ) );
+
+    DKRelease( tmp );
     
     return result;
 }

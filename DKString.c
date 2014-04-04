@@ -7,6 +7,7 @@
 //
 #include "DKString.h"
 #include "DKUnicode.h"
+#include "Unicode/utf8.h"
 #include "DKByteArray.h"
 #include "DKCopying.h"
 #include "DKStream.h"
@@ -40,7 +41,7 @@ DKThreadSafeClassInit( DKStringClass )
     // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
     // involved in creating constant strings, the names for these classes are
     // initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString) );
+    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString), 0 );
     
     // LifeCycle
     struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
@@ -96,7 +97,7 @@ DKThreadSafeClassInit( DKConstantStringClass )
     // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
     // involved in creating constant strings, the names for these classes are
     // initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString) );
+    DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString), DKClassInstancesNeverDeallocated );
     
     return cls;
 }
@@ -107,7 +108,7 @@ DKThreadSafeClassInit( DKConstantStringClass )
 //
 DKThreadSafeClassInit( DKMutableStringClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableString" ), DKStringClass(), sizeof(struct DKString) );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableString" ), DKStringClass(), sizeof(struct DKString), 0 );
     
     // Description
     struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
@@ -763,6 +764,291 @@ void DKStringDeleteSubstring( DKMutableStringRef _self, DKRange range )
     {
         DKAssertKindOfClass( _self, DKMutableStringClass() );
         DKCheckRange( range, _self->byteArray.length );
+        
+        DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
+    }
+}
+
+
+///
+//  DKStringIsAbsolutePath()
+//
+int DKStringIsAbsolutePath( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        
+        return (_self->byteArray.length > 0) && (_self->byteArray.data[0] == DKPathComponentSeparator);
+    }
+    
+    return 0;
+}
+
+///
+//  DKStringCopyLastPathComponent()
+//
+DKStringRef DKStringCopyLastPathComponent( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        const char * path = (const char *)_self->byteArray.data;
+
+        // Empty or root path
+        if( (_self->byteArray.length == 0) || ((_self->byteArray.length == 1) && (path[0] == DKPathComponentSeparator)) )
+            return DKSTR( "" );
+        
+        // Skip over trailing slashes
+        int32_t end = (int32_t)_self->byteArray.length;
+        char32_t ch;
+        
+        while( end > 0 )
+        {
+            int32_t i = end;
+            
+            U8_PREV( path, 0, i, ch );
+            
+            if( ch != DKPathComponentSeparator )
+                break;
+            
+            end = i;
+        }
+
+        // Find the last slash before end
+        int32_t start = end;
+        
+        while( start > 0 )
+        {
+            int32_t i = start;
+            
+            U8_PREV( path, 0, i, ch );
+            
+            if( ch == DKPathComponentSeparator )
+                break;
+            
+            start = i;
+        }
+        
+        // No separator
+        if( end == 0 )
+        {
+            // Use the copying interface here because immutable strings can be retained
+            // rather than copied
+            DKCopying * copying = DKGetInterface( _self, DKSelector(Copying) );
+            return copying->copy( _self );
+        }
+        
+        return CopySubstring( path, DKRangeMake( start, end - start ) );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringCopyPathExtension()
+//
+DKStringRef DKStringCopyPathExtension( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        const char * path = (const char *)_self->byteArray.data;
+        const char * ext = dk_ustrrchr( path, DKPathExtensionSeparator );
+        
+        // No extension
+        if( ext == NULL )
+            return DKSTR( "" );
+        
+        const char * lastSlash = dk_ustrrchr( path, DKPathComponentSeparator );
+        
+        // No extension in last path component
+        if( lastSlash && (ext < lastSlash) )
+            return DKSTR( "" );
+        
+        DKRange range;
+        range.location = ext - path + 1;
+        range.length = _self->byteArray.length - range.location;
+        
+        return CopySubstring( path, range );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringAppendPathComponent()
+//
+void DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComponent )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKAssertKindOfClass( pathComponent, DKStringClass() );
+
+        if( _self->byteArray.length > 0 )
+        {
+            const char separator[2] = { DKPathComponentSeparator, '\0' };
+            DKByteArrayAppendBytes( &_self->byteArray, (const uint8_t *)separator, 1 );
+        }
+
+        DKByteArrayAppendBytes( &_self->byteArray, pathComponent->byteArray.data, pathComponent->byteArray.length );
+
+        DKStringStandardizePath( _self );
+    }
+}
+
+
+///
+//  DKStringRemoveLastPathComponent()
+//
+void DKStringRemoveLastPathComponent( DKMutableStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableStringClass() );
+
+        DKStringStandardizePath( _self );
+
+        const char * path = (const char *)_self->byteArray.data;
+
+        // Empty or root path
+        if( (_self->byteArray.length == 0) || ((_self->byteArray.length == 1) && (path[0] == DKPathComponentSeparator)) )
+            return;
+        
+        const char * lastSlash = dk_ustrrchr( path, DKPathComponentSeparator );
+
+        DKRange range;
+        
+        // No separator
+        if( lastSlash == NULL )
+        {
+            range = DKRangeMake( 0, _self->byteArray.length );
+        }
+            
+        // Keep the first slash of an absolute path
+        else if( lastSlash == path )
+        {
+            range.location = lastSlash - path + 1;
+            range.length = _self->byteArray.length - range.location;
+        }
+        
+        else
+        {
+            range.location = lastSlash - path;
+            range.length = _self->byteArray.length - range.location;
+        }
+        
+        DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
+    }
+}
+
+
+///
+//  DKStringAppendPathExtension()
+//
+void DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extension )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKAssertKindOfClass( extension, DKStringClass() );
+
+        DKStringStandardizePath( _self );
+        
+        const char * path = (const char *)_self->byteArray.data;
+        
+        // Empty or root path
+        if( (_self->byteArray.length == 0) || ((_self->byteArray.length == 1) && (path[0] == DKPathComponentSeparator)) )
+        {
+            DKError( "%s: Cannot append path extension '%s' to path '%s'\n",
+                __func__, (const char *)extension->byteArray.data, path );
+            return;
+        }
+
+        const char separator[2] = { DKPathExtensionSeparator, '\0' };
+        DKByteArrayAppendBytes( &_self->byteArray, (const uint8_t *)separator, 1 );
+        
+        DKByteArrayAppendBytes( &_self->byteArray, extension->byteArray.data, extension->byteArray.length );
+    }
+}
+
+
+///
+//  DKStringRemovePathExtension()
+//
+void DKStringRemovePathExtension( DKMutableStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableStringClass() );
+
+        DKStringStandardizePath( _self );
+
+        const char * path = (const char *)_self->byteArray.data;
+        const char * ext = dk_ustrrchr( path, DKPathExtensionSeparator );
+        
+        // No extension
+        if( ext == NULL )
+            return;
+        
+        const char * lastSlash = dk_ustrrchr( path, DKPathComponentSeparator );
+        
+        // No extension in last path component
+        if( lastSlash && (ext < lastSlash) )
+            return;
+        
+        DKRange range;
+        range.location = ext - path;
+        range.length = _self->byteArray.length - range.location;
+        
+        DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
+    }
+}
+
+
+///
+//  DKStringStandardizePath()
+//
+void DKStringStandardizePath( DKMutableStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableStringClass() );
+
+        // Remove redundant slashes
+        char * dst = (char *)_self->byteArray.data;
+        const char * src = dst;
+        int wasslash = 0;
+        
+        char32_t ch;
+        size_t n;
+        
+        while( (n = dk_ustrscan( src, &ch )) != 0 )
+        {
+            int isslash = (ch == DKPathComponentSeparator);
+            
+            if( !wasslash || !isslash )
+            {
+                for( size_t i = 0; i < n; ++i )
+                    *dst++ = src[i];
+            }
+            
+            wasslash = isslash;
+            src += n;
+        }
+        
+        DKRange range;
+        range.location = (uint8_t *)dst - _self->byteArray.data;
+        
+        if( wasslash && (range.location > 1) )
+            range.location--;
+        
+        range.length = _self->byteArray.length - range.location;
         
         DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
     }

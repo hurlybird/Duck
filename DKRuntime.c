@@ -29,6 +29,7 @@ struct DKClass
     DKStringRef     name;
     DKClassRef      superclass;
     size_t          structSize;
+    DKClassOptions  options;
 
     DKSpinLock      lock;
 
@@ -410,21 +411,22 @@ static int32_t DKRuntimeInitialized = 0;
 ///
 //  InitRootClass()
 //
-static void InitRootClass( struct DKClass * _class, struct DKClass * isa, struct DKClass * superclass, size_t structSize )
+static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, size_t structSize, DKClassOptions options )
 {
-    memset( _class, 0, sizeof(struct DKClass) );
+    memset( cls, 0, sizeof(struct DKClass) );
     
-    struct DKObjectHeader * header = (struct DKObjectHeader *)_class;
-    header->isa = DKRetain( isa );
+    struct DKObjectHeader * header = (struct DKObjectHeader *)cls;
+    header->isa = &__DKMetaClass__;
     header->refcount = 1;
 
-    _class->name = NULL;
-    _class->superclass = DKRetain( superclass );
-    _class->structSize = structSize;
-    _class->lock = DKSpinLockInit;
+    cls->name = NULL;
+    cls->superclass = DKRetain( superclass );
+    cls->structSize = structSize;
+    cls->options = options;
+    cls->lock = DKSpinLockInit;
     
-    DKPointerArrayInit( &_class->interfaces );
-    DKPointerArrayInit( &_class->properties );
+    DKPointerArrayInit( &cls->interfaces );
+    DKPointerArrayInit( &cls->properties );
 }
 
 
@@ -455,14 +457,14 @@ static void DKRuntimeInit( void )
     {
         DKRuntimeInitialized = 1;
 
-        InitRootClass( &__DKMetaClass__,       &__DKMetaClass__, NULL,                  sizeof(struct DKClass)      );
-        InitRootClass( &__DKClassClass__,      &__DKMetaClass__, NULL,                  sizeof(struct DKClass)      );
-        InitRootClass( &__DKSelectorClass__,   &__DKMetaClass__, NULL,                  sizeof(struct DKSEL)        );
-        InitRootClass( &__DKInterfaceClass__,  &__DKMetaClass__, NULL,                  sizeof(DKInterface)         );
-        InitRootClass( &__DKMsgHandlerClass__, &__DKMetaClass__, &__DKInterfaceClass__, sizeof(struct DKMsgHandler) );
-        InitRootClass( &__DKPropertyClass__,   &__DKMetaClass__, NULL,                  0                           );
-        InitRootClass( &__DKObjectClass__,     &__DKMetaClass__, NULL,                  sizeof(DKObjectHeader)      );
-        InitRootClass( &__DKWeakClass__,       &__DKMetaClass__, NULL,                  sizeof(struct DKWeak)       );
+        InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass),      DKClassInstancesNeverAllocated | DKClassInstancesNeverDeallocated );
+        InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass),      0 );
+        InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct DKSEL),        0 );
+        InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),         0 );
+        InitRootClass( &__DKMsgHandlerClass__, &__DKInterfaceClass__, sizeof(struct DKMsgHandler), 0 );
+        InitRootClass( &__DKPropertyClass__,   NULL,                  0,                           0 );
+        InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObjectHeader),      0 );
+        InitRootClass( &__DKWeakClass__,       NULL,                  sizeof(struct DKWeak),       0 );
         
         InstallRootClassInterface( &__DKMetaClass__, DKClassLifeCycle() );
         InstallRootClassInterface( &__DKMetaClass__, DKDefaultComparison() );
@@ -566,13 +568,19 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
 {
     if( !cls )
     {
-        DKFatalError( "DKAlloc: Specified class object 'isa' is NULL." );
+        DKFatalError( "DKAllocObject: Specified class object 'isa' is NULL.\n" );
         return NULL;
     }
     
     if( cls->structSize < sizeof(struct DKObjectHeader) )
     {
-        DKFatalError( "DKAlloc: Requested struct size is smaller than DKObjectHeader." );
+        DKFatalError( "DKAllocObject: Requested struct size is smaller than DKObjectHeader.\n" );
+        return NULL;
+    }
+    
+    if( (cls->options & DKClassInstancesNeverAllocated) != 0 )
+    {
+        DKError( "DKAllocObject: Class '%s' does not allow allocation of instances.\n", DKStringGetCStringPtr( cls->name ) );
         return NULL;
     }
     
@@ -647,16 +655,21 @@ void DKDeallocObject( DKObjectRef _self )
 }
 
 
+
+
+// Creating Classes ======================================================================
+
 ///
 //  DKAllocClass()
 //
-DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize )
+DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize, DKClassOptions options )
 {
     struct DKClass * cls = (struct DKClass *)DKAllocObject( DKClassClass(), 0 );
 
     cls->name = DKRetain( name );
     cls->superclass = DKRetain( superclass );
     cls->structSize = structSize;
+    cls->options = options;
     
     DKPointerArrayInit( &cls->interfaces );
     DKPointerArrayInit( &cls->properties );
@@ -969,7 +982,11 @@ DKObjectRef DKRetain( DKObjectRef _self )
     if( _self )
     {
         struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
-        DKAtomicIncrement32( &obj->refcount );
+
+        if( (obj->isa->options & DKClassInstancesNeverDeallocated) == 0 )
+        {
+            DKAtomicIncrement32( &obj->refcount );
+        }
     }
 
     return _self;
@@ -980,36 +997,40 @@ void DKRelease( DKObjectRef _self )
     if( _self )
     {
         struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
-        struct DKWeak * weakref = (struct DKWeak *)obj->weakref;
-        
-        int32_t n;
-        
-        if( weakref == NULL )
-        {
-            n = DKAtomicDecrement32( &obj->refcount );
-            DKAssert( n >= 0 );
-        }
-        
-        else
-        {
-            DKSpinLockLock( &weakref->lock );
-            
-            n = DKAtomicDecrement32( &obj->refcount );
-            DKAssert( n >= 0 );
 
-            if( n == 0 )
+        if( (obj->isa->options & DKClassInstancesNeverDeallocated) == 0 )
+        {
+            struct DKWeak * weakref = (struct DKWeak *)obj->weakref;
+            
+            int32_t n;
+            
+            if( weakref == NULL )
             {
-                obj->weakref = NULL;
-                weakref->target = NULL;
+                n = DKAtomicDecrement32( &obj->refcount );
+                DKAssert( n >= 0 );
             }
             
-            DKSpinLockUnlock( &weakref->lock );
-        }
-        
-        if( n == 0 )
-        {
-            DKRelease( weakref );
-            DKDeallocObject( _self );
+            else
+            {
+                DKSpinLockLock( &weakref->lock );
+                
+                n = DKAtomicDecrement32( &obj->refcount );
+                DKAssert( n >= 0 );
+
+                if( n == 0 )
+                {
+                    obj->weakref = NULL;
+                    weakref->target = NULL;
+                }
+                
+                DKSpinLockUnlock( &weakref->lock );
+            }
+            
+            if( n == 0 )
+            {
+                DKRelease( weakref );
+                DKDeallocObject( _self );
+            }
         }
     }
 }

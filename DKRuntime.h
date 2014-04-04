@@ -15,6 +15,7 @@
 typedef const struct DKClass * DKClassRef;
 typedef const struct DKWeak * DKWeakRef;
 
+
 struct DKObjectHeader
 {
     DKClassRef isa;
@@ -26,10 +27,6 @@ typedef const struct DKObjectHeader DKObjectHeader;
 
 #define DKStaticObjectHeader( cls )     { cls, NULL, 1 }
 
-
-
-
-// DKClass ===============================================================================
 
 
 
@@ -252,7 +249,22 @@ DKInterfaceRef DKDefaultDescription( void );
 void *      DKAllocObject( DKClassRef cls, size_t extraBytes );
 void        DKDeallocObject( DKObjectRef _self );
 
-DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize );
+
+
+
+// Creating Classes ======================================================================
+enum
+{
+    // Instances are never allocated
+    DKClassInstancesNeverAllocated = (1 << 0),
+
+    // Instances are never deallocated (disables reference counting)
+    DKClassInstancesNeverDeallocated = (1 << 1)
+};
+
+typedef uint32_t DKClassOptions;
+
+DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize, DKClassOptions options );
 void *      DKAllocInterface( DKSEL sel, size_t structSize );
 
 void        DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );

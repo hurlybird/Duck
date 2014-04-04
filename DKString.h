@@ -73,7 +73,15 @@ DKIndex     DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKInde
 DKIndex     DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex size, DKIndex count );
 
 // Paths
-// Do stuff here...
+int         DKStringIsAbsolutePath( DKStringRef _self );
+DKStringRef DKStringCopyLastPathComponent( DKStringRef _self );
+DKStringRef DKStringCopyPathExtension( DKStringRef _self );
+void        DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComponent );
+void        DKStringRemoveLastPathComponent( DKMutableStringRef _self );
+void        DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extension );
+void        DKStringRemovePathExtension( DKMutableStringRef _self );
+void        DKStringStandardizePath( DKMutableStringRef _self );
+
 
 // Define a constant string. Constant strings require external storage so unless you
 // know what you're doing, use the DKSTR macro instead of calling this directly
