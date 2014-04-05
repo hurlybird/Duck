@@ -878,27 +878,6 @@ void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, const void * func )
 ///
 //  DKLookupInterface()
 //
-static DKInterface * DKSearchForInterface( DKClassRef cls, DKSEL sel )
-{
-    // Search our interface table for the selector
-    DKIndex count = cls->interfaces.length;
-    
-    for( DKIndex i = 0; i < count; ++i )
-    {
-        DKInterface * interface = cls->interfaces.data[i];
-        
-        // DKEqual( interface->sel, sel );
-        if( DKFastSelectorEqual( interface->sel, sel ) )
-            return interface;
-    }
-    
-    // Try to lookup the interface in our superclass
-    if( cls->superclass )
-        return DKLookupInterface( cls->superclass, sel );
-    
-    return NULL;
-}
-
 static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
 {
     DKAssert( (_class->_obj.isa == &__DKClassClass__) || (_class->_obj.isa == &__DKMetaClass__) );
@@ -936,18 +915,40 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
             return interface;
         }
     }
-    
-    // Search the interface tables
-    interface = DKSearchForInterface( cls, sel );
 
-    // Update the cache
-    if( interface )
+    // Search our interface table
+    DKIndex count = cls->interfaces.length;
+    
+    for( DKIndex i = 0; i < count; ++i )
     {
-        DKAssert( (cacheline > 0) && (cacheline < (DKStaticCacheSize + DKDynamicCacheSize)) );
-        cls->cache[cacheline] = interface;
+        DKInterface * interface = cls->interfaces.data[i];
+        DKAssert( interface != NULL );
+        
+        if( DKFastSelectorEqual( interface->sel, sel ) )
+        {
+            // Update the cache
+            cls->cache[cacheline] = interface;
+
+            DKSpinLockUnlock( &cls->lock );
+            return interface;
+        }
     }
 
+    // Lookup the interface in our superclasses
     DKSpinLockUnlock( &cls->lock );
+    
+    if( cls->superclass )
+    {
+        interface = DKLookupInterface( cls->superclass, sel );
+
+        // Update the cache
+        if( interface )
+        {
+            DKSpinLockLock( &cls->lock );
+            cls->cache[cacheline] = interface;
+            DKSpinLockUnlock( &cls->lock );
+        }
+    }
 
     return interface;
 }
