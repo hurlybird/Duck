@@ -17,7 +17,6 @@ struct DKBinaryTreeNode
     struct DKBinaryTreeNode * right;
     DKIndex level;
     
-    DKHashCode hash;
     DKObjectRef key;
     DKObjectRef object;
 };
@@ -30,6 +29,8 @@ struct DKBinaryTree
     struct DKBinaryTreeNode null_node;
     struct DKBinaryTreeNode * root;
     DKIndex count;
+    
+    DKCompareFunction compareKeys;
 };
 
 
@@ -127,12 +128,13 @@ static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _self )
     tree->null_node.right = &tree->null_node;
     tree->null_node.level = 0;
     
-    tree->null_node.hash = 0;
     tree->null_node.key = NULL;
     tree->null_node.object = NULL;
     
     tree->root = &tree->null_node;
     tree->count = 0;
+    
+    tree->compareKeys = DKCompare;
     
     return _self;
 }
@@ -209,7 +211,6 @@ static void CheckTreeIntegrity( const struct DKBinaryTree * tree )
     DKAssert( tree->null_node.right == &tree->null_node );
     DKAssert( tree->null_node.level == 0 );
     
-    DKAssert( tree->null_node.hash == 0 );
     DKAssert( tree->null_node.key == NULL );
     DKAssert( tree->null_node.object == NULL );
 
@@ -232,7 +233,6 @@ static struct DKBinaryTreeNode * AllocNode( struct DKBinaryTree * tree, DKObject
     node->right = &tree->null_node;
     node->level = 0;
 
-    node->hash = DKHash( key );
     node->key = DKRetain( key );
     node->object = DKRetain( object );
     
@@ -313,30 +313,10 @@ static void Split( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node )
 
 
 ///
-//  Compare()
-//
-static int Compare( struct DKBinaryTreeNode * node, DKHashCode hash, DKObjectRef key )
-{
-    int cmp;
-    
-    if( node->hash < hash )
-        cmp = 1;
-    
-    else if( node->hash > hash )
-        cmp = -1;
-    
-    else
-        cmp = DKCompare( key, node->key );
-    
-    return cmp;
-}
-
-
-///
 //  Insert()
 //
 static void Insert( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
-    DKHashCode hash, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
+    DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
 {
     if( *node == &tree->null_node )
     {
@@ -348,16 +328,16 @@ static void Insert( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
     
     else
     {
-        int cmp = Compare( *node, hash, key );
+        int cmp = tree->compareKeys( (*node)->key, key );
         
         if( cmp < 0 )
         {
-            Insert( tree, &(*node)->left, hash, key, object, policy );
+            Insert( tree, &(*node)->left, key, object, policy );
         }
             
         else if( cmp > 0 )
         {
-            Insert( tree, &(*node)->right, hash, key, object, policy );
+            Insert( tree, &(*node)->right, key, object, policy );
         }
             
         else
@@ -381,13 +361,13 @@ static void Insert( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
 ///
 //  FindNode()
 //
-static const struct DKBinaryTreeNode * FindNode( const struct DKBinaryTree * tree, DKHashCode hash, DKObjectRef key )
+static const struct DKBinaryTreeNode * FindNode( const struct DKBinaryTree * tree, DKObjectRef key )
 {
     struct DKBinaryTreeNode * node = tree->root;
 
     while( node )
     {
-        int cmp = Compare( node, hash, key );
+        int cmp = tree->compareKeys( node->key, key );
         
         if( cmp < 0 )
             node = node->left;
@@ -408,10 +388,6 @@ static const struct DKBinaryTreeNode * FindNode( const struct DKBinaryTree * tre
 //
 static void Swap( struct DKBinaryTreeNode * node1, struct DKBinaryTreeNode * node2 )
 {
-    DKHashCode tmp_hash = node1->hash;
-    node1->hash = node2->hash;
-    node2->hash = tmp_hash;
-    
     DKObjectRef tmp_key = node1->key;
     node1->key = node2->key;
     node2->key = tmp_key;
@@ -425,28 +401,28 @@ static void Swap( struct DKBinaryTreeNode * node1, struct DKBinaryTreeNode * nod
 ///
 //  Remove()
 //
-static void Remove( struct DKBinaryTree * tree, DKHashCode hash, DKObjectRef key, struct DKBinaryTreeNode ** node, struct DKBinaryTreeNode ** leaf_node, struct DKBinaryTreeNode ** erase_node )
+static void Remove( struct DKBinaryTree * tree, DKObjectRef key, struct DKBinaryTreeNode ** node, struct DKBinaryTreeNode ** leaf_node, struct DKBinaryTreeNode ** erase_node )
 {
     if( *node != &tree->null_node )
     {
         *leaf_node = *node;
     
-        int cmp = Compare( *node, hash, key );
+        int cmp = tree->compareKeys( (*node)->key, key );
         
         if( cmp < 0 )
         {
-            Remove( tree, hash, key, &(*node)->left, leaf_node, erase_node );
+            Remove( tree, key, &(*node)->left, leaf_node, erase_node );
         }
             
         else
         {
             *erase_node = *node;
-            Remove( tree, hash, key, &(*node)->right, leaf_node, erase_node );
+            Remove( tree, key, &(*node)->right, leaf_node, erase_node );
         }
         
         if( *leaf_node == *node )
         {
-            if( (*erase_node != &tree->null_node) && (Compare( *erase_node, hash, key ) == 0) )
+            if( (*erase_node != &tree->null_node) && (tree->compareKeys( (*erase_node)->key, key ) == 0) )
             {
                 DKAssert( (*node)->left == &tree->null_node );
                 
@@ -515,26 +491,30 @@ DKBinaryTreeRef DKBinaryTreeCreate( void )
 ///
 //  DKBinaryTreeCreateWithKeysAndObjects()
 //
-DKBinaryTreeRef DKBinaryTreeCreateWithKeysAndObjects( DKObjectRef firstKey, ... )
+DKBinaryTreeRef DKBinaryTreeCreateWithKeysAndObjects( DKCompareFunction compareKeys, DKObjectRef firstKey, ... )
 {
     struct DKBinaryTree * tree = DKAllocObject( DKBinaryTreeClass(), 0 );
-
-    va_list arg_ptr;
-    va_start( arg_ptr, firstKey );
-
-    for( DKObjectRef key = firstKey; key != NULL; )
+    
+    if( tree )
     {
-        DKObjectRef object = va_arg( arg_ptr, DKObjectRef );
+        tree->compareKeys = compareKeys;
 
-        DKHashCode hash = DKHash( key );
-        Insert( tree, &tree->root, hash, key, object, DKDictionaryInsertAlways );
-        
-        key = va_arg( arg_ptr, DKObjectRef );
+        va_list arg_ptr;
+        va_start( arg_ptr, firstKey );
+
+        for( DKObjectRef key = firstKey; key != NULL; )
+        {
+            DKObjectRef object = va_arg( arg_ptr, DKObjectRef );
+
+            Insert( tree, &tree->root, key, object, DKDictionaryInsertAlways );
+            
+            key = va_arg( arg_ptr, DKObjectRef );
+        }
+
+        va_end( arg_ptr );
+
+        CheckTreeIntegrity( tree );
     }
-
-    va_end( arg_ptr );
-
-    CheckTreeIntegrity( tree );
     
     return tree;
 }
@@ -559,9 +539,16 @@ DKBinaryTreeRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary )
 ///
 //  DKBinaryTreeCreateMutable()
 //
-DKMutableBinaryTreeRef DKBinaryTreeCreateMutable( void )
+DKMutableBinaryTreeRef DKBinaryTreeCreateMutable( DKCompareFunction compareKeys )
 {
-    return DKAllocObject( DKMutableBinaryTreeClass(), 0 );
+    struct DKBinaryTree * tree = DKAllocObject( DKMutableBinaryTreeClass(), 0 );
+    
+    if( tree )
+    {
+        tree->compareKeys = compareKeys;
+    }
+    
+    return tree;
 }
 
 
@@ -570,7 +557,15 @@ DKMutableBinaryTreeRef DKBinaryTreeCreateMutable( void )
 //
 DKMutableBinaryTreeRef DKBinaryTreeCreateMutableCopy( DKDictionaryRef srcDictionary )
 {
-    DKMutableDictionaryRef _self = DKBinaryTreeCreateMutable();
+    DKCompareFunction compareKeys = DKCompare;
+
+    if( DKIsKindOfClass( srcDictionary, DKBinaryTreeClass() ) )
+    {
+        DKBinaryTreeRef srcTree = srcDictionary;
+        compareKeys = srcTree->compareKeys;
+    }
+
+    DKMutableDictionaryRef _self = DKBinaryTreeCreateMutable( compareKeys );
     DKDictionaryAddEntriesFromDictionary( _self, srcDictionary );
     
     return _self;
@@ -600,10 +595,7 @@ DKObjectRef DKBinaryTreeGetObject( DKBinaryTreeRef _self, DKObjectRef key )
     {
         DKAssertKindOfClass( _self, DKBinaryTreeClass() );
 
-        const struct DKBinaryTree * tree = (struct DKBinaryTree *)_self;
-        DKHashCode hash = DKHash( key );
-    
-        const struct DKBinaryTreeNode * node = FindNode( tree, hash, key );
+        const struct DKBinaryTreeNode * node = FindNode( _self, key );
     
         if( node )
             return node->object;
@@ -671,8 +663,7 @@ void DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DK
     {
         DKAssertKindOfClass( _self, DKMutableBinaryTreeClass() );
 
-        DKHashCode hash = DKHash( key );
-        Insert( _self, &_self->root, hash, key, object, policy );
+        Insert( _self, &_self->root, key, object, policy );
 
         CheckTreeIntegrity( _self );
     }
@@ -693,12 +684,10 @@ void DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef _self, DKObjectRef key )
     {
         DKAssertKindOfClass( _self, DKMutableBinaryTreeClass() );
 
-        DKHashCode hash = DKHash( key );
-
         struct DKBinaryTreeNode * leaf_node = NULL;
         struct DKBinaryTreeNode * erase_node = &_self->null_node;
 
-        Remove( _self, hash, key, &_self->root, &leaf_node, &erase_node );
+        Remove( _self, key, &_self->root, &leaf_node, &erase_node );
 
         CheckTreeIntegrity( _self );
     }

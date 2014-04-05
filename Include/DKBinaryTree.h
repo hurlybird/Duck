@@ -15,15 +15,14 @@
 typedef const struct DKBinaryTree * DKBinaryTreeRef;
 typedef struct DKBinaryTree * DKMutableBinaryTreeRef;
 
-
 DKClassRef DKBinaryTreeClass( void );
 DKClassRef DKMutableBinaryTreeClass( void );
 
 DKBinaryTreeRef DKBinaryTreeCreate( void );
-DKBinaryTreeRef DKBinaryTreeCreateWithKeysAndObjects( DKObjectRef firstKey, ... );
+DKBinaryTreeRef DKBinaryTreeCreateWithKeysAndObjects( DKCompareFunction compareKeys, DKObjectRef firstKey, ... );
 DKBinaryTreeRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary );
 
-DKMutableBinaryTreeRef DKBinaryTreeCreateMutable( void );
+DKMutableBinaryTreeRef DKBinaryTreeCreateMutable( DKCompareFunction compareKeys );
 DKMutableBinaryTreeRef DKBinaryTreeCreateMutableCopy( DKDictionaryRef srcDictionary );
 
 DKIndex     DKBinaryTreeGetCount( DKBinaryTreeRef _self );
