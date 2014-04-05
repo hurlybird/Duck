@@ -14,7 +14,7 @@
 #include "DKList.h"
 #include "DKArray.h"
 
-#include "icu/utf8.h"
+#include "icu/unicode/utf8.h"
 
 
 struct DKString
@@ -193,14 +193,14 @@ int DKStringCompare( DKStringRef _self, DKStringRef other )
         if( _self->byteArray.data )
         {
             if( _self->byteArray.data )
-                return dk_ustrcmp( (const char *)_self->byteArray.data, (const char *)other->byteArray.data, 0 );
+                return dk_ustrcmp( (const char *)_self->byteArray.data, (const char *)other->byteArray.data );
             
-            return dk_ustrcmp( (const char *)_self->byteArray.data, "", 0 );
+            return dk_ustrcmp( (const char *)_self->byteArray.data, "" );
         }
         
         else if( other->byteArray.data )
         {
-            return dk_ustrcmp( "", (const char *)other->byteArray.data, 0 );
+            return dk_ustrcmp( "", (const char *)other->byteArray.data );
         }
     }
     
@@ -550,24 +550,12 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
 
             if( search[0] != '\0' )
             {
-                const char * ss = strstr( s, search );
+                range = dk_ustrstr_range( s, search );
                 
-                if( ss )
-                {
-                    range.location = 0;
-                    range.length = dk_ustrlen( search );
-                    
-                    const char * cur = (const char *)string->byteArray.data;
-                    
-                    while( cur != ss )
-                    {
-                        char32_t ch;
-                        cur += dk_ustrscan( cur, &ch );
-                        range.location++;
-                    }
-                    
-                    return range;
-                }
+                if( range.location != DKNotFound )
+                    range.location += startLoc;
+                
+                return range;
             }
         }
     }

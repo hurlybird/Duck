@@ -41,7 +41,7 @@
 /* which are contained in the platform-specific file platform.h             */
 /*==========================================================================*/
 
-#include "ptypes.h" /* platform.h is included in ptypes.h */
+#include "unicode/ptypes.h" /* platform.h is included in ptypes.h */
 
 /*
  * ANSI C headers:
@@ -317,6 +317,6 @@ typedef int32_t UChar32;
  */
 #define U_SENTINEL (-1)
 
-#include "urename.h"
+#include "unicode/urename.h"
 
 #endif

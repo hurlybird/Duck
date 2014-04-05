@@ -22,12 +22,11 @@
 #   define U_UTF8_IMPL
 #endif
 
-#include "utypes.h"
-#include "utf.h"
-#include "utf8.h"
-#include "utf_old.h"
-//#include "uassert.h"
-#include <assert.h>
+#include "unicode/utypes.h"
+#include "unicode/utf.h"
+#include "unicode/utf8.h"
+#include "unicode/utf_old.h"
+#include "uassert.h"
 
 /*
  * This table could be replaced on many machines by
@@ -126,7 +125,7 @@ U_CAPI UChar32 U_EXPORT2
 utf8_nextCharSafeBody(const uint8_t *s, int32_t *pi, int32_t length, UChar32 c, UBool strict) {
     int32_t i=*pi;
     uint8_t count=U8_COUNT_TRAIL_BYTES(c);
-    assert(count <= 5); /* U8_COUNT_TRAIL_BYTES returns value 0...5 */
+    U_ASSERT(count <= 5); /* U8_COUNT_TRAIL_BYTES returns value 0...5 */
     if(i+count<=length || length<0) {
         uint8_t trail;
 

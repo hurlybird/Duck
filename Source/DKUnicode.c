@@ -7,7 +7,7 @@
 //
 
 #include "DKUnicode.h"
-#include "icu/utf8.h"
+#include "icu/unicode/utf8.h"
 
 
 ///
@@ -51,11 +51,98 @@ const char * dk_ustrrchr( const char * str, int ch )
 
 
 ///
+//  dk_ustrstr()
+//
+const char * dk_ustrstr( const char * str1, const char * str2 )
+{
+    if( (*str1 == '\0') || (*str2 == '\0') )
+        return NULL;
+
+    for( int32_t next_i = 0; str1[next_i] != '\0'; )
+    {
+        int32_t curr_i = next_i;
+        int32_t i = next_i;
+        int32_t j = 0;
+        char32_t ch1, ch2;
+    
+        U8_NEXT( str1, i, -1, ch1 );
+        U8_NEXT( str2, j, -1, ch2 );
+
+        next_i = i;
+
+        while( ch1 == ch2 )
+        {
+            if( str2[j] == '\0' )
+                return &str1[curr_i];
+            
+            U8_NEXT( str1, i, -1, ch1 );
+            U8_NEXT( str2, j, -1, ch2 );
+        }
+    }
+    
+    return NULL;
+}
+
+
+///
+//  dk_ustrstr_range()
+//
+DKRange dk_ustrstr_range( const char * str1, const char * str2 )
+{
+    if( (*str1 == '\0') || (*str2 == '\0') )
+        return DKRangeMake( DKNotFound, 0 );
+
+    DKRange range;
+    range.location = 0;
+
+    for( int32_t next_i = 0; str1[next_i] != '\0'; )
+    {
+        range.length = 1;
+    
+        int32_t i = next_i;
+        int32_t j = 0;
+        char32_t ch1, ch2;
+    
+        U8_NEXT( str1, i, -1, ch1 );
+        U8_NEXT( str2, j, -1, ch2 );
+
+        next_i = i;
+
+        while( ch1 == ch2 )
+        {
+            if( str2[j] == '\0' )
+                return range;
+            
+            U8_NEXT( str1, i, -1, ch1 );
+            U8_NEXT( str2, j, -1, ch2 );
+
+            range.length++;
+        }
+        
+        range.location++;
+    }
+    
+    return DKRangeMake( DKNotFound, 0 );
+}
+
+
+///
 //  dk_ustrcmp()
 //
-int dk_ustrcmp( const char * str1, const char * str2, int options )
+int dk_ustrcmp( const char * str1, const char * str2 )
 {
-    return strcmp( str1, str2 );
+    int32_t i = 0;
+    int32_t j = 0;
+    char32_t ch1, ch2;
+    
+    do
+    {
+        U8_NEXT( str1, i, -1, ch1 );
+        U8_NEXT( str2, j, -1, ch2 );
+    }
+    while( (ch1 == ch2) && (ch1 != '\0') );
+
+    return ch2 - ch1;
 }
 
 

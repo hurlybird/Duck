@@ -27,7 +27,7 @@
  *   - by changing the default setting of U_DISABLE_RENAMING in uconfig.h
  */
 
-#include "uconfig.h"
+#include "unicode/uconfig.h"
 
 #if !U_DISABLE_RENAMING
 
