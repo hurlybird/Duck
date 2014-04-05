@@ -33,7 +33,7 @@ struct DKClass
 
     DKSpinLock      lock;
 
-    DKInterface *   vtable[DKVTableSize];
+    DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
     
     DKPointerArray  interfaces;
     DKPointerArray  properties;
@@ -114,7 +114,7 @@ static DKClassRef DKWeakClass( void )
     {                                                                                   \
         DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
         #name,                                                                          \
-        0                                                                               \
+        DKDynamicCache                                                                  \
     };                                                                                  \
                                                                                         \
     DKSEL DKSelector_ ## name( void )                                                   \
@@ -128,7 +128,7 @@ static DKClassRef DKWeakClass( void )
     {                                                                                   \
         DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
         #name,                                                                          \
-        DKVTable_ ## name                                                               \
+        DKStaticCache_ ## name                                                          \
     };                                                                                  \
                                                                                         \
     DKSEL DKSelector_ ## name( void )                                                   \
@@ -440,10 +440,6 @@ static void InstallRootClassInterface( struct DKClass * _class, DKInterface * in
 {
     // Bypass the normal installation process here since the classes that allow it to
     // work haven't been fully initialized yet.
-
-    if( interface->sel->vidx )
-        _class->vtable[interface->sel->vidx] = interface;
-    
     DKPointerArrayAppendPointer( &_class->interfaces, interface );
 }
 
@@ -683,7 +679,7 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
     DKPointerArrayInit( &cls->interfaces );
     DKPointerArrayInit( &cls->properties );
 
-    memset( cls->vtable, 0, sizeof(cls->vtable) );
+    memset( cls->cache, 0, sizeof(cls->cache) );
     
     return cls;
 }
@@ -756,62 +752,84 @@ static void DKInterfaceFinalize( DKObjectRef _self )
 
 
 ///
+//  GetDynamicCacheline()
+//
+static int GetDynamicCacheline( DKSEL sel )
+{
+    int cacheline;
+    
+#if __LP64__
+    DKAssert( ((uintptr_t)sel & 0x7) == 0 );
+    cacheline = (int)((((uintptr_t)sel >> 3) & (DKDynamicCacheSize - 1)) + DKStaticCacheSize);
+#else
+    DKAssert( ((uintptr_t)sel & 0x3) == 0 );
+    cacheline = (int)((((uintptr_t)sel >> 2) & (DKDynamicCacheSize - 1)) + DKStaticCacheSize);
+#endif
+    
+    return cacheline;
+}
+
+
+///
 //  DKInstallInterface()
 //
-void DKInstallInterface( DKClassRef _class, DKInterfaceRef interface )
+
+void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
 {
     DKAssertMemberOfClass( _class, DKClassClass() );
-    DKAssertKindOfClass( interface, DKInterfaceClass() );
+    DKAssertKindOfClass( _interface, DKInterfaceClass() );
 
     struct DKClass * cls = (struct DKClass *)_class;
-    DKInterface * interfaceObject = interface;
+    DKInterface * interface = _interface;
 
-    // Retain the interface
-    DKRetain( interfaceObject );
+    // Retain the new interface
+    DKRetain( interface );
 
-    // Update the fast-lookup table
-    int vtableIndex = interfaceObject->sel->vidx;
-    DKAssert( (vtableIndex >= 0) && (vtableIndex < DKVTableSize) );
+    // Resolve the cache line from the selector
+    int cacheline = interface->sel->cacheline;
+    DKAssert( (cacheline >= 0) && (cacheline < DKStaticCacheSize) );
 
-    if( vtableIndex )
-    {
-        // If we're replacing a fast-lookup entry, make sure the selectors match
-        DKInterface * oldInterface = cls->vtable[vtableIndex];
-
-        if( (oldInterface != NULL) && !DKEqual( interface, oldInterface ) )
-        {
-            DKRetain( interfaceObject );
-
-            // This likely means that two interfaces are trying to use the same fast lookup index
-            DKFatalError( "DKInstallInterface: Selector '%s' doesn't match the current vtable entry '%s'.\n",
-                interfaceObject->sel->suid, oldInterface->sel->suid );
-            
-            return;
-        }
+    if( cacheline == DKDynamicCache )
+        cacheline = GetDynamicCacheline( interface->sel );
     
-        cls->vtable[vtableIndex] = interface;
-    }
-
-    // Invalidate the interface cache
-    // Do stuff here...
+    DKAssert( (cacheline > 0) && (cacheline < (DKStaticCacheSize + DKDynamicCacheSize)) );
+    
+    // Lock while we make changes
+    DKSpinLockLock( &cls->lock );
+    
+    // Invalidate the cache
+    
+    // *** WARNING ***
+    // This doesn't invalidate the caches of any subclasses, so it's possible that
+    // subclasses will still reference the old interface, or even crash if the old
+    // interface is released (the cache doesn't maintain a reference).
+    // *** WARNING ***
+    
+    cls->cache[cacheline] = NULL;
 
     // Replace the interface in the interface table
     DKIndex count = cls->interfaces.length;
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        const DKInterface * oldInterfaceObject = cls->interfaces.data[i];
+        DKInterface * oldInterface = cls->interfaces.data[i];
         
-        if( DKEqual( oldInterfaceObject->sel, interfaceObject->sel ) )
+        if( DKEqual( oldInterface->sel, interface->sel ) )
         {
-            DKRelease( oldInterfaceObject );
-            cls->interfaces.data[i] = interfaceObject;
+            cls->interfaces.data[i] = oldInterface;
+
+            DKSpinLockUnlock( &cls->lock );
+
+            // Release the old interface after unlocking
+            DKRelease( oldInterface );
             return;
         }
     }
     
     // Add the interface to the interface table
-    DKPointerArrayAppendPointer( &cls->interfaces, interfaceObject );
+    DKPointerArrayAppendPointer( &cls->interfaces, interface );
+
+    DKSpinLockUnlock( &cls->lock );
 }
 
 
@@ -855,37 +873,55 @@ static DKInterface * DKSearchForInterface( DKClassRef cls, DKSEL sel )
     return NULL;
 }
 
-static DKInterface * DKLookupInterface( DKClassRef cls, DKSEL sel )
+static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
 {
-    // First check the fast lookup table
-    int vtableIndex = sel->vidx;
-    DKAssert( (vtableIndex >= 0) && (vtableIndex < DKVTableSize) );
+    DKAssert( (_class->_obj.isa == &__DKClassClass__) || (_class->_obj.isa == &__DKMetaClass__) );
+    DKAssert( sel->_obj.isa == &__DKSelectorClass__ );
+
+    struct DKClass * cls = (struct DKClass *)_class;
+
+    // Get the static cache line from the selector
+    int cacheline = sel->cacheline;
+    DKAssert( (cacheline >= 0) && (cacheline < DKStaticCacheSize) );
+
+    // Lock while we lookup the interface
+    DKSpinLockLock( &cls->lock );
     
-    DKInterface * interface = cls->vtable[vtableIndex];
+    // First check the static cache (line 0 will always be NULL)
+    DKInterface * interface = cls->cache[cacheline];
     
     if( interface )
+    {
+        DKSpinLockUnlock( &cls->lock );
         return interface;
+    }
     
-    // Next check the interface cache
-    // Do stuff here...
+    // Next check the dynamic cache
+    if( cacheline == DKDynamicCache )
+    {
+        cacheline = GetDynamicCacheline( sel );
+        DKAssert( (cacheline > 0) && (cacheline < (DKStaticCacheSize + DKDynamicCacheSize)) );
+        
+        interface = cls->cache[cacheline];
+        
+        if( interface && DKFastSelectorEqual( interface->sel, sel ) )
+        {
+            DKSpinLockUnlock( &cls->lock );
+            return interface;
+        }
+    }
     
     // Search the interface tables
     interface = DKSearchForInterface( cls, sel );
 
-    // Update the caches
+    // Update the cache
     if( interface )
     {
-        struct DKClass * _cls = (struct DKClass *)cls;
-        
-        // Update the vtable
-        if( vtableIndex > 0 )
-        {
-            _cls->vtable[vtableIndex] = interface;
-        }
-
-        // Update the interface cache
-        // Do stuff here...
+        DKAssert( (cacheline > 0) && (cacheline < (DKStaticCacheSize + DKDynamicCacheSize)) );
+        cls->cache[cacheline] = interface;
     }
+
+    DKSpinLockUnlock( &cls->lock );
 
     return interface;
 }

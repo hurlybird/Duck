@@ -33,24 +33,43 @@ typedef const struct DKObjectHeader DKObjectHeader;
 // DKSelector ============================================================================
 typedef enum
 {
-    DKVTableUnspecified =       0,
+    // Use the dynamic cache
+    DKDynamicCache =            0,
     
-    DKVTable_Allocation,
-    DKVTable_Comparison,
-    DKVTable_List,
-    DKVTable_Dictionary,
+    // 1-7 -- Static cache lines for Duck interfaces
+    DKStaticCache_Allocation,
+    DKStaticCache_Comparison,
+    DKStaticCache_List,
+    DKStaticCache_Dictionary,
     
-    DKVTableFirstUserIndex =    8,
+    DKStaticCache_Reserved5,
+    DKStaticCache_Reserved6,
+    DKStaticCache_Reserved7,
     
-    DKVTableSize =              16
+    // 8-15 -- Static cache lines for user interfaces
+    DKStaticCache_User1,
+    DKStaticCache_User2,
+    DKStaticCache_User3,
+    DKStaticCache_User4,
     
-} DKVTableIndex;
+    DKStaticCache_User5,
+    DKStaticCache_User6,
+    DKStaticCache_User7,
+    DKStaticCache_User8,
+    
+    // Size of the static cache
+    DKStaticCacheSize,
+    
+    // Size of the dynamic cache (must be a power of 2)
+    DKDynamicCacheSize =        16
+    
+} DKCacheUsage;
 
 struct DKSEL
 {
     DKObjectHeader  _obj;
     const char *    suid;
-    DKVTableIndex   vidx;
+    DKCacheUsage    cacheline;
 };
 
 typedef const struct DKSEL * DKSEL;
@@ -379,7 +398,7 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
     {                                                                                   \
         struct DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                     \
         sel->suid = #name;                                                              \
-        sel->vidx = 0;                                                                  \
+        sel->cacheline = DKDynamicCache;                                                \
         return sel;                                                                     \
     }
 
@@ -388,7 +407,7 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
     {                                                                                   \
         struct DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                     \
         sel->suid = #name;                                                              \
-        sel->vidx = DKVTable_ ## name;                                                  \
+        sel->cacheline = DKStaticCache_ ## name;                                        \
         return sel;                                                                     \
     }
 
