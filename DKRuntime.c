@@ -24,7 +24,7 @@ static DKInterface * DKLookupInterface( const struct DKClass * cls, DKSEL sel );
 
 struct DKClass
 {
-    DKObjectHeader  _obj;
+    DKObject        _obj;
     
     DKStringRef     name;
     DKClassRef      superclass;
@@ -43,7 +43,7 @@ struct DKClass
 // DKWeak
 struct DKWeak
 {
-    DKObjectHeader  _obj;
+    DKObject        _obj;
     DKSpinLock      lock;
     DKObjectRef     target;
 };
@@ -112,7 +112,7 @@ static DKClassRef DKWeakClass( void )
 #define DKStaticSelectorInit( name )                                                    \
     static struct DKSEL DKSelector_ ## name ##_StaticObject =                           \
     {                                                                                   \
-        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
+        DKStaticObject( &__DKSelectorClass__ ),                                         \
         #name,                                                                          \
         DKDynamicCache                                                                  \
     };                                                                                  \
@@ -126,7 +126,7 @@ static DKClassRef DKWeakClass( void )
 #define DKStaticFastSelectorInit( name )                                                \
     static struct DKSEL DKSelector_ ## name ##_StaticObject =                           \
     {                                                                                   \
-        DKStaticObjectHeader( &__DKSelectorClass__ ),                                   \
+        DKStaticObject( &__DKSelectorClass__ ),                                         \
         #name,                                                                          \
         DKStaticCache_ ## name                                                          \
     };                                                                                  \
@@ -139,7 +139,7 @@ static DKClassRef DKWeakClass( void )
 
 #define DKStaticInterfaceObject( sel )                                                  \
     {                                                                                   \
-        DKStaticObjectHeader( &__DKInterfaceClass__ ),                                  \
+        DKStaticObject( &__DKInterfaceClass__ ),                                        \
         sel                                                                             \
     }
 
@@ -153,7 +153,7 @@ DKStaticSelectorInit( InterfaceNotFound );
 DKDeclareMessageSelector( MsgHandlerNotFound );
 DKStaticSelectorInit( MsgHandlerNotFound );
 
-typedef void (*DKInterfaceNotFoundFunction)( struct DKObjectHeader * obj );
+typedef void (*DKInterfaceNotFoundFunction)( struct DKObject * obj );
 
 struct DKInterfaceNotFoundInterface
 {
@@ -161,7 +161,7 @@ struct DKInterfaceNotFoundInterface
     DKInterfaceNotFoundFunction func[DK_MAX_INTERFACE_SIZE];
 };
 
-static void DKInterfaceNotFoundCallback( struct DKObjectHeader * obj )
+static void DKInterfaceNotFoundCallback( struct DKObject * obj )
 {
     // Note: 'obj' is for debugging only and may not be valid. Most interface functions
     // take an object as a first arguement, but it's not actually required.
@@ -173,7 +173,7 @@ static void DKInterfaceNotFoundCallback( struct DKObjectHeader * obj )
     DKFatalError( "DKRuntime: Invalid interface call.\n" );
 }
 
-static void DKMsgHandlerNotFoundCallback( struct DKObjectHeader * obj, DKSEL sel )
+static void DKMsgHandlerNotFoundCallback( struct DKObject * obj, DKSEL sel )
 {
     // This handles silently failing when sending messages to NULL objects.
 }
@@ -418,9 +418,9 @@ static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, si
 {
     memset( cls, 0, sizeof(struct DKClass) );
     
-    struct DKObjectHeader * header = (struct DKObjectHeader *)cls;
-    header->isa = &__DKMetaClass__;
-    header->refcount = 1;
+    struct DKObject * obj = (struct DKObject *)cls;
+    obj->isa = &__DKMetaClass__;
+    obj->refcount = 1;
 
     cls->name = NULL;
     cls->superclass = DKRetain( superclass );
@@ -462,7 +462,7 @@ static void DKRuntimeInit( void )
         InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),         0 );
         InitRootClass( &__DKMsgHandlerClass__, &__DKInterfaceClass__, sizeof(struct DKMsgHandler), 0 );
         InitRootClass( &__DKPropertyClass__,   NULL,                  0,                           0 );
-        InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObjectHeader),      0 );
+        InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObject),            0 );
         InitRootClass( &__DKWeakClass__,       NULL,                  sizeof(struct DKWeak),       0 );
         
         InstallRootClassInterface( &__DKMetaClass__, DKClassAllocation() );
@@ -541,7 +541,7 @@ static void DKRuntimeInit( void )
 ///
 //  DKInitializeObject()
 //
-static struct DKObjectHeader * DKInitializeObject( struct DKObjectHeader * obj, const struct DKClass * cls )
+static struct DKObject * DKInitializeObject( struct DKObject * obj, const struct DKClass * cls )
 {
     if( cls->superclass )
     {
@@ -553,7 +553,7 @@ static struct DKObjectHeader * DKInitializeObject( struct DKObjectHeader * obj, 
         DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
         
         if( allocation->initialize )
-            obj = (struct DKObjectHeader *)allocation->initialize( obj );
+            obj = (struct DKObject *)allocation->initialize( obj );
     }
     
     return obj;
@@ -571,9 +571,9 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
         return NULL;
     }
     
-    if( cls->structSize < sizeof(struct DKObjectHeader) )
+    if( cls->structSize < sizeof(struct DKObject) )
     {
-        DKFatalError( "DKAllocObject: Requested struct size is smaller than DKObjectHeader.\n" );
+        DKFatalError( "DKAllocObject: Requested struct size is smaller than DKObject.\n" );
         return NULL;
     }
     
@@ -586,7 +586,7 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
     // Allocate the structure + extra bytes
     DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
 
-    struct DKObjectHeader * obj = NULL;
+    struct DKObject * obj = NULL;
 
     if( allocation->alloc )
         obj = allocation->alloc( cls->structSize + extraBytes );
@@ -612,7 +612,7 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
 ///
 //  DKFinalizeObject()
 //
-static void DKFinalizeObject( struct DKObjectHeader * obj )
+static void DKFinalizeObject( struct DKObject * obj )
 {
     for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
     {
@@ -629,7 +629,7 @@ static void DKFinalizeObject( struct DKObjectHeader * obj )
 //
 void DKDeallocObject( DKObjectRef _self )
 {
-    struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
+    struct DKObject * obj = (struct DKObject *)_self;
     
     DKAssert( obj );
     DKAssert( obj->refcount == 0 );
@@ -934,7 +934,7 @@ int DKHasInterface( DKObjectRef _self, DKSEL sel )
 {
     if( _self )
     {
-        DKObjectHeader * obj = _self;
+        DKObject * obj = _self;
         DKClassRef cls = obj->isa;
         
         // If this object is a class, look in its own interfaces
@@ -957,7 +957,7 @@ DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
 {
     if( _self )
     {
-        DKObjectHeader * obj = _self;
+        DKObject * obj = _self;
         DKClassRef cls = obj->isa;
         
         // If this object is a class, look in its own interfaces
@@ -992,7 +992,7 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
 {
     if( _self )
     {
-        DKObjectHeader * obj = _self;
+        DKObject * obj = _self;
         DKClassRef cls = obj->isa;
         
         // If this object is a class, look in its own interfaces
@@ -1022,7 +1022,7 @@ DKObjectRef DKRetain( DKObjectRef _self )
 {
     if( _self )
     {
-        struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
+        struct DKObject * obj = (struct DKObject *)_self;
 
         if( (obj->isa->options & DKInstancesNeverDeallocated) == 0 )
         {
@@ -1037,7 +1037,7 @@ void DKRelease( DKObjectRef _self )
 {
     if( _self )
     {
-        struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
+        struct DKObject * obj = (struct DKObject *)_self;
 
         if( (obj->isa->options & DKInstancesNeverDeallocated) == 0 )
         {
@@ -1084,7 +1084,7 @@ DKWeakRef DKRetainWeak( DKObjectRef _self )
 {
     if( _self )
     {
-        struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
+        struct DKObject * obj = (struct DKObject *)_self;
         
         if( !obj->weakref )
         {
@@ -1154,7 +1154,7 @@ DKClassRef DKGetClass( DKObjectRef _self )
 {
     if( _self )
     {
-        const DKObjectHeader * obj = _self;
+        DKObject * obj = _self;
         return obj->isa;
     }
     
@@ -1169,7 +1169,7 @@ DKStringRef DKGetClassName( DKObjectRef _self )
 {
     if( _self )
     {
-        const DKObjectHeader * obj = _self;
+        DKObject * obj = _self;
         DKClassRef cls = obj->isa;
         
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
@@ -1189,7 +1189,7 @@ DKClassRef DKGetSuperclass( DKObjectRef _self )
 {
     if( _self )
     {
-        const DKObjectHeader * obj = _self;
+        DKObject * obj = _self;
         return obj->isa->superclass;
     }
     
@@ -1204,7 +1204,7 @@ int DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class )
 {
     if( _self )
     {
-        const DKObjectHeader * obj = _self;
+        DKObject * obj = _self;
         return obj->isa == _class;
     }
     
@@ -1219,7 +1219,7 @@ int DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
 {
     if( _self )
     {
-        const DKObjectHeader * obj = _self;
+        DKObject * obj = _self;
         
         for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
         {

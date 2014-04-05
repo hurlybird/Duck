@@ -24,7 +24,7 @@ struct DKBinaryTreeNode
 
 struct DKBinaryTree
 {
-    DKObjectHeader _obj;
+    DKObject _obj;
 
     DKNodePool nodePool;
     struct DKBinaryTreeNode null_node;
@@ -548,7 +548,7 @@ DKBinaryTreeRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary )
     DKMutableDictionaryRef _self = DKBinaryTreeCreateMutableCopy( srcDictionary );
 
     // Turn the mutable tree into an immutable tree
-    struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
+    struct DKObject * obj = (struct DKObject *)_self;
     DKRelease( obj->isa );
     obj->isa = DKRetain( DKBinaryTreeClass() );
     

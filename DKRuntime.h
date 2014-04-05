@@ -11,21 +11,21 @@
 #include "DKPlatform.h"
 
 
-// DKObjectHeader ========================================================================
+// DKObject ==============================================================================
 typedef const struct DKClass * DKClassRef;
 typedef const struct DKWeak * DKWeakRef;
 
 
-struct DKObjectHeader
+struct DKObject
 {
     DKClassRef isa;
     DKWeakRef weakref;
     int32_t refcount;
 };
 
-typedef const struct DKObjectHeader DKObjectHeader;
+typedef const struct DKObject DKObject;
 
-#define DKStaticObjectHeader( cls )     { cls, NULL, 1 }
+#define DKStaticObject( cls )   { cls, NULL, 1 }
 
 
 
@@ -67,7 +67,7 @@ typedef enum
 
 struct DKSEL
 {
-    DKObjectHeader  _obj;
+    DKObject        _obj;
     const char *    suid;
     DKCacheUsage    cacheline;
 };
@@ -82,7 +82,7 @@ typedef const struct DKSEL * DKSEL;
 // DKInterface ===========================================================================
 struct DKInterface
 {
-    DKObjectHeader  _obj;
+    DKObject        _obj;
     DKSEL           sel;
 };
 
@@ -102,7 +102,7 @@ DKInterfaceRef DKInterfaceNotFound( void );
 // DKMessage =============================================================================
 struct DKMsgHandler
 {
-    DKObjectHeader  _obj;
+    DKObject        _obj;
     DKSEL           sel;
     const void *    func;
 };
@@ -154,7 +154,7 @@ typedef const struct DKProperty * DKPropertyRef;
 
 struct DKProperty
 {
-    DKObjectHeader  _obj;
+    DKObject        _obj;
     
     DKStringRef     name;
     DKPropertyType  type;

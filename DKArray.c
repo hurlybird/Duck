@@ -14,7 +14,7 @@
 
 struct DKArray
 {
-    DKObjectHeader _obj;
+    DKObject _obj;
     DKPointerArray ptrArray;
 };
 

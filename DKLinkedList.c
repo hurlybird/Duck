@@ -22,7 +22,7 @@ struct DKLinkedListNode
 
 struct DKLinkedList
 {
-    DKObjectHeader _obj;
+    DKObject _obj;
 
     DKNodePool nodePool;
 

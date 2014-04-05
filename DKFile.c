@@ -13,7 +13,7 @@
 
 struct DKFile
 {
-    DKObjectHeader _obj;
+    DKObject _obj;
     FILE * file;
 };
 

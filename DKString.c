@@ -18,7 +18,7 @@
 
 struct DKString
 {
-    DKObjectHeader _obj;
+    DKObject _obj;
     DKByteArray byteArray;
     DKIndex cursor;
 };
@@ -1190,7 +1190,7 @@ DKStringRef __DKStringDefineConstantString( const char * str )
     
     struct DKString key =
     {
-        DKStaticObjectHeader( constantStringClass ),
+        DKStaticObject( constantStringClass ),
     };
     
     DKIndex length = strlen( str );

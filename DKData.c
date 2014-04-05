@@ -14,7 +14,7 @@
 
 struct DKData
 {
-    DKObjectHeader _obj;
+    DKObject _obj;
     DKByteArray byteArray;
     DKIndex cursor;
 };

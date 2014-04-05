@@ -20,7 +20,7 @@ struct DKHashTableRow
 
 struct DKHashTable
 {
-    DKObjectHeader _obj;
+    DKObject _obj;
     
     struct DKHashTableRow * rows;
     DKIndex count;
@@ -477,7 +477,7 @@ DKHashTableRef DKHashTableCreateCopy( DKDictionaryRef srcDictionary )
     DKMutableDictionaryRef _self = DKHashTableCreateMutableCopy( srcDictionary );
 
     // Turn the object into a regular hash table
-    struct DKObjectHeader * obj = (struct DKObjectHeader *)_self;
+    struct DKObject * obj = (struct DKObject *)_self;
     DKRelease( obj->isa );
     obj->isa = DKRetain( DKHashTableClass() );
     

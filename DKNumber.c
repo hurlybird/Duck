@@ -29,7 +29,7 @@ typedef union
 
 struct DKNumber
 {
-    DKObjectHeader _obj;
+    DKObject _obj;
     
     uint16_t type;
     uint16_t count;
