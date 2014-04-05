@@ -7,13 +7,14 @@
 //
 #include "DKString.h"
 #include "DKUnicode.h"
-#include "Unicode/utf8.h"
 #include "DKByteArray.h"
 #include "DKCopying.h"
 #include "DKStream.h"
 #include "DKHashTable.h"
 #include "DKList.h"
 #include "DKArray.h"
+
+#include "icu/utf8.h"
 
 
 struct DKString

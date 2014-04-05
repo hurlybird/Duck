@@ -7,7 +7,7 @@
 //
 
 #include "DKUnicode.h"
-#include "Unicode/utf8.h"
+#include "icu/utf8.h"
 
 
 ///
