@@ -18,14 +18,33 @@ typedef const struct DKWeak * DKWeakRef;
 
 struct DKObject
 {
+    // The class of this object.
     DKClassRef isa;
-    DKWeakRef weakref;
+    
+    // Reference count. Never modify this directly.
     int32_t refcount;
+    
+    // The usage of the object tag is entirely up to individual classes. On 64-bit
+    // platforms DKObject must be 8-byte aligned, so this field allows the use of the
+    // leftover 4 bytes.
+    int32_t tag;
+    
+    // The weak reference associated with this object. (This may be relocated.)
+    DKWeakRef weakref;
 };
 
 typedef const struct DKObject DKObject;
 
-#define DKStaticObject( cls )   { cls, NULL, 1 }
+
+// Use this macro when declaring a static instance of a DKObject. This will insulate your
+// code from any changes to the DKObject structure. Your code is (obviously) responsible
+// for properly initializing and finalizing static objects.
+#define DKStaticObject( cls )   { cls, 1, 0, NULL }
+
+
+// Get/Set the object tag.
+#define DKGetObjectTag( obj )           (((DKObject *)(obj))->tag)
+#define DKSetObjectTag( obj, value )    do{ ((struct DKObject *)(obj))->tag = (value); } while(0)
 
 
 
@@ -89,11 +108,12 @@ struct DKInterface
 typedef const struct DKInterface DKInterface;
 typedef const void * DKInterfaceRef;
 
-
-
+// Declare an interface selector.
 #define DKDeclareInterfaceSelector( name )                                              \
     DKSEL DKSelector_ ## name( void )
 
+// A generic interface where calling any method causes a fatal error. Returned by
+// DKGetMsgHandler() when a matching message handler cannot be located.
 DKInterfaceRef DKInterfaceNotFound( void );
 
 
@@ -107,12 +127,17 @@ struct DKMsgHandler
     const void *    func;
 };
 
+typedef const struct DKMsgHandler DKMsgHandler;
 typedef const struct DKMsgHandler * DKMsgHandlerRef;
 
+// Declare a message handler selector. This also defines a callback type used by
+// DKMsgSend() for type safety.
 #define DKDeclareMessageSelector( name, ... )                                           \
     DKSEL DKSelector_ ## name( void );                                                  \
     typedef void (*DKMsgHandler_ ## name)( DKObjectRef, DKSEL , ## __VA_ARGS__ )
 
+// A generic message handler that does nothing. Returned by DKGetMsgHandler() when a
+// matching message handler cannot be located.
 DKMsgHandlerRef DKMsgHandlerNotFound( void );
 
 
@@ -181,8 +206,8 @@ DKClassRef DKSelectorClass( void );
 DKClassRef DKInterfaceClass( void );
 DKClassRef DKMsgHandlerClass( void );
 DKClassRef DKPropertyClass( void );
+DKClassRef DKWeakClass( void );
 DKClassRef DKObjectClass( void );
-
 
 
 
@@ -200,7 +225,7 @@ struct DKAllocation
 {
     DKInterface _interface;
  
-    // All life-cycle methods are optional -- specify NULL for the default behaviour
+    // All methods are optional -- specify NULL for the default behaviour
     
     // Initializers are called in order (superclass then subclass)
     DKInitializeMethod  initialize;
@@ -216,6 +241,8 @@ struct DKAllocation
 typedef const struct DKAllocation DKAllocation;
 
 DKInterfaceRef DKDefaultAllocation( void );
+
+
 
 
 // Comparison ----------------------------------------------------------------------------
@@ -237,6 +264,7 @@ struct DKComparison
 typedef const struct DKComparison DKComparison;
 
 DKInterfaceRef DKDefaultComparison( void );
+
 
 // Pointer equality, comparison and hashing
 int         DKPointerEqual( DKObjectRef _self, DKObjectRef other );
@@ -262,6 +290,7 @@ typedef const struct DKDescription DKDescription;
 
 DKInterfaceRef DKDefaultDescription( void );
 
+
 // A default copyDescription method that returns a copy of the class name
 DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
 
@@ -269,8 +298,22 @@ DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
 
 
 // Alloc/Free Objects ====================================================================
+
+// Allocates a new object and calls its intializer chain. Use 'extraBytes' to allocate
+// memory in addition to the 'structSize' specified in the class. The extra memory is not
+// automatically zeroed for you.
 void *      DKAllocObject( DKClassRef cls, size_t extraBytes );
+
+// Calls the object's finalizer chain and deallocates it. You probably never need to call
+// this directly unless creating an object that bypasses normal reference counting.
 void        DKDeallocObject( DKObjectRef _self );
+
+// Calls the object's initializer chain. The object returned by DKIntializeObject may not
+// be the same as the object passed to it. In normal use this is called by DKAllocObject().
+DKObjectRef DKInitializeObject( DKObjectRef _self );
+
+// Calls the object's finalizer chain. In normal use this is called by DKDeallocObject().
+void        DKFinalizeObject( DKObjectRef _self );
 
 
 
@@ -290,17 +333,46 @@ enum
 
 typedef uint32_t DKClassOptions;
 
+// Allocate a new class object.
 DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize, DKClassOptions options );
+
+// Allocate a new interface object.
 void *      DKAllocInterface( DKSEL sel, size_t structSize );
 
+// Install an interface on a class.
+//
+// *** WARNING ***
+// Installing interfaces after a class is in use (i.e. implementation swizzling) is not
+// currently supported.
 void        DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
+
+// Install a message handler on a class.
+//
+// *** WARNING ***
+// Installing message handlers after a class is in use (i.e. implementation swizzling) is
+// not currently supported.
 void        DKInstallMsgHandler( DKClassRef cls, DKSEL sel, const void * func );
 
-int         DKHasInterface( DKObjectRef _self, DKSEL sel );
+
+
+
+// Retrieving Interfaces and Message Handlers ============================================
+
+// Retrieve an installed interface. If a matching interface cannot be found on the class
+// or any of its superclasses, DKGetInterace() will report an error and return the
+// DKInterfaceNotFound() interface.
 DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel );
 
-int         DKHasMsgHandler( DKObjectRef _self, DKSEL sel );
+// Check to see if an interface is available for an object.
+int         DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * interface );
+
+// Retrieve an installed message handler. If a matching message handler cannot be found on
+// the class or any of its superclasses, DKGetMsgHandler() will report a warning and
+// return the DKMsgHandlerNotFound() message handler.
 DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel );
+
+// Check to see if a message handler is available for an object.
+int         DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
 
 
 
@@ -310,22 +382,39 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel );
 DKObjectRef DKRetain( DKObjectRef _self );
 void        DKRelease( DKObjectRef _self );
 
+// Get a weak reference to an object. The weak reference itself must be released when the
+// caller is finished with it.
 DKWeakRef   DKRetainWeak( DKObjectRef _self );
+
+// Resolve a weak reference into a strong reference. The returned object must be released
+// when the caller is finished with it. This will return NULL if the object has been
+// deallocated.
 DKObjectRef DKResolveWeak( DKWeakRef weak_ref );
+
+
+
+
+// Reflection ============================================================================
+
+// Retrieve the class, superclass and class name. These functions return the same values
+// for classes and instances (i.e. DKGetClass(DKObjectClass()) == DKObjectClass()).
+DKClassRef  DKGetClass( DKObjectRef _self );
+DKStringRef DKGetClassName( DKObjectRef _self );
+DKClassRef  DKGetSuperclass( DKObjectRef _self );
+
+// Returns TRUE if the object is a member of the class.
+int         DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class );
+
+// Returns TRUE if the object is a member or a subclass of the class.
+int         DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
 
 
 
 
 // Polymorphic Wrappers ==================================================================
 
+// Create an instance of a class (identical to DKAllocObject( _class, 0 )).
 DKObjectRef DKCreate( DKClassRef _class );
-
-DKClassRef  DKGetClass( DKObjectRef _self );
-DKStringRef DKGetClassName( DKObjectRef _self );
-DKClassRef  DKGetSuperclass( DKObjectRef _self );
-
-int         DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class );
-int         DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
 
 int         DKEqual( DKObjectRef a, DKObjectRef b );
 int         DKCompare( DKObjectRef a, DKObjectRef b );
@@ -368,7 +457,9 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 
 
 
-// Thread-Safe Class Construction ========================================================
+// Thread-Safe Object Construction =======================================================
+
+// Thread-safe initialization of shared objects.
 #define DKThreadSafeSharedObjectInit( accessor, type )                                  \
     static type accessor ## _SharedObject = NULL;                                       \
     static type accessor ## _Create( void );                                            \
@@ -389,10 +480,12 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
     static type accessor ## _Create( void )
 
 
+// Thread-safe creation/initialization of shared class objects.
 #define DKThreadSafeClassInit( accessor )                                               \
     DKThreadSafeSharedObjectInit( accessor, DKClassRef )
 
 
+// Thread-safe creation/initialization of selector objects.
 #define DKThreadSafeSelectorInit( name )                                                \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
@@ -410,37 +503,6 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
         sel->cacheline = DKStaticCache_ ## name;                                        \
         return sel;                                                                     \
     }
-
-
-/*
-
-#define DKThreadSafeClassInit( name )                                                   \
-    static DKTypeRef  name ## _SharedObject = NULL;                                     \
-    static DKTypeRef  name ## _Create( void );                                          \
-    static DKSpinLock name ## _Lock = DKSpinLockInit;                                   \
-                                                                                        \
-    DKTypeRef name( void )                                                              \
-    {                                                                                   \
-        if( name ## _SharedObject == NULL )                                             \
-        {                                                                               \
-            DKTypeRef cls = name ## _Create();                                          \
-                                                                                        \
-            DKSpinLockLock( &name ## _Lock );                                           \
-                                                                                        \
-            if( name ## _SharedObject == NULL )                                         \
-                name ## _SharedObject = cls;                                            \
-                                                                                        \
-            DKSpinLockUnlock( &name ## _Lock );                                         \
-                                                                                        \
-            if( name ## _SharedObject != cls )                                          \
-                DKRelease( cls );                                                       \
-        }                                                                               \
-                                                                                        \
-        return name ## _SharedObject;                                                   \
-    }                                                                                   \
-                                                                                        \
-    static DKTypeRef name ## _Create( void )
-*/
 
 
 #endif // _DK_RUNTIME_H_

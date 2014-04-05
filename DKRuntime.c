@@ -58,8 +58,8 @@ static struct DKClass __DKSelectorClass__;
 static struct DKClass __DKInterfaceClass__;
 static struct DKClass __DKMsgHandlerClass__;
 static struct DKClass __DKPropertyClass__;
-static struct DKClass __DKObjectClass__;
 static struct DKClass __DKWeakClass__;
+static struct DKClass __DKObjectClass__;
 
 
 DKClassRef DKClassClass( void )
@@ -92,16 +92,16 @@ DKClassRef DKPropertyClass( void )
     return &__DKPropertyClass__;
 }
 
+DKClassRef DKWeakClass( void )
+{
+    DKRuntimeInit();
+    return &__DKWeakClass__;
+}
+
 DKClassRef DKObjectClass( void )
 {
     DKRuntimeInit();
     return &__DKObjectClass__;
-}
-
-static DKClassRef DKWeakClass( void )
-{
-    DKRuntimeInit();
-    return &__DKWeakClass__;
 }
 
 
@@ -456,14 +456,14 @@ static void DKRuntimeInit( void )
     {
         DKRuntimeInitialized = 1;
 
-        InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass),      DKInstancesNeverAllocated | DKInstancesNeverDeallocated );
-        InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass),      0 );
-        InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct DKSEL),        0 );
-        InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),         0 );
-        InitRootClass( &__DKMsgHandlerClass__, &__DKInterfaceClass__, sizeof(struct DKMsgHandler), 0 );
-        InitRootClass( &__DKPropertyClass__,   NULL,                  0,                           0 );
-        InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObject),            0 );
-        InitRootClass( &__DKWeakClass__,       NULL,                  sizeof(struct DKWeak),       0 );
+        InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass), DKInstancesNeverAllocated | DKInstancesNeverDeallocated );
+        InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass), 0 );
+        InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct DKSEL),   0 );
+        InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),    0 );
+        InitRootClass( &__DKMsgHandlerClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),   0 );
+        InitRootClass( &__DKPropertyClass__,   NULL,                  0,                      0 );
+        InitRootClass( &__DKWeakClass__,       NULL,                  sizeof(struct DKWeak),  0 );
+        InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObject),       0 );
         
         InstallRootClassInterface( &__DKMetaClass__, DKClassAllocation() );
         InstallRootClassInterface( &__DKMetaClass__, DKDefaultComparison() );
@@ -489,13 +489,13 @@ static void DKRuntimeInit( void )
         InstallRootClassInterface( &__DKPropertyClass__, DKDefaultComparison() );
         InstallRootClassInterface( &__DKPropertyClass__, DKDefaultDescription() );
 
-        InstallRootClassInterface( &__DKObjectClass__, DKDefaultAllocation() );
-        InstallRootClassInterface( &__DKObjectClass__, DKDefaultComparison() );
-        InstallRootClassInterface( &__DKObjectClass__, DKDefaultDescription() );
-
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultAllocation() );
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultComparison() );
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultDescription() );
+
+        InstallRootClassInterface( &__DKObjectClass__, DKDefaultAllocation() );
+        InstallRootClassInterface( &__DKObjectClass__, DKDefaultComparison() );
+        InstallRootClassInterface( &__DKObjectClass__, DKDefaultDescription() );
 
         DKSpinLockUnlock( &DKRuntimeInitLock );
 
@@ -537,28 +537,6 @@ static void DKRuntimeInit( void )
 
 
 // Alloc/Free Objects ====================================================================
-
-///
-//  DKInitializeObject()
-//
-static struct DKObject * DKInitializeObject( struct DKObject * obj, const struct DKClass * cls )
-{
-    if( cls->superclass )
-    {
-        obj = DKInitializeObject( obj, cls->superclass );
-    }
-    
-    if( obj )
-    {
-        DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
-        
-        if( allocation->initialize )
-            obj = (struct DKObject *)allocation->initialize( obj );
-    }
-    
-    return obj;
-}
-
 
 ///
 //  DKAllocObject()
@@ -603,24 +581,9 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
     obj->refcount = 1;
     
     // Call the initializer chain
-    obj = DKInitializeObject( obj, cls );
+    obj = (struct DKObject *)DKInitializeObject( obj );
     
     return obj;
-}
-
-
-///
-//  DKFinalizeObject()
-//
-static void DKFinalizeObject( struct DKObject * obj )
-{
-    for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
-    {
-        DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
-        
-        if( allocation->finalize )
-            allocation->finalize( obj );
-    }
 }
 
 
@@ -654,6 +617,60 @@ void DKDeallocObject( DKObjectRef _self )
 }
 
 
+///
+//  DKInitializeObject()
+//
+static DKObject * DKInitializeObjectRecursive( DKObject * obj, DKClassRef cls )
+{
+    if( cls )
+    {
+        obj = DKInitializeObjectRecursive( obj, cls->superclass );
+
+        if( obj )
+        {
+            DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
+            
+            if( allocation->initialize )
+                obj = (struct DKObject *)allocation->initialize( obj );
+        }
+    }
+    
+    return obj;
+}
+
+DKObjectRef DKInitializeObject( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKObject * obj = _self;
+        
+        return DKInitializeObjectRecursive( obj, obj->isa );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKFinalizeObject()
+//
+void DKFinalizeObject( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKObject * obj = _self;
+
+        for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
+        {
+            DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
+            
+            if( allocation->finalize )
+                allocation->finalize( obj );
+        }
+    }
+}
+
+
 
 
 // Creating Classes ======================================================================
@@ -680,6 +697,11 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
     DKPointerArrayInit( &cls->properties );
 
     memset( cls->cache, 0, sizeof(cls->cache) );
+    
+    // To ensure that all classes have an initializer/finalizer, install a default
+    // allocation interface here. If we don't do this the base class versions can be
+    // called multiple times.
+    DKInstallInterface( cls, DKDefaultAllocation() );
     
     return cls;
 }
@@ -816,7 +838,7 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
         
         if( DKEqual( oldInterface->sel, interface->sel ) )
         {
-            cls->interfaces.data[i] = oldInterface;
+            cls->interfaces.data[i] = interface;
 
             DKSpinLockUnlock( &cls->lock );
 
@@ -848,6 +870,10 @@ void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, const void * func )
     DKRelease( msgHandler );
 }
 
+
+
+
+// Retrieving Interfaces and Message Handlers ============================================
 
 ///
 //  DKLookupInterface()
@@ -928,29 +954,6 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
 
 
 ///
-//  DKHasInterface()
-//
-int DKHasInterface( DKObjectRef _self, DKSEL sel )
-{
-    if( _self )
-    {
-        DKObject * obj = _self;
-        DKClassRef cls = obj->isa;
-        
-        // If this object is a class, look in its own interfaces
-        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
-            cls = _self;
-        
-        DKInterface * interface = DKLookupInterface( cls, sel );
-
-        return interface != NULL;
-    }
-    
-    return 0;
-}
-
-
-///
 //  DKGetInterface()
 //
 DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
@@ -977,11 +980,31 @@ DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
 
 
 ///
-//  DKHasMsgHandler()
+//  DKQueryInterface()
 //
-int DKHasMsgHandler( DKObjectRef _self, DKSEL sel )
+int DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface )
 {
-    return DKGetMsgHandler( _self, sel ) != DKMsgHandlerNotFound();
+    if( _self )
+    {
+        DKObject * obj = _self;
+        DKClassRef cls = obj->isa;
+        
+        // If this object is a class, look in its own interfaces
+        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+            cls = _self;
+        
+        DKInterfaceRef interface = DKLookupInterface( cls, sel );
+
+        if( interface )
+        {
+            if( _interface )
+                *_interface = interface;
+            
+            return 1;
+        }
+    }
+    
+    return 0;
 }
 
 
@@ -1012,6 +1035,38 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
 
     return DKMsgHandlerNotFound();
 }
+
+
+///
+//  DKQueryMsgHandler()
+//
+int DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHandler )
+{
+    if( _self )
+    {
+        DKObject * obj = _self;
+        DKClassRef cls = obj->isa;
+        
+        // If this object is a class, look in its own interfaces
+        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+            cls = (struct DKClass *)_self;
+
+        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKLookupInterface( cls, sel );
+
+        if( msgHandler )
+        {
+            DKCheckKindOfClass( msgHandler, DKMsgHandlerClass(), 0 );
+
+            if( _msgHandler )
+                *_msgHandler = msgHandler;
+            
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 
 
 
@@ -1131,21 +1186,7 @@ DKObjectRef DKResolveWeak( DKWeakRef weak_ref )
 
 
 
-// Polymorphic Wrappers ==================================================================
-
-///
-//  DKCreate()
-//
-DKObjectRef DKCreate( DKClassRef _class )
-{
-    if( _class )
-    {
-        return DKAllocObject( _class, 0 );
-    }
-    
-    return NULL;
-}
-
+// Reflection ============================================================================
 
 ///
 //  DKGetClass()
@@ -1229,6 +1270,24 @@ int DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
     }
     
     return 0;
+}
+
+
+
+
+// Polymorphic Wrappers ==================================================================
+
+///
+//  DKCreate()
+//
+DKObjectRef DKCreate( DKClassRef _class )
+{
+    if( _class )
+    {
+        return DKAllocObject( _class, 0 );
+    }
+    
+    return NULL;
 }
 
 
