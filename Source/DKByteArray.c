@@ -15,7 +15,21 @@
 
 
 // This allows an unallocated byte array to point to an empty string instead of NULL
-static uint8_t NULL_DATA[4] = { '\0', '\0', '\0', '\0' };
+#define NULL_TERMINATOR_SIZE            4
+
+static uint8_t NULL_DATA[NULL_TERMINATOR_SIZE] = { '\0', '\0', '\0', '\0' };
+
+
+///
+//  SetNullTerminator()
+//
+static void SetNullTerminator( DKByteArray * array )
+{
+    array->data[array->length] = '\0';
+    array->data[array->length+1] = '\0';
+    array->data[array->length+2] = '\0';
+    array->data[array->length+3] = '\0';
+}
 
 
 ///
@@ -67,8 +81,7 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
         if( length < MIN_BYTE_ARRAY_SIZE )
             length = MIN_BYTE_ARRAY_SIZE;
     
-        // Allocate an extra byte for the NULL terminator
-        uint8_t * data = dk_malloc( length + 1 );
+        uint8_t * data = dk_malloc( length + NULL_TERMINATOR_SIZE );
         
         if( HAS_ALLOCATED_STORAGE( array ) )
         {
@@ -81,8 +94,7 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
         array->data = data;
         array->maxLength = length;
 
-        // Set the NULL terminator
-        array->data[array->length] = '\0';
+        SetNullTerminator( array );
     }
 }
 
@@ -114,8 +126,7 @@ static uint8_t * DKByteArrayResize( void * ptr, DKIndex oldSize, DKIndex request
     
     *allocatedSize = newSize;
     
-    // Allocate an extra byte for the NULL terminator
-    return dk_malloc( newSize + 1 );
+    return dk_malloc( newSize + NULL_TERMINATOR_SIZE );
 }
 
 
@@ -203,8 +214,7 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
         }
     }
     
-    // Set the NULL terminator
-    array->data[array->length] = '\0';
+    SetNullTerminator( array );
 }
 
 

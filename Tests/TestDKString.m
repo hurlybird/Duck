@@ -34,17 +34,27 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKString
 {
+    DKRange range;
+
     DKStringRef quickFox = DKSTR( "The quick brown fox jumps over a lazy dog." );
-    DKStringRef quick = DKSTR( "quick" );
     
-    XCTAssert( strcmp( DKStringGetCStringPtr( quick ), "quick" ) == 0 );
-    XCTAssert( DKStringGetCStringPtr( quick ) == "quick" );
+    XCTAssert( strcmp( DKStringGetCStringPtr( DKSTR( "quick" ) ), "quick" ) == 0 );
+    XCTAssert( DKStringGetCStringPtr( DKSTR( "quick" ) ) == "quick" );
     
-    DKRange range = DKStringGetRangeOfString( quickFox, quick, 0 );
+    range = DKStringGetRangeOfString( quickFox, DKSTR( "The" ), 0 );
+    XCTAssert( (range.location == 0) && (range.length == 3) );
+
+    range = DKStringGetRangeOfString( quickFox, DKSTR( "dog." ), 0 );
+    XCTAssert( (range.location == 38) && (range.length == 4) );
+
+    range = DKStringGetRangeOfString( quickFox, DKSTR( "polka dots" ), 0 );
+    XCTAssert( (range.location == DKNotFound) && (range.length == 0) );
+
+    range = DKStringGetRangeOfString( quickFox, DKSTR( "quick" ), 0 );
     XCTAssert( (range.location == 4) && (range.length == 5) );
 
     DKStringRef substring = DKStringCopySubstring( quickFox, range );
-    XCTAssert( DKStringEqual( quick, substring ) );
+    XCTAssert( DKStringEqual( DKSTR( "quick" ), substring ) );
     DKRelease( substring );
 
     DKMutableStringRef mutableString = DKStringCreateMutableCopy( quickFox );
@@ -56,11 +66,11 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKStringReplaceSubstring( mutableString, range, DKSTR( "slow " ) );
     XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox jumps over a lazy dog." ) ) );
 
-    DKStringReplaceOccurrencesOfString( mutableString, DKSTR( "jumps " ), DKSTR( "hops " ) );
-    XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox hops over a lazy dog." ) ) );
+    DKStringReplaceOccurrencesOfString( mutableString, DKSTR( "jumps " ), DKSTR( "leapt " ) );
+    XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox leapt over a lazy dog." ) ) );
     
-    DKStringReplaceOccurrencesOfString( mutableString, DKSTR( "lazy " ), DKSTR( "" ) );
-    XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox hops over a dog." ) ) );
+    DKStringReplaceOccurrencesOfString( mutableString, DKSTR( "lazy dog." ), DKSTR( "cliff." ) );
+    XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox leapt over a cliff." ) ) );
     
     DKRelease( mutableString );
 }
@@ -136,6 +146,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKStringRef lemon = DKStringCopySubstring( fruit, DKRangeMake( 2, 1 ) );
     XCTAssert( DKStringEqual( lemon, DKSTR( "🍋" ) ) );
     DKRelease( lemon );
+
 }
 
 
