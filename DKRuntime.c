@@ -199,20 +199,20 @@ DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
 
 
 // LifeCycle -----------------------------------------------------------------------------
-DKStaticFastSelectorInit( LifeCycle );
+DKStaticFastSelectorInit( Allocation );
 
-static struct DKLifeCycle DKDefaultLifeCycle_StaticObject =
+static struct DKAllocation DKDefaultAllocation_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_LifeCycle_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject ),
     NULL,
     NULL,
     NULL,
     NULL
 };
 
-DKInterfaceRef DKDefaultLifeCycle( void )
+DKInterfaceRef DKDefaultAllocation( void )
 {
-    return &DKDefaultLifeCycle_StaticObject;
+    return &DKDefaultAllocation_StaticObject;
 }
 
 
@@ -222,9 +222,9 @@ DKStaticFastSelectorInit( Comparison );
 static struct DKComparison DKDefaultComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
-    DKDefaultEqual,
-    DKDefaultCompare,
-    DKDefaultHash
+    DKPointerEqual,
+    DKPointerCompare,
+    DKPointerHash
 };
 
 DKInterfaceRef DKDefaultComparison( void )
@@ -232,12 +232,12 @@ DKInterfaceRef DKDefaultComparison( void )
     return &DKDefaultComparison_StaticObject;
 }
 
-int DKDefaultEqual( DKObjectRef _self, DKObjectRef other )
+int DKPointerEqual( DKObjectRef _self, DKObjectRef other )
 {
     return _self == other;
 }
 
-int DKDefaultCompare( DKObjectRef _self, DKObjectRef other )
+int DKPointerCompare( DKObjectRef _self, DKObjectRef other )
 {
     if( _self < other )
         return 1;
@@ -248,18 +248,21 @@ int DKDefaultCompare( DKObjectRef _self, DKObjectRef other )
     return 0;
 }
 
-DKHashCode DKDefaultHash( DKObjectRef _self )
+DKHashCode DKPointerHash( DKObjectRef _self )
 {
     // Just in case someone changes the size of DKHashCode
     DKAssert( sizeof(DKHashCode) == sizeof(DKObjectRef) );
 
-    // Make sure object pointers are 4-byte aligned
-    DKAssert( ((DKHashCode)_self & 0x3) == 0 );
-    
-    // Assuming object pointers are at least 4-byte aligned, this will make hash codes
+    // Assuming object pointers are at least N-byte aligned, this will make hash codes
     // derived from pointers a bit more random. This is particularly important in a hash
     // table which uses (hashcode % prime) as an internal hash code.
+#if __LP64__
+    DKAssert( ((DKHashCode)_self & 0x7) == 0 );
+    return ((DKHashCode)_self) >> 3;
+#else
+    DKAssert( ((DKHashCode)_self & 0x3) == 0 );
     return ((DKHashCode)_self) >> 2;
+#endif
 }
 
 
@@ -279,7 +282,7 @@ DKInterfaceRef DKDefaultDescription( void )
 
 DKStringRef DKDefaultCopyDescription( DKObjectRef _self )
 {
-    return DKGetClassName( _self );
+    return DKRetain( DKGetClassName( _self ) );
 }
 
 
@@ -290,43 +293,43 @@ DKStringRef DKDefaultCopyDescription( DKObjectRef _self )
 // Class LifeCycle -----------------------------------------------------------------------
 static void DKClassFinalize( DKObjectRef _self );
 
-static struct DKLifeCycle DKClassLifeCycle_StaticObject =
+static struct DKAllocation DKClassAllocation_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_LifeCycle_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject ),
     NULL,
     DKClassFinalize,
     NULL,
     NULL
 };
 
-static DKInterfaceRef DKClassLifeCycle( void )
+static DKInterfaceRef DKClassAllocation( void )
 {
-    return &DKClassLifeCycle_StaticObject;
+    return &DKClassAllocation_StaticObject;
 }
 
 
 // Interface LifeCycle -------------------------------------------------------------------
 static void DKInterfaceFinalize( DKObjectRef _self );
 
-static struct DKLifeCycle DKInterfaceLifeCycle_StaticObject =
+static struct DKAllocation DKInterfaceAllocation_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_LifeCycle_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject ),
     NULL,
     DKInterfaceFinalize,
     NULL,
     NULL
 };
 
-static DKInterfaceRef DKInterfaceLifeCycle( void )
+static DKInterfaceRef DKInterfaceAllocation( void )
 {
-    return &DKInterfaceLifeCycle_StaticObject;
+    return &DKInterfaceAllocation_StaticObject;
 }
 
 
 // Selector Comparison -------------------------------------------------------------------
 static int          DKSelectorEqual( DKSEL a, DKSEL b );
 static int          DKSelectorCompare( DKSEL a, DKSEL b );
-#define             DKSelectorHash( _self )           DKDefaultHash( _self )
+#define             DKSelectorHash( _self )         DKPointerHash( _self )
 #define             DKFastSelectorEqual( a, b )     (a == b)
 
 static struct DKComparison DKSelectorComparison_StaticObject =
@@ -334,7 +337,7 @@ static struct DKComparison DKSelectorComparison_StaticObject =
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
     (DKEqualMethod)DKSelectorEqual,
     (DKCompareMethod)DKSelectorCompare,
-    DKDefaultHash
+    DKPointerHash
 };
 
 static DKInterfaceRef DKSelectorComparison( void )
@@ -466,35 +469,35 @@ static void DKRuntimeInit( void )
         InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObjectHeader),      0 );
         InitRootClass( &__DKWeakClass__,       NULL,                  sizeof(struct DKWeak),       0 );
         
-        InstallRootClassInterface( &__DKMetaClass__, DKClassLifeCycle() );
+        InstallRootClassInterface( &__DKMetaClass__, DKClassAllocation() );
         InstallRootClassInterface( &__DKMetaClass__, DKDefaultComparison() );
         InstallRootClassInterface( &__DKMetaClass__, DKDefaultDescription() );
 
-        InstallRootClassInterface( &__DKClassClass__, DKClassLifeCycle() );
+        InstallRootClassInterface( &__DKClassClass__, DKClassAllocation() );
         InstallRootClassInterface( &__DKClassClass__, DKDefaultComparison() );
         InstallRootClassInterface( &__DKClassClass__, DKDefaultDescription() );
 
-        InstallRootClassInterface( &__DKSelectorClass__, DKDefaultLifeCycle() );
+        InstallRootClassInterface( &__DKSelectorClass__, DKDefaultAllocation() );
         InstallRootClassInterface( &__DKSelectorClass__, DKSelectorComparison() );
         InstallRootClassInterface( &__DKSelectorClass__, DKDefaultDescription() );
 
-        InstallRootClassInterface( &__DKInterfaceClass__, DKInterfaceLifeCycle() );
+        InstallRootClassInterface( &__DKInterfaceClass__, DKInterfaceAllocation() );
         InstallRootClassInterface( &__DKInterfaceClass__, DKInterfaceComparison() );
         InstallRootClassInterface( &__DKInterfaceClass__, DKDefaultDescription() );
 
-        InstallRootClassInterface( &__DKMsgHandlerClass__, DKDefaultLifeCycle() );
+        InstallRootClassInterface( &__DKMsgHandlerClass__, DKDefaultAllocation() );
         InstallRootClassInterface( &__DKMsgHandlerClass__, DKInterfaceComparison() );
         InstallRootClassInterface( &__DKMsgHandlerClass__, DKDefaultDescription() );
 
-        InstallRootClassInterface( &__DKPropertyClass__, DKDefaultLifeCycle() );
+        InstallRootClassInterface( &__DKPropertyClass__, DKDefaultAllocation() );
         InstallRootClassInterface( &__DKPropertyClass__, DKDefaultComparison() );
         InstallRootClassInterface( &__DKPropertyClass__, DKDefaultDescription() );
 
-        InstallRootClassInterface( &__DKObjectClass__, DKDefaultLifeCycle() );
+        InstallRootClassInterface( &__DKObjectClass__, DKDefaultAllocation() );
         InstallRootClassInterface( &__DKObjectClass__, DKDefaultComparison() );
         InstallRootClassInterface( &__DKObjectClass__, DKDefaultDescription() );
 
-        InstallRootClassInterface( &__DKWeakClass__, DKDefaultLifeCycle() );
+        InstallRootClassInterface( &__DKWeakClass__, DKDefaultAllocation() );
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultComparison() );
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultDescription() );
 
@@ -551,10 +554,10 @@ static struct DKObjectHeader * DKInitializeObject( struct DKObjectHeader * obj, 
     
     if( obj )
     {
-        DKLifeCycle * lifeCycle = DKGetInterface( cls, DKSelector(LifeCycle) );
+        DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
         
-        if( lifeCycle->initialize )
-            obj = (struct DKObjectHeader *)lifeCycle->initialize( obj );
+        if( allocation->initialize )
+            obj = (struct DKObjectHeader *)allocation->initialize( obj );
     }
     
     return obj;
@@ -585,12 +588,12 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
     }
     
     // Allocate the structure + extra bytes
-    DKLifeCycle * lifeCycle = DKGetInterface( cls, DKSelector(LifeCycle) );
+    DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
 
     struct DKObjectHeader * obj = NULL;
 
-    if( lifeCycle->alloc )
-        obj = lifeCycle->alloc( cls->structSize + extraBytes );
+    if( allocation->alloc )
+        obj = allocation->alloc( cls->structSize + extraBytes );
     
     else
         obj = dk_malloc( cls->structSize + extraBytes );
@@ -617,10 +620,10 @@ static void DKFinalizeObject( struct DKObjectHeader * obj )
 {
     for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
     {
-        DKLifeCycle * lifeCycle = DKGetInterface( cls, DKSelector(LifeCycle) );
+        DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
         
-        if( lifeCycle->finalize )
-            lifeCycle->finalize( obj );
+        if( allocation->finalize )
+            allocation->finalize( obj );
     }
 }
 
@@ -642,10 +645,10 @@ void DKDeallocObject( DKObjectRef _self )
     DKFinalizeObject( obj );
     
     // Deallocate
-    DKLifeCycle * lifeCycle = DKGetInterface( cls, DKSelector(LifeCycle) );
+    DKAllocation * allocation = DKGetInterface( cls, DKSelector(Allocation) );
     
-    if( lifeCycle->free )
-        lifeCycle->free( obj );
+    if( allocation->free )
+        allocation->free( obj );
     
     else
         dk_free( obj );
@@ -681,10 +684,6 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
     DKPointerArrayInit( &cls->properties );
 
     memset( cls->vtable, 0, sizeof(cls->vtable) );
-    
-    // Install a default life-cycle interface so lookups on this class
-    // always resolve to something
-    DKInstallInterface( cls, DKDefaultLifeCycle() );
     
     return cls;
 }

@@ -94,7 +94,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( !DKIsMemberOfClass( object, DKObjectClass() ) );
     
     // DKQueryInterface should return the same object when called on the class or an instance of the class
-    XCTAssert( DKGetInterface( TestClassB, DKSelector(LifeCycle) ) == DKGetInterface( object, DKSelector(LifeCycle) ) );
+    XCTAssert( DKGetInterface( TestClassB, DKSelector(Allocation) ) == DKGetInterface( object, DKSelector(Allocation) ) );
 
     // Try calling our custom message handlers
     int y;

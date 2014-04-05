@@ -53,13 +53,13 @@ DKThreadSafeClassInit( DKHashTableClass )
     // initialized in DKRuntimeInit().
     DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKHashTable), 0 );
     
-    // LifeCycle
-    struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-    lifeCycle->initialize = DKHashTableInitialize;
-    lifeCycle->finalize = DKHashTableFinalize;
+    // Allocation
+    struct DKAllocation * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(DKAllocation) );
+    allocation->initialize = DKHashTableInitialize;
+    allocation->finalize = DKHashTableFinalize;
 
-    DKInstallInterface( cls, lifeCycle );
-    DKRelease( lifeCycle );
+    DKInstallInterface( cls, allocation );
+    DKRelease( allocation );
 
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

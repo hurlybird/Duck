@@ -51,13 +51,13 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
 {
     DKClassRef cls = DKAllocClass( DKSTR( "DKBinaryTree" ), DKObjectClass(), sizeof(struct DKBinaryTree), 0 );
     
-    // LifeCycle
-    struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-    lifeCycle->initialize = DKBinaryTreeInitialize;
-    lifeCycle->finalize = DKBinaryTreeFinalize;
+    // Allocation
+    struct DKAllocation * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(DKAllocation) );
+    allocation->initialize = DKBinaryTreeInitialize;
+    allocation->finalize = DKBinaryTreeFinalize;
 
-    DKInstallInterface( cls, lifeCycle );
-    DKRelease( lifeCycle );
+    DKInstallInterface( cls, allocation );
+    DKRelease( allocation );
 
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

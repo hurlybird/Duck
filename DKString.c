@@ -43,13 +43,13 @@ DKThreadSafeClassInit( DKStringClass )
     // initialized in DKRuntimeInit().
     DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString), 0 );
     
-    // LifeCycle
-    struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-    lifeCycle->initialize = DKStringInitialize;
-    lifeCycle->finalize = DKStringFinalize;
+    // Allocation
+    struct DKAllocation * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(DKAllocation) );
+    allocation->initialize = DKStringInitialize;
+    allocation->finalize = DKStringFinalize;
 
-    DKInstallInterface( cls, lifeCycle );
-    DKRelease( lifeCycle );
+    DKInstallInterface( cls, allocation );
+    DKRelease( allocation );
 
     // Comparison
     struct DKComparison * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(DKComparison) );
@@ -187,7 +187,7 @@ int DKStringCompare( DKStringRef _self, DKStringRef other )
         // DKCompare requires that the objects have some strict ordering property useful
         // for comparison, yet has no way of checking if the objects actually meet that
         // requirement.
-        DKCheckKindOfClass( other, DKStringClass(), DKDefaultCompare( _self, other ) );
+        DKCheckKindOfClass( other, DKStringClass(), DKPointerCompare( _self, other ) );
     
         if( _self->byteArray.data )
         {

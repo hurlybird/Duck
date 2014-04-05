@@ -333,30 +333,45 @@ int DKNumberCompare( DKNumberRef a, DKNumberRef b )
         DKAssertKindOfClass( a, DKNumberClass() );
         DKAssertKindOfClass( b, DKNumberClass() );
 
-        const struct DKNumber * na = a;
-        const struct DKNumber * nb = b;
-        
-        if( (na->count == 1) && (nb->count == 1) && (na->type == nb->type) )
+        if( (a->count == 1) && (b->count == 1) )
         {
-            #define CMP( x, y )     (((x) < (y)) ? 1 : (((x) > (y)) ? -1 : 0))
-        
-            switch( na->type )
+            if( a->type == b->type )
             {
-            case DKNumberInt32:  return CMP( na->value._int32, nb->value._int32 );
-            case DKNumberInt64:  return CMP( na->value._int64, nb->value._int64 );
-            case DKNumberUInt32: return CMP( na->value._uint32, nb->value._uint32 );
-            case DKNumberUInt64: return CMP( na->value._uint64, nb->value._uint64 );
-            case DKNumberFloat:  return CMP( na->value._float, nb->value._float );
-            case DKNumberDouble: return CMP( na->value._double, nb->value._double );
+                #define CMP( x, y )     (((x) < (y)) ? 1 : (((x) > (y)) ? -1 : 0))
+            
+                switch( a->type )
+                {
+                case DKNumberInt32:  return CMP( a->value._int32, b->value._int32 );
+                case DKNumberInt64:  return CMP( a->value._int64, b->value._int64 );
+                case DKNumberUInt32: return CMP( a->value._uint32, b->value._uint32 );
+                case DKNumberUInt64: return CMP( a->value._uint64, b->value._uint64 );
+                case DKNumberFloat:  return CMP( a->value._float, b->value._float );
+                case DKNumberDouble: return CMP( a->value._double, b->value._double );
+                }
+                
+                #undef CMP
             }
             
-            #undef CMP
+            else
+            {
+                DKNumberValue da, db;
+                CastFunctions[a->type][DKNumberDouble]( &a->value, &da );
+                CastFunctions[b->type][DKNumberDouble]( &b->value, &db );
+                
+                if( da._double[0] < db._double[0] )
+                    return 1;
+
+                if( da._double[0] > db._double[0] )
+                    return -1;
+                
+                return 0;
+            }
         }
         
         else
         {
-            size_t sa = FieldSize[na->type] * na->count;
-            size_t sb = FieldSize[nb->type] * nb->count;
+            size_t sa = FieldSize[a->type] * a->count;
+            size_t sb = FieldSize[b->type] * b->count;
         
             if( sa < sb )
                 return 1;
@@ -364,11 +379,11 @@ int DKNumberCompare( DKNumberRef a, DKNumberRef b )
             if( sa > sb )
                 return -1;
             
-            return memcmp( &na->value, &nb->value, sa );
+            return memcmp( &a->value, &b->value, sa );
         }
     }
     
-    return DKDefaultCompare( a, b );
+    return DKPointerCompare( a, b );
 }
 
 
@@ -393,7 +408,10 @@ DKHashCode DKNumberHash( DKNumberRef _self )
             case DKNumberUInt32: return number->value._uint32;
             case DKNumberUInt64: return number->value._uint64;
             case DKNumberFloat:  return *((uint32_t *)&number->value._float);
+            
+            #if __LP64__
             case DKNumberDouble: return *((uint64_t *)&number->value._double);
+            #endif
             }
         }
         

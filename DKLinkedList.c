@@ -58,13 +58,13 @@ DKThreadSafeClassInit( DKLinkedListClass )
 {
     DKClassRef cls = DKAllocClass( DKSTR( "DKLinkedList" ), DKObjectClass(), sizeof(struct DKLinkedList), 0 );
     
-    // LifeCycle
-    struct DKLifeCycle * lifeCycle = DKAllocInterface( DKSelector(LifeCycle), sizeof(DKLifeCycle) );
-    lifeCycle->initialize = DKLinkedListInitialize;
-    lifeCycle->finalize = DKLinkedListFinalize;
+    // Allocation
+    struct DKAllocation * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(DKAllocation) );
+    allocation->initialize = DKLinkedListInitialize;
+    allocation->finalize = DKLinkedListFinalize;
 
-    DKInstallInterface( cls, lifeCycle );
-    DKRelease( lifeCycle );
+    DKInstallInterface( cls, allocation );
+    DKRelease( allocation );
 
     // Copying
     struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );

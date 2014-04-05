@@ -247,12 +247,12 @@
 		02D00FB818E6258C00FC3054 /* Duck Tests */ = {
 			isa = PBXGroup;
 			children = (
+				02D00FC618E625DA00FC3054 /* TestDKRuntime.m */,
 				0272048D18E9FA8700A9F866 /* TestDKNumber.m */,
 				0227273C18E793C100902BDB /* TestDKString.m */,
-				02D00FCB18E62A9B00FC3054 /* TestDKDictionary.m */,
 				02D00FC918E62A1100FC3054 /* TestDKData.m */,
-				02D00FC618E625DA00FC3054 /* TestDKRuntime.m */,
 				02D00FBE18E6258C00FC3054 /* TestDKList.m */,
+				02D00FCB18E62A9B00FC3054 /* TestDKDictionary.m */,
 				02D00FB918E6258C00FC3054 /* Supporting Files */,
 			);
 			path = "Duck Tests";
@@ -447,7 +447,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -475,7 +475,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;

@@ -35,7 +35,7 @@ typedef enum
 {
     DKVTableUnspecified =       0,
     
-    DKVTable_LifeCycle,
+    DKVTable_Allocation,
     DKVTable_Comparison,
     DKVTable_List,
     DKVTable_Dictionary,
@@ -169,34 +169,34 @@ DKClassRef DKObjectClass( void );
 
 // Default Interfaces ====================================================================
 
-// LifeCycle -----------------------------------------------------------------------------
-DKDeclareInterfaceSelector( LifeCycle );
+// Allocation ----------------------------------------------------------------------------
+DKDeclareInterfaceSelector( Allocation );
 
 typedef DKObjectRef (*DKInitializeMethod)( DKObjectRef _self );
 typedef void (*DKFinalizeMethod)( DKObjectRef _self );
 typedef void * (*DKAllocMethod)( size_t size );
 typedef void (*DKFreeMethod)( void * ptr );
 
-struct DKLifeCycle
+struct DKAllocation
 {
     DKInterface _interface;
  
     // All life-cycle methods are optional -- specify NULL for the default behaviour
     
     // Initializers are called in order (superclass then subclass)
-    DKInitializeMethod initialize;
+    DKInitializeMethod  initialize;
     
     // Finalizers are called in reverse order (subclass then superclass)
-    DKFinalizeMethod finalize;
+    DKFinalizeMethod    finalize;
 
     // Custom memory allocation
-    DKAllocMethod alloc;
-    DKFreeMethod free;
+    DKAllocMethod       alloc;
+    DKFreeMethod        free;
 };
 
-typedef const struct DKLifeCycle DKLifeCycle;
+typedef const struct DKAllocation DKAllocation;
 
-DKInterfaceRef DKDefaultLifeCycle( void );
+DKInterfaceRef DKDefaultAllocation( void );
 
 
 // Comparison ----------------------------------------------------------------------------
@@ -217,11 +217,14 @@ struct DKComparison
 
 typedef const struct DKComparison DKComparison;
 
-int         DKDefaultEqual( DKObjectRef _self, DKObjectRef other );
-int         DKDefaultCompare( DKObjectRef _self, DKObjectRef other );
-DKHashCode  DKDefaultHash( DKObjectRef ptr );
-
 DKInterfaceRef DKDefaultComparison( void );
+
+// Pointer equality, comparison and hashing
+int         DKPointerEqual( DKObjectRef _self, DKObjectRef other );
+int         DKPointerCompare( DKObjectRef _self, DKObjectRef other );
+DKHashCode  DKPointerHash( DKObjectRef ptr );
+
+
 
 
 // Description ---------------------------------------------------------------------------
@@ -238,9 +241,10 @@ struct DKDescription
 
 typedef const struct DKDescription DKDescription;
 
-DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
-
 DKInterfaceRef DKDefaultDescription( void );
+
+// A default copyDescription method that returns a copy of the class name
+DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
 
 
 
@@ -311,11 +315,13 @@ DKHashCode  DKHash( DKObjectRef _self );
 DKStringRef DKCopyDescription( DKObjectRef _self );
 
 
+
+
 // Message Passing =======================================================================
 
-// This is a monstrosity. It's also necessary to make method calling somewhat "pretty".
+// This monstrosity makes method calling somewhat "pretty".
 //
-// DKCallMethod does three things:
+// DKMsgSend does three things:
 //
 // 1) Retrieve a DKMethod object from REF using DKSelector_METHOD. This is equivalent to
 //    the selector returned by DKSelector( METHOD ).
