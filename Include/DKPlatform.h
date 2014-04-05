@@ -13,15 +13,32 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "DKPlatformApple.h"
+#include "DKConfig.h"
+
+#if DK_PLATFORM_APPLE
+#include <libkern/OSAtomic.h>
+
+#elif DK_PLATFORM_ANDROID
+// Do stuff here...
+
+#elif DK_PLATFORM_LINUX
+// Do stuff here...
+
+#endif
 
 
-// Basic Types ===========================================================================
+
+
+// Basic Types & Constants ===============================================================
 
 // Objects
 typedef const void * DKObjectRef;
 typedef void * DKMutableObjectRef;
 
+
+// Forward declarations of common object types
+typedef const struct DKClass * DKClassRef;
+typedef const struct DKWeak * DKWeakRef;
 typedef const struct DKString * DKStringRef;
 typedef const void * DKListRef;
 
@@ -67,73 +84,20 @@ typedef int  (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
 
 
 
+
 // Error Reporting =======================================================================
+
+// Set external handlers for debug, warning and error messages
 void   DKSetDebugCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 void   DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 void   DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 void   DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 
-// Print a message. This is ignored in non-debug builds. Object descriptions can be
+
+// Print a debug message. This is ignored in non-debug builds. Object descriptions can be
 // printed using the Foundation/CoreFoundation idiom "%@".
 int    _DKDebug( const char * format, ... );
 
-// Print a warning. This is ignored in non-debug builds if DK_WARNINGS_AS_ERRORS is not
-// defined.
-int    _DKWarning( const char * format, ... );
-
-// Print a error. In a debug build execution is halted with assert(0). In a non-debug
-// build the program will continue running.
-int    _DKError( const char * format, ... );
-
-// Print a error. In a debug build execution is halted with assert(0). In a non-debug
-// build the program is halted with abort().
-int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noreturn));
-
-
-#ifdef NDEBUG
-    #ifndef DK_RUNTIME_WARNINGS
-    #define DK_RUNTIME_WARNINGS 0
-    #endif
-
-    #ifndef DK_RUNTIME_ASSERTIONS
-    #define DK_RUNTIME_ASSERTIONS 0
-    #endif
-
-    #ifndef DK_RUNTIME_TYPE_CHECKS
-    #define DK_RUNTIME_TYPE_CHECKS 1
-    #endif
-
-    #ifndef DK_RUNTIME_RANGE_CHECKS
-    #define DK_RUNTIME_RANGE_CHECKS 1
-    #endif
-
-    #ifndef DK_RUNTIME_INTEGRITY_CHECKS
-    #define DK_RUNTIME_INTEGRITY_CHECKS 0
-    #endif
-#else
-    #ifndef DK_RUNTIME_WARNINGS
-    #define DK_RUNTIME_WARNINGS 1
-    #endif
-
-    #ifndef DK_RUNTIME_ASSERTIONS
-    #define DK_RUNTIME_ASSERTIONS 1
-    #endif
-
-    #ifndef DK_RUNTIME_TYPE_CHECKS
-    #define DK_RUNTIME_TYPE_CHECKS  1
-    #endif
-
-    #ifndef DK_RUNTIME_RANGE_CHECKS
-    #define DK_RUNTIME_RANGE_CHECKS 1
-    #endif
-
-    #ifndef DK_RUNTIME_INTEGRITY_CHECKS
-    #define DK_RUNTIME_INTEGRITY_CHECKS 0
-    #endif
-#endif
-
-
-// Debug Messages
 #ifdef NDEBUG
 #define DKDebug( ... )
 #else
@@ -141,7 +105,10 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #endif
 
 
-// Warnings
+// Print a warning. This is ignored in non-debug builds unless DK_RUNTIME_WARNINGS is
+// defined.
+int    _DKWarning( const char * format, ... );
+
 #if DK_RUNTIME_WARNINGS
 #define DKWarning( ... )    _DKWarning( __VA_ARGS__ )
 #else
@@ -149,8 +116,17 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #endif
 
 
-// Errors
+// Print a error. In a debug build execution is halted with assert(0). In a non-debug
+// build the program will continue running.
+int    _DKError( const char * format, ... );
+
 #define DKError( ... )      _DKError( __VA_ARGS__ )
+
+
+// Print a error. In a debug build execution is halted with assert(0). In a non-debug
+// build the program is halted with abort().
+int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noreturn));
+
 #define DKFatalError( ... ) _DKFatalError( __VA_ARGS__ )
 
 
@@ -277,6 +253,46 @@ void   DKSetExternalAllocator( dk_malloc_callback _malloc, dk_free_callback _fre
 
 void * dk_malloc( size_t size );
 void   dk_free( void * ptr );
+
+
+
+
+// Spin Locks ============================================================================
+#if DK_PLATFORM_APPLE
+typedef OSSpinLock DKSpinLock;
+
+#define DKSpinLockInit              OS_SPINLOCK_INIT
+#define DKSpinLockLock( s )         OSSpinLockLock( s )
+#define DKSpinLockUnlock( s )       OSSpinLockUnlock( s )
+
+#elif DK_PLATFORM_ANDROID
+// Do stuff here...
+
+#elif DK_PLATFORM_LINUX
+// Do stuff here...
+
+#endif
+
+
+
+// Atomic Operations =====================================================================
+#if DK_PLATFORM_APPLE
+#define DKAtomicIncrement32( ptr )              OSAtomicIncrement32Barrier( ptr )
+#define DKAtomicDecrement32( ptr )              OSAtomicDecrement32Barrier( ptr )
+#define DKAtomicCmpAndSwapPtr( val, old, new )  OSAtomicCompareAndSwapPtrBarrier( old, new, val )
+
+#elif DK_PLATFORM_ANDROID
+#define DKAtomicIncrement32( ptr )              __sync_add_and_fetch( ptr, 1 )
+#define DKAtomicDecrement32( ptr )              __sync_sub_and_fetch( ptr, 1 )
+#define DKAtomicCmpAndSwapPtr( val, old, new )  __sync_bool_compare_and_swap( val, old, new )
+
+#elif DK_PLATFORM_LINUX
+#define DKAtomicIncrement32( ptr )              __sync_add_and_fetch( ptr, 1 )
+#define DKAtomicDecrement32( ptr )              __sync_sub_and_fetch( ptr, 1 )
+#define DKAtomicCmpAndSwapPtr( val, old, new )  __sync_bool_compare_and_swap( val, old, new )
+
+#endif
+
 
 
 

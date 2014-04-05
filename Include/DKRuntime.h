@@ -12,10 +12,6 @@
 
 
 // DKObject ==============================================================================
-typedef const struct DKClass * DKClassRef;
-typedef const struct DKWeak * DKWeakRef;
-
-
 struct DKObject
 {
     // The class of this object.

@@ -35,7 +35,6 @@
 		025C0F6518EFED97000344C0 /* DKNodePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 025C0F3D18EFED96000344C0 /* DKNodePool.h */; };
 		025C0F6618EFED97000344C0 /* DKNumber.h in Headers */ = {isa = PBXBuildFile; fileRef = 025C0F3E18EFED96000344C0 /* DKNumber.h */; };
 		025C0F6718EFED97000344C0 /* DKPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 025C0F3F18EFED96000344C0 /* DKPlatform.h */; };
-		025C0F6818EFED97000344C0 /* DKPlatformApple.h in Headers */ = {isa = PBXBuildFile; fileRef = 025C0F4018EFED96000344C0 /* DKPlatformApple.h */; };
 		025C0F6918EFED97000344C0 /* DKPointerArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 025C0F4118EFED96000344C0 /* DKPointerArray.h */; };
 		025C0F6A18EFED97000344C0 /* DKRuntime.h in Headers */ = {isa = PBXBuildFile; fileRef = 025C0F4218EFED96000344C0 /* DKRuntime.h */; };
 		025C0F6B18EFED97000344C0 /* DKStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 025C0F4318EFED96000344C0 /* DKStream.h */; };
@@ -55,7 +54,6 @@
 		025C0F7918EFED97000344C0 /* DKNodePool.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5218EFED96000344C0 /* DKNodePool.c */; };
 		025C0F7A18EFED97000344C0 /* DKNumber.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5318EFED96000344C0 /* DKNumber.c */; };
 		025C0F7B18EFED97000344C0 /* DKPlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5418EFED97000344C0 /* DKPlatform.c */; };
-		025C0F7C18EFED97000344C0 /* DKPlatformPosix.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5518EFED97000344C0 /* DKPlatformPosix.c */; };
 		025C0F7D18EFED97000344C0 /* DKPointerArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5618EFED97000344C0 /* DKPointerArray.c */; };
 		025C0F7E18EFED97000344C0 /* DKRuntime.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5718EFED97000344C0 /* DKRuntime.c */; };
 		025C0F7F18EFED97000344C0 /* DKStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5818EFED97000344C0 /* DKStream.c */; };
@@ -98,6 +96,7 @@
 		021EC2D918F07BA9004148AD /* utypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utypes.h; sourceTree = "<group>"; };
 		021EC2DA18F07BA9004148AD /* uvernum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uvernum.h; sourceTree = "<group>"; };
 		021EC2DB18F07BA9004148AD /* uversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uversion.h; sourceTree = "<group>"; };
+		021EC2EA18F085F2004148AD /* DKConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKConfig.h; sourceTree = "<group>"; };
 		024EE3E2148E0B21008FDADC /* libDuck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDuck.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		025C0F3318EFED96000344C0 /* DKArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKArray.h; sourceTree = "<group>"; };
 		025C0F3418EFED96000344C0 /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBinaryTree.h; sourceTree = "<group>"; };
@@ -112,7 +111,6 @@
 		025C0F3D18EFED96000344C0 /* DKNodePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKNodePool.h; sourceTree = "<group>"; };
 		025C0F3E18EFED96000344C0 /* DKNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKNumber.h; sourceTree = "<group>"; };
 		025C0F3F18EFED96000344C0 /* DKPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKPlatform.h; sourceTree = "<group>"; };
-		025C0F4018EFED96000344C0 /* DKPlatformApple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKPlatformApple.h; sourceTree = "<group>"; };
 		025C0F4118EFED96000344C0 /* DKPointerArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKPointerArray.h; sourceTree = "<group>"; };
 		025C0F4218EFED96000344C0 /* DKRuntime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKRuntime.h; sourceTree = "<group>"; };
 		025C0F4318EFED96000344C0 /* DKStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKStream.h; sourceTree = "<group>"; };
@@ -132,7 +130,6 @@
 		025C0F5218EFED96000344C0 /* DKNodePool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNodePool.c; sourceTree = "<group>"; };
 		025C0F5318EFED96000344C0 /* DKNumber.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNumber.c; sourceTree = "<group>"; };
 		025C0F5418EFED97000344C0 /* DKPlatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKPlatform.c; sourceTree = "<group>"; };
-		025C0F5518EFED97000344C0 /* DKPlatformPosix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKPlatformPosix.c; sourceTree = "<group>"; };
 		025C0F5618EFED97000344C0 /* DKPointerArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKPointerArray.c; sourceTree = "<group>"; };
 		025C0F5718EFED97000344C0 /* DKRuntime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKRuntime.c; sourceTree = "<group>"; };
 		025C0F5818EFED97000344C0 /* DKStream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKStream.c; sourceTree = "<group>"; };
@@ -220,6 +217,7 @@
 				025C0F3318EFED96000344C0 /* DKArray.h */,
 				025C0F3418EFED96000344C0 /* DKBinaryTree.h */,
 				025C0F3518EFED96000344C0 /* DKByteArray.h */,
+				021EC2EA18F085F2004148AD /* DKConfig.h */,
 				025C0F3618EFED96000344C0 /* DKCopying.h */,
 				025C0F3718EFED96000344C0 /* DKData.h */,
 				025C0F3818EFED96000344C0 /* DKDictionary.h */,
@@ -230,7 +228,6 @@
 				025C0F3D18EFED96000344C0 /* DKNodePool.h */,
 				025C0F3E18EFED96000344C0 /* DKNumber.h */,
 				025C0F3F18EFED96000344C0 /* DKPlatform.h */,
-				025C0F4018EFED96000344C0 /* DKPlatformApple.h */,
 				025C0F4118EFED96000344C0 /* DKPointerArray.h */,
 				025C0F4218EFED96000344C0 /* DKRuntime.h */,
 				025C0F4318EFED96000344C0 /* DKStream.h */,
@@ -256,7 +253,6 @@
 				025C0F5218EFED96000344C0 /* DKNodePool.c */,
 				025C0F5318EFED96000344C0 /* DKNumber.c */,
 				025C0F5418EFED97000344C0 /* DKPlatform.c */,
-				025C0F5518EFED97000344C0 /* DKPlatformPosix.c */,
 				025C0F5618EFED97000344C0 /* DKPointerArray.c */,
 				025C0F5718EFED97000344C0 /* DKRuntime.c */,
 				025C0F5818EFED97000344C0 /* DKStream.c */,
@@ -349,7 +345,6 @@
 				025C0F6E18EFED97000344C0 /* Duck.h in Headers */,
 				025C0F6918EFED97000344C0 /* DKPointerArray.h in Headers */,
 				021EC2DD18F07BA9004148AD /* platform.h in Headers */,
-				025C0F6818EFED97000344C0 /* DKPlatformApple.h in Headers */,
 				021EC2DF18F07BA9004148AD /* uconfig.h in Headers */,
 				025C0F6D18EFED97000344C0 /* DKUnicode.h in Headers */,
 				021EC2E518F07BA9004148AD /* utf8.h in Headers */,
@@ -448,7 +443,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				025C0F7D18EFED97000344C0 /* DKPointerArray.c in Sources */,
-				025C0F7C18EFED97000344C0 /* DKPlatformPosix.c in Sources */,
 				025C0F7818EFED97000344C0 /* DKList.c in Sources */,
 				025C0F7B18EFED97000344C0 /* DKPlatform.c in Sources */,
 				021EC2C218F0774B004148AD /* utf_impl.c in Sources */,
