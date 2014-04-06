@@ -63,6 +63,9 @@ typedef const struct DKList DKList;
 DKClassRef  DKListClass( void );
 void        DKSetListClass( DKClassRef _self );
 
+DKClassRef  DKMutableListClass( void );
+void        DKSetMutableListClass( DKClassRef _self );
+
 DKIndex     DKListGetCount( DKListRef _self );
 DKIndex     DKListGetCountOfObject( DKListRef _self, DKObjectRef object );
 DKIndex     DKListGetFirstIndexOfObject( DKListRef _self, DKObjectRef object );
@@ -85,6 +88,7 @@ void        DKListRemoveAllObjects( DKMutableListRef _self );
 void        DKListSort( DKMutableListRef _self, DKCompareFunction cmp );
 void        DKListShuffle( DKMutableListRef _self );
 
+DKStringRef DKListCopyDescription( DKListRef _self );
 
 
 #endif // _DK_LIST_H_

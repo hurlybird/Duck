@@ -69,6 +69,13 @@ DKThreadSafeClassInit( DKArrayClass )
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
+    // Description
+    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    description->copyDescription = (DKCopyDescriptionMethod)DKListCopyDescription;
+    
+    DKInstallInterface( cls, description );
+    DKRelease( description );
+
     // List
     struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );
     list->getCount = (DKListGetCountMethod)DKArrayGetCount;

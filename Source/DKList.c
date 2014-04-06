@@ -26,6 +26,8 @@
 
 #include "DKList.h"
 #include "DKLinkedList.h"
+#include "DKString.h"
+#include "DKStream.h"
 
 
 DKThreadSafeFastSelectorInit( List );
@@ -44,13 +46,28 @@ DKClassRef DKListClass( void )
     return DKLinkedListClass();
 }
 
-
-///
-//  DKSetListClass()
-//
 void DKSetListClass( DKClassRef _self )
 {
     DefaultListClass = _self;
+}
+
+
+///
+//  DKMutableListClass()
+//
+static DKClassRef DefaultMutableListClass = NULL;
+
+DKClassRef DKMutableListClass( void )
+{
+    if( DefaultMutableListClass )
+        return DefaultMutableListClass;
+    
+    return DKMutableLinkedListClass();
+}
+
+void DKSetMutableListClass( DKClassRef _self )
+{
+    DefaultMutableListClass = _self;
 }
 
 
@@ -345,6 +362,47 @@ void DKListShuffle( DKMutableListRef _self )
 }
 
 
+///
+//  DKCopyListDescription()
+//
+struct PrintDescriptionContext
+{
+    DKMutableObjectRef stream;
+    DKIndex n;
+};
+
+static int PrintDescriptionCallback( DKObjectRef object, void * context )
+{
+    struct PrintDescriptionContext * ctx = context;
+
+    const char * prefix = (ctx->n == 0) ? "\n    " : ",\n    ";
+
+    if( DKIsKindOfClass( object, DKStringClass() ) )
+        DKSPrintf( ctx->stream, "%s\"%@\"", prefix, object );
+    
+    else
+        DKSPrintf( ctx->stream, "%s%@", prefix, object );
+    
+    ctx->n++;
+    
+    return 0;
+}
+
+DKStringRef DKListCopyDescription( DKListRef _self )
+{
+    DKMutableStringRef desc = DKStringCreateMutable();
+    
+    DKIndex count = DKListGetCount( _self );
+    
+    DKSPrintf( desc, "%@, %d objects = [", DKGetClassName( _self ), count );
+    
+    struct PrintDescriptionContext context = { desc, 0 };
+    DKListApplyFunction( _self, PrintDescriptionCallback, &context );
+    
+    DKSPrintf( desc, "\n]\n" );
+    
+    return desc;
+}
 
 
 

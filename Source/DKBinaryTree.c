@@ -87,6 +87,13 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     DKInstallInterface( cls, copying );
     DKRelease( copying );
     
+    // Description
+    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    description->copyDescription = (DKCopyDescriptionMethod)DKDictionaryCopyDescription;
+    
+    DKInstallInterface( cls, description );
+    DKRelease( description );
+
     // Dictionary
     struct DKDictionary * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
     dictionary->getCount = (DKDictionaryGetCountMethod)DKBinaryTreeGetCount;
@@ -645,7 +652,7 @@ static int DKBinaryTreeTraverseInOrderInternal( const struct DKBinaryTree * tree
         if( (result = DKBinaryTreeTraverseInOrderInternal( tree, node->left, callback, context )) != 0 )
             break;
                 
-        if( (result = callback( context, node->key, node->object )) != 0 )
+        if( (result = callback( node->key, node->object, context )) != 0 )
             break;
 
         node = node->right;

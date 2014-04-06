@@ -1299,7 +1299,7 @@ int DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
 ///
 //  DKCreate()
 //
-DKObjectRef DKCreate( DKClassRef _class )
+void * DKCreate( DKClassRef _class )
 {
     if( _class )
     {

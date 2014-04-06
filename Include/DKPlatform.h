@@ -107,20 +107,25 @@ typedef int  (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
 // Error Reporting =======================================================================
 
 // Set external handlers for debug, warning and error messages
-void   DKSetDebugCallback( int (*callback)( const char * format, va_list arg_ptr ) );
-void   DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) );
-void   DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
-void   DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+void DKSetPrintfCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+void DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+void DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+
+
+// print a message. Object descriptions can be printed using the
+// Foundation/CoreFoundation idiom "%@".
+int    _DKPrintf( const char * format, ... );
+
+#define DKPrintf( ... )     _DKPrintf( __VA_ARGS__ )
 
 
 // Print a debug message. This is ignored in non-debug builds. Object descriptions can be
 // printed using the Foundation/CoreFoundation idiom "%@".
-int    _DKDebug( const char * format, ... );
-
 #ifdef NDEBUG
 #define DKDebug( ... )
 #else
-#define DKDebug( ... )      _DKDebug( __VA_ARGS__ )
+#define DKDebug( ... )      _DKPrintf( __VA_ARGS__ )
 #endif
 
 

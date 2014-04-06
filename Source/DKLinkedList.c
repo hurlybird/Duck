@@ -57,8 +57,8 @@ struct DKLinkedList
 };
 
 
-static DKObjectRef DKLinkedListInitialize( DKObjectRef _self );
-static void      DKLinkedListFinalize( DKObjectRef _self );
+static DKObjectRef  DKLinkedListInitialize( DKObjectRef _self );
+static void         DKLinkedListFinalize( DKObjectRef _self );
 
 static void      DKImmutableLinkedListReplaceObjects( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
 static void      DKImmutableLinkedListReplaceObjectsWithList( DKMutableListRef _self, DKRange range, DKListRef srcList );
@@ -91,6 +91,13 @@ DKThreadSafeClassInit( DKLinkedListClass )
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
+
+    // Description
+    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    description->copyDescription = (DKCopyDescriptionMethod)DKListCopyDescription;
+    
+    DKInstallInterface( cls, description );
+    DKRelease( description );
 
     // List
     struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );

@@ -87,6 +87,13 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKInstallInterface( cls, copying );
     DKRelease( copying );
     
+    // Description
+    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    description->copyDescription = (DKCopyDescriptionMethod)DKDictionaryCopyDescription;
+    
+    DKInstallInterface( cls, description );
+    DKRelease( description );
+
     // Dictionary
     struct DKDictionary * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
     dictionary->getCount = (void *)DKHashTableGetCount;
@@ -578,7 +585,7 @@ int DKHashTableApplyFunction( DKHashTableRef _self, DKDictionaryApplierFunction 
             
             if( RowIsActive( row ) )
             {
-                if( (result = callback( context, row->key, row->object )) != 0 )
+                if( (result = callback( row->key, row->object, context )) != 0 )
                     break;
             }
         }

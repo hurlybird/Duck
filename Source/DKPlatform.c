@@ -32,14 +32,14 @@
 
 
 // Error Reporting =======================================================================
-static int (*DebugCallback)( const char * format, va_list arg_ptr ) = NULL;
+static int (*PrintfCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*WarningCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*ErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*FatalErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
 
-void DKSetDebugCallback( int (*callback)( const char * format, va_list arg_ptr ) )
+void DKSetPrintfCallback( int (*callback)( const char * format, va_list arg_ptr ) )
 {
-    DebugCallback = callback;
+    PrintfCallback = callback;
 }
 
 void DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) )
@@ -59,17 +59,17 @@ void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_
 
 
 ///
-//  DKDebug()
+//  DKPrintf()
 //
-static int _DKDebugInternal( const char * format, ... )
+static int _DKPrintfInternal( const char * format, ... )
 {
     int result = 0;
 
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
-    if( DebugCallback )
-        result = DebugCallback( format, arg_ptr );
+    if( PrintfCallback )
+        result = PrintfCallback( format, arg_ptr );
     
     else
         result = vprintf( format, arg_ptr );
@@ -79,7 +79,7 @@ static int _DKDebugInternal( const char * format, ... )
     return result;
 }
 
-int _DKDebug( const char * format, ... )
+int _DKPrintf( const char * format, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, format );
@@ -89,7 +89,7 @@ int _DKDebug( const char * format, ... )
 
     va_end( arg_ptr );
     
-    int result = _DKDebugInternal( "%s", DKStringGetCStringPtr( tmp ) );
+    int result = _DKPrintfInternal( "%s", DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
     

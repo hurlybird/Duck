@@ -26,7 +26,9 @@
 
 #include "DKDictionary.h"
 #include "DKBinaryTree.h"
-#include "DKLinkedList.h"
+#include "DKArray.h"
+#include "DKString.h"
+#include "DKStream.h"
 
 
 DKThreadSafeFastSelectorInit( Dictionary );
@@ -45,13 +47,28 @@ DKClassRef DKDictionaryClass( void )
     return DKBinaryTreeClass();
 }
 
-
-///
-//  DKSetDictionaryClass()
-//
 void DKSetDictionaryClass( DKClassRef _self )
 {
     DefaultDictionaryClass = _self;
+}
+
+
+///
+//  DKMutableDictionaryClass()
+//
+static DKClassRef DefaultMutableDictionaryClass = NULL;
+
+DKClassRef DKMutableDictionaryClass( void )
+{
+    if( DefaultMutableDictionaryClass )
+        return DefaultMutableDictionaryClass;
+    
+    return DKBinaryTreeClass();
+}
+
+void DKSetMutableDictionaryClass( DKClassRef _self )
+{
+    DefaultMutableDictionaryClass = _self;
 }
 
 
@@ -112,7 +129,7 @@ void DKDictionaryReplaceObject( DKMutableDictionaryRef _self, DKObjectRef key, D
 ///
 //  DKDictionaryAddEntriesFromDictionary()
 //
-static int DKDictionaryAddEntriesCallback( void * context, DKObjectRef key, DKObjectRef object )
+static int DKDictionaryAddEntriesCallback( DKObjectRef key, DKObjectRef object, void * context )
 {
     DKDictionaryAddObject( context, key, object );
     return 0;
@@ -139,7 +156,7 @@ int DKDictionaryContainsKey( DKDictionaryRef _self, DKObjectRef key )
 ///
 //  DKDictionaryContainsObject()
 //
-static int DKDictionaryContainsObjectCallback( void * context, DKObjectRef key, DKObjectRef object )
+static int DKDictionaryContainsObjectCallback( DKObjectRef key, DKObjectRef object, void * context )
 {
     return object == context;
 }
@@ -153,7 +170,7 @@ int DKDictionaryContainsObject( DKDictionaryRef _self, DKObjectRef object )
 ///
 //  DKDictionaryCopyKeys()
 //
-static int DKDictionaryCopyKeysCallback( void * context, DKObjectRef key, DKObjectRef object )
+static int DKDictionaryCopyKeysCallback( DKObjectRef key, DKObjectRef object, void * context )
 {
     DKListAppendObject( context, key );
     return 0;
@@ -161,7 +178,7 @@ static int DKDictionaryCopyKeysCallback( void * context, DKObjectRef key, DKObje
 
 DKListRef DKDictionaryCopyKeys( DKDictionaryRef _self )
 {
-    DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableLinkedListClass() );
+    DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableArrayClass() );
     
     DKDictionaryApplyFunction( _self, DKDictionaryCopyKeysCallback, (void *)list );
     
@@ -172,7 +189,7 @@ DKListRef DKDictionaryCopyKeys( DKDictionaryRef _self )
 ///
 //  DKDictionaryCopyObjects()
 //
-static int DKDictionaryCopyObjectsCallback( void * context, DKObjectRef key, DKObjectRef object )
+static int DKDictionaryCopyObjectsCallback( DKObjectRef key, DKObjectRef object, void * context )
 {
     DKListAppendObject( context, object );
     return 0;
@@ -180,7 +197,7 @@ static int DKDictionaryCopyObjectsCallback( void * context, DKObjectRef key, DKO
 
 DKListRef DKDictionaryCopyObjects( DKDictionaryRef _self )
 {
-    DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableLinkedListClass() );
+    DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableArrayClass() );
     
     DKDictionaryApplyFunction( _self, DKDictionaryCopyObjectsCallback, (void *)list );
     
@@ -244,6 +261,53 @@ int DKDictionaryApplyFunction( DKDictionaryRef _self, DKDictionaryApplierFunctio
 }
 
 
+///
+//  DKCopyDictionaryDescription()
+//
+struct PrintDescriptionContext
+{
+    DKMutableObjectRef stream;
+    DKIndex n;
+};
+
+static int PrintDescriptionCallback( DKObjectRef key, DKObjectRef object, void * context )
+{
+    struct PrintDescriptionContext * ctx = context;
+
+    const char * prefix = (ctx->n == 0) ? "\n    " : ",\n    ";
+
+    if( DKIsKindOfClass( key, DKStringClass() ) )
+        DKSPrintf( ctx->stream, "%s\"%@\" = ", prefix, key );
+    
+    else
+        DKSPrintf( ctx->stream, "%s%@ = ", prefix, key );
+
+    if( DKIsKindOfClass( object, DKStringClass() ) )
+        DKSPrintf( ctx->stream, "\"%@\"", object );
+    
+    else
+        DKSPrintf( ctx->stream, "%@", object );
+    
+    ctx->n++;
+    
+    return 0;
+}
+
+DKStringRef DKDictionaryCopyDescription( DKListRef _self )
+{
+    DKMutableStringRef desc = DKStringCreateMutable();
+    
+    DKIndex count = DKListGetCount( _self );
+    
+    DKSPrintf( desc, "%@, %d key-object pairs = {", DKGetClassName( _self ), count );
+    
+    struct PrintDescriptionContext context = { desc, 0 };
+    DKDictionaryApplyFunction( _self, PrintDescriptionCallback, &context );
+    
+    DKSPrintf( desc, "\n}\n" );
+    
+    return desc;
+}
 
 
 

@@ -429,7 +429,7 @@ int         DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
 // Polymorphic Wrappers ==================================================================
 
 // Create an instance of a class (identical to DKAllocObject( _class, 0 )).
-DKObjectRef DKCreate( DKClassRef _class );
+void *      DKCreate( DKClassRef _class );
 
 int         DKEqual( DKObjectRef a, DKObjectRef b );
 int         DKCompare( DKObjectRef a, DKObjectRef b );

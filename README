@@ -5,26 +5,27 @@ most of its cues from Objective-C, CoreFoundation and COM, yet is small and
 readable enough to be easily ported to platforms where using those environments
 is inconvenient.
 
+
 ## License
 
 The Duck source is distributed under the MIT License. The packages under the
-'ThirdParty' directory are distributed according to their individual licenses.
+'ThirdParty' directory are distributed according to their respective licenses.
 
 
 ## Major Features
 
-* Support for classes, interfaces, properties and messages.
-* Reference counting and zeroing weak references.
+* Classes, interfaces, properties and messages.
+* Thread-safe reference counting and zeroing weak references.
 * String class with basic UTF-8 support.
-* Containers for lists, dictionaries and sets.
+* Container classes implementing lists, dictionaries and sets.
 
 
 ## Porting
 
-Duck is written on Mac OSX in XCode, and includes targets for Mac OS and iOS.
-It should compile anywhere with a C99 compliant compiler. A few types and
-functions, particularly those related to atomic operations will likely need to
-be redefined on non-Apple or non-POSIX systems.
+Duck is written in XCode, and includes targets for Mac OS and iOS. It should
+compile anywhere with a C99 compliant compiler. A few types and functions,
+particularly those related to atomic operations will likely need to be redefined
+on non-Apple or non-POSIX systems.
 
 A sample SConstruct file is included for building with scons.
 
@@ -39,33 +40,28 @@ Here's a snippet of code that shows what using Duck looks like.
 int main( int argc, const char * argv[] )
 {
     // Create a mutable dictionary
-    DKMutableDictionaryRef dict = DKCreate( DKMutableDictinaryClass() );
+    DKMutableListRef list = DKCreate( DKMutableListClass() );
     
     for( int i = 0; i < 10; i++ )
     {
-        // Create a string key
-        DKMutableStringRef key = DKCreate( DKMutableStringClass() );
+        // Create a string
+        DKMutableStringRef str = DKCreate( DKMutableStringClass() );
         
         // Strings support the stream interface so we can print to them thusly
-        DKStreamPrintf( key, "Key %d", i );
+        DKSPrintf( str, "String %d", i );
 
-        // Create a string value in the same way
-        DKMutableStringRef value = DKCreate( DKMutableStringClass() );
-        DKStreamPrintf( value, "Value %d", i );
-
-        // Set the key-value pair in the dictionary
-        DKDictionarySetObject( dict, key, value );
+        // Add the string to the list
+        DKListAppendObject( list, str );
         
-        // Release the local references to the key and value
-        DKRelease( key );
-        DKRelease( value );
+        // Release the local reference to the string
+        DKRelease( str );
     }
     
-    // Print the dictionary to stdout
-    DKPrintf( "%@\n", dict );
+    // Print the list to stdout
+    DKPrintf( "%@\n", list );
     
-    // Release the dictionary and the objects it contains
-    DKRelease( dict );
+    // Release the list and the objects it contains
+    DKRelease( list );
 
     return 0;
 }

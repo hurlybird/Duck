@@ -38,7 +38,7 @@ typedef const void * DKDictionaryRef;
 typedef void * DKMutableDictionaryRef;
 
 
-typedef int (*DKDictionaryApplierFunction)( void * context, DKObjectRef key, DKObjectRef value );
+typedef int (*DKDictionaryApplierFunction)( DKObjectRef key, DKObjectRef value, void * context );
 
 
 typedef enum
@@ -74,6 +74,9 @@ typedef const struct DKDictionary DKDictionary;
 DKClassRef  DKDictionaryClass( void );
 void        DKSetDictionaryClass( DKClassRef _self );
 
+DKClassRef  DKMutableDictionaryClass( void );
+void        DKSetMutableDictionaryClass( DKClassRef _self );
+
 DKIndex DKDictionaryGetCount( DKDictionaryRef _self );
 
 void DKDictionarySetObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
@@ -93,6 +96,8 @@ void DKDictionaryRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );
 void DKDictionaryRemoveAllObjects( DKMutableDictionaryRef _self );
 
 int DKDictionaryApplyFunction( DKDictionaryRef _self, DKDictionaryApplierFunction callback, void * context );
+
+DKStringRef DKDictionaryCopyDescription( DKListRef _self );
 
 
 #endif // _DK_DICTIONARY_H_
