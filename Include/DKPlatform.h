@@ -102,6 +102,16 @@ typedef int  (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
 #define DKPathExtensionSeparator    '.'
 
 
+// Inerstion Policies
+typedef enum
+{
+    DKInsertAlways,
+    DKInsertIfFound,
+    DKInsertIfNotFound
+    
+} DKInsertPolicy;
+
+
 
 
 // Error Reporting =======================================================================

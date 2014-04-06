@@ -1218,7 +1218,7 @@ DKStringRef __DKStringDefineConstantString( const char * str )
         // Try to insert it in the table
         DKSpinLockLock( &DKConstantStringTableLock );
         DKIndex count = DKHashTableGetCount( DKConstantStringTable );
-        DKHashTableInsertObject( DKConstantStringTable, newConstantString, newConstantString, DKDictionaryInsertIfNotFound );
+        DKHashTableInsertObject( DKConstantStringTable, newConstantString, newConstantString, DKInsertIfNotFound );
         
         // Did someone sneak in and insert it before us?
         if( DKHashTableGetCount( DKConstantStringTable ) == count )

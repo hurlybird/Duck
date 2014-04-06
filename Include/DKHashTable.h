@@ -49,7 +49,7 @@ DKObjectRef DKHashTableGetObject( DKHashTableRef _self, DKObjectRef key );
 
 int         DKHashTableApplyFunction( DKHashTableRef _self, DKDictionaryApplierFunction callback, void * context );
 
-void        DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
+void        DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 void        DKHashTableRemoveObject( DKMutableHashTableRef _self, DKObjectRef key );
 void        DKHashTableRemoveAllObjects( DKMutableHashTableRef _self );
 

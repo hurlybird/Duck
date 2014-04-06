@@ -54,10 +54,10 @@ struct DKHashTable
 static DKObjectRef DKHashTableInitialize( DKObjectRef _self );
 static void DKHashTableFinalize( DKObjectRef _self );
 
-static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
+static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 static void RemoveAll( struct DKHashTable * hashTable );
 
-static void DKImmutableHashTableInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
+static void DKImmutableHashTableInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 static void DKImmutableHashTableRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );
 static void DKImmutableHashTableRemoveAllObjects( DKMutableDictionaryRef _self );
 
@@ -317,7 +317,7 @@ static void ResizeAndRehash( struct DKHashTable * hashTable )
         
         if( RowIsActive( row ) )
         {
-            Insert( hashTable, row->hash, row->key, row->object, DKDictionaryInsertAlways );
+            Insert( hashTable, row->hash, row->key, row->object, DKInsertAlways );
         
             DKRelease( row->key );
             DKRelease( row->object );
@@ -365,7 +365,7 @@ static struct DKHashTableRow * Find( struct DKHashTable * hashTable, DKHashCode 
 ///
 //  Insert()
 //
-static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
+static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     if( key == NULL )
     {
@@ -380,10 +380,10 @@ static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef
     struct DKHashTableRow * row = Find( hashTable, hash, key );
     bool active = RowIsActive( row );
 
-    if( !active && (policy == DKDictionaryInsertIfFound) )
+    if( !active && (policy == DKInsertIfFound) )
         return;
     
-    if( active && (policy == DKDictionaryInsertIfNotFound) )
+    if( active && (policy == DKInsertIfNotFound) )
         return;
 
     row->hash = hash;
@@ -488,7 +488,7 @@ DKHashTableRef DKHashTableCreateWithKeysAndObjects( DKObjectRef firstKey, ... )
             DKObjectRef object = va_arg( arg_ptr, DKObjectRef );
 
             DKHashCode hash = DKHash( key );
-            Insert( hashTable, hash, key, object, DKDictionaryInsertAlways );
+            Insert( hashTable, hash, key, object, DKInsertAlways );
             
             key = va_arg( arg_ptr, DKObjectRef );
         }
@@ -604,12 +604,12 @@ int DKHashTableApplyFunction( DKHashTableRef _self, DKDictionaryApplierFunction 
 ///
 //  DKHashTableInsertObject()
 //
-static void DKImmutableHashTableInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
+static void DKImmutableHashTableInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     DKError( "DKHashTableInsertObject: Trying to modify an immutable object." );
 }
 
-void DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
+void DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     if( _self )
     {

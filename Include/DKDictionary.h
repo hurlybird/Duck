@@ -41,20 +41,13 @@ typedef void * DKMutableDictionaryRef;
 typedef int (*DKDictionaryApplierFunction)( DKObjectRef key, DKObjectRef value, void * context );
 
 
-typedef enum
-{
-    DKDictionaryInsertAlways,
-    DKDictionaryInsertIfFound,
-    DKDictionaryInsertIfNotFound
-    
-} DKDictionaryInsertPolicy;
-
 typedef DKIndex     (*DKDictionaryGetCountMethod)( DKDictionaryRef _self );
 typedef DKObjectRef (*DKDictionaryGetObjectMethod)( DKDictionaryRef _self, DKObjectRef key );
 typedef int         (*DKDictionaryApplyFunctionMethod)( DKDictionaryRef _self, DKDictionaryApplierFunction, void * context );
-typedef void        (*DKDictionaryInsertObjectMethod)( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
+typedef void        (*DKDictionaryInsertObjectMethod)( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 typedef void        (*DKDictionaryRemoveObjectMethod)( DKMutableDictionaryRef _self, DKObjectRef key );
 typedef void        (*DKDictionaryRemoveAllObjectsMethod)( DKMutableDictionaryRef _self );
+
 
 struct DKDictionary
 {

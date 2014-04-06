@@ -95,7 +95,7 @@ void DKDictionarySetObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObj
     if( _self )
     {
         DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
-        dict->insertObject( _self, key, object, DKDictionaryInsertAlways );
+        dict->insertObject( _self, key, object, DKInsertAlways );
     }
 }
 
@@ -108,7 +108,7 @@ void DKDictionaryAddObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObj
     if( _self )
     {
         DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
-        dict->insertObject( _self, key, object, DKDictionaryInsertIfNotFound );
+        dict->insertObject( _self, key, object, DKInsertIfNotFound );
     }
 }
 
@@ -121,7 +121,7 @@ void DKDictionaryReplaceObject( DKMutableDictionaryRef _self, DKObjectRef key, D
     if( _self )
     {
         DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
-        dict->insertObject( _self, key, object, DKDictionaryInsertIfFound );
+        dict->insertObject( _self, key, object, DKInsertIfFound );
     }
 }
 

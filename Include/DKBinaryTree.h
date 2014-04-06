@@ -49,7 +49,7 @@ DKObjectRef DKBinaryTreeGetObject( DKBinaryTreeRef _self, DKObjectRef key );
 int         DKBinaryTreeApplyFunction( DKBinaryTreeRef _self, DKDictionaryApplierFunction callback, void * context );
 int         DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKDictionaryApplierFunction callback, void * context );
 
-void        DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
+void        DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 void        DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef _self, DKObjectRef key );
 void        DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef _self );
 

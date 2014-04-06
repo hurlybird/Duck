@@ -59,7 +59,7 @@ static void      DKBinaryTreeFinalize( DKObjectRef _self );
 
 static void      RemoveAll( struct DKBinaryTree * tree, struct DKBinaryTreeNode * node );
 
-static void      DKImmutableBinaryTreeInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy );
+static void      DKImmutableBinaryTreeInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 static void      DKImmutableBinaryTreeRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );
 static void      DKImmutableBinaryTreeRemoveAllObjects( DKMutableDictionaryRef _self );
 
@@ -342,11 +342,11 @@ static void Split( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node )
 //  Insert()
 //
 static void InsertRecursive( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
-    DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
+    DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     if( *node == &tree->null_node )
     {
-        if( policy == DKDictionaryInsertIfFound )
+        if( policy == DKInsertIfFound )
             return;
         
         *node = AllocNode( tree, key, object );
@@ -368,7 +368,7 @@ static void InsertRecursive( struct DKBinaryTree * tree, struct DKBinaryTreeNode
             
         else
         {
-            if( policy != DKDictionaryInsertIfNotFound )
+            if( policy != DKInsertIfNotFound )
             {
                 DKRetain( object );
                 DKRelease( (*node)->object );
@@ -383,7 +383,7 @@ static void InsertRecursive( struct DKBinaryTree * tree, struct DKBinaryTreeNode
     Split( tree, node );
 }
 
-static void Insert( struct DKBinaryTree * tree, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
+static void Insert( struct DKBinaryTree * tree, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     if( key == NULL )
     {
@@ -543,7 +543,7 @@ DKBinaryTreeRef DKBinaryTreeCreateWithKeysAndObjects( DKCompareFunction compareK
         {
             DKObjectRef object = va_arg( arg_ptr, DKObjectRef );
 
-            Insert( tree, key, object, DKDictionaryInsertAlways );
+            Insert( tree, key, object, DKInsertAlways );
             
             key = va_arg( arg_ptr, DKObjectRef );
         }
@@ -689,12 +689,12 @@ int DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKDictionaryApplierFunct
 ///
 //  DKBinaryTreeInsertObject()
 //
-static void DKImmutableBinaryTreeInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
+static void DKImmutableBinaryTreeInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     DKError( "DKBinaryTreeInsertObject: Trying to modify an immutable object." );
 }
 
-void DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
+void DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     if( _self )
     {
