@@ -31,7 +31,7 @@
 
 
 // DKObject ==============================================================================
-struct DKObject
+typedef struct DKObject
 {
     // The class of this object.
     DKClassRef isa;
@@ -46,9 +46,8 @@ struct DKObject
     
     // The weak reference associated with this object. (This may be relocated.)
     DKWeakRef weakref;
-};
-
-typedef const struct DKObject DKObject;
+    
+} DKObject;
 
 
 // Use this macro when declaring a static instance of a DKObject. This will insulate your
@@ -59,7 +58,7 @@ typedef const struct DKObject DKObject;
 
 // Get/Set the object tag.
 #define DKGetObjectTag( obj )           (((DKObject *)(obj))->tag)
-#define DKSetObjectTag( obj, value )    do{ ((struct DKObject *)(obj))->tag = (value); } while(0)
+#define DKSetObjectTag( obj, value )    do{ ((DKObject *)(obj))->tag = (value); } while(0)
 
 
 
@@ -99,14 +98,14 @@ typedef enum
     
 } DKCacheUsage;
 
-struct DKSEL
+struct _DKSEL
 {
-    DKObject        _obj;
+    const DKObject  _obj;
     const char *    suid;
     DKCacheUsage    cacheline;
 };
 
-typedef const struct DKSEL * DKSEL;
+typedef const struct _DKSEL * DKSEL;
 
 #define DKSelector( name )      DKSelector_ ## name()
 
@@ -114,13 +113,13 @@ typedef const struct DKSEL * DKSEL;
 
 
 // DKInterface ===========================================================================
-struct DKInterface
+typedef struct DKInterface
 {
-    DKObject        _obj;
+    const DKObject  _obj;
     DKSEL           sel;
-};
+    
+} DKInterface;
 
-typedef const struct DKInterface DKInterface;
 typedef const void * DKInterfaceRef;
 
 // Declare an interface selector.
@@ -135,14 +134,14 @@ DKInterfaceRef DKInterfaceNotFound( void );
 
 
 // DKMessage =============================================================================
-struct DKMsgHandler
+typedef struct DKMsgHandler
 {
-    DKObject        _obj;
+    const DKObject  _obj;
     DKSEL           sel;
     const void *    func;
-};
+    
+} DKMsgHandler;
 
-typedef const struct DKMsgHandler DKMsgHandler;
 typedef const struct DKMsgHandler * DKMsgHandlerRef;
 
 // Declare a message handler selector. This also defines a callback type used by
@@ -192,9 +191,9 @@ enum
 
 typedef const struct DKProperty * DKPropertyRef;
 
-struct DKProperty
+typedef struct DKProperty
 {
-    DKObject        _obj;
+    const DKObject  _obj;
     
     DKStringRef     name;
     DKPropertyType  type;
@@ -208,9 +207,8 @@ struct DKProperty
 
     void (*setter)( DKObjectRef _self, DKPropertyRef property, const void * value );
     void (*getter)( DKObjectRef _self, DKPropertyRef property, void * value );
-};
-
-typedef const struct DKProperty DKProperty;
+    
+} DKProperty;
 
 
 
@@ -236,9 +234,9 @@ typedef void (*DKFinalizeMethod)( DKObjectRef _self );
 typedef void * (*DKAllocMethod)( size_t size );
 typedef void (*DKFreeMethod)( void * ptr );
 
-struct DKAllocation
+struct DKAllocationInterface
 {
-    DKInterface _interface;
+    const DKInterface _interface;
  
     // All methods are optional -- specify NULL for the default behaviour
     
@@ -253,7 +251,7 @@ struct DKAllocation
     DKFreeMethod        free;
 };
 
-typedef const struct DKAllocation DKAllocation;
+typedef const struct DKAllocationInterface * DKAllocationInterfaceRef;
 
 DKInterfaceRef DKDefaultAllocation( void );
 
@@ -267,16 +265,16 @@ typedef int (*DKEqualMethod)( DKObjectRef a, DKObjectRef b );
 typedef int (*DKCompareMethod)( DKObjectRef a, DKObjectRef b );
 typedef DKHashCode (*DKHashMethod)( DKObjectRef _self );
 
-struct DKComparison
+struct DKComparisonInterface
 {
-    DKInterface _interface;
+    const DKInterface _interface;
     
     DKEqualMethod   equal;
     DKCompareMethod compare;
     DKHashMethod    hash;
 };
 
-typedef const struct DKComparison DKComparison;
+typedef const struct DKComparisonInterface * DKComparisonInterfaceRef;
 
 DKInterfaceRef DKDefaultComparison( void );
 
@@ -294,14 +292,14 @@ DKDeclareInterfaceSelector( Description );
 
 typedef DKStringRef (*DKCopyDescriptionMethod)( DKObjectRef _self );
 
-struct DKDescription
+struct DKDescriptionInterface
 {
-    DKInterface _interface;
+    const DKInterface _interface;
     
     DKCopyDescriptionMethod copyDescription;
 };
 
-typedef const struct DKDescription DKDescription;
+typedef const struct DKDescriptionInterface * DKDescriptionInterfaceRef;
 
 DKInterfaceRef DKDefaultDescription( void );
 
@@ -446,13 +444,14 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 //
 // DKMsgSend does three things:
 //
-// 1) Retrieve a DKMethod object from REF using DKSelector_METHOD. This is equivalent to
+// 1) Retrieve a DKMsgHandler object from REF using DKSelector(msg). This is equivalent to
 //    the selector returned by DKSelector( METHOD ).
 //
 // 2) Cast the method implementation to the DKMethod_METHOD type defined by
-//    DKDefineSelector( METHOD ). This provides a modicum of compile-time type checking.
+//    DKDeclareMsgHandlerSelector( msg ). This provides a modicum of compile-time type
+//    checking.
 //
-// 3) Call the imp function with REF, DKSelector_METHOD and the remaining arguments.
+// 3) Call the imp function with _self, DKSelector(msg) and the remaining arguments.
 //
 //    Note that the GNU C Preprocessor concat operator ## has a special case when used
 //    between a comma and __VA_ARGS__: if no variable arguments are supplied, the comma
@@ -460,7 +459,7 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 //
 //    The preprocesser used by Clang seems to support the special case ## syntax as well.
 //
-//    If the method isn't defined for the object, DKLookupMethod returns a generic
+//    If the method isn't defined for the object, DKGetMsgHandler returns a generic
 //    implementation that produces an error.
 
 #define DKMsgSend( _self, msg, ... ) \
@@ -473,6 +472,13 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 
 
 // Thread-Safe Object Construction =======================================================
+
+// These macros are for the thread-safe creation of shared object pointers exposed by a
+// function accessor. The general strategy is to wrap the object construction in a
+// secondary accessory and use an atomic swap to save the shared pointer in a thread-safe
+// way.
+
+// Shared objects are expected to be created once and never deallocated.
 
 // Thread-safe initialization of shared objects.
 #define DKThreadSafeSharedObjectInit( accessor, type )                                  \
@@ -495,25 +501,27 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
     static type accessor ## _Create( void )
 
 
-// Thread-safe creation/initialization of shared class objects.
+// Thread-safe initialization of shared class objects.
 #define DKThreadSafeClassInit( accessor )                                               \
     DKThreadSafeSharedObjectInit( accessor, DKClassRef )
 
 
-// Thread-safe creation/initialization of selector objects.
+// Thread-safe initialization of selector objects.
 #define DKThreadSafeSelectorInit( name )                                                \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        struct DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                     \
+        struct _DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                    \
         sel->suid = #name;                                                              \
         sel->cacheline = DKDynamicCache;                                                \
         return sel;                                                                     \
     }
 
+// Thread-safe initialization of "fast" selectors. Each fast selector is assigned a
+// unique, reserved cache line in the interface cache.
 #define DKThreadSafeFastSelectorInit( name )                                            \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        struct DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                     \
+        struct _DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                    \
         sel->suid = #name;                                                              \
         sel->cacheline = DKStaticCache_ ## name;                                        \
         return sel;                                                                     \

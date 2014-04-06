@@ -77,7 +77,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKClassRef cls = DKAllocClass( DKSTR( "DKLinkedList" ), DKObjectClass(), sizeof(struct DKLinkedList), 0 );
     
     // Allocation
-    struct DKAllocation * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(DKAllocation) );
+    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
     allocation->initialize = DKLinkedListInitialize;
     allocation->finalize = DKLinkedListFinalize;
 
@@ -85,7 +85,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKRelease( allocation );
 
     // Copying
-    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListCreateMutableCopy;
     
@@ -93,14 +93,14 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKRelease( copying );
 
     // Description
-    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->copyDescription = (DKCopyDescriptionMethod)DKListCopyDescription;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
     // List
-    struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );
+    struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
     list->getCount = (DKListGetCountMethod)DKLinkedListGetCount;
     list->getObjects = (DKListGetObjectsMethod)DKLinkedListGetObjects;
     list->replaceObjects = DKImmutableLinkedListReplaceObjects;
@@ -123,7 +123,7 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     DKClassRef cls = DKAllocClass( DKSTR( "DKMutableLinkedList" ), DKLinkedListClass(), sizeof(struct DKLinkedList), 0 );
     
     // Copying
-    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = (DKCopyMethod)DKLinkedListCreateCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListCreateMutableCopy;
     
@@ -131,7 +131,7 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     DKRelease( copying );
 
     // List
-    struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );
+    struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
     list->getCount = (DKListGetCountMethod)DKLinkedListGetCount;
     list->getObjects = (DKListGetObjectsMethod)DKLinkedListGetObjects;
     list->replaceObjects = (DKListReplaceObjectsMethod)DKLinkedListReplaceObjects;
@@ -457,7 +457,7 @@ static void ReplaceObjectsWithList( struct DKLinkedList * list, DKRange range, D
     {
         DKCheckRange( range, list->count );
 
-        DKList * srcListInterface = DKGetInterface( srcList, DKSelector(List) );
+        DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKSelector(List) );
         
         RemoveObjects( list, range );
         

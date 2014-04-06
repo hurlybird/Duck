@@ -34,15 +34,15 @@ DKDeclareInterfaceSelector( Copying );
 typedef DKObjectRef (*DKCopyMethod)( DKObjectRef );
 typedef DKMutableObjectRef (*DKMutableCopyMethod)( DKObjectRef );
 
-struct DKCopying
+struct DKCopyingInterface
 {
-    DKInterface _interface;
+    const DKInterface _interface;
 
     DKCopyMethod copy;
     DKMutableCopyMethod mutableCopy;
 };
 
-typedef const struct DKCopying DKCopying;
+typedef const struct DKCopyingInterface * DKCopyingInterfaceRef;
 
 
 DKObjectRef DKCopy( DKObjectRef _self );

@@ -54,7 +54,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKClassRef cls = DKAllocClass( DKSTR( "DKArray" ), DKObjectClass(), sizeof(struct DKArray), 0 );
     
     // Allocation
-    struct DKAllocation * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(DKAllocation) );
+    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
     allocation->initialize = DKArrayInitialize;
     allocation->finalize = DKArrayFinalize;
 
@@ -62,7 +62,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( allocation );
 
     // Copying
-    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKArrayCreateMutableCopy;
     
@@ -70,14 +70,14 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( copying );
 
     // Description
-    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->copyDescription = (DKCopyDescriptionMethod)DKListCopyDescription;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
     // List
-    struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );
+    struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
     list->getCount = (DKListGetCountMethod)DKArrayGetCount;
     list->getObjects = (DKListGetObjectsMethod)DKArrayGetObjects;
     list->replaceObjects = DKImmutableArrayReplaceObjects;
@@ -100,7 +100,7 @@ DKThreadSafeClassInit( DKMutableArrayClass )
     DKClassRef cls = DKAllocClass( DKSTR( "DKMutableArray" ), DKArrayClass(), sizeof(struct DKArray), 0 );
     
     // Copying
-    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = (DKCopyMethod)DKArrayCreateMutableCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKArrayCreateMutableCopy;
     
@@ -108,7 +108,7 @@ DKThreadSafeClassInit( DKMutableArrayClass )
     DKRelease( copying );
 
     // List
-    struct DKList * list = DKAllocInterface( DKSelector(List), sizeof(DKList) );
+    struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
     list->getCount = (DKListGetCountMethod)DKArrayGetCount;
     list->getObjects = (DKListGetObjectsMethod)DKArrayGetObjects;
     list->replaceObjects = (DKListReplaceObjectsMethod)DKArrayReplaceObjects;
@@ -195,7 +195,7 @@ static void ReplaceObjectsWithList( struct DKArray * array, DKRange range, DKLis
     {
         DKCheckRange( range, array->ptrArray.length );
 
-        DKList * srcListInterface = DKGetInterface( srcList, DKSelector(List) );
+        DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKSelector(List) );
         
         DKIndex srcCount = srcListInterface->getCount( srcList );
         

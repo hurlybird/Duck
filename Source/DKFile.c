@@ -47,14 +47,14 @@ DKThreadSafeClassInit( DKFileClass )
     DKClassRef cls = DKAllocClass( DKSTR( "DKFile" ), DKObjectClass(), sizeof(struct DKFile), 0 );
     
     // Allocation
-    struct DKAllocation * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(DKAllocation) );
+    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
     allocation->finalize = DKFileFinalize;
 
     DKInstallInterface( cls, allocation );
     DKRelease( allocation );
 
     // Stream
-    struct DKStream * stream = DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
+    struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKFileSeek;
     stream->tell = (DKStreamTellMethod)DKFileTell;
     stream->read = (DKStreamReadMethod)DKFileRead;

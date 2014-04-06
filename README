@@ -1,9 +1,8 @@
 # The Duck Object Library
 
 Duck is an object system and library for "duck-typed" programming in C. It takes
-most of its cues from Objective-C, CoreFoundation and COM, yet is small and
-readable enough to be easily ported to platforms where using those environments
-is inconvenient.
+many cues from Objective-C, CoreFoundation and COM, yet is small and readable
+enough to be easily ported to platforms where using those is inconvenient.
 
 
 ## License
@@ -26,6 +25,8 @@ Duck is written in XCode, and includes targets for Mac OS and iOS. It should
 compile anywhere with a C99 compliant compiler. A few types and functions,
 particularly those related to atomic operations will likely need to be redefined
 on non-Apple or non-POSIX systems.
+
+
 
 A sample SConstruct file is included for building with scons.
 

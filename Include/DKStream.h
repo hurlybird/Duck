@@ -45,9 +45,9 @@ typedef DKIndex (*DKStreamTellMethod)( DKObjectRef _self );
 typedef DKIndex (*DKStreamReadMethod)( DKObjectRef _self, void * data, DKIndex size, DKIndex count );
 typedef DKIndex (*DKStreamWriteMethod)( DKMutableObjectRef _self, const void * data, DKIndex size, DKIndex count );
 
-struct DKStream
+struct DKStreamInterface
 {
-    DKInterface _interface;
+    const DKInterface _interface;
     
     DKStreamSeekMethod seek;
     DKStreamTellMethod tell;
@@ -55,7 +55,7 @@ struct DKStream
     DKStreamWriteMethod write;
 };
 
-typedef const struct DKStream DKStream;
+typedef const struct DKStreamInterface * DKStreamInterfaceRef;
 
 
 int DKSeek( DKObjectRef _self, DKIndex offset, int origin );

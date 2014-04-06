@@ -79,7 +79,7 @@ DKIndex DKDictionaryGetCount( DKDictionaryRef _self )
 {
     if( _self )
     {
-        DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
+        DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         return dict->getCount( _self );
     }
     
@@ -94,7 +94,7 @@ void DKDictionarySetObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObj
 {
     if( _self )
     {
-        DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
+        DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         dict->insertObject( _self, key, object, DKInsertAlways );
     }
 }
@@ -107,7 +107,7 @@ void DKDictionaryAddObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObj
 {
     if( _self )
     {
-        DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
+        DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         dict->insertObject( _self, key, object, DKInsertIfNotFound );
     }
 }
@@ -120,7 +120,7 @@ void DKDictionaryReplaceObject( DKMutableDictionaryRef _self, DKObjectRef key, D
 {
     if( _self )
     {
-        DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
+        DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         dict->insertObject( _self, key, object, DKInsertIfFound );
     }
 }
@@ -212,7 +212,7 @@ DKObjectRef DKDictionaryGetObject( DKDictionaryRef _self, DKObjectRef key )
 {
     if( _self )
     {
-        DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
+        DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         return dict->getObject( _self, key );
     }
     
@@ -227,7 +227,7 @@ void DKDictionaryRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key )
 {
     if( _self )
     {
-        DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
+        DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         return dict->removeObject( _self, key );
     }
 }
@@ -240,7 +240,7 @@ void DKDictionaryRemoveAllObjects( DKMutableDictionaryRef _self )
 {
     if( _self )
     {
-        DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
+        DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         return dict->removeAllObjects( _self );
     }
 }
@@ -253,7 +253,7 @@ int DKDictionaryApplyFunction( DKDictionaryRef _self, DKDictionaryApplierFunctio
 {
     if( _self )
     {
-        DKDictionary * dict = DKGetInterface( _self, DKSelector(Dictionary) );
+        DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         return dict->applyFunction( _self, callback, context );
     }
     

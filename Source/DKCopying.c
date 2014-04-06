@@ -37,7 +37,7 @@ DKObjectRef DKCopy( DKObjectRef _self )
 {
     if( _self )
     {
-        DKCopying * copying = DKGetInterface( _self, DKSelector( Copying ) );
+        DKCopyingInterfaceRef copying = DKGetInterface( _self, DKSelector(Copying) );
         return copying->copy( _self );
     }
 
@@ -52,7 +52,7 @@ DKMutableObjectRef DKMutableCopy( DKObjectRef _self )
 {
     if( _self )
     {
-        DKCopying * copying = DKGetInterface( _self, DKSelector( Copying ) );
+        DKCopyingInterfaceRef copying = DKGetInterface( _self, DKSelector(Copying) );
         return copying->mutableCopy( _self );
     }
 

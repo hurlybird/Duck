@@ -64,7 +64,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString), 0 );
     
     // Allocation
-    struct DKAllocation * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(DKAllocation) );
+    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
     allocation->initialize = DKStringInitialize;
     allocation->finalize = DKStringFinalize;
 
@@ -72,7 +72,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( allocation );
 
     // Comparison
-    struct DKComparison * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(DKComparison) );
+    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (DKEqualMethod)DKStringEqual;
     comparison->compare = (DKCompareMethod)DKStringCompare;
     comparison->hash = (DKHashMethod)DKStringHash;
@@ -81,14 +81,14 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( comparison );
     
     // Description
-    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->copyDescription = (DKCopyDescriptionMethod)DKRetain;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
     // Copying
-    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKStringCreateMutableCopy;
     
@@ -96,7 +96,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( copying );
 
     // Stream
-    struct DKStream * stream = DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
+    struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKStringSeek;
     stream->tell = (DKStreamTellMethod)DKStringTell;
     stream->read = (DKStreamReadMethod)DKStringRead;
@@ -131,14 +131,14 @@ DKThreadSafeClassInit( DKMutableStringClass )
     DKClassRef cls = DKAllocClass( DKSTR( "DKMutableString" ), DKStringClass(), sizeof(struct DKString), 0 );
     
     // Description
-    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->copyDescription = (DKCopyDescriptionMethod)DKStringCreateCopy;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
     // Copying
-    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = (DKCopyMethod)DKStringCreateMutableCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKStringCreateMutableCopy;
     
@@ -147,7 +147,7 @@ DKThreadSafeClassInit( DKMutableStringClass )
     
     // Stream
     // Stream
-    struct DKStream * stream = DKAllocInterface( DKSelector(Stream), sizeof(DKStream) );
+    struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKStringSeek;
     stream->tell = (DKStreamTellMethod)DKStringTell;
     stream->read = (DKStreamReadMethod)DKStringRead;
@@ -810,7 +810,7 @@ DKStringRef DKStringCopyLastPathComponent( DKStringRef _self )
         
         // Skip over trailing slashes
         int32_t end = (int32_t)_self->byteArray.length;
-        char32_t ch;
+        dk_unicode_t ch;
         
         while( end > 0 )
         {
@@ -844,7 +844,7 @@ DKStringRef DKStringCopyLastPathComponent( DKStringRef _self )
         {
             // Use the copying interface here because immutable strings can be retained
             // rather than copied
-            DKCopying * copying = DKGetInterface( _self, DKSelector(Copying) );
+            DKCopyingInterfaceRef copying = DKGetInterface( _self, DKSelector(Copying) );
             return copying->copy( _self );
         }
         
@@ -1033,7 +1033,7 @@ void DKStringStandardizePath( DKMutableStringRef _self )
         const char * src = dst;
         int wasslash = 0;
         
-        char32_t ch;
+        dk_unicode_t ch;
         size_t n;
         
         while( (n = dk_ustrscan( src, &ch )) != 0 )

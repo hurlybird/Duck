@@ -72,7 +72,7 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     DKClassRef cls = DKAllocClass( DKSTR( "DKBinaryTree" ), DKObjectClass(), sizeof(struct DKBinaryTree), 0 );
     
     // Allocation
-    struct DKAllocation * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(DKAllocation) );
+    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
     allocation->initialize = DKBinaryTreeInitialize;
     allocation->finalize = DKBinaryTreeFinalize;
 
@@ -80,7 +80,7 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     DKRelease( allocation );
 
     // Copying
-    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKBinaryTreeCreateMutableCopy;
     
@@ -88,14 +88,14 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     DKRelease( copying );
     
     // Description
-    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->copyDescription = (DKCopyDescriptionMethod)DKDictionaryCopyDescription;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
     // Dictionary
-    struct DKDictionary * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+    struct DKDictionaryInterface * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );
     dictionary->getCount = (DKDictionaryGetCountMethod)DKBinaryTreeGetCount;
     dictionary->getObject = (DKDictionaryGetObjectMethod)DKBinaryTreeGetObject;
     dictionary->applyFunction = (DKDictionaryApplyFunctionMethod)DKBinaryTreeApplyFunction;
@@ -118,7 +118,7 @@ DKThreadSafeClassInit( DKMutableBinaryTreeClass )
     DKClassRef cls = DKAllocClass( DKSTR( "DKMutableBinaryTree" ), DKBinaryTreeClass(), sizeof(struct DKBinaryTree), 0 );
     
     // Copying
-    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = (DKCopyMethod)DKBinaryTreeCreateMutableCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKBinaryTreeCreateMutableCopy;
     
@@ -126,7 +126,7 @@ DKThreadSafeClassInit( DKMutableBinaryTreeClass )
     DKRelease( copying );
 
     // Dictionary
-    struct DKDictionary * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(DKDictionary) );
+    struct DKDictionaryInterface * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );
     dictionary->getCount = (DKDictionaryGetCountMethod)DKBinaryTreeGetCount;
     dictionary->getObject = (DKDictionaryGetObjectMethod)DKBinaryTreeGetObject;
     dictionary->applyFunction = (DKDictionaryApplyFunctionMethod)DKBinaryTreeApplyFunction;
@@ -564,10 +564,13 @@ DKBinaryTreeRef DKBinaryTreeCreateCopy( DKDictionaryRef srcDictionary )
 {
     DKMutableDictionaryRef _self = DKBinaryTreeCreateMutableCopy( srcDictionary );
 
-    // Turn the mutable tree into an immutable tree
-    struct DKObject * obj = (struct DKObject *)_self;
-    DKRelease( obj->isa );
-    obj->isa = DKRetain( DKBinaryTreeClass() );
+    if( _self )
+    {
+        // Turn the mutable tree into an immutable tree
+        DKObject * obj = (DKObject *)_self;
+        DKRelease( obj->isa );
+        obj->isa = DKRetain( DKBinaryTreeClass() );
+    }
     
     return _self;
 }

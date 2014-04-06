@@ -140,7 +140,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKClassRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(struct DKNumber), 0 );
     
     // Copying
-    struct DKCopying * copying = DKAllocInterface( DKSelector(Copying), sizeof(DKCopying) );
+    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
     copying->mutableCopy = (void *)DKRetain;
     
@@ -148,7 +148,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( copying );
     
     // Comparison
-    struct DKComparison * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(DKComparison) );
+    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (void *)DKNumberEqual;
     comparison->compare = (void *)DKNumberCompare;
     comparison->hash = (void *)DKNumberHash;
@@ -157,7 +157,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( comparison );
     
     // Description
-    struct DKDescription * description = DKAllocInterface( DKSelector(Description), sizeof(DKDescription) );
+    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->copyDescription = (void *)DKNumberCopyDescription;
     
     DKInstallInterface( cls, description );

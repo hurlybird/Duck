@@ -72,10 +72,8 @@ enum
 };
 
 
-// UTF32 character - C11 provides this type
-#ifndef char32_t
-typedef int32_t char32_t;
-#endif
+// UTF32 character - C11 char32_t conflicts with C++
+typedef int32_t dk_unicode_t;
 
 
 // Ranges

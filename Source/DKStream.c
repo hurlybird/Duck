@@ -39,7 +39,7 @@ int DKSeek( DKObjectRef _self, DKIndex offset, int origin )
 {
     if( _self )
     {
-        DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
+        DKStreamInterfaceRef stream = DKGetInterface( _self, DKSelector(Stream) );
         return stream->seek( _self, offset, origin );
     }
     
@@ -54,7 +54,7 @@ DKIndex DKTell( DKObjectRef _self )
 {
     if( _self )
     {
-        DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
+        DKStreamInterfaceRef stream = DKGetInterface( _self, DKSelector(Stream) );
         return stream->tell( _self );
     }
     
@@ -69,7 +69,7 @@ DKIndex DKRead( DKObjectRef _self, void * data, DKIndex size, DKIndex count )
 {
     if( _self )
     {
-        DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
+        DKStreamInterfaceRef stream = DKGetInterface( _self, DKSelector(Stream) );
         return stream->read( _self, data, size, count );
     }
     
@@ -84,7 +84,7 @@ DKIndex DKWrite( DKMutableObjectRef _self, const void * data, DKIndex size, DKIn
 {
     if( _self )
     {
-        DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
+        DKStreamInterfaceRef stream = DKGetInterface( _self, DKSelector(Stream) );
         return stream->write( _self, data, size, count );
     }
     
@@ -111,7 +111,7 @@ DKIndex DKSPrintf( DKMutableObjectRef _self, const char * format, ... )
 ///
 //  DKVSPrintf()
 //
-static size_t WriteNumber( DKMutableObjectRef _self, DKStream * stream, const char * format, size_t formatLength, va_list arg_ptr )
+static size_t WriteNumber( DKMutableObjectRef _self, DKStreamInterfaceRef stream, const char * format, size_t formatLength, va_list arg_ptr )
 {
     char fmt[32];
     char num[32];
@@ -133,7 +133,7 @@ DKIndex DKVSPrintf( DKMutableObjectRef _self, const char * format, va_list arg_p
     if( !_self )
         return 0;
     
-    DKStream * stream = DKGetInterface( _self, DKSelector(Stream) );
+    DKStreamInterfaceRef stream = DKGetInterface( _self, DKSelector(Stream) );
     
     size_t write_count = 0;
     
@@ -146,7 +146,7 @@ DKIndex DKVSPrintf( DKMutableObjectRef _self, const char * format, va_list arg_p
     int * counter;
 
     const char * cursor = format;
-    char32_t ch;
+    dk_unicode_t ch;
     size_t n;
     
     while( (n = dk_ustrscan( cursor, &ch )) != 0 )

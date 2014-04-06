@@ -34,7 +34,7 @@
 const char * dk_ustrchr( const char * str, int ch )
 {
     int32_t i = 0;
-    char32_t c;
+    dk_unicode_t c;
     
     while( str[i] != '\0' )
     {
@@ -54,7 +54,7 @@ const char * dk_ustrchr( const char * str, int ch )
 const char * dk_ustrrchr( const char * str, int ch )
 {
     int32_t i = (int32_t)strlen( str );
-    char32_t c;
+    dk_unicode_t c;
     
     while( i > 0 )
     {
@@ -81,7 +81,7 @@ const char * dk_ustrstr( const char * str1, const char * str2 )
         int32_t curr_i = next_i;
         int32_t i = next_i;
         int32_t j = 0;
-        char32_t ch1, ch2;
+        dk_unicode_t ch1, ch2;
     
         U8_NEXT( str1, i, -1, ch1 );
         U8_NEXT( str2, j, -1, ch2 );
@@ -119,7 +119,7 @@ DKRange dk_ustrstr_range( const char * str1, const char * str2 )
     
         int32_t i = next_i;
         int32_t j = 0;
-        char32_t ch1, ch2;
+        dk_unicode_t ch1, ch2;
     
         U8_NEXT( str1, i, -1, ch1 );
         U8_NEXT( str2, j, -1, ch2 );
@@ -151,7 +151,7 @@ int dk_ustrcmp( const char * str1, const char * str2 )
 {
     int32_t i = 0;
     int32_t j = 0;
-    char32_t ch1, ch2;
+    dk_unicode_t ch1, ch2;
     
     do
     {
@@ -174,7 +174,7 @@ size_t dk_ustrlen( const char * str )
 
     while( *cur != '\0' )
     {
-        char32_t ch;
+        dk_unicode_t ch;
         cur += dk_ustrscan( cur, &ch );
 
         length++;
@@ -193,7 +193,7 @@ const char * dk_ustridx( const char * str, size_t idx )
     
     for( size_t i = 0; i < idx; ++i )
     {
-        char32_t ch;
+        dk_unicode_t ch;
         cur += dk_ustrscan( cur, &ch );
         
         if( ch == '\0' )
@@ -207,7 +207,7 @@ const char * dk_ustridx( const char * str, size_t idx )
 ///
 //  dk_ustrscan()
 //
-size_t dk_ustrscan( const char * str, char32_t * ch )
+size_t dk_ustrscan( const char * str, dk_unicode_t * ch )
 {
     if( *str == '\0' )
     {
@@ -216,7 +216,7 @@ size_t dk_ustrscan( const char * str, char32_t * ch )
     }
 
     int32_t i = 0;
-    char32_t c;
+    dk_unicode_t c;
 
     U8_NEXT( str, i, -1, c )
     

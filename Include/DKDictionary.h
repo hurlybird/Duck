@@ -49,9 +49,9 @@ typedef void        (*DKDictionaryRemoveObjectMethod)( DKMutableDictionaryRef _s
 typedef void        (*DKDictionaryRemoveAllObjectsMethod)( DKMutableDictionaryRef _self );
 
 
-struct DKDictionary
+struct DKDictionaryInterface
 {
-    DKInterface _interface;
+    const DKInterface _interface;
 
     DKDictionaryGetCountMethod          getCount;
     DKDictionaryGetObjectMethod         getObject;
@@ -61,7 +61,7 @@ struct DKDictionary
     DKDictionaryRemoveAllObjectsMethod  removeAllObjects;
 };
 
-typedef const struct DKDictionary DKDictionary;
+typedef const struct DKDictionaryInterface * DKDictionaryInterfaceRef;
 
 
 DKClassRef  DKDictionaryClass( void );

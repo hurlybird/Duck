@@ -45,9 +45,9 @@ typedef void    (*DKListShuffleMethod)( DKMutableListRef _self );
 
 typedef int (*DKListApplierFunction)( DKObjectRef object, void * context );
 
-struct DKList
+struct DKListInterface
 {
-    DKInterface _interface;
+    const DKInterface _interface;
 
     DKListGetCountMethod        getCount;
     DKListGetObjectsMethod      getObjects;
@@ -57,7 +57,7 @@ struct DKList
     DKListShuffleMethod         shuffle;
 };
 
-typedef const struct DKList DKList;
+typedef const struct DKListInterface * DKListInterfaceRef;
 
 
 DKClassRef  DKListClass( void );
