@@ -178,6 +178,7 @@
 		025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKRuntime.m; sourceTree = "<group>"; };
 		025C0F9B18EFEE5D000344C0 /* TestDKString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKString.m; sourceTree = "<group>"; };
 		0263C4A918EFD957005E0ED5 /* license.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = license.html; sourceTree = "<group>"; };
+		02AFC05D18F172A0006B70B9 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		02C8914518F1690F0097B6BC /* libDuck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDuck.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		02C8914618F1690F0097B6BC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		02C8915618F1690F0097B6BC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -235,6 +236,7 @@
 			isa = PBXGroup;
 			children = (
 				021EC2EF18F0CDB1004148AD /* README */,
+				02AFC05D18F172A0006B70B9 /* LICENSE */,
 				025C0F3218EFED96000344C0 /* Include */,
 				025C0F4718EFED96000344C0 /* Source */,
 				025C0F8818EFEE33000344C0 /* Tests */,
