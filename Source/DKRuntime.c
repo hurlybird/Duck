@@ -458,7 +458,7 @@ static void InstallRootClassInterface( struct DKClass * _class, DKInterface * in
 {
     // Bypass the normal installation process here since the classes that allow it to
     // work haven't been fully initialized yet.
-    DKPointerArrayAppendPointer( &_class->interfaces, interface );
+    DKPointerArrayAppendPointer( &_class->interfaces, (uintptr_t)interface );
 }
 
 
@@ -742,7 +742,7 @@ static void DKClassFinalize( DKObjectRef _self )
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        const DKInterface * interface = cls->interfaces.data[i];
+        DKInterface * interface = (DKInterface *)cls->interfaces.data[i];
         DKRelease( interface );
     }
     
@@ -852,11 +852,11 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        DKInterface * oldInterface = cls->interfaces.data[i];
+        DKInterface * oldInterface = (DKInterface *)cls->interfaces.data[i];
         
         if( DKEqual( oldInterface->sel, interface->sel ) )
         {
-            cls->interfaces.data[i] = interface;
+            cls->interfaces.data[i] = (uintptr_t)interface;
 
             DKSpinLockUnlock( &cls->lock );
 
@@ -867,7 +867,7 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
     }
     
     // Add the interface to the interface table
-    DKPointerArrayAppendPointer( &cls->interfaces, interface );
+    DKPointerArrayAppendPointer( &cls->interfaces, (uintptr_t)interface );
 
     DKSpinLockUnlock( &cls->lock );
 }
@@ -939,7 +939,7 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        DKInterface * interface = cls->interfaces.data[i];
+        DKInterface * interface = (DKInterface *)cls->interfaces.data[i];
         DKAssert( interface != NULL );
         
         if( DKFastSelectorEqual( interface->sel, sel ) )

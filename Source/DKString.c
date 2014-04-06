@@ -487,7 +487,7 @@ DKStringRef DKStringCopySubstringFromIndex( DKStringRef _self, DKIndex index )
                 if( loc )
                 {
                     DKRange byteRange;
-                    byteRange.location = loc = _self->byteArray.data;
+                    byteRange.location = loc - _self->byteArray.data;
                     byteRange.length = _self->byteArray.length - byteRange.location;
 
                     return CopySubstring( (const char *)_self->byteArray.data, byteRange );

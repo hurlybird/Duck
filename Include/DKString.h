@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-// Define a constant string with a compile-time constant C string
+// Define a constant string with a compile-time constant C string.
 #define DKSTR( s )      __DKStringDefineConstantString( "" s "" )
 
 
@@ -38,9 +38,9 @@
 typedef struct DKString * DKMutableStringRef;
 
 
-DKClassRef   DKStringClass( void );
-DKClassRef   DKConstantStringClass( void );
-DKClassRef   DKMutableStringClass( void );
+DKClassRef  DKStringClass( void );
+DKClassRef  DKConstantStringClass( void );
+DKClassRef  DKMutableStringClass( void );
 
 DKStringRef DKStringCreate( void );
 DKStringRef DKStringCreateCopy( DKStringRef srcString );

@@ -417,18 +417,18 @@ DKHashCode DKNumberHash( DKNumberRef _self )
         const struct DKNumber * number = _self;
         size_t size = FieldSize[number->type] * number->count;
 
-        if( (number->count == 1) && (size < sizeof(DKHashCode)) )
+        if( (number->count == 1) && (size <= sizeof(DKHashCode)) )
         {
             switch( number->type )
             {
-            case DKNumberInt32:  return number->value._int32;
-            case DKNumberInt64:  return number->value._int64;
-            case DKNumberUInt32: return number->value._uint32;
-            case DKNumberUInt64: return number->value._uint64;
-            case DKNumberFloat:  return *((uint32_t *)&number->value._float);
+            case DKNumberInt32:  return number->value._int32[0];
+            case DKNumberUInt32: return number->value._uint32[0];
+            case DKNumberFloat:  return *((uint32_t *)&number->value._float[0]);
             
             #if __LP64__
-            case DKNumberDouble: return *((uint64_t *)&number->value._double);
+            case DKNumberInt64:  return number->value._int64[0];
+            case DKNumberUInt64: return number->value._uint64[0];
+            case DKNumberDouble: return *((uint64_t *)&number->value._double[0]);
             #endif
             }
         }

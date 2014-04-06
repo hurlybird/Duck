@@ -148,7 +148,7 @@ static void DKArrayFinalize( DKObjectRef _self )
 
         for( DKIndex i = 0; i < count; ++i )
         {
-            DKObjectRef elem = array->ptrArray.data[i];
+            DKObjectRef elem = (DKObjectRef)array->ptrArray.data[i];
             DKRelease( elem );
         }
     }
@@ -177,7 +177,7 @@ static void ReplaceObjects( struct DKArray * array, DKRange range, DKObjectRef o
     // Release the objects we're replacing
     for( DKIndex i = 0; i < range.length; ++i )
     {
-        DKObjectRef elem = array->ptrArray.data[range.location + i];
+        DKObjectRef elem = (DKObjectRef)array->ptrArray.data[range.location + i];
         DKRelease( elem );
     }
     
@@ -354,7 +354,7 @@ DKIndex DKArrayGetObjects( DKArrayRef _self, DKRange range, DKObjectRef objects[
         DKCheckRange( range, _self->ptrArray.length, 0 );
         
         for( DKIndex i = 0; i < range.length; ++i )
-            objects[i] = _self->ptrArray.data[range.location + i];
+            objects[i] = (DKObjectRef)_self->ptrArray.data[range.location + i];
     }
     
     return 0;

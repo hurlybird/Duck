@@ -645,7 +645,7 @@ static void ListToArray( DKPointerArray * array, struct DKLinkedList * list )
     
     for( DKIndex i = 0; i < list->count; ++i )
     {
-        array->data[i] = node->object;
+        array->data[i] = (uintptr_t)node->object;
         node = node->next;
     }
     
@@ -658,7 +658,7 @@ static void ArrayToList( struct DKLinkedList * list, DKPointerArray * array )
     
     for( DKIndex i = 0; i < list->count; ++i )
     {
-        node->object = array->data[i];
+        node->object = (DKObjectRef)array->data[i];
         node = node->next;
     }
 }

@@ -70,6 +70,82 @@ int main( int argc, const char * argv[] )
 
 ## Library Overview
 
+### Classes
+
+Classes in Duck are similar to classes in any object-oriented system, except
+they are defined entirely at runtime. In fact, you can create and destroy class
+objects just like any other object.
+
+### Interfaces
+
+Duck interfaces are a cross between COM interfaces and Objective-C methods. As
+in COM, a Duck interface is a table of function pointers that provide access to
+an object's methods in a polymorphic way. Like Objective-C methods, interfaces
+are bound to class objects and identified by Selectors.
+
+### Messages
+
+Message passing in Duck is a specialization of the interface functionality, and
+works almost exactly like Objective-C message passing. A message handler is an
+interface containing a single method with the following form:
+
+```C
+void MyMethod( DKObjectRef _self, DKSEL sel, ... );
+```
+
+Message handlers are a useful way of adding one-off methods for target-action
+paradigms, events, notifications, etc., without having to define a full
+interface structure.
+
+### Properties
+
+In additon to interfaces and message handlers, Duck classes can also have
+properties to provide an abstract way of accessing instance data. The runtime
+handles most property get/set behaviour automatically (including translating
+between object and base types), but it's also possible to use custom
+getter/setter methods.
+
+### Built-In Container Classes
+
+Duck provides several built-in container classes:
+
+* *DKString* for UTF-8 strings.
+* *DKData* for binary data.
+* *DKNumber* for integer and floating-point scalars and vectors.
+* *DKArray* and *DKLinkedList* for ordered sequences.
+* *DKHashTable* and *DKBinaryTree* for key-value storage.
+
+Duck also defines some common interfaces:
+
+* *DKList* is an abstract interface for *DKArray* and *DKLinkedList*.
+* *DKDictionary* is the key-value interface to *DKHashTable* and *DKBinaryTree*.
+* *DKSet* has methods for set operations on *DKHashTable* and *DKBinaryTree*.
+* *DKCopying* has methods for creating mutable and immutable copies of objects.
+* *DKStream* provides stream-style access to *DKData*, *DKString*, and *DKFile*.
+
+
+## Future Development
+
+Some possible/probable areas for further work:
+
+Classes for useful system-level stuff like threads, run loops, notifications,
+URLs, etc.
+
+Implicit property storage. Right now properties must be bound to a member of the
+instance structure. Allowing properties to be stored in a dictionary associated
+with the object would facillitate creating truly dynamic classes.
+
+Property list and/or JSON serialization, with automatic serialization of
+properties. A object graph serialization format (like NSCoding) might also be
+useful.
+
+A date/Time class.
+
+More unicode support. DKString currently supports enough UTF-8 for basic string
+functions, but more powerful string comparison and locale support would be nice.
+The main question is how much of the ICU package to include before it makes
+sense to just like against the whole library.
+
 
 
 

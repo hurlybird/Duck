@@ -88,7 +88,7 @@ DKFileRef DKFileCreate( void )
 ///
 //  DKFileOpen()
 //
-int DKFileOpen( DKFileRef _self, const char * fname, const char * mode )
+int DKFileOpen( DKFileRef _self, DKStringRef filename, const char * mode )
 {
     if( _self )
     {
@@ -97,6 +97,8 @@ int DKFileOpen( DKFileRef _self, const char * fname, const char * mode )
         DKFileClose( _self );
 
         struct DKFile * file = (struct DKFile *)_self;
+        
+        const char * fname = DKStringGetCStringPtr( filename );
         
         file->file = fopen( fname, mode );
         

@@ -36,7 +36,7 @@ DKClassRef  DKFileClass( void );
 
 DKFileRef   DKFileCreate( void );
 
-int         DKFileOpen( DKFileRef _self, const char * fname, const char * mode );
+int         DKFileOpen( DKFileRef _self, DKStringRef filename, const char * mode );
 int         DKFileClose( DKFileRef _self );
 
 int         DKFileSeek( DKFileRef _self, DKIndex offset, int origin );
