@@ -202,7 +202,8 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #else
 #define DKAssert( x )
 #define DKAssertMsg( x, ... )
-#define DKAssertKindOfClass( _self, cls, ... )
+#define DKAssertKindOfClass( _self, cls )
+#define DKAssertMemberOfClass( _self, cls ) 
 #endif
 
 
