@@ -341,7 +341,7 @@ static void Split( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node )
 ///
 //  Insert()
 //
-static void Insert( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
+static void InsertRecursive( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
     DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
 {
     if( *node == &tree->null_node )
@@ -358,12 +358,12 @@ static void Insert( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
         
         if( cmp < 0 )
         {
-            Insert( tree, &(*node)->left, key, object, policy );
+            InsertRecursive( tree, &(*node)->left, key, object, policy );
         }
             
         else if( cmp > 0 )
         {
-            Insert( tree, &(*node)->right, key, object, policy );
+            InsertRecursive( tree, &(*node)->right, key, object, policy );
         }
             
         else
@@ -381,6 +381,17 @@ static void Insert( struct DKBinaryTree * tree, struct DKBinaryTreeNode ** node,
     
     Skew( tree, node );
     Split( tree, node );
+}
+
+static void Insert( struct DKBinaryTree * tree, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
+{
+    if( key == NULL )
+    {
+        DKError( "DKBinaryTreeInsert: Trying to insert a NULL key.\n" );
+        return;
+    }
+
+    InsertRecursive( tree, &tree->root, key, object, policy );
 }
 
 
@@ -532,7 +543,7 @@ DKBinaryTreeRef DKBinaryTreeCreateWithKeysAndObjects( DKCompareFunction compareK
         {
             DKObjectRef object = va_arg( arg_ptr, DKObjectRef );
 
-            Insert( tree, &tree->root, key, object, DKDictionaryInsertAlways );
+            Insert( tree, key, object, DKDictionaryInsertAlways );
             
             key = va_arg( arg_ptr, DKObjectRef );
         }
@@ -689,7 +700,7 @@ void DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DK
     {
         DKAssertKindOfClass( _self, DKMutableBinaryTreeClass() );
 
-        Insert( _self, &_self->root, key, object, policy );
+        Insert( _self, key, object, policy );
 
         CheckTreeIntegrity( _self );
     }

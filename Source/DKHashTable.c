@@ -367,6 +367,12 @@ static struct DKHashTableRow * Find( struct DKHashTable * hashTable, DKHashCode 
 //
 static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKDictionaryInsertPolicy policy )
 {
+    if( key == NULL )
+    {
+        DKError( "DKHashTableInsert: Trying to insert a NULL key.\n" );
+        return;
+    }
+
     // It should be impossible for a key object to exist at the max addressable byte in
     // memory... but lets's not be surprised.
     DKAssert( key != DELETED_KEY );
