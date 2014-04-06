@@ -49,10 +49,12 @@ extern "C"
 #include "DKNumber.h"
 
 #include "DKList.h"
+#include "DKDictionary.h"
+#include "DKSet.h"
+
 #include "DKLinkedList.h"
 #include "DKArray.h"
 
-#include "DKDictionary.h"
 #include "DKBinaryTree.h"
 #include "DKHashTable.h"
 

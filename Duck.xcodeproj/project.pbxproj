@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02083F9718F1E4EF00EEBBAC /* DKSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9618F1E4EF00EEBBAC /* DKSet.c */; };
+		02083F9918F1EDBE00EEBBAC /* TestDKSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9818F1EDBE00EEBBAC /* TestDKSet.m */; };
 		021EC2C218F0774B004148AD /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
 		021EC2DC18F07BA9004148AD /* uassert.h in Headers */ = {isa = PBXBuildFile; fileRef = 021EC2CD18F07BA9004148AD /* uassert.h */; };
 		021EC2DD18F07BA9004148AD /* platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 021EC2CF18F07BA9004148AD /* platform.h */; };
@@ -112,6 +114,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		02083F9518F1DF8900EEBBAC /* DKSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKSet.h; sourceTree = "<group>"; };
+		02083F9618F1E4EF00EEBBAC /* DKSet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKSet.c; sourceTree = "<group>"; };
+		02083F9818F1EDBE00EEBBAC /* TestDKSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKSet.m; sourceTree = "<group>"; };
 		021EC2B718F0774B004148AD /* utf_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf_impl.c; sourceTree = "<group>"; };
 		021EC2CD18F07BA9004148AD /* uassert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uassert.h; sourceTree = "<group>"; };
 		021EC2CF18F07BA9004148AD /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
@@ -276,6 +281,7 @@
 				025C0F3F18EFED96000344C0 /* DKPlatform.h */,
 				025C0F4118EFED96000344C0 /* DKPointerArray.h */,
 				025C0F4218EFED96000344C0 /* DKRuntime.h */,
+				02083F9518F1DF8900EEBBAC /* DKSet.h */,
 				025C0F4318EFED96000344C0 /* DKStream.h */,
 				025C0F4418EFED96000344C0 /* DKString.h */,
 				025C0F4518EFED96000344C0 /* DKUnicode.h */,
@@ -301,6 +307,7 @@
 				025C0F5418EFED97000344C0 /* DKPlatform.c */,
 				025C0F5618EFED97000344C0 /* DKPointerArray.c */,
 				025C0F5718EFED97000344C0 /* DKRuntime.c */,
+				02083F9618F1E4EF00EEBBAC /* DKSet.c */,
 				025C0F5818EFED97000344C0 /* DKStream.c */,
 				025C0F5918EFED97000344C0 /* DKString.c */,
 				025C0F5A18EFED97000344C0 /* DKUnicode.c */,
@@ -316,6 +323,7 @@
 				025C0F9818EFEE5D000344C0 /* TestDKList.m */,
 				025C0F9918EFEE5D000344C0 /* TestDKNumber.m */,
 				025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */,
+				02083F9818F1EDBE00EEBBAC /* TestDKSet.m */,
 				025C0F9B18EFEE5D000344C0 /* TestDKString.m */,
 				025C0F8918EFEE33000344C0 /* Supporting Files */,
 			);
@@ -515,6 +523,7 @@
 				025C0F7518EFED97000344C0 /* DKFile.c in Sources */,
 				025C0F7118EFED97000344C0 /* DKByteArray.c in Sources */,
 				025C0F8118EFED97000344C0 /* DKUnicode.c in Sources */,
+				02083F9718F1E4EF00EEBBAC /* DKSet.c in Sources */,
 				025C0F7418EFED97000344C0 /* DKDictionary.c in Sources */,
 				025C0F7A18EFED97000344C0 /* DKNumber.c in Sources */,
 				025C0F7F18EFED97000344C0 /* DKStream.c in Sources */,
@@ -539,6 +548,7 @@
 				025C0F9E18EFEE5D000344C0 /* TestDKList.m in Sources */,
 				025C0F9C18EFEE5D000344C0 /* TestDKData.m in Sources */,
 				025C0FA018EFEE5D000344C0 /* TestDKRuntime.m in Sources */,
+				02083F9918F1EDBE00EEBBAC /* TestDKSet.m in Sources */,
 				025C0FA118EFEE5D000344C0 /* TestDKString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

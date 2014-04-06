@@ -46,7 +46,7 @@ DKClassRef DKListClass( void )
     return DKLinkedListClass();
 }
 
-void DKSetListClass( DKClassRef _self )
+void DKSetDefaultListClass( DKClassRef _self )
 {
     DefaultListClass = _self;
 }
@@ -65,7 +65,7 @@ DKClassRef DKMutableListClass( void )
     return DKMutableLinkedListClass();
 }
 
-void DKSetMutableListClass( DKClassRef _self )
+void DKSetDefaultMutableListClass( DKClassRef _self )
 {
     DefaultMutableListClass = _self;
 }
@@ -363,7 +363,7 @@ void DKListShuffle( DKMutableListRef _self )
 
 
 ///
-//  DKCopyListDescription()
+//  DKListCopyDescription()
 //
 struct PrintDescriptionContext
 {

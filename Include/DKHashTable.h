@@ -28,6 +28,7 @@
 #define _DK_HASHTABLE_H_
 
 #include "DKDictionary.h"
+#include "DKSet.h"
 
 
 typedef const struct DKHashTable * DKHashTableRef;

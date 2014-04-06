@@ -51,6 +51,8 @@ struct DKListInterface
 
     DKListGetCountMethod        getCount;
     DKListGetObjectsMethod      getObjects;
+    
+    // Mutable lists -- these raise errors when called on immutable lists
     DKListReplaceObjectsMethod  replaceObjects;
     DKListReplaceObjectsWithListMethod replaceObjectsWithList;
     DKListSortMethod            sort;
@@ -61,10 +63,10 @@ typedef const struct DKListInterface * DKListInterfaceRef;
 
 
 DKClassRef  DKListClass( void );
-void        DKSetListClass( DKClassRef _self );
+void        DKSetDefaultListClass( DKClassRef _self );
 
 DKClassRef  DKMutableListClass( void );
-void        DKSetMutableListClass( DKClassRef _self );
+void        DKSetDefaultMutableListClass( DKClassRef _self );
 
 DKIndex     DKListGetCount( DKListRef _self );
 DKIndex     DKListGetCountOfObject( DKListRef _self, DKObjectRef object );

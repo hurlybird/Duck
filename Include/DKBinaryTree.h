@@ -28,6 +28,7 @@
 #define _DK_BINARY_TREE_H_
 
 #include "DKDictionary.h"
+#include "DKSet.h"
 
 
 typedef const struct DKBinaryTree * DKBinaryTreeRef;
