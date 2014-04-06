@@ -132,10 +132,10 @@ int    _DKPrintf( const char * format, ... );
 
 // Print a debug message. This is ignored in non-debug builds. Object descriptions can be
 // printed using the Foundation/CoreFoundation idiom "%@".
-#ifdef NDEBUG
-#define DKDebug( ... )
-#else
+#ifdef DEBUG
 #define DKDebug( ... )      _DKPrintf( __VA_ARGS__ )
+#else
+#define DKDebug( ... )
 #endif
 
 

@@ -29,17 +29,18 @@
 
 
 
-// Release ===============================================================================
-#ifdef NDEBUG
+
+// Debug =================================================================================
+#ifdef DEBUG
 
 // Enable warnings
 #ifndef DK_RUNTIME_WARNINGS
-#define DK_RUNTIME_WARNINGS 0
+#define DK_RUNTIME_WARNINGS 1
 #endif
 
 // Enable assertions. Failed assertions raise fatal errors.
 #ifndef DK_RUNTIME_ASSERTIONS
-#define DK_RUNTIME_ASSERTIONS 0
+#define DK_RUNTIME_ASSERTIONS 1
 #endif
 
 // Enable extra type checking. Failed checks raise errors.
@@ -60,15 +61,15 @@
 
 
 
-// Debug =================================================================================
+// Release ===============================================================================
 #else
 
 #ifndef DK_RUNTIME_WARNINGS
-#define DK_RUNTIME_WARNINGS 1
+#define DK_RUNTIME_WARNINGS 0
 #endif
 
 #ifndef DK_RUNTIME_ASSERTIONS
-#define DK_RUNTIME_ASSERTIONS 1
+#define DK_RUNTIME_ASSERTIONS 0
 #endif
 
 #ifndef DK_RUNTIME_TYPE_CHECKS
@@ -83,7 +84,8 @@
 #define DK_RUNTIME_INTEGRITY_CHECKS 0
 #endif
 
-#endif // NDEBUG
+#endif // DEBUG
+
 
 
 

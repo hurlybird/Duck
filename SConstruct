@@ -8,9 +8,7 @@ debug = int( ARGUMENTS.get( 'debug', 1 ) )
 
 # Set up the compiler flags
 ccflags = []
-
 ccflags += ['-arch', architecture]
-ccflags += ['-Wno-int-conversion']		# Implicit integer-to-pointer conversion
 
 if debug:
 	ccflags += ['-DDEBUG=1']
