@@ -37,6 +37,9 @@ typedef struct DKLinkedList * DKMutableLinkedListRef;
 DKClassRef  DKLinkedListClass( void );
 DKClassRef  DKMutableLinkedListClass( void );
 
+#define     DKLinkedListCreateEmpty()    DKCreate( DKLinkedListClass() )
+#define     DKLinkedListCreateMutable()  DKCreate( DKMutableLinkedListClass() )
+
 DKObjectRef DKLinkedListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
 DKObjectRef DKLinkedListCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection );
 

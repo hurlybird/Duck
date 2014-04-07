@@ -37,6 +37,9 @@ typedef struct DKBinaryTree * DKMutableBinaryTreeRef;
 DKClassRef  DKBinaryTreeClass( void );
 DKClassRef  DKMutableBinaryTreeClass( void );
 
+#define     DKBinaryTreeCreateEmpty()    DKCreate( DKBinaryTreeClass() )
+#define     DKBinaryTreeCreateMutable()  DKCreate( DKMutableBinaryTreeClass() )
+
 DKObjectRef DKBinaryTreeCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef dictionary );
 
 DKObjectRef DKBinaryTreeCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );

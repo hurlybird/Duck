@@ -60,21 +60,19 @@ void DKSetDefaultMutableSetClass( DKClassRef _self )
 //
 DKObjectRef DKSetCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... )
 {
-    if( _class )
-    {
-        DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
-        
-        va_list arg_ptr;
-        va_start( arg_ptr, firstObject );
-        
-        DKObjectRef obj = set->createWithVAObjects( _class, arg_ptr );
-        
-        va_end( arg_ptr );
-        
-        return obj;
-    }
+    if( _class == NULL )
+        _class = DKSetClass();
     
-    return NULL;
+    DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
+    
+    va_list arg_ptr;
+    va_start( arg_ptr, firstObject );
+    
+    DKObjectRef obj = set->createWithVAObjects( _class, arg_ptr );
+    
+    va_end( arg_ptr );
+    
+    return obj;
 }
 
 
@@ -83,13 +81,12 @@ DKObjectRef DKSetCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, 
 //
 DKObjectRef DKSetCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
 {
-    if( _class )
-    {
-        DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
-        return set->createWithCArray( _class, objects, count );
-    }
+    if( _class == NULL )
+        _class = DKSetClass();
     
-    return NULL;
+    DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
+
+    return set->createWithCArray( _class, objects, count );
 }
 
 
@@ -98,13 +95,12 @@ DKObjectRef DKSetCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKI
 //
 DKObjectRef DKSetCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection )
 {
-    if( _class )
-    {
-        DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
-        return set->createWithCollection( _class, srcCollection );
-    }
+    if( _class == NULL )
+        _class = DKSetClass();
     
-    return NULL;
+    DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
+
+    return set->createWithCollection( _class, srcCollection );
 }
 
 

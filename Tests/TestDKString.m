@@ -57,7 +57,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( DKStringEqual( DKSTR( "quick" ), substring ) );
     DKRelease( substring );
 
-    DKMutableStringRef mutableString = DKStringCreateMutableCopy( quickFox );
+    DKMutableStringRef mutableString = DKStringMutableCopy( quickFox );
     XCTAssert( DKStringEqual( quickFox, mutableString ) );
 
     range = DKStringGetRangeOfString( mutableString, DKSTR( "quick " ), 0 );
@@ -244,7 +244,7 @@ struct PathAppendTestCase
     {
         struct PathAppendTestCase * test = &tests[i];
         
-        DKMutableStringRef result = DKStringCreateMutableCopy( test->path1 );
+        DKMutableStringRef result = DKStringMutableCopy( test->path1 );
         DKStringAppendPathComponent( result, test->path2 );
         XCTAssert( DKStringEqual( result, test->result ) );
         DKRelease( result );
@@ -269,7 +269,7 @@ struct PathAppendTestCase
     {
         struct PathTestCase * test = &tests[i];
         
-        DKMutableStringRef result = DKStringCreateMutableCopy( test->path );
+        DKMutableStringRef result = DKStringMutableCopy( test->path );
         DKStringRemoveLastPathComponent( result );
         XCTAssert( DKStringEqual( result, test->result ) );
         DKRelease( result );
@@ -314,7 +314,7 @@ struct PathAppendTestCase
     {
         struct PathTestCase * test = &tests[i];
         
-        DKMutableStringRef result = DKStringCreateMutableCopy( test->path );
+        DKMutableStringRef result = DKStringMutableCopy( test->path );
         DKStringAppendPathExtension( result, DKSTR( "ext" ) );
         XCTAssert( DKStringEqual( result, test->result ) );
         DKRelease( result );
@@ -339,7 +339,7 @@ struct PathAppendTestCase
     {
         struct PathTestCase * test = &tests[i];
         
-        DKMutableStringRef result = DKStringCreateMutableCopy( test->path );
+        DKMutableStringRef result = DKStringMutableCopy( test->path );
         DKStringRemovePathExtension( result );
         XCTAssert( DKStringEqual( result, test->result ) );
         DKRelease( result );

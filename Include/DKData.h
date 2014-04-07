@@ -37,13 +37,14 @@ typedef struct DKData * DKMutableDataRef;
 DKClassRef  DKDataClass( void );
 DKClassRef  DKMutableDataClass( void );
 
-DKDataRef   DKDataCreate( void );
-DKDataRef   DKDataCreateCopy( DKDataRef srcData );
-DKDataRef   DKDataCreateWithBytes( const void * bytes, DKIndex length );
-DKDataRef   DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length );
+#define     DKDataCreateEmpty()    DKCreate( DKDataClass() )
+#define     DKDataCreateMutable()  DKCreate( DKMutableDataClass() )
 
-DKMutableDataRef DKDataCreateMutable( void );
-DKMutableDataRef DKDataCreateMutableCopy( DKDataRef srcData );
+DKDataRef   DKDataCreateWithBytes( DKClassRef _class, const void * bytes, DKIndex length );
+DKDataRef   DKDataCreateWithBytesNoCopy( /* DKClassRef _class, */ const void * bytes, DKIndex length );
+
+DKDataRef   DKDataCopy( DKDataRef _self );
+DKMutableDataRef DKDataMutableCopy( DKDataRef _self );
 
 int         DKDataEqual( DKDataRef _self, DKObjectRef other );
 int         DKDataCompare( DKDataRef _self, DKDataRef other );

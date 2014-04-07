@@ -167,7 +167,7 @@ static void * ResolveWeakThread( void * list )
         char buffer[32];
         sprintf( buffer, "%d", i );
     
-        DKStringRef s = DKStringCreateWithCString( buffer );
+        DKStringRef s = DKStringCreateWithCString( DKStringClass(), buffer );
         
         DKListAppendObject( array1, s );
         DKListAppendObject( array2, s );
@@ -203,7 +203,7 @@ static void * ResolveWeakThread( void * list )
         char buffer[32];
         sprintf( buffer, "%d", i );
     
-        DKStringRef s = DKStringCreateWithCString( buffer );
+        DKStringRef s = DKStringCreateWithCString( DKStringClass(), buffer );
         DKWeakRef w = DKRetainWeak( s );
         
         DKListAppendObject( array1, s );

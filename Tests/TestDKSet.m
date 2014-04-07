@@ -46,10 +46,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
 {
     DKMutableSetRef set = DKCreate( setClass );
     
-    DKStringRef a = DKStringCreateWithCString( "A" );
-    DKStringRef b = DKStringCreateWithCString( "B" );
-    DKStringRef c = DKStringCreateWithCString( "A" );
-    DKStringRef d = DKStringCreateWithCString( "B" );
+    DKStringRef a = DKStringCreateWithCString( DKStringClass(), "A" );
+    DKStringRef b = DKStringCreateWithCString( DKStringClass(), "B" );
+    DKStringRef c = DKStringCreateWithCString( DKStringClass(), "A" );
+    DKStringRef d = DKStringCreateWithCString( DKStringClass(), "B" );
     
     DKSetAddObject( set, a );
     DKSetAddObject( set, b );

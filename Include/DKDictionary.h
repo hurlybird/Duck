@@ -73,7 +73,9 @@ void        DKSetDefaultDictionaryClass( DKClassRef _class );
 DKClassRef  DKMutableDictionaryClass( void );
 void        DKSetDefaultMutableDictionaryClass( DKClassRef _class );
 
-#define     DKDictionaryCreate( _class ) DKCreate( _class )
+#define     DKDictionaryCreateEmpty()    DKCreate( DKDictionaryClass() )
+#define     DKDictionaryCreateMutable()  DKCreate( DKMutableDictionaryClass() )
+
 DKObjectRef DKDictionaryCreateWithKeysAndObjects( DKClassRef _class, DKObjectRef firstKey, ... );
 DKObjectRef DKDictionaryCreateWithDictionary( DKClassRef _class, DKDictionaryRef srcDictionary );
 

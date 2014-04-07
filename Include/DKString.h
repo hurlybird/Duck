@@ -42,13 +42,14 @@ DKClassRef  DKStringClass( void );
 DKClassRef  DKConstantStringClass( void );
 DKClassRef  DKMutableStringClass( void );
 
-DKStringRef DKStringCreate( void );
-DKStringRef DKStringCreateCopy( DKStringRef srcString );
-DKStringRef DKStringCreateWithCString( const char * str );
-DKStringRef DKStringCreateWithCStringNoCopy( const char * str );
+#define     DKStringCreateEmpty()    DKSTR( "" )
+#define     DKStringCreateMutable()  DKCreate( DKMutableStringClass() )
 
-DKMutableStringRef DKStringCreateMutable( void );
-DKMutableStringRef DKStringCreateMutableCopy( DKStringRef srcString );
+DKStringRef DKStringCreateWithCString( DKClassRef _class, const char * cstr );
+DKStringRef DKStringCreateWithCStringNoCopy( /* DKClassRef _class, */ const char * cstr );
+
+DKStringRef DKStringCopy( DKStringRef _self );
+DKMutableStringRef DKStringMutableCopy( DKStringRef _self );
 
 int         DKStringEqual( DKStringRef _self, DKObjectRef other );
 int         DKStringCompare( DKStringRef _self, DKStringRef other );

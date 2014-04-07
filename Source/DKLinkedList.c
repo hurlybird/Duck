@@ -512,22 +512,20 @@ static void DKLinkedListFinalize( DKObjectRef _self )
 //
 static DKObjectRef DKLinkedListCreateWithVAObjects( DKClassRef _class, va_list objects )
 {
-    struct DKLinkedList * list = NULL;
+    DKAssert( (_class != NULL) || DKIsSubclass( _class, DKLinkedListClass() ) );
     
-    if( _class )
-    {
-        DKAssert( DKIsSubclass( _class, DKLinkedListClass() ) );
-        
-        list = DKCreate( _class );
+    if( _class == NULL )
+        _class = DKLinkedListClass();
 
-        if( list )
+    struct DKLinkedList * list = DKCreate( _class );
+
+    if( list )
+    {
+        DKObjectRef object;
+        
+        while( (object = va_arg( objects, DKObjectRef )) != NULL )
         {
-            DKObjectRef object;
-            
-            while( (object = va_arg( objects, DKObjectRef )) != NULL )
-            {
-                ReplaceRangeWithCArray( list, DKRangeMake( list->count, 0 ), &object, 1 );
-            }
+            ReplaceRangeWithCArray( list, DKRangeMake( list->count, 0 ), &object, 1 );
         }
     }
 
@@ -540,18 +538,16 @@ static DKObjectRef DKLinkedListCreateWithVAObjects( DKClassRef _class, va_list o
 //
 DKObjectRef DKLinkedListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
 {
-    struct DKLinkedList * list = NULL;
+    DKAssert( (_class != NULL) || DKIsSubclass( _class, DKLinkedListClass() ) );
     
-    if( _class )
-    {
-        DKAssert( DKIsSubclass( _class, DKLinkedListClass() ) );
-        
-        list = DKCreate( _class );
+    if( _class == NULL )
+        _class = DKLinkedListClass();
 
-        if( list )
-        {
-            ReplaceRangeWithCArray( list, DKRangeMake( 0, 0 ), objects, count );
-        }
+    struct DKLinkedList * list = DKCreate( _class );
+
+    if( list )
+    {
+        ReplaceRangeWithCArray( list, DKRangeMake( 0, 0 ), objects, count );
     }
 
     return list;
@@ -563,18 +559,16 @@ DKObjectRef DKLinkedListCreateWithCArray( DKClassRef _class, DKObjectRef objects
 //
 DKObjectRef DKLinkedListCreateWithCollection( DKClassRef _class, DKObjectRef collection )
 {
-    struct DKLinkedList * list = NULL;
+    DKAssert( (_class != NULL) || DKIsSubclass( _class, DKLinkedListClass() ) );
     
-    if( _class )
-    {
-        DKAssert( DKIsSubclass( _class, DKLinkedListClass() ) );
-        
-        list = DKCreate( _class );
+    if( _class == NULL )
+        _class = DKLinkedListClass();
 
-        if( list )
-        {
-            ReplaceRangeWithCollection( list, DKRangeMake( 0, 0 ), collection );
-        }
+    struct DKLinkedList * list = DKCreate( _class );
+
+    if( list )
+    {
+        ReplaceRangeWithCollection( list, DKRangeMake( 0, 0 ), collection );
     }
 
     return list;

@@ -73,7 +73,7 @@ DKThreadSafeClassInit( DKDataClass )
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
-    copying->mutableCopy = (DKMutableCopyMethod)DKDataCreateMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKDataMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -101,8 +101,8 @@ DKThreadSafeClassInit( DKMutableDataClass )
     
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
-    copying->copy = (DKCopyMethod)DKDataCreateMutableCopy;
-    copying->mutableCopy = (DKMutableCopyMethod)DKDataCreateMutableCopy;
+    copying->copy = (DKCopyMethod)DKDataMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKDataMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -235,59 +235,43 @@ DKHashCode DKDataHash( DKDataRef _self )
 
 
 ///
-//  DKDataCreate()
-//
-DKDataRef DKDataCreate( void )
-{
-    return DKCreate( DKDataClass() );
-}
-
-
-///
-//  DKDataCreateCopy()
-//
-DKDataRef DKDataCreateCopy( DKDataRef src )
-{
-    const void * srcBytes = NULL;
-    DKIndex srcLength = 0;
-
-    if( src )
-    {
-        DKAssertKindOfClass( src, DKDataClass() );
-
-        srcBytes = DKDataGetBytePtr( src );
-        srcLength = DKDataGetLength( src );
-    }
-    
-    return DKDataCreateWithBytes( srcBytes, srcLength );
-}
-
-
-///
 //  DKDataCreateWithBytes()
 //
-DKDataRef DKDataCreateWithBytes( const void * bytes, DKIndex length )
+DKDataRef DKDataCreateWithBytes( DKClassRef _class, const void * bytes, DKIndex length )
 {
-    if( bytes && (length > 0) )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKDataClass() ) );
+
+    struct DKData * data = NULL;
+    
+    if( _class == DKMutableDataClass() )
     {
-        struct DKData * data = (struct DKData *)DKAllocObject( DKDataClass(), length );
-        data = DKInitializeObject( data );
+        data = DKCreate( DKMutableDataClass() );
         
-        DKByteArrayInitWithExternalStorage( &data->byteArray, (void *)(data + 1), length );
-        
-        memcpy( data->byteArray.data, bytes, length );
+        DKByteArrayAppendBytes( &data->byteArray, bytes, length );
         
         return data;
     }
+
+    else
+    {
+        data = DKAllocObject( DKDataClass(), length );
+        data = DKInitializeObject( data );
     
-    return DKDataCreate();
+        if( bytes && (length > 0) )
+        {
+            DKByteArrayInitWithExternalStorage( &data->byteArray, (void *)(data + 1), length );
+            memcpy( data->byteArray.data, bytes, length );
+        }
+        
+        return data;
+    }
 }
 
 
 ///
 //  DKDataCreateWithBytesNoCopy()
 //
-DKDataRef DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length )
+DKDataRef DKDataCreateWithBytesNoCopy( /* DKClassRef _class, */ const void * bytes, DKIndex length )
 {
     if( bytes && (length > 0) )
     {
@@ -299,32 +283,31 @@ DKDataRef DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length )
         return data;
     }
     
-    return DKDataCreate();
+    return DKDataCreateEmpty();
 }
 
 
 ///
-//  DKDataCreateMutable()
+//  DKDataCopy()
 //
-DKMutableDataRef DKDataCreateMutable( void )
+DKDataRef DKDataCopy( DKDataRef _self )
 {
-    return (DKMutableDataRef)DKCreate( DKMutableDataClass() );
+    if( _self )
+        return DKDataCreateWithBytes( DKGetClass( _self ), _self->byteArray.data, _self->byteArray.length );
+    
+    return NULL;
 }
 
 
 ///
-//  DKDataCreateMutableCopy()
+//  DKDataMutableCopy()
 //
-DKMutableDataRef DKDataCreateMutableCopy( DKDataRef src )
+DKMutableDataRef DKDataMutableCopy( DKDataRef _self )
 {
-    struct DKData * data = (struct DKData *)DKDataCreateMutable();
-
-    const void * srcBytes = DKDataGetBytePtr( src );
-    DKIndex srcLength = DKDataGetLength( src );
-
-    DKByteArrayReplaceBytes( &data->byteArray, DKRangeMake( 0, 0 ), srcBytes, srcLength );
-
-    return data;
+    if( _self )
+        return (DKMutableDataRef)DKDataCreateWithBytes( DKMutableDataClass(), _self->byteArray.data, _self->byteArray.length );
+    
+    return NULL;
 }
 
 

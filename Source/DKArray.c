@@ -270,22 +270,20 @@ static void DKArrayFinalize( DKObjectRef _self )
 //
 DKObjectRef DKArrayCreateWithVAObjects( DKClassRef _class, va_list objects )
 {
-    struct DKArray * array = NULL;
-    
-    if( _class )
-    {
-        DKAssert( DKIsSubclass( _class, DKArrayClass() ) );
-        
-        array = DKCreate( _class );
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKArrayClass() ) );
 
-        if( array )
+    if( _class == NULL )
+        _class = DKArrayClass();
+
+    struct DKArray * array = DKCreate( _class );
+
+    if( array )
+    {
+        DKObjectRef object;
+        
+        while( (object = va_arg( objects, DKObjectRef )) != NULL )
         {
-            DKObjectRef object;
-            
-            while( (object = va_arg( objects, DKObjectRef )) != NULL )
-            {
-                ReplaceRangeWithCArray( array, DKRangeMake( array->ptrArray.length, 0 ), &object, 1 );
-            }
+            ReplaceRangeWithCArray( array, DKRangeMake( array->ptrArray.length, 0 ), &object, 1 );
         }
     }
 
@@ -298,18 +296,16 @@ DKObjectRef DKArrayCreateWithVAObjects( DKClassRef _class, va_list objects )
 //
 DKObjectRef DKArrayCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
 {
-    struct DKArray * array = NULL;
-    
-    if( _class )
-    {
-        DKAssert( DKIsSubclass( _class, DKArrayClass() ) );
-        
-        array = DKCreate( _class );
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKArrayClass() ) );
 
-        if( array )
-        {
-            ReplaceRangeWithCArray( array, DKRangeMake( 0, 0 ), objects, count );
-        }
+    if( _class == NULL )
+        _class = DKArrayClass();
+
+    struct DKArray * array = DKCreate( _class );
+
+    if( array )
+    {
+        ReplaceRangeWithCArray( array, DKRangeMake( 0, 0 ), objects, count );
     }
 
     return array;
@@ -319,20 +315,13 @@ DKObjectRef DKArrayCreateWithCArray( DKClassRef _class, DKObjectRef objects[], D
 ///
 //  DKArrayCreateWithCArrayNoCopy()
 //
-DKObjectRef DKArrayCreateWithCArrayNoCopy( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+DKObjectRef DKArrayCreateWithCArrayNoCopy( /* DKClassRef _class, */ DKObjectRef objects[], DKIndex count )
 {
-    struct DKArray * array = NULL;
-    
-    if( _class )
-    {
-        DKAssert( DKIsSubclass( _class, DKArrayClass() ) );
-        
-        array = DKCreate( _class );
+    struct DKArray * array = DKCreate( DKArrayClass() );
 
-        if( array )
-        {
-            DKPointerArrayInitWithExternalStorage( &array->ptrArray, (void *)objects, count );
-        }
+    if( array )
+    {
+        DKPointerArrayInitWithExternalStorage( &array->ptrArray, (void *)objects, count );
     }
     
     return array;
@@ -344,18 +333,16 @@ DKObjectRef DKArrayCreateWithCArrayNoCopy( DKClassRef _class, DKObjectRef object
 //
 DKObjectRef DKArrayCreateWithCollection( DKClassRef _class, DKObjectRef collection )
 {
-    struct DKArray * array = NULL;
-    
-    if( _class )
-    {
-        DKAssert( DKIsSubclass( _class, DKArrayClass() ) );
-        
-        array = DKCreate( _class );
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKArrayClass() ) );
 
-        if( array )
-        {
-            ReplaceRangeWithCollection( array, DKRangeMake( 0, 0 ), collection );
-        }
+    if( _class == NULL )
+        _class = DKArrayClass();
+
+    struct DKArray * array = DKCreate( _class );
+
+    if( array )
+    {
+        ReplaceRangeWithCollection( array, DKRangeMake( 0, 0 ), collection );
     }
 
     return array;

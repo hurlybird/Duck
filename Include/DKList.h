@@ -87,7 +87,9 @@ void        DKSetDefaultListClass( DKClassRef _self );
 DKClassRef  DKMutableListClass( void );
 void        DKSetDefaultMutableListClass( DKClassRef _self );
 
-#define     DKListCreate( _class ) DKCreate( _class )
+#define     DKListCreateEmpty()    DKCreate( DKListClass() )
+#define     DKListCreateMutable()  DKCreate( DKMutableListClass() )
+
 DKObjectRef DKListCreateWithObject( DKClassRef _class, DKObjectRef object );
 DKObjectRef DKListCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... );
 DKObjectRef DKListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );

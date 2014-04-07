@@ -34,9 +34,7 @@ typedef const struct DKFile * DKFileRef;
 
 DKClassRef  DKFileClass( void );
 
-DKFileRef   DKFileCreate( void );
-
-int         DKFileOpen( DKFileRef _self, DKStringRef filename, const char * mode );
+DKFileRef   DKFileOpen( DKStringRef filename, const char * mode );
 int         DKFileClose( DKFileRef _self );
 
 int         DKFileSeek( DKFileRef _self, DKIndex offset, int origin );
@@ -44,6 +42,7 @@ DKIndex     DKFileTell( DKFileRef _self );
 
 DKIndex     DKFileRead( DKFileRef _self, void * buffer, DKIndex size, DKIndex count );
 DKIndex     DKFileWrite( DKFileRef _self, const void * buffer, DKIndex size, DKIndex count );
+
 
 
 

@@ -44,10 +44,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testListClass:(DKClassRef)listClass
 {
-    DKDataRef a = DKDataCreateWithBytes( "a", 2 );
-    DKDataRef b = DKDataCreateWithBytes( "b", 2 );
-    DKDataRef c = DKDataCreateWithBytes( "c", 2 );
-    DKDataRef d = DKDataCreateWithBytes( "d", 2 );
+    DKStringRef a = DKSTR( "a" );
+    DKStringRef b = DKSTR( "b" );
+    DKStringRef c = DKSTR( "c" );
+    DKStringRef d = DKSTR( "d" );
     
     DKMutableListRef list = (DKMutableListRef)DKCreate( listClass );
     
@@ -69,10 +69,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( DKListGetLastIndexOfObject( list, c ) == 2 );
     XCTAssert( DKListGetLastIndexOfObject( list, d ) == 3 );
     
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 0 ) ), "a" ) == 0 );
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 1 ) ), "b" ) == 0 );
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 2 ) ), "c" ) == 0 );
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 3 ) ), "d" ) == 0 );
+    XCTAssert( DKListGetObjectAtIndex( list, 0 ) == a );
+    XCTAssert( DKListGetObjectAtIndex( list, 1 ) == b );
+    XCTAssert( DKListGetObjectAtIndex( list, 2 ) == c );
+    XCTAssert( DKListGetObjectAtIndex( list, 3 ) == d );
     
     DKListRemoveAllObjects( list );
     
@@ -84,10 +84,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     XCTAssert( DKListGetCount( list ) == 4 );
 
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 0 ) ), "d" ) == 0 );
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 1 ) ), "c" ) == 0 );
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 2 ) ), "b" ) == 0 );
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( list, 3 ) ), "a" ) == 0 );
+    XCTAssert( DKListGetObjectAtIndex( list, 0 ) == d );
+    XCTAssert( DKListGetObjectAtIndex( list, 1 ) == c );
+    XCTAssert( DKListGetObjectAtIndex( list, 2 ) == b );
+    XCTAssert( DKListGetObjectAtIndex( list, 3 ) == a );
 
     DKListRemoveAllObjects( list );
 
@@ -101,10 +101,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
     
     DKListRef copy = DKCopy( list );
     
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 0 ) ), "a" ) == 0 );
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 1 ) ), "b" ) == 0 );
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 2 ) ), "c" ) == 0 );
-    XCTAssert( strcmp( DKDataGetBytePtr( DKListGetObjectAtIndex( copy, 3 ) ), "d" ) == 0 );
+    XCTAssert( DKListGetObjectAtIndex( list, 0 ) == a );
+    XCTAssert( DKListGetObjectAtIndex( list, 1 ) == b );
+    XCTAssert( DKListGetObjectAtIndex( list, 2 ) == c );
+    XCTAssert( DKListGetObjectAtIndex( list, 3 ) == d );
     
     DKListRemoveAllObjects( list );
     DKRelease( copy );

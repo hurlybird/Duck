@@ -67,14 +67,14 @@ size_t      DKNumberGetValue( DKNumberRef _self, void * value );
 size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKNumberType type );
 const void* DKNumberGetValuePtr( DKNumberRef _self );
 
-#define DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
 
-#define DKNumberGetInt32( _self )     (*((int32_t *)DKNumberGetValuePtr( _self )))
-#define DKNumberGetInt64( _self )     (*((int64_t *)DKNumberGetValuePtr( _self )))
-#define DKNumberGetUInt32( _self )    (*((uint32_t *)DKNumberGetValuePtr( _self )))
-#define DKNumberGetUInt64( _self )    (*((uint64_t *)DKNumberGetValuePtr( _self )))
-#define DKNumberGetFloat( _self )     (*((float *)DKNumberGetValuePtr( _self )))
-#define DKNumberGetDouble( _self )    (*((double *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetInt32( _self )     (*((int32_t *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetInt64( _self )     (*((int64_t *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetUInt32( _self )    (*((uint32_t *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetUInt64( _self )    (*((uint64_t *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetFloat( _self )     (*((float *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetDouble( _self )    (*((double *)DKNumberGetValuePtr( _self )))
 
 int         DKNumberEqual( DKNumberRef a, DKNumberRef b );
 int         DKNumberCompare( DKNumberRef a, DKNumberRef b );

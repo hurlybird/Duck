@@ -40,7 +40,7 @@ enum
     DKSeekEnd = SEEK_END
 };
 
-typedef int (*DKStreamSeekMethod)( DKObjectRef _self, DKIndex offset, int origin );
+typedef int     (*DKStreamSeekMethod)( DKObjectRef _self, DKIndex offset, int origin );
 typedef DKIndex (*DKStreamTellMethod)( DKObjectRef _self );
 typedef DKIndex (*DKStreamReadMethod)( DKObjectRef _self, void * data, DKIndex size, DKIndex count );
 typedef DKIndex (*DKStreamWriteMethod)( DKMutableObjectRef _self, const void * data, DKIndex size, DKIndex count );

@@ -547,25 +547,23 @@ static void DKHashTableFinalize( DKObjectRef _self )
 //
 static DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )
 {
-    struct DKHashTable * hashTable = NULL;
-    
-    if( _class )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
+
+    if( _class == NULL )
+        _class = DKHashTableClass();
+
+    struct DKHashTable * hashTable = DKCreate( _class );
+        
+    if( hashTable )
     {
-        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
-        
-        hashTable = DKCreate( _class );
-        
-        if( hashTable )
+        DKObjectRef key, object;
+    
+        while( (key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
         {
-            DKObjectRef key, object;
-        
-            while( (key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
-            {
-                object = va_arg( keysAndObjects, DKObjectRef );
-        
-                DKHashCode hash = DKHash( key );
-                Insert( hashTable, hash, key, object, DKInsertAlways );
-            }
+            object = va_arg( keysAndObjects, DKObjectRef );
+    
+            DKHashCode hash = DKHash( key );
+            Insert( hashTable, hash, key, object, DKInsertAlways );
         }
     }
     
@@ -578,18 +576,16 @@ static DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _
 //
 DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef dictionary )
 {
-    struct DKHashTable * hashTable = NULL;
-    
-    if( _class )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
+
+    if( _class == NULL )
+        _class = DKHashTableClass();
+
+    struct DKHashTable * hashTable = DKCreate( _class );
+        
+    if( hashTable )
     {
-        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
-        
-        hashTable = DKCreate( _class );
-        
-        if( hashTable )
-        {
-            DKForeachKeyAndObject( dictionary, InsertKeyAndObject, hashTable );
-        }
+        DKForeachKeyAndObject( dictionary, InsertKeyAndObject, hashTable );
     }
     
     return hashTable;
@@ -601,23 +597,21 @@ DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDict
 //
 static DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list objects )
 {
-    struct DKHashTable * hashTable = NULL;
-    
-    if( _class )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
+
+    if( _class == NULL )
+        _class = DKHashTableClass();
+
+    struct DKHashTable * hashTable = DKCreate( _class );
+        
+    if( hashTable )
     {
-        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
-        
-        hashTable = DKCreate( _class );
-        
-        if( hashTable )
+        DKObjectRef object;
+    
+        while( (object = va_arg( objects, DKObjectRef ) ) != NULL )
         {
-            DKObjectRef object;
-        
-            while( (object = va_arg( objects, DKObjectRef ) ) != NULL )
-            {
-                DKHashCode hash = DKHash( object );
-                Insert( hashTable, hash, object, object, DKInsertAlways );
-            }
+            DKHashCode hash = DKHash( object );
+            Insert( hashTable, hash, object, object, DKInsertAlways );
         }
     }
     
@@ -630,23 +624,21 @@ static DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list
 //
 DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
 {
-    struct DKHashTable * hashTable = NULL;
-    
-    if( _class )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
+
+    if( _class == NULL )
+        _class = DKHashTableClass();
+
+    struct DKHashTable * hashTable = DKCreate( _class );
+        
+    if( hashTable )
     {
-        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
-        
-        hashTable = DKCreate( _class );
-        
-        if( hashTable )
+        for( DKIndex i = 0; i < count; ++i )
         {
-            for( DKIndex i = 0; i < count; ++i )
-            {
-                DKObjectRef object = objects[i];
-                
-                DKHashCode hash = DKHash( object );
-                Insert( hashTable, hash, object, object, DKInsertAlways );
-            }
+            DKObjectRef object = objects[i];
+            
+            DKHashCode hash = DKHash( object );
+            Insert( hashTable, hash, object, object, DKInsertAlways );
         }
     }
     
@@ -659,18 +651,16 @@ DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objec
 //
 DKObjectRef DKHashTableCreateSetWithCollection( DKClassRef _class, DKObjectRef collection )
 {
-    struct DKHashTable * hashTable = NULL;
-    
-    if( _class )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
+
+    if( _class == NULL )
+        _class = DKHashTableClass();
+
+    struct DKHashTable * hashTable = DKCreate( _class );
+        
+    if( hashTable )
     {
-        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
-        
-        hashTable = DKCreate( _class );
-        
-        if( hashTable )
-        {
-            DKForeachObject( collection, InsertObject, hashTable );
-        }
+        DKForeachObject( collection, InsertObject, hashTable );
     }
     
     return hashTable;

@@ -38,6 +38,9 @@ typedef struct DKHashTable * DKMutableHashTableRef;
 DKClassRef  DKHashTableClass( void );
 DKClassRef  DKMutableHashTableClass( void );
 
+#define     DKHashTableCreateEmpty()    DKCreate( DKHashTableClass() )
+#define     DKHashTableCreateMutable()  DKCreate( DKMutableHashTableClass() )
+
 DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef srcDictionary );
 
 DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );

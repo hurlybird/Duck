@@ -601,28 +601,25 @@ static void DKBinaryTreeFinalize( DKObjectRef _self )
 //
 static DKObjectRef DKBinaryTreeCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )
 {
-    struct DKBinaryTree * tree = NULL;
-    
-    if( _class )
-    {
-        DKAssert( DKIsSubclass( _class, DKBinaryTreeClass() ) );
-        
-        tree = DKCreate( _class );
-        
-        if( tree )
-        {
-        
-            DKObjectRef key, object;
-        
-            while( (key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
-            {
-                object = va_arg( keysAndObjects, DKObjectRef );
-        
-                Insert( tree, key, object, DKInsertAlways );
-            }
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKBinaryTreeClass() ) );
 
-            CheckTreeIntegrity( tree );
+    if( _class == NULL )
+        _class = DKBinaryTreeClass();
+
+    struct DKBinaryTree * tree = DKCreate( _class );
+        
+    if( tree )
+    {
+        DKObjectRef key, object;
+    
+        while( (key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
+        {
+            object = va_arg( keysAndObjects, DKObjectRef );
+    
+            Insert( tree, key, object, DKInsertAlways );
         }
+
+        CheckTreeIntegrity( tree );
     }
     
     return tree;
@@ -634,18 +631,16 @@ static DKObjectRef DKBinaryTreeCreateDictionaryWithVAKeysAndObjects( DKClassRef 
 //
 DKObjectRef DKBinaryTreeCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef dictionary )
 {
-    struct DKBinaryTree * tree = NULL;
-    
-    if( _class )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKBinaryTreeClass() ) );
+
+    if( _class == NULL )
+        _class = DKBinaryTreeClass();
+
+    struct DKBinaryTree * tree = DKCreate( _class );
+        
+    if( tree )
     {
-        DKAssert( DKIsSubclass( _class, DKBinaryTreeClass() ) );
-        
-        tree = DKCreate( _class );
-        
-        if( tree )
-        {
-            DKForeachKeyAndObject( dictionary, InsertKeyAndObject, tree );
-        }
+        DKForeachKeyAndObject( dictionary, InsertKeyAndObject, tree );
     }
     
     return tree;
@@ -657,22 +652,20 @@ DKObjectRef DKBinaryTreeCreateDictionaryWithDictionary( DKClassRef _class, DKDic
 //
 static DKObjectRef DKBinaryTreeCreateSetWithVAObjects( DKClassRef _class, va_list objects )
 {
-    struct DKBinaryTree * tree = NULL;
-    
-    if( _class )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKBinaryTreeClass() ) );
+
+    if( _class == NULL )
+        _class = DKBinaryTreeClass();
+
+    struct DKBinaryTree * tree = DKCreate( _class );
+        
+    if( tree )
     {
-        DKAssert( DKIsSubclass( _class, DKBinaryTreeClass() ) );
-        
-        tree = DKCreate( _class );
-        
-        if( tree )
+        DKObjectRef object;
+
+        while( (object = va_arg( objects, DKObjectRef ) ) != NULL )
         {
-            DKObjectRef object;
-    
-            while( (object = va_arg( objects, DKObjectRef ) ) != NULL )
-            {
-                Insert( tree, object, object, DKInsertAlways );
-            }
+            Insert( tree, object, object, DKInsertAlways );
         }
     }
     
@@ -685,21 +678,19 @@ static DKObjectRef DKBinaryTreeCreateSetWithVAObjects( DKClassRef _class, va_lis
 //
 DKObjectRef DKBinaryTreeCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
 {
-    struct DKBinaryTree * tree = NULL;
-    
-    if( _class )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKBinaryTreeClass() ) );
+
+    if( _class == NULL )
+        _class = DKBinaryTreeClass();
+
+    struct DKBinaryTree * tree = DKCreate( _class );
+        
+    if( tree )
     {
-        DKAssert( DKIsSubclass( _class, DKBinaryTreeClass() ) );
-        
-        tree = DKCreate( _class );
-        
-        if( tree )
+        for( DKIndex i = 0; i < count; ++i )
         {
-            for( DKIndex i = 0; i < count; ++i )
-            {
-                DKObjectRef object = objects[i];
-                Insert( tree, object, object, DKInsertAlways );
-            }
+            DKObjectRef object = objects[i];
+            Insert( tree, object, object, DKInsertAlways );
         }
     }
     
@@ -712,18 +703,16 @@ DKObjectRef DKBinaryTreeCreateSetWithCArray( DKClassRef _class, DKObjectRef obje
 //
 DKObjectRef DKBinaryTreeCreateSetWithCollection( DKClassRef _class, DKObjectRef collection )
 {
-    struct DKBinaryTree * tree = NULL;
-    
-    if( _class )
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKBinaryTreeClass() ) );
+
+    if( _class == NULL )
+        _class = DKBinaryTreeClass();
+
+    struct DKBinaryTree * tree = DKCreate( _class );
+        
+    if( tree )
     {
-        DKAssert( DKIsSubclass( _class, DKBinaryTreeClass() ) );
-        
-        tree = DKCreate( _class );
-        
-        if( tree )
-        {
-            DKForeachObject( collection, InsertObject, tree );
-        }
+        DKForeachObject( collection, InsertObject, tree );
     }
     
     return tree;

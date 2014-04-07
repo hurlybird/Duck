@@ -63,10 +63,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
         char buffer[32];
         
         sprintf( buffer, "Key%d", i );
-        keys.data[i] = (uintptr_t)DKStringCreateWithCString( buffer );
+        keys.data[i] = (uintptr_t)DKStringCreateWithCString( DKStringClass(), buffer );
 
         sprintf( buffer, "Value%d", i );
-        values.data[i] = (uintptr_t)DKStringCreateWithCString( buffer );
+        values.data[i] = (uintptr_t)DKStringCreateWithCString( DKStringClass(), buffer );
 
         DKDictionarySetObject( dict, (DKObjectRef)keys.data[i], (DKObjectRef)values.data[i] );
 

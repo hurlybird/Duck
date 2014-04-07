@@ -37,9 +37,11 @@ typedef struct DKArray * DKMutableArrayRef;
 DKClassRef  DKArrayClass( void );
 DKClassRef  DKMutableArrayClass( void );
 
-#define     DKArrayCreate( _class ) DKCreate( _class )
+#define     DKArrayCreateEmpty()    DKCreate( DKArrayClass() )
+#define     DKArrayCreateMutable()  DKCreate( DKMutableArrayClass() )
+
 DKObjectRef DKArrayCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKArrayCreateWithCArrayNoCopy( DKClassRef _class, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKArrayCreateWithCArrayNoCopy( /* DKClassRef _class, */ DKObjectRef objects[], DKIndex count );
 DKObjectRef DKArrayCreateWithCollection( DKClassRef _class, DKObjectRef collection );
 
 DKArrayRef  DKArrayCopy( DKArrayRef _self );

@@ -88,7 +88,7 @@ DKThreadSafeClassInit( DKStringClass )
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
-    copying->mutableCopy = (DKMutableCopyMethod)DKStringCreateMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKStringMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -130,15 +130,15 @@ DKThreadSafeClassInit( DKMutableStringClass )
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKStringCreateCopy;
+    description->copyDescription = (DKCopyDescriptionMethod)DKStringCopy;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
-    copying->copy = (DKCopyMethod)DKStringCreateMutableCopy;
-    copying->mutableCopy = (DKMutableCopyMethod)DKStringCreateMutableCopy;
+    copying->copy = (DKCopyMethod)DKStringMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKStringMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -235,6 +235,83 @@ static void DKStringFinalize( DKObjectRef _self )
 
 
 ///
+//  DKStringCreateWithCString()
+//
+DKStringRef DKStringCreateWithCString( DKClassRef _class, const char * cstr )
+{
+    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKStringClass() ) );
+
+    DKIndex length = strlen( cstr );
+
+    if( _class == DKMutableStringClass() )
+    {
+        struct DKString * str = DKStringCreateMutable();
+        
+        if( str )
+        {
+            DKByteArrayAppendBytes( &str->byteArray, (const uint8_t *)cstr, length );
+        }
+        
+        return str;
+    }
+        
+    else if( length > 0 )
+    {
+        return CopySubstring( cstr, DKRangeMake( 0, length ) );
+    }
+    
+    return DKStringCreateEmpty();
+}
+
+
+///
+//  DKStringCreateWithCStringNoCopy()
+//
+DKStringRef DKStringCreateWithCStringNoCopy( /* DKClassRef _class, */ const char * cstr )
+{
+    struct DKString * str = DKCreate( DKStringClass() );
+
+    if( str )
+    {
+        DKIndex length = strlen( cstr );
+        DKByteArrayInitWithExternalStorage( &str->byteArray, (const uint8_t *)str, length );
+    }
+    
+    return str;
+}
+
+
+///
+//  DKStringCopy()
+//
+DKStringRef DKStringCopy( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        return DKStringCreateWithCString( DKGetClass( _self ), (const char *)_self->byteArray.data );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringMutableCopy()
+//
+DKMutableStringRef DKStringMutableCopy( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        return (DKMutableStringRef)DKStringCreateWithCString( DKMutableStringClass(), (const char *)_self->byteArray.data );
+    }
+    
+    return NULL;
+}
+
+
+///
 //  DKStringEqual()
 //
 int DKStringEqual( DKStringRef _self, DKObjectRef other )
@@ -292,90 +369,6 @@ DKHashCode DKStringHash( DKStringRef _self )
     }
     
     return 0;
-}
-
-
-///
-//  DKStringCreate()
-//
-DKStringRef DKStringCreate( void )
-{
-    return DKCreate( DKStringClass() );
-}
-
-
-///
-//  DKStringCreateCopy()
-//
-DKStringRef DKStringCreateCopy( DKStringRef src )
-{
-    if( src )
-    {
-        DKAssert( DKIsKindOfClass( src, DKStringClass() ) );
-
-        const char * srcString = DKStringGetCStringPtr( src );
-        
-        return DKStringCreateWithCString( srcString );
-    }
-    
-    return DKStringCreate();
-}
-
-
-///
-//  DKStringCreateWithCString()
-//
-DKStringRef DKStringCreateWithCString( const char * str )
-{
-    if( str )
-    {
-        DKIndex length = strlen( str );
-
-        return CopySubstring( str, DKRangeMake( 0, length ) );
-    }
-    
-    return DKStringCreate();
-}
-
-
-///
-//  DKStringCreateWithCStringNoCopy()
-//
-DKStringRef DKStringCreateWithCStringNoCopy( const char * str )
-{
-    DKStringRef _self = DKCreate( DKStringClass() );
-
-    if( _self )
-    {
-        struct DKString * string = (struct DKString *)_self;
-        
-        DKIndex length = strlen( str );
-        
-        DKByteArrayInitWithExternalStorage( &string->byteArray, (const uint8_t *)str, length );
-    }
-    
-    return _self;
-}
-
-
-///
-//  DKStringCreateMutable()
-//
-DKMutableStringRef DKStringCreateMutable( void )
-{
-    return DKCreate( DKMutableStringClass() );
-}
-
-
-///
-//  DKStringCreateMutableCopy()
-//
-DKMutableStringRef DKStringCreateMutableCopy( DKStringRef src )
-{
-    DKMutableStringRef _self = DKCreate( DKMutableStringClass() );
-    DKStringSetString( _self, src );
-    
-    return _self;
 }
 
 
