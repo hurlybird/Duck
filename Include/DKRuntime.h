@@ -312,20 +312,19 @@ DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
 
 // Alloc/Free Objects ====================================================================
 
-// Allocates a new object and calls its intializer chain. Use 'extraBytes' to allocate
-// memory in addition to the 'structSize' specified in the class. The extra memory is not
-// automatically zeroed for you.
+// Allocates a new object Use 'extraBytes' to allocate memory beyond the 'structSize'
+// specified in the class. The extra memory is not automatically zeroed for you.
 void *      DKAllocObject( DKClassRef cls, size_t extraBytes );
 
-// Calls the object's finalizer chain and deallocates it. You probably never need to call
-// this directly unless creating an object that bypasses normal reference counting.
+// Deallocates an object created with DKAllocObject. You probably never need to call this
+// directly unless creating an object that bypasses normal reference counting.
 void        DKDeallocObject( DKObjectRef _self );
 
 // Calls the object's initializer chain. The object returned by DKIntializeObject may not
-// be the same as the object passed to it. In normal use this is called by DKAllocObject().
-DKObjectRef DKInitializeObject( DKObjectRef _self );
+// be the same as the object passed to it.
+void *      DKInitializeObject( DKObjectRef _self );
 
-// Calls the object's finalizer chain. In normal use this is called by DKDeallocObject().
+// Calls the object's finalizer chain.
 void        DKFinalizeObject( DKObjectRef _self );
 
 
@@ -415,24 +414,28 @@ DKClassRef  DKGetClass( DKObjectRef _self );
 DKStringRef DKGetClassName( DKObjectRef _self );
 DKClassRef  DKGetSuperclass( DKObjectRef _self );
 
-// Returns TRUE if the object is a member of the class.
+// Returns true if the object is a instance of the class.
 int         DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class );
 
-// Returns TRUE if the object is a member or a subclass of the class.
+// Returns true if the object is a instance of the class or one of its subclasses.
 int         DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
 
+// Returns true if the class is a subclass of (or equal to) another class
+int         DKIsSubclass( DKClassRef _class, DKClassRef otherClass );
 
 
 
 // Polymorphic Wrappers ==================================================================
 
-// Create an instance of a class (identical to DKAllocObject( _class, 0 )).
+// Wrapper for DKAllocObject + DKInitializeObject
 void *      DKCreate( DKClassRef _class );
 
+// Comparison Interface Wrappers
 int         DKEqual( DKObjectRef a, DKObjectRef b );
 int         DKCompare( DKObjectRef a, DKObjectRef b );
 DKHashCode  DKHash( DKObjectRef _self );
 
+// CopyDescription Interface Wrappers
 DKStringRef DKCopyDescription( DKObjectRef _self );
 
 
@@ -464,10 +467,7 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 
 #define DKMsgSend( _self, msg, ... ) \
     ((DKMsgHandler_ ## msg)DKGetMsgHandler( _self, DKSelector(msg) )->func)( _self, DKSelector(msg) , ## __VA_ARGS__ )
-
-#define DKMsgSendSuper( _self, msg, ... ) \
-    ((DKMsgHandler_ ## msg)DKGetMsgHandler( DKGetSuperclass( _self ), DKSelector(msg) )->func)( _self, DKSelector(msg) , ## __VA_ARGS__ )
-
+    
 
 
 

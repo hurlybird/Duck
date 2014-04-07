@@ -180,6 +180,7 @@ DKNumberRef DKNumberCreate( const void * value, DKNumberType type, size_t count 
     size_t bytes = size * count;
     
     struct DKNumber * number = (struct DKNumber *)DKAllocObject( DKNumberClass(), bytes );
+    number = DKInitializeObject( number );
     
     if( number )
     {

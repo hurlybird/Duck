@@ -92,7 +92,9 @@ typedef struct
 
 
 // Callback Types
-typedef int  (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
+typedef int (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
+typedef int (*DKApplierFunction)( DKObjectRef object, void * context );
+typedef int (*DKKeyedApplierFunction)( DKObjectRef key, DKObjectRef object, void * context );
 
 
 // Path Constants
@@ -274,6 +276,10 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #define DKCheckIndex( index, len, ... )
 #define DKCheckRange( range, len, ... )
 #endif
+
+
+// Specific Errors
+void DKImmutableObjectAccessError( DKObjectRef _self );
 
 
 

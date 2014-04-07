@@ -34,26 +34,35 @@ typedef const struct DKArray * DKArrayRef;
 typedef struct DKArray * DKMutableArrayRef;
 
 
-DKClassRef DKArrayClass( void );
-DKClassRef DKMutableArrayClass( void );
+DKClassRef  DKArrayClass( void );
+DKClassRef  DKMutableArrayClass( void );
 
-DKArrayRef DKArrayCreate( void );
-DKArrayRef DKArrayCreateWithObjects( DKObjectRef firstObject, ... );
-DKArrayRef DKArrayCreateWithCArray( DKObjectRef objects[], DKIndex count );
-DKArrayRef DKArrayCreateWithCArrayNoCopy( DKObjectRef objects[], DKIndex count );
-DKArrayRef DKArrayCreateCopy( DKListRef srcList );
+#define     DKArrayCreate( _class ) DKCreate( _class )
+DKObjectRef DKArrayCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKArrayCreateWithCArrayNoCopy( DKClassRef _class, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKArrayCreateWithCollection( DKClassRef _class, DKObjectRef collection );
 
-DKMutableArrayRef DKArrayCreateMutable( void );
-DKMutableArrayRef DKArrayCreateMutableCopy( DKListRef srcList );
+DKArrayRef  DKArrayCopy( DKArrayRef _self );
+DKMutableArrayRef DKArrayMutableCopy( DKArrayRef _self );
 
-DKIndex DKArrayGetCount( DKArrayRef _self );
-DKIndex DKArrayGetObjects( DKArrayRef _self, DKRange range, DKObjectRef objects[] );
+DKIndex     DKArrayGetCount( DKArrayRef _self );
+DKIndex     DKArrayGetObjects( DKArrayRef _self, DKObjectRef objects[] );
 
-void    DKArrayReplaceObjects( DKMutableArrayRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
-void    DKArrayReplaceObjectsWithList( DKMutableArrayRef _self, DKRange range, DKListRef srcList );
+DKObjectRef DKArrayGetObjectAtIndex( DKArrayRef _self, DKIndex index );
+DKIndex     DKArrayGetObjectsInRange( DKArrayRef _self, DKRange range, DKObjectRef objects[] );
 
-void    DKArraySort( DKMutableArrayRef _self, DKCompareFunction cmp );
-void    DKArrayShuffle( DKMutableArrayRef _self );
+void        DKArrayAppendCArray( DKMutableArrayRef _self, DKObjectRef objects[], DKIndex count );
+void        DKArrayAppendCollection( DKMutableArrayRef _self, DKObjectRef srcCollection );
+
+void        DKArrayReplaceRangeWithCArray( DKMutableArrayRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
+void        DKArrayReplaceRangeWithCollection( DKMutableArrayRef _self, DKRange range, DKObjectRef collection );
+
+void        DKArraySort( DKMutableArrayRef _self, DKCompareFunction cmp );
+void        DKArrayShuffle( DKMutableArrayRef _self );
+
+int         DKArrayApplyFunction( DKArrayRef _self, DKApplierFunction callback, void * context );
+
+
 
 
 #endif // _DK_ARRAY_H_

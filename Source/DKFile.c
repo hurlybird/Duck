@@ -81,7 +81,7 @@ static void DKFileFinalize( DKObjectRef _self )
 //
 DKFileRef DKFileCreate( void )
 {
-    return DKAllocObject( DKFileClass(), 0 );
+    return DKCreate( DKFileClass() );
 }
 
 

@@ -56,6 +56,59 @@ void DKSetDefaultMutableSetClass( DKClassRef _self )
 
 
 ///
+//  DKSetCreateWithObjects()
+//
+DKObjectRef DKSetCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... )
+{
+    if( _class )
+    {
+        DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
+        
+        va_list arg_ptr;
+        va_start( arg_ptr, firstObject );
+        
+        DKObjectRef obj = set->createWithVAObjects( _class, arg_ptr );
+        
+        va_end( arg_ptr );
+        
+        return obj;
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKSetCreateWithCArray()
+//
+DKObjectRef DKSetCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+{
+    if( _class )
+    {
+        DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
+        return set->createWithCArray( _class, objects, count );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKSetCreateWithCollection()
+//
+DKObjectRef DKSetCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection )
+{
+    if( _class )
+    {
+        DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
+        return set->createWithCollection( _class, srcCollection );
+    }
+    
+    return NULL;
+}
+
+
+///
 //  DKSetGetCount()
 //
 DKIndex DKSetGetCount( DKSetRef _self )
@@ -91,40 +144,6 @@ DKObjectRef DKSetGetMember( DKDictionaryRef _self, DKObjectRef object )
 int DKSetContainsObject( DKDictionaryRef _self, DKObjectRef object )
 {
     return DKSetGetMember( _self, object ) != NULL;
-}
-
-
-///
-//  DKSetCopyObjects()
-//
-static int DKSetCopyObjectsCallback( DKObjectRef object, void * context )
-{
-    DKListAppendObject( context, object );
-    return 0;
-}
-
-DKListRef DKSetCopyObjects( DKDictionaryRef _self )
-{
-    DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableArrayClass() );
-    
-    DKSetApplyFunction( _self, DKSetCopyObjectsCallback, (void *)list );
-    
-    return list;
-}
-
-
-///
-//  DKSetApplyFunction()
-//
-int DKSetApplyFunction( DKSetRef _self, DKSetApplierFunction callback, void * context )
-{
-    if( _self )
-    {
-        DKSetInterfaceRef set = DKGetInterface( _self, DKSelector(Set) );
-        return set->applyFunction( _self, callback, context );
-    }
-    
-    return 0;
 }
 
 
@@ -177,7 +196,7 @@ static int DKSetIsSubsetOfSetCallback( DKObjectRef object, void * otherSet )
 
 int DKSetIsSubsetOfSet( DKSetRef _self, DKSetRef otherSet )
 {
-    return !DKSetApplyFunction( _self, DKSetIsSubsetOfSetCallback, (void *)otherSet );
+    return !DKForeachObject( _self, DKSetIsSubsetOfSetCallback, (void *)otherSet );
 }
 
 
@@ -191,7 +210,7 @@ static int DKSetIntersectsSetCallback( DKObjectRef object, void * otherSet )
 
 int DKSetIntersectsSet( DKSetRef _self, DKSetRef otherSet )
 {
-    return !DKSetApplyFunction( _self, DKSetIntersectsSetCallback, (void *)otherSet );
+    return !DKForeachObject( _self, DKSetIntersectsSetCallback, (void *)otherSet );
 }
 
 
@@ -206,7 +225,7 @@ static int DKSetUnionCallback( DKObjectRef object, void * unionSet )
 
 void DKSetUnion( DKMutableSetRef _self, DKSetRef otherSet )
 {
-    DKSetApplyFunction( otherSet, DKSetUnionCallback, _self );
+    DKForeachObject( otherSet, DKSetUnionCallback, _self );
 }
 
 
@@ -221,7 +240,7 @@ static int DKSetMinusCallback( DKObjectRef object, void * minusSet )
 
 void DKSetMinus( DKMutableSetRef _self, DKSetRef otherSet )
 {
-    DKSetApplyFunction( otherSet, DKSetMinusCallback, _self );
+    DKForeachObject( otherSet, DKSetMinusCallback, _self );
 }
 
 
@@ -235,14 +254,13 @@ void DKSetIntersect( DKMutableSetRef _self, DKSetRef otherSet )
         DKSetInterfaceRef set = DKGetInterface( _self, DKSelector(Set) );
         DKSetInterfaceRef other = DKGetInterface( _self, DKSelector(Set) );
 
-        DKArrayRef objects = DKSetCopyObjects( _self );
+        DKArrayRef objects = DKArrayCreateWithCollection( DKArrayClass(), _self );
         
         DKIndex count = DKArrayGetCount( objects );
         
         for( DKIndex i = 0; i < count; i++ )
         {
-            DKObjectRef object;
-            DKArrayGetObjects( objects, DKRangeMake( i, 1 ), &object );
+            DKObjectRef object = DKArrayGetObjectAtIndex( objects, i );
             
             if( other->getMember( otherSet, object ) )
                 set->addObject( _self, object );
@@ -250,49 +268,6 @@ void DKSetIntersect( DKMutableSetRef _self, DKSetRef otherSet )
         
         DKRelease( objects );
     }
-}
-
-
-///
-//  DKSetCopyDescription()
-//
-struct PrintDescriptionContext
-{
-    DKMutableObjectRef stream;
-    DKIndex n;
-};
-
-static int PrintDescriptionCallback( DKObjectRef object, void * context )
-{
-    struct PrintDescriptionContext * ctx = context;
-
-    const char * prefix = (ctx->n == 0) ? "\n    " : ",\n    ";
-
-    if( DKIsKindOfClass( object, DKStringClass() ) )
-        DKSPrintf( ctx->stream, "%s\"%@\" = ", prefix, object );
-    
-    else
-        DKSPrintf( ctx->stream, "%s%@ = ", prefix, object );
-
-    ctx->n++;
-    
-    return 0;
-}
-
-DKStringRef DKSetCopyDescription( DKListRef _self )
-{
-    DKMutableStringRef desc = DKStringCreateMutable();
-    
-    DKIndex count = DKListGetCount( _self );
-    
-    DKSPrintf( desc, "%@, %d objects = [", DKGetClassName( _self ), count );
-    
-    struct PrintDescriptionContext context = { desc, 0 };
-    DKSetApplyFunction( _self, PrintDescriptionCallback, &context );
-    
-    DKSPrintf( desc, "\n]\n" );
-    
-    return desc;
 }
 
 

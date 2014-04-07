@@ -34,33 +34,34 @@ typedef const struct DKLinkedList * DKLinkedListRef;
 typedef struct DKLinkedList * DKMutableLinkedListRef;
 
 
-DKClassRef DKLinkedListClass( void );
-DKClassRef DKMutableLinkedListClass( void );
+DKClassRef  DKLinkedListClass( void );
+DKClassRef  DKMutableLinkedListClass( void );
 
-DKLinkedListRef DKLinkedListCreate( void );
-DKLinkedListRef DKLinkedListCreateWithObjects( DKObjectRef firstObject, ... );
-DKLinkedListRef DKLinkedListCreateWithCArray( DKObjectRef objects[], DKIndex count );
-DKLinkedListRef DKLinkedListCreateCopy( DKListRef srcList );
+DKObjectRef DKLinkedListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKLinkedListCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection );
 
-DKMutableLinkedListRef DKLinkedListCreateMutable( void );
-DKMutableLinkedListRef DKLinkedListCreateMutableCopy( DKListRef srcList );
+DKLinkedListRef DKLinkedListCopy( DKLinkedListRef _self );
+DKMutableLinkedListRef DKLinkedListMutableCopy( DKLinkedListRef _self );
 
-DKIndex   DKLinkedListGetCount( DKLinkedListRef _self );
-DKIndex   DKLinkedListGetObjects( DKLinkedListRef _self, DKRange range, DKObjectRef objects[] );
+DKIndex     DKLinkedListGetCount( DKLinkedListRef _self );
 
-void      DKLinkedListReplaceObjects( DKMutableLinkedListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
-void      DKLinkedListReplaceObjectsWithList( DKMutableLinkedListRef _self, DKRange range, DKListRef srcList );
-void      DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp );
-void      DKLinkedListShuffle( DKMutableLinkedListRef _self );
+DKObjectRef DKLinkedListGetObjectAtIndex( DKLinkedListRef _self, DKIndex index );
+DKIndex     DKLinkedListGetObjectsInRange( DKLinkedListRef _self, DKRange range, DKObjectRef objects[] );
+
+void        DKLinkedListAppendCArray( DKMutableLinkedListRef _self, DKObjectRef objects[], DKIndex count );
+void        DKLinkedListAppendCollection( DKMutableLinkedListRef _self, DKObjectRef srcCollection );
+
+void        DKLinkedListReplaceRangeWithCArray( DKMutableLinkedListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
+void        DKLinkedListReplaceRangeWithCollection( DKMutableLinkedListRef _self, DKRange range, DKObjectRef srcCollection );
+
+void        DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp );
+void        DKLinkedListShuffle( DKMutableLinkedListRef _self );
+
+int         DKLinkedListApplyFunction( DKLinkedListRef _self, DKApplierFunction callback, void * context );
 
 
 
 #endif // _DK_LINKED_LIST_H_
-
-
-
-
-
 
 
 

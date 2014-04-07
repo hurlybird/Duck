@@ -56,17 +56,10 @@ struct DKLinkedList
     } cursor;
 };
 
+static DKObjectRef DKLinkedListInitialize( DKObjectRef _self );
+static void        DKLinkedListFinalize( DKObjectRef _self );
 
-static DKObjectRef  DKLinkedListInitialize( DKObjectRef _self );
-static void         DKLinkedListFinalize( DKObjectRef _self );
-
-static void      DKImmutableLinkedListReplaceObjects( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
-static void      DKImmutableLinkedListReplaceObjectsWithList( DKMutableListRef _self, DKRange range, DKListRef srcList );
-static void      DKImmutableLinkedListSort( DKMutableListRef _self, DKCompareFunction cmp );
-static void      DKImmutableLinkedListShuffle( DKMutableListRef _self );
-
-static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKObjectRef objects[], DKIndex count );
-
+static DKObjectRef DKLinkedListCreateWithVAObjects( DKClassRef _class, va_list objects );
 
 
 ///
@@ -87,26 +80,42 @@ DKThreadSafeClassInit( DKLinkedListClass )
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
-    copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListCreateMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKListCopyDescription;
+    description->copyDescription = (DKCopyDescriptionMethod)DKCollectionCopyDescription;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
+    // Collection
+    struct DKCollectionInterface * collection = DKAllocInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
+    collection->getCount = (DKGetCountMethod)DKLinkedListGetCount;
+    collection->foreachObject = (DKForeachObjectMethod)DKLinkedListApplyFunction;
+    
+    DKInstallInterface( cls, collection );
+    DKRelease( collection );
+
     // List
     struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
-    list->getCount = (DKListGetCountMethod)DKLinkedListGetCount;
-    list->getObjects = (DKListGetObjectsMethod)DKLinkedListGetObjects;
-    list->replaceObjects = DKImmutableLinkedListReplaceObjects;
-    list->replaceObjectsWithList = DKImmutableLinkedListReplaceObjectsWithList;
-    list->sort = DKImmutableLinkedListSort;
-    list->shuffle = DKImmutableLinkedListShuffle;
+    list->createWithVAObjects = (DKListCreateWithVAObjectsMethod)DKLinkedListCreateWithVAObjects;
+    list->createWithCArray = (DKListCreateWithCArrayMethod)DKLinkedListCreateWithCArray;
+    list->createWithCollection = (DKListCreateWithCollectionMethod)DKLinkedListCreateWithCollection;
+    
+    list->getCount = (DKGetCountMethod)DKLinkedListGetCount;
+    list->getObjectAtIndex = (DKListGetObjectAtIndexMethod)DKLinkedListGetObjectAtIndex;
+    list->getObjectsInRange = (DKListGetObjectsInRangeMethod)DKLinkedListGetObjectsInRange;
+    
+    list->appendCArray = (void *)DKImmutableObjectAccessError;
+    list->appendCollection = (void *)DKImmutableObjectAccessError;
+    list->replaceRangeWithCArray = (void *)DKImmutableObjectAccessError;
+    list->replaceRangeWithCollection = (void *)DKImmutableObjectAccessError;
+    list->sort = (void *)DKImmutableObjectAccessError;
+    list->shuffle = (void *)DKImmutableObjectAccessError;
 
     DKInstallInterface( cls, list );
     DKRelease( list );
@@ -124,18 +133,26 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
-    copying->copy = (DKCopyMethod)DKLinkedListCreateCopy;
-    copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListCreateMutableCopy;
+    copying->copy = (DKCopyMethod)DKLinkedListMutableCopy;
+    copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
     // List
     struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
-    list->getCount = (DKListGetCountMethod)DKLinkedListGetCount;
-    list->getObjects = (DKListGetObjectsMethod)DKLinkedListGetObjects;
-    list->replaceObjects = (DKListReplaceObjectsMethod)DKLinkedListReplaceObjects;
-    list->replaceObjectsWithList = (DKListReplaceObjectsWithListMethod)DKLinkedListReplaceObjectsWithList;
+    list->createWithVAObjects = (DKListCreateWithVAObjectsMethod)DKLinkedListCreateWithVAObjects;
+    list->createWithCArray = (DKListCreateWithCArrayMethod)DKLinkedListCreateWithCArray;
+    list->createWithCollection = (DKListCreateWithCollectionMethod)DKLinkedListCreateWithCollection;
+
+    list->getCount = (DKGetCountMethod)DKLinkedListGetCount;
+    list->getObjectAtIndex = (DKListGetObjectAtIndexMethod)DKLinkedListGetObjectAtIndex;
+    list->getObjectsInRange = (DKListGetObjectsInRangeMethod)DKLinkedListGetObjectsInRange;
+
+    list->appendCArray = (DKListAppendCArrayMethod)DKLinkedListAppendCArray;
+    list->appendCollection = (DKListAppendCollectionMethod)DKLinkedListAppendCollection;
+    list->replaceRangeWithCArray = (DKListReplaceRangeWithCArrayMethod)DKLinkedListReplaceRangeWithCArray;
+    list->replaceRangeWithCollection = (DKListReplaceRangeWithCollectionMethod)DKLinkedListReplaceRangeWithCollection;
     list->sort = (DKListSortMethod)DKLinkedListSort;
     list->shuffle = (DKListShuffleMethod)DKLinkedListShuffle;
 
@@ -143,38 +160,6 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     DKRelease( list );
     
     return cls;
-}
-
-
-///
-//  DKLinkedListInitialize()
-//
-static DKObjectRef DKLinkedListInitialize( DKObjectRef _self )
-{
-    struct DKLinkedList * list = (struct DKLinkedList *)_self;
-    
-    DKNodePoolInit( &list->nodePool, sizeof(struct DKLinkedListNode), 0 );
-
-    list->first = NULL;
-    list->last = NULL;
-    list->count = 0;
-    
-    list->cursor.node = NULL;
-    list->cursor.index = 0;
-    
-    return _self;
-}
-
-
-///
-//  DKLinkedListFinalize()
-//
-static void DKLinkedListFinalize( DKObjectRef _self )
-{
-    struct DKLinkedList * list = (struct DKLinkedList *)_self;
-
-    ReplaceObjects( list, DKRangeMake( 0, list->count ), NULL, 0 );
-    DKNodePoolFinalize( &list->nodePool );
 }
 
 
@@ -322,9 +307,9 @@ static struct DKLinkedListNode * MoveCursor( struct DKLinkedList * list, DKIndex
 
 
 ///
-//  RemoveObjects()
+//  RemoveRange()
 //
-static void RemoveObjects( struct DKLinkedList * list, DKRange range )
+static void RemoveRange( struct DKLinkedList * list, DKRange range )
 {
     DKAssert( range.location >= 0 );
     DKAssert( range.length >= 0 );
@@ -435,13 +420,13 @@ static void InsertObject( struct DKLinkedList * list, DKIndex index, DKObjectRef
 
 
 ///
-//  ReplaceObjects()
+//  ReplaceRangeWithCArray()
 //
-static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKObjectRef objects[], DKIndex count )
+static void ReplaceRangeWithCArray( struct DKLinkedList * list, DKRange range, DKObjectRef objects[], DKIndex count )
 {
     DKCheckRange( range, list->count );
 
-    RemoveObjects( list, range );
+    RemoveRange( list, range );
     
     for( DKIndex i = 0; i < count; i++ )
         InsertObject( list, range.location + i, objects[i] );
@@ -449,67 +434,103 @@ static void ReplaceObjects( struct DKLinkedList * list, DKRange range, DKObjectR
 
 
 ///
-//  ReplaceObjectsWithList()
+//  ReplaceRangeWithCollection()
 //
-static void ReplaceObjectsWithList( struct DKLinkedList * list, DKRange range, DKListRef srcList )
+struct ReplaceRangeWithCollectionContext
 {
-    if( srcList )
-    {
-        DKCheckRange( range, list->count );
+    struct DKLinkedList * list;
+    DKIndex index;
+};
 
-        DKListInterfaceRef srcListInterface = DKGetInterface( srcList, DKSelector(List) );
-        
-        RemoveObjects( list, range );
-        
-        DKIndex count = srcListInterface->getCount( srcList );
-        
-        for( DKIndex i = 0; i < count; ++i )
-        {
-            DKObjectRef object;
-            
-            srcListInterface->getObjects( srcList, DKRangeMake( i, 1 ), &object );
-
-            InsertObject( list, range.location + i, object );
-        }
-    }
+static int ReplaceRangeWithCollectionCallback( DKObjectRef object, void * context )
+{
+    struct ReplaceRangeWithCollectionContext * ctx = context;
     
-    else
+    InsertObject( ctx->list, ctx->index, object );
+    
+    ctx->index++;
+    
+    return 0;
+}
+
+static void ReplaceRangeWithCollection( struct DKLinkedList * list, DKRange range, DKObjectRef srcCollection )
+{
+    DKCheckRange( range, list->count );
+
+    RemoveRange( list, range );
+
+    if( srcCollection )
     {
-        ReplaceObjects( list, range, NULL, 0 );
+        struct ReplaceRangeWithCollectionContext ctx = { list, range.location };
+        DKForeachObject( srcCollection, ReplaceRangeWithCollectionCallback, &ctx );
     }
 }
+
 
 
 
 // DKLinkedList Interface ================================================================
 
-DKLinkedListRef DKLinkedListCreate( void )
+///
+//  DKLinkedListInitialize()
+//
+static DKObjectRef DKLinkedListInitialize( DKObjectRef _self )
 {
-    return DKAllocObject( DKLinkedListClass(), 0 );
+    if( _self )
+    {
+        struct DKLinkedList * list = (struct DKLinkedList *)_self;
+        
+        DKNodePoolInit( &list->nodePool, sizeof(struct DKLinkedListNode), 0 );
+
+        list->first = NULL;
+        list->last = NULL;
+        list->count = 0;
+        
+        list->cursor.node = NULL;
+        list->cursor.index = 0;
+    }
+    
+    return _self;
 }
 
 
 ///
-//  DKLinkedListCreateWithObjects()
+//  DKLinkedListFinalize()
 //
-DKLinkedListRef DKLinkedListCreateWithObjects( DKObjectRef firstObject, ... )
+static void DKLinkedListFinalize( DKObjectRef _self )
 {
-    struct DKLinkedList * list = DKAllocObject( DKLinkedListClass(), 0 );
+    struct DKLinkedList * list = (struct DKLinkedList *)_self;
 
-    va_list arg_ptr;
-    va_start( arg_ptr, firstObject );
+    RemoveRange( list, DKRangeMake( 0, list->count ) );
+    
+    DKNodePoolFinalize( &list->nodePool );
+}
 
-    for( DKObjectRef object = firstObject; object != NULL; )
+
+///
+//  DKLinkedListCreateWithVAObjects()
+//
+static DKObjectRef DKLinkedListCreateWithVAObjects( DKClassRef _class, va_list objects )
+{
+    struct DKLinkedList * list = NULL;
+    
+    if( _class )
     {
-        ReplaceObjects( list, DKRangeMake( list->count, 0 ), &object, 1 );
+        DKAssert( DKIsSubclass( _class, DKLinkedListClass() ) );
         
-        object = va_arg( arg_ptr, DKObjectRef );
+        list = DKCreate( _class );
+
+        if( list )
+        {
+            DKObjectRef object;
+            
+            while( (object = va_arg( objects, DKObjectRef )) != NULL )
+            {
+                ReplaceRangeWithCArray( list, DKRangeMake( list->count, 0 ), &object, 1 );
+            }
+        }
     }
 
-    va_end( arg_ptr );
-
-    CheckListIntegrity( list );
-    
     return list;
 }
 
@@ -517,48 +538,64 @@ DKLinkedListRef DKLinkedListCreateWithObjects( DKObjectRef firstObject, ... )
 ///
 //  DKLinkedListCreateWithCArray()
 //
-DKLinkedListRef DKLinkedListCreateWithCArray( DKObjectRef objects[], DKIndex count )
+DKObjectRef DKLinkedListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
 {
-    struct DKLinkedList * list = DKAllocObject( DKLinkedListClass(), 0 );
+    struct DKLinkedList * list = NULL;
+    
+    if( _class )
+    {
+        DKAssert( DKIsSubclass( _class, DKLinkedListClass() ) );
+        
+        list = DKCreate( _class );
 
-    ReplaceObjects( list, DKRangeMake( 0, 0 ), objects, count );
+        if( list )
+        {
+            ReplaceRangeWithCArray( list, DKRangeMake( 0, 0 ), objects, count );
+        }
+    }
 
     return list;
 }
 
 
 ///
-//  DKLinkedListCreateCopy()
+//  DKLinkedListCreateWithCollection()
 //
-DKLinkedListRef DKLinkedListCreateCopy( DKListRef srcList )
+DKObjectRef DKLinkedListCreateWithCollection( DKClassRef _class, DKObjectRef collection )
 {
-    struct DKLinkedList * list = DKAllocObject( DKLinkedListClass(), 0 );
+    struct DKLinkedList * list = NULL;
     
-    ReplaceObjectsWithList( list, DKRangeMake( 0, 0 ), srcList );
-    
+    if( _class )
+    {
+        DKAssert( DKIsSubclass( _class, DKLinkedListClass() ) );
+        
+        list = DKCreate( _class );
+
+        if( list )
+        {
+            ReplaceRangeWithCollection( list, DKRangeMake( 0, 0 ), collection );
+        }
+    }
+
     return list;
 }
 
 
 ///
-//  DKLinkedListCreateMutable()
+//  DKLinkedListCopy()
 //
-DKMutableLinkedListRef DKLinkedListCreateMutable( void )
+DKLinkedListRef DKLinkedListCopy( DKLinkedListRef _self )
 {
-    return DKAllocObject( DKMutableLinkedListClass(), 0 );
+    return DKLinkedListCreateWithCollection( DKGetClass( _self ), _self );
 }
 
 
 ///
-//  DKLinkedListCreateMutableCopy()
+//  DKLinkedListMutableCopy()
 //
-DKMutableLinkedListRef DKLinkedListCreateMutableCopy( DKListRef srcList )
+DKMutableLinkedListRef DKLinkedListMutableCopy( DKLinkedListRef _self )
 {
-    struct DKLinkedList * list = DKAllocObject( DKMutableLinkedListClass(), 0 );
-    
-    ReplaceObjectsWithList( list, DKRangeMake( 0, 0 ), srcList );
-    
-    return list;
+    return (DKMutableLinkedListRef)DKLinkedListCreateWithCollection( DKMutableLinkedListClass(), _self );
 }
 
 
@@ -578,9 +615,29 @@ DKIndex DKLinkedListGetCount( DKLinkedListRef _self )
 
 
 ///
-//  DKLinkedListGetObjects()
+//  DKLinkedListGetObjectAtIndex()
 //
-DKIndex DKLinkedListGetObjects( DKLinkedListRef _self, DKRange range, DKObjectRef objects[] )
+DKObjectRef DKLinkedListGetObjectAtIndex( DKLinkedListRef _self, DKIndex index )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKLinkedListClass() );
+        DKCheckIndex( index, _self->count, 0 );
+
+        struct DKLinkedList * list = (struct DKLinkedList *)_self;
+        struct DKLinkedListNode * node = MoveCursor( list, index );
+
+        return node->object;
+    }
+    
+    return 0;
+}
+
+
+///
+//  DKLinkedListGetObjectsInRange()
+//
+DKIndex DKLinkedListGetObjectsInRange( DKLinkedListRef _self, DKRange range, DKObjectRef objects[] )
 {
     if( _self )
     {
@@ -601,37 +658,53 @@ DKIndex DKLinkedListGetObjects( DKLinkedListRef _self, DKRange range, DKObjectRe
 
 
 ///
-//  DKLinkedListReplaceObjects()
+//  DKLinkedListAppendCArray()
 //
-static void DKImmutableLinkedListReplaceObjects( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count )
-{
-    DKError( "DKLinkedListReplaceObjects: Trying to modify an immutable object." );
-}
-
-void DKLinkedListReplaceObjects( DKMutableLinkedListRef _self, DKRange range, DKObjectRef objects[], DKIndex count )
+void DKLinkedListAppendCArray( DKMutableLinkedListRef _self, DKObjectRef objects[], DKIndex count )
 {
     if( _self )
     {
         DKAssertKindOfClass( _self, DKMutableLinkedListClass() );
-        ReplaceObjects( _self, range, objects, count );
+        ReplaceRangeWithCArray( _self, DKRangeMake( _self->count, 0 ), objects, count );
     }
 }
 
 
 ///
-//  DKLinkedListReplaceObjectsWithList()
+//  DKLinkedListAppendCollection()
 //
-static void DKImmutableLinkedListReplaceObjectsWithList( DKMutableListRef _self, DKRange range, DKListRef srcList )
-{
-    DKError( "DKLinkedListReplaceObjectsWithList: Trying to modify an immutable object." );
-}
-
-void DKLinkedListReplaceObjectsWithList( DKMutableLinkedListRef _self, DKRange range, DKListRef srcList )
+void DKLinkedListAppendCollection( DKMutableLinkedListRef _self, DKObjectRef collection )
 {
     if( _self )
     {
         DKAssertKindOfClass( _self, DKMutableLinkedListClass() );
-        ReplaceObjectsWithList( _self, range, srcList );
+        ReplaceRangeWithCollection( _self, DKRangeMake( _self->count, 0 ), collection );
+    }
+}
+
+
+///
+//  DKLinkedListReplaceRangeWithCArray()
+//
+void DKLinkedListReplaceRangeWithCArray( DKMutableLinkedListRef _self, DKRange range, DKObjectRef objects[], DKIndex count )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableLinkedListClass() );
+        ReplaceRangeWithCArray( _self, range, objects, count );
+    }
+}
+
+
+///
+//  DKLinkedListReplaceRangeWithCollection()
+//
+void DKLinkedListReplaceRangeWithCollection( DKMutableLinkedListRef _self, DKRange range, DKObjectRef collection )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableLinkedListClass() );
+        ReplaceRangeWithCollection( _self, range, collection );
     }
 }
 
@@ -663,11 +736,6 @@ static void ArrayToList( struct DKLinkedList * list, DKPointerArray * array )
     }
 }
 
-static void DKImmutableLinkedListSort( DKMutableListRef _self, DKCompareFunction cmp )
-{
-    DKError( "DKLinkedListSort: Trying to modify an immutable object." );
-}
-
 void DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp )
 {
     if( _self )
@@ -692,11 +760,6 @@ void DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp )
 ///
 //  DKLinkedListShuffle()
 //
-static void DKImmutableLinkedListShuffle( DKMutableListRef _self )
-{
-    DKError( "DKLinkedListShuffle: Trying to modify an immutable object." );
-}
-
 void DKLinkedListShuffle( DKMutableLinkedListRef _self )
 {
     if( _self )
@@ -717,6 +780,29 @@ void DKLinkedListShuffle( DKMutableLinkedListRef _self )
     }
 }
 
+
+///
+//  DKLinkedListApplyFunction()
+//
+int DKLinkedListApplyFunction( DKLinkedListRef _self, DKApplierFunction callback, void * context )
+{
+    if( _self )
+    {
+        struct DKLinkedListNode * node = _self->first;
+        
+        while( node )
+        {
+            int result = callback( node->object, context );
+            
+            if( result )
+                return result;
+            
+            node = node->next;
+        }
+    }
+    
+    return 0;
+}
 
 
 

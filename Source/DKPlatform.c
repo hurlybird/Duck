@@ -160,14 +160,23 @@ int _DKFatalError( const char * format, ... )
     else
     {
         vfprintf( stderr, format, arg_ptr );
+        assert( 0 );
+        abort();
     }
     
     va_end( arg_ptr );
-
-    assert( 0 );
-    abort();
     
     return 0;
+}
+
+
+///
+//  DKImmutableObjectAccessError()
+//
+void DKImmutableObjectAccessError( DKObjectRef _self )
+{
+    DKFatalError( "DKImmutableObjectAccessError: Trying to modify immutable object '%s'.",
+        DKStringGetCStringPtr( DKGetClassName( _self ) ) );
 }
 
 

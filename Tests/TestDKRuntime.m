@@ -79,40 +79,46 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKInstallMsgHandler( TestClassB, DKSelector(Cube), TestCube );
     XCTAssert( DKGetMsgHandler( TestClassB, DKSelector(Cube) ) );
     
-    // Create an instance of the object
-    DKObjectRef object = DKCreate( TestClassB );
-    XCTAssert( object );
+    // Create some instances
+    DKObjectRef a = DKCreate( TestClassA );
+    XCTAssert( a );
+
+    DKObjectRef b = DKCreate( TestClassB );
+    XCTAssert( b );
     
     // Test class membership
     XCTAssert( DKGetClass( TestClassB ) == DKClassClass() );
-    XCTAssert( DKGetClass( object ) == TestClassB );
+    XCTAssert( DKGetClass( b ) == TestClassB );
 
-    XCTAssert( DKIsKindOfClass( object, TestClassB ) );
-    XCTAssert( DKIsKindOfClass( object, DKObjectClass() ) );
+    XCTAssert( DKIsKindOfClass( b, DKObjectClass() ) );
+    XCTAssert( DKIsKindOfClass( b, TestClassA ) );
+    XCTAssert( DKIsKindOfClass( b, TestClassB ) );
 
-    XCTAssert( DKIsMemberOfClass( object, TestClassB ) );
-    XCTAssert( !DKIsMemberOfClass( object, DKObjectClass() ) );
+    XCTAssert( !DKIsMemberOfClass( b, DKObjectClass() ) );
+    XCTAssert( !DKIsMemberOfClass( b, TestClassA ) );
+    XCTAssert( DKIsMemberOfClass( b, TestClassB ) );
     
     // DKQueryInterface should return the same object when called on the class or an instance of the class
-    XCTAssert( DKGetInterface( TestClassB, DKSelector(Allocation) ) == DKGetInterface( object, DKSelector(Allocation) ) );
+    XCTAssert( DKGetInterface( TestClassB, DKSelector(Allocation) ) == DKGetInterface( b, DKSelector(Allocation) ) );
 
     // Try calling our custom message handlers
     int y;
     
-    DKMsgSend( object, Square, 2, &y );
+    DKMsgSend( a, Square, 2, &y );
+    XCTAssert( y == 1 );
+
+    DKMsgSend( a, Cube, 2, &y );
+    XCTAssert( y == 1 );
+
+    DKMsgSend( b, Square, 2, &y );
     XCTAssert( y == 4 );
 
-    DKMsgSend( object, Cube, 2, &y );
+    DKMsgSend( b, Cube, 2, &y );
     XCTAssert( y == 8 );
 
-    DKMsgSendSuper( object, Square, 2, &y );
-    XCTAssert( y == 1 );
-
-    DKMsgSendSuper( object, Cube, 2, &y );
-    XCTAssert( y == 1 );
-
     // Cleanup
-    DKRelease( object );
+    DKRelease( a );
+    DKRelease( b );
     DKRelease( TestClassA );
     DKRelease( TestClassB );
 }
@@ -153,8 +159,8 @@ static void * ResolveWeakThread( void * list )
 {
     const int N = 10000;
 
-    DKMutableListRef array1 = DKArrayCreateMutable();
-    DKMutableListRef array2 = DKArrayCreateMutable();
+    DKMutableListRef array1 = DKCreate( DKMutableArrayClass() );
+    DKMutableListRef array2 = DKCreate( DKMutableArrayClass() );
 
     for( int i = 0; i < N; i++ )
     {
@@ -189,8 +195,8 @@ static void * ResolveWeakThread( void * list )
 {
     const int N = 10000;
 
-    DKMutableListRef array1 = DKArrayCreateMutable();
-    DKMutableListRef array2 = DKArrayCreateMutable();
+    DKMutableListRef array1 = DKCreate( DKMutableArrayClass() );
+    DKMutableListRef array2 = DKCreate( DKMutableArrayClass() );
 
     for( int i = 0; i < N; i++ )
     {

@@ -581,9 +581,9 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
     
     // Allocate the structure + extra bytes
     DKAllocationInterfaceRef allocation = DKGetInterface( cls, DKSelector(Allocation) );
-
+ 
     DKObject * obj = NULL;
-
+ 
     if( allocation->alloc )
         obj = allocation->alloc( cls->structSize + extraBytes );
     
@@ -597,9 +597,6 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
     obj->isa = DKRetain( cls );
     obj->weakref = NULL;
     obj->refcount = 1;
-    
-    // Call the initializer chain
-    obj = (DKObject *)DKInitializeObject( obj );
     
     return obj;
 }
@@ -618,9 +615,6 @@ void DKDeallocObject( DKObjectRef _self )
 
     DKClassRef cls = obj->isa;
 
-    // Call the finalizer chain
-    DKFinalizeObject( obj );
-    
     // Deallocate
     DKAllocationInterfaceRef allocation = DKGetInterface( cls, DKSelector(Allocation) );
     
@@ -656,13 +650,13 @@ static DKObjectRef DKInitializeObjectRecursive( DKObjectRef _self, DKClassRef cl
     return _self;
 }
 
-DKObjectRef DKInitializeObject( DKObjectRef _self )
+void * DKInitializeObject( DKObjectRef _self )
 {
     if( _self )
     {
         const DKObject * obj = _self;
         
-        return DKInitializeObjectRecursive( obj, obj->isa );
+        return (void *)DKInitializeObjectRecursive( obj, obj->isa );
     }
     
     return NULL;
@@ -704,7 +698,7 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
         return NULL;
     }
 
-    struct DKClass * cls = (struct DKClass *)DKAllocObject( DKClassClass(), 0 );
+    struct DKClass * cls = DKCreate( DKClassClass() );
 
     cls->name = DKRetain( name );
     cls->superclass = DKRetain( superclass );
@@ -768,6 +762,9 @@ void * DKAllocInterface( DKSEL sel, size_t structSize )
         DKAssert( (extraBytes / sizeof(void *)) <= DK_MAX_INTERFACE_SIZE );
         
         DKInterface * interface = DKAllocObject( DKInterfaceClass(), extraBytes );
+        interface = DKInitializeObject( interface );
+
+        DKAssert( interface != NULL );
 
         interface->sel = DKRetain( sel );
     
@@ -878,7 +875,10 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
 //
 void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, const void * func )
 {
-    struct DKMsgHandler * msgHandler = (struct DKMsgHandler *)DKAllocObject( DKMsgHandlerClass(), sizeof(struct DKMsgHandler) );
+    struct DKMsgHandler * msgHandler = DKAllocObject( DKMsgHandlerClass(), sizeof(void *) );
+    msgHandler = DKInitializeObject( msgHandler );
+
+    DKAssert( msgHandler != NULL );
 
     msgHandler->sel = DKRetain( sel );
     msgHandler->func = func;
@@ -1144,6 +1144,7 @@ void DKRelease( DKObjectRef _self )
             if( n == 0 )
             {
                 DKRelease( weakref );
+                DKFinalizeObject( _self );
                 DKDeallocObject( _self );
             }
         }
@@ -1162,7 +1163,7 @@ DKWeakRef DKRetainWeak( DKObjectRef _self )
         
         if( !obj->weakref )
         {
-            struct DKWeak * weakref = (struct DKWeak *)DKAllocObject( DKWeakClass(), 0 );
+            struct DKWeak * weakref = DKCreate( DKWeakClass() );
             
             weakref->lock = DKSpinLockInit;
             weakref->target = obj;
@@ -1292,6 +1293,22 @@ int DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
 }
 
 
+///
+//  DKIsSubclass()
+//
+int DKIsSubclass( DKClassRef _class, DKClassRef otherClass )
+{
+    if( _class )
+    {
+        for( DKClassRef cls = _class; cls != NULL; cls = cls->superclass )
+        {
+            if( cls == otherClass )
+                return 1;
+        }
+    }
+    
+    return 0;
+}
 
 
 // Polymorphic Wrappers ==================================================================
@@ -1301,12 +1318,15 @@ int DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
 //
 void * DKCreate( DKClassRef _class )
 {
+    DKObjectRef obj = NULL;
+
     if( _class )
     {
-        return DKAllocObject( _class, 0 );
+        obj = DKAllocObject( _class, 0 );
+        obj = DKInitializeObject( obj );
     }
     
-    return NULL;
+    return (void *)obj;
 }
 
 

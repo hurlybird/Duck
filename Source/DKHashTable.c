@@ -52,18 +52,14 @@ struct DKHashTable
 
 
 static DKObjectRef DKHashTableInitialize( DKObjectRef _self );
-static void DKHashTableFinalize( DKObjectRef _self );
+static void        DKHashTableFinalize( DKObjectRef _self );
 
-static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
-static void RemoveAll( struct DKHashTable * hashTable );
+static DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects );
+static DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list objects );
 
-static void DKImmutableHashTableInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
-static void DKImmutableHashTableRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );
-static void DKImmutableHashTableRemoveAllObjects( DKMutableDictionaryRef _self );
+static void        DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object );
 
-static int  DKHashTableApplyFunctionToSet( DKMutableSetRef _self, DKSetApplierFunction callback, void * context );
-static void DKImmutableHashTableAddObjectToSet( DKMutableSetRef _self, DKObjectRef object );
-static void DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object );
+static void        Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 
 
 ///
@@ -87,38 +83,55 @@ DKThreadSafeClassInit( DKHashTableClass )
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
-    copying->mutableCopy = (void *)DKHashTableCreateMutableCopy;
+    copying->mutableCopy = (void *)DKHashTableMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKDictionaryCopyDescription;
+    description->copyDescription = (DKCopyDescriptionMethod)DKCollectionCopyDescription;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
 
+    // Collection
+    struct DKCollectionInterface * collection = DKAllocInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
+    collection->getCount = (DKGetCountMethod)DKDictionaryGetCount;
+    collection->foreachObject = (DKForeachObjectMethod)DKHashTableApplyFunctionToObjects;
+    collection->foreachKey = (DKForeachObjectMethod)DKHashTableApplyFunctionToKeys;
+    collection->foreachKeyAndObject = (DKForeachKeyAndObjectMethod)DKHashTableApplyFunction;
+    
+    DKInstallInterface( cls, collection );
+    DKRelease( collection );
+
     // Dictionary
     struct DKDictionaryInterface * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );
-    dictionary->getCount = (void *)DKHashTableGetCount;
-    dictionary->getObject = (void *)DKHashTableGetObject;
-    dictionary->applyFunction = (void *)DKHashTableApplyFunction;
-    dictionary->insertObject = DKImmutableHashTableInsertObject;
-    dictionary->removeObject = DKImmutableHashTableRemoveObject;
-    dictionary->removeAllObjects = DKImmutableHashTableRemoveAllObjects;
+    dictionary->createWithVAKeysAndObjects = (DKDictionaryCreateWithVAKeysAndObjectsMethod)DKHashTableCreateDictionaryWithVAKeysAndObjects;
+    dictionary->createWithDictionary = (DKDictionaryCreateWithDictionaryMethod)DKHashTableCreateDictionaryWithDictionary;
+    
+    dictionary->getCount = (DKGetCountMethod)DKHashTableGetCount;
+    dictionary->getObject = (DKDictionaryGetObjectMethod)DKHashTableGetObject;
+    
+    dictionary->insertObject = (void *)DKImmutableObjectAccessError;
+    dictionary->removeObject = (void *)DKImmutableObjectAccessError;
+    dictionary->removeAllObjects = (void *)DKImmutableObjectAccessError;
 
     DKInstallInterface( cls, dictionary );
     DKRelease( dictionary );
     
     // Set
     struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
-    set->getCount = (DKSetGetCountMethod)DKHashTableGetCount;
+    set->createWithVAObjects = DKHashTableCreateSetWithVAObjects;
+    set->createWithCArray = DKHashTableCreateSetWithCArray;
+    set->createWithCollection = DKHashTableCreateSetWithCollection;
+    
+    set->getCount = (DKGetCountMethod)DKHashTableGetCount;
     set->getMember = (DKSetGetMemberMethod)DKHashTableGetObject;
-    set->applyFunction = (DKSetApplyFunctionMethod)DKHashTableApplyFunctionToSet;
-    set->addObject = DKImmutableHashTableAddObjectToSet;
-    set->removeObject = DKImmutableHashTableRemoveObject;
-    set->removeAllObjects = DKImmutableHashTableRemoveAllObjects;
+    
+    set->addObject = (void *)DKImmutableObjectAccessError;
+    set->removeObject = (void *)DKImmutableObjectAccessError;
+    set->removeAllObjects = (void *)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, set );
     DKRelease( set );
@@ -139,29 +152,36 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
-    copying->copy = (void *)DKHashTableCreateMutableCopy;
-    copying->mutableCopy = (void *)DKHashTableCreateMutableCopy;
+    copying->copy = (void *)DKHashTableMutableCopy;
+    copying->mutableCopy = (void *)DKHashTableMutableCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
     // Dictionary
     struct DKDictionaryInterface * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );
-    dictionary->getCount = (void *)DKHashTableGetCount;
-    dictionary->getObject = (void *)DKHashTableGetObject;
-    dictionary->applyFunction = (void *)DKHashTableApplyFunction;
-    dictionary->insertObject = (void *)DKHashTableInsertObject;
-    dictionary->removeObject = (void *)DKHashTableRemoveObject;
-    dictionary->removeAllObjects = (void *)DKHashTableRemoveAllObjects;
+    dictionary->createWithVAKeysAndObjects = (DKDictionaryCreateWithVAKeysAndObjectsMethod)DKHashTableCreateDictionaryWithVAKeysAndObjects;
+    dictionary->createWithDictionary = (DKDictionaryCreateWithDictionaryMethod)DKHashTableCreateDictionaryWithDictionary;
+
+    dictionary->getCount = (DKGetCountMethod)DKHashTableGetCount;
+    dictionary->getObject = (DKDictionaryGetObjectMethod)DKHashTableGetObject;
+
+    dictionary->insertObject = (DKDictionaryInsertObjectMethod)DKHashTableInsertObject;
+    dictionary->removeObject = (DKDictionaryRemoveObjectMethod)DKHashTableRemoveObject;
+    dictionary->removeAllObjects = (DKDictionaryRemoveAllObjectsMethod)DKHashTableRemoveAllObjects;
 
     DKInstallInterface( cls, dictionary );
     DKRelease( dictionary );
     
     // Set
     struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
-    set->getCount = (DKSetGetCountMethod)DKHashTableGetCount;
+    set->createWithVAObjects = DKHashTableCreateSetWithVAObjects;
+    set->createWithCArray = DKHashTableCreateSetWithCArray;
+    set->createWithCollection = DKHashTableCreateSetWithCollection;
+
+    set->getCount = (DKGetCountMethod)DKHashTableGetCount;
     set->getMember = (DKSetGetMemberMethod)DKHashTableGetObject;
-    set->applyFunction = (DKSetApplyFunctionMethod)DKHashTableApplyFunctionToSet;
+
     set->addObject = (DKSetAddObjectMethod)DKHashTableAddObjectToSet;
     set->removeObject = (DKSetRemoveObjectMethod)DKHashTableRemoveObject;
     set->removeAllObjects = (DKSetRemoveAllObjectsMethod)DKHashTableRemoveAllObjects;
@@ -170,34 +190,6 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     DKRelease( set );
 
     return cls;
-}
-
-
-///
-//  DKHashTableInitialize()
-//
-static DKObjectRef DKHashTableInitialize( DKObjectRef _self )
-{
-    struct DKHashTable * hashTable = (struct DKHashTable *)_self;
-
-    hashTable->count = 0;
-    hashTable->rowCount = MIN_HASHTABLE_SIZE;
-    hashTable->capacity = hashTable->rowCount / 2;
-    hashTable->rows = dk_malloc( sizeof(struct DKHashTableRow) * MIN_HASHTABLE_SIZE );
-
-    memset( hashTable->rows, 0, sizeof(struct DKHashTableRow) * MIN_HASHTABLE_SIZE );
-    
-    return _self;
-}
-
-
-///
-//  DKHashTableFinalize()
-//
-static void DKHashTableFinalize( DKObjectRef _self )
-{
-    struct DKHashTable * hashTable = (struct DKHashTable *)_self;
-    RemoveAll( hashTable );
 }
 
 
@@ -487,42 +479,94 @@ static void RemoveAll( struct DKHashTable * hashTable )
 }
 
 
+///
+//  InsertKeyAndObject()
+//
+static int InsertKeyAndObject( DKObjectRef key, DKObjectRef object, void * context )
+{
+    struct DKHashTable * hashTable = context;
+    
+    DKHashCode hash = DKHash( key );
+    Insert( hashTable, hash, key, object, DKInsertAlways );
+    
+    return 0;
+}
+
+
+///
+//  InsertObject()
+//
+static int InsertObject( DKObjectRef object, void * context )
+{
+    struct DKHashTable * hashTable = context;
+    
+    DKHashCode hash = DKHash( object );
+    Insert( hashTable, hash, object, object, DKInsertAlways );
+    
+    return 0;
+}
+
+
 
 
 // Interface =============================================================================
 
 ///
-//  DKHashTableCreate()
+//  DKHashTableInitialize()
 //
-DKHashTableRef DKHashTableCreate( void )
+static DKObjectRef DKHashTableInitialize( DKObjectRef _self )
 {
-    return DKAllocObject( DKHashTableClass(), 0 );
+    if( _self )
+    {
+        struct DKHashTable * hashTable = (struct DKHashTable *)_self;
+
+        hashTable->count = 0;
+        hashTable->rowCount = MIN_HASHTABLE_SIZE;
+        hashTable->capacity = hashTable->rowCount / 2;
+        hashTable->rows = dk_malloc( sizeof(struct DKHashTableRow) * MIN_HASHTABLE_SIZE );
+
+        memset( hashTable->rows, 0, sizeof(struct DKHashTableRow) * MIN_HASHTABLE_SIZE );
+    }
+    
+    return _self;
 }
 
 
 ///
-//  DKHashTableCreateWithKeysAndObjects()
+//  DKHashTableFinalize()
 //
-DKHashTableRef DKHashTableCreateWithKeysAndObjects( DKObjectRef firstKey, ... )
+static void DKHashTableFinalize( DKObjectRef _self )
 {
-    struct DKHashTable * hashTable = DKAllocObject( DKHashTableClass(), 0 );
+    struct DKHashTable * hashTable = (struct DKHashTable *)_self;
+    RemoveAll( hashTable );
+}
+
+
+///
+//  DKHashTableCreateDictionaryWithVAKeysAndObjects()
+//
+static DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )
+{
+    struct DKHashTable * hashTable = NULL;
     
-    if( hashTable )
+    if( _class )
     {
-        va_list arg_ptr;
-        va_start( arg_ptr, firstKey );
-
-        for( DKObjectRef key = firstKey; key != NULL; )
+        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
+        
+        hashTable = DKCreate( _class );
+        
+        if( hashTable )
         {
-            DKObjectRef object = va_arg( arg_ptr, DKObjectRef );
-
-            DKHashCode hash = DKHash( key );
-            Insert( hashTable, hash, key, object, DKInsertAlways );
-            
-            key = va_arg( arg_ptr, DKObjectRef );
+            DKObjectRef key, object;
+        
+            while( (key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
+            {
+                object = va_arg( keysAndObjects, DKObjectRef );
+        
+                DKHashCode hash = DKHash( key );
+                Insert( hashTable, hash, key, object, DKInsertAlways );
+            }
         }
-
-        va_end( arg_ptr );
     }
     
     return hashTable;
@@ -530,42 +574,124 @@ DKHashTableRef DKHashTableCreateWithKeysAndObjects( DKObjectRef firstKey, ... )
 
 
 ///
-//  DKHashTableCreateCopy()
+//  DKHashTableCreateDictionaryWithDictionary()
 //
-DKHashTableRef DKHashTableCreateCopy( DKDictionaryRef srcDictionary )
+DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef dictionary )
 {
-    DKMutableDictionaryRef _self = DKHashTableCreateMutableCopy( srcDictionary );
-
-    if( _self )
+    struct DKHashTable * hashTable = NULL;
+    
+    if( _class )
     {
-        // Turn the object into a regular hash table
-        DKObject * obj = (struct DKObject *)_self;
-        DKRelease( obj->isa );
-        obj->isa = DKRetain( DKHashTableClass() );
+        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
+        
+        hashTable = DKCreate( _class );
+        
+        if( hashTable )
+        {
+            DKForeachKeyAndObject( dictionary, InsertKeyAndObject, hashTable );
+        }
     }
     
-    return _self;
+    return hashTable;
 }
 
 
 ///
-//  DKHashTableCreateMutable()
+//  DKHashTableCreateSetWithVAObjects()
 //
-DKMutableHashTableRef DKHashTableCreateMutable( void )
+static DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list objects )
 {
-    return DKAllocObject( DKMutableHashTableClass(), 0 );
-}
-
-
-///
-//  DKHashTableCreateMutableCopy()
-//
-DKMutableHashTableRef DKHashTableCreateMutableCopy( DKDictionaryRef srcDictionary )
-{
-    DKMutableDictionaryRef _self = DKAllocObject( DKMutableHashTableClass(), 0 );
-    DKDictionaryAddEntriesFromDictionary( _self, srcDictionary );
+    struct DKHashTable * hashTable = NULL;
     
-    return _self;
+    if( _class )
+    {
+        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
+        
+        hashTable = DKCreate( _class );
+        
+        if( hashTable )
+        {
+            DKObjectRef object;
+        
+            while( (object = va_arg( objects, DKObjectRef ) ) != NULL )
+            {
+                DKHashCode hash = DKHash( object );
+                Insert( hashTable, hash, object, object, DKInsertAlways );
+            }
+        }
+    }
+    
+    return hashTable;
+}
+
+
+///
+//  DKHashTableCreateSetWithCArray()
+//
+DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+{
+    struct DKHashTable * hashTable = NULL;
+    
+    if( _class )
+    {
+        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
+        
+        hashTable = DKCreate( _class );
+        
+        if( hashTable )
+        {
+            for( DKIndex i = 0; i < count; ++i )
+            {
+                DKObjectRef object = objects[i];
+                
+                DKHashCode hash = DKHash( object );
+                Insert( hashTable, hash, object, object, DKInsertAlways );
+            }
+        }
+    }
+    
+    return hashTable;
+}
+
+
+///
+//  DKHashTableCreateSetWithCollection()
+//
+DKObjectRef DKHashTableCreateSetWithCollection( DKClassRef _class, DKObjectRef collection )
+{
+    struct DKHashTable * hashTable = NULL;
+    
+    if( _class )
+    {
+        DKAssert( DKIsSubclass( _class, DKHashTableClass() ) );
+        
+        hashTable = DKCreate( _class );
+        
+        if( hashTable )
+        {
+            DKForeachObject( collection, InsertObject, hashTable );
+        }
+    }
+    
+    return hashTable;
+}
+
+
+///
+//  DKHashTableCopy()
+//
+DKHashTableRef DKHashTableCopy( DKHashTableRef _self )
+{
+    return DKHashTableCreateDictionaryWithDictionary( DKGetClass( _self ), _self );
+}
+
+
+///
+//  DKHashTableMutableCopy()
+//
+DKMutableHashTableRef DKHashTableMutableCopy( DKHashTableRef _self )
+{
+    return (DKMutableHashTableRef)DKHashTableCreateDictionaryWithDictionary( DKMutableHashTableClass(), _self );
 }
 
 
@@ -609,7 +735,7 @@ DKObjectRef DKHashTableGetObject( DKHashTableRef _self, DKObjectRef key )
 ///
 //  DKHashTableApplyFunction()
 //
-int DKHashTableApplyFunction( DKHashTableRef _self, DKDictionaryApplierFunction callback, void * context )
+int DKHashTableApplyFunction( DKHashTableRef _self, DKKeyedApplierFunction callback, void * context )
 {
     int result = 0;
     
@@ -634,13 +760,62 @@ int DKHashTableApplyFunction( DKHashTableRef _self, DKDictionaryApplierFunction 
 
 
 ///
-//  DKHashTableInsertObject()
+//  DKHashTableApplyFunctionToKeys()
 //
-static void DKImmutableHashTableInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
+int DKHashTableApplyFunctionToKeys( DKHashTableRef _self, DKApplierFunction callback, void * context )
 {
-    DKError( "DKHashTableInsertObject: Trying to modify an immutable object." );
+    int result = 0;
+    
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKHashTableClass() );
+
+        for( DKIndex i = 0; i < _self->count; ++i )
+        {
+            struct DKHashTableRow * row = &_self->rows[i];
+            
+            if( RowIsActive( row ) )
+            {
+                if( (result = callback( row->key, context )) != 0 )
+                    break;
+            }
+        }
+    }
+    
+    return result;
 }
 
+
+///
+//  DKHashTableApplyFunctionToObjects()
+//
+int DKHashTableApplyFunctionToObjects( DKHashTableRef _self, DKApplierFunction callback, void * context )
+{
+    int result = 0;
+    
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKHashTableClass() );
+
+        for( DKIndex i = 0; i < _self->count; ++i )
+        {
+            struct DKHashTableRow * row = &_self->rows[i];
+            
+            if( RowIsActive( row ) )
+            {
+                if( (result = callback( row->object, context )) != 0 )
+                    break;
+            }
+        }
+    }
+    
+    return result;
+}
+
+
+///
+//  DKHashTableInsertObject()
+//
 void DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     if( _self )
@@ -657,11 +832,6 @@ void DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKOb
 ///
 //  DKHashTableRemoveObject()
 //
-static void DKImmutableHashTableRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key )
-{
-    DKError( "DKHashTableRemoveObject: Trying to modify an immutable object." );
-}
-
 void DKHashTableRemoveObject( DKMutableHashTableRef _self, DKObjectRef key )
 {
     if( _self )
@@ -678,11 +848,6 @@ void DKHashTableRemoveObject( DKMutableHashTableRef _self, DKObjectRef key )
 ///
 //  DKHashTableRemoveAllObjects()
 //
-static void DKImmutableHashTableRemoveAllObjects( DKMutableDictionaryRef _self )
-{
-    DKError( "DKHashTableRemoveAllObjects: Trying to modify an immutable object." );
-}
-
 void DKHashTableRemoveAllObjects( DKMutableHashTableRef _self )
 {
     if( _self )
@@ -694,36 +859,8 @@ void DKHashTableRemoveAllObjects( DKMutableHashTableRef _self )
 
 
 ///
-//  DKHashTableApplyFunctionToSet()
-//
-struct ApplyFunctionToSetContext
-{
-    DKSetApplierFunction callback;
-    void * context;
-};
-
-static int ApplyFunctionToSetCallback( DKObjectRef key, DKObjectRef object, void * context )
-{
-    struct ApplyFunctionToSetContext * ctx = context;
-    return ctx->callback( object, ctx->context );
-}
-
-static int DKHashTableApplyFunctionToSet( DKMutableSetRef _self, DKSetApplierFunction callback, void * context )
-{
-    struct ApplyFunctionToSetContext ctx = { callback, context };
-
-    return DKHashTableApplyFunction( _self, ApplyFunctionToSetCallback, &ctx );
-}
-
-
-///
 //  DKHashTableAddObjectToSet()
 //
-static void DKImmutableHashTableAddObjectToSet( DKMutableSetRef _self, DKObjectRef object )
-{
-    DKError( "DKHashTableAddObjectToSet: Trying to modify an immutable object." );
-}
-
 static void DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object )
 {
     if( _self )

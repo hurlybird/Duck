@@ -161,7 +161,8 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
     DKAssert( range.location >= 0 );
     DKAssert( range.length >= 0 );
     DKAssert( range_end <= array->length );
-    DKAssert( ((bytes != NULL) && (length >= 0)) || ((bytes == NULL) && (length == 0)) );
+    //DKAssert( ((bytes != NULL) && (length >= 0)) || ((bytes == NULL) && (length == 0)) );
+    DKAssert( length >= 0 );
 
     // Do nothing
     if( (range.length == 0) && (length == 0) )

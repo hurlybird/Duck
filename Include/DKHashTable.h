@@ -35,20 +35,23 @@ typedef const struct DKHashTable * DKHashTableRef;
 typedef struct DKHashTable * DKMutableHashTableRef;
 
 
-DKClassRef DKHashTableClass( void );
-DKClassRef DKMutableHashTableClass( void );
+DKClassRef  DKHashTableClass( void );
+DKClassRef  DKMutableHashTableClass( void );
 
-DKHashTableRef DKHashTableCreate( void );
-DKHashTableRef DKHashTableCreateWithKeysAndObjects( DKObjectRef firstKey, ... );
-DKHashTableRef DKHashTableCreateCopy( DKDictionaryRef srcDictionary );
+DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef srcDictionary );
 
-DKMutableHashTableRef DKHashTableCreateMutable( void );
-DKMutableHashTableRef DKHashTableCreateMutableCopy( DKDictionaryRef srcDictionary );
+DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKHashTableCreateSetWithCollection( DKClassRef _class, DKObjectRef srcCollection );
+
+DKHashTableRef DKHashTableCopy( DKHashTableRef _self );
+DKMutableHashTableRef DKHashTableMutableCopy( DKHashTableRef _self );
 
 DKIndex     DKHashTableGetCount( DKHashTableRef _self );
 DKObjectRef DKHashTableGetObject( DKHashTableRef _self, DKObjectRef key );
 
-int         DKHashTableApplyFunction( DKHashTableRef _self, DKDictionaryApplierFunction callback, void * context );
+int         DKHashTableApplyFunction( DKHashTableRef _self, DKKeyedApplierFunction callback, void * context );
+int         DKHashTableApplyFunctionToKeys( DKHashTableRef _self, DKApplierFunction callback, void * context );
+int         DKHashTableApplyFunctionToObjects( DKHashTableRef _self, DKApplierFunction callback, void * context );
 
 void        DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 void        DKHashTableRemoveObject( DKMutableHashTableRef _self, DKObjectRef key );

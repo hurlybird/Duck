@@ -39,10 +39,8 @@ struct DKData
 };
 
 
-static DKObjectRef  DKDataInitialize( DKObjectRef _self );
-static void         DKDataFinalize( DKObjectRef _self );
-
-static DKIndex DKImmutableDataWrite( DKMutableDataRef _self, const void * buffer, DKIndex size, DKIndex count );
+static DKObjectRef DKDataInitialize( DKObjectRef _self );
+static void        DKDataFinalize( DKObjectRef _self );
 
 
 
@@ -85,7 +83,7 @@ DKThreadSafeClassInit( DKDataClass )
     stream->seek = (DKStreamSeekMethod)DKDataSeek;
     stream->tell = (DKStreamTellMethod)DKDataTell;
     stream->read = (DKStreamReadMethod)DKDataRead;
-    stream->write = (DKStreamWriteMethod)DKImmutableDataWrite;
+    stream->write = (void *)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, stream );
     DKRelease( stream );
@@ -123,14 +121,43 @@ DKThreadSafeClassInit( DKMutableDataClass )
 }
 
 
+
+
+// Internals =============================================================================
+
+///
+//  SetCursor()
+//
+static void SetCursor( const struct DKData * data, DKIndex cursor )
+{
+    struct DKData * _data = (struct DKData *)data;
+    
+    if( cursor < 0 )
+        _data->cursor = 0;
+    
+    else if( cursor > _data->byteArray.length )
+        _data->cursor = _data->byteArray.length;
+    
+    else
+        _data->cursor = cursor;
+}
+
+
+
+
+// DKData Interface ======================================================================
+
 ///
 //  DKDataInitialize()
 //
-static DKObjectRef DKDataInitialize( DKObjectRef _self )
+DKObjectRef DKDataInitialize( DKObjectRef _self )
 {
-    struct DKData * data = (struct DKData *)_self;
-    DKByteArrayInit( &data->byteArray );
-    data->cursor = 0;
+    if( _self )
+    {
+        struct DKData * data = (struct DKData *)_self;
+        DKByteArrayInit( &data->byteArray );
+        data->cursor = 0;
+    }
     
     return _self;
 }
@@ -207,38 +234,12 @@ DKHashCode DKDataHash( DKDataRef _self )
 }
 
 
-
-
-// Internals =============================================================================
-
-///
-//  SetCursor()
-//
-static void SetCursor( const struct DKData * data, DKIndex cursor )
-{
-    struct DKData * _data = (struct DKData *)data;
-    
-    if( cursor < 0 )
-        _data->cursor = 0;
-    
-    else if( cursor > _data->byteArray.length )
-        _data->cursor = _data->byteArray.length;
-    
-    else
-        _data->cursor = cursor;
-}
-
-
-
-
-// DKData Interface ======================================================================
-
 ///
 //  DKDataCreate()
 //
 DKDataRef DKDataCreate( void )
 {
-    return DKAllocObject( DKDataClass(), 0 );
+    return DKCreate( DKDataClass() );
 }
 
 
@@ -270,6 +271,7 @@ DKDataRef DKDataCreateWithBytes( const void * bytes, DKIndex length )
     if( bytes && (length > 0) )
     {
         struct DKData * data = (struct DKData *)DKAllocObject( DKDataClass(), length );
+        data = DKInitializeObject( data );
         
         DKByteArrayInitWithExternalStorage( &data->byteArray, (void *)(data + 1), length );
         
@@ -290,6 +292,7 @@ DKDataRef DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length )
     if( bytes && (length > 0) )
     {
         struct DKData * data = (struct DKData *)DKAllocObject( DKDataClass(), 0 );
+        data = DKInitializeObject( data );
         
         DKByteArrayInitWithExternalStorage( &data->byteArray, bytes, length );
         
@@ -305,7 +308,7 @@ DKDataRef DKDataCreateWithBytesNoCopy( const void * bytes, DKIndex length )
 //
 DKMutableDataRef DKDataCreateMutable( void )
 {
-    return (DKMutableDataRef)DKAllocObject( DKMutableDataClass(), 0 );
+    return (DKMutableDataRef)DKCreate( DKMutableDataClass() );
 }
 
 

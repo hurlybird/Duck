@@ -40,10 +40,12 @@ typedef void * DKMutableSetRef;
 
 typedef int (*DKSetApplierFunction)( DKObjectRef object, void * context );
 
+typedef DKObjectRef (*DKSetCreateWithVAObjectsMethod)( DKClassRef _class, va_list objects );
+typedef DKObjectRef (*DKSetCreateWithCArrayMethod)( DKClassRef _class, DKObjectRef objects[], DKIndex count );
+typedef DKObjectRef (*DKSetCreateWithCollectionMethod)( DKClassRef _class, DKObjectRef srcCollection );
 
-typedef DKIndex     (*DKSetGetCountMethod)( DKSetRef _self );
 typedef DKObjectRef (*DKSetGetMemberMethod)( DKSetRef _self, DKObjectRef object );
-typedef int         (*DKSetApplyFunctionMethod)( DKSetRef _self, DKSetApplierFunction, void * context );
+
 typedef void        (*DKSetAddObjectMethod)( DKMutableSetRef _self, DKObjectRef object );
 typedef void        (*DKSetRemoveObjectMethod)( DKMutableSetRef _self, DKObjectRef object );
 typedef void        (*DKSetRemoveAllObjectsMethod)( DKMutableSetRef _self );
@@ -53,9 +55,12 @@ struct DKSetInterface
 {
     const DKInterface _interface;
 
-    DKSetGetCountMethod         getCount;
+    DKSetCreateWithVAObjectsMethod  createWithVAObjects;
+    DKSetCreateWithCArrayMethod     createWithCArray;
+    DKSetCreateWithCollectionMethod createWithCollection;
+
+    DKGetCountMethod            getCount;
     DKSetGetMemberMethod        getMember;
-    DKSetApplyFunctionMethod    applyFunction;
     
     // Mutable Sets -- these raise errors when called on immutable sets
     DKSetAddObjectMethod        addObject;
@@ -72,13 +77,14 @@ void        DKSetDefaultSetClass( DKClassRef _self );
 DKClassRef  DKMutableSetClass( void );
 void        DKSetDefaultMutableSetClass( DKClassRef _self );
 
+#define     DKSetCreate( _class ) DKCreate( _class )
+DKObjectRef DKSetCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... );
+DKObjectRef DKSetCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKSetCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection );
+
 DKIndex     DKSetGetCount( DKSetRef _self );
 DKObjectRef DKSetGetMember( DKSetRef _self, DKObjectRef object );
 int         DKSetContainsObject( DKSetRef _self, DKObjectRef object );
-
-DKListRef   DKSetCopyObjects( DKSetRef _self );
-
-int         DKSetApplyFunction( DKSetRef _self, DKSetApplierFunction callback, void * context );
 
 void        DKSetAddObject( DKMutableSetRef _self, DKObjectRef object );
 
@@ -92,7 +98,6 @@ void        DKSetUnion( DKMutableSetRef _self, DKSetRef otherSet );
 void        DKSetMinus( DKMutableSetRef _self, DKSetRef otherSet );
 void        DKSetIntersect( DKMutableSetRef _self, DKSetRef otherSet );
 
-DKStringRef DKSetCopyDescription( DKListRef _self );
 
 
 
