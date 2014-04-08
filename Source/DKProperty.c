@@ -9,6 +9,7 @@
 #include "DKProperty.h"
 #include "DKString.h"
 #include "DKNumber.h"
+#include "DKStruct.h"
 
 
 
@@ -40,7 +41,7 @@ static void DKPropertyFinalize( DKObjectRef _self )
     DKRelease( property->name );
     DKRelease( property->requiredClass );
     DKRelease( property->requiredInterface );
-    DKRelease( property->structHint );
+    DKRelease( property->requiredSemantic );
 }
 
 
@@ -118,8 +119,8 @@ void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
     int32_t attributes,
     size_t offset,
+    DKStringRef semantic,
     size_t size,
-    DKStringRef hint,
     DKPropertySetter setter,
     DKPropertyGetter getter )
 {
@@ -130,7 +131,8 @@ void DKInstallStructProperty( DKClassRef _class,
     property->offset = offset;
     property->type = DKPropertyStruct;
     property->size = size;
-    property->structHint = DKRetain( hint );
+    
+    property->requiredSemantic = DKRetain( semantic );
 
     property->setter = setter;
     property->getter = getter;
@@ -142,17 +144,101 @@ void DKInstallStructProperty( DKClassRef _class,
 
 
 
-// Get/Set Properties ====================================================================
+// Error Reporting =======================================================================
 
 ///
-//  PropertyNotDefined()
+//  CheckPropertyDefined()
 //
-static void PropertyNotDefined( DKObjectRef obj, DKStringRef name )
+static void PropertyNotDefined( DKObjectRef _self, DKPropertyRef property, DKStringRef name )
 {
-    DKWarning( "DKSetProperty: Property '%s' is not defined for class '%s'.\n",
-        DKStringGetCStringPtr( name ), DKStringGetCStringPtr( DKGetClassName( obj ) ) );
+    DKWarning( "DKProperty: Property '%s' is not defined for class '%s'.\n",
+        DKStringGetCStringPtr( name ), DKStringGetCStringPtr( DKGetClassName( _self ) ) );
 }
 
+#define CheckPropertyIsDefined( obj, property, name, ... )                              \
+    do                                                                                  \
+    {                                                                                   \
+        if( (property) == NULL )                                                        \
+        {                                                                               \
+            PropertyNotDefined( obj, property, name );                                  \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
+
+
+///
+//  CheckClassRequirement()
+//
+static void FailedClassRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
+{
+    DKWarning( "DKProperty: '%s' does not meet the class requirement ('%s') for property '%s'.\n",
+        DKStringGetCStringPtr( DKGetClassName( object ) ),
+        DKStringGetCStringPtr( DKGetClassName( property->requiredClass ) ),
+        DKStringGetCStringPtr( property->name ) );
+}
+
+#define CheckClassRequirement( obj, property, object, ... )                             \
+    do                                                                                  \
+    {                                                                                   \
+        if( (property->requiredClass != NULL) &&                                        \
+            !DKIsKindOfClass( object, property->requiredClass ) )                       \
+        {                                                                               \
+            FailedClassRequirement( obj, property, object );                            \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
+
+
+///
+//  CheckInterfaceRequirement()
+//
+static void FailedInterfaceRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
+{
+    DKWarning( "DKProperty: '%s' does not meet the interface requirement ('%s') for property '%s'.\n",
+        DKStringGetCStringPtr( DKGetClassName( object ) ),
+        property->requiredInterface->suid,
+        DKStringGetCStringPtr( property->name ) );
+}
+
+#define CheckInterfaceRequirement( obj, property, object, ... )                         \
+    do                                                                                  \
+    {                                                                                   \
+        if( (property->requiredInterface != NULL) &&                                    \
+            !DKQueryInterface( object, property->requiredInterface, NULL ) )            \
+        {                                                                               \
+            FailedInterfaceRequirement( obj, property, object );                        \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
+
+
+///
+//  CheckSemanticRequirement()
+//
+static void FailedSemanticRequirement( DKObjectRef _self, DKPropertyRef property, DKStringRef semantic )
+{
+    DKWarning( "DKProperty: '%s' does not meet the semantic requirement ('%s') for property '%s'.\n",
+        DKStringGetCStringPtr( semantic ),
+        DKStringGetCStringPtr( property->requiredSemantic ),
+        DKStringGetCStringPtr( property->name ) );
+}
+
+#define CheckSemanticRequirement( obj, property, semantic, ... )                        \
+    do                                                                                  \
+    {                                                                                   \
+        if( (property->requiredSemantic != NULL) &&                                     \
+            !DKStringEqual( semantic, property->requiredSemantic ) )                    \
+        {                                                                               \
+            FailedSemanticRequirement( obj, property, semantic );                       \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
+
+
+
+
+
+// Get/Set Properties ====================================================================
 
 ///
 //  DKWritePropertyObject()
@@ -164,23 +250,8 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     // Object types
     if( property->type == DKPropertyObject )
     {
-        if( (property->requiredClass != NULL) && !DKIsKindOfClass( object, property->requiredClass ) )
-        {
-            DKWarning( "DKSetProperty: '%s' does not meet the class requirement ('%s') for property '%s'.\n",
-                DKStringGetCStringPtr( DKGetClassName( object ) ),
-                DKStringGetCStringPtr( DKGetClassName( property->requiredClass ) ),
-                DKStringGetCStringPtr( property->name ) );
-            return;
-        }
-        
-        if( (property->requiredInterface != NULL) && !DKQueryInterface( object, property->requiredInterface, NULL ) )
-        {
-            DKWarning( "DKSetProperty: '%s' does not meet the interface requirement ('%s') for property '%s'.\n",
-                DKStringGetCStringPtr( DKGetClassName( object ) ),
-                property->requiredInterface->suid,
-                DKStringGetCStringPtr( property->name ) );
-            return;
-        }
+        CheckClassRequirement( _self, property, object );
+        CheckInterfaceRequirement( _self, property, object );
 
         DKObjectRef * ref = value;
         
@@ -199,9 +270,13 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     }
     
     // Automatic conversion of structure types
-    // DO STUFF HERE
+    if( DKIsKindOfClass( object, DKStructClass() ) )
+    {
+        if( DKStructGetValue( object, property->requiredSemantic, value, property->size ) )
+            return;
+    }
 
-    DKWarning( "DKSetProperty: No available conversion for property '%s' from '%s'.\n",
+    DKWarning( "DKProperty: No available conversion for property '%s' from %s.\n",
         DKStringGetCStringPtr( property->name ), DKStringGetCStringPtr( DKGetClassName( object ) ) );
 }
 
@@ -228,9 +303,13 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
     }
 
     // Automatic conversion of structure types
-    // DO STUFF HERE
+    if( property->requiredSemantic != NULL )
+    {
+        DKStructRef structure = DKStructCreate( property->requiredSemantic, value, property->size );
+        return structure;
+    }
 
-    DKWarning( "DKSetProperty: No available conversion for property '%s' to object.\n",
+    DKWarning( "DKProperty: No available conversion for property '%s' to object.\n",
         DKStringGetCStringPtr( property->name ) );
     
     return NULL;
@@ -247,11 +326,7 @@ void DKSetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object )
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
         
-        if( !property )
-        {
-            PropertyNotDefined( _self, name );
-            return;
-        }
+        CheckPropertyIsDefined( _self, property, name );
         
         if( property->setter )
         {
@@ -273,12 +348,8 @@ DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name )
     {
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
-        
-        if( !property )
-        {
-            PropertyNotDefined( _self, name );
-            return NULL;
-        }
+
+        CheckPropertyIsDefined( _self, property, name, NULL );
         
         if( property->getter )
         {
@@ -303,12 +374,8 @@ void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * s
     {
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
-        
-        if( !property )
-        {
-            PropertyNotDefined( _self, name );
-            return;
-        }
+
+        CheckPropertyIsDefined( _self, property, name );
         
         if( property->setter || (property->type == DKPropertyObject) )
         {
@@ -326,7 +393,7 @@ void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * s
                 return;
         }
         
-        DKWarning( "DKSetProperty: No available conversion for property '%s' from %s[%d].\n",
+        DKWarning( "DKProperty: No available conversion for property '%s' from %s[%d].\n",
             DKStringGetCStringPtr( name ), DKNumberGetComponentName( srcType ), DKNumberGetComponentCount( srcType ) );
     }
 }
@@ -345,12 +412,8 @@ size_t DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstVa
     {
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
-        
-        if( !property )
-        {
-            PropertyNotDefined( _self, name );
-            return 0;
-        }
+
+        CheckPropertyIsDefined( _self, property, name, 0 );
         
         if( property->getter || (property->type == DKPropertyObject) )
         {
@@ -386,7 +449,7 @@ size_t DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstVa
                 return result;
         }
 
-        DKWarning( "DKSetProperty: No available conversion for property '%s' to %s[%d].\n",
+        DKWarning( "DKProperty: No available conversion for property '%s' to %s[%d].\n",
             DKStringGetCStringPtr( name ), DKNumberGetComponentName( dstType ), DKNumberGetComponentCount( dstType ) );
     }
     
@@ -397,25 +460,21 @@ size_t DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstVa
 ///
 //  DKSetStructProperty()
 //
-void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef hint, const void * srcValue, size_t srcSize )
+void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, const void * srcValue, size_t srcSize )
 {
     if( _self )
     {
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
         
-        if( !property )
-        {
-            PropertyNotDefined( _self, name );
-            return;
-        }
+        CheckPropertyIsDefined( _self, property, name );
+        CheckSemanticRequirement( _self, property, semantic );
         
         if( property->setter || (property->type == DKPropertyObject) )
         {
-            DKAssert( 0 );
-            //DKStructRef structure = DKStructCreate( hint, srcValue, srcSize );
-            //DKWritePropertyObject( _self, property, structure );
-            //DKRelease( structure );
+            DKStructRef structure = DKStructCreate( semantic, srcValue, srcSize );
+            DKWritePropertyObject( _self, property, structure );
+            DKRelease( structure );
             return;
         }
 
@@ -426,8 +485,8 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef hint,
             return;
         }
         
-        DKWarning( "DKSetProperty: No available conversion for property '%s' from structure '%s'.\n",
-            DKStringGetCStringPtr( name ), DKStringGetCStringPtr( hint ) );
+        DKWarning( "DKProperty: No available conversion for property '%s' from structure (%s).\n",
+            DKStringGetCStringPtr( name ), DKStringGetCStringPtr( semantic ) );
     }
 }
 
@@ -435,23 +494,18 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef hint,
 ///
 //  DKGetStructProperty()
 //
-size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef hint, void * dstValue, size_t dstSize )
+size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, void * dstValue, size_t dstSize )
 {
     if( _self )
     {
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
         
-        if( !property )
-        {
-            PropertyNotDefined( _self, name );
-            return 0;
-        }
+        CheckPropertyIsDefined( _self, property, name, 0 );
+        CheckSemanticRequirement( _self, property, semantic, 0 );
         
         if( property->getter || (property->type == DKPropertyObject) )
         {
-            DKAssert( 0 );
-            /*
             DKObjectRef object = DKReadPropertyObject( _self, property );
 
             if( object == NULL )
@@ -462,7 +516,7 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef hin
             
             if( DKIsKindOfClass( object, DKStructClass() ) )
             {
-                if( DKStructGetValue( DKStringRef hint, dstValue, dstSize ) )
+                if( DKStructGetValue( object, semantic, dstValue, dstSize ) )
                 {
                     DKRelease( object );
                     return 1;
@@ -470,7 +524,6 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef hin
             }
 
             DKRelease( object );
-            */
         }
 
         if( (property->type == DKPropertyStruct) && (property->size == dstSize) )
@@ -480,8 +533,8 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef hin
             return 1;
         }
         
-        DKWarning( "DKSetProperty: No available conversion for property '%s' to structure '%s'.\n",
-            DKStringGetCStringPtr( name ), DKStringGetCStringPtr( hint ) );
+        DKWarning( "DKProperty: No available conversion for property '%s' to structure (%s).\n",
+            DKStringGetCStringPtr( name ), DKStringGetCStringPtr( semantic ) );
     }
     
     return 0;

@@ -54,7 +54,7 @@ struct DKProperty
     
     DKClassRef      requiredClass;
     DKSEL           requiredInterface;
-    DKStringRef     structHint;
+    DKStringRef     requiredSemantic;
 
     DKPropertySetter setter;
     DKPropertyGetter getter;
@@ -87,8 +87,8 @@ void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
     int32_t attributes,
     size_t offset,
+    DKStringRef semantic,
     size_t size,
-    DKStringRef hint,
     DKPropertySetter setter,
     DKPropertyGetter getter );
 
@@ -100,8 +100,8 @@ DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name );
 void        DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKNumberType srcType );
 size_t      DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKNumberType dstType );
 
-void        DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef hint, const void * srcValue, size_t srcSize );
-size_t      DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef hint, void * dstValue, size_t dstSize );
+void        DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, const void * srcValue, size_t srcSize );
+size_t      DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, void * dstValue, size_t dstSize );
 
 void        DKSetIntegerProperty( DKObjectRef _self, DKStringRef name, int64_t x );
 int64_t     DKGetIntegerProperty( DKObjectRef _self, DKStringRef name );

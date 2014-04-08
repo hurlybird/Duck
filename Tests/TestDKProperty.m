@@ -14,13 +14,20 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
+typedef struct
+{
+    int a, b;
+    
+} Pair;
+
 struct TestObject
 {
     const DKObject _obj;
     
     DKObjectRef name;
     int32_t x;
-    float y;
+    double y;
+    Pair z;
 };
 
 
@@ -35,6 +42,7 @@ struct TestObject
     [super setUp];
 
     DKSetErrorCallback( RaiseException );
+    DKSetWarningCallback( RaiseException );
 }
 
 - (void)tearDown
@@ -49,7 +57,8 @@ struct TestObject
 
     DKInstallObjectProperty( testClass, DKSTR( "name" ), 0, offsetof(struct TestObject, name), DKStringClass(), NULL, NULL, NULL );
     DKInstallNumericalProperty( testClass, DKSTR( "x" ), 0, offsetof(struct TestObject, x), DKNumberInt32, NULL, NULL );
-    DKInstallNumericalProperty( testClass, DKSTR( "y" ), 0, offsetof(struct TestObject, y), DKNumberFloat, NULL, NULL );
+    DKInstallNumericalProperty( testClass, DKSTR( "y" ), 0, offsetof(struct TestObject, y), DKNumberDouble, NULL, NULL );
+    DKInstallStructProperty( testClass, DKSTR( "z" ), 0, offsetof(struct TestObject, z), DKSemantic(Pair), sizeof(Pair), NULL, NULL );
 
     return testClass;
 }
@@ -81,11 +90,11 @@ struct TestObject
     DKNumberRef intNumber = DKNumberCreateInt32( 3 );
     DKSetProperty( testObject, DKSTR( "x" ), intNumber );
     
-    DKSetProperty( testObject, DKSTR( "name" ), intNumber );
-    DKSetProperty( testObject, DKSTR( "x" ), DKSTR( "Jane" ) );
+    XCTAssertThrows( DKSetProperty( testObject, DKSTR( "name" ), intNumber ) );
+    XCTAssertThrows( DKSetProperty( testObject, DKSTR( "x" ), DKSTR( "Jane" ) ) );
     
     float v[3] = { 0, 0, 0 };
-    DKSetNumericalProperty( testObject, DKSTR( "x" ), v, DKNumberMakeVectorType( DKNumberComponentFloat, 3 ) );
+    XCTAssertThrows( DKSetNumericalProperty( testObject, DKSTR( "x" ), v, DKNumberMakeVectorType( DKNumberComponentFloat, 3 ) ) );
     
     XCTAssert( testObject->x == 3 );
     DKRelease( intNumber );
@@ -102,6 +111,49 @@ struct TestObject
 }
 
 
+- (void) testStructProperty
+{
+    DKClassRef testClass = [self createTestClass];
+    struct TestObject * testObject = DKCreate( testClass );
+    
+    Pair p = { 101, 202 };
+    
+    DKSetStructProperty( testObject, DKSTR( "z" ), DKSemantic(Pair), &p, sizeof(Pair) );
+    XCTAssert( testObject->z.a == 101 );
+    XCTAssert( testObject->z.b == 202 );
+
+    XCTAssertThrows( DKSetStructProperty( testObject, DKSTR( "z" ), DKSTR( "Not Pair" ), &p, sizeof(Pair) ) );
+    XCTAssertThrows( DKSetStructProperty( testObject, DKSTR( "z" ), DKSemantic(Pair), &p, sizeof(int) ) );
+    
+    Pair q;
+    DKGetStructProperty( testObject, DKSTR( "z" ), DKSemantic(Pair), &q, sizeof(Pair) );
+    
+    XCTAssert( q.a == 101 );
+    XCTAssert( q.b == 202 );
+    
+    // Convert to object
+    DKStructRef structure = DKGetProperty( testObject, DKSTR( "z" ) );
+
+    Pair r;
+    DKStructGetValueAs( structure, &r, Pair );
+
+    XCTAssert( r.a == 101 );
+    XCTAssert( r.b == 202 );
+    
+    DKRelease( structure );
+    
+    // Convert from object
+    Pair r2 = { 303, 404 };
+    DKStructRef structure2 = DKStructCreateAs( &r2, Pair );
+    DKSetProperty( testObject, DKSTR( "z" ), structure2 );
+    DKRelease( structure2 );
+    
+    XCTAssert( testObject->z.a == 303 );
+    XCTAssert( testObject->z.b == 404 );
+    
+    DKRelease( testObject );
+    DKRelease( testClass );
+}
 
 
 @end

@@ -48,6 +48,7 @@ extern "C"
 #include "DKData.h"
 #include "DKString.h"
 #include "DKNumber.h"
+#include "DKStruct.h"
 
 #include "DKList.h"
 #include "DKDictionary.h"
