@@ -39,8 +39,6 @@ static DKInterface * DKLookupInterface( const struct DKClass * cls, DKSEL sel );
 // Internal Types ========================================================================
 
 // DKClass
-#define MAX_CLASS_NAME_LENGTH   40
-
 struct DKClass
 {
     const DKObject  _obj;
@@ -54,6 +52,13 @@ struct DKClass
 
     DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
     
+    // Classes usually have fewer than 10 interfaces and selectors are compared by
+    // pointer value (not SUID). It's hard to say whether a linear search on a small
+    // array is faster or slower than a hash table lookup. The search result is also
+    // cached, further mitigating any performance problems.
+    //
+    // Also, using a hash table would require substantially more complex logic when
+    // installing the root class interfaces.
     DKPointerArray  interfaces;
     
     DKMutableHashTableRef properties;
