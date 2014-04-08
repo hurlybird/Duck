@@ -72,10 +72,10 @@ typedef enum
     // 1-7 -- Static cache lines for Duck interfaces
     DKStaticCache_Allocation,
     DKStaticCache_Comparison,
+    DKStaticCache_Collection,
     DKStaticCache_List,
     DKStaticCache_Dictionary,
     
-    DKStaticCache_Reserved5,
     DKStaticCache_Reserved6,
     DKStaticCache_Reserved7,
     
@@ -297,25 +297,29 @@ void *      DKAllocInterface( DKSEL sel, size_t structSize );
 // Install an interface on a class.
 //
 // *** WARNING ***
-// Installing interfaces after a class is in use (i.e. implementation swizzling) is not
+// Replacing interfaces after a class is in use (i.e. implementation swizzling) is not
 // currently supported.
 void        DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
 
 // Install a message handler on a class.
 //
 // *** WARNING ***
-// Installing message handlers after a class is in use (i.e. implementation swizzling) is
+// Replacing message handlers after a class is in use (i.e. implementation swizzling) is
 // not currently supported.
 void        DKInstallMsgHandler( DKClassRef cls, DKSEL sel, const void * func );
 
 
 // Install properties
+//
+// *** WARNING ***
+// Replacing properties after a class is in use (i.e. implementation swizzling) is not
+// currently supported.
 void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef property );
 
 
 
 
-// Retrieving Interfaces and Message Handlers ============================================
+// Retrieving Interfaces, Message Handlers and Properties ================================
 
 // Retrieve an installed interface. If a matching interface cannot be found on the class
 // or any of its superclasses, DKGetInterace() will report an error and return the
@@ -427,8 +431,9 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 // function accessor. The general strategy is to wrap the object construction in a
 // secondary accessory and use an atomic swap to save the shared pointer in a thread-safe
 // way.
-
+//
 // Shared objects are expected to be created once and never deallocated.
+//
 
 // Thread-safe initialization of shared objects.
 #define DKThreadSafeSharedObjectInit( accessor, type )                                  \

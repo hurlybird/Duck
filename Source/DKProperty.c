@@ -1,15 +1,34 @@
-//
-//  DKProperty.c
-//  Duck
-//
-//  Created by Derek Nylen on 2014-04-07.
-//  Copyright (c) 2014 Derek W. Nylen. All rights reserved.
-//
+/*****************************************************************************************
+
+  DKProperty.c
+
+  Copyright (c) 2014 Derek W. Nylen
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE.
+
+*****************************************************************************************/
 
 #include "DKProperty.h"
 #include "DKString.h"
 #include "DKNumber.h"
 #include "DKStruct.h"
+#include "DKCopying.h"
 
 
 
@@ -167,6 +186,27 @@ static void PropertyNotDefined( DKObjectRef _self, DKPropertyRef property, DKStr
 
 
 ///
+//  CheckPropertyReadWrite()
+//
+static void PropertyNotReadWrite( DKObjectRef _self, DKPropertyRef property )
+{
+    DKWarning( "DKProperty: Property '%s' is not read-write.\n",
+        DKStringGetCStringPtr( property->name ) );
+}
+
+#define CheckPropertyIsReadWrite( obj, property, ... )                                  \
+    do                                                                                  \
+    {                                                                                   \
+        if( (property)->attributes & DKPropertyReadOnly )                               \
+        {                                                                               \
+            PropertyNotReadWrite( obj, property );                                      \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
+
+
+
+///
 //  CheckClassRequirement()
 //
 static void FailedClassRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
@@ -255,9 +295,26 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
 
         DKObjectRef * ref = value;
         
-        DKRetain( object );
-        DKRelease( *ref );
-        *ref = object;
+        if( property->attributes & DKPropertyCopy )
+        {
+            DKObjectRef copy = DKCopy( object );
+            DKRelease( *ref );
+            *ref = copy;
+        }
+        
+        else if( property->attributes & DKPropertyWeak )
+        {
+            DKWeakRef weakref = DKRetainWeak( object );
+            DKRelease( *ref );
+            *ref = weakref;
+        }
+        
+        else
+        {
+            DKRetain( object );
+            DKRelease( *ref );
+            *ref = object;
+        }
         
         return;
     }
@@ -291,8 +348,17 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
     // Object types
     if( property->type == DKPropertyObject )
     {
-        DKObjectRef * ref = value;
-        return DKRetain( *ref );
+        if( property->attributes & DKPropertyWeak )
+        {
+            DKWeakRef * ref = value;
+            return DKResolveWeak( *ref );
+        }
+        
+        else
+        {
+            DKObjectRef * ref = value;
+            return DKRetain( *ref );
+        }
     }
     
     // Automatic conversion of numerical types
@@ -327,6 +393,7 @@ void DKSetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object )
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
         
         CheckPropertyIsDefined( _self, property, name );
+        CheckPropertyIsReadWrite( _self, property );
         
         if( property->setter )
         {
@@ -376,6 +443,7 @@ void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * s
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
 
         CheckPropertyIsDefined( _self, property, name );
+        CheckPropertyIsReadWrite( _self, property );
         
         if( property->setter || (property->type == DKPropertyObject) )
         {
@@ -468,6 +536,7 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef seman
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
         
         CheckPropertyIsDefined( _self, property, name );
+        CheckPropertyIsReadWrite( _self, property );
         CheckSemanticRequirement( _self, property, semantic );
         
         if( property->setter || (property->type == DKPropertyObject) )

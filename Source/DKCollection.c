@@ -29,7 +29,7 @@
 #include "DKStream.h"
 
 
-DKThreadSafeSelectorInit( Collection );
+DKThreadSafeFastSelectorInit( Collection );
 
 
 ///

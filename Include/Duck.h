@@ -32,12 +32,13 @@ extern "C"
 {
 #endif
 
-
+#include "DKConfig.h"
 #include "DKPlatform.h"
 
 #include "DKByteArray.h"
 #include "DKPointerArray.h"
 #include "DKNodePool.h"
+#include "DKUnicode.h"
 
 #include "DKRuntime.h"
 #include "DKProperty.h"
@@ -50,6 +51,9 @@ extern "C"
 #include "DKNumber.h"
 #include "DKStruct.h"
 
+#include "DKFile.h"
+
+#include "DKCollection.h"
 #include "DKList.h"
 #include "DKDictionary.h"
 #include "DKSet.h"

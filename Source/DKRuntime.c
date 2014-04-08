@@ -899,9 +899,7 @@ void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef prope
 
 
 
-
-
-// Retrieving Interfaces and Message Handlers ============================================
+// Retrieving Interfaces, Message Handlers and Properties ================================
 
 ///
 //  DKLookupInterface()
@@ -1209,6 +1207,12 @@ DKWeakRef DKRetainWeak( DKObjectRef _self )
     if( _self )
     {
         const DKObject * obj = _self;
+        
+        // It doesn't make sense to get a weak reference to a weak reference.
+        if( obj->isa == DKWeakClass() )
+        {
+            return DKRetain( obj );
+        }
         
         if( !obj->weakref )
         {
