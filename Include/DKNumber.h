@@ -32,26 +32,47 @@
 
 typedef const struct DKNumber * DKNumberRef;
 
-
 typedef enum
 {
-    DKNumberVoid = 0,
+    DKNumberComponentInt32 =    1,
+    DKNumberComponentInt64,
+    DKNumberComponentUInt32,
+    DKNumberComponentUInt64,
+    DKNumberComponentFloat,
+    DKNumberComponentDouble,
     
-    DKNumberInt32,
-    DKNumberInt64,
-    DKNumberUInt32,
-    DKNumberUInt64,
-    DKNumberFloat,
-    DKNumberDouble,
+    DKNumberMaxComponentTypes,
     
-    DKNumberMaxTypes
-    
-} DKNumberType;
+} DKNumberComponentType;
 
+typedef int32_t DKNumberType;
+
+#define DKNumberMaxComponentCount               16
+
+#define DKNumberMakeVectorType( type, count )   (((count) << 16) | (type & 0x0000FFFF))
+
+#define DKNumberInt32   DKNumberMakeVectorType( DKNumberComponentInt32, 1 )
+#define DKNumberInt64   DKNumberMakeVectorType( DKNumberComponentInt64, 1 )
+#define DKNumberUInt32  DKNumberMakeVectorType( DKNumberComponentUInt32, 1 )
+#define DKNumberUInt64  DKNumberMakeVectorType( DKNumberComponentUInt64, 1 )
+#define DKNumberFloat   DKNumberMakeVectorType( DKNumberComponentFloat, 1 )
+#define DKNumberDouble  DKNumberMakeVectorType( DKNumberComponentDouble, 1 )
+
+#define DKNumberGetComponentType( type )    ((type) & 0x0000FFFF)
+#define DKNumberGetComponentCount( type )   ((type) >> 16)
+
+size_t  DKNumberGetComponentSize( DKNumberType type );
+const char * DKNumberGetComponentName( DKNumberType type );
+int     DKNumberTypeIsValid( int32_t type );
+
+
+
+
+// DKNumber ==============================================================================
 
 DKClassRef  DKNumberClass( void );
 
-DKNumberRef DKNumberCreate( const void * value, DKNumberType type, size_t count );
+DKNumberRef DKNumberCreate( const void * value, DKNumberType type );
 
 DKNumberRef DKNumberCreateInt32( int32_t x );
 DKNumberRef DKNumberCreateInt64( int64_t x );
@@ -61,7 +82,6 @@ DKNumberRef DKNumberCreateFloat( float x );
 DKNumberRef DKNumberCreateDouble( double x );
 
 DKNumberType DKNumberGetType( DKNumberRef _self );
-size_t      DKNumberGetCount( DKNumberRef _self );
 
 size_t      DKNumberGetValue( DKNumberRef _self, void * value );
 size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKNumberType type );
@@ -82,6 +102,8 @@ DKHashCode  DKNumberHash( DKNumberRef _self );
 
 DKStringRef DKNumberCopyDescription( DKNumberRef _self );
 
+// Utility function for converting number types
+size_t DKNumberConvert( const void * src, DKNumberType srcType, void * dst, DKNumberType dstType );
 
 
 #endif // _DK_NUMBER_H_

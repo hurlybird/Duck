@@ -58,6 +58,7 @@ typedef void * DKMutableObjectRef;
 // Forward declarations of common object types
 typedef const struct DKClass * DKClassRef;
 typedef const struct DKWeak * DKWeakRef;
+typedef const struct DKProperty * DKPropertyRef;
 typedef const struct DKString * DKStringRef;
 typedef const void * DKListRef;
 

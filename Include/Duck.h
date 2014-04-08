@@ -40,6 +40,7 @@ extern "C"
 #include "DKNodePool.h"
 
 #include "DKRuntime.h"
+#include "DKProperty.h"
 
 #include "DKCopying.h"
 #include "DKStream.h"

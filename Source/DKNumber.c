@@ -31,9 +31,6 @@
 #include "DKStream.h"
 
 
-#define MAX_COUNT   65535
-
-
 typedef union
 {
     int32_t     _int32[1];
@@ -48,25 +45,58 @@ typedef union
 struct DKNumber
 {
     DKObject _obj;
-    
-    uint16_t type;
-    uint16_t count;
     DKNumberValue value;
 };
 
-
-// Number Size and Type Casting ==========================================================
-static const size_t FieldSize[DKNumberMaxTypes] =
+struct DKNumberComponentInfo
 {
-    0,
-    sizeof(int32_t),
-    sizeof(int64_t),
-    sizeof(uint32_t),
-    sizeof(uint64_t),
-    sizeof(float),
-    sizeof(double)
+    const char * name;
+    size_t size;
 };
 
+static const struct DKNumberComponentInfo ComponentInfo[DKNumberMaxComponentTypes] =
+{
+    { "void",       0,                  },
+    { "int32_t",    sizeof(int32_t)     },
+    { "int64_t",    sizeof(int64_t)     },
+    { "uint32_t",   sizeof(uint32_t)    },
+    { "uint64_t",   sizeof(uint64_t)    },
+    { "float",      sizeof(float)       },
+    { "double",     sizeof(double)      }
+};
+
+size_t DKNumberGetComponentSize( int32_t type )
+{
+    DKNumberComponentType baseType = DKNumberGetComponentType( type );
+
+    if( (baseType > 0) && (baseType < DKNumberMaxComponentTypes) )
+        return ComponentInfo[baseType].size;
+    
+    return ComponentInfo[0].size;
+}
+
+const char * DKNumberGetComponentName( DKNumberType type )
+{
+    DKNumberComponentType baseType = DKNumberGetComponentType( type );
+
+    if( (baseType > 0) && (baseType < DKNumberMaxComponentTypes) )
+        return ComponentInfo[baseType].name;
+    
+    return ComponentInfo[0].name;
+}
+
+int DKNumberTypeIsValid( int32_t type )
+{
+    DKNumberComponentType baseType = DKNumberGetComponentType( type );
+    size_t count = DKNumberGetComponentCount( type );
+    
+    return (baseType > 0) && (baseType < DKNumberMaxComponentTypes) && (count > 0) && (count <= DKNumberMaxComponentCount);
+}
+
+
+
+
+// Type Casting ==========================================================================
 typedef void (*CastFunction)( const DKNumberValue * val, DKNumberValue * out );
 
 #define DefineCastFunction( func, src, dst, dst_type )                                  \
@@ -118,7 +148,7 @@ DefineCastFunction( CastDoubleToFloat,  _double, _float,  float );
 DefineCastFunction( CastDoubleToDouble, _double, _double, double );
 
 
-static CastFunction CastFunctions[DKNumberMaxTypes][DKNumberMaxTypes] =
+static CastFunction _CastFunctions[DKNumberMaxComponentTypes][DKNumberMaxComponentTypes] =
 {
     /*                      Int32               Int64               UInt32              Uint64              Float               Double  */
                  {  NULL,               NULL,               NULL,               NULL,               NULL,               NULL                },
@@ -130,6 +160,16 @@ static CastFunction CastFunctions[DKNumberMaxTypes][DKNumberMaxTypes] =
     /* Double */ {  NULL,   CastDoubleToInt32,  CastDoubleToInt64,  CastDoubleToUInt32, CastDoubleToUInt64, CastDoubleToFloat,  CastDoubleToDouble  }
 };
 
+static CastFunction GetCastFunction( DKNumberType fromType, DKNumberType toType )
+{
+    DKAssert( DKNumberTypeIsValid( fromType ) );
+    DKAssert( DKNumberTypeIsValid( toType ) );
+
+    DKNumberComponentType fromBaseType = DKNumberGetComponentType( fromType );
+    DKNumberComponentType toBaseType = DKNumberGetComponentType( toType );
+    
+    return _CastFunctions[fromBaseType][toBaseType];
+}
 
 
 ///
@@ -170,13 +210,13 @@ DKThreadSafeClassInit( DKNumberClass )
 ///
 //  DKNumberCreate()
 //
-DKNumberRef DKNumberCreate( const void * value, DKNumberType type, size_t count )
+DKNumberRef DKNumberCreate( const void * value, DKNumberType type )
 {
-    DKAssert( (type > 0) && (type < DKNumberMaxTypes) );
-    DKAssert( (count > 0) && (count < MAX_COUNT) );
+    DKAssert( DKNumberTypeIsValid( type ) );
     DKAssert( value != NULL );
 
-    size_t size = FieldSize[type];
+    size_t size = DKNumberGetComponentSize( type );
+    size_t count = DKNumberGetComponentCount( type );
     size_t bytes = size * count;
     
     struct DKNumber * number = (struct DKNumber *)DKAllocObject( DKNumberClass(), bytes );
@@ -184,8 +224,7 @@ DKNumberRef DKNumberCreate( const void * value, DKNumberType type, size_t count 
     
     if( number )
     {
-        number->type = type;
-        number->count = count;
+        DKSetObjectTag( number, type );
         memcpy( &number->value, value, bytes );
     }
     
@@ -198,32 +237,32 @@ DKNumberRef DKNumberCreate( const void * value, DKNumberType type, size_t count 
 //
 DKNumberRef DKNumberCreateInt32( int32_t x )
 {
-    return DKNumberCreate( &x, DKNumberInt32, 1 );
+    return DKNumberCreate( &x, DKNumberInt32 );
 }
 
 DKNumberRef DKNumberCreateInt64( int64_t x )
 {
-    return DKNumberCreate( &x, DKNumberInt64, 1 );
+    return DKNumberCreate( &x, DKNumberInt64 );
 }
 
 DKNumberRef DKNumberCreateUInt32( uint32_t x )
 {
-    return DKNumberCreate( &x, DKNumberUInt32, 1 );
+    return DKNumberCreate( &x, DKNumberUInt32 );
 }
 
 DKNumberRef DKNumberCreateUInt64( uint64_t x )
 {
-    return DKNumberCreate( &x, DKNumberUInt64, 1 );
+    return DKNumberCreate( &x, DKNumberUInt64 );
 }
 
 DKNumberRef DKNumberCreateFloat( float x )
 {
-    return DKNumberCreate( &x, DKNumberFloat, 1 );
+    return DKNumberCreate( &x, DKNumberFloat );
 }
 
 DKNumberRef DKNumberCreateDouble( double x )
 {
-    return DKNumberCreate( &x, DKNumberDouble, 1 );
+    return DKNumberCreate( &x, DKNumberDouble );
 }
 
 
@@ -237,24 +276,7 @@ DKNumberType DKNumberGetType( DKNumberRef _self )
         DKAssertKindOfClass( _self, DKNumberClass() );
         
         const struct DKNumber * number = _self;
-        return number->type;
-    }
-    
-    return DKNumberVoid;
-}
-
-
-///
-//  DKNumberGetCount()
-//
-size_t DKNumberGetCount( DKNumberRef _self )
-{
-    if( _self )
-    {
-        DKAssertKindOfClass( _self, DKNumberClass() );
-        
-        const struct DKNumber * number = _self;
-        return number->count;
+        return DKGetObjectTag( number );
     }
     
     return 0;
@@ -272,10 +294,13 @@ size_t DKNumberGetValue( DKNumberRef _self, void * value )
         
         const struct DKNumber * number = _self;
 
-        size_t size = FieldSize[number->type];
-        memcpy( value, &number->value, size * number->count );
+        DKNumberType type = DKGetObjectTag( number );
+        size_t size = DKNumberGetComponentSize( type );
+        size_t count = DKNumberGetComponentCount( type );
         
-        return number->count;
+        memcpy( value, &number->value, size * count );
+        
+        return count;
     }
 
     return 0;
@@ -287,24 +312,11 @@ size_t DKNumberGetValue( DKNumberRef _self, void * value )
 //
 size_t DKNumberCastValue( DKNumberRef _self, void * value, DKNumberType type )
 {
-    DKAssert( (type > 0) && (type < DKNumberMaxTypes) );
-
     if( _self )
     {
         DKAssertKindOfClass( _self, DKNumberClass() );
         
-        const struct DKNumber * number = _self;
-
-        const uint8_t * src = (const uint8_t *)&number->value;
-        uint8_t * dst = value;
-        
-        CastFunction func = CastFunctions[number->type][type];
-        size_t size = FieldSize[number->type];
-        
-        for( unsigned int i = 0; i < number->count; ++i )
-            func( (const DKNumberValue *)&src[i * size], (DKNumberValue *)&dst[i * size] );
-        
-        return number->count;
+        return DKNumberConvert( &_self->value, DKGetObjectTag( _self ), value, type );
     }
 
     return 0;
@@ -352,20 +364,32 @@ int DKNumberCompare( DKNumberRef a, DKNumberRef b )
         DKAssertKindOfClass( a, DKNumberClass() );
         DKAssertKindOfClass( b, DKNumberClass() );
 
-        if( (a->count == 1) && (b->count == 1) )
+        DKNumberType a_type = DKGetObjectTag( a );
+        DKNumberType b_type = DKGetObjectTag( b );
+
+        size_t a_count = DKNumberGetComponentType( a_type );
+        size_t b_count = DKNumberGetComponentType( b_type );
+
+        if( (a_count == 1) && (b_count == 1) )
         {
-            if( a->type == b->type )
+            if( a_type == b_type )
             {
+                DKNumberComponentType baseType = DKNumberGetComponentType( a_type );
+                
                 #define CMP( x, y )     (((x) < (y)) ? 1 : (((x) > (y)) ? -1 : 0))
             
-                switch( a->type )
+                switch( baseType )
                 {
-                case DKNumberInt32:  return CMP( a->value._int32, b->value._int32 );
-                case DKNumberInt64:  return CMP( a->value._int64, b->value._int64 );
-                case DKNumberUInt32: return CMP( a->value._uint32, b->value._uint32 );
-                case DKNumberUInt64: return CMP( a->value._uint64, b->value._uint64 );
-                case DKNumberFloat:  return CMP( a->value._float, b->value._float );
-                case DKNumberDouble: return CMP( a->value._double, b->value._double );
+                case DKNumberComponentInt32:  return CMP( a->value._int32[0],  b->value._int32[0] );
+                case DKNumberComponentInt64:  return CMP( a->value._int64[0],  b->value._int64[0] );
+                case DKNumberComponentUInt32: return CMP( a->value._uint32[0], b->value._uint32[0] );
+                case DKNumberComponentUInt64: return CMP( a->value._uint64[0], b->value._uint64[0] );
+                case DKNumberComponentFloat:  return CMP( a->value._float[0],  b->value._float[0] );
+                case DKNumberComponentDouble: return CMP( a->value._double[0], b->value._double[0] );
+                
+                default:
+                    DKAssert( 0 );
+                    break;
                 }
                 
                 #undef CMP
@@ -374,8 +398,8 @@ int DKNumberCompare( DKNumberRef a, DKNumberRef b )
             else
             {
                 DKNumberValue da, db;
-                CastFunctions[a->type][DKNumberDouble]( &a->value, &da );
-                CastFunctions[b->type][DKNumberDouble]( &b->value, &db );
+                GetCastFunction( a_type, DKNumberDouble )( &a->value, &da );
+                GetCastFunction( b_type, DKNumberDouble )( &b->value, &db );
                 
                 if( da._double[0] < db._double[0] )
                     return 1;
@@ -389,8 +413,8 @@ int DKNumberCompare( DKNumberRef a, DKNumberRef b )
         
         else
         {
-            size_t sa = FieldSize[a->type] * a->count;
-            size_t sb = FieldSize[b->type] * b->count;
+            size_t sa = DKNumberGetComponentSize( a_type ) * a_count;
+            size_t sb = DKNumberGetComponentSize( b_type ) * b_count;
         
             if( sa < sb )
                 return 1;
@@ -415,28 +439,34 @@ DKHashCode DKNumberHash( DKNumberRef _self )
     {
         DKAssertKindOfClass( _self, DKNumberClass() );
     
-        const struct DKNumber * number = _self;
-        size_t size = FieldSize[number->type] * number->count;
+        DKNumberType type = DKGetObjectTag( _self );
+        DKNumberComponentType baseType = DKNumberGetComponentType( type );
+        size_t size = DKNumberGetComponentSize( type );
+        size_t count = DKNumberGetComponentCount( type );
 
-        if( (number->count == 1) && (size <= sizeof(DKHashCode)) )
+        if( (count == 1) && (size <= sizeof(DKHashCode)) )
         {
-            switch( number->type )
+            switch( baseType )
             {
-            case DKNumberInt32:  return number->value._int32[0];
-            case DKNumberUInt32: return number->value._uint32[0];
-            case DKNumberFloat:  return *((uint32_t *)&number->value._float[0]);
+            case DKNumberComponentInt32:  return _self->value._int32[0];
+            case DKNumberComponentUInt32: return _self->value._uint32[0];
+            case DKNumberComponentFloat:  return *((uint32_t *)&_self->value._float[0]);
             
             #if __LP64__
-            case DKNumberInt64:  return number->value._int64[0];
-            case DKNumberUInt64: return number->value._uint64[0];
-            case DKNumberDouble: return *((uint64_t *)&number->value._double[0]);
+            case DKNumberComponentInt64:  return _self->value._int64[0];
+            case DKNumberComponentUInt64: return _self->value._uint64[0];
+            case DKNumberComponentDouble: return *((uint64_t *)&_self->value._double[0]);
             #endif
+            
+            default:
+                DKAssert( 0 );
+                break;
             }
         }
         
         else
         {
-            return dk_memhash( &number->value, size );
+            return dk_memhash( &_self->value, size * count );
         }
     }
     
@@ -455,20 +485,28 @@ DKStringRef DKNumberCopyDescription( DKNumberRef _self )
         const struct DKNumber * number = _self;
         
         DKMutableStringRef desc = DKStringCreateMutable();
+
+        DKNumberType type = DKGetObjectTag( _self );
+        DKNumberComponentType baseType = DKNumberGetComponentType( type );
+        size_t count = DKNumberGetComponentCount( type );
         
         #define PRINT( fmt, field )                                 \
             DKSPrintf( desc, fmt, number->value.field[0] );         \
-            for( unsigned int i = 1; i < number->count; ++i )       \
+            for( unsigned int i = 1; i < count; ++i )               \
                 DKSPrintf( desc, " " fmt, number->value.field[i] )
         
-        switch( number->type )
+        switch( baseType )
         {
-        case DKNumberInt32:  PRINT( "%d", _int32 ); break;
-        case DKNumberInt64:  PRINT( "%lld", _int64 ); break;
-        case DKNumberUInt32: PRINT( "%u", _uint32 ); break;
-        case DKNumberUInt64: PRINT( "%llu", _uint64 ); break;
-        case DKNumberFloat:  PRINT( "%f", _float ); break;
-        case DKNumberDouble: PRINT( "%lf", _double ); break;
+        case DKNumberComponentInt32:  PRINT( "%d", _int32 ); break;
+        case DKNumberComponentInt64:  PRINT( "%lld", _int64 ); break;
+        case DKNumberComponentUInt32: PRINT( "%u", _uint32 ); break;
+        case DKNumberComponentUInt64: PRINT( "%llu", _uint64 ); break;
+        case DKNumberComponentFloat:  PRINT( "%f", _float ); break;
+        case DKNumberComponentDouble: PRINT( "%lf", _double ); break;
+        
+        default:
+            DKAssert( 0 );
+            break;
         }
         
         #undef PRINT
@@ -477,6 +515,40 @@ DKStringRef DKNumberCopyDescription( DKNumberRef _self )
     }
     
     return NULL;
+}
+
+
+///
+//  DKNumberConvert()
+//
+size_t DKNumberConvert( const void * src, DKNumberType srcType, void * dst, DKNumberType dstType )
+{
+    if( !DKNumberTypeIsValid( dstType ) )
+        return 0;
+    
+    if( !DKNumberTypeIsValid( srcType ) )
+        return 0;
+    
+    size_t dstCount = DKNumberGetComponentCount( dstType );
+    size_t srcCount = DKNumberGetComponentCount( srcType );
+
+    if( dstCount != srcCount )
+        return 0;
+
+    size_t dstSize = DKNumberGetComponentSize( dstType );
+    size_t srcSize = DKNumberGetComponentSize( srcType );
+    
+    CastFunction func = GetCastFunction( srcType, dstType );
+    
+    for( size_t i = 0; i < dstCount; ++i )
+    {
+        DKNumberValue * srcValue = (DKNumberValue *)((const uint8_t *)src + (i * srcSize));
+        DKNumberValue * dstValue = (DKNumberValue *)((uint8_t *)dst + (i * dstSize));
+        
+        func( srcValue, dstValue );
+    }
+
+    return dstCount;
 }
 
 

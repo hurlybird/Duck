@@ -29,6 +29,7 @@
 #include "DKRuntime.h"
 #include "DKString.h"
 #include "DKHashTable.h"
+#include "DKProperty.h"
 
 
 static void DKRuntimeInit( void );
@@ -54,7 +55,8 @@ struct DKClass
     DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
     
     DKPointerArray  interfaces;
-    DKPointerArray  properties;
+    
+    DKMutableHashTableRef properties;
 };
 
 
@@ -75,7 +77,6 @@ static struct DKClass __DKClassClass__;
 static struct DKClass __DKSelectorClass__;
 static struct DKClass __DKInterfaceClass__;
 static struct DKClass __DKMsgHandlerClass__;
-static struct DKClass __DKPropertyClass__;
 static struct DKClass __DKWeakClass__;
 static struct DKClass __DKObjectClass__;
 
@@ -102,12 +103,6 @@ DKClassRef DKMsgHandlerClass( void )
 {
     DKRuntimeInit();
     return &__DKMsgHandlerClass__;
-}
-
-DKClassRef DKPropertyClass( void )
-{
-    DKRuntimeInit();
-    return &__DKPropertyClass__;
 }
 
 DKClassRef DKWeakClass( void )
@@ -424,6 +419,7 @@ static DKHashCode DKInterfaceHash( DKInterface * a )
 
 
 
+
 // Runtime Init ==========================================================================
 
 static DKSpinLock DKRuntimeInitLock = DKSpinLockInit;
@@ -447,7 +443,6 @@ static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, si
     cls->lock = DKSpinLockInit;
     
     DKPointerArrayInit( &cls->interfaces );
-    DKPointerArrayInit( &cls->properties );
 }
 
 
@@ -479,7 +474,6 @@ static void DKRuntimeInit( void )
         InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct _DKSEL),  0 );
         InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),    0 );
         InitRootClass( &__DKMsgHandlerClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),   0 );
-        InitRootClass( &__DKPropertyClass__,   NULL,                  0,                      0 );
         InitRootClass( &__DKWeakClass__,       NULL,                  sizeof(struct DKWeak),  0 );
         InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObject),       0 );
         
@@ -503,10 +497,6 @@ static void DKRuntimeInit( void )
         InstallRootClassInterface( &__DKMsgHandlerClass__, DKInterfaceComparison() );
         InstallRootClassInterface( &__DKMsgHandlerClass__, DKDefaultDescription() );
 
-        InstallRootClassInterface( &__DKPropertyClass__, DKDefaultAllocation() );
-        InstallRootClassInterface( &__DKPropertyClass__, DKDefaultComparison() );
-        InstallRootClassInterface( &__DKPropertyClass__, DKDefaultDescription() );
-
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultAllocation() );
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultComparison() );
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultDescription() );
@@ -525,7 +515,6 @@ static void DKRuntimeInit( void )
         __DKSelectorClass__.name = DKSTR( "DKSelector" );
         __DKInterfaceClass__.name = DKSTR( "DKInterface" );
         __DKMsgHandlerClass__.name = DKSTR( "DKMsgHandler" );
-        __DKPropertyClass__.name = DKSTR( "DKProperty" );
         __DKObjectClass__.name = DKSTR( "DKObject" );
         __DKWeakClass__.name = DKSTR( "DKWeak" );
         
@@ -704,11 +693,10 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
     cls->superclass = DKRetain( superclass );
     cls->structSize = structSize;
     cls->options = options;
-    
-    DKPointerArrayInit( &cls->interfaces );
-    DKPointerArrayInit( &cls->properties );
 
     memset( cls->cache, 0, sizeof(cls->cache) );
+    
+    DKPointerArrayInit( &cls->interfaces );
     
     // To ensure that all classes have an initializer/finalizer, install a default
     // allocation interface here. If we don't do this the base class versions can be
@@ -743,7 +731,7 @@ static void DKClassFinalize( DKObjectRef _self )
     DKPointerArrayFinalize( &cls->interfaces );
     
     // Release properties
-    DKPointerArrayFinalize( &cls->properties );
+    DKRelease( cls->properties );
 }
 
 
@@ -887,6 +875,28 @@ void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, const void * func )
     
     DKRelease( msgHandler );
 }
+
+
+///
+//  DKInstallProperty()
+//
+void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef property )
+{
+    DKAssert( _class && property && name );
+    
+    struct DKClass * cls = (struct DKClass *)_class;
+    
+    DKSpinLockLock( &cls->lock );
+    
+    if( cls->properties == NULL )
+        cls->properties = DKHashTableCreateMutable();
+    
+    DKHashTableInsertObject( cls->properties, name, property, DKInsertAlways );
+    
+    DKSpinLockUnlock( &cls->lock );
+}
+
+
 
 
 
@@ -1086,6 +1096,45 @@ int DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHandl
     return 0;
 }
 
+
+///
+//  DKLookupProperty()
+//
+static DKPropertyRef DKLookupProperty( DKClassRef _class, DKStringRef name )
+{
+    DKAssert( (_class->_obj.isa == &__DKClassClass__) || (_class->_obj.isa == &__DKMetaClass__) );
+    
+    struct DKClass * cls = (struct DKClass *)_class;
+    
+    DKSpinLockLock( &cls->lock );
+
+    DKPropertyRef property = DKHashTableGetObject( cls->properties, name );
+    
+    DKSpinLockUnlock( &cls->lock );
+    
+    return property;
+}
+
+
+///
+//  DKGetProperty()
+//
+DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
+{
+    if( _self )
+    {
+        const DKObject * obj = _self;
+        DKClassRef cls = obj->isa;
+        
+        // If this object is a class, look in its own interfaces
+        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+            cls = (struct DKClass *)_self;
+
+        return DKLookupProperty( cls, name );
+    }
+    
+    return NULL;
+}
 
 
 
@@ -1311,6 +1360,8 @@ int DKIsSubclass( DKClassRef _class, DKClassRef otherClass )
 }
 
 
+
+
 // Polymorphic Wrappers ==================================================================
 
 ///
@@ -1398,6 +1449,10 @@ DKStringRef DKCopyDescription( DKObjectRef _self )
     
     return DKSTR( "null" );
 }
+
+
+
+
 
 
 

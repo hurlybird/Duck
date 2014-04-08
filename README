@@ -41,12 +41,12 @@ Here's a snippet of code that shows what using Duck looks like.
 int main( int argc, const char * argv[] )
 {
     // Create a mutable dictionary
-    DKMutableListRef list = DKCreate( DKMutableListClass() );
+    DKMutableListRef list = DKListCreateMutable();
     
     for( int i = 0; i < 10; i++ )
     {
         // Create a string
-        DKMutableStringRef str = DKCreate( DKMutableStringClass() );
+        DKMutableStringRef str = DKStringCreateMutable();
         
         // Strings support the stream interface so we can print to them thusly
         DKSPrintf( str, "String %d", i );

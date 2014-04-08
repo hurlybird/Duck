@@ -157,68 +157,11 @@ DKMsgHandlerRef DKMsgHandlerNotFound( void );
 
 
 
-// DKProperty ============================================================================
-typedef enum
-{
-    DKPropertyType_void =       0,
-    
-    // Number Types
-    DKPropertyInt32,
-    DKPropertyInt64,
-    DKPropertyUInt32,
-    DKPropertyUInt64,
-    DKPropertyFloat,
-    DKPropertyDouble,
-
-    // Object Types
-    DKPropertyObject,
-    DKPropertyString,
-    
-    // Unretained Pointers
-    DKPropertyPointer,
-    
-    // Arbitrary Structures
-    DKPropertyStruct,
-
-} DKPropertyType;
-
-enum
-{
-    DKPropertyReadOnly =        (1 << 0),
-    DKPropertyWeak =            (1 << 1),
-    DKPropertyCopy =            (1 << 2)
-};
-
-typedef const struct DKProperty * DKPropertyRef;
-
-typedef struct DKProperty
-{
-    const DKObject  _obj;
-    
-    DKStringRef     name;
-    DKPropertyType  type;
-    int32_t         attributes;
-    size_t          offset;
-    size_t          size;
-    size_t          count;
-    
-    DKClassRef      requiredClass;
-    DKSEL           requiredInterface;
-
-    void (*setter)( DKObjectRef _self, DKPropertyRef property, const void * value );
-    void (*getter)( DKObjectRef _self, DKPropertyRef property, void * value );
-    
-} DKProperty;
-
-
-
-
 // Root Classes ==========================================================================
 DKClassRef DKClassClass( void );
 DKClassRef DKSelectorClass( void );
 DKClassRef DKInterfaceClass( void );
 DKClassRef DKMsgHandlerClass( void );
-DKClassRef DKPropertyClass( void );
 DKClassRef DKWeakClass( void );
 DKClassRef DKObjectClass( void );
 
@@ -366,6 +309,10 @@ void        DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
 void        DKInstallMsgHandler( DKClassRef cls, DKSEL sel, const void * func );
 
 
+// Install properties
+void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef property );
+
+
 
 
 // Retrieving Interfaces and Message Handlers ============================================
@@ -386,6 +333,8 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel );
 // Check to see if a message handler is available for an object.
 int         DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
 
+// Retrieve an installed property
+DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
 
 
 
@@ -437,6 +386,7 @@ DKHashCode  DKHash( DKObjectRef _self );
 
 // CopyDescription Interface Wrappers
 DKStringRef DKCopyDescription( DKObjectRef _self );
+
 
 
 
