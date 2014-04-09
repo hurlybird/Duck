@@ -1132,12 +1132,6 @@ DKIndex DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex co
 ///
 //  DKStringWrite()
 //
-static DKIndex DKImmutableStringWrite( DKMutableObjectRef _self, const void * buffer, DKIndex size, DKIndex count )
-{
-    DKError( "DKStringWrite: Trying to modify an immutable object." );
-    return 0;
-}
-
 DKIndex DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex size, DKIndex count )
 {
     if( _self )

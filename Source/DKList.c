@@ -164,9 +164,7 @@ DKIndex DKListGetCountOfObject( DKListRef _self, DKObjectRef object )
         
         for( DKIndex i = 0; i < n; i++ )
         {
-            DKObjectRef object2;
-            
-            list->getObjectAtIndex( _self, i );
+            DKObjectRef object2 = list->getObjectAtIndex( _self, i );
             
             if( DKEqual( object, object2 ) )
                 count++;

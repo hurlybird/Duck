@@ -14,6 +14,9 @@
 		02083FA318F3C49E00EEBBAC /* TestDKProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA218F3C49E00EEBBAC /* TestDKProperty.m */; };
 		02083FA618F4A86700EEBBAC /* DKStruct.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA518F4A86700EEBBAC /* DKStruct.c */; };
 		02083FA718F4A86700EEBBAC /* DKStruct.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA518F4A86700EEBBAC /* DKStruct.c */; };
+		02083FA818F4C47500EEBBAC /* DKCollection.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9B18F2615E00EEBBAC /* DKCollection.c */; };
+		02083FA918F4C48100EEBBAC /* DKProperty.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA018F3BC2200EEBBAC /* DKProperty.c */; };
+		02083FAA18F4C48600EEBBAC /* DKSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9618F1E4EF00EEBBAC /* DKSet.c */; };
 		021EC2C218F0774B004148AD /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
 		021EC2DC18F07BA9004148AD /* uassert.h in Headers */ = {isa = PBXBuildFile; fileRef = 021EC2CD18F07BA9004148AD /* uassert.h */; };
 		021EC2DD18F07BA9004148AD /* platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 021EC2CF18F07BA9004148AD /* platform.h */; };
@@ -581,6 +584,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				02C8916918F169780097B6BC /* DKArray.c in Sources */,
+				02083FA918F4C48100EEBBAC /* DKProperty.c in Sources */,
 				02C8916A18F169780097B6BC /* DKBinaryTree.c in Sources */,
 				02C8916B18F169780097B6BC /* DKByteArray.c in Sources */,
 				02083FA718F4A86700EEBBAC /* DKStruct.c in Sources */,
@@ -591,10 +595,12 @@
 				02C8917018F169780097B6BC /* DKHashTable.c in Sources */,
 				02C8917118F169780097B6BC /* DKLinkedList.c in Sources */,
 				02C8917218F169780097B6BC /* DKList.c in Sources */,
+				02083FAA18F4C48600EEBBAC /* DKSet.c in Sources */,
 				02C8917318F169780097B6BC /* DKNodePool.c in Sources */,
 				02C8917418F169780097B6BC /* DKNumber.c in Sources */,
 				02C8917518F169780097B6BC /* DKPlatform.c in Sources */,
 				02C8917618F169780097B6BC /* DKPointerArray.c in Sources */,
+				02083FA818F4C47500EEBBAC /* DKCollection.c in Sources */,
 				02C8917718F169780097B6BC /* DKRuntime.c in Sources */,
 				02C8917818F169780097B6BC /* DKStream.c in Sources */,
 				02C8917918F169780097B6BC /* DKString.c in Sources */,
