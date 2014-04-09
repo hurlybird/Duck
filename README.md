@@ -21,7 +21,7 @@ The Duck source is distributed under the MIT License. Any packages under the
 
 ## Porting
 
-Duck is written in XCode, and includes targets for Mac OS and iOS. It should
+Duck is written in XCode and includes targets for Mac OS and iOS. It should
 compile anywhere with a C99 compliant compiler. A few types and functions,
 particularly those related to atomic operations will likely need to be redefined
 on non-Apple or non-POSIX systems.
@@ -72,7 +72,7 @@ int main( int argc, const char * argv[] )
 ### Classes
 
 Classes in Duck are similar to classes in any object-oriented system, except
-they are defined entirely at runtime. In fact, you can create and destroy class
+they are defined entirely at run time. In fact, you can create and destroy class
 objects just like any other object.
 
 ### Interfaces
@@ -104,8 +104,8 @@ structure.
 
 ### Properties
 
-In additon to interfaces and message handlers, Duck classes can also have
-properties to provide an abstract way of accessing instance data. The runtime
+In additon to interfaces and message handlers, Duck classes can also define
+properties to provide an abstract mechanism to access instance data. The runtime
 handles most property get/set behaviour automatically (including translating
 between object and base types), but it's also possible to use custom
 getter/setter methods.
@@ -123,6 +123,7 @@ Duck provides several built-in container classes:
 
 Duck also defines some common interfaces:
 
+* *DKCollection* contains foreach style iteration methods for containers.
 * *DKList* is an abstract interface for *DKArray* and *DKLinkedList*.
 * *DKDictionary* is the key-value interface to *DKHashTable* and *DKBinaryTree*.
 * *DKSet* has methods for set operations on *DKHashTable* and *DKBinaryTree*.
