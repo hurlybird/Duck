@@ -38,6 +38,18 @@ static DKInterface * DKLookupInterface( const struct DKClass * cls, DKSEL sel );
 
 // Internal Types ========================================================================
 
+// Objects are at least 16 bytes long so there must exist a location in memory
+// that is 16-byte aligned and inside the object. Given that, we can generate a
+// hash code from the object pointer that strips out the uninteresting lower
+// bits to make things a bit more random. This is particularly important in a
+// hash table that uses hash % prime to derive an internal hash code.
+#define ObjectUniqueHash( obj )     ((((uintptr_t)obj) + 15) >> 4)
+
+// Get a dynamic cache index for a selector
+#define GetDynamicCacheline( sel )  (int)((ObjectUniqueHash(sel) & (DKDynamicCacheSize-1)) + DKStaticCacheSize)
+
+
+
 // DKClass
 struct DKClass
 {
@@ -269,19 +281,7 @@ int DKPointerCompare( DKObjectRef _self, DKObjectRef other )
 
 DKHashCode DKPointerHash( DKObjectRef _self )
 {
-    // Just in case someone changes the size of DKHashCode
-    DKAssert( sizeof(DKHashCode) == sizeof(DKObjectRef) );
-
-    // Assuming object pointers are at least N-byte aligned, this will make hash codes
-    // derived from pointers a bit more random. This is particularly important in a hash
-    // table which uses (hashcode % prime) as an internal hash code.
-#if __LP64__
-    DKAssert( ((DKHashCode)_self & 0x7) == 0 );
-    return ((DKHashCode)_self) >> 3;
-#else
-    DKAssert( ((DKHashCode)_self & 0x3) == 0 );
-    return ((DKHashCode)_self) >> 2;
-#endif
+    return ObjectUniqueHash( _self );
 }
 
 
@@ -783,28 +783,8 @@ static void DKInterfaceFinalize( DKObjectRef _self )
 
 
 ///
-//  GetDynamicCacheline()
-//
-static int GetDynamicCacheline( DKSEL sel )
-{
-    int cacheline;
-    
-#if __LP64__
-    DKAssert( ((uintptr_t)sel & 0x7) == 0 );
-    cacheline = (int)((((uintptr_t)sel >> 3) & (DKDynamicCacheSize - 1)) + DKStaticCacheSize);
-#else
-    DKAssert( ((uintptr_t)sel & 0x3) == 0 );
-    cacheline = (int)((((uintptr_t)sel >> 2) & (DKDynamicCacheSize - 1)) + DKStaticCacheSize);
-#endif
-    
-    return cacheline;
-}
-
-
-///
 //  DKInstallInterface()
 //
-
 void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
 {
     DKAssertMemberOfClass( _class, DKClassClass() );
