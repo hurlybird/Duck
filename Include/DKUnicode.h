@@ -54,7 +54,7 @@ size_t dk_ustrlen( const char * str );
 const char * dk_ustridx( const char * str, size_t idx );
 
 // Scans one character from 'str' into 'ch' and returns the number of bytes read
-size_t dk_ustrscan( const char * str, dk_unicode_t * ch );
+size_t dk_ustrscan( const char * str, DKChar32 * ch );
 
 
 #endif // _DK_UNICODE_H_

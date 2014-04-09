@@ -171,7 +171,7 @@ DKStaticSelectorInit( InterfaceNotFound );
 DKDeclareMessageSelector( MsgHandlerNotFound );
 DKStaticSelectorInit( MsgHandlerNotFound );
 
-typedef void (*DKInterfaceNotFoundFunction)( const DKObject * obj );
+typedef void (*DKInterfaceNotFoundFunction)( DKObjectRef _self );
 
 struct DKInterfaceNotFoundInterface
 {
@@ -179,9 +179,9 @@ struct DKInterfaceNotFoundInterface
     DKInterfaceNotFoundFunction func[DK_MAX_INTERFACE_SIZE];
 };
 
-static void DKInterfaceNotFoundCallback( const DKObject * obj )
+static void DKInterfaceNotFoundCallback( DKObjectRef _self )
 {
-    // Note: 'obj' is for debugging only and may not be valid. Most interface functions
+    // Note: '_self' is for debugging only and may not be valid. Most interface functions
     // take an object as a first arguement, but it's not actually required.
 
     // The only time this code is ever likely to be called is when calling an interface
@@ -191,9 +191,10 @@ static void DKInterfaceNotFoundCallback( const DKObject * obj )
     DKFatalError( "DKRuntime: Invalid interface call.\n" );
 }
 
-static void DKMsgHandlerNotFoundCallback( const DKObject * obj, DKSEL sel )
+static intptr_t DKMsgHandlerNotFoundCallback( DKObjectRef _self, DKSEL sel )
 {
     // This handles silently failing when sending messages to NULL objects.
+    return 0;
 }
 
 DKThreadSafeSharedObjectInit( DKInterfaceNotFound, DKInterfaceRef )
@@ -866,7 +867,7 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
 ///
 //  DKInstallMsgHandler()
 //
-void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, const void * func )
+void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func )
 {
     struct DKMsgHandler * msgHandler = DKAllocObject( DKMsgHandlerClass(), sizeof(void *) );
     msgHandler = DKInitializeObject( msgHandler );

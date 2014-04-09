@@ -805,7 +805,7 @@ DKStringRef DKStringCopyLastPathComponent( DKStringRef _self )
         
         // Skip over trailing slashes
         int32_t end = (int32_t)_self->byteArray.length;
-        dk_unicode_t ch;
+        DKChar32 ch;
         
         while( end > 0 )
         {
@@ -1028,7 +1028,7 @@ void DKStringStandardizePath( DKMutableStringRef _self )
         const char * src = dst;
         int wasslash = 0;
         
-        dk_unicode_t ch;
+        DKChar32 ch;
         size_t n;
         
         while( (n = dk_ustrscan( src, &ch )) != 0 )

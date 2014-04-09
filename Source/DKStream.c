@@ -146,7 +146,7 @@ DKIndex DKVSPrintf( DKMutableObjectRef _self, const char * format, va_list arg_p
     int * counter;
 
     const char * cursor = format;
-    dk_unicode_t ch;
+    DKChar32 ch;
     size_t n;
     
     while( (n = dk_ustrscan( cursor, &ch )) != 0 )

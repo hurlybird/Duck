@@ -10,25 +10,25 @@
 #include <pthread.h>
 
 
-DKDeclareMessageSelector( Square, int, int * );
+DKDeclareMessageSelector( Square, int );
 DKThreadSafeSelectorInit( Square );
 
-DKDeclareMessageSelector( Cube, int, int * );
+DKDeclareMessageSelector( Cube, int );
 DKThreadSafeSelectorInit( Cube );
 
-static void TestOne( DKObjectRef _self, DKSEL sel, int x, int * y )
+static intptr_t TestOne( DKObjectRef _self, DKSEL sel, int x )
 {
-    *y = 1;
+    return 1;
 }
 
-static void TestSquare( DKObjectRef _self, DKSEL sel, int x, int * y )
+static intptr_t TestSquare( DKObjectRef _self, DKSEL sel, int x )
 {
-    *y = x * x;
+    return x * x;
 }
 
-static void TestCube( DKObjectRef _self, DKSEL sel, int x, int * y )
+static intptr_t TestCube( DKObjectRef _self, DKSEL sel, int x )
 {
-    *y = x * x * x;
+    return x * x * x;
 }
 
 
@@ -67,16 +67,16 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( TestClassB );
     
     // Install some message handlers
-    DKInstallMsgHandler( TestClassA, DKSelector(Square), TestOne );
+    DKInstallMsgHandler( TestClassA, DKSelector(Square), (DKMsgFunction)TestOne );
     XCTAssert( DKGetMsgHandler( TestClassA, DKSelector(Square) ) );
 
-    DKInstallMsgHandler( TestClassA, DKSelector(Cube), TestOne );
+    DKInstallMsgHandler( TestClassA, DKSelector(Cube), (DKMsgFunction)TestOne );
     XCTAssert( DKGetMsgHandler( TestClassA, DKSelector(Cube) ) );
 
-    DKInstallMsgHandler( TestClassB, DKSelector(Square), TestSquare );
+    DKInstallMsgHandler( TestClassB, DKSelector(Square), (DKMsgFunction)TestSquare );
     XCTAssert( DKGetMsgHandler( TestClassB, DKSelector(Square) ) );
     
-    DKInstallMsgHandler( TestClassB, DKSelector(Cube), TestCube );
+    DKInstallMsgHandler( TestClassB, DKSelector(Cube), (DKMsgFunction)TestCube );
     XCTAssert( DKGetMsgHandler( TestClassB, DKSelector(Cube) ) );
     
     // Create some instances
@@ -102,18 +102,16 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( DKGetInterface( TestClassB, DKSelector(Allocation) ) == DKGetInterface( b, DKSelector(Allocation) ) );
 
     // Try calling our custom message handlers
-    int y;
-    
-    DKMsgSend( a, Square, 2, &y );
+    intptr_t y = DKMsgSend( a, Square, 2 );
     XCTAssert( y == 1 );
 
-    DKMsgSend( a, Cube, 2, &y );
+    y = DKMsgSend( a, Cube, 2 );
     XCTAssert( y == 1 );
 
-    DKMsgSend( b, Square, 2, &y );
+    y = DKMsgSend( b, Square, 2 );
     XCTAssert( y == 4 );
 
-    DKMsgSend( b, Cube, 2, &y );
+    y = DKMsgSend( b, Cube, 2 );
     XCTAssert( y == 8 );
 
     // Cleanup

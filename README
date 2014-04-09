@@ -7,7 +7,7 @@ enough to be easily ported to platforms where using those is inconvenient.
 
 ## License
 
-The Duck source is distributed under the MIT License. The packages under the
+The Duck source is distributed under the MIT License. Any packages under the
 'ThirdParty' directory are distributed according to their respective licenses.
 
 
@@ -16,7 +16,7 @@ The Duck source is distributed under the MIT License. The packages under the
 * Classes, interfaces, properties and messages.
 * Thread-safe reference counting and zeroing weak references.
 * String class with basic UTF-8 support.
-* Container classes implementing lists, dictionaries and sets.
+* Container classes for lists, dictionaries and sets.
 
 
 ## Porting
@@ -26,9 +26,7 @@ compile anywhere with a C99 compliant compiler. A few types and functions,
 particularly those related to atomic operations will likely need to be redefined
 on non-Apple or non-POSIX systems.
 
-
-
-A sample SConstruct file is included for building with scons.
+A basic SConstruct file is included for building with scons.
 
 
 ## Quick Start
@@ -40,7 +38,7 @@ Here's a snippet of code that shows what using Duck looks like.
 
 int main( int argc, const char * argv[] )
 {
-    // Create a mutable dictionary
+    // Create a mutable list
     DKMutableListRef list = DKListCreateMutable();
     
     for( int i = 0; i < 10; i++ )
@@ -49,7 +47,7 @@ int main( int argc, const char * argv[] )
         DKMutableStringRef str = DKStringCreateMutable();
         
         // Strings support the stream interface so we can print to them thusly
-        DKSPrintf( str, "String %d", i );
+        DKSPrintf( str, "Hello World %d", i );
 
         // Add the string to the list
         DKListAppendObject( list, str );
@@ -91,12 +89,18 @@ works almost exactly like Objective-C message passing. A message handler is an
 interface containing a single method with the following form:
 
 ```C
-void MyMethod( DKObjectRef _self, DKSEL sel, ... );
+intptr_t MyMethod( DKObjectRef _self, DKSEL sel, ... );
 ```
 
+Unlike Objective-C, Duck message handlers are limited to returning a single
+pointer-sized integer. The Objective-C compiler can look at the expected return
+type and pick a message send function to deal with non-integer return types.
+Trying to do that in Duck risks stack corruption if the actual value returned
+doesn't match the caller.
+
 Message handlers are a useful way of adding one-off methods for target-action
-paradigms, events, notifications, etc., without having to define a full
-interface structure.
+paradigms, events, notifications, etc., without having to define a new interface
+structure.
 
 ### Properties
 
@@ -113,6 +117,7 @@ Duck provides several built-in container classes:
 * *DKString* for UTF-8 strings.
 * *DKData* for binary data.
 * *DKNumber* for integer and floating-point scalars and vectors.
+* *DKStruct* for storing arbitrary C structs.
 * *DKArray* and *DKLinkedList* for ordered sequences.
 * *DKHashTable* and *DKBinaryTree* for key-value storage.
 
@@ -132,15 +137,18 @@ Some possible/probable areas for further work:
 Classes for useful system-level stuff like threads, run loops, notifications,
 URLs, etc.
 
-Implicit property storage. Right now properties must be bound to a member of the
-instance structure. Allowing properties to be stored in a dictionary associated
-with the object would facillitate creating truly dynamic classes.
+Class and selector registry for looking up classes and selectors by name as in
+Objective-C with NSClassFromString and NSSelectorFromString.
+
+Implicit property storage. Right now each property must be bound to a member of
+the instance structure. Allowing properties to be stored in a dictionary
+associated with the object would facillitate creating truly dynamic classes.
 
 Property list and/or JSON serialization, with automatic serialization of
 properties. A object graph serialization format (like NSCoding) might also be
 useful.
 
-A date/Time class.
+A time/date class.
 
 More unicode support. DKString currently supports enough UTF-8 for basic string
 functions, but more powerful string comparison and locale support would be nice.

@@ -101,7 +101,13 @@ typedef enum
 struct _DKSEL
 {
     const DKObject  _obj;
+    
+    // A "sorta" unique identifier. Selectors are compared by pointer value, so
+    // this field is mostly for debugging, yet it should still be unique within
+    // the context of the application.
     const char *    suid;
+    
+    // Controls how interfaces retrieved by this selector are cached.
     DKCacheUsage    cacheline;
 };
 
@@ -134,11 +140,13 @@ DKInterfaceRef DKInterfaceNotFound( void );
 
 
 // DKMessage =============================================================================
+typedef intptr_t (*DKMsgFunction)( DKObjectRef _self, DKSEL sel );
+
 typedef struct DKMsgHandler
 {
     const DKObject  _obj;
     DKSEL           sel;
-    const void *    func;
+    DKMsgFunction   func;
     
 } DKMsgHandler;
 
@@ -148,7 +156,7 @@ typedef const struct DKMsgHandler * DKMsgHandlerRef;
 // DKMsgSend() for type safety.
 #define DKDeclareMessageSelector( name, ... )                                           \
     DKSEL DKSelector_ ## name( void );                                                  \
-    typedef void (*DKMsgHandler_ ## name)( DKObjectRef, DKSEL , ## __VA_ARGS__ )
+    typedef intptr_t (*DKMsgHandler_ ## name)( DKObjectRef, DKSEL , ## __VA_ARGS__ )
 
 // A generic message handler that does nothing. Returned by DKGetMsgHandler() when a
 // matching message handler cannot be located.
@@ -306,7 +314,7 @@ void        DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
 // *** WARNING ***
 // Replacing message handlers after a class is in use (i.e. implementation swizzling) is
 // not currently supported.
-void        DKInstallMsgHandler( DKClassRef cls, DKSEL sel, const void * func );
+void        DKInstallMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
 
 
 // Install properties

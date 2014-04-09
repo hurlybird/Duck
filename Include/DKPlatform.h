@@ -73,8 +73,8 @@ enum
 };
 
 
-// UTF32 character - C11 char32_t conflicts with C++
-typedef int32_t dk_unicode_t;
+// UTF32 character - char32_t support is flaky
+typedef int32_t DKChar32;
 
 
 // Ranges
