@@ -36,7 +36,7 @@
 
 typedef struct
 {
-    uint8_t * data;
+    uint8_t * bytes;
     DKIndex length;
     DKIndex maxLength;
 

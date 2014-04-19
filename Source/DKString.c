@@ -196,8 +196,8 @@ static DKStringRef CopySubstring( const char * str, DKRange byteRange )
         
         DKByteArrayInitWithExternalStorage( &string->byteArray, (const void *)(string + 1), byteRange.length );
         
-        memcpy( string->byteArray.data, &str[byteRange.location], byteRange.length );
-        string->byteArray.data[byteRange.length] = '\0';
+        memcpy( string->byteArray.bytes, &str[byteRange.location], byteRange.length );
+        string->byteArray.bytes[byteRange.length] = '\0';
     }
 
     return _self;
@@ -289,7 +289,7 @@ DKStringRef DKStringCopy( DKStringRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
-        return DKStringCreateWithCString( DKGetClass( _self ), (const char *)_self->byteArray.data );
+        return DKStringCreateWithCString( DKGetClass( _self ), (const char *)_self->byteArray.bytes );
     }
     
     return NULL;
@@ -304,7 +304,7 @@ DKMutableStringRef DKStringMutableCopy( DKStringRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
-        return (DKMutableStringRef)DKStringCreateWithCString( DKMutableStringClass(), (const char *)_self->byteArray.data );
+        return (DKMutableStringRef)DKStringCreateWithCString( DKMutableStringClass(), (const char *)_self->byteArray.bytes );
     }
     
     return NULL;
@@ -337,18 +337,7 @@ int DKStringCompare( DKStringRef _self, DKStringRef other )
         // requirement.
         DKCheckKindOfClass( other, DKStringClass(), DKPointerCompare( _self, other ) );
     
-        if( _self->byteArray.data )
-        {
-            if( _self->byteArray.data )
-                return dk_ustrcmp( (const char *)_self->byteArray.data, (const char *)other->byteArray.data );
-            
-            return dk_ustrcmp( (const char *)_self->byteArray.data, "" );
-        }
-        
-        else if( other->byteArray.data )
-        {
-            return dk_ustrcmp( "", (const char *)other->byteArray.data );
-        }
+        return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes );
     }
     
     return 0;
@@ -364,8 +353,7 @@ DKHashCode DKStringHash( DKStringRef _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
 
-        if( _self->byteArray.data )
-            return dk_strhash( (const char *)_self->byteArray.data );
+        return dk_strhash( (const char *)_self->byteArray.bytes );
     }
     
     return 0;
@@ -383,8 +371,7 @@ DKIndex DKStringGetLength( DKStringRef _self )
         
         const struct DKString * string = _self;
         
-        if( string->byteArray.data )
-            return dk_ustrlen( (const char *)string->byteArray.data );
+        return dk_ustrlen( (const char *)string->byteArray.bytes );
     }
     
     return 0;
@@ -418,7 +405,7 @@ const char * DKStringGetCStringPtr( DKStringRef _self )
         DKAssertKindOfClass( _self, DKStringClass() );
 
         // Note: ByteArray data is never null.
-        return (const char *)_self->byteArray.data;
+        return (const char *)_self->byteArray.bytes;
     }
     
     return "";
@@ -438,7 +425,7 @@ DKStringRef DKStringCopySubstring( DKStringRef _self, DKRange range )
         {
             if( _self->byteArray.length > 0 )
             {
-                const uint8_t * loc = (const uint8_t *)dk_ustridx( (const char *)_self->byteArray.data, range.location );
+                const uint8_t * loc = (const uint8_t *)dk_ustridx( (const char *)_self->byteArray.bytes, range.location );
                 
                 if( loc )
                 {
@@ -447,16 +434,16 @@ DKStringRef DKStringCopySubstring( DKStringRef _self, DKRange range )
                     if( end )
                     {
                         DKRange byteRange;
-                        byteRange.location = loc - _self->byteArray.data;
+                        byteRange.location = loc - _self->byteArray.bytes;
                         byteRange.length = end - loc;
 
-                        return CopySubstring( (const char *)_self->byteArray.data, byteRange );
+                        return CopySubstring( (const char *)_self->byteArray.bytes, byteRange );
                     }
                 }
             }
 
             DKError( "%s: Range %ld,%ld is outside 0,%ld\n", __func__,
-                range.location, range.length, dk_ustrlen( (const char *)_self->byteArray.data ) );
+                range.location, range.length, dk_ustrlen( (const char *)_self->byteArray.bytes ) );
         }
     }
     
@@ -477,21 +464,21 @@ DKStringRef DKStringCopySubstringFromIndex( DKStringRef _self, DKIndex index )
         {
             if( _self->byteArray.length > 0 )
             {
-                const uint8_t * loc = (const uint8_t *)dk_ustridx( (const char *)_self->byteArray.data, index );
+                const uint8_t * loc = (const uint8_t *)dk_ustridx( (const char *)_self->byteArray.bytes, index );
                     
                 if( loc )
                 {
                     DKRange byteRange;
-                    byteRange.location = loc - _self->byteArray.data;
+                    byteRange.location = loc - _self->byteArray.bytes;
                     byteRange.length = _self->byteArray.length - byteRange.location;
 
-                    return CopySubstring( (const char *)_self->byteArray.data, byteRange );
+                    return CopySubstring( (const char *)_self->byteArray.bytes, byteRange );
                 }
             }
         }
 
         DKError( "%s: Index %ld is outside 0,%ld\n", __func__,
-            index, dk_ustrlen( (const char *)_self->byteArray.data ) );
+            index, dk_ustrlen( (const char *)_self->byteArray.bytes ) );
     }
     
     return NULL;
@@ -511,21 +498,21 @@ DKStringRef DKStringCopySubstringToIndex( DKStringRef _self, DKIndex index )
         {
             if( _self->byteArray.length > 0 )
             {
-                const uint8_t * end = (const uint8_t *)dk_ustridx( (const char *)_self->byteArray.data, index );
+                const uint8_t * end = (const uint8_t *)dk_ustridx( (const char *)_self->byteArray.bytes, index );
                     
                 if( end )
                 {
                     DKRange byteRange;
                     byteRange.location = 0;
-                    byteRange.length = end - _self->byteArray.data;
+                    byteRange.length = end - _self->byteArray.bytes;
 
-                    return CopySubstring( (const char *)_self->byteArray.data, byteRange );
+                    return CopySubstring( (const char *)_self->byteArray.bytes, byteRange );
                 }
             }
         }
 
         DKError( "%s: Index %ld is outside 0,%ld\n", __func__,
-            index, dk_ustrlen( (const char *)_self->byteArray.data ) );
+            index, dk_ustrlen( (const char *)_self->byteArray.bytes ) );
     }
     
     return NULL;
@@ -547,7 +534,7 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
 
         if( string->byteArray.length > 0 )
         {
-            const char * s = (const char *)string->byteArray.data;
+            const char * s = (const char *)string->byteArray.bytes;
         
             if( startLoc > 0 )
             {
@@ -556,7 +543,7 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
                 if( s == NULL )
                 {
                     DKError( "%s: Index %ld is outside 0,%ld\n", __func__,
-                        startLoc, dk_ustrlen( (const char *)string->byteArray.data ) );
+                        startLoc, dk_ustrlen( (const char *)string->byteArray.bytes ) );
                 }
             }
             
@@ -673,7 +660,7 @@ void DKStringSetString( DKMutableStringRef _self, DKStringRef str )
             DKAssertKindOfClass( str, DKStringClass() );
             const struct DKString * src = str;
 
-            DKByteArrayReplaceBytes( &_self->byteArray, range, src->byteArray.data, src->byteArray.length );
+            DKByteArrayReplaceBytes( &_self->byteArray, range, src->byteArray.bytes, src->byteArray.length );
         }
         
         else
@@ -695,7 +682,7 @@ void DKStringAppendString( DKMutableStringRef _self, DKStringRef str )
         DKAssertKindOfClass( str, DKStringClass() );
         
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
-        DKByteArrayReplaceBytes( &_self->byteArray, range, str->byteArray.data, str->byteArray.length );
+        DKByteArrayReplaceBytes( &_self->byteArray, range, str->byteArray.bytes, str->byteArray.length );
     }
 }
 
@@ -732,7 +719,7 @@ void DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKString
         DKAssertKindOfClass( str, DKStringClass() );
         DKCheckRange( range, _self->byteArray.length );
         
-        DKByteArrayReplaceBytes( &_self->byteArray, range, str->byteArray.data, str->byteArray.length );
+        DKByteArrayReplaceBytes( &_self->byteArray, range, str->byteArray.bytes, str->byteArray.length );
     }
 }
 
@@ -782,7 +769,7 @@ int DKStringIsAbsolutePath( DKStringRef _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
         
-        return (_self->byteArray.length > 0) && (_self->byteArray.data[0] == DKPathComponentSeparator);
+        return (_self->byteArray.length > 0) && (_self->byteArray.bytes[0] == DKPathComponentSeparator);
     }
     
     return 0;
@@ -797,7 +784,7 @@ DKStringRef DKStringCopyLastPathComponent( DKStringRef _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
 
-        const char * path = (const char *)_self->byteArray.data;
+        const char * path = (const char *)_self->byteArray.bytes;
 
         // Empty or root path
         if( (_self->byteArray.length == 0) || ((_self->byteArray.length == 1) && (path[0] == DKPathComponentSeparator)) )
@@ -859,7 +846,7 @@ DKStringRef DKStringCopyPathExtension( DKStringRef _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
 
-        const char * path = (const char *)_self->byteArray.data;
+        const char * path = (const char *)_self->byteArray.bytes;
         const char * ext = dk_ustrrchr( path, DKPathExtensionSeparator );
         
         // No extension
@@ -899,7 +886,7 @@ void DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComp
             DKByteArrayAppendBytes( &_self->byteArray, (const uint8_t *)separator, 1 );
         }
 
-        DKByteArrayAppendBytes( &_self->byteArray, pathComponent->byteArray.data, pathComponent->byteArray.length );
+        DKByteArrayAppendBytes( &_self->byteArray, pathComponent->byteArray.bytes, pathComponent->byteArray.length );
 
         DKStringStandardizePath( _self );
     }
@@ -917,7 +904,7 @@ void DKStringRemoveLastPathComponent( DKMutableStringRef _self )
 
         DKStringStandardizePath( _self );
 
-        const char * path = (const char *)_self->byteArray.data;
+        const char * path = (const char *)_self->byteArray.bytes;
 
         // Empty or root path
         if( (_self->byteArray.length == 0) || ((_self->byteArray.length == 1) && (path[0] == DKPathComponentSeparator)) )
@@ -963,20 +950,20 @@ void DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extensio
 
         DKStringStandardizePath( _self );
         
-        const char * path = (const char *)_self->byteArray.data;
+        const char * path = (const char *)_self->byteArray.bytes;
         
         // Empty or root path
         if( (_self->byteArray.length == 0) || ((_self->byteArray.length == 1) && (path[0] == DKPathComponentSeparator)) )
         {
             DKError( "%s: Cannot append path extension '%s' to path '%s'\n",
-                __func__, (const char *)extension->byteArray.data, path );
+                __func__, (const char *)extension->byteArray.bytes, path );
             return;
         }
 
         const char separator[2] = { DKPathExtensionSeparator, '\0' };
         DKByteArrayAppendBytes( &_self->byteArray, (const uint8_t *)separator, 1 );
         
-        DKByteArrayAppendBytes( &_self->byteArray, extension->byteArray.data, extension->byteArray.length );
+        DKByteArrayAppendBytes( &_self->byteArray, extension->byteArray.bytes, extension->byteArray.length );
     }
 }
 
@@ -992,7 +979,7 @@ void DKStringRemovePathExtension( DKMutableStringRef _self )
 
         DKStringStandardizePath( _self );
 
-        const char * path = (const char *)_self->byteArray.data;
+        const char * path = (const char *)_self->byteArray.bytes;
         const char * ext = dk_ustrrchr( path, DKPathExtensionSeparator );
         
         // No extension
@@ -1024,7 +1011,7 @@ void DKStringStandardizePath( DKMutableStringRef _self )
         DKAssertKindOfClass( _self, DKMutableStringClass() );
 
         // Remove redundant slashes
-        char * dst = (char *)_self->byteArray.data;
+        char * dst = (char *)_self->byteArray.bytes;
         const char * src = dst;
         int wasslash = 0;
         
@@ -1046,7 +1033,7 @@ void DKStringStandardizePath( DKMutableStringRef _self )
         }
         
         DKRange range;
-        range.location = (uint8_t *)dst - _self->byteArray.data;
+        range.location = (uint8_t *)dst - _self->byteArray.bytes;
         
         if( wasslash && (range.location > 1) )
             range.location--;
@@ -1118,7 +1105,7 @@ DKIndex DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex co
         if( range.length > (_self->byteArray.length - _self->cursor) )
             range.length = _self->byteArray.length - _self->cursor;
         
-        memcpy( buffer, &_self->byteArray.data[range.location], range.length );
+        memcpy( buffer, &_self->byteArray.bytes[range.location], range.length );
         
         SetCursor( (struct DKString *)_self, _self->cursor + range.length );
         
