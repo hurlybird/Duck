@@ -25,7 +25,7 @@
 *****************************************************************************************/
 
 #include "DKPlatform.h"
-#include "DKPointerArray.h"
+#include "DKElementArray.h"
 #include "DKRuntime.h"
 #include "DKString.h"
 #include "DKHashTable.h"
@@ -71,7 +71,7 @@ struct DKClass
     //
     // Also, using a hash table would require substantially more complex logic when
     // installing the root class interfaces.
-    DKPointerArray  interfaces;
+    DKElementArray  interfaces;
     
     DKMutableHashTableRef properties;
 };
@@ -448,7 +448,7 @@ static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, si
     cls->options = options;
     cls->lock = DKSpinLockInit;
     
-    DKPointerArrayInit( &cls->interfaces );
+    DKElementArrayInit( &cls->interfaces, sizeof(DKObjectRef) );
 }
 
 
@@ -459,7 +459,7 @@ static void InstallRootClassInterface( struct DKClass * _class, DKInterfaceRef i
 {
     // Bypass the normal installation process here since the classes that allow it to
     // work haven't been fully initialized yet.
-    DKPointerArrayAppendPointer( &_class->interfaces, (uintptr_t)interface );
+    DKElementArrayAppendElements( &_class->interfaces, &interface, 1 );
 }
 
 
@@ -702,7 +702,7 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
 
     memset( cls->cache, 0, sizeof(cls->cache) );
     
-    DKPointerArrayInit( &cls->interfaces );
+    DKElementArrayInit( &cls->interfaces, sizeof(DKObjectRef) );
     
     // To ensure that all classes have an initializer/finalizer, install a default
     // allocation interface here. If we don't do this the base class versions can be
@@ -730,11 +730,11 @@ static void DKClassFinalize( DKObjectRef _self )
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        DKInterface * interface = (DKInterface *)cls->interfaces.data[i];
+        DKInterface * interface = DKElementArrayGetElementAtIndex( &cls->interfaces, i, DKInterface * );
         DKRelease( interface );
     }
     
-    DKPointerArrayFinalize( &cls->interfaces );
+    DKElementArrayFinalize( &cls->interfaces );
     
     // Release properties
     DKRelease( cls->properties );
@@ -823,11 +823,11 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        DKInterface * oldInterface = (DKInterface *)cls->interfaces.data[i];
+        DKInterface * oldInterface = DKElementArrayGetElementAtIndex( &cls->interfaces, i, DKInterface * );
         
         if( DKEqual( oldInterface->sel, interface->sel ) )
         {
-            cls->interfaces.data[i] = (uintptr_t)interface;
+            DKElementArrayGetElementAtIndex( &cls->interfaces, i, DKInterface * ) = interface;
 
             DKSpinLockUnlock( &cls->lock );
 
@@ -838,7 +838,7 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
     }
     
     // Add the interface to the interface table
-    DKPointerArrayAppendPointer( &cls->interfaces, (uintptr_t)interface );
+    DKElementArrayAppendElements( &cls->interfaces, &interface, 1 );
 
     DKSpinLockUnlock( &cls->lock );
 }
@@ -933,7 +933,7 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        DKInterface * interface = (DKInterface *)cls->interfaces.data[i];
+        DKInterface * interface = DKElementArrayGetElementAtIndex( &cls->interfaces, i, DKInterface * );
         DKAssert( interface != NULL );
         
         if( DKFastSelectorEqual( interface->sel, sel ) )

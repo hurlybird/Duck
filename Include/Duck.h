@@ -36,7 +36,7 @@ extern "C"
 #include "DKPlatform.h"
 
 #include "DKByteArray.h"
-#include "DKPointerArray.h"
+#include "DKElementArray.h"
 #include "DKNodePool.h"
 #include "DKUnicode.h"
 

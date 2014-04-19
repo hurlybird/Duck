@@ -127,24 +127,27 @@ int DKByteArrayHasExternalStorage( DKByteArray * array )
 
 
 ///
-//  DKByteArrayResize()
+//  ResizeArray()
 //
-static uint8_t * DKByteArrayResize( void * ptr, DKIndex oldSize, DKIndex requestedSize, DKIndex * allocatedSize )
+static void * ResizeArray( void * ptr, DKIndex oldLength, DKIndex requestedLength, DKIndex * allocatedLength )
 {
-    if( requestedSize < oldSize )
+    if( requestedLength < oldLength )
+    {
+        *allocatedLength = oldLength;
         return ptr;
+    }
     
-    DKIndex newSize = 2 * oldSize;
+    DKIndex newLength = 2 * oldLength;
     
-    if( newSize < requestedSize )
-        newSize = requestedSize;
+    if( newLength < requestedLength )
+        newLength = requestedLength;
     
-    if( newSize < MIN_BYTE_ARRAY_SIZE )
-        newSize = MIN_BYTE_ARRAY_SIZE;
+    if( newLength < MIN_BYTE_ARRAY_SIZE )
+        newLength = MIN_BYTE_ARRAY_SIZE;
     
-    *allocatedSize = newSize;
+    *allocatedLength = newLength;
     
-    return dk_malloc( newSize + NULL_TERMINATOR_SIZE );
+    return dk_malloc( newLength + NULL_TERMINATOR_SIZE );
 }
 
 
@@ -178,7 +181,7 @@ void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t 
     DKAssert( newLength >= 0 );
 
     // Resize
-    uint8_t * data = DKByteArrayResize( array->data, array->maxLength, newLength, &array->maxLength );
+    uint8_t * data = ResizeArray( array->data, array->maxLength, newLength, &array->maxLength );
     DKAssert( data != NULL );
     
     if( array->data != NULL_DATA )

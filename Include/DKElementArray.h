@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  DKPointerArray.h
+  DKElementArray.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,35 +24,45 @@
 
 *****************************************************************************************/
 
-#ifndef _DK_POINTER_ARRAY_H_
-#define _DK_POINTER_ARRAY_H_
+#ifndef _DK_ELEMENT_ARRAY_H_
+#define _DK_ELEMENT_ARRAY_H_
 
 #include "DKPlatform.h"
 
 
 typedef struct
 {
-    uintptr_t * data;
+    uint8_t * elements;
+    DKIndex elementSize;
     DKIndex length;
     DKIndex maxLength;
 
-} DKPointerArray;
+} DKElementArray;
 
 
-void DKPointerArrayInit( DKPointerArray * array );
+void DKElementArrayInit( DKElementArray * array, DKIndex elementSize );
 
-void DKPointerArrayInitWithExternalStorage( DKPointerArray * array, const uintptr_t pointers[], DKIndex length );
-int  DKPointerArrayHasExternalStorage( DKPointerArray * array );
+void DKElementArrayInitWithExternalStorage( DKElementArray * array, const void * elements, DKIndex elementSize, DKIndex length );
+int  DKElementArrayHasExternalStorage( DKElementArray * array );
 
-void DKPointerArrayFinalize( DKPointerArray * array );
+void DKElementArrayFinalize( DKElementArray * array );
 
-void DKPointerArrayReserve( DKPointerArray * array, DKIndex length );
+void DKElementArrayReserve( DKElementArray * array, DKIndex length );
 
-void DKPointerArrayReplacePointers( DKPointerArray * array, DKRange range, const uintptr_t pointers[], DKIndex length );
-void DKPointerArrayAppendPointer( DKPointerArray * array, uintptr_t pointer );
+#define DKElementArrayGetLength( array ) ((array)->length)
 
-void DKPointerArraySort( DKPointerArray * array, DKCompareFunction cmp );
-void DKPointerArrayShuffle( DKPointerArray * array );
+#define DKElementArrayGetPointerToElementAtIndex( array, index )                        \
+     ((void *)((array)->elements + ((index) * (array)->elementSize)))
+
+#define DKElementArrayGetElementAtIndex( array, index, type )                           \
+    *((type *)((array)->elements + ((index) * (array)->elementSize)))
+
+void DKElementArrayReplaceElements( DKElementArray * array, DKRange range, const void * elements, DKIndex length );
+void DKElementArrayAppendElements( DKElementArray * array, const void * elements, DKIndex length );
+
+void DKElementArraySort( DKElementArray * array, DKCompareFunction cmp );
+void DKElementArrayReverse( DKElementArray * array );
+void DKElementArrayShuffle( DKElementArray * array );
 
 
 

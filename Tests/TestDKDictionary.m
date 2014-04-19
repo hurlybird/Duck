@@ -46,14 +46,14 @@ static int RaiseException( const char * format, va_list arg_ptr )
 {
     const int N = 10000;
     
-    DKPointerArray keys;
-    DKPointerArrayInit( &keys );
-    DKPointerArrayReserve( &keys, N );
+    DKElementArray keys;
+    DKElementArrayInit( &keys, sizeof(DKStringRef) );
+    DKElementArrayReserve( &keys, N );
     keys.length = N;
 
-    DKPointerArray values;
-    DKPointerArrayInit( &values );
-    DKPointerArrayReserve( &values, N );
+    DKElementArray values;
+    DKElementArrayInit( &values, sizeof(DKStringRef) );
+    DKElementArrayReserve( &values, N );
     values.length = N;
     
     DKMutableDictionaryRef dict = (DKMutableDictionaryRef)DKCreate( dictionaryClass );
@@ -63,43 +63,51 @@ static int RaiseException( const char * format, va_list arg_ptr )
         char buffer[32];
         
         sprintf( buffer, "Key%d", i );
-        keys.data[i] = (uintptr_t)DKStringCreateWithCString( DKStringClass(), buffer );
-
+        DKStringRef key = DKStringCreateWithCString( DKStringClass(), buffer );
+        
         sprintf( buffer, "Value%d", i );
-        values.data[i] = (uintptr_t)DKStringCreateWithCString( DKStringClass(), buffer );
+        DKStringRef value = DKStringCreateWithCString( DKStringClass(), buffer );
+        
+        DKElementArrayGetElementAtIndex( &keys, i, DKStringRef ) = key;
+        DKElementArrayGetElementAtIndex( &values, i, DKStringRef ) = value;
 
-        DKDictionarySetObject( dict, (DKObjectRef)keys.data[i], (DKObjectRef)values.data[i] );
+        DKDictionarySetObject( dict, key, value );
 
         XCTAssert( DKDictionaryGetCount( dict ) == (i + 1) );
-        XCTAssert( DKDictionaryContainsKey( dict, (DKObjectRef)keys.data[i] ) );
+        XCTAssert( DKDictionaryContainsKey( dict, key ) );
     }
     
     XCTAssert( DKDictionaryGetCount( dict ) == N );
 
     for( int i = 0; i < N; i++ )
     {
-        DKObjectRef value = DKDictionaryGetObject( dict, (DKObjectRef)keys.data[i] );
-        XCTAssert( value == (DKObjectRef)values.data[i] );
+        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef value = DKElementArrayGetElementAtIndex( &values, i, DKObjectRef );
+        XCTAssert( DKDictionaryGetObject( dict, key ) == value );
     }
     
-    DKPointerArrayShuffle( &keys );
+    DKElementArrayShuffle( &keys );
     
     for( int i = 0; i < N; i++ )
     {
-        DKDictionaryRemoveObject( dict, (DKObjectRef)keys.data[i] );
+        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKObjectRef );
+        DKDictionaryRemoveObject( dict, key );
         XCTAssert( DKDictionaryGetCount( dict ) == N - (i + 1) );
     }
 
     for( int i = 0; i < N; i++ )
     {
-        DKRelease( (DKObjectRef)keys.data[i] );
-        DKRelease( (DKObjectRef)values.data[i] );
+        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKStringRef );
+        DKStringRef value = DKElementArrayGetElementAtIndex( &values, i, DKStringRef );
+
+        DKRelease( key );
+        DKRelease( value );
     }
     
     DKRelease( dict );
     
-    DKPointerArrayFinalize( &keys );
-    DKPointerArrayFinalize( &values );
+    DKElementArrayFinalize( &keys );
+    DKElementArrayFinalize( &values );
 }
 
 @end

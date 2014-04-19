@@ -27,7 +27,7 @@
 #include "DKLinkedList.h"
 #include "DKNodePool.h"
 #include "DKCopying.h"
-#include "DKPointerArray.h"
+#include "DKElementArray.h"
 #include "DKString.h"
 
 
@@ -706,26 +706,26 @@ void DKLinkedListReplaceRangeWithCollection( DKMutableLinkedListRef _self, DKRan
 ///
 //  DKLinkedListSort()
 //
-static void ListToArray( DKPointerArray * array, struct DKLinkedList * list )
+static void ListToArray( DKElementArray * array, struct DKLinkedList * list )
 {
     struct DKLinkedListNode * node = list->first;
     
     for( DKIndex i = 0; i < list->count; ++i )
     {
-        array->data[i] = (uintptr_t)node->object;
+        DKElementArrayGetElementAtIndex( array, i, DKObjectRef ) = node->object;
         node = node->next;
     }
     
     array->length = list->count;
 }
 
-static void ArrayToList( struct DKLinkedList * list, DKPointerArray * array )
+static void ArrayToList( struct DKLinkedList * list, DKElementArray * array )
 {
     struct DKLinkedListNode * node = list->first;
     
     for( DKIndex i = 0; i < list->count; ++i )
     {
-        node->object = (DKObjectRef)array->data[i];
+        node->object = DKElementArrayGetElementAtIndex( array, i, DKObjectRef );
         node = node->next;
     }
 }
@@ -738,15 +738,15 @@ void DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp )
 
         // This is absurd, yet probably not much slower than doing all the pointer
         // gymnastics needed for sorting the list nodes.
-        DKPointerArray array;
-        DKPointerArrayInit( &array );
-        DKPointerArrayReserve( &array, _self->count );
+        DKElementArray array;
+        DKElementArrayInit( &array, sizeof(DKObjectRef) );
+        DKElementArrayReserve( &array, _self->count );
         ListToArray( &array, _self );
 
-        DKPointerArraySort( &array, cmp );
+        DKElementArraySort( &array, cmp );
 
         ArrayToList( _self, &array );
-        DKPointerArrayFinalize( &array );
+        DKElementArrayFinalize( &array );
     }
 }
 
@@ -762,15 +762,15 @@ void DKLinkedListShuffle( DKMutableLinkedListRef _self )
         
         // This is absurd, yet probably not much slower than doing all the pointer
         // gymnastics needed for shuffling the list nodes.
-        DKPointerArray array;
-        DKPointerArrayInit( &array );
-        DKPointerArrayReserve( &array, _self->count );
+        DKElementArray array;
+        DKElementArrayInit( &array, sizeof(DKObjectRef) );
+        DKElementArrayReserve( &array, _self->count );
         ListToArray( &array, _self );
 
-        DKPointerArrayShuffle( &array );
+        DKElementArrayShuffle( &array );
 
         ArrayToList( _self, &array );
-        DKPointerArrayFinalize( &array );
+        DKElementArrayFinalize( &array );
     }
 }
 
