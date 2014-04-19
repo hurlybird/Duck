@@ -212,9 +212,9 @@ DKInterfaceRef DKDefaultAllocation( void );
 // Comparison ----------------------------------------------------------------------------
 DKDeclareInterfaceSelector( Comparison );
 
-typedef int (*DKEqualMethod)( DKObjectRef a, DKObjectRef b );
-typedef int (*DKCompareMethod)( DKObjectRef a, DKObjectRef b );
-typedef DKHashCode (*DKHashMethod)( DKObjectRef _self );
+typedef DKEqualFunction DKEqualMethod;
+typedef DKCompareFunction DKCompareMethod;
+typedef DKHashFunction DKHashMethod;
 
 struct DKComparisonInterface
 {

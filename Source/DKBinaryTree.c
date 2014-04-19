@@ -49,7 +49,7 @@ struct DKBinaryTree
     struct DKBinaryTreeNode * root;
     DKIndex count;
     
-    DKCompareFunction compareKeys;
+    DKCompareFunction keyCompare;
 };
 
 
@@ -362,7 +362,7 @@ static void InsertRecursive( struct DKBinaryTree * tree, struct DKBinaryTreeNode
     
     else
     {
-        int cmp = tree->compareKeys( (*node)->key, key );
+        int cmp = tree->keyCompare( (*node)->key, key );
         
         if( cmp < 0 )
         {
@@ -412,7 +412,7 @@ static const struct DKBinaryTreeNode * FindNode( const struct DKBinaryTree * tre
 
     while( node != &tree->null_node )
     {
-        int cmp = tree->compareKeys( node->key, key );
+        int cmp = tree->keyCompare( node->key, key );
         
         if( cmp < 0 )
             node = node->left;
@@ -452,7 +452,7 @@ static void Remove( struct DKBinaryTree * tree, DKObjectRef key, struct DKBinary
     {
         *leaf_node = *node;
     
-        int cmp = tree->compareKeys( (*node)->key, key );
+        int cmp = tree->keyCompare( (*node)->key, key );
         
         if( cmp < 0 )
         {
@@ -467,7 +467,7 @@ static void Remove( struct DKBinaryTree * tree, DKObjectRef key, struct DKBinary
         
         if( *leaf_node == *node )
         {
-            if( (*erase_node != &tree->null_node) && (tree->compareKeys( (*erase_node)->key, key ) == 0) )
+            if( (*erase_node != &tree->null_node) && (tree->keyCompare( (*erase_node)->key, key ) == 0) )
             {
                 DKAssert( (*node)->left == &tree->null_node );
                 
@@ -576,7 +576,7 @@ static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _self )
         tree->root = &tree->null_node;
         tree->count = 0;
         
-        tree->compareKeys = DKCompare;
+        tree->keyCompare = DKCompare;
     }
     
     return _self;
@@ -729,9 +729,8 @@ DKBinaryTreeRef DKBinaryTreeCopy( DKBinaryTreeRef _self )
         DKAssertKindOfClass( _self, DKBinaryTreeClass() );
 
         struct DKBinaryTree * copy = DKCreate( DKGetClass( _self ) );
-        struct DKBinaryTree * src = (struct DKBinaryTree *)_self;
 
-        copy->compareKeys = src->compareKeys;
+        copy->keyCompare = _self->keyCompare;
 
         DKBinaryTreeApplyFunction( _self, InsertKeyAndObject, copy );
         
@@ -752,9 +751,8 @@ DKMutableBinaryTreeRef DKBinaryTreeMutableCopy( DKBinaryTreeRef _self )
         DKAssertKindOfClass( _self, DKBinaryTreeClass() );
 
         struct DKBinaryTree * copy = DKCreate( DKMutableBinaryTreeClass() );
-        struct DKBinaryTree * src = (struct DKBinaryTree *)_self;
 
-        copy->compareKeys = src->compareKeys;
+        copy->keyCompare = _self->keyCompare;
 
         DKBinaryTreeApplyFunction( _self, InsertKeyAndObject, copy );
         
