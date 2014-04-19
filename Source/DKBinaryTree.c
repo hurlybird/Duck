@@ -597,6 +597,22 @@ static void DKBinaryTreeFinalize( DKObjectRef _self )
 
 
 ///
+//  DKBinaryTreeCreateWithCompareFunction()
+//
+DKMutableBinaryTreeRef DKBinaryTreeCreateWithCompareFunction( DKCompareFunction keyCompare )
+{
+    struct DKBinaryTree * tree = DKCreate( DKMutableBinaryTreeClass() );
+
+    if( tree && keyCompare )
+    {
+        tree->keyCompare = keyCompare;
+    }
+    
+    return tree;
+}
+
+
+///
 //  DKBinaryTreeCreateDictionaryWithVAKeysAndObjects()
 //
 static DKObjectRef DKBinaryTreeCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )

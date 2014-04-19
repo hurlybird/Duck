@@ -40,6 +40,8 @@ DKClassRef  DKMutableBinaryTreeClass( void );
 #define     DKBinaryTreeCreateEmpty()    DKCreate( DKBinaryTreeClass() )
 #define     DKBinaryTreeCreateMutable()  DKCreate( DKMutableBinaryTreeClass() )
 
+DKMutableBinaryTreeRef DKBinaryTreeCreateWithCompareFunction( DKCompareFunction keyCompare );
+
 DKObjectRef DKBinaryTreeCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef dictionary );
 
 DKObjectRef DKBinaryTreeCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );

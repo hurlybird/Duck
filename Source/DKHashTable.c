@@ -549,6 +549,26 @@ static void DKHashTableFinalize( DKObjectRef _self )
 
 
 ///
+//  DKHashTableCreateWithHashFunction()
+//
+DKMutableHashTableRef DKHashTableCreateWithHashFunction( DKHashFunction keyHash, DKEqualFunction keyEqual )
+{
+    struct DKHashTable * hashTable = DKCreate( DKMutableHashTableClass() );
+
+    if( hashTable )
+    {
+        if( keyHash )
+            hashTable->keyHash = keyHash;
+        
+        if( keyEqual )
+            hashTable->keyEqual = keyEqual;
+    }
+    
+    return hashTable;
+}
+
+
+///
 //  DKHashTableCreateDictionaryWithVAKeysAndObjects()
 //
 static DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )
