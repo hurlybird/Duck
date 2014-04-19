@@ -284,11 +284,11 @@ void        DKFinalizeObject( DKObjectRef _self );
 // Creating Classes ======================================================================
 enum
 {
-    // Instances are never allocated
-    DKInstancesNeverAllocated =     (1 << 0),
+    // Disable allocating of instances
+    DKAbstractBaseClass =     (1 << 0),
 
-    // Instances are never deallocated (disables reference counting)
-    DKInstancesNeverDeallocated =   (1 << 1),
+    // Disable reference counting for instances
+    DKDisableReferenceCounting =   (1 << 1),
     
     // This class cannot be subclassed
     DKPreventSubclassing =          (1 << 2)

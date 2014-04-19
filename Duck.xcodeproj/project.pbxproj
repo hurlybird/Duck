@@ -148,7 +148,7 @@
 		021EC2DA18F07BA9004148AD /* uvernum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uvernum.h; sourceTree = "<group>"; };
 		021EC2DB18F07BA9004148AD /* uversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uversion.h; sourceTree = "<group>"; };
 		021EC2EA18F085F2004148AD /* DKConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKConfig.h; sourceTree = "<group>"; };
-		021EC2EF18F0CDB1004148AD /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		021EC2EF18F0CDB1004148AD /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		024EE3E2148E0B21008FDADC /* libDuck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDuck.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		025C0F3318EFED96000344C0 /* DKArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKArray.h; sourceTree = "<group>"; };
 		025C0F3418EFED96000344C0 /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBinaryTree.h; sourceTree = "<group>"; };
@@ -255,7 +255,7 @@
 		024EE3D7148E0B21008FDADC = {
 			isa = PBXGroup;
 			children = (
-				021EC2EF18F0CDB1004148AD /* README */,
+				021EC2EF18F0CDB1004148AD /* README.md */,
 				02AFC05D18F172A0006B70B9 /* LICENSE */,
 				025C0F3218EFED96000344C0 /* Include */,
 				025C0F4718EFED96000344C0 /* Source */,

@@ -475,7 +475,7 @@ static void DKRuntimeInit( void )
     {
         DKRuntimeInitialized = 1;
 
-        InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass), DKInstancesNeverAllocated | DKInstancesNeverDeallocated );
+        InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass), DKAbstractBaseClass | DKDisableReferenceCounting );
         InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass), 0 );
         InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct _DKSEL),  0 );
         InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),    0 );
@@ -568,9 +568,9 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
         return NULL;
     }
     
-    if( (cls->options & DKInstancesNeverAllocated) != 0 )
+    if( (cls->options & DKAbstractBaseClass) != 0 )
     {
-        DKFatalError( "DKAllocObject: Class '%s' does not allow allocation of instances.\n", DKStringGetCStringPtr( cls->name ) );
+        DKFatalError( "DKAllocObject: Class '%s' is an abstract base class.\n", DKStringGetCStringPtr( cls->name ) );
         return NULL;
     }
     
@@ -1131,7 +1131,7 @@ DKObjectRef DKRetain( DKObjectRef _self )
     {
         DKObject * obj = (DKObject *)_self;
 
-        if( (obj->isa->options & DKInstancesNeverDeallocated) == 0 )
+        if( (obj->isa->options & DKDisableReferenceCounting) == 0 )
         {
             DKAtomicIncrement32( &obj->refcount );
         }
@@ -1146,7 +1146,7 @@ void DKRelease( DKObjectRef _self )
     {
         DKObject * obj = (DKObject *)_self;
 
-        if( (obj->isa->options & DKInstancesNeverDeallocated) == 0 )
+        if( (obj->isa->options & DKDisableReferenceCounting) == 0 )
         {
             struct DKWeak * weakref = (struct DKWeak *)obj->weakref;
             

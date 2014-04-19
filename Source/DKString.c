@@ -115,7 +115,7 @@ DKThreadSafeClassInit( DKConstantStringClass )
     // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
     // involved in creating constant strings, the names for these classes are
     // initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString), DKPreventSubclassing | DKInstancesNeverDeallocated );
+    DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString), DKPreventSubclassing | DKDisableReferenceCounting );
     
     return cls;
 }
