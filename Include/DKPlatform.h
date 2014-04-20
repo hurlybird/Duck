@@ -105,7 +105,7 @@ typedef int (*DKKeyedApplierFunction)( DKObjectRef key, DKObjectRef object, void
 #define DKPathExtensionSeparator    '.'
 
 
-// Inerstion Policies
+// Insertion Policies
 typedef enum
 {
     DKInsertAlways,
@@ -113,6 +113,16 @@ typedef enum
     DKInsertIfNotFound
     
 } DKInsertPolicy;
+
+
+// Byte Order
+typedef enum
+{
+    DKByteOrderNative = 0,
+    DKByteOrderBigEndian,
+    DKByteOrderLittleEndian
+
+} DKByteOrder;
 
 
 

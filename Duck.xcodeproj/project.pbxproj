@@ -78,6 +78,8 @@
 		025C0FA018EFEE5D000344C0 /* TestDKRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */; };
 		025C0FA118EFEE5D000344C0 /* TestDKString.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9B18EFEE5D000344C0 /* TestDKString.m */; };
 		025C0FA218EFEEC5000344C0 /* libDuck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libDuck.a */; };
+		02624EC0190366C50023B3EE /* DKEgg.c in Sources */ = {isa = PBXBuildFile; fileRef = 02624EBF190366C50023B3EE /* DKEgg.c */; };
+		02624EC1190366C50023B3EE /* DKEgg.c in Sources */ = {isa = PBXBuildFile; fileRef = 02624EBF190366C50023B3EE /* DKEgg.c */; };
 		02C8916918F169780097B6BC /* DKArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4818EFED96000344C0 /* DKArray.c */; };
 		02C8916A18F169780097B6BC /* DKBinaryTree.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4918EFED96000344C0 /* DKBinaryTree.c */; };
 		02C8916B18F169780097B6BC /* DKByteArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4A18EFED96000344C0 /* DKByteArray.c */; };
@@ -197,6 +199,8 @@
 		025C0F9918EFEE5D000344C0 /* TestDKNumber.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKNumber.m; sourceTree = "<group>"; };
 		025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKRuntime.m; sourceTree = "<group>"; };
 		025C0F9B18EFEE5D000344C0 /* TestDKString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKString.m; sourceTree = "<group>"; };
+		02624EBE190366B30023B3EE /* DKEgg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKEgg.h; sourceTree = "<group>"; };
+		02624EBF190366C50023B3EE /* DKEgg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEgg.c; sourceTree = "<group>"; };
 		0263C4A918EFD957005E0ED5 /* license.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = license.html; sourceTree = "<group>"; };
 		02AFC05D18F172A0006B70B9 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		02C8914518F1690F0097B6BC /* libDuck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDuck.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -288,6 +292,7 @@
 				025C0F3618EFED96000344C0 /* DKCopying.h */,
 				025C0F3718EFED96000344C0 /* DKData.h */,
 				025C0F3818EFED96000344C0 /* DKDictionary.h */,
+				02624EBE190366B30023B3EE /* DKEgg.h */,
 				025C0F3918EFED96000344C0 /* DKFile.h */,
 				025C0F3A18EFED96000344C0 /* DKHashTable.h */,
 				025C0F3B18EFED96000344C0 /* DKLinkedList.h */,
@@ -317,6 +322,7 @@
 				025C0F4B18EFED96000344C0 /* DKCopying.c */,
 				025C0F4C18EFED96000344C0 /* DKData.c */,
 				025C0F4D18EFED96000344C0 /* DKDictionary.c */,
+				02624EBF190366C50023B3EE /* DKEgg.c */,
 				025C0F4E18EFED96000344C0 /* DKFile.c */,
 				025C0F4F18EFED96000344C0 /* DKHashTable.c */,
 				025C0F5018EFED96000344C0 /* DKLinkedList.c */,
@@ -556,6 +562,7 @@
 				025C0F7018EFED97000344C0 /* DKBinaryTree.c in Sources */,
 				025C0F7618EFED97000344C0 /* DKHashTable.c in Sources */,
 				02083F9C18F2615E00EEBBAC /* DKCollection.c in Sources */,
+				02624EC0190366C50023B3EE /* DKEgg.c in Sources */,
 				025C0F7918EFED97000344C0 /* DKNodePool.c in Sources */,
 				025C0F8018EFED97000344C0 /* DKString.c in Sources */,
 				025C0F7718EFED97000344C0 /* DKLinkedList.c in Sources */,
@@ -601,6 +608,7 @@
 				02C8917518F169780097B6BC /* DKPlatform.c in Sources */,
 				02C8917618F169780097B6BC /* DKElementArray.c in Sources */,
 				02083FA818F4C47500EEBBAC /* DKCollection.c in Sources */,
+				02624EC1190366C50023B3EE /* DKEgg.c in Sources */,
 				02C8917718F169780097B6BC /* DKRuntime.c in Sources */,
 				02C8917818F169780097B6BC /* DKStream.c in Sources */,
 				02C8917918F169780097B6BC /* DKString.c in Sources */,
