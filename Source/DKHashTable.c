@@ -414,10 +414,6 @@ static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef
 
     if( active )
     {
-        DKRetain( key );
-        DKRelease( row->key );
-        row->key = key;
-
         DKRetain( object );
         DKRelease( row->object );
         row->object = object;
@@ -425,7 +421,7 @@ static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef
     
     else
     {
-        row->key = DKRetain( key );
+        row->key = DKCopy( key );
         row->object = DKRetain( object );
 
         hashTable->count++;

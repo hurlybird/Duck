@@ -267,7 +267,7 @@ static struct DKBinaryTreeNode * AllocNode( struct DKBinaryTree * tree, DKObject
     node->right = &tree->null_node;
     node->level = 0;
 
-    node->key = DKRetain( key );
+    node->key = DKCopy( key );
     node->object = DKRetain( object );
     
     tree->count++;
