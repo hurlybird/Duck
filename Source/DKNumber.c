@@ -376,6 +376,17 @@ DKNumberRef DKNumberCreateDouble( double x )
 
 
 ///
+//  DKNumberCreateUUID()
+//
+DKNumberRef DKNumberCreateUUID( void )
+{
+    DKUUID uuid = dk_uuid_generate();
+    
+    return DKNumberCreate( &uuid, DKNumberUUID );
+}
+
+
+///
 //  DKNumberGetType()
 //
 DKNumberType DKNumberGetType( DKNumberRef _self )

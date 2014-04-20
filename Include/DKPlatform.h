@@ -125,6 +125,14 @@ typedef enum
 } DKByteOrder;
 
 
+// UUID
+typedef struct
+{
+    uint8_t bytes[16];
+
+} DKUUID;
+
+
 
 
 // Error Reporting =======================================================================
@@ -353,6 +361,9 @@ typedef OSSpinLock DKSpinLock;
 
 
 // Other Utilities =======================================================================
+
+// Generate UUIDs
+DKUUID dk_uuid_generate( void );
 
 // Basic hashing
 DKHashCode dk_strhash( const char * str );

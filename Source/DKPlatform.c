@@ -235,6 +235,26 @@ void dk_free( void * ptr )
 // Other Utilities =======================================================================
 
 ///
+//  dk_uuid_generate()
+//
+#if DK_PLATFORM_POSIX
+#include <uuid/uuid.h>
+
+DKUUID dk_uuid_generate( void )
+{
+    DKAssert( sizeof(DKUUID) == sizeof(uuid_t) );
+    
+    DKUUID uuid;
+
+    // Note: uuid_t is defined as an array of unsigned chars, thus the weird casting here
+    uuid_generate( (void *)&uuid );
+    
+    return uuid;
+}
+#endif
+
+
+///
 //  dk_strhash()
 //
 DKHashCode dk_strhash( const char * str )

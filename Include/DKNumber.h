@@ -70,6 +70,8 @@ typedef int32_t DKNumberType;
 #define DKNumberFloat   DKNumberMakeVectorType( DKNumberComponentFloat, 1 )
 #define DKNumberDouble  DKNumberMakeVectorType( DKNumberComponentDouble, 1 )
 
+#define DKNumberUUID    DKNumberMakeVectorType( DKNumberComponentUInt8, 16 )
+
 #define DKNumberGetComponentType( type )    ((type) & 0x0000FFFF)
 #define DKNumberGetComponentCount( type )   ((type) >> 16)
 
@@ -92,6 +94,7 @@ DKNumberRef DKNumberCreateUInt32( uint32_t x );
 DKNumberRef DKNumberCreateUInt64( uint64_t x );
 DKNumberRef DKNumberCreateFloat( float x );
 DKNumberRef DKNumberCreateDouble( double x );
+DKNumberRef DKNumberCreateUUID( void );
 
 DKNumberType DKNumberGetType( DKNumberRef _self );
 
