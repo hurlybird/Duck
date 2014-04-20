@@ -30,6 +30,7 @@
 #include "DKRuntime.h"
 #include "DKData.h"
 #include "DKCollection.h"
+#include "DKNumber.h"
 
 
 typedef struct DKEggReader * DKEggReaderRef;
@@ -57,21 +58,14 @@ typedef const struct DKEggInterface * DKEggInterfaceRef;
 
 // Egg Storage Types =====================================================================
 
-typedef enum
+enum
 {
     DKEggObject = 1,
-    
     DKEggCollection,
     DKEggKeyedCollection,
     
-    DKEggInt8,
-    DKEggInt16,
-    DKEggInt32,
-    DKEggInt64,
-    DKEggFloat,
-    DKEggDouble
-
-} DKEggType;
+    // Numerical Types are defined in DKNumber.h
+};
 
 
 
@@ -81,27 +75,15 @@ DKClassRef DKEggReaderClass( void );
 
 DKEggReaderRef DKEggReaderCreate( DKDataRef data );
 
-DKEggType   DKEggGetTypeOfKey( DKEggReaderRef _self, DKStringRef key );
-size_t      DKEggGetLengthOfKey( DKEggReaderRef _self, DKStringRef key );
+int32_t DKEggGetTypeOfKey( DKEggReaderRef _self, DKStringRef key );
+size_t  DKEggGetLengthOfKey( DKEggReaderRef _self, DKStringRef key );
 
 DKObjectRef DKEggReadObject( DKEggReaderRef _self, DKStringRef key );
 
 void    DKEggReadCollection( DKEggReaderRef _self, DKStringRef key, DKApplierFunction callback, void * context );
 void    DKEggReadKeyedCollection( DKEggReaderRef _self, DKStringRef key, DKKeyedApplierFunction callback, void * context );
 
-int8_t  DKEggReadInt8( DKEggReaderRef _self, DKStringRef key );
-int16_t DKEggReadInt16( DKEggReaderRef _self, DKStringRef key );
-int32_t DKEggReadInt32( DKEggReaderRef _self, DKStringRef key );
-int64_t DKEggReadInt64( DKEggReaderRef _self, DKStringRef key );
-float   DKEggReadFloat( DKEggReaderRef _self, DKStringRef key );
-double  DKEggReadDouble( DKEggReaderRef _self, DKStringRef key );
-
-size_t  DKEggReadIntArray8( DKEggReaderRef _self, DKStringRef key, int8_t buffer[], size_t length );
-size_t  DKEggReadIntArray16( DKEggReaderRef _self, DKStringRef key, int16_t buffer[], size_t length );
-size_t  DKEggReadIntArray32( DKEggReaderRef _self, DKStringRef key, int32_t buffer[], size_t length );
-size_t  DKEggReadIntArray64( DKEggReaderRef _self, DKStringRef key, int64_t buffer[], size_t length );
-size_t  DKEggReadFloatArray( DKEggReaderRef _self, DKStringRef key, float buffer[], size_t length );
-size_t  DKEggReadDoubleArray( DKEggReaderRef _self, DKStringRef key, double buffer[], size_t length );
+size_t  DKEggReadNumber( DKEggReaderRef _self, DKStringRef key, void * dst, DKNumberType dstType );
 
 
 
@@ -115,19 +97,7 @@ void DKEggWriteObject( DKEggWriterRef _self, DKStringRef key, DKObjectRef object
 void DKEggWriteCollection( DKEggWriterRef _self, DKStringRef key, DKObjectRef collection );
 void DKEggWriteKeyedCollection( DKEggWriterRef _self, DKStringRef key, DKObjectRef collection );
 
-void DKEggWriteInt8( DKEggWriterRef _self, DKStringRef key, int8_t x );
-void DKEggWriteInt16( DKEggWriterRef _self, DKStringRef key, int16_t x );
-void DKEggWriteInt32( DKEggWriterRef _self, DKStringRef key, int32_t x );
-void DKEggWriteInt64( DKEggWriterRef _self, DKStringRef key, int64_t x );
-void DKEggWriteFloat( DKEggWriterRef _self, DKStringRef key, float x );
-void DKEggWriteDouble( DKEggWriterRef _self, DKStringRef key, double x );
-
-void DKEggWriteIntArray8( DKEggWriterRef _self, DKStringRef key, const int8_t buffer[], size_t length );
-void DKEggWriteIntArray16( DKEggWriterRef _self, DKStringRef key, const int16_t buffer[], size_t length );
-void DKEggWriteIntArray32( DKEggWriterRef _self, DKStringRef key, const int32_t buffer[], size_t length );
-void DKEggWriteIntArray64( DKEggWriterRef _self, DKStringRef key, const int64_t buffer[], size_t length );
-void DKEggWriteFloatArray( DKEggWriterRef _self, DKStringRef key, const float buffer[], size_t length );
-void DKEggWriteDoubleArray( DKEggWriterRef _self, DKStringRef key, const double buffer[], size_t length );
+void DKEggWriteNumber( DKEggReaderRef _self, DKStringRef key, const void * src, DKNumberType srcType );
 
 
 

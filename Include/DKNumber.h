@@ -34,10 +34,16 @@ typedef const struct DKNumber * DKNumberRef;
 
 typedef enum
 {
-    DKNumberComponentInt32 =    1,
+    DKNumberComponentInt8 =     1,
+    DKNumberComponentInt16,
+    DKNumberComponentInt32,
     DKNumberComponentInt64,
+    
+    DKNumberComponentUInt8,
+    DKNumberComponentUInt16,
     DKNumberComponentUInt32,
     DKNumberComponentUInt64,
+    
     DKNumberComponentFloat,
     DKNumberComponentDouble,
     
@@ -51,10 +57,16 @@ typedef int32_t DKNumberType;
 
 #define DKNumberMakeVectorType( type, count )   (((count) << 16) | (type & 0x0000FFFF))
 
+#define DKNumberInt8    DKNumberMakeVectorType( DKNumberComponentInt8, 1 )
+#define DKNumberInt16   DKNumberMakeVectorType( DKNumberComponentInt16, 1 )
 #define DKNumberInt32   DKNumberMakeVectorType( DKNumberComponentInt32, 1 )
 #define DKNumberInt64   DKNumberMakeVectorType( DKNumberComponentInt64, 1 )
+
+#define DKNumberUInt8   DKNumberMakeVectorType( DKNumberComponentUInt8, 1 )
+#define DKNumberUInt16  DKNumberMakeVectorType( DKNumberComponentUInt16, 1 )
 #define DKNumberUInt32  DKNumberMakeVectorType( DKNumberComponentUInt32, 1 )
 #define DKNumberUInt64  DKNumberMakeVectorType( DKNumberComponentUInt64, 1 )
+
 #define DKNumberFloat   DKNumberMakeVectorType( DKNumberComponentFloat, 1 )
 #define DKNumberDouble  DKNumberMakeVectorType( DKNumberComponentDouble, 1 )
 
