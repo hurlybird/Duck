@@ -298,6 +298,29 @@ static struct HashTableSize NextHashTableSize( DKIndex rowCount )
 
 
 ///
+//  GetRowStatus()
+//
+typedef enum
+{
+    Empty,
+    Active,
+    Deleted
+
+} RowStatus;
+
+static RowStatus GetRowStatus( struct DKHashTableRow * row )
+{
+    if( row->key == NULL )
+        return Empty;
+    
+    if( row->key == DELETED_KEY )
+        return Deleted;
+    
+    return Active;
+}
+
+
+///
 //  RowIsActive()
 //
 static bool RowIsActive( struct DKHashTableRow * row )
@@ -360,19 +383,40 @@ static struct DKHashTableRow * Find( struct DKHashTable * hashTable, DKHashCode 
     DKIndex i = 0;
     DKIndex x = hash % hashTable->rowCount;
     
+    struct DKHashTableRow * firstDeletedRow = NULL;
+    
     while( 1 )
     {
         struct DKHashTableRow * row = &hashTable->rows[x];
 
-        if( RowIsEmpty( row ) )
-            return row;
-           
-        if( row->hash == hash )
+        RowStatus status = GetRowStatus( row );
+        
+        // If the row is empty we've come to the end of the probe, so either return the
+        // empty row or recycle the first deleted row we found
+        if( status == Empty )
         {
-            if( hashTable->keyEqual( row->key, key ) )
-                return row;
+            if( firstDeletedRow )
+                return firstDeletedRow;
+            
+            return row;
         }
         
+        // If this is the row we're looking for, return it
+        else if( status == Active )
+        {
+            if( row->hash == hash )
+            {
+                if( hashTable->keyEqual( row->key, key ) )
+                    return row;
+            }
+        }
+        
+        // Remember the first deleted row we find
+        else if( firstDeletedRow == NULL )
+        {
+            firstDeletedRow = row;
+        }
+
         // Quadratic probing
         i++;
         x += (2 * i) - 1;
@@ -396,10 +440,6 @@ static void Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef
         DKError( "DKHashTableInsert: Trying to insert a NULL key.\n" );
         return;
     }
-
-    // It should be impossible for a key object to exist at the max addressable byte in
-    // memory... but lets's not be surprised.
-    DKAssert( key != DELETED_KEY );
 
     struct DKHashTableRow * row = Find( hashTable, hash, key );
     bool active = RowIsActive( row );

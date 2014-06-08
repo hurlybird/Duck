@@ -95,6 +95,28 @@ static int RaiseException( const char * format, va_list arg_ptr )
         XCTAssert( DKDictionaryGetCount( dict ) == N - (i + 1) );
     }
 
+    XCTAssert( DKDictionaryGetCount( dict ) == 0 );
+
+    for( int i = 0; i < N; i++ )
+    {
+        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef value = DKElementArrayGetElementAtIndex( &values, i, DKObjectRef );
+        DKDictionarySetObject( dict, key, value );
+    }
+
+    XCTAssert( DKDictionaryGetCount( dict ) == N );
+
+    for( int i = 0; i < N; i++ )
+    {
+        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef value = DKElementArrayGetElementAtIndex( &values, i, DKObjectRef );
+        XCTAssert( DKDictionaryGetObject( dict, key ) == value );
+    }
+        
+    DKDictionaryRemoveAllObjects( dict );
+
+    XCTAssert( DKDictionaryGetCount( dict ) == 0 );
+
     for( int i = 0; i < N; i++ )
     {
         DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKStringRef );
