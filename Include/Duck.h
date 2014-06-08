@@ -52,6 +52,7 @@ extern "C"
 #include "DKStruct.h"
 
 #include "DKFile.h"
+#include "DKEgg.h"
 
 #include "DKCollection.h"
 #include "DKList.h"

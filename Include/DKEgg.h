@@ -73,7 +73,7 @@ enum
 // DKEggReader ===========================================================================
 DKClassRef DKEggReaderClass( void );
 
-DKEggReaderRef DKEggReaderCreate( DKDataRef data );
+DKEggReaderRef DKEggCreateReader( DKDataRef data );
 
 int32_t DKEggGetTypeOfKey( DKEggReaderRef _self, DKStringRef key );
 size_t  DKEggGetLengthOfKey( DKEggReaderRef _self, DKStringRef key );
@@ -83,22 +83,25 @@ DKObjectRef DKEggReadObject( DKEggReaderRef _self, DKStringRef key );
 void    DKEggReadCollection( DKEggReaderRef _self, DKStringRef key, DKApplierFunction callback, void * context );
 void    DKEggReadKeyedCollection( DKEggReaderRef _self, DKStringRef key, DKKeyedApplierFunction callback, void * context );
 
-size_t  DKEggReadNumber( DKEggReaderRef _self, DKStringRef key, void * dst, DKNumberType dstType );
+size_t  DKEggReadNumber( DKEggReaderRef _self, DKStringRef key, void * number, DKNumberType numberType, size_t count );
+size_t  DKEggReadBytes( DKEggWriterRef _self, DKStringRef key, void * bytes, uint32_t length );
 
 
 
 // DKEggWriter ===========================================================================
 DKClassRef DKEggWriterClass( void );
 
-DKEggWriterRef DKEggWriterCreate( DKByteOrder byteOrder );
+DKEggWriterRef DKEggCreateWriter( DKByteOrder byteOrder );
+
+DKDataRef DKEggCompile( DKEggWriterRef _self );
 
 void DKEggWriteObject( DKEggWriterRef _self, DKStringRef key, DKObjectRef object );
 
 void DKEggWriteCollection( DKEggWriterRef _self, DKStringRef key, DKObjectRef collection );
 void DKEggWriteKeyedCollection( DKEggWriterRef _self, DKStringRef key, DKObjectRef collection );
 
-void DKEggWriteNumber( DKEggReaderRef _self, DKStringRef key, const void * src, DKNumberType srcType );
-
+void DKEggWriteNumber( DKEggWriterRef _self, DKStringRef key, const void * src, DKNumberType srcType, size_t count );
+void DKEggWriteBytes( DKEggWriterRef _self, DKStringRef key, const void * bytes, size_t length );
 
 
 #endif // _DK_EGG_H_

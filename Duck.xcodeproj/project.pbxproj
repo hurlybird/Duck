@@ -17,6 +17,7 @@
 		02083FA818F4C47500EEBBAC /* DKCollection.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9B18F2615E00EEBBAC /* DKCollection.c */; };
 		02083FA918F4C48100EEBBAC /* DKProperty.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA018F3BC2200EEBBAC /* DKProperty.c */; };
 		02083FAA18F4C48600EEBBAC /* DKSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9618F1E4EF00EEBBAC /* DKSet.c */; };
+		0208A644190576130041677A /* TestDKEgg.m in Sources */ = {isa = PBXBuildFile; fileRef = 0208A643190576130041677A /* TestDKEgg.m */; };
 		021EC2C218F0774B004148AD /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
 		021EC2DC18F07BA9004148AD /* uassert.h in Headers */ = {isa = PBXBuildFile; fileRef = 021EC2CD18F07BA9004148AD /* uassert.h */; };
 		021EC2DD18F07BA9004148AD /* platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 021EC2CF18F07BA9004148AD /* platform.h */; };
@@ -77,7 +78,7 @@
 		025C0F9F18EFEE5D000344C0 /* TestDKNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9918EFEE5D000344C0 /* TestDKNumber.m */; };
 		025C0FA018EFEE5D000344C0 /* TestDKRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */; };
 		025C0FA118EFEE5D000344C0 /* TestDKString.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9B18EFEE5D000344C0 /* TestDKString.m */; };
-		025C0FA218EFEEC5000344C0 /* libDuck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libDuck.a */; };
+		025C0FA218EFEEC5000344C0 /* libduck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libduck.a */; };
 		02624EC0190366C50023B3EE /* DKEgg.c in Sources */ = {isa = PBXBuildFile; fileRef = 02624EBF190366C50023B3EE /* DKEgg.c */; };
 		02624EC1190366C50023B3EE /* DKEgg.c in Sources */ = {isa = PBXBuildFile; fileRef = 02624EBF190366C50023B3EE /* DKEgg.c */; };
 		02C8916918F169780097B6BC /* DKArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4818EFED96000344C0 /* DKArray.c */; };
@@ -134,6 +135,7 @@
 		02083FA218F3C49E00EEBBAC /* TestDKProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKProperty.m; sourceTree = "<group>"; };
 		02083FA418F49FDB00EEBBAC /* DKStruct.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKStruct.h; sourceTree = "<group>"; };
 		02083FA518F4A86700EEBBAC /* DKStruct.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKStruct.c; sourceTree = "<group>"; };
+		0208A643190576130041677A /* TestDKEgg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKEgg.m; sourceTree = "<group>"; };
 		021EC2B718F0774B004148AD /* utf_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf_impl.c; sourceTree = "<group>"; };
 		021EC2CD18F07BA9004148AD /* uassert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uassert.h; sourceTree = "<group>"; };
 		021EC2CF18F07BA9004148AD /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
@@ -151,7 +153,7 @@
 		021EC2DB18F07BA9004148AD /* uversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uversion.h; sourceTree = "<group>"; };
 		021EC2EA18F085F2004148AD /* DKConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKConfig.h; sourceTree = "<group>"; };
 		021EC2EF18F0CDB1004148AD /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
-		024EE3E2148E0B21008FDADC /* libDuck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDuck.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		024EE3E2148E0B21008FDADC /* libduck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libduck.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		025C0F3318EFED96000344C0 /* DKArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKArray.h; sourceTree = "<group>"; };
 		025C0F3418EFED96000344C0 /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBinaryTree.h; sourceTree = "<group>"; };
 		025C0F3518EFED96000344C0 /* DKByteArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKByteArray.h; sourceTree = "<group>"; };
@@ -203,7 +205,7 @@
 		02624EBF190366C50023B3EE /* DKEgg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEgg.c; sourceTree = "<group>"; };
 		0263C4A918EFD957005E0ED5 /* license.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = license.html; sourceTree = "<group>"; };
 		02AFC05D18F172A0006B70B9 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		02C8914518F1690F0097B6BC /* libDuck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDuck.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		02C8914518F1690F0097B6BC /* libduck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libduck.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		02C8914618F1690F0097B6BC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		02C8915618F1690F0097B6BC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		02D00FB618E6258C00FC3054 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -221,7 +223,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				025C0FA218EFEEC5000344C0 /* libDuck.a in Frameworks */,
+				025C0FA218EFEEC5000344C0 /* libduck.a in Frameworks */,
 				025C0F8718EFEE33000344C0 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -273,9 +275,9 @@
 		024EE3E3148E0B21008FDADC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				024EE3E2148E0B21008FDADC /* libDuck.a */,
+				024EE3E2148E0B21008FDADC /* libduck.a */,
 				025C0F8618EFEE33000344C0 /* Tests.xctest */,
-				02C8914518F1690F0097B6BC /* libDuck.a */,
+				02C8914518F1690F0097B6BC /* libduck.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -345,6 +347,7 @@
 		025C0F8818EFEE33000344C0 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				0208A643190576130041677A /* TestDKEgg.m */,
 				025C0F9618EFEE5D000344C0 /* TestDKData.m */,
 				025C0F9718EFEE5D000344C0 /* TestDKDictionary.m */,
 				025C0F9818EFEE5D000344C0 /* TestDKList.m */,
@@ -443,9 +446,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		024EE3E1148E0B21008FDADC /* Duck */ = {
+		024EE3E1148E0B21008FDADC /* Duck-OSX */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 024EE3E6148E0B21008FDADC /* Build configuration list for PBXNativeTarget "Duck" */;
+			buildConfigurationList = 024EE3E6148E0B21008FDADC /* Build configuration list for PBXNativeTarget "Duck-OSX" */;
 			buildPhases = (
 				024EE3DE148E0B21008FDADC /* Sources */,
 				024EE3DF148E0B21008FDADC /* Frameworks */,
@@ -455,9 +458,9 @@
 			);
 			dependencies = (
 			);
-			name = Duck;
+			name = "Duck-OSX";
 			productName = scl;
-			productReference = 024EE3E2148E0B21008FDADC /* libDuck.a */;
+			productReference = 024EE3E2148E0B21008FDADC /* libduck.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		025C0F8518EFEE33000344C0 /* Tests */ = {
@@ -492,7 +495,7 @@
 			);
 			name = "Duck-iOS";
 			productName = "Duck-iOS";
-			productReference = 02C8914518F1690F0097B6BC /* libDuck.a */;
+			productReference = 02C8914518F1690F0097B6BC /* libduck.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -521,7 +524,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				024EE3E1148E0B21008FDADC /* Duck */,
+				024EE3E1148E0B21008FDADC /* Duck-OSX */,
 				025C0F8518EFEE33000344C0 /* Tests */,
 				02C8914418F1690F0097B6BC /* Duck-iOS */,
 			);
@@ -578,6 +581,7 @@
 				025C0F9D18EFEE5D000344C0 /* TestDKDictionary.m in Sources */,
 				025C0F9F18EFEE5D000344C0 /* TestDKNumber.m in Sources */,
 				025C0F9E18EFEE5D000344C0 /* TestDKList.m in Sources */,
+				0208A644190576130041677A /* TestDKEgg.m in Sources */,
 				025C0F9C18EFEE5D000344C0 /* TestDKData.m in Sources */,
 				025C0FA018EFEE5D000344C0 /* TestDKRuntime.m in Sources */,
 				02083F9918F1EDBE00EEBBAC /* TestDKSet.m in Sources */,
@@ -622,7 +626,7 @@
 /* Begin PBXTargetDependency section */
 		025C0F9218EFEE33000344C0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 024EE3E1148E0B21008FDADC /* Duck */;
+			target = 024EE3E1148E0B21008FDADC /* Duck-OSX */;
 			targetProxy = 025C0F9118EFEE33000344C0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -690,7 +694,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = duck;
 			};
 			name = Debug;
 		};
@@ -698,7 +702,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = duck;
 			};
 			name = Release;
 		};
@@ -799,7 +803,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Duck;
+				PRODUCT_NAME = duck;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -828,7 +832,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Duck;
+				PRODUCT_NAME = duck;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				VALIDATE_PRODUCT = YES;
@@ -847,7 +851,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		024EE3E6148E0B21008FDADC /* Build configuration list for PBXNativeTarget "Duck" */ = {
+		024EE3E6148E0B21008FDADC /* Build configuration list for PBXNativeTarget "Duck-OSX" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				024EE3E7148E0B21008FDADC /* Debug */,
