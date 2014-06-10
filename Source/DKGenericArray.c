@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  DKElementArray.c
+  DKGenericArray.c
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,7 +24,7 @@
 
 *****************************************************************************************/
 
-#include "DKElementArray.h"
+#include "DKGenericArray.h"
 
 
 #define MIN_PTR_ARRAY_SIZE              32
@@ -33,9 +33,9 @@
 
 
 ///
-//  DKElementArrayInit()
+//  DKGenericArrayInit()
 //
-void DKElementArrayInit( DKElementArray * array, DKIndex elementSize )
+void DKGenericArrayInit( DKGenericArray * array, DKIndex elementSize )
 {
     DKAssert( elementSize > 0 );
 
@@ -47,9 +47,9 @@ void DKElementArrayInit( DKElementArray * array, DKIndex elementSize )
 
 
 ///
-//  DKElementArrayInitWithExternalStorage()
+//  DKGenericArrayInitWithExternalStorage()
 //
-void DKElementArrayInitWithExternalStorage( DKElementArray * array, const void * elements, DKIndex elementSize, DKIndex length )
+void DKGenericArrayInitWithExternalStorage( DKGenericArray * array, const void * elements, DKIndex elementSize, DKIndex length )
 {
     array->elements = (uint8_t *)elements;
     array->elementSize = elementSize;
@@ -59,9 +59,9 @@ void DKElementArrayInitWithExternalStorage( DKElementArray * array, const void *
 
 
 ///
-//  DKElementArrayFinalize()
+//  DKGenericArrayFinalize()
 //
-void DKElementArrayFinalize( DKElementArray * array )
+void DKGenericArrayFinalize( DKGenericArray * array )
 {
     if( HAS_ALLOCATED_STORAGE( array ) )
         dk_free( array->elements );
@@ -73,9 +73,9 @@ void DKElementArrayFinalize( DKElementArray * array )
 
 
 ///
-//  DKElementArrayReserve()
+//  DKGenericArrayReserve()
 //
-void DKElementArrayReserve( DKElementArray * array, DKIndex length )
+void DKGenericArrayReserve( DKGenericArray * array, DKIndex length )
 {
     DKAssert( array->maxLength >= 0 );
     DKAssert( !HAS_EXTERNAL_STORAGE( array ) );
@@ -102,9 +102,9 @@ void DKElementArrayReserve( DKElementArray * array, DKIndex length )
 
 
 ///
-//  DKElementArrayHasExternalStorage()
+//  DKGenericArrayHasExternalStorage()
 //
-int DKElementArrayHasExternalStorage( DKElementArray * array )
+int DKGenericArrayHasExternalStorage( DKGenericArray * array )
 {
     return HAS_EXTERNAL_STORAGE( array );
 }
@@ -136,9 +136,9 @@ static void * ResizeArray( void * ptr, DKIndex elementSize, DKIndex oldLength, D
 
 
 ///
-//  DKElementArrayReplaceElements()
+//  DKGenericArrayReplaceElements()
 //
-void DKElementArrayReplaceElements( DKElementArray * array, DKRange range, const void * elements, DKIndex length )
+void DKGenericArrayReplaceElements( DKGenericArray * array, DKRange range, const void * elements, DKIndex length )
 {
     DKAssert( array->length >= 0 );
     DKAssert( !HAS_EXTERNAL_STORAGE( array ) );
@@ -222,28 +222,28 @@ void DKElementArrayReplaceElements( DKElementArray * array, DKRange range, const
 
 
 ///
-//  DKElementArrayAppendElements()
+//  DKGenericArrayAppendElements()
 //
-void DKElementArrayAppendElements( DKElementArray * array, const void * elements, DKIndex length )
+void DKGenericArrayAppendElements( DKGenericArray * array, const void * elements, DKIndex length )
 {
     DKRange range = DKRangeMake( array->length, 0 );
-    DKElementArrayReplaceElements( array, range, elements, length );
+    DKGenericArrayReplaceElements( array, range, elements, length );
 }
 
 
 ///
-//  DKElementArraySort()
+//  DKGenericArraySort()
 //
-void DKElementArraySort( DKElementArray * array, DKCompareFunction cmp )
+void DKGenericArraySort( DKGenericArray * array, DKCompareFunction cmp )
 {
     qsort( array->elements, array->length, array->elementSize, cmp );
 }
 
 
 ///
-//  DKElementArrayReverse()
+//  DKGenericArrayReverse()
 //
-void DKElementArrayReverse( DKElementArray * array )
+void DKGenericArrayReverse( DKGenericArray * array )
 {
     DKIndex n = array->length / 2;
 
@@ -251,8 +251,8 @@ void DKElementArrayReverse( DKElementArray * array )
     {
         for( DKIndex i = 0; i < n; ++i )
         {
-            intptr_t * elem_i = DKElementArrayGetPointerToElementAtIndex( array, i );
-            intptr_t * elem_j = DKElementArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
+            intptr_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+            intptr_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
             
             intptr_t tmp = *elem_i;
             *elem_i = *elem_j;
@@ -266,8 +266,8 @@ void DKElementArrayReverse( DKElementArray * array )
         
         for( DKIndex i = 0; i < n; ++i )
         {
-            uint8_t * elem_i = DKElementArrayGetPointerToElementAtIndex( array, i );
-            uint8_t * elem_j = DKElementArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
+            uint8_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+            uint8_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
             
             memcpy( tmp, elem_i, array->elementSize );
             memcpy( elem_i, elem_j, array->elementSize );
@@ -278,9 +278,9 @@ void DKElementArrayReverse( DKElementArray * array )
 
 
 ///
-//  DKElementArrayShuffle()
+//  DKGenericArrayShuffle()
 //
-void DKElementArrayShuffle( DKElementArray * array )
+void DKGenericArrayShuffle( DKGenericArray * array )
 {
     DKIndex n = array->length - 1;
 
@@ -292,8 +292,8 @@ void DKElementArrayShuffle( DKElementArray * array )
             {
                 DKIndex j = rand() % n;
                 
-                intptr_t * elem_i = DKElementArrayGetPointerToElementAtIndex( array, i );
-                intptr_t * elem_j = DKElementArrayGetPointerToElementAtIndex( array, j );
+                intptr_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+                intptr_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, j );
                 
                 intptr_t tmp = *elem_i;
                 *elem_i = *elem_j;
@@ -309,8 +309,8 @@ void DKElementArrayShuffle( DKElementArray * array )
             {
                 DKIndex j = rand() % n;
                 
-                uint8_t * elem_i = DKElementArrayGetPointerToElementAtIndex( array, i );
-                uint8_t * elem_j = DKElementArrayGetPointerToElementAtIndex( array, j );
+                uint8_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+                uint8_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, j );
                 
                 memcpy( tmp, elem_i, array->elementSize );
                 memcpy( elem_i, elem_j, array->elementSize );

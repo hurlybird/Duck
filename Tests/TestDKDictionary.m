@@ -46,14 +46,14 @@ static int RaiseException( const char * format, va_list arg_ptr )
 {
     const int N = 10000;
     
-    DKElementArray keys;
-    DKElementArrayInit( &keys, sizeof(DKStringRef) );
-    DKElementArrayReserve( &keys, N );
+    DKGenericArray keys;
+    DKGenericArrayInit( &keys, sizeof(DKStringRef) );
+    DKGenericArrayReserve( &keys, N );
     keys.length = N;
 
-    DKElementArray values;
-    DKElementArrayInit( &values, sizeof(DKStringRef) );
-    DKElementArrayReserve( &values, N );
+    DKGenericArray values;
+    DKGenericArrayInit( &values, sizeof(DKStringRef) );
+    DKGenericArrayReserve( &values, N );
     values.length = N;
     
     DKMutableDictionaryRef dict = (DKMutableDictionaryRef)DKCreate( dictionaryClass );
@@ -68,8 +68,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
         sprintf( buffer, "Value%d", i );
         DKStringRef value = DKStringCreateWithCString( DKStringClass(), buffer );
         
-        DKElementArrayGetElementAtIndex( &keys, i, DKStringRef ) = key;
-        DKElementArrayGetElementAtIndex( &values, i, DKStringRef ) = value;
+        DKGenericArrayGetElementAtIndex( &keys, i, DKStringRef ) = key;
+        DKGenericArrayGetElementAtIndex( &values, i, DKStringRef ) = value;
 
         DKDictionarySetObject( dict, key, value );
 
@@ -81,16 +81,16 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKObjectRef );
-        DKStringRef value = DKElementArrayGetElementAtIndex( &values, i, DKObjectRef );
+        DKStringRef key = DKGenericArrayGetElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef value = DKGenericArrayGetElementAtIndex( &values, i, DKObjectRef );
         XCTAssert( DKDictionaryGetObject( dict, key ) == value );
     }
     
-    DKElementArrayShuffle( &keys );
+    DKGenericArrayShuffle( &keys );
     
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef key = DKGenericArrayGetElementAtIndex( &keys, i, DKObjectRef );
         DKDictionaryRemoveObject( dict, key );
         XCTAssert( DKDictionaryGetCount( dict ) == N - (i + 1) );
     }
@@ -99,8 +99,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKObjectRef );
-        DKStringRef value = DKElementArrayGetElementAtIndex( &values, i, DKObjectRef );
+        DKStringRef key = DKGenericArrayGetElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef value = DKGenericArrayGetElementAtIndex( &values, i, DKObjectRef );
         DKDictionarySetObject( dict, key, value );
     }
 
@@ -108,8 +108,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKObjectRef );
-        DKStringRef value = DKElementArrayGetElementAtIndex( &values, i, DKObjectRef );
+        DKStringRef key = DKGenericArrayGetElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef value = DKGenericArrayGetElementAtIndex( &values, i, DKObjectRef );
         XCTAssert( DKDictionaryGetObject( dict, key ) == value );
     }
         
@@ -119,8 +119,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef key = DKElementArrayGetElementAtIndex( &keys, i, DKStringRef );
-        DKStringRef value = DKElementArrayGetElementAtIndex( &values, i, DKStringRef );
+        DKStringRef key = DKGenericArrayGetElementAtIndex( &keys, i, DKStringRef );
+        DKStringRef value = DKGenericArrayGetElementAtIndex( &values, i, DKStringRef );
 
         DKRelease( key );
         DKRelease( value );
@@ -128,8 +128,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
     
     DKRelease( dict );
     
-    DKElementArrayFinalize( &keys );
-    DKElementArrayFinalize( &values );
+    DKGenericArrayFinalize( &keys );
+    DKGenericArrayFinalize( &values );
 }
 
 @end
