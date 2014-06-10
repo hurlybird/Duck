@@ -32,6 +32,8 @@
 DKThreadSafeSelectorInit( Egg );
 
 
+#if 0
+
 
 
 // Egg File ==============================================================================
@@ -297,7 +299,7 @@ void DKEggWriteBytes( DKEggWriterRef _self, DKStringRef key, const void * bytes,
 
 
 
-
+#endif // 0
 
 
 

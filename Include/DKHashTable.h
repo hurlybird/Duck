@@ -41,8 +41,6 @@ DKClassRef  DKMutableHashTableClass( void );
 #define     DKHashTableCreateEmpty()    DKCreate( DKHashTableClass() )
 #define     DKHashTableCreateMutable()  DKCreate( DKMutableHashTableClass() )
 
-DKMutableHashTableRef DKHashTableCreateWithHashFunction( DKHashFunction keyHash, DKEqualFunction keyEqual );
-
 DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef srcDictionary );
 
 DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
