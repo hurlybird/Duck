@@ -28,6 +28,7 @@
 #include "DKLinkedList.h"
 #include "DKString.h"
 #include "DKStream.h"
+#include "DKSet.h"
 
 
 DKThreadSafeFastSelectorInit( List );
@@ -90,19 +91,28 @@ DKObjectRef DKListCreateWithObject( DKClassRef _class, DKObjectRef object )
 //
 DKObjectRef DKListCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... )
 {
+    va_list arg_ptr;
+    va_start( arg_ptr, firstObject );
+    
+    DKObjectRef obj = DKListCreateWithVAObjects( _class, arg_ptr );
+    
+    va_end( arg_ptr );
+    
+    return obj;
+}
+
+
+///
+//  DKListCreateWithVAObjects()
+//
+DKObjectRef DKListCreateWithVAObjects( DKClassRef _class, va_list objects )
+{
     if( _class == NULL )
         _class = DKListClass();
     
     DKListInterfaceRef list = DKGetInterface( _class, DKSelector(List) );
     
-    va_list arg_ptr;
-    va_start( arg_ptr, firstObject );
-    
-    DKObjectRef obj = list->createWithVAObjects( _class, arg_ptr );
-    
-    va_end( arg_ptr );
-    
-    return obj;
+    return list->createWithVAObjects( _class, objects );
 }
 
 
@@ -131,6 +141,64 @@ DKObjectRef DKListCreateWithCollection( DKClassRef _class, DKObjectRef srcCollec
     DKListInterfaceRef list = DKGetInterface( _class, DKSelector(List) );
 
     return list->createWithCollection( _class, srcCollection );
+}
+
+
+///
+//  DKListCreateSetWithObjects()
+//
+DKObjectRef DKListCreateSetWithObjects( DKClassRef _class, DKObjectRef firstObject, ... )
+{
+    va_list arg_ptr;
+    va_start( arg_ptr, firstObject );
+    
+    DKObjectRef obj = DKListCreateSetWithVAObjects( _class, arg_ptr );
+    
+    va_end( arg_ptr );
+    
+    return obj;
+}
+
+
+///
+//  DKListCreateSetWithVAObjects()
+//
+DKObjectRef DKListCreateSetWithVAObjects( DKClassRef _class, va_list objects )
+{
+    DKSetRef set = DKSetCreateWithVAObjects( NULL, objects );
+    DKObjectRef list = DKListCreateWithCollection( _class, set );
+
+    DKRelease( set );
+    
+    return list;
+}
+
+
+///
+//  DKListCreateSetWithCArray()
+//
+DKObjectRef DKListCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+{
+    DKSetRef set = DKSetCreateWithCArray( NULL, objects, count );
+    DKObjectRef list = DKListCreateWithCollection( _class, set );
+
+    DKRelease( set );
+    
+    return list;
+}
+
+
+///
+//  DKListCreateSetWithCollection()
+//
+DKObjectRef DKListCreateSetWithCollection( DKClassRef _class, DKObjectRef srcCollection )
+{
+    DKSetRef set = DKSetCreateWithCollection( NULL, srcCollection );
+    DKObjectRef list = DKListCreateWithCollection( _class, set );
+
+    DKRelease( set );
+    
+    return list;
 }
 
 
@@ -332,6 +400,39 @@ void DKListReplaceRangeWithCollection( DKMutableListRef _self, DKRange range, DK
         DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
         list->replaceRangeWithCollection( _self, range, srcCollection );
     }
+}
+
+
+///
+//  DKListContainsObject()
+//
+bool DKListContainsObject( DKListRef _self, DKObjectRef object )
+{
+    return DKListGetFirstIndexOfObject( _self, object ) != DKNotFound;
+}
+
+
+///
+//  DKListAddObjectToSet()
+//
+void DKListAddObjectToSet( DKMutableListRef _self, DKObjectRef object )
+{
+    if( DKListGetFirstIndexOfObject( _self, object ) == DKNotFound )
+        DKListAppendObject( _self, object );
+}
+
+
+///
+//  DKListGetMemberOfSet()
+//
+DKObjectRef DKListGetMemberOfSet( DKListRef _self, DKObjectRef object )
+{
+    DKIndex i = DKListGetFirstIndexOfObject( _self, object );
+    
+    if( i != DKNotFound )
+        return DKListGetObjectAtIndex( _self, i );
+    
+    return NULL;
 }
 
 

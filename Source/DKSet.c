@@ -77,6 +77,20 @@ DKObjectRef DKSetCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, 
 
 
 ///
+//  DKSetCreateWithVAObjects()
+//
+DKObjectRef DKSetCreateWithVAObjects( DKClassRef _class, va_list objects )
+{
+    if( _class == NULL )
+        _class = DKSetClass();
+    
+    DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
+    
+    return set->createWithVAObjects( _class, objects );
+}
+
+
+///
 //  DKSetCreateWithCArray()
 //
 DKObjectRef DKSetCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )

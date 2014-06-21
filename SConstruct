@@ -51,5 +51,5 @@ for sourcedir in sourcedirs:
 	objects += env.Object( Glob( builddir + sourcedir + '/*.c' ) )
 
 # Link
-StaticLibrary( builddir + 'Duck', objects )
+StaticLibrary( builddir + 'duck', objects )
 

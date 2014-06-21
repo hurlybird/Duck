@@ -92,8 +92,14 @@ void        DKSetDefaultMutableListClass( DKClassRef _self );
 
 DKObjectRef DKListCreateWithObject( DKClassRef _class, DKObjectRef object );
 DKObjectRef DKListCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... );
+DKObjectRef DKListCreateWithVAObjects( DKClassRef _class, va_list objects );
 DKObjectRef DKListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
 DKObjectRef DKListCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection );
+
+DKObjectRef DKListCreateSetWithObjects( DKClassRef _class, DKObjectRef firstObject, ... );
+DKObjectRef DKListCreateSetWithVAObjects( DKClassRef _class, va_list objects );
+DKObjectRef DKListCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKListCreateSetWithCollection( DKClassRef _class, DKObjectRef srcCollection );
 
 DKIndex     DKListGetCount( DKListRef _self );
 DKIndex     DKListGetCountOfObject( DKListRef _self, DKObjectRef object );
@@ -112,6 +118,10 @@ void        DKListInsertObjectAtIndex( DKMutableListRef _self, DKIndex index, DK
 
 void        DKListReplaceRangeWithCArray( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
 void        DKListReplaceRangeWithCollection( DKMutableListRef _self, DKRange range, DKObjectRef srcCollection );
+
+bool        DKListContainsObject( DKListRef _self, DKObjectRef object );
+DKObjectRef DKListGetMemberOfSet( DKListRef _self, DKObjectRef object );
+void        DKListAddObjectToSet( DKMutableListRef _self, DKObjectRef object );
 
 void        DKListRemoveObject( DKMutableListRef _self, DKObjectRef object );
 void        DKListRemoveObjectAtIndex( DKMutableListRef _self, DKIndex index );

@@ -29,6 +29,7 @@
 #include "DKCopying.h"
 #include "DKGenericArray.h"
 #include "DKString.h"
+#include "DKSet.h"
 
 
 struct DKLinkedListNode
@@ -58,8 +59,6 @@ struct DKLinkedList
 
 static DKObjectRef DKLinkedListInitialize( DKObjectRef _self );
 static void        DKLinkedListFinalize( DKObjectRef _self );
-
-static DKObjectRef DKLinkedListCreateWithVAObjects( DKClassRef _class, va_list objects );
 
 
 ///
@@ -120,6 +119,22 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKInstallInterface( cls, list );
     DKRelease( list );
     
+    // Set
+    struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    set->createWithVAObjects = DKListCreateSetWithVAObjects;
+    set->createWithCArray = DKListCreateSetWithCArray;
+    set->createWithCollection = DKListCreateSetWithCollection;
+
+    set->getCount = (DKGetCountMethod)DKLinkedListGetCount;
+    set->getMember = DKListGetMemberOfSet;
+    
+    set->addObject = DKListAddObjectToSet;
+    set->removeObject = DKListRemoveObject;
+    set->removeAllObjects = DKListRemoveAllObjects;
+    
+    DKInstallInterface( cls, set );
+    DKRelease( set );
+
     return cls;
 }
 
@@ -510,7 +525,7 @@ static void DKLinkedListFinalize( DKObjectRef _self )
 ///
 //  DKLinkedListCreateWithVAObjects()
 //
-static DKObjectRef DKLinkedListCreateWithVAObjects( DKClassRef _class, va_list objects )
+DKObjectRef DKLinkedListCreateWithVAObjects( DKClassRef _class, va_list objects )
 {
     DKAssert( (_class != NULL) || DKIsSubclass( _class, DKLinkedListClass() ) );
     

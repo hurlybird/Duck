@@ -41,8 +41,10 @@ DKClassRef  DKMutableHashTableClass( void );
 #define     DKHashTableCreateEmpty()    DKCreate( DKHashTableClass() )
 #define     DKHashTableCreateMutable()  DKCreate( DKMutableHashTableClass() )
 
+DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects );
 DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef srcDictionary );
 
+DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list objects );
 DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
 DKObjectRef DKHashTableCreateSetWithCollection( DKClassRef _class, DKObjectRef srcCollection );
 
@@ -60,6 +62,7 @@ void        DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef ke
 void        DKHashTableRemoveObject( DKMutableHashTableRef _self, DKObjectRef key );
 void        DKHashTableRemoveAllObjects( DKMutableHashTableRef _self );
 
+void        DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object );
 
 
 

@@ -42,6 +42,16 @@ static int RaiseException( const char * format, va_list arg_ptr )
     [self testDKSetClass:DKMutableBinaryTreeClass()];
 }
 
+- (void) testDKArray
+{
+    [self testDKSetClass:DKMutableArrayClass()];
+}
+
+- (void) testDKLinkedList
+{
+    [self testDKSetClass:DKMutableLinkedListClass()];
+}
+
 - (void) testDKSetClass:(DKClassRef)setClass
 {
     DKMutableSetRef set = DKCreate( setClass );

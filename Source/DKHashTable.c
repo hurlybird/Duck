@@ -51,11 +51,6 @@ struct DKHashTable
 static DKObjectRef DKHashTableInitialize( DKObjectRef _self );
 static void        DKHashTableFinalize( DKObjectRef _self );
 
-static DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects );
-static DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list objects );
-
-static void        DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object );
-
 static void        Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 
 
@@ -275,10 +270,12 @@ static int InsertKeyAndObject( DKObjectRef key, DKObjectRef object, void * conte
     
     struct DKHashTableRow row;
     row.hash = DKHash( key );
-    row.key = key;
+    row.key = DKCopy( key );
     row.object = object;
     
     DKGenericHashTableInsert( &hashTable->table, &row, DKInsertAlways );
+    
+    DKRelease( row.key );
     
     return 0;
 }
@@ -345,7 +342,7 @@ static void DKHashTableFinalize( DKObjectRef _self )
 ///
 //  DKHashTableCreateDictionaryWithVAKeysAndObjects()
 //
-static DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )
+DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )
 {
     DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
 
@@ -356,14 +353,18 @@ static DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _
         
     if( hashTable )
     {
-        struct DKHashTableRow row;
+        DKObjectRef key;
     
-        while( (row.key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
+        while( (key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
         {
+            struct DKHashTableRow row;
             row.hash = DKHash( row.key );
+            row.key = DKCopy( key );
             row.object = va_arg( keysAndObjects, DKObjectRef );
     
             DKGenericHashTableInsert( &hashTable->table, &row, DKInsertAlways );
+            
+            DKRelease( row.key );
         }
     }
     
@@ -395,7 +396,7 @@ DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDict
 ///
 //  DKHashTableCreateSetWithVAObjects()
 //
-static DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list objects )
+DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list objects )
 {
     DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
 
@@ -646,10 +647,12 @@ void DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKOb
 
         struct DKHashTableRow row;
         row.hash = DKHash( key );
-        row.key = key;
+        row.key = DKCopy( key );
         row.object = object;
 
         DKGenericHashTableInsert( &_self->table, &row, policy );
+        
+        DKRelease( row.key );
     }
 }
 
@@ -689,7 +692,7 @@ void DKHashTableRemoveAllObjects( DKMutableHashTableRef _self )
 ///
 //  DKHashTableAddObjectToSet()
 //
-static void DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object )
+void DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object )
 {
     if( _self )
     {

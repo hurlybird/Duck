@@ -28,6 +28,7 @@
 #include "DKGenericArray.h"
 #include "DKCopying.h"
 #include "DKString.h"
+#include "DKSet.h"
 
 
 struct DKArray
@@ -39,8 +40,6 @@ struct DKArray
 
 static DKObjectRef DKArrayInitialize( DKObjectRef _self );
 static void        DKArrayFinalize( DKObjectRef _self );
-
-static DKObjectRef DKArrayCreateWithVAObjects( DKClassRef _class, va_list objects );
 
 
 ///
@@ -101,6 +100,22 @@ DKThreadSafeClassInit( DKArrayClass )
     DKInstallInterface( cls, list );
     DKRelease( list );
     
+    // Set
+    struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    set->createWithVAObjects = DKListCreateSetWithVAObjects;
+    set->createWithCArray = DKListCreateSetWithCArray;
+    set->createWithCollection = DKListCreateSetWithCollection;
+
+    set->getCount = (DKGetCountMethod)DKArrayGetCount;
+    set->getMember = DKListGetMemberOfSet;
+    
+    set->addObject = DKListAddObjectToSet;
+    set->removeObject = DKListRemoveObject;
+    set->removeAllObjects = DKListRemoveAllObjects;
+    
+    DKInstallInterface( cls, set );
+    DKRelease( set );
+
     return cls;
 }
 

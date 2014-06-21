@@ -56,11 +56,6 @@ struct DKBinaryTree
 static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _self );
 static void        DKBinaryTreeFinalize( DKObjectRef _self );
 
-static DKObjectRef DKBinaryTreeCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects );
-static DKObjectRef DKBinaryTreeCreateSetWithVAObjects( DKClassRef _class, va_list objects );
-
-static void        DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef object );
-
 
 ///
 //  DKBinaryTreeClass()
@@ -267,7 +262,7 @@ static struct DKBinaryTreeNode * AllocNode( struct DKBinaryTree * tree, DKObject
     node->right = &tree->null_node;
     node->level = 0;
 
-    node->key = DKCopy( key );
+    node->key = DKRetain( key );
     node->object = DKRetain( object );
     
     tree->count++;
@@ -532,7 +527,11 @@ static int InsertKeyAndObject( DKObjectRef key, DKObjectRef object, void * conte
 {
     struct DKBinaryTree * tree = context;
     
-    Insert( tree, key, object, DKInsertAlways );
+    DKObjectRef keyCopy = DKCopy( key );
+    
+    Insert( tree, keyCopy, object, DKInsertAlways );
+    
+    DKRelease( keyCopy );
     
     return 0;
 }
@@ -615,7 +614,7 @@ DKMutableBinaryTreeRef DKBinaryTreeCreateWithCompareFunction( DKCompareFunction 
 ///
 //  DKBinaryTreeCreateDictionaryWithVAKeysAndObjects()
 //
-static DKObjectRef DKBinaryTreeCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )
+DKObjectRef DKBinaryTreeCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )
 {
     DKAssert( (_class == NULL) || DKIsSubclass( _class, DKBinaryTreeClass() ) );
 
@@ -632,7 +631,11 @@ static DKObjectRef DKBinaryTreeCreateDictionaryWithVAKeysAndObjects( DKClassRef 
         {
             object = va_arg( keysAndObjects, DKObjectRef );
     
-            Insert( tree, key, object, DKInsertAlways );
+            DKObjectRef keyCopy = DKCopy( key );
+    
+            Insert( tree, keyCopy, object, DKInsertAlways );
+            
+            DKRelease( keyCopy );
         }
 
         CheckTreeIntegrity( tree );
@@ -666,7 +669,7 @@ DKObjectRef DKBinaryTreeCreateDictionaryWithDictionary( DKClassRef _class, DKDic
 ///
 //  DKBinaryTreeCreateSetWithVAObjects()
 //
-static DKObjectRef DKBinaryTreeCreateSetWithVAObjects( DKClassRef _class, va_list objects )
+DKObjectRef DKBinaryTreeCreateSetWithVAObjects( DKClassRef _class, va_list objects )
 {
     DKAssert( (_class == NULL) || DKIsSubclass( _class, DKBinaryTreeClass() ) );
 
@@ -903,7 +906,11 @@ void DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DK
     {
         DKAssertKindOfClass( _self, DKMutableBinaryTreeClass() );
 
-        Insert( _self, key, object, policy );
+        DKObjectRef keyCopy = DKCopy ( key );
+
+        Insert( _self, keyCopy, object, policy );
+        
+        DKRelease( keyCopy );
 
         CheckTreeIntegrity( _self );
     }
@@ -946,7 +953,7 @@ void DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef _self )
 ///
 //  DKBinaryTreeAddObjectToSet()
 //
-static void DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef object )
+void DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef object )
 {
     if( _self )
     {

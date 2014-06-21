@@ -81,6 +81,7 @@ void        DKSetDefaultMutableSetClass( DKClassRef _self );
 #define     DKSetCreateMutable()  DKCreate( DKMutableSetClass() )
 
 DKObjectRef DKSetCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... );
+DKObjectRef DKSetCreateWithVAObjects( DKClassRef _class, va_list objects );
 DKObjectRef DKSetCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
 DKObjectRef DKSetCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection );
 

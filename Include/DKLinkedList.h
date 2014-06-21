@@ -40,6 +40,7 @@ DKClassRef  DKMutableLinkedListClass( void );
 #define     DKLinkedListCreateEmpty()    DKCreate( DKLinkedListClass() )
 #define     DKLinkedListCreateMutable()  DKCreate( DKMutableLinkedListClass() )
 
+DKObjectRef DKLinkedListCreateWithVAObjects( DKClassRef _class, va_list objects );
 DKObjectRef DKLinkedListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
 DKObjectRef DKLinkedListCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection );
 
