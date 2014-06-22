@@ -356,7 +356,7 @@ void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef prope
 DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel );
 
 // Check to see if an interface is available for an object.
-int         DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * interface );
+bool        DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * interface );
 
 // Retrieve an installed message handler. If a matching message handler cannot be found on
 // the class or any of its superclasses, DKGetMsgHandler() will report a warning and
@@ -364,7 +364,7 @@ int         DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * int
 DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel );
 
 // Check to see if a message handler is available for an object.
-int         DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
+bool        DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
 
 // Retrieve an installed property
 DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );

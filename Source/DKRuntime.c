@@ -919,15 +919,27 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
     int cacheline = sel->cacheline;
     DKAssert( (cacheline >= 0) && (cacheline < DKStaticCacheSize) );
 
+    // We shoudn't need to acquire the spin lock while reading and writing to the cache
+    // since the worst that can happen is doing an extra lookup after reading a stale
+    // cache line.
+    #define SPIN_LOCKED_CACHE_ACCESS 0
+
     // Lock while we lookup the interface
+    #if SPIN_LOCKED_CACHE_ACCESS
     DKSpinLockLock( &cls->lock );
+    #endif
     
     // First check the static cache (line 0 will always be NULL)
     DKInterface * interface = cls->cache[cacheline];
     
     if( interface )
     {
+        DKAssert( DKFastSelectorEqual( interface->sel, sel ) );
+    
+        #if SPIN_LOCKED_CACHE_ACCESS
         DKSpinLockUnlock( &cls->lock );
+        #endif
+        
         return interface;
     }
     
@@ -941,12 +953,19 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
         
         if( interface && DKFastSelectorEqual( interface->sel, sel ) )
         {
+            #if SPIN_LOCKED_CACHE_ACCESS
             DKSpinLockUnlock( &cls->lock );
+            #endif
+            
             return interface;
         }
     }
 
     // Search our interface table
+    #if !SPIN_LOCKED_CACHE_ACCESS
+    DKSpinLockLock( &cls->lock );
+    #endif
+    
     DKIndex count = cls->interfaces.length;
     
     for( DKIndex i = 0; i < count; ++i )
@@ -974,9 +993,15 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
         // Update the cache
         if( interface )
         {
+            #if SPIN_LOCKED_CACHE_ACCESS
             DKSpinLockLock( &cls->lock );
+            #endif
+            
             cls->cache[cacheline] = interface;
+            
+            #if SPIN_LOCKED_CACHE_ACCESS
             DKSpinLockUnlock( &cls->lock );
+            #endif
         }
     }
 
@@ -1013,7 +1038,7 @@ DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
 ///
 //  DKQueryInterface()
 //
-int DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface )
+bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface )
 {
     if( _self )
     {
@@ -1031,11 +1056,11 @@ int DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface 
             if( _interface )
                 *_interface = interface;
             
-            return 1;
+            return true;
         }
     }
     
-    return 0;
+    return false;
 }
 
 
@@ -1071,7 +1096,7 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
 ///
 //  DKQueryMsgHandler()
 //
-int DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHandler )
+bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHandler )
 {
     if( _self )
     {
@@ -1091,11 +1116,11 @@ int DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHandl
             if( _msgHandler )
                 *_msgHandler = msgHandler;
             
-            return 1;
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
 
