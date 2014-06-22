@@ -291,17 +291,20 @@ DKHashCode dk_memhash( const void * buffer, size_t buffer_size )
 ///
 //  dk_time()
 //
+const DKDateTime DKAbsoluteTimeSince1970 = 978307200.0L;    // POSIX reference time
+const DKDateTime DKAbsoluteTimeSince2001 = 0.0L;            // CoreFoundation reference time
+
 #if DK_PLATFORM_POSIX
 #include <sys/time.h>
 
-double dk_time( void )
+DKDateTime dk_datetime( void )
 {
     struct timeval t;
     
     if( gettimeofday( &t, NULL ) )
         return 0.0;
     
-    return (double)t.tv_sec + ((double)t.tv_usec / 1000000.0);
+    return ((DKDateTime)t.tv_sec) - DKAbsoluteTimeSince1970 + (((DKDateTime)t.tv_usec) * 1.0e-6);
 }
 #endif
 

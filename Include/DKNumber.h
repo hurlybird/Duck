@@ -71,6 +71,7 @@ typedef int32_t DKNumberType;
 #define DKNumberDouble  DKNumberMakeVectorType( DKNumberComponentDouble, 1 )
 
 #define DKNumberUUID    DKNumberMakeVectorType( DKNumberComponentUInt8, 16 )
+#define DKNumberDate    DKNumberMakeVectorType( DKNumberComponentDouble, 1 )
 
 #define DKNumberGetComponentType( type )    ((type) & 0x0000FFFF)
 #define DKNumberGetComponentCount( type )   ((type) >> 16)
@@ -94,7 +95,8 @@ DKNumberRef DKNumberCreateUInt32( uint32_t x );
 DKNumberRef DKNumberCreateUInt64( uint64_t x );
 DKNumberRef DKNumberCreateFloat( float x );
 DKNumberRef DKNumberCreateDouble( double x );
-DKNumberRef DKNumberCreateUUID( void );
+DKNumberRef DKNumberCreateUUID( const DKUUID * uuid );
+DKNumberRef DKNumberCreateDate( const DKDateTime * date );
 
 DKNumberType DKNumberGetType( DKNumberRef _self );
 
@@ -110,6 +112,8 @@ const void* DKNumberGetValuePtr( DKNumberRef _self );
 #define     DKNumberGetUInt64( _self )    (*((uint64_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetFloat( _self )     (*((float *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetDouble( _self )    (*((double *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetUUID( _self )      (*((DKUUID *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetDate( _self )      (*((DKDateTime *)DKNumberGetValuePtr( _self )))
 
 bool        DKNumberEqual( DKNumberRef a, DKNumberRef b );
 int         DKNumberCompare( DKNumberRef a, DKNumberRef b );

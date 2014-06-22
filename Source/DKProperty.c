@@ -57,9 +57,9 @@ static void DKPropertyFinalize( DKObjectRef _self )
     struct DKProperty * property = (struct DKProperty *)_self;
     
     DKRelease( property->name );
+    DKRelease( property->semantic );
     DKRelease( property->requiredClass );
     DKRelease( property->requiredInterface );
-    DKRelease( property->requiredSemantic );
 }
 
 
@@ -81,7 +81,8 @@ void DKInstallObjectProperty( DKClassRef _class,
 {
     struct DKProperty * property = DKCreate( DKPropertyClass() );
     
-    property->name = DKRetain( name );
+    property->name = DKCopy( name );
+    
     property->attributes = attributes;
     property->offset = offset;
     property->type = DKPropertyObject;
@@ -103,6 +104,7 @@ void DKInstallObjectProperty( DKClassRef _class,
 //
 void DKInstallNumericalProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     DKNumberType type,
@@ -116,7 +118,9 @@ void DKInstallNumericalProperty( DKClassRef _class,
     
     struct DKProperty * property = DKCreate( DKPropertyClass() );
     
-    property->name = DKRetain( name );
+    property->name = DKCopy( name );
+    property->semantic = DKCopy( semantic );
+    
     property->attributes = attributes;
     property->offset = offset;
     property->type = type;
@@ -135,22 +139,22 @@ void DKInstallNumericalProperty( DKClassRef _class,
 //
 void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
-    DKStringRef semantic,
     size_t size,
     DKPropertySetter setter,
     DKPropertyGetter getter )
 {
     struct DKProperty * property = DKCreate( DKPropertyClass() );
     
-    property->name = DKRetain( name );
+    property->name = DKCopy( name );
+    property->semantic = DKCopy( semantic );
+    
     property->attributes = attributes;
     property->offset = offset;
     property->type = DKPropertyStruct;
     property->size = size;
-    
-    property->requiredSemantic = DKRetain( semantic );
 
     property->setter = setter;
     property->getter = getter;
@@ -258,15 +262,15 @@ static void FailedSemanticRequirement( DKObjectRef _self, DKPropertyRef property
 {
     DKWarning( "DKProperty: '%s' does not meet the semantic requirement ('%s') for property '%s'.\n",
         DKStringGetCStringPtr( semantic ),
-        DKStringGetCStringPtr( property->requiredSemantic ),
+        DKStringGetCStringPtr( property->semantic ),
         DKStringGetCStringPtr( property->name ) );
 }
 
 #define CheckSemanticRequirement( obj, property, semantic, ... )                        \
     do                                                                                  \
     {                                                                                   \
-        if( (property->requiredSemantic != NULL) &&                                     \
-            !DKStringEqual( semantic, property->requiredSemantic ) )                    \
+        if( (property->semantic != NULL) &&                                             \
+            !DKStringEqual( semantic, property->semantic ) )                            \
         {                                                                               \
             FailedSemanticRequirement( obj, property, semantic );                       \
             return __VA_ARGS__;                                                         \
@@ -328,7 +332,7 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     // Automatic conversion of structure types
     if( DKIsKindOfClass( object, DKStructClass() ) )
     {
-        if( DKStructGetValue( object, property->requiredSemantic, value, property->size ) )
+        if( DKStructGetValue( object, property->semantic, value, property->size ) )
             return;
     }
 
@@ -368,9 +372,9 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
     }
 
     // Automatic conversion of structure types
-    if( property->requiredSemantic != NULL )
+    if( property->semantic != NULL )
     {
-        DKStructRef structure = DKStructCreate( property->requiredSemantic, value, property->size );
+        DKStructRef structure = DKStructCreate( property->semantic, value, property->size );
         return structure;
     }
 

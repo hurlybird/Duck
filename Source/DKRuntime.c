@@ -29,6 +29,7 @@
 #include "DKRuntime.h"
 #include "DKString.h"
 #include "DKHashTable.h"
+#include "DKArray.h"
 #include "DKProperty.h"
 #include "DKStream.h"
 
@@ -62,7 +63,8 @@ struct DKClass
     size_t          structSize;
     DKClassOptions  options;
 
-    DKSpinLock      lock;
+    DKSpinLock      interfacesLock;
+    DKSpinLock      propertiesLock;
 
     DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
     
@@ -440,7 +442,8 @@ static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, si
     cls->superclass = DKRetain( superclass );
     cls->structSize = structSize;
     cls->options = options;
-    cls->lock = DKSpinLockInit;
+    cls->interfacesLock = DKSpinLockInit;
+    cls->propertiesLock = DKSpinLockInit;
     
     DKGenericArrayInit( &cls->interfaces, sizeof(DKObjectRef) );
 }
@@ -824,7 +827,7 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
     DKAssert( (cacheline > 0) && (cacheline < (DKStaticCacheSize + DKDynamicCacheSize)) );
     
     // Lock while we make changes
-    DKSpinLockLock( &cls->lock );
+    DKSpinLockLock( &cls->interfacesLock );
     
     // Invalidate the cache
     
@@ -847,7 +850,7 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
         {
             DKGenericArrayGetElementAtIndex( &cls->interfaces, i, DKInterface * ) = interface;
 
-            DKSpinLockUnlock( &cls->lock );
+            DKSpinLockUnlock( &cls->interfacesLock );
 
             // Release the old interface after unlocking
             DKRelease( oldInterface );
@@ -858,7 +861,7 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
     // Add the interface to the interface table
     DKGenericArrayAppendElements( &cls->interfaces, &interface, 1 );
 
-    DKSpinLockUnlock( &cls->lock );
+    DKSpinLockUnlock( &cls->interfacesLock );
 }
 
 
@@ -890,14 +893,14 @@ void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef prope
     
     struct DKClass * cls = (struct DKClass *)_class;
     
-    DKSpinLockLock( &cls->lock );
+    DKSpinLockLock( &cls->propertiesLock );
     
     if( cls->properties == NULL )
         cls->properties = DKHashTableCreateMutable();
     
     DKHashTableInsertObject( cls->properties, name, property, DKInsertAlways );
     
-    DKSpinLockUnlock( &cls->lock );
+    DKSpinLockUnlock( &cls->propertiesLock );
 }
 
 
@@ -926,7 +929,7 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
 
     // Lock while we lookup the interface
     #if SPIN_LOCKED_CACHE_ACCESS
-    DKSpinLockLock( &cls->lock );
+    DKSpinLockLock( &cls->interfacesLock );
     #endif
     
     // First check the static cache (line 0 will always be NULL)
@@ -937,7 +940,7 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
         DKAssert( DKFastSelectorEqual( interface->sel, sel ) );
     
         #if SPIN_LOCKED_CACHE_ACCESS
-        DKSpinLockUnlock( &cls->lock );
+        DKSpinLockUnlock( &cls->interfacesLock );
         #endif
         
         return interface;
@@ -954,7 +957,7 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
         if( interface && DKFastSelectorEqual( interface->sel, sel ) )
         {
             #if SPIN_LOCKED_CACHE_ACCESS
-            DKSpinLockUnlock( &cls->lock );
+            DKSpinLockUnlock( &cls->interfacesLock );
             #endif
             
             return interface;
@@ -963,7 +966,7 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
 
     // Search our interface table
     #if !SPIN_LOCKED_CACHE_ACCESS
-    DKSpinLockLock( &cls->lock );
+    DKSpinLockLock( &cls->interfacesLock );
     #endif
     
     DKIndex count = cls->interfaces.length;
@@ -978,13 +981,13 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
             // Update the cache
             cls->cache[cacheline] = interface;
 
-            DKSpinLockUnlock( &cls->lock );
+            DKSpinLockUnlock( &cls->interfacesLock );
             return interface;
         }
     }
 
     // Lookup the interface in our superclasses
-    DKSpinLockUnlock( &cls->lock );
+    DKSpinLockUnlock( &cls->interfacesLock );
     
     if( cls->superclass )
     {
@@ -994,13 +997,13 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
         if( interface )
         {
             #if SPIN_LOCKED_CACHE_ACCESS
-            DKSpinLockLock( &cls->lock );
+            DKSpinLockLock( &cls->interfacesLock );
             #endif
             
             cls->cache[cacheline] = interface;
             
             #if SPIN_LOCKED_CACHE_ACCESS
-            DKSpinLockUnlock( &cls->lock );
+            DKSpinLockUnlock( &cls->interfacesLock );
             #endif
         }
     }
@@ -1125,39 +1128,49 @@ bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHand
 
 
 ///
-//  DKLookupProperty()
+//  DKGetAllPropertyDefinitions()
 //
-static DKPropertyRef DKLookupProperty( DKClassRef _class, DKStringRef name )
+DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self )
 {
-    DKAssert( (_class->_obj.isa == &__DKClassClass__) || (_class->_obj.isa == &__DKMetaClass__) );
-    
-    struct DKClass * cls = (struct DKClass *)_class;
-    
-    DKSpinLockLock( &cls->lock );
+    if( _self )
+    {
+        const DKObject * obj = _self;
+        struct DKClass * cls = (struct DKClass *)obj->isa;
+        
+        // If this object is a class, look in its own properties
+        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+            cls = (struct DKClass *)_self;
 
-    DKPropertyRef property = DKHashTableGetObject( cls->properties, name );
+        DKSpinLockLock( &cls->propertiesLock );
+        DKListRef properties = DKDictionaryGetAllObjects( cls->properties );
+        DKSpinLockUnlock( &cls->propertiesLock );
+        
+        return properties;
+    }
     
-    DKSpinLockUnlock( &cls->lock );
-    
-    return property;
+    return NULL;
 }
 
 
 ///
-//  DKGetProperty()
+//  DKGetPropertyDefinition()
 //
 DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
 {
     if( _self )
     {
         const DKObject * obj = _self;
-        DKClassRef cls = obj->isa;
+        struct DKClass * cls = (struct DKClass *)obj->isa;
         
-        // If this object is a class, look in its own interfaces
+        // If this object is a class, look in its own properties
         if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
             cls = (struct DKClass *)_self;
 
-        return DKLookupProperty( cls, name );
+        DKSpinLockLock( &cls->propertiesLock );
+        DKPropertyRef property = DKHashTableGetObject( cls->properties, name );
+        DKSpinLockUnlock( &cls->propertiesLock );
+        
+        return property;
     }
     
     return NULL;

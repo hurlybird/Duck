@@ -71,6 +71,8 @@ struct DKProperty
     const DKObject  _obj;
     
     DKStringRef     name;
+    DKStringRef     semantic;
+    
     int32_t         type;
     int32_t         attributes;
     size_t          offset;
@@ -78,7 +80,6 @@ struct DKProperty
     
     DKClassRef      requiredClass;
     DKSEL           requiredInterface;
-    DKStringRef     requiredSemantic;
 
     DKPropertySetter setter;
     DKPropertyGetter getter;
@@ -101,6 +102,7 @@ void DKInstallObjectProperty( DKClassRef _class,
 
 void DKInstallNumericalProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     DKNumberType type,
@@ -109,9 +111,9 @@ void DKInstallNumericalProperty( DKClassRef _class,
 
 void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
-    DKStringRef semantic,
     size_t size,
     DKPropertySetter setter,
     DKPropertyGetter getter );

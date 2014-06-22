@@ -161,38 +161,38 @@ int DKDictionaryContainsObject( DKDictionaryRef _self, DKObjectRef object )
 
 
 ///
-//  DKDictionaryCopyKeys()
+//  DKDictionaryGetAllKeys()
 //
-static int DKDictionaryCopyKeysCallback( DKObjectRef key, DKObjectRef object, void * context )
+static int DKDictionaryGetAllKeysCallback( DKObjectRef key, DKObjectRef object, void * context )
 {
     DKListAppendObject( context, key );
     return 0;
 }
 
-DKListRef DKDictionaryCopyKeys( DKDictionaryRef _self )
+DKListRef DKDictionaryGetAllKeys( DKDictionaryRef _self )
 {
     DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableArrayClass() );
     
-    DKForeachKeyAndObject( _self, DKDictionaryCopyKeysCallback, (void *)list );
+    DKForeachKeyAndObject( _self, DKDictionaryGetAllKeysCallback, (void *)list );
     
     return list;
 }
 
 
 ///
-//  DKDictionaryCopyObjects()
+//  DKDictionaryGetAllObjects()
 //
-static int DKDictionaryCopyObjectsCallback( DKObjectRef key, DKObjectRef object, void * context )
+static int DKDictionaryGetAllObjectsCallback( DKObjectRef key, DKObjectRef object, void * context )
 {
     DKListAppendObject( context, object );
     return 0;
 }
 
-DKListRef DKDictionaryCopyObjects( DKDictionaryRef _self )
+DKListRef DKDictionaryGetAllObjects( DKDictionaryRef _self )
 {
     DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableArrayClass() );
     
-    DKForeachKeyAndObject( _self, DKDictionaryCopyObjectsCallback, (void *)list );
+    DKForeachKeyAndObject( _self, DKDictionaryGetAllObjectsCallback, (void *)list );
     
     return list;
 }

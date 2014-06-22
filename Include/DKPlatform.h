@@ -85,6 +85,13 @@ enum
 typedef int32_t DKChar32;
 
 
+// Date and time
+typedef double DKDateTime;
+
+extern const DKDateTime DKAbsoluteTimeSince1970; // POSIX reference time
+extern const DKDateTime DKAbsoluteTimeSince2001; // CoreFoundation reference time
+
+
 // Ranges
 typedef struct
 {
@@ -378,7 +385,7 @@ DKHashCode dk_strhash( const char * str );
 DKHashCode dk_memhash( const void * buffer, size_t buffer_size );
 
 // Time in seconds since midnight January 1, 1970 (i.e. gettimeofday())
-double dk_time( void );
+DKDateTime dk_datetime( void );
 
 
 

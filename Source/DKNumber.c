@@ -377,11 +377,34 @@ DKNumberRef DKNumberCreateDouble( double x )
 ///
 //  DKNumberCreateUUID()
 //
-DKNumberRef DKNumberCreateUUID( void )
+DKNumberRef DKNumberCreateUUID( const DKUUID * uuid )
 {
-    DKUUID uuid = dk_uuid_generate();
+    DKUUID _uuid;
     
-    return DKNumberCreate( &uuid, DKNumberUUID );
+    if( uuid == NULL )
+    {
+        _uuid = dk_uuid_generate();
+        uuid = &_uuid;
+    }
+    
+    return DKNumberCreate( uuid, DKNumberUUID );
+}
+
+
+///
+//  DKNumberCreateDate()
+//
+DKNumberRef DKNumberCreateDate( const DKDateTime * date )
+{
+    DKDateTime _date;
+    
+    if( date == NULL )
+    {
+        _date = dk_datetime();
+        date = &_date;
+    }
+
+    return DKNumberCreate( &date, DKNumberDate );
 }
 
 

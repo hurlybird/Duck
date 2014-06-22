@@ -85,8 +85,9 @@ DKObjectRef DKDictionaryGetObject( DKDictionaryRef _self, DKObjectRef key );
 int         DKDictionaryContainsKey( DKDictionaryRef _self, DKObjectRef key );
 int         DKDictionaryContainsObject( DKDictionaryRef _self, DKObjectRef object );
 
-DKListRef   DKDictionaryCopyKeys( DKDictionaryRef _self );
-DKListRef   DKDictionaryCopyObjects( DKDictionaryRef _self );
+// Get a list of all keys/objects in the dictionary. The returned list must be released.
+DKListRef   DKDictionaryGetAllKeys( DKDictionaryRef _self );
+DKListRef   DKDictionaryGetAllObjects( DKDictionaryRef _self );
 
 void        DKDictionarySetObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
 void        DKDictionaryAddObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
