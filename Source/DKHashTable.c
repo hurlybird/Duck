@@ -26,7 +26,6 @@
 
 #include "DKHashTable.h"
 #include "DKGenericHashTable.h"
-#include "DKCopying.h"
 #include "DKString.h"
 
 
@@ -59,10 +58,7 @@ static void        Insert( struct DKHashTable * hashTable, DKHashCode hash, DKOb
 //
 DKThreadSafeClassInit( DKHashTableClass )
 {
-    // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
-    // involved in creating constant strings, the names for these classes are
-    // initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKHashTable), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKHashTable" ), DKObjectClass(), sizeof(struct DKHashTable), 0 );
     
     // Allocation
     struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
@@ -137,10 +133,7 @@ DKThreadSafeClassInit( DKHashTableClass )
 //
 DKThreadSafeClassInit(  DKMutableHashTableClass )
 {
-    // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
-    // involved in creating constant strings, the names for these classes are
-    // initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKHashTableClass(), sizeof(struct DKHashTable), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutablehashTable" ), DKHashTableClass(), sizeof(struct DKHashTable), 0 );
     
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
@@ -212,6 +205,9 @@ static bool RowEqual( const void * _row1, const void * _row2 )
 {
     const struct DKHashTableRow * row1 = _row1;
     const struct DKHashTableRow * row2 = _row2;
+
+    if( row1->hash != row2->hash )
+        return false;
 
     return DKEqual( row1->key, row2->key );
 }

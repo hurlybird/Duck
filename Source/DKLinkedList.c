@@ -26,7 +26,6 @@
 
 #include "DKLinkedList.h"
 #include "DKNodePool.h"
-#include "DKCopying.h"
 #include "DKGenericArray.h"
 #include "DKString.h"
 #include "DKSet.h"

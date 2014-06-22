@@ -30,10 +30,6 @@
 #include "DKRuntime.h"
 
 
-// Define a constant string with a compile-time constant C string.
-#define DKSTR( s )      __DKStringDefineConstantString( "" s "" )
-
-
 // typedef const struct DKString * DKStringRef; -- Declared in DKPlatform.h
 typedef struct DKString * DKMutableStringRef;
 
@@ -55,8 +51,8 @@ int         DKStringEqual( DKStringRef _self, DKObjectRef other );
 int         DKStringCompare( DKStringRef _self, DKStringRef other );
 DKHashCode  DKStringHash( DKStringRef _self );
 
-//int         DKStringEqualToString( DKStringRef _self, DKStringRef other );
-//int         DKStringCompareString( DKStringRef _self, DKStringRef other );
+bool        DKStringEqualToString( DKStringRef _self, DKStringRef other );
+int         DKStringCompareString( DKStringRef _self, DKStringRef other );
 
 DKIndex     DKStringGetLength( DKStringRef _self );
 DKIndex     DKStringGetByteLength( DKStringRef _self );
@@ -100,11 +96,6 @@ void        DKStringRemoveLastPathComponent( DKMutableStringRef _self );
 void        DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extension );
 void        DKStringRemovePathExtension( DKMutableStringRef _self );
 void        DKStringStandardizePath( DKMutableStringRef _self );
-
-
-// Define a constant string. Constant strings require external storage so unless you
-// know what you're doing, use the DKSTR macro instead of calling this directly
-DKStringRef __DKStringDefineConstantString( const char * str );
 
 
 #endif // _DK_DATA_H_

@@ -30,10 +30,12 @@
 #include "DKString.h"
 #include "DKHashTable.h"
 #include "DKProperty.h"
+#include "DKStream.h"
 
 
 static void DKRuntimeInit( void );
 static DKInterface * DKLookupInterface( const struct DKClass * cls, DKSEL sel );
+
 
 
 // Internal Types ========================================================================
@@ -65,12 +67,9 @@ struct DKClass
     DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
     
     // Classes usually have fewer than 10 interfaces and selectors are compared by
-    // pointer value (not SUID). It's hard to say whether a linear search on a small
+    // pointer value (not name). It's hard to say whether a linear search on a small
     // array is faster or slower than a hash table lookup. The search result is also
     // cached, further mitigating any performance problems.
-    //
-    // Also, using a hash table would require substantially more complex logic when
-    // installing the root class interfaces.
     DKGenericArray  interfaces;
     
     DKMutableHashTableRef properties;
@@ -137,13 +136,12 @@ DKClassRef DKObjectClass( void )
 
 
 
-// Default Interfaces ====================================================================
-
+// Selectors Required for the Root Classes ===============================================
 #define DKStaticSelectorInit( name )                                                    \
     static struct _DKSEL DKSelector_ ## name ##_StaticObject =                          \
     {                                                                                   \
         DKStaticObject( &__DKSelectorClass__ ),                                         \
-        #name,                                                                          \
+        NULL,                                                                           \
         DKDynamicCache                                                                  \
     };                                                                                  \
                                                                                         \
@@ -157,7 +155,7 @@ DKClassRef DKObjectClass( void )
     static struct _DKSEL DKSelector_ ## name ##_StaticObject =                          \
     {                                                                                   \
         DKStaticObject( &__DKSelectorClass__ ),                                         \
-        #name,                                                                          \
+        NULL,                                                                           \
         DKStaticCache_ ## name                                                          \
     };                                                                                  \
                                                                                         \
@@ -174,7 +172,16 @@ DKClassRef DKObjectClass( void )
     }
 
 
-// Not Found -----------------------------------------------------------------------------
+DKStaticFastSelectorInit( Allocation );
+DKStaticFastSelectorInit( Comparison );
+DKStaticSelectorInit( Copying );
+DKStaticSelectorInit( Description );
+DKStaticSelectorInit( Stream );
+
+
+
+
+// Error Handling Interfaces =============================================================
 #define DK_MAX_INTERFACE_SIZE   32
 
 DKDeclareInterfaceSelector( InterfaceNotFound );
@@ -229,9 +236,11 @@ DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
 }
 
 
-// LifeCycle -----------------------------------------------------------------------------
-DKStaticFastSelectorInit( Allocation );
 
+
+// Default Interfaces ====================================================================
+
+// DefaultAllocation ---------------------------------------------------------------------
 static struct DKAllocationInterface DKDefaultAllocation_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject ),
@@ -247,9 +256,7 @@ DKInterfaceRef DKDefaultAllocation( void )
 }
 
 
-// Comparison ----------------------------------------------------------------------------
-DKStaticFastSelectorInit( Comparison );
-
+// DefaultComparison ---------------------------------------------------------------------
 static struct DKComparisonInterface DKDefaultComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
@@ -285,9 +292,7 @@ DKHashCode DKPointerHash( DKObjectRef _self )
 }
 
 
-// Description ---------------------------------------------------------------------------
-DKStaticSelectorInit( Description );
-
+// DefaultDescription --------------------------------------------------------------------
 static struct DKDescriptionInterface DKDefaultDescription_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Description_StaticObject ),
@@ -301,15 +306,15 @@ DKInterfaceRef DKDefaultDescription( void )
 
 DKStringRef DKDefaultCopyDescription( DKObjectRef _self )
 {
-    return DKRetain( DKGetClassName( _self ) );
+    return DKCopy( DKGetClassName( _self ) );
 }
 
 
 
 
-// Meta-Class Interfaces =================================================================
+// Root Class Interfaces =================================================================
 
-// Class LifeCycle -----------------------------------------------------------------------
+// Class Allocation ----------------------------------------------------------------------
 static void DKClassFinalize( DKObjectRef _self );
 
 static struct DKAllocationInterface DKClassAllocation_StaticObject =
@@ -327,7 +332,7 @@ static DKInterfaceRef DKClassAllocation( void )
 }
 
 
-// Interface LifeCycle -------------------------------------------------------------------
+// Interface Allocation ------------------------------------------------------------------
 static void DKInterfaceFinalize( DKObjectRef _self );
 
 static struct DKAllocationInterface DKInterfaceAllocation_StaticObject =
@@ -345,17 +350,35 @@ static DKInterfaceRef DKInterfaceAllocation( void )
 }
 
 
+// Selector Allocation -------------------------------------------------------------------
+static void DKSelectorFinalize( DKObjectRef _self );
+
+static struct DKAllocationInterface DKSelectorAllocation_StaticObject =
+{
+    DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject ),
+    NULL,
+    DKSelectorFinalize,
+    NULL,
+    NULL
+};
+
+static DKInterfaceRef DKSelectorAllocation( void )
+{
+    return &DKSelectorAllocation_StaticObject;
+}
+
+
 // Selector Comparison -------------------------------------------------------------------
-static int          DKSelectorEqual( DKSEL a, DKSEL b );
-static int          DKSelectorCompare( DKSEL a, DKSEL b );
-#define             DKSelectorHash( _self )         DKPointerHash( _self )
-#define             DKFastSelectorEqual( a, b )     (a == b)
+#define DKFastSelectorEqual( a, b )     (a == b)
+#define DKSelectorEqual( a, b )         DKPointerEqual( a, b );
+#define DKSelectorCompare( a, b )       DKPointerCompare( a, b );
+#define DKSelectorHash( _self )         DKPointerHash( _self )
 
 static struct DKComparisonInterface DKSelectorComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
-    (DKEqualMethod)DKSelectorEqual,
-    (DKCompareMethod)DKSelectorCompare,
+    DKPointerEqual,
+    DKPointerCompare,
     DKPointerHash
 };
 
@@ -364,49 +387,8 @@ static DKInterfaceRef DKSelectorComparison( void )
     return &DKSelectorComparison_StaticObject;
 }
 
-static int DKSelectorEqual( DKSEL a, DKSEL b )
-{
-    #if DK_RUNTIME_INTEGRITY_CHECKS
-    // Do stuff here
-    #endif
-
-    return a == b;
-}
-
-static int DKSelectorCompare( DKSEL a, DKSEL b )
-{
-    #if DK_RUNTIME_INTEGRITY_CHECKS
-    // Do stuff here
-    #endif
-
-    if( a < b )
-        return 1;
-    
-    if( a > b )
-        return -1;
-    
-    return 0;
-}
-
 
 // Interface Comparison ------------------------------------------------------------------
-static int          DKInterfaceEqual( DKInterface * a, DKInterface * b );
-static int          DKInterfaceCompare( DKInterface * a, DKInterface * b );
-static DKHashCode   DKInterfaceHash( DKInterface * a );
-
-static struct DKComparisonInterface DKInterfaceComparison_StaticObject =
-{
-    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
-    (DKEqualMethod)DKInterfaceEqual,
-    (DKCompareMethod)DKInterfaceCompare,
-    (DKHashMethod)DKInterfaceHash
-};
-
-static DKInterfaceRef DKInterfaceComparison( void )
-{
-    return &DKInterfaceComparison_StaticObject;
-}
-
 static int DKInterfaceEqual( DKInterface * a, DKInterface * b )
 {
     return DKSelectorEqual( a->sel, b->sel );
@@ -422,14 +404,26 @@ static DKHashCode DKInterfaceHash( DKInterface * a )
     return DKSelectorHash( a->sel );
 }
 
+static struct DKComparisonInterface DKInterfaceComparison_StaticObject =
+{
+    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
+    (DKEqualMethod)DKInterfaceEqual,
+    (DKCompareMethod)DKInterfaceCompare,
+    (DKHashMethod)DKInterfaceHash
+};
+
+static DKInterfaceRef DKInterfaceComparison( void )
+{
+    return &DKInterfaceComparison_StaticObject;
+}
 
 
 
 
 // Runtime Init ==========================================================================
-
 static DKSpinLock DKRuntimeInitLock = DKSpinLockInit;
-static int32_t DKRuntimeInitialized = 0;
+static bool DKRuntimeInitialized = false;
+
 
 ///
 //  InitRootClass()
@@ -473,7 +467,7 @@ static void DKRuntimeInit( void )
     
     if( !DKRuntimeInitialized )
     {
-        DKRuntimeInitialized = 1;
+        DKRuntimeInitialized = true;
 
         InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass), DKAbstractBaseClass | DKDisableReferenceCounting );
         InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass), 0 );
@@ -512,32 +506,29 @@ static void DKRuntimeInit( void )
         InstallRootClassInterface( &__DKObjectClass__, DKDefaultDescription() );
 
         DKSpinLockUnlock( &DKRuntimeInitLock );
-
-        // Both DKString and DKConstantString must be initialized to set the class names,
-        // so do this after unlocking the spin lock. Because the names are all constant
-        // strings, the worst that can happen is they get set multiple times.
-        __DKMetaClass__.name = DKSTR( "DKMetaClass" );
-        __DKClassClass__.name = DKSTR( "DKClass" );
-        __DKSelectorClass__.name = DKSTR( "DKSelector" );
-        __DKInterfaceClass__.name = DKSTR( "DKInterface" );
-        __DKMsgHandlerClass__.name = DKSTR( "DKMsgHandler" );
-        __DKObjectClass__.name = DKSTR( "DKObject" );
-        __DKWeakClass__.name = DKSTR( "DKWeak" );
         
-        // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
-        // involved in creating constant strings, the names for these classes are
-        // initialized in DKRuntimeInit().
+        // Initialize the base class names now that constant strings are available.
+        __DKMetaClass__.name = DKRetain( DKSTR( "DKMetaClass" ) );
+        __DKClassClass__.name = DKRetain( DKSTR( "DKClass" ) );
+        __DKSelectorClass__.name = DKRetain( DKSTR( "DKSelector" ) );
+        __DKInterfaceClass__.name = DKRetain( DKSTR( "DKInterface" ) );
+        __DKMsgHandlerClass__.name = DKRetain( DKSTR( "DKMsgHandler" ) );
+        __DKObjectClass__.name = DKRetain( DKSTR( "DKObject" ) );
+        __DKWeakClass__.name = DKRetain( DKSTR( "DKWeak" ) );
+        
+        DKSelector_InterfaceNotFound_StaticObject.name = DKRetain( DKSTR( "InterfaceNotFound" ) );
+        DKSelector_MsgHandlerNotFound_StaticObject.name = DKRetain( DKSTR( "MsgHandlerNotFound" ) );
+        DKSelector_Allocation_StaticObject.name = DKRetain( DKSTR( "Allocation" ) );
+        DKSelector_Comparison_StaticObject.name = DKRetain( DKSTR( "Comparison" ) );
+        DKSelector_Copying_StaticObject.name = DKRetain( DKSTR( "Copying" ) );
+        DKSelector_Description_StaticObject.name = DKRetain( DKSTR( "Description" ) );
+        DKSelector_Stream_StaticObject.name = DKRetain( DKSTR( "Stream" ) );
+        
         struct DKClass * stringClass = (struct DKClass *)DKStringClass();
-        stringClass->name = DKSTR( "DKString" );
-        
+        stringClass->name = DKRetain( DKSTR( "DKString" ) );
+
         struct DKClass * constantStringClass = (struct DKClass *)DKConstantStringClass();
-        constantStringClass->name = DKSTR( "DKConstantString" );
-
-        struct DKClass * hashTableClass = (struct DKClass *)DKHashTableClass();
-        hashTableClass->name = DKSTR( "DKHashTable" );
-
-        struct DKClass * mutableHashTableClass = (struct DKClass *)DKMutableHashTableClass();
-        mutableHashTableClass->name = DKSTR( "DKMutableHashTable" );
+        constantStringClass->name = DKRetain( DKSTR( "DKConstantString" ) );
     }
     
     else
@@ -695,7 +686,7 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
 
     struct DKClass * cls = DKCreate( DKClassClass() );
 
-    cls->name = DKRetain( name );
+    cls->name = DKCopy( name );
     cls->superclass = DKRetain( superclass );
     cls->structSize = structSize;
     cls->options = options;
@@ -738,6 +729,33 @@ static void DKClassFinalize( DKObjectRef _self )
     
     // Release properties
     DKRelease( cls->properties );
+}
+
+
+///
+//  DKAllocSelector()
+//
+DKSEL DKAllocSelector( DKStringRef name )
+{
+    struct _DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );
+    sel = DKInitializeObject( sel );
+
+    DKAssert( sel != NULL );
+
+    sel->name = DKCopy( name );
+    sel->cacheline = DKDynamicCache;
+
+    return sel;
+}
+
+
+///
+//  DKSelectorFinalize()
+//
+static void DKSelectorFinalize( DKObjectRef _self )
+{
+    DKSEL sel = _self;
+    DKRelease( sel->name );
 }
 
 
@@ -985,7 +1003,7 @@ DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
         if( interface )
             return interface;
 
-        DKFatalError( "DKRuntime: Interface '%s' not found on object '%s'\n", sel->suid, cls->name );
+        DKFatalError( "DKRuntime: Interface '%s' not found on object '%s'\n", sel->name, cls->name );
     }
 
     return DKInterfaceNotFound();
@@ -1043,7 +1061,7 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
             return msgHandler;
         }
 
-        DKWarning( "DKRuntime: Message handler for '%s' not found on object '%s'\n", sel->suid, obj->isa->name );
+        DKWarning( "DKRuntime: Message handler for '%s' not found on object '%s'\n", sel->name, obj->isa->name );
     }
 
     return DKMsgHandlerNotFound();
@@ -1401,7 +1419,7 @@ int DKCompare( DKObjectRef a, DKObjectRef b )
         return 0;
     }
 
-    if( a )
+    if( a && b )
     {
         DKComparisonInterfaceRef comparison = DKGetInterface( a, DKSelector(Comparison) );
         return comparison->compare( a, b );
@@ -1423,6 +1441,36 @@ DKHashCode DKHash( DKObjectRef _self )
     }
     
     return 0;
+}
+
+
+///
+//  DKCopy()
+//
+DKObjectRef DKCopy( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKCopyingInterfaceRef copying = DKGetInterface( _self, DKSelector(Copying) );
+        return copying->copy( _self );
+    }
+
+    return _self;
+}
+
+
+///
+//  DKMutableCopy()
+//
+DKMutableObjectRef DKMutableCopy( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKCopyingInterfaceRef copying = DKGetInterface( _self, DKSelector(Copying) );
+        return copying->mutableCopy( _self );
+    }
+
+    return NULL;
 }
 
 

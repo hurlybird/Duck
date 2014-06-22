@@ -26,7 +26,6 @@
 
 #include "DKNumber.h"
 #include "DKRuntime.h"
-#include "DKCopying.h"
 #include "DKString.h"
 #include "DKStream.h"
 

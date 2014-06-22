@@ -28,7 +28,6 @@
 #include "DKString.h"
 #include "DKNumber.h"
 #include "DKStruct.h"
-#include "DKCopying.h"
 
 
 
@@ -236,7 +235,7 @@ static void FailedInterfaceRequirement( DKObjectRef _self, DKPropertyRef propert
 {
     DKWarning( "DKProperty: '%s' does not meet the interface requirement ('%s') for property '%s'.\n",
         DKStringGetCStringPtr( DKGetClassName( object ) ),
-        property->requiredInterface->suid,
+        property->requiredInterface->name,
         DKStringGetCStringPtr( property->name ) );
 }
 

@@ -101,11 +101,10 @@ typedef enum
 struct _DKSEL
 {
     const DKObject  _obj;
-    
-    // A "sorta" unique identifier. Selectors are compared by pointer value, so
-    // this field is mostly for debugging, yet it should still be unique within
-    // the context of the application.
-    const char *    suid;
+
+    // Selectors are typically compared by pointer value, but the name is required to
+    // look up a selector by name
+    DKStringRef     name;
     
     // Controls how interfaces retrieved by this selector are cached.
     DKCacheUsage    cacheline;
@@ -238,6 +237,25 @@ DKHashCode  DKPointerHash( DKObjectRef ptr );
 
 
 
+// Copying -------------------------------------------------------------------------------
+DKDeclareInterfaceSelector( Copying );
+
+typedef DKObjectRef        (*DKCopyMethod)( DKObjectRef );
+typedef DKMutableObjectRef (*DKMutableCopyMethod)( DKObjectRef );
+
+struct DKCopyingInterface
+{
+    const DKInterface _interface;
+
+    DKCopyMethod        copy;
+    DKMutableCopyMethod mutableCopy;
+};
+
+typedef const struct DKCopyingInterface * DKCopyingInterfaceRef;
+
+
+
+
 // Description ---------------------------------------------------------------------------
 DKDeclareInterfaceSelector( Description );
 
@@ -298,6 +316,9 @@ typedef uint32_t DKClassOptions;
 
 // Allocate a new class object.
 DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize, DKClassOptions options );
+
+// Allocate a new selector object.
+DKSEL DKAllocSelector( DKStringRef name );
 
 // Allocate a new interface object.
 void *      DKAllocInterface( DKSEL sel, size_t structSize );
@@ -396,6 +417,10 @@ int         DKEqual( DKObjectRef a, DKObjectRef b );
 int         DKCompare( DKObjectRef a, DKObjectRef b );
 DKHashCode  DKHash( DKObjectRef _self );
 
+// Copying Interface Wrappers
+DKObjectRef DKCopy( DKObjectRef _self );
+DKMutableObjectRef DKMutableCopy( DKObjectRef _self );
+
 // CopyDescription Interface Wrappers
 DKStringRef DKCopyDescription( DKObjectRef _self );
 
@@ -473,10 +498,7 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 #define DKThreadSafeSelectorInit( name )                                                \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        struct _DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                    \
-        sel->suid = #name;                                                              \
-        sel->cacheline = DKDynamicCache;                                                \
-        return sel;                                                                     \
+        return DKAllocSelector( DKSTR( #name ) );                                       \
     }
 
 // Thread-safe initialization of "fast" selectors. Each fast selector is assigned a
@@ -484,8 +506,7 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 #define DKThreadSafeFastSelectorInit( name )                                            \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        struct _DKSEL * sel = DKAllocObject( DKSelectorClass(), 0 );                    \
-        sel->suid = #name;                                                              \
+        struct _DKSEL * sel = (struct _DKSEL *)DKAllocSelector( DKSTR( #name ) );       \
         sel->cacheline = DKStaticCache_ ## name;                                        \
         return sel;                                                                     \
     }

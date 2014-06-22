@@ -26,7 +26,6 @@
 
 #include "DKBinaryTree.h"
 #include "DKNodePool.h"
-#include "DKCopying.h"
 #include "DKString.h"
 
 

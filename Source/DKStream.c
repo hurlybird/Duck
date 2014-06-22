@@ -29,7 +29,9 @@
 #include "DKUnicode.h"
 
 
-DKThreadSafeSelectorInit( Stream );
+// The stream selector is initialized by DKRuntimeInit() so that constant strings can be
+// used during initialization.
+//DKThreadSafeSelectorInit( Stream );
 
 
 ///

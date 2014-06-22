@@ -63,6 +63,14 @@ typedef const struct DKString * DKStringRef;
 typedef const void * DKListRef;
 
 
+// Define a constant string with a compile-time constant C string.
+#define DKSTR( s ) __DKStringDefineConstantString( "" s "" )
+
+// Define a constant string. Constant strings require external storage so unless you
+// know what you're doing, use the DKSTR macro instead of calling this directly
+DKStringRef __DKStringDefineConstantString( const char * str );
+
+
 // Indexes
 typedef intptr_t  DKIndex;    // Indexes are basically a signed size_t
 typedef uintptr_t DKHashCode; // Pointers can be used as hash codes
@@ -258,7 +266,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
         if( !DKQueryInterface( _self, sel, NULL ) )                                     \
         {                                                                               \
             _DKError( "%s: Expected interface %s on class %s\n",                        \
-                __func__, (sel)->suid, DKGetClassName( _self ) );                       \
+                __func__, (sel)->name, DKGetClassName( _self ) );                       \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )

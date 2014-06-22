@@ -27,9 +27,8 @@
 #include "DKString.h"
 #include "DKUnicode.h"
 #include "DKByteArray.h"
-#include "DKCopying.h"
 #include "DKStream.h"
-#include "DKHashTable.h"
+#include "DKGenericHashTable.h"
 #include "DKList.h"
 #include "DKArray.h"
 
@@ -56,9 +55,8 @@ static void         DKStringFinalize( DKObjectRef _self );
 //
 DKThreadSafeClassInit( DKStringClass )
 {
-    // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
-    // involved in creating constant strings, the names for these classes are
-    // initialized in DKRuntimeInit().
+    // Since constant strings are used for class and selector names, the name fields of
+    // DKString and DKConstantString are initialized in DKRuntimeInit().
     DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString), 0 );
     
     // Allocation
@@ -78,13 +76,6 @@ DKThreadSafeClassInit( DKStringClass )
     DKInstallInterface( cls, comparison );
     DKRelease( comparison );
     
-    // Description
-    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKRetain;
-    
-    DKInstallInterface( cls, description );
-    DKRelease( description );
-
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
@@ -93,6 +84,13 @@ DKThreadSafeClassInit( DKStringClass )
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
+    // Description
+    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    description->copyDescription = (DKCopyDescriptionMethod)DKRetain;
+    
+    DKInstallInterface( cls, description );
+    DKRelease( description );
+    
     // Stream
     struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKStringSeek;
@@ -102,7 +100,7 @@ DKThreadSafeClassInit( DKStringClass )
     
     DKInstallInterface( cls, stream );
     DKRelease( stream );
-    
+
     return cls;
 }
 
@@ -112,9 +110,8 @@ DKThreadSafeClassInit( DKStringClass )
 //
 DKThreadSafeClassInit( DKConstantStringClass )
 {
-    // Since DKString, DKConstantString, DKHashTable and DKMutableHashTable are all
-    // involved in creating constant strings, the names for these classes are
-    // initialized in DKRuntimeInit().
+    // Since constant strings are used for class and selector names, the name fields of
+    // DKString and DKConstantString are initialized in DKRuntimeInit().
     DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString), DKPreventSubclassing | DKDisableReferenceCounting );
     
     return cls;
@@ -337,6 +334,46 @@ int DKStringCompare( DKStringRef _self, DKStringRef other )
         // requirement.
         DKCheckKindOfClass( other, DKStringClass(), DKPointerCompare( _self, other ) );
     
+        return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes );
+    }
+    
+    return 0;
+}
+
+
+///
+//  DKStringEqualToString()
+//
+bool DKStringEqualToString( DKStringRef _self, DKStringRef other )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        DKAssertKindOfClass( other, DKStringClass() );
+
+        if( _self == other )
+            return true;
+
+        return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes ) == 0;
+    }
+    
+    return false;
+}
+
+
+///
+//  DKStringCompareString()
+//
+int DKStringCompareString( DKStringRef _self, DKStringRef other )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        DKAssertKindOfClass( other, DKStringClass() );
+    
+        if( _self == other )
+            return 0;
+
         return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes );
     }
     
@@ -1146,8 +1183,82 @@ DKIndex DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex si
 
 
 // Constant Strings ======================================================================
-static DKMutableHashTableRef DKConstantStringTable = NULL;
+static DKGenericHashTable * DKConstantStringTable = NULL;
 static DKSpinLock DKConstantStringTableLock = DKSpinLockInit;
+
+
+struct DKConstantStringTableRow
+{
+    DKHashCode hash;
+    DKStringRef string;
+};
+
+#define DELETED_CONSTANT_STRING ((void *)-1)
+
+
+static DKRowStatus DKConstantStringTableRowStatus( const void * _row )
+{
+    const struct DKConstantStringTableRow * row = _row;
+
+    if( row->string == NULL )
+        return DKRowStatusEmpty;
+    
+    if( row->string == DELETED_CONSTANT_STRING )
+        return DKRowStatusDeleted;
+    
+    return DKRowStatusActive;
+}
+
+static DKHashCode DKConstantStringTableRowHash( const void * _row )
+{
+    const struct DKConstantStringTableRow * row = _row;
+    return row->hash;
+}
+
+static bool DKConstantStringTableRowEqual( const void * _row1, const void * _row2 )
+{
+    const struct DKConstantStringTableRow * row1 = _row1;
+    const struct DKConstantStringTableRow * row2 = _row2;
+
+    if( row1->hash != row2->hash )
+        return false;
+
+    return DKStringEqualToString( row1->string, row2->string );
+}
+
+static void DKConstantStringTableRowInit( void * _row )
+{
+    struct DKConstantStringTableRow * row = _row;
+    
+    row->hash = 0;
+    row->string = NULL;
+}
+
+static void DKConstantStringTableRowUpdate( void * _row, const void * _src )
+{
+    struct DKConstantStringTableRow * row = _row;
+    const struct DKConstantStringTableRow * src = _src;
+    
+    row->hash = src->hash;
+    
+    DKRetain( src->string );
+    
+    if( (row->string != NULL) && (row->string != DELETED_CONSTANT_STRING) )
+        DKRelease( row->string );
+        
+    row->string = src->string;
+}
+
+static void DKConstantStringTableRowDelete( void * _row )
+{
+    struct DKConstantStringTableRow * row = _row;
+    
+    DKRelease( row->string );
+    
+    row->hash = 0;
+    row->string = DELETED_CONSTANT_STRING;
+}
+
 
 ///
 //  __DKStringDefineConstantString()
@@ -1156,7 +1267,19 @@ DKStringRef __DKStringDefineConstantString( const char * str )
 {
     if( DKConstantStringTable == NULL )
     {
-        DKMutableHashTableRef table = DKCreate( DKMutableHashTableClass() );
+        DKGenericHashTable * table = dk_malloc( sizeof(DKGenericHashTable) );
+
+        DKGenericHashTableCallbacks callbacks =
+        {
+            DKConstantStringTableRowStatus,
+            DKConstantStringTableRowHash,
+            DKConstantStringTableRowEqual,
+            DKConstantStringTableRowInit,
+            DKConstantStringTableRowUpdate,
+            DKConstantStringTableRowDelete
+        };
+
+        DKGenericHashTableInit( table, sizeof(struct DKConstantStringTableRow), &callbacks );
         
         DKSpinLockLock( &DKConstantStringTableLock );
         
@@ -1166,49 +1289,65 @@ DKStringRef __DKStringDefineConstantString( const char * str )
         DKSpinLockUnlock( &DKConstantStringTableLock );
 
         if( DKConstantStringTable != table )
-            DKRelease( table );
+        {
+            DKGenericHashTableFinalize( table );
+            dk_free( table );
+        }
     }
 
     // Create a temporary stack object for the table lookup
     DKClassRef constantStringClass = DKConstantStringClass();
     
-    struct DKString key =
+    struct DKString lookupString =
     {
         DKStaticObject( constantStringClass ),
     };
     
     DKIndex length = strlen( str );
-    DKByteArrayInitWithExternalStorage( &key.byteArray, (const uint8_t *)str, length );
+    DKByteArrayInitWithExternalStorage( &lookupString.byteArray, (const uint8_t *)str, length );
     
-    // Check the table for an existing version
+    // Check the table for an existing copy of the string
+    struct DKConstantStringTableRow insertRow;
+    insertRow.hash = dk_strhash( str );
+    insertRow.string = &lookupString;
+    
     DKSpinLockLock( &DKConstantStringTableLock );
-    DKStringRef constantString = DKHashTableGetObject( DKConstantStringTable, &key );
+    const struct DKConstantStringTableRow * existingRow = DKGenericHashTableFind( DKConstantStringTable, &insertRow );
     DKSpinLockUnlock( &DKConstantStringTableLock );
     
-    if( !constantString )
+    if( existingRow )
     {
-        // Create a new constant string
-        DKStringRef newConstantString = DKCreate( constantStringClass );
-        DKByteArrayInitWithExternalStorage( &((struct DKString *)newConstantString)->byteArray, (const uint8_t *)str, length );
-
-        // Try to insert it in the table
-        DKSpinLockLock( &DKConstantStringTableLock );
-        DKIndex count = DKHashTableGetCount( DKConstantStringTable );
-        DKHashTableInsertObject( DKConstantStringTable, newConstantString, newConstantString, DKInsertIfNotFound );
-        
-        // Did someone sneak in and insert it before us?
-        if( DKHashTableGetCount( DKConstantStringTable ) == count )
-            constantString = DKHashTableGetObject( DKConstantStringTable, newConstantString );
-        
-        else
-            constantString = newConstantString;
-        
-        DKSpinLockUnlock( &DKConstantStringTableLock );
-
-        // This either removes the extra retain on an added entry, or releases the object
-        // if the insert failed
-        DKRelease( newConstantString );
+        return existingRow->string;
     }
+    
+    // Create a new constant string
+    DKStringRef constantString = NULL;
+    
+    insertRow.string = DKCreate( constantStringClass );
+    DKByteArrayInitWithExternalStorage( &((struct DKString *)insertRow.string)->byteArray, (const uint8_t *)str, length );
+
+    // Try to insert it in the table
+    DKSpinLockLock( &DKConstantStringTableLock );
+    
+    DKIndex count = DKGenericHashTableGetCount( DKConstantStringTable );
+    DKGenericHashTableInsert( DKConstantStringTable, &insertRow, DKInsertIfNotFound );
+    
+    // If the insert failed lookup the string again and use the existing copy
+    if( DKGenericHashTableGetCount( DKConstantStringTable ) == count )
+    {
+        existingRow = DKGenericHashTableFind( DKConstantStringTable, &insertRow );
+        constantString = existingRow->string;
+    }
+    
+    else
+    {
+        constantString = insertRow.string;
+    }
+    
+    DKSpinLockUnlock( &DKConstantStringTableLock );
+
+    // Remove the extra retain on the inserted string, or release it if the insert failed
+    DKRelease( insertRow.string );
     
     return constantString;
 }

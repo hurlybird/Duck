@@ -26,7 +26,6 @@
 
 #include "DKArray.h"
 #include "DKGenericArray.h"
-#include "DKCopying.h"
 #include "DKString.h"
 #include "DKSet.h"
 
