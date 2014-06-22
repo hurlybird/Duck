@@ -111,7 +111,7 @@ const void* DKNumberGetValuePtr( DKNumberRef _self );
 #define     DKNumberGetFloat( _self )     (*((float *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetDouble( _self )    (*((double *)DKNumberGetValuePtr( _self )))
 
-int         DKNumberEqual( DKNumberRef a, DKNumberRef b );
+bool        DKNumberEqual( DKNumberRef a, DKNumberRef b );
 int         DKNumberCompare( DKNumberRef a, DKNumberRef b );
 DKHashCode  DKNumberHash( DKNumberRef _self );
 

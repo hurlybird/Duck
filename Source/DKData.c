@@ -175,7 +175,7 @@ static void DKDataFinalize( DKObjectRef _self )
 ///
 //  DKDataEqual()
 //
-int DKDataEqual( DKDataRef _self, DKObjectRef other )
+bool DKDataEqual( DKDataRef _self, DKObjectRef other )
 {
     DKAssertKindOfClass( _self, DKDataClass() );
 

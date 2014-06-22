@@ -270,7 +270,7 @@ DKInterfaceRef DKDefaultComparison( void )
     return &DKDefaultComparison_StaticObject;
 }
 
-int DKPointerEqual( DKObjectRef _self, DKObjectRef other )
+bool DKPointerEqual( DKObjectRef _self, DKObjectRef other )
 {
     return _self == other;
 }
@@ -1343,7 +1343,7 @@ DKClassRef DKGetSuperclass( DKObjectRef _self )
 ///
 //  DKIsMemberOfClass()
 //
-int DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class )
+bool DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class )
 {
     if( _self )
     {
@@ -1351,14 +1351,14 @@ int DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class )
         return obj->isa == _class;
     }
     
-    return 0;
+    return false;
 }
 
 
 ///
 //  DKIsKindOfClass()
 //
-int DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
+bool DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
 {
     if( _self )
     {
@@ -1367,29 +1367,29 @@ int DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
         for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
         {
             if( cls == _class )
-                return 1;
+                return true;
         }
     }
     
-    return 0;
+    return false;
 }
 
 
 ///
 //  DKIsSubclass()
 //
-int DKIsSubclass( DKClassRef _class, DKClassRef otherClass )
+bool DKIsSubclass( DKClassRef _class, DKClassRef otherClass )
 {
     if( _class )
     {
         for( DKClassRef cls = _class; cls != NULL; cls = cls->superclass )
         {
             if( cls == otherClass )
-                return 1;
+                return true;
         }
     }
     
-    return 0;
+    return false;
 }
 
 
@@ -1417,11 +1417,11 @@ void * DKCreate( DKClassRef _class )
 ///
 //  DKEqual()
 //
-int DKEqual( DKObjectRef a, DKObjectRef b )
+bool DKEqual( DKObjectRef a, DKObjectRef b )
 {
     if( a == b )
     {
-        return 1;
+        return true;
     }
 
     if( a && b )
@@ -1430,7 +1430,7 @@ int DKEqual( DKObjectRef a, DKObjectRef b )
         return comparison->equal( a, b );
     }
     
-    return 0;
+    return false;
 }
 
 

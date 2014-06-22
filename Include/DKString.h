@@ -47,7 +47,7 @@ DKStringRef DKStringCreateWithCStringNoCopy( /* DKClassRef _class, */ const char
 DKStringRef DKStringCopy( DKStringRef _self );
 DKMutableStringRef DKStringMutableCopy( DKStringRef _self );
 
-int         DKStringEqual( DKStringRef _self, DKObjectRef other );
+bool        DKStringEqual( DKStringRef _self, DKObjectRef other );
 int         DKStringCompare( DKStringRef _self, DKStringRef other );
 DKHashCode  DKStringHash( DKStringRef _self );
 

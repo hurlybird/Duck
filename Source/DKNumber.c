@@ -464,7 +464,7 @@ const void * DKNumberGetValuePtr( DKNumberRef _self )
 ///
 //  DKNumberEqual()
 //
-int DKNumberEqual( DKNumberRef a, DKNumberRef b )
+bool DKNumberEqual( DKNumberRef a, DKNumberRef b )
 {
     if( DKIsKindOfClass( b, DKNumberClass() ) )
         return DKNumberCompare( a, b ) == 0;

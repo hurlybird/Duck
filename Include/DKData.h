@@ -46,7 +46,7 @@ DKDataRef   DKDataCreateWithBytesNoCopy( /* DKClassRef _class, */ const void * b
 DKDataRef   DKDataCopy( DKDataRef _self );
 DKMutableDataRef DKDataMutableCopy( DKDataRef _self );
 
-int         DKDataEqual( DKDataRef _self, DKObjectRef other );
+bool        DKDataEqual( DKDataRef _self, DKObjectRef other );
 int         DKDataCompare( DKDataRef _self, DKDataRef other );
 DKHashCode  DKDataHash( DKDataRef _self );
 

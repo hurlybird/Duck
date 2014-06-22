@@ -230,7 +230,7 @@ DKInterfaceRef DKDefaultComparison( void );
 
 
 // Pointer equality, comparison and hashing
-int         DKPointerEqual( DKObjectRef _self, DKObjectRef other );
+bool        DKPointerEqual( DKObjectRef _self, DKObjectRef other );
 int         DKPointerCompare( DKObjectRef _self, DKObjectRef other );
 DKHashCode  DKPointerHash( DKObjectRef ptr );
 
@@ -397,13 +397,13 @@ DKStringRef DKGetClassName( DKObjectRef _self );
 DKClassRef  DKGetSuperclass( DKObjectRef _self );
 
 // Returns true if the object is a instance of the class.
-int         DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class );
+bool        DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class );
 
 // Returns true if the object is a instance of the class or one of its subclasses.
-int         DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
+bool        DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
 
 // Returns true if the class is a subclass of (or equal to) another class
-int         DKIsSubclass( DKClassRef _class, DKClassRef otherClass );
+bool        DKIsSubclass( DKClassRef _class, DKClassRef otherClass );
 
 
 
@@ -413,7 +413,7 @@ int         DKIsSubclass( DKClassRef _class, DKClassRef otherClass );
 void *      DKCreate( DKClassRef _class );
 
 // Comparison Interface Wrappers
-int         DKEqual( DKObjectRef a, DKObjectRef b );
+bool        DKEqual( DKObjectRef a, DKObjectRef b );
 int         DKCompare( DKObjectRef a, DKObjectRef b );
 DKHashCode  DKHash( DKObjectRef _self );
 

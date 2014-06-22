@@ -311,7 +311,7 @@ DKMutableStringRef DKStringMutableCopy( DKStringRef _self )
 ///
 //  DKStringEqual()
 //
-int DKStringEqual( DKStringRef _self, DKObjectRef other )
+bool DKStringEqual( DKStringRef _self, DKObjectRef other )
 {
     if( DKIsKindOfClass( other, DKStringClass() ) )
         return DKStringCompare( _self, other ) == 0;
