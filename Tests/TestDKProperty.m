@@ -94,7 +94,7 @@ struct TestObject
     XCTAssertThrows( DKSetProperty( testObject, DKSTR( "x" ), DKSTR( "Jane" ) ) );
     
     float v[3] = { 0, 0, 0 };
-    XCTAssertThrows( DKSetNumericalProperty( testObject, DKSTR( "x" ), v, DKNumberMakeVectorType( DKNumberComponentFloat, 3 ) ) );
+    XCTAssertThrows( DKSetNumericalProperty( testObject, DKSTR( "x" ), v, DKEncode( DKEncodingTypeFloat, 3 ) ) );
     
     XCTAssert( testObject->x == 3 );
     DKRelease( intNumber );

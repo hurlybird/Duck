@@ -35,7 +35,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 - (void) testDKData
 {
 
-    DKMutableDataRef data = DKDataCreateMutable();
+    DKMutableDataRef data = DKDataCreateMutable( 0 );
     
     const char * a = "aaaaaaaa";
     const char * b = "bbbbbbbb";
@@ -100,7 +100,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     const char * b = "bbbbbbbb";
     const char * c = "cccccccc";
 
-    DKMutableDataRef data = DKDataCreateMutable();
+    DKMutableDataRef data = DKDataCreateMutable( 0 );
     
     XCTAssert( DKWrite( data, a, 1, 10 ) == 10 );
     XCTAssert( DKTell( data ) == 10 );

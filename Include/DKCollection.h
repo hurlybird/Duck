@@ -55,10 +55,12 @@ typedef const struct DKCollectionInterface * DKCollectionInterfaceRef;
 
 DKIndex     DKGetCount( DKObjectRef _self );
 
+DKObjectRef DKGetAnyKey( DKObjectRef _self );
+DKObjectRef DKGetAnyObject( DKObjectRef _self );
+
 int         DKForeachKey( DKObjectRef _self, DKApplierFunction callback, void * context );
 int         DKForeachObject( DKObjectRef _self, DKApplierFunction callback, void * context );
 int         DKForeachKeyAndObject( DKObjectRef _self, DKKeyedApplierFunction callback, void * context );
-
 
 DKStringRef DKCollectionCopyDescription( DKObjectRef _self );
 

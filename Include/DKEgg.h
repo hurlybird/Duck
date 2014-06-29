@@ -31,41 +31,28 @@
 #include "DKData.h"
 #include "DKCollection.h"
 #include "DKNumber.h"
+#include "DKStream.h"
 
 
 typedef struct DKEggReader * DKEggReaderRef;
-typedef struct DKEggWriter * DKEggWriterRef;
+typedef struct DKEggArchiver * DKEggArchiverRef;
 
 
 // Egg Interface - Adopted by any object that supports egg storage =======================
 DKDeclareInterfaceSelector( Egg );
 
 typedef DKObjectRef (*DKCreateFromEggMethod)( DKClassRef _class, DKEggReaderRef egg );
-typedef void        (*DKWriteToEggMethod)( DKObjectRef _self, DKEggWriterRef egg );
+typedef void        (*DKAddToEggMethod)( DKObjectRef _self, DKEggArchiverRef egg );
 
 struct DKEggInterface
 {
     const DKInterface _interface;
 
     DKCreateFromEggMethod   createFromEgg;
-    DKWriteToEggMethod      writeToEgg;
+    DKAddToEggMethod        addToEgg;
 };
 
 typedef const struct DKEggInterface * DKEggInterfaceRef;
-
-
-
-
-// Egg Storage Types =====================================================================
-
-enum
-{
-    DKEggObject = 1,
-    DKEggCollection,
-    DKEggKeyedCollection,
-    
-    // Numerical Types are defined in DKNumber.h
-};
 
 
 
@@ -83,25 +70,27 @@ DKObjectRef DKEggReadObject( DKEggReaderRef _self, DKStringRef key );
 void    DKEggReadCollection( DKEggReaderRef _self, DKStringRef key, DKApplierFunction callback, void * context );
 void    DKEggReadKeyedCollection( DKEggReaderRef _self, DKStringRef key, DKKeyedApplierFunction callback, void * context );
 
-size_t  DKEggReadNumber( DKEggReaderRef _self, DKStringRef key, void * number, DKNumberType numberType, size_t count );
-size_t  DKEggReadBytes( DKEggWriterRef _self, DKStringRef key, void * bytes, uint32_t length );
+size_t  DKEggReadData( DKEggReaderRef _self, DKStringRef key, void * bytes, size_t elementSize, size_t elementCount );
+size_t  DKEggGetDataPtr( DKEggReaderRef _self, DKStringRef key, const void ** bytes );
 
 
 
-// DKEggWriter ===========================================================================
-DKClassRef DKEggWriterClass( void );
 
-DKEggWriterRef DKEggCreateWriter( DKByteOrder byteOrder );
+// DKEggArchiver =========================================================================
+DKClassRef DKEggArchiverClass( void );
 
-DKDataRef DKEggCompile( DKEggWriterRef _self );
+DKEggArchiverRef DKEggCreateArchiver( int options );
 
-void DKEggWriteObject( DKEggWriterRef _self, DKStringRef key, DKObjectRef object );
+void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKMutableObjectRef stream );
+DKDataRef DKEggArchiverCreateData( DKEggArchiverRef _self );
 
-void DKEggWriteCollection( DKEggWriterRef _self, DKStringRef key, DKObjectRef collection );
-void DKEggWriteKeyedCollection( DKEggWriterRef _self, DKStringRef key, DKObjectRef collection );
+void DKEggAddObject( DKEggArchiverRef _self, DKStringRef key, DKObjectRef object );
+void DKEggAddCollection( DKEggArchiverRef _self, DKStringRef key, DKObjectRef collection );
+void DKEggAddKeyedCollection( DKEggArchiverRef _self, DKStringRef key, DKObjectRef collection );
 
-void DKEggWriteNumber( DKEggWriterRef _self, DKStringRef key, const void * src, DKNumberType srcType, size_t count );
-void DKEggWriteBytes( DKEggWriterRef _self, DKStringRef key, const void * bytes, size_t length );
+void DKEggAddTextData( DKEggArchiverRef _self, DKStringRef key, const char * text, size_t length );
+void DKEggAddBinaryData( DKEggArchiverRef _self, DKStringRef key, const void * bytes, size_t length );
+void DKEggAddNumber( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, const void * number );
 
 
 #endif // _DK_EGG_H_

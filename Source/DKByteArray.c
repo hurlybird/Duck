@@ -120,7 +120,7 @@ void DKByteArrayReserve( DKByteArray * array, DKIndex length )
 ///
 //  DKByteArrayHasExternalStorage()
 //
-int DKByteArrayHasExternalStorage( DKByteArray * array )
+bool DKByteArrayHasExternalStorage( DKByteArray * array )
 {
     return HAS_EXTERNAL_STORAGE( array );
 }
@@ -250,6 +250,26 @@ void DKByteArrayAppendBytes( DKByteArray * array, const uint8_t bytes[], DKIndex
 }
 
 
+///
+//  DKByteArrayAlignLength()
+//
+DKIndex DKByteArrayAlignLength( DKByteArray * array, DKIndex byteAlignment )
+{
+    DKIndex length = array->length;
+    DKIndex remainder = (int)(length % byteAlignment);
+    
+    if( remainder > 0 )
+    {
+        DKIndex pad = byteAlignment - remainder;
+
+        DKByteArrayAppendBytes( array, NULL, pad );
+        memset( &array->bytes[length], 0, pad );
+
+        return pad;
+    }
+    
+    return 0;
+}
 
 
 

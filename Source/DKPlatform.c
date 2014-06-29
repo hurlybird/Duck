@@ -257,9 +257,22 @@ DKUUID dk_uuid_generate( void )
 ///
 //  dk_strhash()
 //
-DKHashCode dk_strhash( const char * str )
+uint32_t dk_strhash32( const char * str )
 {
-    DKHashCode hash = 0;
+    uint32_t hash = 0;
+    
+    const char * c = str;
+    unsigned int i;
+    
+    for( i = 0; c[i] != '\0'; ++i )
+        hash = 31 * hash + c[i];
+        
+    return hash;
+}
+
+uint64_t dk_strhash64( const char * str )
+{
+    uint64_t hash = 0;
     
     const char * c = str;
     unsigned int i;
@@ -274,9 +287,22 @@ DKHashCode dk_strhash( const char * str )
 ///
 //  dk_memhash()
 //
-DKHashCode dk_memhash( const void * buffer, size_t buffer_size )
+uint32_t dk_memhash32( const void * buffer, size_t buffer_size )
 {
-    DKHashCode hash = 0;
+    uint32_t hash = 0;
+
+    const char * c = (const char *)buffer;
+    size_t i;
+    
+    for( i = 0; i < buffer_size; ++i )
+        hash = 31 * hash + c[i];
+        
+    return hash;
+}
+
+uint64_t dk_memhash64( const void * buffer, size_t buffer_size )
+{
+    uint64_t hash = 0;
 
     const char * c = (const char *)buffer;
     size_t i;

@@ -28,66 +28,31 @@
 #define _DK_NUMBER_H_
 
 #include "DKRuntime.h"
+#include "DKEncoding.h"
+
+
+#define DKNumberInt8    DKEncode( DKEncodingTypeInt8, 1 )
+#define DKNumberInt16   DKEncode( DKEncodingTypeInt16, 1 )
+#define DKNumberInt32   DKEncode( DKEncodingTypeInt32, 1 )
+#define DKNumberInt64   DKEncode( DKEncodingTypeInt64, 1 )
+
+#define DKNumberUInt8   DKEncode( DKEncodingTypeUInt8, 1 )
+#define DKNumberUInt16  DKEncode( DKEncodingTypeUInt16, 1 )
+#define DKNumberUInt32  DKEncode( DKEncodingTypeUInt32, 1 )
+#define DKNumberUInt64  DKEncode( DKEncodingTypeUInt64, 1 )
+
+#define DKNumberFloat   DKEncode( DKEncodingTypeFloat, 1 )
+#define DKNumberDouble  DKEncode( DKEncodingTypeDouble, 1 )
+
+#define DKNumberUUID    DKEncode( DKEncodingTypeUInt8, 16 )
+#define DKNumberDate    DKEncode( DKEncodingTypeDouble, 1 )
 
 
 typedef const struct DKNumber * DKNumberRef;
 
-typedef enum
-{
-    DKNumberComponentInt8 =     1,
-    DKNumberComponentInt16,
-    DKNumberComponentInt32,
-    DKNumberComponentInt64,
-    
-    DKNumberComponentUInt8,
-    DKNumberComponentUInt16,
-    DKNumberComponentUInt32,
-    DKNumberComponentUInt64,
-    
-    DKNumberComponentFloat,
-    DKNumberComponentDouble,
-    
-    DKNumberMaxComponentTypes,
-    
-} DKNumberComponentType;
-
-typedef int32_t DKNumberType;
-
-#define DKNumberMaxComponentCount               16
-
-#define DKNumberMakeVectorType( type, count )   (((count) << 16) | (type & 0x0000FFFF))
-
-#define DKNumberInt8    DKNumberMakeVectorType( DKNumberComponentInt8, 1 )
-#define DKNumberInt16   DKNumberMakeVectorType( DKNumberComponentInt16, 1 )
-#define DKNumberInt32   DKNumberMakeVectorType( DKNumberComponentInt32, 1 )
-#define DKNumberInt64   DKNumberMakeVectorType( DKNumberComponentInt64, 1 )
-
-#define DKNumberUInt8   DKNumberMakeVectorType( DKNumberComponentUInt8, 1 )
-#define DKNumberUInt16  DKNumberMakeVectorType( DKNumberComponentUInt16, 1 )
-#define DKNumberUInt32  DKNumberMakeVectorType( DKNumberComponentUInt32, 1 )
-#define DKNumberUInt64  DKNumberMakeVectorType( DKNumberComponentUInt64, 1 )
-
-#define DKNumberFloat   DKNumberMakeVectorType( DKNumberComponentFloat, 1 )
-#define DKNumberDouble  DKNumberMakeVectorType( DKNumberComponentDouble, 1 )
-
-#define DKNumberUUID    DKNumberMakeVectorType( DKNumberComponentUInt8, 16 )
-#define DKNumberDate    DKNumberMakeVectorType( DKNumberComponentDouble, 1 )
-
-#define DKNumberGetComponentType( type )    ((type) & 0x0000FFFF)
-#define DKNumberGetComponentCount( type )   ((type) >> 16)
-
-size_t  DKNumberGetComponentSize( DKNumberType type );
-const char * DKNumberGetComponentName( DKNumberType type );
-int     DKNumberTypeIsValid( int32_t type );
-
-
-
-
-// DKNumber ==============================================================================
-
 DKClassRef  DKNumberClass( void );
 
-DKNumberRef DKNumberCreate( const void * value, DKNumberType type );
+DKNumberRef DKNumberCreate( const void * value, DKEncoding encoding );
 
 DKNumberRef DKNumberCreateInt32( int32_t x );
 DKNumberRef DKNumberCreateInt64( int64_t x );
@@ -98,10 +63,10 @@ DKNumberRef DKNumberCreateDouble( double x );
 DKNumberRef DKNumberCreateUUID( const DKUUID * uuid );
 DKNumberRef DKNumberCreateDate( const DKDateTime * date );
 
-DKNumberType DKNumberGetType( DKNumberRef _self );
+DKEncoding  DKNumberGetEncoding( DKNumberRef _self );
 
 size_t      DKNumberGetValue( DKNumberRef _self, void * value );
-size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKNumberType type );
+size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding );
 const void* DKNumberGetValuePtr( DKNumberRef _self );
 
 #define     DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
@@ -122,7 +87,7 @@ DKHashCode  DKNumberHash( DKNumberRef _self );
 DKStringRef DKNumberCopyDescription( DKNumberRef _self );
 
 // Utility function for converting number types
-size_t DKNumberConvert( const void * src, DKNumberType srcType, void * dst, DKNumberType dstType );
+size_t DKNumberConvert( const void * src, DKEncoding srcType, void * dst, DKEncoding dstType );
 
 
 #endif // _DK_NUMBER_H_

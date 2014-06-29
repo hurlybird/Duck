@@ -85,8 +85,7 @@ void DKInstallObjectProperty( DKClassRef _class,
     
     property->attributes = attributes;
     property->offset = offset;
-    property->type = DKPropertyObject;
-    property->size = sizeof(DKObjectRef);
+    property->encoding = DKEncode( DKEncodingTypeObject, 1 );
     
     property->requiredClass = DKRetain( requiredClass );
     property->requiredInterface = DKRetain( requiredInterface );
@@ -107,14 +106,11 @@ void DKInstallNumericalProperty( DKClassRef _class,
     DKStringRef semantic,
     int32_t attributes,
     size_t offset,
-    DKNumberType type,
+    DKEncoding encoding,
     DKPropertySetter setter,
     DKPropertyGetter getter )
 {
-    DKAssert( DKNumberTypeIsValid( type ) );
-    
-    size_t size = DKNumberGetComponentSize( type );
-    size_t count = DKNumberGetComponentCount( type );
+    DKAssert( DKEncodingIsNumber( encoding ) );
     
     struct DKProperty * property = DKCreate( DKPropertyClass() );
     
@@ -123,8 +119,7 @@ void DKInstallNumericalProperty( DKClassRef _class,
     
     property->attributes = attributes;
     property->offset = offset;
-    property->type = type;
-    property->size = size * count;
+    property->encoding = encoding;
     
     property->setter = setter;
     property->getter = getter;
@@ -153,8 +148,7 @@ void DKInstallStructProperty( DKClassRef _class,
     
     property->attributes = attributes;
     property->offset = offset;
-    property->type = DKPropertyStruct;
-    property->size = size;
+    property->encoding = DKEncode( DKEncodingTypeBinaryData, (uint32_t)size );
 
     property->setter = setter;
     property->getter = getter;
@@ -291,7 +285,7 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     void * value = (uint8_t *)_self + property->offset;
     
     // Object types
-    if( property->type == DKPropertyObject )
+    if( property->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
     {
         CheckClassRequirement( _self, property, object );
         CheckInterfaceRequirement( _self, property, object );
@@ -325,14 +319,14 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     // Automatic conversion of numerical types
     if( DKIsKindOfClass( object, DKNumberClass() ) )
     {
-        if( DKNumberCastValue( object, value, property->type ) )
+        if( DKNumberCastValue( object, value, property->encoding ) )
             return;
     }
     
     // Automatic conversion of structure types
     if( DKIsKindOfClass( object, DKStructClass() ) )
     {
-        if( DKStructGetValue( object, property->semantic, value, property->size ) )
+        if( DKStructGetValue( object, property->semantic, value, DKEncodingGetSize( property->encoding ) ) )
             return;
     }
 
@@ -349,7 +343,7 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
     void * value = (uint8_t *)_self + property->offset;
     
     // Object types
-    if( property->type == DKPropertyObject )
+    if( property->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
     {
         if( property->attributes & DKPropertyWeak )
         {
@@ -365,16 +359,16 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
     }
     
     // Automatic conversion of numerical types
-    if( DKNumberTypeIsValid( property->type ) )
+    if( DKEncodingIsNumber( property->encoding ) )
     {
-        DKNumberRef number = DKNumberCreate( value, property->type );
+        DKNumberRef number = DKNumberCreate( value, property->encoding );
         return number;
     }
 
     // Automatic conversion of structure types
     if( property->semantic != NULL )
     {
-        DKStructRef structure = DKStructCreate( property->semantic, value, property->size );
+        DKStructRef structure = DKStructCreate( property->semantic, value, DKEncodingGetSize( property->encoding ) );
         return structure;
     }
 
@@ -436,9 +430,9 @@ DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name )
 ///
 //  DKSetNumericalProperty()
 //
-void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKNumberType srcType )
+void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKEncoding srcEncoding )
 {
-    DKAssert( DKNumberTypeIsValid( srcType ) );
+    DKAssert( DKEncodingIsNumber( srcEncoding ) );
 
     if( _self )
     {
@@ -448,9 +442,9 @@ void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * s
         CheckPropertyIsDefined( _self, property, name );
         CheckPropertyIsReadWrite( _self, property );
         
-        if( property->setter || (property->type == DKPropertyObject) )
+        if( property->setter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
         {
-            DKNumberRef number = DKNumberCreate( srcValue, srcType );
+            DKNumberRef number = DKNumberCreate( srcValue, srcEncoding );
             DKWritePropertyObject( _self, property, number );
             DKRelease( number );
             return;
@@ -460,12 +454,12 @@ void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * s
         {
             void * dstValue = (uint8_t *)_self + property->offset;
             
-            if( DKNumberConvert( srcValue, srcType, dstValue, property->type ) )
+            if( DKNumberConvert( srcValue, srcEncoding, dstValue, property->encoding ) )
                 return;
         }
         
         DKWarning( "DKProperty: No available conversion for property '%s' from %s[%d].\n",
-            DKStringGetCStringPtr( name ), DKNumberGetComponentName( srcType ), DKNumberGetComponentCount( srcType ) );
+            DKStringGetCStringPtr( name ), DKEncodingGetTypeName( srcEncoding ), DKEncodingGetCount( srcEncoding ) );
     }
 }
 
@@ -473,11 +467,11 @@ void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * s
 ///
 //  DKGetNumericalProperty()
 //
-size_t DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKNumberType dstType )
+size_t DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKEncoding dstEncoding )
 {
     size_t result = 0;
 
-    DKAssert( DKNumberTypeIsValid( dstType ) );
+    DKAssert( DKEncodingIsNumber( dstEncoding ) );
 
     if( _self )
     {
@@ -486,23 +480,20 @@ size_t DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstVa
 
         CheckPropertyIsDefined( _self, property, name, 0 );
         
-        if( property->getter || (property->type == DKPropertyObject) )
+        if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
         {
             DKObjectRef object = DKReadPropertyObject( _self, property );
 
             if( object == NULL )
             {
-                size_t size = DKNumberGetComponentSize( dstType );
-                size_t count = DKNumberGetComponentCount( dstType );
+                memset( dstValue, 0, DKEncodingGetSize( dstEncoding ) );
                 
-                memset( dstValue, 0, size * count );
-                
-                return count;
+                return DKEncodingGetCount( dstEncoding );
             }
             
             if( DKIsKindOfClass( object, DKNumberClass() ) )
             {
-                if( (result = DKNumberCastValue( object, dstValue, dstType )) != 0 )
+                if( (result = DKNumberCastValue( object, dstValue, dstEncoding )) != 0 )
                 {
                     DKRelease( object );
                     return result;
@@ -516,12 +507,12 @@ size_t DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstVa
         {
             void * srcValue = (uint8_t *)_self + property->offset;
 
-            if( (result = DKNumberConvert( srcValue, property->type, dstValue, dstType )) != 0 )
+            if( (result = DKNumberConvert( srcValue, property->encoding, dstValue, dstEncoding )) != 0 )
                 return result;
         }
 
         DKWarning( "DKProperty: No available conversion for property '%s' to %s[%d].\n",
-            DKStringGetCStringPtr( name ), DKNumberGetComponentName( dstType ), DKNumberGetComponentCount( dstType ) );
+            DKStringGetCStringPtr( name ), DKEncodingGetTypeName( dstEncoding ), DKEncodingGetCount( dstEncoding ) );
     }
     
     return result;
@@ -542,7 +533,7 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef seman
         CheckPropertyIsReadWrite( _self, property );
         CheckSemanticRequirement( _self, property, semantic );
         
-        if( property->setter || (property->type == DKPropertyObject) )
+        if( property->setter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
         {
             DKStructRef structure = DKStructCreate( semantic, srcValue, srcSize );
             DKWritePropertyObject( _self, property, structure );
@@ -550,7 +541,7 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef seman
             return;
         }
 
-        if( (property->type == DKPropertyStruct) && (property->size == srcSize) )
+        if( property->encoding == DKEncode( DKEncodingTypeBinaryData, srcSize ) )
         {
             void * dstValue = (uint8_t *)_self + property->offset;
             memcpy( dstValue, srcValue, srcSize );
@@ -576,7 +567,7 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef sem
         CheckPropertyIsDefined( _self, property, name, 0 );
         CheckSemanticRequirement( _self, property, semantic, 0 );
         
-        if( property->getter || (property->type == DKPropertyObject) )
+        if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
         {
             DKObjectRef object = DKReadPropertyObject( _self, property );
 
@@ -598,7 +589,7 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef sem
             DKRelease( object );
         }
 
-        if( (property->type == DKPropertyStruct) && (property->size == dstSize) )
+        if( property->encoding == DKEncode( DKEncodingTypeBinaryData, dstSize ) )
         {
             const void * srcValue = (uint8_t *)_self + property->offset;
             memcpy( dstValue, srcValue, dstSize );

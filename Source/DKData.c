@@ -234,6 +234,22 @@ DKHashCode DKDataHash( DKDataRef _self )
 
 
 ///
+//  DKDataCreateMutable()
+//
+DKMutableDataRef DKDataCreateMutable( DKIndex reserveLength )
+{
+    DKMutableDataRef data = DKCreate( DKMutableDataClass() );
+    
+    if( data )
+    {
+        DKByteArrayReserve( &data->byteArray, reserveLength );
+    }
+    
+    return data;
+}
+
+
+///
 //  DKDataCreateWithBytes()
 //
 DKDataRef DKDataCreateWithBytes( DKClassRef _class, const void * bytes, DKIndex length )

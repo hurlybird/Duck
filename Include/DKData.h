@@ -38,7 +38,7 @@ DKClassRef  DKDataClass( void );
 DKClassRef  DKMutableDataClass( void );
 
 #define     DKDataCreateEmpty()    DKCreate( DKDataClass() )
-#define     DKDataCreateMutable()  DKCreate( DKMutableDataClass() )
+DKMutableDataRef DKDataCreateMutable( DKIndex reserveLength );
 
 DKDataRef   DKDataCreateWithBytes( DKClassRef _class, const void * bytes, DKIndex length );
 DKDataRef   DKDataCreateWithBytesNoCopy( /* DKClassRef _class, */ const void * bytes, DKIndex length );

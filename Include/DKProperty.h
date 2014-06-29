@@ -28,22 +28,8 @@
 #define _DK_PROPERTY_H_
 
 #include "DKRuntime.h"
+#include "DKEncoding.h"
 #include "DKNumber.h"
-
-
-// Types
-enum
-{
-    DKPropertyVoid =        0,
-    
-    // Object Types
-    DKPropertyObject,
-    
-    // Struct Types
-    DKPropertyStruct,
-    
-    // Numerical Types are defined in DKNumber.h
-};
 
 
 // Attributes
@@ -73,10 +59,9 @@ struct DKProperty
     DKStringRef     name;
     DKStringRef     semantic;
     
-    int32_t         type;
+    DKEncoding      encoding;
     int32_t         attributes;
     size_t          offset;
-    size_t          size;
     
     DKClassRef      requiredClass;
     DKSEL           requiredInterface;
@@ -105,7 +90,7 @@ void DKInstallNumericalProperty( DKClassRef _class,
     DKStringRef semantic,
     int32_t attributes,
     size_t offset,
-    DKNumberType type,
+    DKEncoding encoding,
     DKPropertySetter setter,
     DKPropertyGetter getter );
 
@@ -130,8 +115,8 @@ void        DKSetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef obje
 DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name );
 
 // Get/Set a numerical property, with automatic conversion to/from storage as a DKNumber object.
-void        DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKNumberType srcType );
-size_t      DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKNumberType dstType );
+void        DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKEncoding srcEncoding );
+size_t      DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKEncoding dstEncoding );
 
 // Get/Set a struct property, with automatic conversion to/from storage as a DKStruct object.
 void        DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, const void * srcValue, size_t srcSize );

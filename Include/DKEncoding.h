@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  DKByteArray.h
+  DKEncoding.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,40 +24,58 @@
 
 *****************************************************************************************/
 
-#ifndef _DK_BYTE_ARRAY_H_
-#define _DK_BYTE_ARRAY_H_
+#ifndef _DK_ENCODING_H_
+#define _DK_ENCODING_H_
 
 #include "DKPlatform.h"
 
 
-// Note: DKByteArray internally stores four '\0' bytes (i.e. a UTF32 NULL) at data[length]
-// to make storing strings safer. The NULLs aren't included in the length or maxLength of
-// the array.
+#define DKEncodingVersion           1
 
-typedef struct
+typedef enum
 {
-    uint8_t * bytes;
-    DKIndex length;
-    DKIndex maxLength;
+    // Object Types
+    DKEncodingTypeObject = 1,
+    DKEncodingTypeKeyedObject,
 
-} DKByteArray;
+    // Data Types
+    DKEncodingTypeTextData,
+    DKEncodingTypeBinaryData,
+
+    // Number Types
+    DKEncodingTypeInt8,
+    DKEncodingTypeInt16,
+    DKEncodingTypeInt32,
+    DKEncodingTypeInt64,
+    
+    DKEncodingTypeUInt8,
+    DKEncodingTypeUInt16,
+    DKEncodingTypeUInt32,
+    DKEncodingTypeUInt64,
+    
+    DKEncodingTypeFloat,
+    DKEncodingTypeDouble,
+    
+    DKMaxEncodingTypes
+    
+} DKEncodingType;
 
 
-void DKByteArrayInit( DKByteArray * array );
+typedef uint32_t DKEncoding;
 
-void DKByteArrayInitWithExternalStorage( DKByteArray * array, const uint8_t bytes[], DKIndex length );
-bool DKByteArrayHasExternalStorage( DKByteArray * array );
+#define DKMaxEncodingSize               (16 * 1024 * 1024) // 2^24
 
-void DKByteArrayFinalize( DKByteArray * array );
+#define DKEncode( type, count )         (((type) << 24) | (count))
+#define DKEncodingGetType( encoding )   ((encoding) >> 24)
+#define DKEncodingGetCount( encoding )  ((encoding) & 0x00ffffff)
 
-void DKByteArrayReserve( DKByteArray * array, DKIndex length );
 
-#define DKByteArrayGetLength( array )   ((array)->length)
-#define DKByteArrayGetPtr( array )      ((void *)(array)->bytes)
+size_t DKEncodingGetSize( DKEncoding encoding );
+size_t DKEncodingGetTypeSize( DKEncoding encoding );
+const char * DKEncodingGetTypeName( DKEncoding encoding );
+bool   DKEncodingIsNumber( DKEncoding encoding );
 
-void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t bytes[], DKIndex length );
-void DKByteArrayAppendBytes( DKByteArray * array, const uint8_t bytes[], DKIndex length );
 
-DKIndex DKByteArrayAlignLength( DKByteArray * array, DKIndex byteAlignment );
+#endif // _DK_ENCODING_H_
 
-#endif // _DK_BYTE_ARRAY_H_
+

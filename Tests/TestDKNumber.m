@@ -79,7 +79,7 @@ typedef struct
     
     
     const Vector3 v = { 1, 2, 3 };
-    n = DKNumberCreate( &v, DKNumberMakeVectorType( DKNumberFloat, 3 ) );
+    n = DKNumberCreate( &v, DKEncode( DKEncodingTypeFloat, 3 ) );
     
     Vector3 w = DKNumberGetValueAs( n, Vector3 );
     XCTAssert( (v.x == w.x) && (v.y == w.y) && (v.z == w.z) );

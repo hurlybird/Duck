@@ -133,9 +133,12 @@ typedef enum
 // Byte Order
 typedef enum
 {
-    DKByteOrderNative = 0,
+    DKByteOrderUnspecified = 0,
+    
     DKByteOrderBigEndian,
-    DKByteOrderLittleEndian
+    DKByteOrderLittleEndian,
+    
+    DKByteOrderNative = DKByteOrderLittleEndian
 
 } DKByteOrder;
 
@@ -381,8 +384,20 @@ typedef OSSpinLock DKSpinLock;
 DKUUID dk_uuid_generate( void );
 
 // Basic hashing
-DKHashCode dk_strhash( const char * str );
-DKHashCode dk_memhash( const void * buffer, size_t buffer_size );
+uint32_t dk_strhash32( const char * str );
+uint64_t dk_strhash64( const char * str );
+
+uint32_t dk_memhash32( const void * buffer, size_t buffer_size );
+uint64_t dk_memhash64( const void * buffer, size_t buffer_size );
+
+#if __LP64__
+#define dk_strhash( str )                   dk_strhash64( str )
+#define dk_memhash( buffer, buffer_size )   dk_memhash64( buffer, buffer_size )
+#else
+#define dk_strhash( str )                   dk_strhash32( str )
+#define dk_memhash( buffer, buffer_size )   dk_memhash32( buffer, buffer_size )
+#endif
+
 
 // Time in seconds since midnight January 1, 1970 (i.e. gettimeofday())
 DKDateTime dk_datetime( void );
