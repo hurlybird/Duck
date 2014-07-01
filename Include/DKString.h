@@ -39,10 +39,15 @@ DKClassRef  DKConstantStringClass( void );
 DKClassRef  DKMutableStringClass( void );
 
 #define     DKStringCreateEmpty()    DKSTR( "" )
-#define     DKStringCreateMutable()  DKCreate( DKMutableStringClass() )
+#define     DKStringCreateMutable()  DKInit( DKAlloc( DKMutableStringClass(), 0 ) )
 
-DKStringRef DKStringCreateWithCString( DKClassRef _class, const char * cstr );
-DKStringRef DKStringCreateWithCStringNoCopy( /* DKClassRef _class, */ const char * cstr );
+#define     DKStringCreateWithString( _class, str )     DKStringInitWithString( DKAlloc( _class, 0 ), str )
+#define     DKStringCreateWithCString( _class, cstr )   DKStringInitWithCString( DKAlloc( _class, 0 ), cstr )
+#define     DKStringCreateWithCStringNoCopy( cstr )     DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass(), 0 ), cstr )
+
+void *      DKStringInitWithString( DKStringRef _self, DKStringRef other );
+void *      DKStringInitWithCString( DKStringRef _self, const char * cstr );
+void *      DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr );
 
 DKStringRef DKStringCopy( DKStringRef _self );
 DKMutableStringRef DKStringMutableCopy( DKStringRef _self );

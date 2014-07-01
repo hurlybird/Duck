@@ -58,16 +58,8 @@ static void        Insert( struct DKHashTable * hashTable, DKHashCode hash, DKOb
 //
 DKThreadSafeClassInit( DKHashTableClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKHashTable" ), DKObjectClass(), sizeof(struct DKHashTable), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKHashTable" ), DKObjectClass(), sizeof(struct DKHashTable), 0, DKHashTableInitialize, DKHashTableFinalize );
     
-    // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->initialize = DKHashTableInitialize;
-    allocation->finalize = DKHashTableFinalize;
-
-    DKInstallInterface( cls, allocation );
-    DKRelease( allocation );
-
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
@@ -133,7 +125,7 @@ DKThreadSafeClassInit( DKHashTableClass )
 //
 DKThreadSafeClassInit(  DKMutableHashTableClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutablehashTable" ), DKHashTableClass(), sizeof(struct DKHashTable), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutablehashTable" ), DKHashTableClass(), sizeof(struct DKHashTable), 0, NULL, NULL );
     
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
@@ -304,6 +296,8 @@ static int InsertObject( DKObjectRef object, void * context )
 //
 static DKObjectRef DKHashTableInitialize( DKObjectRef _self )
 {
+    _self = DKSuperInit( _self, DKObjectClass() );
+
     if( _self )
     {
         struct DKHashTable * hashTable = (struct DKHashTable *)_self;

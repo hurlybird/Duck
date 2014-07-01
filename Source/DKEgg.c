@@ -31,7 +31,9 @@
 #include "DKGenericHashTable.h"
 
 
-DKThreadSafeSelectorInit( Egg );
+// The egg selector is initialized by DKRuntimeInit() so that constant strings can be
+// used during initialization.
+//DKThreadSafeSelectorInit( Egg );
 
 
 
@@ -78,7 +80,7 @@ typedef struct
 
 typedef struct
 {
-    uint32_t key;
+    uint32_t hashkey;
     uint32_t encoding;
     uint32_t value;
 
@@ -94,54 +96,520 @@ typedef struct
 
 
 
-// DKEggReader ===========================================================================
+// DKEggUnarchiver =======================================================================
 
-struct DKEggReader
+struct DKEggUnarchiver
 {
     const DKObject _obj;
+    
+    DKGenericArray unarchivedObjects;
+    DKGenericArray stack;
+
+    DKByteArray buffer;
+    
+    const DKEggHeader * header;
+    const DKEggObject * objectTable;
+    const DKEggAttribute * attributeTable;
+    const uint8_t * data;
 };
 
 
-static DKObjectRef DKEggReaderInitialize( DKObjectRef _self );
-static void DKEggReaderFinalize( DKObjectRef _self );
+static void DKEggUnarchiverFinalize( DKObjectRef _self );
 
 
 ///
-//  DKEggReaderClass()
+//  DKEggUnarchiverClass()
 //
-DKThreadSafeClassInit( DKEggReaderClass )
+DKThreadSafeClassInit( DKEggUnarchiverClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKEggReader" ), DKObjectClass(), sizeof(struct DKEggReader), 0 );
-    
-    // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->initialize = DKEggReaderInitialize;
-    allocation->finalize = DKEggReaderFinalize;
-
-    DKInstallInterface( cls, allocation );
-    DKRelease( allocation );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKEggUnarchiver" ), DKObjectClass(), sizeof(struct DKEggUnarchiver), 0, NULL, DKEggUnarchiverFinalize );
 
     return cls;
 }
 
 
 ///
-//  DKEggReaderInitialize()
+//  DKEggUnarchiverFinalize()
 //
-static DKObjectRef DKEggReaderInitialize( DKObjectRef _self )
+static void DKEggUnarchiverFinalize( DKObjectRef _self )
 {
+    struct DKEggUnarchiver * egg = (struct DKEggUnarchiver *)_self;
+
+    DKAssert( DKGenericArrayGetLength( &egg->stack ) == 1 );
+
+    DKIndex unarchivedObjectCount = DKGenericArrayGetLength( &egg->unarchivedObjects );
+    
+    for( DKIndex i = 0; i < unarchivedObjectCount; ++i )
+    {
+        DKObjectRef object = DKGenericArrayGetElementAtIndex( &egg->unarchivedObjects, i, DKObjectRef );
+        DKRelease( object );
+    }
+    
+    DKGenericArrayFinalize( &egg->unarchivedObjects );
+    DKGenericArrayFinalize( &egg->stack );
+    
+    DKByteArrayFinalize( &egg->buffer );
+}
+
+
+///
+//  DKEggUnarchiverInitWithStream()
+//
+DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKObjectRef stream )
+{
+    _self = DKSuperInit( _self, DKObjectClass() );
+    
+    if( _self )
+    {
+        DKGenericArrayInit( &_self->unarchivedObjects, sizeof(DKObjectRef) );
+        DKGenericArrayInit( &_self->stack, sizeof(DKIndex) );
+        DKByteArrayInit( &_self->buffer );
+
+        // Read the header into the buffer
+        DKByteArrayReserve( &_self->buffer, sizeof(DKEggHeader) );
+        
+        if( DKRead( stream, DKByteArrayGetBytePtr( &_self->buffer, 0 ), sizeof(DKEggHeader), 1 ) != 1 )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+
+        // Check the header
+        _self->header = DKByteArrayGetBytePtr( &_self->buffer, 0 );
+
+        if( _self->header->version != DKEggVersion )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+
+        if( _self->header->encodingVersion != DKEncodingVersion )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+        
+        if( _self->header->byteOrder != DKByteOrderNative )
+        {
+            // *** DO STUFF HERE ***
+        }
+
+        DKIndex archiveLength = _self->header->data.index + _self->header->data.length;
+        DKIndex remainingLength = archiveLength - sizeof(DKEggHeader);
+        
+        // Read the rest of the archive into the buffer
+        DKByteArrayReserve( &_self->buffer, archiveLength );
+        
+        if( DKRead( stream, DKByteArrayGetBytePtr( &_self->buffer, sizeof(DKEggHeader) ), 1, remainingLength ) != remainingLength )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+        
+        // Set the data pointers
+        _self->header = DKByteArrayGetBytePtr( &_self->buffer, 0 );
+        _self->objectTable = DKByteArrayGetBytePtr( &_self->buffer, sizeof(DKEggHeader) );
+        _self->attributeTable = DKByteArrayGetBytePtr( &_self->buffer, sizeof(DKEggHeader) +
+            (_self->header->objectTable.length * sizeof(DKEggObject)) );
+        _self->data = DKByteArrayGetBytePtr( &_self->buffer, sizeof(DKEggHeader) +
+            (_self->header->objectTable.length * sizeof(DKEggObject)) +
+            (_self->header->attributeTable.length * sizeof(DKEggAttribute)) );
+
+        // Setup the unarchived object table
+        DKGenericArrayAppendElements( &_self->unarchivedObjects, NULL, _self->header->objectTable.length );
+
+        // Push the root object
+        DKGenericArrayPush( &_self->stack, &(DKIndex){ 0 } );
+    }
+    
     return _self;
 }
 
 
 ///
-//  DKEggReaderFinalize()
+//  DKEggUnarchiverInitWithData()
 //
-static void DKEggReaderFinalize( DKObjectRef _self )
+DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKDataRef data )
 {
+    _self = DKSuperInit( _self, DKObjectClass() );
+    
+    if( _self )
+    {
+        DKGenericArrayInit( &_self->unarchivedObjects, sizeof(DKObjectRef) );
+        DKGenericArrayInit( &_self->stack, sizeof(DKIndex) );
+        DKByteArrayInit( &_self->buffer );
+
+        // Read the header
+        if( DKDataGetLength( data ) < sizeof(DKEggHeader) )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+    
+        _self->header = DKDataGetBytePtr( data, 0 );
+        
+        // Check the header
+        if( _self->header->version != DKEggVersion )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+
+        if( _self->header->encodingVersion != DKEncodingVersion )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+        
+        if( _self->header->byteOrder != DKByteOrderNative )
+        {
+            // *** DO STUFF HERE ***
+        }
+
+        if( DKDataGetLength( data ) < (_self->header->data.index + _self->header->data.length) )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+        
+        // Set the other data pointers
+        _self->objectTable = DKDataGetBytePtr( data, sizeof(DKEggHeader) );
+        _self->attributeTable = DKDataGetBytePtr( data, sizeof(DKEggHeader) +
+            (_self->header->objectTable.length * sizeof(DKEggObject)) );
+        _self->data = DKDataGetBytePtr( data, sizeof(DKEggHeader) +
+            (_self->header->objectTable.length * sizeof(DKEggObject)) +
+            (_self->header->attributeTable.length * sizeof(DKEggAttribute)) );
+        
+        // Setup the unarchived object table
+        DKGenericArrayAppendElements( &_self->unarchivedObjects, NULL, _self->header->objectTable.length );
+
+        // Push the root object
+        DKGenericArrayPush( &_self->stack, &(DKIndex){ 0 } );
+    }
+    
+    return _self;
 }
 
 
+///
+//  GetAttribute()
+//
+static const DKEggAttribute * GetAttribute( DKEggUnarchiverRef _self, DKStringRef key )
+{
+    uint32_t hashkey = dk_strhash32( DKStringGetCStringPtr( key ) );
+    
+    DKIndex index = DKGenericArrayGetLastElement( &_self->stack, DKIndex );
+    const DKEggObject * object = &_self->objectTable[index];
+    
+    for( uint32_t i = 0; i < object->attributes.length; ++i )
+    {
+        const DKEggAttribute * attribute = &_self->attributeTable[object->attributes.index + i];
+        
+        if( attribute->hashkey == hashkey )
+            return attribute;
+    }
+    
+    return NULL;
+}
+
+
+///
+//  GetClass()
+//
+static DKClassRef GetClass( DKEggUnarchiverRef _self, const DKEggObject * archivedObject )
+{
+    const char * cstr = (const char *)&_self->data[archivedObject->className];
+    DKStringRef className = DKStringCreateWithCString( DKStringClass(), cstr );
+    DKClassRef cls = DKClassFromString( className );
+    DKRelease( className );
+    
+    if( !cls )
+    {
+        DKError( "DKEggUnarchiver: %s is not a recognized class name.\n", cstr );
+    }
+
+    return cls;
+}
+
+
+///
+//  GetObject()
+//
+static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
+{
+    DKCheckIndex( index, _self->header->objectTable.length, NULL );
+    
+    DKObjectRef object = DKGenericArrayGetElementAtIndex( &_self->unarchivedObjects, index, DKObjectRef );
+    
+    if( object == NULL )
+    {
+        const DKEggObject * archivedObject = &_self->objectTable[index];
+        
+        // Get the class
+        DKClassRef cls = GetClass( _self, archivedObject );
+        
+        if( !cls )
+            return NULL;
+        
+        // Make sure we can deserialize the object
+        DKEggInterfaceRef eggInterface;
+        
+        if( !DKQueryInterface( cls, DKSelector(Egg), (DKInterfaceRef *)&eggInterface ) )
+        {
+            DKError( "DKEggUnarchiver: %s does not implement .egg file archiving.\n",
+                DKStringGetCStringPtr( DKGetClassName( cls ) ) );
+            
+            return NULL;
+        }
+
+        // Allocate the object
+        object = DKAlloc( cls, 0 );
+        
+        // Add the object to the array
+        DKGenericArrayReplaceElements( &_self->unarchivedObjects, DKRangeMake( index, 1 ), &object, 1 );
+
+        // Unarchive the object
+        DKGenericArrayPush( &_self->stack, &index );
+        object = eggInterface->initWithEgg( object, _self );
+        DKGenericArrayPop( &_self->stack );
+        
+        // Re-add the object in case it was replaced by the unarchiving method
+        DKGenericArrayReplaceElements( &_self->unarchivedObjects, DKRangeMake( index, 1 ), &object, 1 );
+    }
+    
+    return object;
+}
+
+
+///
+//  DKEggGetEncoding()
+//
+DKEncoding DKEggGetEncoding( DKEggUnarchiverRef _self, DKStringRef key )
+{
+    const DKEggAttribute * attribute = GetAttribute( _self, key );
+    
+    if( attribute )
+        return attribute->encoding;
+    
+    return DKEncodingNull;
+}
+
+
+///
+//  DKEggGetObject()
+//
+DKObjectRef DKEggGetObject( DKEggUnarchiverRef _self, DKStringRef key )
+{
+    const DKEggAttribute * attribute = GetAttribute( _self, key );
+    
+    if( attribute )
+    {
+        if( attribute->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
+            return GetObject( _self, attribute->value );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKEggGetCollection()
+//
+void DKEggGetCollection( DKEggUnarchiverRef _self, DKStringRef key, DKApplierFunction callback, void * context )
+{
+    const DKEggAttribute * attribute = GetAttribute( _self, key );
+    
+    if( attribute )
+    {
+        if( DKEncodingGetType( attribute->encoding ) == DKEncodingTypeObject )
+        {
+            uint32_t count = DKEncodingGetCount( attribute->encoding );
+            
+            if( count == 1 )
+            {
+                DKObjectRef object = GetObject( _self, attribute->value );
+                
+                if( object )
+                    callback( object, context );
+            }
+            
+            else
+            {
+                const uint32_t * indexes = (const uint32_t *)&_self->data[attribute->value];
+            
+                for( uint32_t i = 0; i < count; ++i )
+                {
+                    DKObjectRef object = GetObject( _self, indexes[i] );
+                    
+                    if( object )
+                        callback( object, context );
+                }
+            }
+        }
+    }
+}
+
+
+///
+//  DKEggGetKeyedCollection()
+//
+void DKEggGetKeyedCollection( DKEggUnarchiverRef _self, DKStringRef key, DKKeyedApplierFunction callback, void * context )
+{
+    const DKEggAttribute * attribute = GetAttribute( _self, key );
+    
+    if( attribute )
+    {
+        if( DKEncodingGetType( attribute->encoding ) == DKEncodingTypeKeyedObject )
+        {
+            uint32_t count = DKEncodingGetCount( attribute->encoding );
+            
+            const DKEggKVPair * indexes = (const DKEggKVPair *)&_self->data[attribute->value];
+        
+            for( uint32_t i = 0; i < count; ++i )
+            {
+                DKObjectRef key = GetObject( _self, indexes[i].key );
+                DKObjectRef object = GetObject( _self, indexes[i].value );
+                
+                if( key && object )
+                    callback( key, object, context );
+            }
+        }
+    }
+}
+
+
+///
+//  DKEggGetTextData()
+//
+const char * DKEggGetTextDataPtr( DKEggUnarchiverRef _self, DKStringRef key, size_t * length )
+{
+    const DKEggAttribute * attribute = GetAttribute( _self, key );
+    
+    if( attribute )
+    {
+        if( DKEncodingGetType( attribute->encoding ) == DKEncodingTypeTextData )
+        {
+            *length = DKEncodingGetSize( attribute->encoding );
+            
+            return (const char *)&_self->data[attribute->value];
+        }
+    }
+    
+    return NULL;
+}
+
+size_t DKEggGetTextData( DKEggUnarchiverRef _self, DKStringRef key, char * text )
+{
+    size_t length = 0;
+    
+    const char * src = DKEggGetTextDataPtr( _self, key, &length );
+    
+    if( src )
+    {
+        memcpy( text, src, length );
+        return length - 1;
+    }
+    
+    return 0;
+}
+
+
+///
+//  DKEggGetBinaryData()
+//
+const void * DKEggGetBinaryDataPtr( DKEggUnarchiverRef _self, DKStringRef key, size_t * length )
+{
+    const DKEggAttribute * attribute = GetAttribute( _self, key );
+    
+    if( attribute )
+    {
+        if( DKEncodingGetType( attribute->encoding ) == DKEncodingTypeBinaryData )
+        {
+            *length = DKEncodingGetSize( attribute->encoding );
+            
+            return &_self->data[attribute->value];
+        }
+    }
+    
+    return 0;
+}
+
+size_t DKEggGetBinaryData( DKEggUnarchiverRef _self, DKStringRef key, void * bytes )
+{
+    size_t length = 0;
+    
+    const char * src = DKEggGetBinaryDataPtr( _self, key, &length );
+    
+    if( src )
+        memcpy( bytes, src, length );
+    
+    return length;
+}
+
+
+///
+//  DKEggGetNumberData()
+//
+size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * number )
+{
+    const DKEggAttribute * attribute = GetAttribute( _self, key );
+    
+    if( attribute )
+    {
+        if( DKEncodingIsNumber( attribute->encoding ) )
+        {
+            size_t size = DKEncodingGetTypeSize( attribute->encoding );
+            size_t count = DKEncodingGetCount( attribute->encoding );
+            
+            const void * src = &_self->data[attribute->value];
+            
+            if( (size == 1) || (_self->header->byteOrder == DKByteOrderNative) )
+            {
+                memcpy( number, src, size * count );
+            }
+            
+            else if( size == 2 )
+            {
+                memcpy( number, src, size * count );
+            }
+            
+            else if( size == 4 )
+            {
+                memcpy( number, src, size * count );
+            }
+            
+            else if( size == 8 )
+            {
+                memcpy( number, src, size * count );
+            }
+            
+            else
+            {
+                DKAssert( 0 );
+            }
+            
+            return count;
+        }
+    }
+    
+    return 0;
+}
 
 
 
@@ -234,7 +702,7 @@ static void VisitedObjectsRowDelete( void * _row )
 
 // Methods -------------------------------------------------------------------------------
 
-static DKObjectRef DKEggArchiverInitialize( DKObjectRef _self );
+static DKObjectRef DKEggArchiverInit( DKObjectRef _self );
 static void DKEggArchiverFinalize( DKObjectRef _self );
 
 static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object );
@@ -244,25 +712,19 @@ static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object );
 //
 DKThreadSafeClassInit( DKEggArchiverClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKEggArchiver" ), DKObjectClass(), sizeof(struct DKEggArchiver), 0 );
-    
-    // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->initialize = DKEggArchiverInitialize;
-    allocation->finalize = DKEggArchiverFinalize;
-
-    DKInstallInterface( cls, allocation );
-    DKRelease( allocation );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKEggArchiver" ), DKObjectClass(), sizeof(struct DKEggArchiver), 0, DKEggArchiverInit, DKEggArchiverFinalize );
 
     return cls;
 }
 
 
 ///
-//  DKEggArchiverInitialize()
+//  DKEggArchiverInit()
 //
-static DKObjectRef DKEggArchiverInitialize( DKObjectRef _self )
+static DKObjectRef DKEggArchiverInit( DKObjectRef _self )
 {
+    _self = DKSuperInit( _self, DKObjectClass() );
+
     if( _self )
     {
         DKEggArchiverRef egg = (DKEggArchiverRef)_self;
@@ -292,7 +754,7 @@ static DKObjectRef DKEggArchiverInitialize( DKObjectRef _self )
         
         DKGenericArrayAppendElements( &egg->archivedObjects, &rootObject, 1 );
 
-        DKGenericArrayAppendElements( &egg->stack, &(DKIndex){ 0 }, 1 );
+        DKGenericArrayPush( &egg->stack, &(DKIndex){ 0 } );
     }
 
     return _self;
@@ -322,21 +784,6 @@ static void DKEggArchiverFinalize( DKObjectRef _self )
     DKGenericArrayFinalize( &egg->archivedObjects );
     DKGenericHashTableFinalize( &egg->visitedObjects );
     DKByteArrayFinalize( &egg->data );
-}
-
-
-///
-//  DKEggCreateArchiver()
-//
-DKEggArchiverRef DKEggCreateArchiver( int options )
-{
-    DKEggArchiverRef egg = DKCreate( DKEggArchiverClass() );
-    
-    if( egg )
-    {
-    }
-    
-    return egg;
 }
 
 
@@ -374,7 +821,7 @@ static void BuildHeader( DKEggArchiverRef _self, DKEggHeader * header )
 //
 static void WriteHeader( DKEggArchiverRef _self, const DKEggHeader * header, DKMutableObjectRef stream )
 {
-    DKWrite( stream, &header, sizeof(DKEggHeader), 1 );
+    DKWrite( stream, header, sizeof(DKEggHeader), 1 );
 }
 
 
@@ -432,7 +879,7 @@ static void WriteData( DKEggArchiverRef _self, const DKEggHeader * header, DKMut
     
     if( length > 0 )
     {
-        DKWrite( stream, DKByteArrayGetPtr( &_self->data ), 1, length );
+        DKWrite( stream, DKByteArrayGetBytePtr( &_self->data, 0 ), 1, length );
     }
 }
 
@@ -469,110 +916,6 @@ DKDataRef DKEggArchiverCreateData( DKEggArchiverRef _self )
     WriteData( _self, &header, data );
     
     return data;
-}
-
-
-///
-//  StackPush()
-//
-static void StackPush( DKEggArchiverRef _self, DKObjectRef object )
-{
-    // Add a new object table entry
-    struct ArchivedObject archivedObject;
-    archivedObject.object = DKRetain( object );
-    archivedObject.className = (uint32_t)AddObject( _self, DKGetClassName( object ) );
-    DKGenericArrayInit( &archivedObject.attributes, sizeof(DKEggAttribute) );
-    
-    DKIndex index = DKGenericArrayGetLength( &_self->archivedObjects );
-    DKGenericArrayAppendElements( &_self->archivedObjects, &archivedObject, 1 );
-
-    // Add the object to the visited list
-    struct VisitedObjectsRow visitedObject;
-    visitedObject.object = object;
-    visitedObject.index = index;
-    
-    DKGenericHashTableInsert( &_self->visitedObjects, &visitedObject, DKInsertAlways );
-
-    // Push the object context onto the stack
-    DKGenericArrayAppendElements( &_self->stack, &index, 1 );
-}
-
-
-///
-//  StackPop()
-//
-static void StackPop( DKEggArchiverRef _self )
-{
-    DKIndex length = DKGenericArrayGetLength( &_self->stack );
-    DKGenericArrayReplaceElements( &_self->stack, DKRangeMake( length - 1, 1 ), NULL, 0 );
-}
-
-
-
-///
-//  StackTop()
-//
-static struct ArchivedObject * StackTop( DKEggArchiverRef _self )
-{
-    DKIndex length = DKGenericArrayGetLength( &_self->stack );
-    DKAssert( length > 0 );
-    
-    DKIndex index = DKGenericArrayGetElementAtIndex( &_self->stack, length - 1, DKIndex );
-    DKAssert( (index >= 0) && (index < DKGenericArrayGetLength( &_self->archivedObjects )) );
-    
-    return DKGenericArrayGetPointerToElementAtIndex( &_self->archivedObjects, index );
-}
-
-
-///
-//  AddObject()
-//
-static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object )
-{
-    // Make sure we can serialize the object
-    DKEggInterfaceRef eggInterface;
-    
-    if( !DKQueryInterface( object, DKSelector(Egg), (const void **)&eggInterface ) )
-    {
-        DKError( "DKEggWriteObject: %s does not implement .egg file archiving.\n",
-            DKStringGetCStringPtr( DKGetClassName( object ) ) );
-        
-        return -1;
-    }
-
-    // Have we already seen this object?
-    struct VisitedObjectsRow key = { object, 0 };
-    const struct VisitedObjectsRow * visitedObject = DKGenericHashTableFind( &_self->visitedObjects, &key );
-    
-    if( !visitedObject )
-    {
-        StackPush( _self, object );
-        eggInterface->addToEgg( object, _self );
-        StackPop( _self );
-        
-        visitedObject = DKGenericHashTableFind( &_self->visitedObjects, &key );
-        DKAssert( visitedObject );
-    }
-    
-    return visitedObject->index;
-}
-
-
-///
-//  AddAttribute()
-//
-static void AddAttribute( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, DKIndex value )
-{
-    DKAssert( value <= 0xffffffff );
-
-    struct ArchivedObject * archivedObject = StackTop( _self );
-    
-    DKEggAttribute attribute;
-    attribute.key = dk_strhash32( DKStringGetCStringPtr( key ) );
-    attribute.encoding = encoding;
-    attribute.value = (uint32_t)value;
-    
-    DKGenericArrayAppendElements( &archivedObject->attributes, &attribute, 1 );
 }
 
 
@@ -620,6 +963,85 @@ static DKIndex AddEncodedData( DKEggArchiverRef _self, DKEncoding encoding, cons
 
 
 ///
+//  AddClassName()
+//
+static DKIndex AddClassName( DKEggArchiverRef _self, DKStringRef className )
+{
+    const char * str = DKStringGetCStringPtr( className );
+    DKIndex length = DKStringGetByteLength( className );
+    
+    DKEncoding encoding = DKEncode( DKEncodingTypeTextData, (uint32_t)(length + 1) );
+    return AddEncodedData( _self, encoding, str );
+}
+
+
+///
+//  AddObject()
+//
+static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object )
+{
+    // Make sure we can serialize the object
+    DKEggInterfaceRef eggInterface;
+    
+    if( !DKQueryInterface( object, DKSelector(Egg), (DKInterfaceRef *)&eggInterface ) )
+    {
+        DKError( "DKEggArchiver: %s does not implement .egg file archiving.\n",
+            DKStringGetCStringPtr( DKGetClassName( object ) ) );
+        
+        return -1;
+    }
+
+    // Have we already seen this object?
+    struct VisitedObjectsRow key = { object, 0 };
+    const struct VisitedObjectsRow * visitedObject = DKGenericHashTableFind( &_self->visitedObjects, &key );
+    
+    if( visitedObject )
+        return visitedObject->index;
+    
+    // Remember the index of the new object
+    DKIndex index = DKGenericArrayGetLength( &_self->archivedObjects );
+
+    // Add a new archived object
+    struct ArchivedObject newArchivedObject;
+    newArchivedObject.object = DKRetain( object );
+    newArchivedObject.className = (uint32_t)AddClassName( _self, DKGetClassName( object ) );
+    DKGenericArrayInit( &newArchivedObject.attributes, sizeof(DKEggAttribute) );
+    
+    DKGenericArrayAppendElements( &_self->archivedObjects, &newArchivedObject, 1 );
+
+    // Add the object to the visited list
+    key.index = index;
+    DKGenericHashTableInsert( &_self->visitedObjects, &key, DKInsertAlways );
+
+    // Archive the object
+    DKGenericArrayPush( &_self->stack, &index );
+    eggInterface->addToEgg( object, _self );
+    DKGenericArrayPop( &_self->stack );
+    
+    return index;
+}
+
+
+///
+//  AddAttribute()
+//
+static void AddAttribute( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, DKIndex value )
+{
+    DKAssert( value <= 0xffffffff );
+
+    DKIndex index = DKGenericArrayGetLastElement( &_self->stack, DKIndex );
+    struct ArchivedObject * archivedObject = DKGenericArrayGetPointerToElementAtIndex( &_self->archivedObjects, index );
+    
+    DKEggAttribute attribute;
+    attribute.hashkey = dk_strhash32( DKStringGetCStringPtr( key ) );
+    attribute.encoding = encoding;
+    attribute.value = (uint32_t)value;
+    
+    DKGenericArrayAppendElements( &archivedObject->attributes, &attribute, 1 );
+}
+
+
+///
 //  DKEggAddObject()
 //
 void DKEggAddObject( DKEggArchiverRef _self, DKStringRef key, DKObjectRef object )
@@ -628,16 +1050,6 @@ void DKEggAddObject( DKEggArchiverRef _self, DKStringRef key, DKObjectRef object
 
     if( object == NULL )
         return;
-
-    // Make sure we can serialize the object
-    DKEggInterfaceRef eggInterface;
-    
-    if( !DKQueryInterface( object, DKSelector(Egg), (const void **)&eggInterface ) )
-    {
-        DKError( "DKEggWriteObject: %s does not implement .egg file archiving.\n",
-            DKStringGetCStringPtr( DKGetClassName( object ) ) );
-        return;
-    }
 
     DKIndex index = AddObject( _self, object );
     
@@ -786,14 +1198,14 @@ void DKEggAddTextData( DKEggArchiverRef _self, DKStringRef key, const char * tex
 
     if( (length + 1) > DKMaxEncodingSize )
     {
-        DKError( "DKEggWriteTextData: %lu exceeds the maximum encoded data size (%dM)",
+        DKError( "DKEggArchiver: %lu exceeds the maximum encoded data size (%dM)",
             length, DKMaxEncodingSize / (1024 * 1024) );
         return;
     }
     
-    if( text[length + 1] != '\0' )
+    if( text[length] != '\0' )
     {
-        DKError( "DKEggWriteTextData: the text string is not terminated by a null byte." );
+        DKError( "DKEggArchiver: the text string is not terminated by a null byte." );
         return;
     }
 
@@ -811,7 +1223,7 @@ void DKEggAddBinaryData( DKEggArchiverRef _self, DKStringRef key, const void * b
 {
     if( length > DKMaxEncodingSize )
     {
-        DKError( "DKEggWriteBinaryData: %lu exceeds the maximum encoded data size (%dM)",
+        DKError( "DKEggArchiver: %lu exceeds the maximum encoded data size (%dM)",
             length, DKMaxEncodingSize / (1024 * 1024) );
         return;
     }
@@ -824,9 +1236,9 @@ void DKEggAddBinaryData( DKEggArchiverRef _self, DKStringRef key, const void * b
 
 
 ///
-//  DKEggAddNumber()
+//  DKEggAddNumberData()
 //
-void DKEggAddNumber( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, const void * number )
+void DKEggAddNumberData( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, const void * number )
 {
     DKAssert( DKEncodingIsNumber( encoding ) );
 

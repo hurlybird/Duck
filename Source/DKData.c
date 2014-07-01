@@ -50,16 +50,8 @@ static void        DKDataFinalize( DKObjectRef _self );
 //
 DKThreadSafeClassInit( DKDataClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData), 0, DKDataInitialize, DKDataFinalize );
     
-    // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->initialize = DKDataInitialize;
-    allocation->finalize = DKDataFinalize;
-
-    DKInstallInterface( cls, allocation );
-    DKRelease( allocation );
-
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (DKEqualMethod)DKDataEqual;
@@ -96,7 +88,7 @@ DKThreadSafeClassInit( DKDataClass )
 //
 DKThreadSafeClassInit( DKMutableDataClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableData" ), DKDataClass(), sizeof(struct DKData), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableData" ), DKDataClass(), sizeof(struct DKData), 0, NULL, NULL );
     
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
@@ -151,6 +143,8 @@ static void SetCursor( const struct DKData * data, DKIndex cursor )
 //
 DKObjectRef DKDataInitialize( DKObjectRef _self )
 {
+    _self = DKSuperInit( _self, DKObjectClass() );
+
     if( _self )
     {
         struct DKData * data = (struct DKData *)_self;
@@ -269,13 +263,22 @@ DKDataRef DKDataCreateWithBytes( DKClassRef _class, const void * bytes, DKIndex 
 
     else
     {
-        data = DKAllocObject( DKDataClass(), length );
-        data = DKInitializeObject( data );
+        data = DKAlloc( DKDataClass(), length );
     
-        if( bytes && (length > 0) )
+        if( length > 0 )
         {
             DKByteArrayInitWithExternalStorage( &data->byteArray, (void *)(data + 1), length );
-            memcpy( data->byteArray.bytes, bytes, length );
+            
+            if( bytes )
+                memcpy( data->byteArray.bytes, bytes, length );
+            
+            else
+                memset( data->byteArray.bytes, 0, length );
+        }
+        
+        else
+        {
+            DKByteArrayInit( &data->byteArray );
         }
         
         return data;
@@ -290,8 +293,7 @@ DKDataRef DKDataCreateWithBytesNoCopy( /* DKClassRef _class, */ const void * byt
 {
     if( bytes && (length > 0) )
     {
-        struct DKData * data = (struct DKData *)DKAllocObject( DKDataClass(), 0 );
-        data = DKInitializeObject( data );
+        struct DKData * data = DKAlloc( DKDataClass(), 0 );
         
         DKByteArrayInitWithExternalStorage( &data->byteArray, bytes, length );
         
@@ -383,14 +385,14 @@ void DKDataIncreaseLength( DKMutableDataRef _self, DKIndex length )
 ///
 //  DKDataGetBytePtr()
 //
-const void * DKDataGetBytePtr( DKDataRef _self )
+const void * DKDataGetBytePtr( DKDataRef _self, DKIndex index )
 {
     if( _self )
     {
         DKAssertKindOfClass( _self, DKDataClass() );
+        DKCheckIndex( index, _self->byteArray.length, NULL );
         
-        if( _self->byteArray.length > 0 )
-            return _self->byteArray.bytes;
+        return &_self->byteArray.bytes[index];
     }
     
     return NULL;
@@ -419,14 +421,14 @@ const void * DKDataGetByteRange( DKDataRef _self, DKRange range )
 ///
 //  DKDataGetMutableBytePtr()
 //
-void * DKDataGetMutableBytePtr( DKMutableDataRef _self )
+void * DKDataGetMutableBytePtr( DKMutableDataRef _self, DKIndex index )
 {
     if( _self )
     {
         DKAssertKindOfClass( _self, DKMutableDataClass() );
+        DKCheckIndex( index, _self->byteArray.length, NULL );
         
-        if( _self->byteArray.length > 0 )
-            return _self->byteArray.bytes;
+        return _self->byteArray.bytes;
     }
     
     return NULL;

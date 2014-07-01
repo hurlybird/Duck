@@ -230,7 +230,7 @@ struct DKNumber
 //
 DKThreadSafeClassInit( DKNumberClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(struct DKNumber), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(struct DKNumber), 0, NULL, NULL );
     
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
@@ -270,8 +270,7 @@ DKNumberRef DKNumberCreate( const void * value, DKEncoding encoding )
 
     size_t size = DKEncodingGetSize( encoding );
     
-    struct DKNumber * number = (struct DKNumber *)DKAllocObject( DKNumberClass(), size );
-    number = DKInitializeObject( number );
+    struct DKNumber * number = DKInit( DKAlloc( DKNumberClass(), size ) );
     
     if( number )
     {

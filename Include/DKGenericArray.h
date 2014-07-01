@@ -51,11 +51,13 @@ void DKGenericArrayReserve( DKGenericArray * array, DKIndex length );
 
 #define DKGenericArrayGetLength( array ) ((array)->length)
 
-#define DKGenericArrayGetPointerToElementAtIndex( array, index )                        \
-     ((void *)((array)->elements + ((index) * (array)->elementSize)))
+void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex index );
 
 #define DKGenericArrayGetElementAtIndex( array, index, type )                           \
-    *((type *)((array)->elements + ((index) * (array)->elementSize)))
+    *((type *)DKGenericArrayGetPointerToElementAtIndex( (array), (index) ))
+
+#define DKGenericArrayGetLastElement( array, type )                                     \
+    *((type *)DKGenericArrayGetPointerToElementAtIndex( (array), DKGenericArrayGetLength( array ) - 1 ))
 
 void DKGenericArrayReplaceElements( DKGenericArray * array, DKRange range, const void * elements, DKIndex length );
 void DKGenericArrayAppendElements( DKGenericArray * array, const void * elements, DKIndex length );
@@ -63,6 +65,9 @@ void DKGenericArrayAppendElements( DKGenericArray * array, const void * elements
 void DKGenericArraySort( DKGenericArray * array, DKCompareFunction cmp );
 void DKGenericArrayReverse( DKGenericArray * array );
 void DKGenericArrayShuffle( DKGenericArray * array );
+
+#define DKGenericArrayPush( array, elem )   DKGenericArrayAppendElements( (array), (elem), 1 )
+#define DKGenericArrayPop( array )          DKGenericArrayReplaceElements( (array), DKRangeMake( (array)->length - 1, 1 ), NULL, 0 )
 
 
 

@@ -36,14 +36,7 @@ static void DKPropertyFinalize( DKObjectRef _self );
 
 DKThreadSafeClassInit( DKPropertyClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKProperty" ), DKObjectClass(), sizeof(struct DKProperty), 0 );
-    
-    // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->finalize = DKPropertyFinalize;
-
-    DKInstallInterface( cls, allocation );
-    DKRelease( allocation );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKProperty" ), DKObjectClass(), sizeof(struct DKProperty), 0, NULL, DKPropertyFinalize );
 
     return cls;
 }

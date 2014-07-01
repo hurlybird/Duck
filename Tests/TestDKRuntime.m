@@ -60,10 +60,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
 - (void) testRuntime
 {
     // Define a sample class
-    DKClassRef TestClassA = DKAllocClass( DKSTR( "A" ), DKObjectClass(), sizeof(DKObject), 0 );
+    DKClassRef TestClassA = DKAllocClass( DKSTR( "A" ), DKObjectClass(), sizeof(DKObject), 0, NULL, NULL );
     XCTAssert( TestClassA );
     
-    DKClassRef TestClassB = DKAllocClass( DKSTR( "B" ), TestClassA, sizeof(DKObject), 0 );
+    DKClassRef TestClassB = DKAllocClass( DKSTR( "B" ), TestClassA, sizeof(DKObject), 0, NULL, NULL );
     XCTAssert( TestClassB );
     
     // Install some message handlers
@@ -98,8 +98,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( !DKIsMemberOfClass( b, TestClassA ) );
     XCTAssert( DKIsMemberOfClass( b, TestClassB ) );
     
-    // DKQueryInterface should return the same object when called on the class or an instance of the class
-    XCTAssert( DKGetInterface( TestClassB, DKSelector(Allocation) ) == DKGetInterface( b, DKSelector(Allocation) ) );
+    // DKGetInterface should return the same object when called on the class or an instance of the class
+    XCTAssert( DKGetInterface( TestClassB, DKSelector(Square) ) == DKGetInterface( b, DKSelector(Square) ) );
 
     // Try calling our custom message handlers
     intptr_t y = DKMsgSend( a, Square, 2 );

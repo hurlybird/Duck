@@ -61,16 +61,8 @@ static void        DKBinaryTreeFinalize( DKObjectRef _self );
 //
 DKThreadSafeClassInit(  DKBinaryTreeClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKBinaryTree" ), DKObjectClass(), sizeof(struct DKBinaryTree), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKBinaryTree" ), DKObjectClass(), sizeof(struct DKBinaryTree), 0, DKBinaryTreeInitialize, DKBinaryTreeFinalize );
     
-    // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->initialize = DKBinaryTreeInitialize;
-    allocation->finalize = DKBinaryTreeFinalize;
-
-    DKInstallInterface( cls, allocation );
-    DKRelease( allocation );
-
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
@@ -136,7 +128,7 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
 //
 DKThreadSafeClassInit( DKMutableBinaryTreeClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableBinaryTree" ), DKBinaryTreeClass(), sizeof(struct DKBinaryTree), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableBinaryTree" ), DKBinaryTreeClass(), sizeof(struct DKBinaryTree), 0, NULL, NULL );
     
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
@@ -558,6 +550,8 @@ static int InsertObject( DKObjectRef object, void * context )
 //
 static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _self )
 {
+    _self = DKSuperInit( _self, DKObjectClass() );
+
     if( _self )
     {
         struct DKBinaryTree * tree = (struct DKBinaryTree *)_self;

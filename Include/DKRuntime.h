@@ -104,7 +104,11 @@ struct _DKSEL
 
     // Selectors are typically compared by pointer value, but the name is required to
     // look up a selector by name
+
+    // The name database requires that the name and hash fields of DKClass and DKSEL are
+    // in the same position in the structure (i.e. right after the object header).
     DKStringRef     name;
+    DKHashCode      hash;
     
     // Controls how interfaces retrieved by this selector are cached.
     DKCacheUsage    cacheline;
@@ -179,31 +183,18 @@ DKClassRef DKObjectClass( void );
 // Allocation ----------------------------------------------------------------------------
 DKDeclareInterfaceSelector( Allocation );
 
-typedef DKObjectRef (*DKInitializeMethod)( DKObjectRef _self );
-typedef void (*DKFinalizeMethod)( DKObjectRef _self );
-typedef void * (*DKAllocMethod)( size_t size );
-typedef void (*DKFreeMethod)( void * ptr );
+typedef void * (*DKAllocMethod)( DKClassRef _class, size_t extraBytes );
+typedef void (*DKDeallocMethod)( DKObjectRef _self );
 
 struct DKAllocationInterface
 {
     const DKInterface _interface;
  
-    // All methods are optional -- specify NULL for the default behaviour
-    
-    // Initializers are called in order (superclass then subclass)
-    DKInitializeMethod  initialize;
-    
-    // Finalizers are called in reverse order (subclass then superclass)
-    DKFinalizeMethod    finalize;
-
-    // Custom memory allocation
     DKAllocMethod       alloc;
-    DKFreeMethod        free;
+    DKDeallocMethod     dealloc;
 };
 
 typedef const struct DKAllocationInterface * DKAllocationInterfaceRef;
-
-DKInterfaceRef DKDefaultAllocation( void );
 
 
 
@@ -281,20 +272,10 @@ DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
 
 // Alloc/Free Objects ====================================================================
 
-// Allocates a new object Use 'extraBytes' to allocate memory beyond the 'structSize'
-// specified in the class. The extra memory is not automatically zeroed for you.
+// These functions implement the default allocator for objects. You should never need to
+// call them outside of a custom allocation scheme. See DKAlloc and DKDealloc below.
 void *      DKAllocObject( DKClassRef cls, size_t extraBytes );
-
-// Deallocates an object created with DKAllocObject. You probably never need to call this
-// directly unless creating an object that bypasses normal reference counting.
 void        DKDeallocObject( DKObjectRef _self );
-
-// Calls the object's initializer chain. The object returned by DKIntializeObject may not
-// be the same as the object passed to it.
-void *      DKInitializeObject( DKObjectRef _self );
-
-// Calls the object's finalizer chain.
-void        DKFinalizeObject( DKObjectRef _self );
 
 
 
@@ -314,8 +295,12 @@ enum
 
 typedef uint32_t DKClassOptions;
 
+typedef DKObjectRef (*DKInitMethod)( DKObjectRef _self );
+typedef void (*DKFinalizeMethod)( DKObjectRef _self );
+
 // Allocate a new class object.
-DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize, DKClassOptions options );
+DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize,
+    DKClassOptions options, DKInitMethod init, DKFinalizeMethod finalize );
 
 // Allocate a new selector object.
 DKSEL DKAllocSelector( DKStringRef name );
@@ -406,12 +391,36 @@ bool        DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
 // Returns true if the class is a subclass of (or equal to) another class
 bool        DKIsSubclass( DKClassRef _class, DKClassRef otherClass );
 
+DKClassRef  DKClassFromString( DKStringRef className );
+DKStringRef DKStringFromClass( DKClassRef _class );
+
+DKSEL       DKSelectorFromString( DKStringRef name );
+DKStringRef DKStringFromSelector( DKSEL sel );
 
 
 // Polymorphic Wrappers ==================================================================
 
-// Wrapper for DKAllocObject + DKInitializeObject
-void *      DKCreate( DKClassRef _class );
+// Allocates a new object. Use 'extraBytes' to allocate memory beyond the 'structSize'
+// specified in the class. The extra memory is not automatically zeroed for you.
+void *      DKAlloc( DKClassRef _class, size_t extraBytes );
+
+// Deallocates an object created. You should never need to call this directly unless
+// dealing with an object that bypasses normal reference counting.
+void        DKDealloc( DKObjectRef _self );
+
+// Call the object's default initializer. The object returned by DKIntializeObject may
+// not be the same as the object passed to it.
+void *      DKInit( DKObjectRef _self );
+
+// Call the object's superclass initializer.
+void *      DKSuperInit( DKObjectRef _self, DKClassRef superclass );
+
+// Call the object's finalizer chain. You should never need to call this directly unless
+// dealing with an object that bypasses normal reference counting.
+void        DKFinalize( DKObjectRef _self );
+
+// Wrapper for DKAlloc + DKInit
+#define     DKCreate( _class )  DKInit( DKAlloc( _class, 0 ) )
 
 // Comparison Interface Wrappers
 bool        DKEqual( DKObjectRef a, DKObjectRef b );

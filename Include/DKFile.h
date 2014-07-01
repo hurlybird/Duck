@@ -29,7 +29,7 @@
 
 #include "DKRuntime.h"
 
-typedef const struct DKFile * DKFileRef;
+typedef struct DKFile * DKFileRef;
 
 
 DKClassRef  DKFileClass( void );

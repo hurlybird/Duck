@@ -44,15 +44,8 @@ static void DKFileFinalize( DKObjectRef _self );
 //
 DKThreadSafeClassInit( DKFileClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKFile" ), DKObjectClass(), sizeof(struct DKFile), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKFile" ), DKObjectClass(), sizeof(struct DKFile), 0, NULL, DKFileFinalize );
     
-    // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->finalize = DKFileFinalize;
-
-    DKInstallInterface( cls, allocation );
-    DKRelease( allocation );
-
     // Stream
     struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKFileSeek;
@@ -72,7 +65,7 @@ DKThreadSafeClassInit( DKFileClass )
 //
 static void DKFileFinalize( DKObjectRef _self )
 {
-    DKFileClose( _self );
+    DKFileClose( (DKFileRef)_self );
 }
 
 

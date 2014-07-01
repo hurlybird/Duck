@@ -65,16 +65,8 @@ static void        DKLinkedListFinalize( DKObjectRef _self );
 //
 DKThreadSafeClassInit( DKLinkedListClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKLinkedList" ), DKObjectClass(), sizeof(struct DKLinkedList), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKLinkedList" ), DKObjectClass(), sizeof(struct DKLinkedList), 0, DKLinkedListInitialize, DKLinkedListFinalize );
     
-    // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->initialize = DKLinkedListInitialize;
-    allocation->finalize = DKLinkedListFinalize;
-
-    DKInstallInterface( cls, allocation );
-    DKRelease( allocation );
-
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
@@ -143,7 +135,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
 //
 DKThreadSafeClassInit( DKMutableLinkedListClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableLinkedList" ), DKLinkedListClass(), sizeof(struct DKLinkedList), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableLinkedList" ), DKLinkedListClass(), sizeof(struct DKLinkedList), 0, NULL, NULL );
     
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
@@ -490,6 +482,8 @@ static void ReplaceRangeWithCollection( struct DKLinkedList * list, DKRange rang
 //
 static DKObjectRef DKLinkedListInitialize( DKObjectRef _self )
 {
+    _self = DKSuperInit( _self, DKObjectClass() );
+
     if( _self )
     {
         struct DKLinkedList * list = (struct DKLinkedList *)_self;

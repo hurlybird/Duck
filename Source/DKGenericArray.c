@@ -232,6 +232,16 @@ void DKGenericArrayAppendElements( DKGenericArray * array, const void * elements
 
 
 ///
+//  DKGenericArrayGetPointerToElementAtIndex()
+//
+void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex index )
+{
+    DKCheckIndex( index, array->length, NULL );
+    return (void *)(array->elements + (index * array->elementSize));
+}
+
+
+///
 //  DKGenericArraySort()
 //
 void DKGenericArraySort( DKGenericArray * array, DKCompareFunction cmp )

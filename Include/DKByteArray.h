@@ -52,8 +52,8 @@ void DKByteArrayFinalize( DKByteArray * array );
 
 void DKByteArrayReserve( DKByteArray * array, DKIndex length );
 
-#define DKByteArrayGetLength( array )   ((array)->length)
-#define DKByteArrayGetPtr( array )      ((void *)(array)->bytes)
+#define DKByteArrayGetLength( array )       ((array)->length)
+#define DKByteArrayGetBytePtr( array, i )   ((void *)&((array)->bytes[i]))
 
 void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t bytes[], DKIndex length );
 void DKByteArrayAppendBytes( DKByteArray * array, const uint8_t bytes[], DKIndex length );

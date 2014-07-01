@@ -64,11 +64,11 @@ typedef const void * DKListRef;
 
 
 // Define a constant string with a compile-time constant C string.
-#define DKSTR( s ) __DKStringDefineConstantString( "" s "" )
+#define DKSTR( s ) __DKStringGetConstantString( "" s "", true )
 
 // Define a constant string. Constant strings require external storage so unless you
 // know what you're doing, use the DKSTR macro instead of calling this directly
-DKStringRef __DKStringDefineConstantString( const char * str );
+DKStringRef __DKStringGetConstantString( const char * str, bool insert );
 
 
 // Indexes

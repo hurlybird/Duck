@@ -31,6 +31,7 @@
 #include "DKGenericHashTable.h"
 #include "DKList.h"
 #include "DKArray.h"
+#include "DKEgg.h"
 
 #include "icu/unicode/utf8.h"
 
@@ -42,9 +43,22 @@ struct DKString
     DKIndex cursor;
 };
 
+static void *       DKStringAllocPlaceholder( DKClassRef _class, size_t extraBytes );
+static void         DKStringDealloc( DKStringRef _self );
 
-static DKObjectRef  DKStringInitialize( DKObjectRef _self );
+static DKObjectRef  DKStringInit( DKObjectRef _self );
 static void         DKStringFinalize( DKObjectRef _self );
+
+static DKObjectRef  DKStringInitWithEgg( DKStringRef _self, DKEggUnarchiverRef egg );
+static void         DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef egg );
+
+static struct DKString DKPlaceholderString =
+{
+    DKStaticObject( NULL ),
+    { NULL, 0, 0 },
+    0
+};
+
 
 
 
@@ -57,16 +71,16 @@ DKThreadSafeClassInit( DKStringClass )
 {
     // Since constant strings are used for class and selector names, the name fields of
     // DKString and DKConstantString are initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString), 0 );
-    
+    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString), 0, DKStringInit, DKStringFinalize );
+
     // Allocation
     struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->initialize = DKStringInitialize;
-    allocation->finalize = DKStringFinalize;
+    allocation->alloc = (DKAllocMethod)DKStringAllocPlaceholder;
+    allocation->dealloc = DKDeallocObject;
 
     DKInstallInterface( cls, allocation );
     DKRelease( allocation );
-
+    
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (DKEqualMethod)DKStringEqual;
@@ -101,6 +115,14 @@ DKThreadSafeClassInit( DKStringClass )
     DKInstallInterface( cls, stream );
     DKRelease( stream );
 
+    // Egg
+    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    egg->initWithEgg = (DKInitWithEggMethod)DKStringInitWithEgg;
+    egg->addToEgg = (DKAddToEggMethod)DKStringAddToEgg;
+    
+    DKInstallInterface( cls, egg );
+    DKRelease( egg );
+
     return cls;
 }
 
@@ -112,7 +134,7 @@ DKThreadSafeClassInit( DKConstantStringClass )
 {
     // Since constant strings are used for class and selector names, the name fields of
     // DKString and DKConstantString are initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString), DKPreventSubclassing | DKDisableReferenceCounting );
+    DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString), DKPreventSubclassing | DKDisableReferenceCounting, NULL, NULL );
     
     return cls;
 }
@@ -123,7 +145,7 @@ DKThreadSafeClassInit( DKConstantStringClass )
 //
 DKThreadSafeClassInit( DKMutableStringClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableString" ), DKStringClass(), sizeof(struct DKString), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableString" ), DKStringClass(), sizeof(struct DKString), 0, NULL, NULL );
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
@@ -180,25 +202,49 @@ static void SetCursor( const struct DKString * string, DKIndex cursor )
 ///
 //  CopySubstring()
 //
-static DKStringRef CopySubstring( const char * str, DKRange byteRange )
+static DKStringRef CopySubstring( const char * cstr, DKRange byteRange )
 {
-    DKAssert( str );
+    if( (cstr == NULL) || (byteRange.length == 0) )
+        return DKSTR( "" );
 
-    DKStringRef _self = DKAllocObject( DKStringClass(), byteRange.length + 1 );
-    _self = DKInitializeObject( _self );
+    struct DKString * str = DKAllocObject( DKStringClass(), byteRange.length + 1 );
 
-    if( _self )
+    DKByteArrayInitWithExternalStorage( &str->byteArray, (const void *)(str + 1), byteRange.length );
+        
+    memcpy( str->byteArray.bytes, &cstr[byteRange.location], byteRange.length );
+    str->byteArray.bytes[byteRange.length] = '\0';
+
+    return str;
+}
+
+
+///
+//  InitString()
+//
+static void * InitString( DKStringRef _self, const char * cstr, DKIndex length )
+{
+    if( _self == &DKPlaceholderString  )
     {
-        struct DKString * string = (struct DKString *)_self;
+        _self = __DKStringGetConstantString( cstr, false );
         
-        DKByteArrayInitWithExternalStorage( &string->byteArray, (const void *)(string + 1), byteRange.length );
-        
-        memcpy( string->byteArray.bytes, &str[byteRange.location], byteRange.length );
-        string->byteArray.bytes[byteRange.length] = '\0';
+        if( !_self )
+            _self = CopySubstring( cstr, DKRangeMake( 0, length ) );
+    }
+    
+    else if( _self->_obj.isa == DKMutableStringClass_SharedObject )
+    {
+        DKByteArrayInit( (DKByteArray *)&_self->byteArray );
+        DKByteArrayAppendBytes( (DKByteArray *)&_self->byteArray, (const uint8_t *)cstr, length );
+    }
+    
+    else if( _self != NULL )
+    {
+        DKFatalError( "DKStringInit: Trying to initialize a non-string object.\n" );
     }
 
-    return _self;
+    return (void *)_self;
 }
+
 
 
 
@@ -206,18 +252,32 @@ static DKStringRef CopySubstring( const char * str, DKRange byteRange )
 // DKString Interface ====================================================================
 
 ///
-//  DKStringInitialize()
+//  DKStringAllocPlaceholder()
 //
-static DKObjectRef DKStringInitialize( DKObjectRef _self )
+static void * DKStringAllocPlaceholder( DKClassRef _class, size_t extraBytes )
 {
-    if( _self )
+    if( (_class == DKStringClass_SharedObject) || (_class == DKConstantStringClass_SharedObject) )
     {
-        struct DKString * string = (struct DKString *)_self;
-        DKByteArrayInit( &string->byteArray );
-        string->cursor = 0;
+        DKPlaceholderString._obj.isa = DKStringClass_SharedObject;
+        return &DKPlaceholderString;
     }
     
-    return _self;
+    else if( _class == DKMutableStringClass_SharedObject )
+    {
+        return DKAllocObject( _class, 0 );
+    }
+    
+    DKAssert( 0 );
+    return NULL;
+}
+
+
+///
+//  DKStringInit()
+//
+static DKObjectRef DKStringInit( DKObjectRef _self )
+{
+    return InitString( _self, NULL, 0 );
 }
 
 
@@ -226,55 +286,90 @@ static DKObjectRef DKStringInitialize( DKObjectRef _self )
 //
 static void DKStringFinalize( DKObjectRef _self )
 {
+    if( _self == &DKPlaceholderString )
+    {
+        DKFatalError( "DKStringFinalize: Trying to finalize a string that was never initialized.\n" );
+        return;
+    }
+
     struct DKString * String = (struct DKString *)_self;
     DKByteArrayFinalize( &String->byteArray );
 }
 
 
 ///
-//  DKStringCreateWithCString()
+//  DKStringInitWithString()
 //
-DKStringRef DKStringCreateWithCString( DKClassRef _class, const char * cstr )
+void * DKStringInitWithString( DKStringRef _self, DKStringRef other )
 {
-    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKStringClass() ) );
-
-    DKIndex length = strlen( cstr );
-
-    if( _class == DKMutableStringClass() )
+    const char * cstr = "";
+    DKIndex length = 0;
+    
+    if( other )
     {
-        struct DKString * str = DKStringCreateMutable();
-        
-        if( str )
-        {
-            DKByteArrayAppendBytes( &str->byteArray, (const uint8_t *)cstr, length );
-        }
-        
-        return str;
-    }
-        
-    else if( length > 0 )
-    {
-        return CopySubstring( cstr, DKRangeMake( 0, length ) );
+        DKAssertKindOfClass( other, DKStringClass() );
+        cstr = (const char *)other->byteArray.bytes;
+        length = other->byteArray.length;
     }
     
-    return DKStringCreateEmpty();
+    return InitString( _self, cstr, length );
 }
 
 
 ///
-//  DKStringCreateWithCStringNoCopy()
+//  DKStringInitWithCString()
 //
-DKStringRef DKStringCreateWithCStringNoCopy( /* DKClassRef _class, */ const char * cstr )
+void * DKStringInitWithCString( DKStringRef _self, const char * cstr )
 {
-    struct DKString * str = DKCreate( DKStringClass() );
+    DKIndex length = strlen( cstr );
 
-    if( str )
+    return InitString( _self, cstr, length );
+}
+
+
+///
+//  DKStringInitWithCStringNoCopy()
+//
+void * DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr )
+{
+    DKIndex length = strlen( cstr );
+
+    if( _self == &DKPlaceholderString )
     {
-        DKIndex length = strlen( cstr );
-        DKByteArrayInitWithExternalStorage( &str->byteArray, (const uint8_t *)str, length );
+        _self = DKAllocObject( DKStringClass_SharedObject, 0 );
+        DKByteArrayInitWithExternalStorage( (DKByteArray *)&_self->byteArray, (const uint8_t *)cstr, length );
     }
     
-    return str;
+    else if( _self != NULL )
+    {
+        DKFatalError( "DKStringInitWithCStringNoCopy: Trying to initialize a non-immutable string object.\n" );
+    }
+
+    return (void *)_self;
+}
+
+
+///
+//  DKStringInitWithEgg()
+//
+static DKObjectRef DKStringInitWithEgg( DKStringRef _self, DKEggUnarchiverRef egg )
+{
+    size_t length = 0;
+    const char * cstr = DKEggGetTextDataPtr( egg, DKSTR( "str" ), &length );
+
+    return InitString( _self, cstr, length );
+}
+
+
+///
+//  DKStringAddToEgg()
+//
+static void DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef archiver )
+{
+    DKIndex length = _self->byteArray.length;
+    
+    if( length > 0 )
+        DKEggAddTextData( archiver, DKSTR( "str" ), (const char *)_self->byteArray.bytes, length );
 }
 
 
@@ -283,13 +378,7 @@ DKStringRef DKStringCreateWithCStringNoCopy( /* DKClassRef _class, */ const char
 //
 DKStringRef DKStringCopy( DKStringRef _self )
 {
-    if( _self )
-    {
-        DKAssertKindOfClass( _self, DKStringClass() );
-        return DKStringCreateWithCString( DKGetClass( _self ), (const char *)_self->byteArray.bytes );
-    }
-    
-    return NULL;
+    return DKStringCreateWithString( DKStringClass(), _self );
 }
 
 
@@ -298,13 +387,7 @@ DKStringRef DKStringCopy( DKStringRef _self )
 //
 DKMutableStringRef DKStringMutableCopy( DKStringRef _self )
 {
-    if( _self )
-    {
-        DKAssertKindOfClass( _self, DKStringClass() );
-        return (DKMutableStringRef)DKStringCreateWithCString( DKMutableStringClass(), (const char *)_self->byteArray.bytes );
-    }
-    
-    return NULL;
+    return DKStringCreateWithString( DKMutableStringClass(), _self );
 }
 
 
@@ -406,9 +489,7 @@ DKIndex DKStringGetLength( DKStringRef _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
         
-        const struct DKString * string = _self;
-        
-        return dk_ustrlen( (const char *)string->byteArray.bytes );
+        return dk_ustrlen( (const char *)_self->byteArray.bytes );
     }
     
     return 0;
@@ -424,8 +505,7 @@ DKIndex DKStringGetByteLength( DKStringRef _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
         
-        const struct DKString * string = _self;
-        return string->byteArray.length;
+        return _self->byteArray.length;
     }
     
     return 0;
@@ -1261,9 +1341,9 @@ static void DKConstantStringTableRowDelete( void * _row )
 
 
 ///
-//  __DKStringDefineConstantString()
+//  __DKStringGetConstantString()
 //
-DKStringRef __DKStringDefineConstantString( const char * str )
+DKStringRef __DKStringGetConstantString( const char * str, bool insert )
 {
     if( DKConstantStringTable == NULL )
     {
@@ -1316,15 +1396,16 @@ DKStringRef __DKStringDefineConstantString( const char * str )
     DKSpinLockUnlock( &DKConstantStringTableLock );
     
     if( existingRow )
-    {
         return existingRow->string;
-    }
     
+    if( !insert )
+        return NULL;
+
     // Create a new constant string
     DKStringRef constantString = NULL;
     
-    insertRow.string = DKCreate( constantStringClass );
-    DKByteArrayInitWithExternalStorage( &((struct DKString *)insertRow.string)->byteArray, (const uint8_t *)str, length );
+    insertRow.string = DKAllocObject( constantStringClass, 0 );
+    DKByteArrayInitWithExternalStorage( (DKByteArray *)&insertRow.string->byteArray, (const uint8_t *)str, length );
 
     // Try to insert it in the table
     DKSpinLockLock( &DKConstantStringTableLock );

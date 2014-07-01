@@ -53,7 +53,7 @@ struct TestObject
 
 - (DKClassRef) createTestClass
 {
-    DKClassRef testClass = DKAllocClass( DKSTR( "Test" ), DKObjectClass(), sizeof(struct TestObject), 0 );
+    DKClassRef testClass = DKAllocClass( DKSTR( "Test" ), DKObjectClass(), sizeof(struct TestObject), 0, NULL, NULL );
 
     DKInstallObjectProperty( testClass, DKSTR( "name" ), 0, offsetof(struct TestObject, name), DKStringClass(), NULL, NULL, NULL );
     DKInstallNumericalProperty( testClass, DKSTR( "x" ), NULL, 0, offsetof(struct TestObject, x), DKNumberInt32, NULL, NULL );

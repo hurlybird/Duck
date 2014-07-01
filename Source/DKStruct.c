@@ -42,15 +42,8 @@ static DKStringRef DKStructCopyDescription( DKStructRef _self );
 
 DKThreadSafeClassInit( DKStructClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKStruct" ), DKObjectClass(), sizeof(struct DKStruct), 0 );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKStruct" ), DKObjectClass(), sizeof(struct DKStruct), 0, NULL, (DKFinalizeMethod)DKStructFinalize );
     
-    // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
-    allocation->finalize = (DKFinalizeMethod)DKStructFinalize;
-
-    DKInstallInterface( cls, allocation );
-    DKRelease( allocation );
-
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->copyDescription = (DKCopyDescriptionMethod)DKStructCopyDescription;
@@ -80,8 +73,7 @@ DKStructRef DKStructCreate( DKStringRef semantic, const void * bytes, size_t siz
     // Arbitrary size limit, but > 1K is probably an error
     DKAssert( size < 1024 );
 
-    struct DKStruct * structure = DKAllocObject( DKStructClass(), size );
-    structure = DKInitializeObject( structure );
+    struct DKStruct * structure = DKInit( DKAlloc( DKStructClass(), size ) );
     
     if( structure )
     {

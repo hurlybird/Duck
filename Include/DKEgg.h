@@ -34,22 +34,22 @@
 #include "DKStream.h"
 
 
-typedef struct DKEggReader * DKEggReaderRef;
+typedef struct DKEggUnarchiver * DKEggUnarchiverRef;
 typedef struct DKEggArchiver * DKEggArchiverRef;
 
 
 // Egg Interface - Adopted by any object that supports egg storage =======================
 DKDeclareInterfaceSelector( Egg );
 
-typedef DKObjectRef (*DKCreateFromEggMethod)( DKClassRef _class, DKEggReaderRef egg );
+typedef DKObjectRef (*DKInitWithEggMethod)( DKObjectRef _self, DKEggUnarchiverRef egg );
 typedef void        (*DKAddToEggMethod)( DKObjectRef _self, DKEggArchiverRef egg );
 
 struct DKEggInterface
 {
     const DKInterface _interface;
 
-    DKCreateFromEggMethod   createFromEgg;
-    DKAddToEggMethod        addToEgg;
+    DKInitWithEggMethod initWithEgg;
+    DKAddToEggMethod    addToEgg;
 };
 
 typedef const struct DKEggInterface * DKEggInterfaceRef;
@@ -57,21 +57,28 @@ typedef const struct DKEggInterface * DKEggInterfaceRef;
 
 
 
-// DKEggReader ===========================================================================
-DKClassRef DKEggReaderClass( void );
+// DKEggUnarchiver =======================================================================
+DKClassRef DKEggUnarchiverClass( void );
 
-DKEggReaderRef DKEggCreateReader( DKDataRef data );
+#define DKEggCreateUnarchiverWithStream( stream )   DKEggUnarchiverInitWithStream( DKAlloc( DKEggUnarchiverClass(), 0 ), stream )
+#define DKEggCreateUnarchiverWithData( data )       DKEggUnarchiverInitWithData( DKAlloc( DKEggUnarchiverClass(), 0 ), data )
 
-int32_t DKEggGetTypeOfKey( DKEggReaderRef _self, DKStringRef key );
-size_t  DKEggGetLengthOfKey( DKEggReaderRef _self, DKStringRef key );
+DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKObjectRef stream );
+DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKDataRef data );
 
-DKObjectRef DKEggReadObject( DKEggReaderRef _self, DKStringRef key );
+DKEncoding DKEggGetEncoding( DKEggUnarchiverRef _self, DKStringRef key );
 
-void    DKEggReadCollection( DKEggReaderRef _self, DKStringRef key, DKApplierFunction callback, void * context );
-void    DKEggReadKeyedCollection( DKEggReaderRef _self, DKStringRef key, DKKeyedApplierFunction callback, void * context );
+DKObjectRef DKEggGetObject( DKEggUnarchiverRef _self, DKStringRef key );
+void    DKEggGetCollection( DKEggUnarchiverRef _self, DKStringRef key, DKApplierFunction callback, void * context );
+void    DKEggGetKeyedCollection( DKEggUnarchiverRef _self, DKStringRef key, DKKeyedApplierFunction callback, void * context );
 
-size_t  DKEggReadData( DKEggReaderRef _self, DKStringRef key, void * bytes, size_t elementSize, size_t elementCount );
-size_t  DKEggGetDataPtr( DKEggReaderRef _self, DKStringRef key, const void ** bytes );
+const char * DKEggGetTextDataPtr( DKEggUnarchiverRef _self, DKStringRef key, size_t * length );
+size_t DKEggGetTextData( DKEggUnarchiverRef _self, DKStringRef key, char * text );
+
+const void * DKEggGetBinaryDataPtr( DKEggUnarchiverRef _self, DKStringRef key, size_t * length );
+size_t DKEggGetBinaryData( DKEggUnarchiverRef _self, DKStringRef key, void * bytes );
+
+size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * number );
 
 
 
@@ -79,7 +86,7 @@ size_t  DKEggGetDataPtr( DKEggReaderRef _self, DKStringRef key, const void ** by
 // DKEggArchiver =========================================================================
 DKClassRef DKEggArchiverClass( void );
 
-DKEggArchiverRef DKEggCreateArchiver( int options );
+DKEggArchiverRef DKEggArchiverInitWithOptions( DKEggArchiverRef _self, int options );
 
 void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKMutableObjectRef stream );
 DKDataRef DKEggArchiverCreateData( DKEggArchiverRef _self );
@@ -90,7 +97,7 @@ void DKEggAddKeyedCollection( DKEggArchiverRef _self, DKStringRef key, DKObjectR
 
 void DKEggAddTextData( DKEggArchiverRef _self, DKStringRef key, const char * text, size_t length );
 void DKEggAddBinaryData( DKEggArchiverRef _self, DKStringRef key, const void * bytes, size_t length );
-void DKEggAddNumber( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, const void * number );
+void DKEggAddNumberData( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, const void * number );
 
 
 #endif // _DK_EGG_H_

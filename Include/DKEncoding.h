@@ -34,8 +34,10 @@
 
 typedef enum
 {
+    DKEncodingNull = 0,
+
     // Object Types
-    DKEncodingTypeObject = 1,
+    DKEncodingTypeObject,
     DKEncodingTypeKeyedObject,
 
     // Data Types
