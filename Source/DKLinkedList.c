@@ -85,6 +85,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     // Collection
     struct DKCollectionInterface * collection = DKAllocInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
     collection->getCount = (DKGetCountMethod)DKLinkedListGetCount;
+    collection->containsObject = (DKContainsMethod)DKListContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKLinkedListApplyFunction;
     
     DKInstallInterface( cls, collection );

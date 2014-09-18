@@ -34,6 +34,7 @@ DKDeclareInterfaceSelector( Collection );
 
 
 typedef DKIndex (*DKGetCountMethod)( DKObjectRef _self );
+typedef bool    (*DKContainsMethod)( DKObjectRef _self, DKObjectRef object );
 typedef int     (*DKForeachObjectMethod)( DKObjectRef _self, DKApplierFunction callback, void * context );
 typedef int     (*DKForeachKeyAndObjectMethod)( DKObjectRef _self, DKKeyedApplierFunction callback, void * context );
 
@@ -42,9 +43,11 @@ struct DKCollectionInterface
     const DKInterface _interface;
 
     DKGetCountMethod            getCount;
+    DKContainsMethod            containsObject;
     DKForeachObjectMethod       foreachObject;
 
     // These may be NULL for non-keyed collections
+    DKContainsMethod            containsKey;
     DKForeachObjectMethod       foreachKey;
     DKForeachKeyAndObjectMethod foreachKeyAndObject;
 };
@@ -57,6 +60,9 @@ DKIndex     DKGetCount( DKObjectRef _self );
 
 DKObjectRef DKGetAnyKey( DKObjectRef _self );
 DKObjectRef DKGetAnyObject( DKObjectRef _self );
+
+bool        DKContainsKey( DKObjectRef _self, DKObjectRef key );
+bool        DKContainsObject( DKObjectRef _self, DKObjectRef object );
 
 int         DKForeachKey( DKObjectRef _self, DKApplierFunction callback, void * context );
 int         DKForeachObject( DKObjectRef _self, DKApplierFunction callback, void * context );

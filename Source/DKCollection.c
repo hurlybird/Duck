@@ -88,6 +88,36 @@ DKObjectRef DKGetAnyObject( DKObjectRef _self )
 
 
 ///
+//  DKContainsKey()
+//
+bool DKContainsKey( DKObjectRef _self, DKObjectRef key )
+{
+    if( _self )
+    {
+        DKCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(Collection) );
+        return collection->containsKey( _self, key );
+    }
+    
+    return false;
+}
+
+
+///
+//  DKContainsObject()
+//
+bool DKContainsObject( DKObjectRef _self, DKObjectRef object )
+{
+    if( _self )
+    {
+        DKCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(Collection) );
+        return collection->containsObject( _self, object );
+    }
+    
+    return false;
+}
+
+
+///
 //  DKForeachObject()
 //
 int DKForeachObject( DKObjectRef _self, DKApplierFunction callback, void * context )

@@ -81,7 +81,9 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     // Collection
     struct DKCollectionInterface * collection = DKAllocInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
     collection->getCount = (DKGetCountMethod)DKBinaryTreeGetCount;
+    collection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKBinaryTreeApplyFunctionToObjects;
+    collection->containsKey = (DKContainsMethod)DKDictionaryContainsKey;
     collection->foreachKey = (DKForeachObjectMethod)DKBinaryTreeApplyFunctionToKeys;
     collection->foreachKeyAndObject = (DKForeachKeyAndObjectMethod)DKBinaryTreeApplyFunction;
     

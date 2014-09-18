@@ -66,6 +66,7 @@ DKThreadSafeClassInit( DKArrayClass )
     // Collection
     struct DKCollectionInterface * collection = DKAllocInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
     collection->getCount = (DKGetCountMethod)DKArrayGetCount;
+    collection->containsObject = (DKContainsMethod)DKListContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKArrayApplyFunction;
     
     DKInstallInterface( cls, collection );

@@ -78,7 +78,9 @@ DKThreadSafeClassInit( DKHashTableClass )
     // Collection
     struct DKCollectionInterface * collection = DKAllocInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
     collection->getCount = (DKGetCountMethod)DKDictionaryGetCount;
+    collection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKHashTableApplyFunctionToObjects;
+    collection->containsKey = (DKContainsMethod)DKDictionaryContainsKey;
     collection->foreachKey = (DKForeachObjectMethod)DKHashTableApplyFunctionToKeys;
     collection->foreachKeyAndObject = (DKForeachKeyAndObjectMethod)DKHashTableApplyFunction;
     
