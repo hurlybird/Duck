@@ -89,9 +89,9 @@ void DKInstallObjectProperty( DKClassRef _class,
 
 
 ///
-//  DKInstallNumericalProperty()
+//  DKInstallNumberProperty()
 //
-void DKInstallNumericalProperty( DKClassRef _class,
+void DKInstallNumberProperty( DKClassRef _class,
     DKStringRef name,
     int32_t attributes,
     size_t offset,
@@ -401,9 +401,9 @@ DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name )
 
 
 ///
-//  DKSetNumericalProperty()
+//  DKSetNumberProperty()
 //
-void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKEncoding srcEncoding )
+void DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKEncoding srcEncoding )
 {
     DKAssert( DKEncodingIsNumber( srcEncoding ) );
 
@@ -438,9 +438,9 @@ void DKSetNumericalProperty( DKObjectRef _self, DKStringRef name, const void * s
 
 
 ///
-//  DKGetNumericalProperty()
+//  DKGetProperty()
 //
-size_t DKGetNumericalProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKEncoding dstEncoding )
+size_t DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKEncoding dstEncoding )
 {
     size_t result = 0;
 
@@ -582,7 +582,7 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef sem
 //
 void DKSetIntegerProperty( DKObjectRef _self, DKStringRef name, int64_t x )
 {
-    DKSetNumericalProperty( _self, name, &x, DKNumberInt64 );
+    DKSetNumberProperty( _self, name, &x, DKNumberInt64 );
 }
 
 
@@ -593,7 +593,7 @@ int64_t DKGetIntegerProperty( DKObjectRef _self, DKStringRef name )
 {
     int64_t x;
     
-    if( DKGetNumericalProperty( _self, name, &x, DKNumberInt64 ) )
+    if( DKGetNumberProperty( _self, name, &x, DKNumberInt64 ) )
         return x;
     
     return 0;
@@ -605,7 +605,7 @@ int64_t DKGetIntegerProperty( DKObjectRef _self, DKStringRef name )
 //
 void DKSetFloatProperty( DKObjectRef _self, DKStringRef name, double x )
 {
-    DKSetNumericalProperty( _self, name, &x, DKNumberDouble );
+    DKSetNumberProperty( _self, name, &x, DKNumberDouble );
 }
 
 
@@ -616,7 +616,7 @@ double DKGetFloatProperty( DKObjectRef _self, DKStringRef name )
 {
     double x;
     
-    if( DKGetNumericalProperty( _self, name, &x, DKNumberDouble ) )
+    if( DKGetNumberProperty( _self, name, &x, DKNumberDouble ) )
         return x;
     
     return 0;

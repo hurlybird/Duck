@@ -37,15 +37,16 @@ struct TestObject
 
 @implementation TestDKProperty
 
-- (void)setUp
+- (void) setUp
 {
     [super setUp];
 
+    DKRuntimeInit();
     DKSetErrorCallback( RaiseException );
     DKSetWarningCallback( RaiseException );
 }
 
-- (void)tearDown
+- (void) tearDown
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
@@ -58,8 +59,8 @@ struct TestObject
     DKPredicateRef predicate = DKPredicateCreate( DKPredicateISA, NULL, DKStringClass() );
 
     DKInstallObjectProperty( testClass, DKSTR( "name" ), 0, offsetof(struct TestObject, name), predicate, NULL, NULL );
-    DKInstallNumericalProperty( testClass, DKSTR( "x" ), 0, offsetof(struct TestObject, x), DKNumberInt32, NULL, NULL, NULL );
-    DKInstallNumericalProperty( testClass, DKSTR( "y" ), 0, offsetof(struct TestObject, y), DKNumberDouble, NULL, NULL, NULL );
+    DKInstallNumberProperty( testClass, DKSTR( "x" ), 0, offsetof(struct TestObject, x), DKNumberInt32, NULL, NULL, NULL );
+    DKInstallNumberProperty( testClass, DKSTR( "y" ), 0, offsetof(struct TestObject, y), DKNumberDouble, NULL, NULL, NULL );
     DKInstallStructProperty( testClass, DKSTR( "z" ), 0, offsetof(struct TestObject, z), sizeof(Pair), DKSemantic(Pair), NULL, NULL );
 
     DKRelease( predicate );
@@ -98,7 +99,7 @@ struct TestObject
     XCTAssertThrows( DKSetProperty( testObject, DKSTR( "x" ), DKSTR( "Jane" ) ) );
     
     float v[3] = { 0, 0, 0 };
-    XCTAssertThrows( DKSetNumericalProperty( testObject, DKSTR( "x" ), v, DKEncode( DKEncodingTypeFloat, 3 ) ) );
+    XCTAssertThrows( DKSetNumberProperty( testObject, DKSTR( "x" ), v, DKEncode( DKEncodingTypeFloat, 3 ) ) );
     
     XCTAssert( testObject->x == 3 );
     DKRelease( intNumber );

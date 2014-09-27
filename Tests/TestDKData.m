@@ -23,6 +23,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 {
     [super setUp];
 
+    DKRuntimeInit();
     DKSetErrorCallback( RaiseException );
 }
 

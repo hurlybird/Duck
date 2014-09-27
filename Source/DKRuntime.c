@@ -36,12 +36,10 @@
 #include "DKEgg.h"
 
 
-static void DKRuntimeInit( void );
 
 static void DKClassFinalize( DKObjectRef _self );
 static void DKSelectorFinalize( DKObjectRef _self );
 static void DKInterfaceFinalize( DKObjectRef _self );
-
 static DKInterface * DKLookupInterface( const struct DKClass * cls, DKSEL sel );
 
 
@@ -115,37 +113,37 @@ static struct DKClass __DKObjectClass__;
 
 DKClassRef DKClassClass( void )
 {
-    DKRuntimeInit();
+    DKFatal( DKRuntimeIsInitialized() );
     return &__DKClassClass__;
 }
 
 DKClassRef DKSelectorClass( void )
 {
-    DKRuntimeInit();
+    DKFatal( DKRuntimeIsInitialized() );
     return &__DKSelectorClass__;
 }
 
 DKClassRef DKInterfaceClass( void )
 {
-    DKRuntimeInit();
+    DKFatal( DKRuntimeIsInitialized() );
     return &__DKInterfaceClass__;
 }
 
 DKClassRef DKMsgHandlerClass( void )
 {
-    DKRuntimeInit();
+    DKFatal( DKRuntimeIsInitialized() );
     return &__DKMsgHandlerClass__;
 }
 
 DKClassRef DKWeakClass( void )
 {
-    DKRuntimeInit();
+    DKFatal( DKRuntimeIsInitialized() );
     return &__DKWeakClass__;
 }
 
 DKClassRef DKObjectClass( void )
 {
-    DKRuntimeInit();
+    DKFatal( DKRuntimeIsInitialized() );
     return &__DKObjectClass__;
 }
 
@@ -456,9 +454,23 @@ static void NameDatabaseRowDelete( void * _row )
 //
 static void NameDatabaseInsertClass( DKClassRef _class )
 {
+    if( _class->name == NULL )
+        return;
+    
     DKSpinLockLock( &ClassNameDatabaseSpinLock );
-    DKGenericHashTableInsert( &ClassNameDatabase, &_class, DKInsertIfNotFound );
+
+    const DKClassRef * existing = DKGenericHashTableFind( &ClassNameDatabase, &_class );
+    
+    if( existing == NULL )
+        DKGenericHashTableInsert( &ClassNameDatabase, &_class, DKInsertIfNotFound );
+    
     DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
+    
+    if( (existing != NULL) && (*existing != _class) )
+    {
+        DKError( "DKRuntime: A class named '%s' already exists.",
+            DKStringGetCStringPtr( _class->name ) );
+    }
 }
 
 
@@ -503,9 +515,23 @@ DKClassRef DKClassFromString( DKStringRef name )
 //
 static void NameDatabaseInsertSelector( DKSEL sel )
 {
+    if( sel->name == NULL )
+        return;
+
     DKSpinLockLock( &SelectorNameDatabaseSpinLock );
-    DKGenericHashTableInsert( &ClassNameDatabase, &sel, DKInsertIfNotFound );
+
+    const DKSEL * existing = DKGenericHashTableFind( &SelectorNameDatabase, &sel );
+    
+    if( existing == NULL )
+        DKGenericHashTableInsert( &SelectorNameDatabase, &sel, DKInsertIfNotFound );
+    
     DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
+    
+    if( (existing != NULL) && (*existing != sel) )
+    {
+        DKError( "DKRuntime: A selector named '%s' already exists.",
+            DKStringGetCStringPtr( sel->name ) );
+    }
 }
 
 
@@ -515,7 +541,7 @@ static void NameDatabaseInsertSelector( DKSEL sel )
 static void NameDatabaseRemoveSelector( DKSEL sel )
 {
     DKSpinLockLock( &SelectorNameDatabaseSpinLock );
-    DKGenericHashTableRemove( &ClassNameDatabase, &sel );
+    DKGenericHashTableRemove( &SelectorNameDatabase, &sel );
     DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
 }
 
@@ -548,8 +574,16 @@ DKSEL DKSelectorFromString( DKStringRef name )
 
 
 // Runtime Init ==========================================================================
-static DKSpinLock DKRuntimeInitLock = DKSpinLockInit;
-static bool DKRuntimeInitialized = false;
+static bool _DKRuntimeIsInitialized = false;
+
+
+///
+//  DKRuntimeIsInitialized()
+//
+bool DKRuntimeIsInitialized( void )
+{
+    return _DKRuntimeIsInitialized;
+}
 
 
 ///
@@ -615,13 +649,11 @@ static void SetStaticSelectorName( struct _DKSEL * sel, DKStringRef name )
 ///
 //  DKRuntimeInit()
 //
-static void DKRuntimeInit( void )
+void DKRuntimeInit( void )
 {
-    DKSpinLockLock( &DKRuntimeInitLock );
-    
-    if( !DKRuntimeInitialized )
+    if( !_DKRuntimeIsInitialized )
     {
-        DKRuntimeInitialized = true;
+        _DKRuntimeIsInitialized = true;
 
         InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass), DKAbstractBaseClass | DKDisableReferenceCounting, NULL, DKClassFinalize );
         InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass), 0, NULL, DKClassFinalize );
@@ -671,8 +703,6 @@ static void DKRuntimeInit( void )
         DKGenericHashTableInit( &ClassNameDatabase, sizeof(DKObjectRef), &nameDatabaseCallbacks );
         DKGenericHashTableInit( &SelectorNameDatabase, sizeof(DKObjectRef), &nameDatabaseCallbacks );
 
-        DKSpinLockUnlock( &DKRuntimeInitLock );
-        
         // Initialize the base class names now that constant strings are available.
         SetRootClassName( &__DKMetaClass__, DKSTR( "DKMetaClass" ) );
         SetRootClassName( &__DKClassClass__, DKSTR( "DKClass" ) );
@@ -691,13 +721,8 @@ static void DKRuntimeInit( void )
         SetStaticSelectorName( &DKSelector_Stream_StaticObject, DKSTR( "Stream" ) );
         SetStaticSelectorName( &DKSelector_Egg_StaticObject, DKSTR( "Egg" ) );
         
-        SetStaticSelectorName( (struct _DKSEL *)DKStringClass(), DKSTR( "DKString" ) );
-        SetStaticSelectorName( (struct _DKSEL *)DKConstantStringClass(), DKSTR( "DKConstantString" ) );
-    }
-    
-    else
-    {
-        DKSpinLockUnlock( &DKRuntimeInitLock );
+        SetRootClassName( (struct DKClass *)DKStringClass(), DKSTR( "DKString" ) );
+        SetRootClassName( (struct DKClass *)DKConstantStringClass(), DKSTR( "DKConstantString" ) );
     }
 }
 
@@ -815,6 +840,8 @@ static void DKClassFinalize( DKObjectRef _self )
     DKAssert( cls->_obj.isa == &__DKClassClass__ );
 
     NameDatabaseRemoveClass( cls );
+
+    DKPrintf( "Finalizing class %@\n", cls->name );
     
     // Note: The finalizer chain is still running at this point so make sure to set
     // the members to NULL to avoid accessing dangling pointers.

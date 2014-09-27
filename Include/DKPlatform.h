@@ -203,6 +203,18 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #define DKFatalError( ... ) _DKFatalError( __VA_ARGS__ )
 
 
+// Raise a fatal error if the given condition is not met. These checks are not omitted
+// from release builds so use them sparingly.
+#define DKFatal( x )                                                                    \
+    do                                                                                  \
+    {                                                                                   \
+        if( !(x) )                                                                      \
+        {                                                                               \
+            _DKFatalError( "%s: Fatal Error( %s )\n", __func__, #x );                   \
+        }                                                                               \
+    } while( 0 )
+
+
 // Assertions
 #if DK_RUNTIME_ASSERTIONS
 #define DKAssert( x )                                                                   \

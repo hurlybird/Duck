@@ -19,14 +19,15 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 @implementation TestDKSet
 
-- (void)setUp
+- (void) setUp
 {
     [super setUp];
 
+    DKRuntimeInit();
     DKSetErrorCallback( RaiseException );
 }
 
-- (void)tearDown
+- (void) tearDown
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];

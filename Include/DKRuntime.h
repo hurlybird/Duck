@@ -30,6 +30,16 @@
 #include "DKPlatform.h"
 
 
+
+// DKRuntime =============================================================================
+
+// Initialize the library
+void DKRuntimeInit( void );
+bool DKRuntimeIsInitialized( void );
+
+
+
+
 // DKObject ==============================================================================
 typedef struct DKObject
 {
