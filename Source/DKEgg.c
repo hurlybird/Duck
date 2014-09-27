@@ -1121,7 +1121,7 @@ void DKEggAddObject( DKEggArchiverRef _self, DKStringRef key, DKObjectRef object
     // Negative indexes are obviously an error and index 0 is the root object
     if( index > 0 )
     {
-        AddAttribute( _self, key, DKEncode( DKEncodingTypeObject, 1 ), (uint32_t)index );
+        AddAttribute( _self, key, encoding, (uint32_t)index );
     }
 }
 
