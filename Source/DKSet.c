@@ -58,7 +58,7 @@ void DKSetDefaultMutableSetClass( DKClassRef _self )
 ///
 //  DKSetCreateWithObjects()
 //
-DKObjectRef DKSetCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... )
+DKObjectRef DKSetCreateWithObjects( DKClassRef _class, ... )
 {
     if( _class == NULL )
         _class = DKSetClass();
@@ -66,7 +66,7 @@ DKObjectRef DKSetCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, 
     DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
     
     va_list arg_ptr;
-    va_start( arg_ptr, firstObject );
+    va_start( arg_ptr, _class );
     
     DKObjectRef obj = set->createWithVAObjects( _class, arg_ptr );
     

@@ -243,6 +243,7 @@ DKThreadSafeClassInit( DKNumberClass )
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (void *)DKNumberEqual;
+    comparison->like = (void *)DKNumberEqual;
     comparison->compare = (void *)DKNumberCompare;
     comparison->hash = (void *)DKNumberHash;
 

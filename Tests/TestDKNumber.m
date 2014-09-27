@@ -46,6 +46,14 @@ typedef struct
     DKStringRef desc = DKNumberCopyDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "100" ) ) );
 
+    int32_t i32;
+    DKNumberCastValue( n, &i32, DKNumberInt32 );
+    XCTAssert( i32 == 100 );
+
+    int64_t i64;
+    DKNumberCastValue( n, &i64, DKNumberInt64 );
+    XCTAssert( i64 == 100 );
+
     float f;
     DKNumberCastValue( n, &f, DKNumberFloat );
     XCTAssert( f == 100.0f );

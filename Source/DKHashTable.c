@@ -350,7 +350,7 @@ DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, 
         while( (key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
         {
             struct DKHashTableRow row;
-            row.hash = DKHash( row.key );
+            row.hash = DKHash( key );
             row.key = DKCopy( key );
             row.object = va_arg( keysAndObjects, DKObjectRef );
     

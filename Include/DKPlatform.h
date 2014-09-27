@@ -108,7 +108,7 @@ typedef struct
 
 
 // Callback Types
-typedef bool (*DKEqualFunction)( DKObjectRef a, DKObjectRef b );
+typedef bool (*DKEqualityFunction)( DKObjectRef a, DKObjectRef b );
 typedef int  (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
 typedef DKHashCode (*DKHashFunction)( DKObjectRef a );
 typedef int  (*DKApplierFunction)( DKObjectRef object, void * context );

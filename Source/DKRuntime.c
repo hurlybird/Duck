@@ -262,6 +262,7 @@ static struct DKComparisonInterface DKDefaultComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
     DKPointerEqual,
+    DKPointerEqual,
     DKPointerCompare,
     DKPointerHash
 };
@@ -290,6 +291,20 @@ int DKPointerCompare( DKObjectRef _self, DKObjectRef other )
 DKHashCode DKPointerHash( DKObjectRef _self )
 {
     return ObjectUniqueHash( _self );
+}
+
+
+// DefaultCopying ------------------------------------------------------------------------
+static struct DKCopyingInterface DKDefaultCopying_StaticObject =
+{
+    DKStaticInterfaceObject( &DKSelector_Copying_StaticObject ),
+    DKRetain,
+    (DKMutableCopyMethod)DKRetain
+};
+
+DKInterfaceRef DKDefaultCopying( void )
+{
+    return &DKDefaultCopying_StaticObject;
 }
 
 
@@ -325,6 +340,7 @@ static struct DKComparisonInterface DKSelectorComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
     DKPointerEqual,
+    DKPointerEqual,
     DKPointerCompare,
     DKPointerHash
 };
@@ -354,7 +370,8 @@ static DKHashCode DKInterfaceHash( DKInterface * a )
 static struct DKComparisonInterface DKInterfaceComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
-    (DKEqualMethod)DKInterfaceEqual,
+    (DKEqualityMethod)DKInterfaceEqual,
+    (DKEqualityMethod)DKInterfaceEqual,
     (DKCompareMethod)DKInterfaceCompare,
     (DKHashMethod)DKInterfaceHash
 };
@@ -618,21 +635,27 @@ static void DKRuntimeInit( void )
         InstallRootClassInterface( &__DKMetaClass__, DKDefaultDescription() );
 
         InstallRootClassInterface( &__DKClassClass__, DKDefaultComparison() );
+        InstallRootClassInterface( &__DKClassClass__, DKDefaultCopying() );
         InstallRootClassInterface( &__DKClassClass__, DKDefaultDescription() );
 
         InstallRootClassInterface( &__DKSelectorClass__, DKSelectorComparison() );
+        InstallRootClassInterface( &__DKSelectorClass__, DKDefaultCopying() );
         InstallRootClassInterface( &__DKSelectorClass__, DKDefaultDescription() );
 
         InstallRootClassInterface( &__DKInterfaceClass__, DKInterfaceComparison() );
+        InstallRootClassInterface( &__DKInterfaceClass__, DKDefaultCopying() );
         InstallRootClassInterface( &__DKInterfaceClass__, DKDefaultDescription() );
 
         InstallRootClassInterface( &__DKMsgHandlerClass__, DKInterfaceComparison() );
+        InstallRootClassInterface( &__DKMsgHandlerClass__, DKDefaultCopying() );
         InstallRootClassInterface( &__DKMsgHandlerClass__, DKDefaultDescription() );
 
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultComparison() );
+        InstallRootClassInterface( &__DKWeakClass__, DKDefaultCopying() );
         InstallRootClassInterface( &__DKWeakClass__, DKDefaultDescription() );
 
         InstallRootClassInterface( &__DKObjectClass__, DKDefaultComparison() );
+        InstallRootClassInterface( &__DKObjectClass__, DKDefaultCopying() );
         InstallRootClassInterface( &__DKObjectClass__, DKDefaultDescription() );
 
         DKGenericHashTableCallbacks nameDatabaseCallbacks =
@@ -1552,6 +1575,8 @@ void DKDealloc( DKObjectRef _self )
     DKAssert( obj->weakref == NULL );
 
     DKAllocationInterfaceRef allocation;
+
+    // *** allocation->dealloc caused an exception once ***
     
     if( DKQueryInterface( obj, DKSelector(Allocation), (DKInterfaceRef *)&allocation ) )
         allocation->dealloc( obj );
@@ -1631,6 +1656,24 @@ bool DKEqual( DKObjectRef a, DKObjectRef b )
         
         DKComparisonInterfaceRef comparison = DKGetInterface( a, DKSelector(Comparison) );
         return comparison->equal( a, b );
+    }
+    
+    return false;
+}
+
+
+///
+//  DKLike()
+//
+bool DKLike( DKObjectRef a, DKObjectRef b )
+{
+    if( a && b )
+    {
+        if( a == b )
+            return true;
+        
+        DKComparisonInterfaceRef comparison = DKGetInterface( a, DKSelector(Comparison) );
+        return comparison->like( a, b );
     }
     
     return false;

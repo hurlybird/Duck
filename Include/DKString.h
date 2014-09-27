@@ -59,6 +59,9 @@ DKHashCode  DKStringHash( DKStringRef _self );
 bool        DKStringEqualToString( DKStringRef _self, DKStringRef other );
 int         DKStringCompareString( DKStringRef _self, DKStringRef other );
 
+bool        DKStringHasPrefix( DKStringRef _self, DKStringRef other );
+bool        DKStringHasSuffix( DKStringRef _self, DKStringRef other );
+
 DKIndex     DKStringGetLength( DKStringRef _self );
 DKIndex     DKStringGetByteLength( DKStringRef _self );
 

@@ -76,6 +76,8 @@ size_t DKEncodingGetSize( DKEncoding encoding );
 size_t DKEncodingGetTypeSize( DKEncoding encoding );
 const char * DKEncodingGetTypeName( DKEncoding encoding );
 bool   DKEncodingIsNumber( DKEncoding encoding );
+bool   DKEncodingIsInteger( DKEncoding encoding );
+bool   DKEncodingIsReal( DKEncoding encoding );
 
 
 #endif // _DK_ENCODING_H_

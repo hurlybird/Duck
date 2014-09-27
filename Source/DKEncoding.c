@@ -109,6 +109,30 @@ bool DKEncodingIsNumber( DKEncoding encoding )
 }
 
 
+///
+//  DKEncodingIsInteger()
+//
+bool DKEncodingIsInteger( DKEncoding encoding )
+{
+    DKEncodingType encodingType = DKEncodingGetType( encoding );
+    uint32_t count = DKEncodingGetCount( encoding );
+    
+    return (encodingType >= DKEncodingTypeInt8) && (encodingType <= DKEncodingTypeUInt64) && (count > 0);
+}
+
+
+///
+//  DKEncodingIsReal()
+//
+bool DKEncodingIsReal( DKEncoding encoding )
+{
+    DKEncodingType encodingType = DKEncodingGetType( encoding );
+    uint32_t count = DKEncodingGetCount( encoding );
+    
+    return (encodingType >= DKEncodingTypeFloat) && (encodingType <= DKEncodingTypeDouble) && (count > 0);
+}
+
+
 
 
 

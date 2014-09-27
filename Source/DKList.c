@@ -89,10 +89,10 @@ DKObjectRef DKListCreateWithObject( DKClassRef _class, DKObjectRef object )
 ///
 //  DKListCreateWithObjects()
 //
-DKObjectRef DKListCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... )
+DKObjectRef DKListCreateWithObjects( DKClassRef _class, ... )
 {
     va_list arg_ptr;
-    va_start( arg_ptr, firstObject );
+    va_start( arg_ptr, _class );
     
     DKObjectRef obj = DKListCreateWithVAObjects( _class, arg_ptr );
     
@@ -147,10 +147,10 @@ DKObjectRef DKListCreateWithCollection( DKClassRef _class, DKObjectRef srcCollec
 ///
 //  DKListCreateSetWithObjects()
 //
-DKObjectRef DKListCreateSetWithObjects( DKClassRef _class, DKObjectRef firstObject, ... )
+DKObjectRef DKListCreateSetWithObjects( DKClassRef _class, ... )
 {
     va_list arg_ptr;
-    va_start( arg_ptr, firstObject );
+    va_start( arg_ptr, _class );
     
     DKObjectRef obj = DKListCreateSetWithVAObjects( _class, arg_ptr );
     

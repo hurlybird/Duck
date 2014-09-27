@@ -202,7 +202,7 @@ typedef const struct DKAllocationInterface * DKAllocationInterfaceRef;
 // Comparison ----------------------------------------------------------------------------
 DKDeclareInterfaceSelector( Comparison );
 
-typedef DKEqualFunction DKEqualMethod;
+typedef DKEqualityFunction DKEqualityMethod;
 typedef DKCompareFunction DKCompareMethod;
 typedef DKHashFunction DKHashMethod;
 
@@ -210,9 +210,10 @@ struct DKComparisonInterface
 {
     const DKInterface _interface;
     
-    DKEqualMethod   equal;
-    DKCompareMethod compare;
-    DKHashMethod    hash;
+    DKEqualityMethod    equal;
+    DKEqualityMethod    like;
+    DKCompareMethod     compare;
+    DKHashMethod        hash;
 };
 
 typedef const struct DKComparisonInterface * DKComparisonInterfaceRef;
@@ -243,6 +244,8 @@ struct DKCopyingInterface
 };
 
 typedef const struct DKCopyingInterface * DKCopyingInterfaceRef;
+
+DKInterfaceRef DKDefaultCopying( void );
 
 
 
@@ -303,7 +306,7 @@ DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t struct
     DKClassOptions options, DKInitMethod init, DKFinalizeMethod finalize );
 
 // Allocate a new selector object.
-DKSEL DKAllocSelector( DKStringRef name );
+DKSEL       DKAllocSelector( DKStringRef name );
 
 // Allocate a new interface object.
 void *      DKAllocInterface( DKSEL sel, size_t structSize );
@@ -322,13 +325,12 @@ void        DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
 // not currently supported.
 void        DKInstallMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
 
-
 // Install properties
 //
 // *** WARNING ***
 // Replacing properties after a class is in use (i.e. implementation swizzling) is not
 // currently supported.
-void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef property );
+void        DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef property );
 
 
 
@@ -424,6 +426,7 @@ void        DKFinalize( DKObjectRef _self );
 
 // Comparison Interface Wrappers
 bool        DKEqual( DKObjectRef a, DKObjectRef b );
+bool        DKLike( DKObjectRef a, DKObjectRef b );
 int         DKCompare( DKObjectRef a, DKObjectRef b );
 DKHashCode  DKHash( DKObjectRef _self );
 

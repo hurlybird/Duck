@@ -91,20 +91,24 @@ void        DKSetDefaultMutableListClass( DKClassRef _self );
 #define     DKListCreateMutable()  DKCreate( DKMutableListClass() )
 
 DKObjectRef DKListCreateWithObject( DKClassRef _class, DKObjectRef object );
-DKObjectRef DKListCreateWithObjects( DKClassRef _class, DKObjectRef firstObject, ... );
+DKObjectRef DKListCreateWithObjects( DKClassRef _class, ... );
 DKObjectRef DKListCreateWithVAObjects( DKClassRef _class, va_list objects );
 DKObjectRef DKListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
 DKObjectRef DKListCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection );
 
-DKObjectRef DKListCreateSetWithObjects( DKClassRef _class, DKObjectRef firstObject, ... );
+DKObjectRef DKListCreateSetWithObjects( DKClassRef _class, ... );
 DKObjectRef DKListCreateSetWithVAObjects( DKClassRef _class, va_list objects );
 DKObjectRef DKListCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
 DKObjectRef DKListCreateSetWithCollection( DKClassRef _class, DKObjectRef srcCollection );
 
 DKIndex     DKListGetCount( DKListRef _self );
 DKIndex     DKListGetCountOfObject( DKListRef _self, DKObjectRef object );
+
 DKIndex     DKListGetFirstIndexOfObject( DKListRef _self, DKObjectRef object );
+DKIndex     DKListGetFirstIndexOfObjectInRange( DKListRef _self, DKObjectRef object, DKRange range );
+
 DKIndex     DKListGetLastIndexOfObject( DKListRef _self, DKObjectRef object );
+DKIndex     DKListGetLastIndexOfObjectInRange( DKListRef _self, DKObjectRef object, DKRange range );
 
 DKObjectRef DKListGetObjectAtIndex( DKListRef _self, DKIndex index );
 DKIndex     DKListGetObjectsInRange( DKListRef _self, DKRange range, DKObjectRef objects[] );

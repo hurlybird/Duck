@@ -49,6 +49,7 @@ extern "C"
 #include "DKString.h"
 #include "DKNumber.h"
 #include "DKStruct.h"
+#include "DKPredicate.h"
 
 #include "DKFile.h"
 #include "DKEgg.h"

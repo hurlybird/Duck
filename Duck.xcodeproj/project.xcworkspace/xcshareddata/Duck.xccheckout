@@ -10,29 +10,29 @@
 	<string>Duck</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>84F3B37A-7E39-4A4A-AA39-BE004AA71838</key>
+		<key>C44D7E57ACED9015617E8584E484EE47E2D567BC</key>
 		<string>file:///Users/dwnylen/Hurlybird/Projects/../Old%20Projects/</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Duck.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>84F3B37A-7E39-4A4A-AA39-BE004AA71838</key>
+		<key>C44D7E57ACED9015617E8584E484EE47E2D567BC</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>file:///Users/dwnylen/Hurlybird/Projects/../Old%20Projects/</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>84F3B37A-7E39-4A4A-AA39-BE004AA71838</string>
+	<string>C44D7E57ACED9015617E8584E484EE47E2D567BC</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>84F3B37A-7E39-4A4A-AA39-BE004AA71838</string>
+			<string>C44D7E57ACED9015617E8584E484EE47E2D567BC</string>
 			<key>IDESourceControlWCCName</key>
 			<string>Duck</string>
 		</dict>
