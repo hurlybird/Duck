@@ -51,8 +51,7 @@ static void DKPropertyFinalize( DKObjectRef _self )
     
     DKRelease( property->name );
     DKRelease( property->semantic );
-    DKRelease( property->requiredClass );
-    DKRelease( property->requiredInterface );
+    DKRelease( property->predicate );
 }
 
 
@@ -67,8 +66,7 @@ void DKInstallObjectProperty( DKClassRef _class,
     DKStringRef name,
     int32_t attributes,
     size_t offset,
-    DKClassRef requiredClass,
-    DKSEL requiredInterface,
+    DKPredicateRef predicate,
     DKPropertySetter setter,
     DKPropertyGetter getter )
 {
@@ -80,8 +78,7 @@ void DKInstallObjectProperty( DKClassRef _class,
     property->offset = offset;
     property->encoding = DKEncode( DKEncodingTypeObject, 1 );
     
-    property->requiredClass = DKRetain( requiredClass );
-    property->requiredInterface = DKRetain( requiredInterface );
+    property->predicate = DKCopy( predicate );
     
     property->setter = setter;
     property->getter = getter;
@@ -96,10 +93,10 @@ void DKInstallObjectProperty( DKClassRef _class,
 //
 void DKInstallNumericalProperty( DKClassRef _class,
     DKStringRef name,
-    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     DKEncoding encoding,
+    DKStringRef semantic,
     DKPropertySetter setter,
     DKPropertyGetter getter )
 {
@@ -108,11 +105,12 @@ void DKInstallNumericalProperty( DKClassRef _class,
     struct DKProperty * property = DKCreate( DKPropertyClass() );
     
     property->name = DKCopy( name );
-    property->semantic = DKCopy( semantic );
     
     property->attributes = attributes;
     property->offset = offset;
     property->encoding = encoding;
+
+    property->semantic = DKCopy( semantic );
     
     property->setter = setter;
     property->getter = getter;
@@ -127,21 +125,22 @@ void DKInstallNumericalProperty( DKClassRef _class,
 //
 void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
-    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     size_t size,
+    DKStringRef semantic,
     DKPropertySetter setter,
     DKPropertyGetter getter )
 {
     struct DKProperty * property = DKCreate( DKPropertyClass() );
     
     property->name = DKCopy( name );
-    property->semantic = DKCopy( semantic );
     
     property->attributes = attributes;
     property->offset = offset;
     property->encoding = DKEncode( DKEncodingTypeBinaryData, (uint32_t)size );
+
+    property->semantic = DKCopy( semantic );
 
     property->setter = setter;
     property->getter = getter;
@@ -197,49 +196,31 @@ static void PropertyNotReadWrite( DKObjectRef _self, DKPropertyRef property )
 
 
 ///
-//  CheckClassRequirement()
+//  CheckPredicateRequirement()
 //
-static void FailedClassRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
+static void FailedPredicateRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
 {
-    DKWarning( "DKProperty: '%s' does not meet the class requirement ('%s') for property '%s'.\n",
+    DKStringRef desc = DKCopyDescription( property->predicate );
+
+    DKWarning( "DKProperty: '%s' does not meet the requirements ('%s') for property '%s'.\n",
         DKStringGetCStringPtr( DKGetClassName( object ) ),
-        DKStringGetCStringPtr( DKGetClassName( property->requiredClass ) ),
+        DKStringGetCStringPtr( desc ),
         DKStringGetCStringPtr( property->name ) );
+    
+    DKRelease( desc );
 }
 
-#define CheckClassRequirement( obj, property, object, ... )                             \
+#define CheckPredicateRequirement( obj, property, object, ... )                         \
     do                                                                                  \
     {                                                                                   \
-        if( (property->requiredClass != NULL) &&                                        \
-            !DKIsKindOfClass( object, property->requiredClass ) )                       \
+        if( (property->predicate != NULL) &&                                            \
+            !DKPredicateEvaluateWithObject( property->predicate, object ) )             \
         {                                                                               \
-            FailedClassRequirement( obj, property, object );                            \
+            FailedPredicateRequirement( obj, property, object );                        \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
 
-
-///
-//  CheckInterfaceRequirement()
-//
-static void FailedInterfaceRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
-{
-    DKWarning( "DKProperty: '%s' does not meet the interface requirement ('%s') for property '%s'.\n",
-        DKStringGetCStringPtr( DKGetClassName( object ) ),
-        property->requiredInterface->name,
-        DKStringGetCStringPtr( property->name ) );
-}
-
-#define CheckInterfaceRequirement( obj, property, object, ... )                         \
-    do                                                                                  \
-    {                                                                                   \
-        if( (property->requiredInterface != NULL) &&                                    \
-            !DKQueryInterface( object, property->requiredInterface, NULL ) )            \
-        {                                                                               \
-            FailedInterfaceRequirement( obj, property, object );                        \
-            return __VA_ARGS__;                                                         \
-        }                                                                               \
-    } while( 0 )
 
 
 ///
@@ -280,8 +261,7 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     // Object types
     if( property->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
     {
-        CheckClassRequirement( _self, property, object );
-        CheckInterfaceRequirement( _self, property, object );
+        CheckPredicateRequirement( _self, property, object );
 
         DKObjectRef * ref = value;
         

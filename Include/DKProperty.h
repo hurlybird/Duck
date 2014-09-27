@@ -30,6 +30,7 @@
 #include "DKRuntime.h"
 #include "DKEncoding.h"
 #include "DKNumber.h"
+#include "DKPredicate.h"
 
 
 // Attributes
@@ -57,14 +58,13 @@ struct DKProperty
     const DKObject  _obj;
     
     DKStringRef     name;
-    DKStringRef     semantic;
     
     DKEncoding      encoding;
     int32_t         attributes;
     size_t          offset;
     
-    DKClassRef      requiredClass;
-    DKSEL           requiredInterface;
+    DKStringRef     semantic;
+    DKPredicateRef  predicate;
 
     DKPropertySetter setter;
     DKPropertyGetter getter;
@@ -80,26 +80,25 @@ void DKInstallObjectProperty( DKClassRef _class,
     DKStringRef name,
     int32_t attributes,
     size_t offset,
-    DKClassRef requiredClass,
-    DKSEL requiredInterface,
+    DKPredicateRef predicate,
     DKPropertySetter setter,
     DKPropertyGetter getter );
 
 void DKInstallNumericalProperty( DKClassRef _class,
     DKStringRef name,
-    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     DKEncoding encoding,
+    DKStringRef semantic,
     DKPropertySetter setter,
     DKPropertyGetter getter );
 
 void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
-    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     size_t size,
+    DKStringRef semantic,
     DKPropertySetter setter,
     DKPropertyGetter getter );
 

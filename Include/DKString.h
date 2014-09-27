@@ -49,6 +49,8 @@ void *      DKStringInitWithString( DKStringRef _self, DKStringRef other );
 void *      DKStringInitWithCString( DKStringRef _self, const char * cstr );
 void *      DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr );
 
+DKStringRef DKStringCopyDescription( DKStringRef _self );
+
 DKStringRef DKStringCopy( DKStringRef _self );
 DKMutableStringRef DKStringMutableCopy( DKStringRef _self );
 

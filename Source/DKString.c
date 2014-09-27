@@ -101,7 +101,7 @@ DKThreadSafeClassInit( DKStringClass )
 
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKRetain;
+    description->copyDescription = (DKCopyDescriptionMethod)DKStringCopyDescription;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -148,13 +148,6 @@ DKThreadSafeClassInit( DKMutableStringClass )
 {
     DKClassRef cls = DKAllocClass( DKSTR( "DKMutableString" ), DKStringClass(), sizeof(struct DKString), 0, NULL, NULL );
     
-    // Description
-    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKStringCopy;
-    
-    DKInstallInterface( cls, description );
-    DKRelease( description );
-
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = (DKCopyMethod)DKStringMutableCopy;
@@ -163,7 +156,6 @@ DKThreadSafeClassInit( DKMutableStringClass )
     DKInstallInterface( cls, copying );
     DKRelease( copying );
     
-    // Stream
     // Stream
     struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKStringSeek;
@@ -371,6 +363,24 @@ static void DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef archiver )
     
     if( length > 0 )
         DKEggAddTextData( archiver, DKSTR( "str" ), (const char *)_self->byteArray.bytes, length );
+}
+
+
+///
+//  DKStringCopyDescription()
+//
+DKStringRef DKStringCopyDescription( DKStringRef _self )
+{
+    if( DKIsMemberOfClass( _self, DKMutableStringClass() ) )
+        return DKStringCopy( _self );
+    
+    else if( DKIsKindOfClass( _self, DKStringClass() ) )
+        return DKRetain( _self );
+        
+    else if( DKIsKindOfClass( _self, DKClassClass() ) )
+        return DKRetain( DKGetClassName( _self ) );
+    
+    return NULL;
 }
 
 

@@ -125,19 +125,19 @@ static DKStringRef DKPredicateCopyDescription( DKObjectRef _self )
 
     DKMutableStringRef desc = DKStringCreateMutable();
 
-    DKObjectRef a = predicate->a ? predicate->a : DKSTR( "$$" );
-    DKObjectRef b = predicate->b ? predicate->b : DKSTR( "$$" );
+    DKObjectRef a = predicate->a ? predicate->a : DKSTR( "$OBJECT" );
+    DKObjectRef b = predicate->b ? predicate->b : DKSTR( "$OBJECT" );
 
     if( predicate->op == DKPredicateNOT )
     {
     
-        DKSPrintf( desc, "%@ %@", DKPredicateOpToString( predicate->op ), a );
+        DKSPrintf( desc, "(%@ %@)", DKPredicateOpToString( predicate->op ), a );
         return desc;
     }
     
     else
     {
-        DKSPrintf( desc, "%@ %@ %@", DKPredicateOpToString( predicate->op ), a, b );
+        DKSPrintf( desc, "(%@ %@ %@)", DKPredicateOpToString( predicate->op ), a, b );
         return desc;
     }
 }
@@ -190,13 +190,10 @@ bool DKPredicateEvaluateWithObject( DKPredicateRef _self, DKObjectRef subst )
 
         const struct PredicateOpInfo * info = GetPredicateOpInfo( _self->op );
 
-        if( _self->a == NULL )
-            return info->func( subst, _self->b, subst );
+        DKObjectRef a = _self->a ? _self->a : subst;
+        DKObjectRef b = _self->b ? _self->b : subst;
 
-        if( _self->b == NULL )
-            return info->func( _self->a, subst, subst );
-        
-        return info->func( _self->a, _self->b, subst );
+        return info->func( a, b, subst );
     }
     
     return false;
@@ -240,12 +237,8 @@ static bool EvaluateNOT( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 static int EvaluateANDCallback( DKObjectRef obj, void * context )
 {
     if( DKEvaluateInternal( obj, context ) )
-    {
-        printf( "*** yep\n" );
         return 0;
-    }
-    
-    printf( "*** nope\n" );
+
     return 1;
 }
 
