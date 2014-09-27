@@ -39,6 +39,9 @@ static const struct EncodingTypeInfo TypeInfo[DKMaxEncodingTypes] =
 {
     { "void",       0                   },
     
+    { "class",     sizeof(void *)       },
+    { "selector",  sizeof(void *)       },
+
     { "object",     sizeof(void *)      },
     { "key:object", 2*sizeof(void *)    },
     

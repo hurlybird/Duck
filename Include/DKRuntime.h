@@ -70,9 +70,9 @@ typedef enum
     DKDynamicCache =            0,
     
     // 1-7 -- Static cache lines for Duck interfaces
-    DKStaticCache_Allocation,
     DKStaticCache_Comparison,
     DKStaticCache_Collection,
+    DKStaticCache_KeyedCollection,
     DKStaticCache_List,
     DKStaticCache_Dictionary,
     

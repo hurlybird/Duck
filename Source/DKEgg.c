@@ -332,9 +332,9 @@ static const DKEggAttribute * GetAttribute( DKEggUnarchiverRef _self, DKStringRe
 ///
 //  GetClass()
 //
-static DKClassRef GetClass( DKEggUnarchiverRef _self, const DKEggObject * archivedObject )
+static DKClassRef GetClass( DKEggUnarchiverRef _self, uint32_t offset )
 {
-    const char * cstr = (const char *)&_self->data[archivedObject->className];
+    const char * cstr = (const char *)&_self->data[offset];
     DKStringRef className = DKStringCreateWithCString( DKStringClass(), cstr );
     DKClassRef cls = DKClassFromString( className );
     DKRelease( className );
@@ -345,6 +345,25 @@ static DKClassRef GetClass( DKEggUnarchiverRef _self, const DKEggObject * archiv
     }
 
     return cls;
+}
+
+
+///
+//  GetCSelector()
+//
+static DKSEL GetSelector( DKEggUnarchiverRef _self, uint32_t offset )
+{
+    const char * cstr = (const char *)&_self->data[offset];
+    DKStringRef selectorName = DKStringCreateWithCString( DKStringClass(), cstr );
+    DKSEL sel = DKSelectorFromString( selectorName );
+    DKRelease( selectorName );
+    
+    if( !sel )
+    {
+        DKError( "DKEggUnarchiver: %s is not a recognized selector name.\n", cstr );
+    }
+
+    return sel;
 }
 
 
@@ -362,7 +381,7 @@ static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
         const DKEggObject * archivedObject = &_self->objectTable[index];
         
         // Get the class
-        DKClassRef cls = GetClass( _self, archivedObject );
+        DKClassRef cls = GetClass( _self, archivedObject->className );
         
         if( !cls )
             return NULL;
@@ -422,6 +441,12 @@ DKObjectRef DKEggGetObject( DKEggUnarchiverRef _self, DKStringRef key )
     {
         if( attribute->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
             return GetObject( _self, attribute->value );
+        
+        else if( attribute->encoding == DKEncode( DKEncodingTypeClass, 1 ) )
+            return GetClass( _self, attribute->value );
+        
+        else if( attribute->encoding == DKEncode( DKEncodingTypeSelector, 1 ) )
+            return GetSelector( _self, attribute->value );
     }
     
     return NULL;
@@ -625,6 +650,7 @@ struct DKEggArchiver
     DKGenericArray stack;
     DKGenericArray archivedObjects;
     DKGenericHashTable visitedObjects;
+    DKGenericHashTable symbolTable;
     DKByteArray data;
 };
 
@@ -640,6 +666,7 @@ struct VisitedObjectsRow
     DKObjectRef object;
     DKIndex index;
 };
+
 
 
 // Visited List --------------------------------------------------------------------------
@@ -744,6 +771,7 @@ static DKObjectRef DKEggArchiverInit( DKObjectRef _self )
         DKGenericArrayInit( &egg->stack, sizeof(DKIndex) );
         DKGenericArrayInit( &egg->archivedObjects, sizeof(struct ArchivedObject) );
         DKGenericHashTableInit( &egg->visitedObjects, sizeof(struct VisitedObjectsRow), &callbacks );
+        DKGenericHashTableInit( &egg->symbolTable, sizeof(struct VisitedObjectsRow), &callbacks );
         DKByteArrayInit( &egg->data );
 
         // Push an anonymous root object
@@ -783,6 +811,7 @@ static void DKEggArchiverFinalize( DKObjectRef _self )
     DKGenericArrayFinalize( &egg->stack );
     DKGenericArrayFinalize( &egg->archivedObjects );
     DKGenericHashTableFinalize( &egg->visitedObjects );
+    DKGenericHashTableFinalize( &egg->symbolTable );
     DKByteArrayFinalize( &egg->data );
 }
 
@@ -963,15 +992,32 @@ static DKIndex AddEncodedData( DKEggArchiverRef _self, DKEncoding encoding, cons
 
 
 ///
-//  AddClassName()
+//  AddSymbol()
 //
-static DKIndex AddClassName( DKEggArchiverRef _self, DKStringRef className )
+static DKIndex AddSymbol( DKEggArchiverRef _self, DKStringRef symbol )
 {
-    const char * str = DKStringGetCStringPtr( className );
-    DKIndex length = DKStringGetByteLength( className );
+    // Non-constant symbols require different hash table callbacks than the visited list
+    DKAssertKindOfClass( symbol, DKConstantStringClass() );
+
+    // Check the symbol table first
+    struct VisitedObjectsRow key = { symbol, 0 };
+    const struct VisitedObjectsRow * visitedObject = DKGenericHashTableFind( &_self->symbolTable, &key );
+    
+    if( visitedObject )
+        return visitedObject->index;
+
+    // Add the symbol to the encoded data
+    const char * str = DKStringGetCStringPtr( symbol );
+    DKIndex length = DKStringGetByteLength( symbol );
     
     DKEncoding encoding = DKEncode( DKEncodingTypeTextData, (uint32_t)(length + 1) );
-    return AddEncodedData( _self, encoding, str );
+    DKIndex index = AddEncodedData( _self, encoding, str );
+    
+    // Add the symbol to the symbol table
+    key.index = index;
+    DKGenericHashTableInsert( &_self->symbolTable, &key, DKInsertAlways );
+    
+    return index;
 }
 
 
@@ -1004,7 +1050,7 @@ static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object )
     // Add a new archived object
     struct ArchivedObject newArchivedObject;
     newArchivedObject.object = DKRetain( object );
-    newArchivedObject.className = (uint32_t)AddClassName( _self, DKGetClassName( object ) );
+    newArchivedObject.className = (uint32_t)AddSymbol( _self, DKGetClassName( object ) );
     DKGenericArrayInit( &newArchivedObject.attributes, sizeof(DKEggAttribute) );
     
     DKGenericArrayAppendElements( &_self->archivedObjects, &newArchivedObject, 1 );
@@ -1051,7 +1097,26 @@ void DKEggAddObject( DKEggArchiverRef _self, DKStringRef key, DKObjectRef object
     if( object == NULL )
         return;
 
-    DKIndex index = AddObject( _self, object );
+    DKIndex index;
+    DKEncoding encoding;
+
+    if( DKIsKindOfClass( object, DKClassClass() ) )
+    {
+        index = AddSymbol( _self, DKGetClassName( object ) );
+        encoding = DKEncode( DKEncodingTypeClass, 1 );
+    }
+    
+    else if( DKIsKindOfClass( object, DKSelectorClass() ) )
+    {
+        index = AddSymbol( _self, ((DKSEL)object)->name );
+        encoding = DKEncode( DKEncodingTypeSelector, 1 );
+    }
+
+    else
+    {
+        index = AddObject( _self, object );
+        encoding = DKEncode( DKEncodingTypeObject, 1 );
+    }
     
     // Negative indexes are obviously an error and index 0 is the root object
     if( index > 0 )

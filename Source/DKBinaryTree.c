@@ -73,7 +73,7 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKCollectionCopyDescription;
+    description->copyDescription = (DKCopyDescriptionMethod)DKKeyedCollectionCopyDescription;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -83,12 +83,21 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     collection->getCount = (DKGetCountMethod)DKBinaryTreeGetCount;
     collection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKBinaryTreeApplyFunctionToObjects;
-    collection->containsKey = (DKContainsMethod)DKDictionaryContainsKey;
-    collection->foreachKey = (DKForeachObjectMethod)DKBinaryTreeApplyFunctionToKeys;
-    collection->foreachKeyAndObject = (DKForeachKeyAndObjectMethod)DKBinaryTreeApplyFunction;
     
     DKInstallInterface( cls, collection );
     DKRelease( collection );
+
+    // KeyedCollection
+    struct DKKeyedCollectionInterface * keyedCollection = DKAllocInterface( DKSelector(KeyedCollection), sizeof(struct DKKeyedCollectionInterface) );
+    keyedCollection->getCount = (DKGetCountMethod)DKBinaryTreeGetCount;
+    keyedCollection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
+    keyedCollection->foreachObject = (DKForeachObjectMethod)DKBinaryTreeApplyFunctionToObjects;
+    keyedCollection->containsKey = (DKContainsMethod)DKDictionaryContainsKey;
+    keyedCollection->foreachKey = (DKForeachObjectMethod)DKBinaryTreeApplyFunctionToKeys;
+    keyedCollection->foreachKeyAndObject = (DKForeachKeyAndObjectMethod)DKBinaryTreeApplyFunction;
+    
+    DKInstallInterface( cls, keyedCollection );
+    DKRelease( keyedCollection );
 
     // Dictionary
     struct DKDictionaryInterface * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );

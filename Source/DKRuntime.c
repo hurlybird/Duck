@@ -188,7 +188,7 @@ DKClassRef DKObjectClass( void )
     }
 
 
-DKStaticFastSelectorInit( Allocation );
+DKStaticSelectorInit( Allocation );
 DKStaticFastSelectorInit( Comparison );
 DKStaticSelectorInit( Copying );
 DKStaticSelectorInit( Description );

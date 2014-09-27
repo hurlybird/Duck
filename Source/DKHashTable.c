@@ -70,7 +70,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKCollectionCopyDescription;
+    description->copyDescription = (DKCopyDescriptionMethod)DKKeyedCollectionCopyDescription;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -80,12 +80,21 @@ DKThreadSafeClassInit( DKHashTableClass )
     collection->getCount = (DKGetCountMethod)DKDictionaryGetCount;
     collection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKHashTableApplyFunctionToObjects;
-    collection->containsKey = (DKContainsMethod)DKDictionaryContainsKey;
-    collection->foreachKey = (DKForeachObjectMethod)DKHashTableApplyFunctionToKeys;
-    collection->foreachKeyAndObject = (DKForeachKeyAndObjectMethod)DKHashTableApplyFunction;
     
     DKInstallInterface( cls, collection );
     DKRelease( collection );
+
+    // KeyedCollection
+    struct DKKeyedCollectionInterface * keyedCollection = DKAllocInterface( DKSelector(KeyedCollection), sizeof(struct DKKeyedCollectionInterface) );
+    keyedCollection->getCount = (DKGetCountMethod)DKDictionaryGetCount;
+    keyedCollection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
+    keyedCollection->foreachObject = (DKForeachObjectMethod)DKHashTableApplyFunctionToObjects;
+    keyedCollection->containsKey = (DKContainsMethod)DKDictionaryContainsKey;
+    keyedCollection->foreachKey = (DKForeachObjectMethod)DKHashTableApplyFunctionToKeys;
+    keyedCollection->foreachKeyAndObject = (DKForeachKeyAndObjectMethod)DKHashTableApplyFunction;
+    
+    DKInstallInterface( cls, keyedCollection );
+    DKRelease( keyedCollection );
 
     // Dictionary
     struct DKDictionaryInterface * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );

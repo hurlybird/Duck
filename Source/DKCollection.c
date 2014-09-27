@@ -30,6 +30,7 @@
 
 
 DKThreadSafeFastSelectorInit( Collection );
+DKThreadSafeFastSelectorInit( KeyedCollection );
 
 
 ///
@@ -94,7 +95,7 @@ bool DKContainsKey( DKObjectRef _self, DKObjectRef key )
 {
     if( _self )
     {
-        DKCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(Collection) );
+        DKKeyedCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(KeyedCollection) );
         return collection->containsKey( _self, key );
     }
     
@@ -139,7 +140,7 @@ int DKForeachKey( DKObjectRef _self, DKApplierFunction callback, void * context 
 {
     if( _self )
     {
-        DKCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(Collection) );
+        DKKeyedCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(KeyedCollection) );
         
         if( collection->foreachKey )
         {
@@ -164,7 +165,7 @@ int DKForeachKeyAndObject( DKObjectRef _self, DKKeyedApplierFunction callback, v
 {
     if( _self )
     {
-        DKCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(Collection) );
+        DKKeyedCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(KeyedCollection) );
         
         if( collection->foreachKeyAndObject )
         {
@@ -208,6 +209,29 @@ static int PrintDescriptionCallback( DKObjectRef object, void * context )
     return 0;
 }
 
+DKStringRef DKCollectionCopyDescription( DKObjectRef _self )
+{
+    DKMutableStringRef desc = DKStringCreateMutable();
+
+    DKCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(Collection) );
+    
+    DKIndex count = collection->getCount( _self );
+    
+    DKSPrintf( desc, "%@, %d objects = (", DKGetClassName( _self ), count );
+    
+    struct PrintDescriptionContext context = { desc, 0 };
+
+    collection->foreachObject( _self, PrintDescriptionCallback, &context );
+    
+    DKSPrintf( desc, "\n)\n" );
+    
+    return desc;
+}
+
+
+///
+//  DKKeyedCollectionCopyDescription()
+//
 static int PrintKeyedDescriptionCallback( DKObjectRef key, DKObjectRef object, void * context )
 {
     struct PrintDescriptionContext * ctx = context;
@@ -231,11 +255,11 @@ static int PrintKeyedDescriptionCallback( DKObjectRef key, DKObjectRef object, v
     return 0;
 }
 
-DKStringRef DKCollectionCopyDescription( DKObjectRef _self )
+DKStringRef DKKeyedCollectionCopyDescription( DKObjectRef _self )
 {
     DKMutableStringRef desc = DKStringCreateMutable();
 
-    DKCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(Collection) );
+    DKKeyedCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(KeyedCollection) );
     
     DKIndex count = collection->getCount( _self );
     
@@ -243,11 +267,7 @@ DKStringRef DKCollectionCopyDescription( DKObjectRef _self )
     
     struct PrintDescriptionContext context = { desc, 0 };
 
-    if( collection->foreachKeyAndObject )
-        collection->foreachKeyAndObject( _self, PrintKeyedDescriptionCallback, &context );
-    
-    else
-        collection->foreachObject( _self, PrintDescriptionCallback, &context );
+    collection->foreachKeyAndObject( _self, PrintKeyedDescriptionCallback, &context );
     
     DKSPrintf( desc, "\n)\n" );
     
