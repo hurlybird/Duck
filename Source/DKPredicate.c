@@ -29,6 +29,7 @@
 #include "DKStream.h"
 #include "DKNumber.h"
 #include "DKCollection.h"
+#include "DKEgg.h"
 
 
 
@@ -55,6 +56,10 @@ static bool PredicateOpTableInitialized = false;
 
 static DKObjectRef  DKPredicateInitialize( DKObjectRef _self );
 static void         DKPredicateFinalize( DKObjectRef _self );
+
+static DKObjectRef  DKPredicateInitWithEgg( DKPredicateRef _self, DKEggUnarchiverRef egg );
+static void         DKPredicateAddToEgg( DKPredicateRef _self, DKEggArchiverRef egg );
+
 static DKStringRef  DKPredicateCopyDescription( DKObjectRef _self );
 
 static const struct PredicateOpInfo * GetPredicateOpInfo( DKPredicateOp op );
@@ -88,6 +93,14 @@ DKThreadSafeClassInit( DKPredicateClass )
     DKInstallInterface( cls, description );
     DKRelease( description );
     
+    // Egg
+    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    egg->initWithEgg = (DKInitWithEggMethod)DKPredicateInitWithEgg;
+    egg->addToEgg = (DKAddToEggMethod)DKPredicateAddToEgg;
+    
+    DKInstallInterface( cls, egg );
+    DKRelease( egg );
+
     return cls;
 }
 
@@ -114,6 +127,38 @@ static void DKPredicateFinalize( DKObjectRef _self )
 
 
 ///
+//  DKPredicateInitWithEgg()
+//
+static DKObjectRef DKPredicateInitWithEgg( DKPredicateRef _self, DKEggUnarchiverRef egg )
+{
+    struct DKPredicate * predicate = (struct DKPredicate *)_self;
+
+    DKStringRef op = DKEggGetObject( egg, DKSTR( "op" ) );
+    predicate->op = DKPredicateOpFromString( op );
+
+    predicate->a = DKRetain( DKEggGetObject( egg, DKSTR( "a" ) ) );
+
+    predicate->b = DKRetain( DKEggGetObject( egg, DKSTR( "b" ) ) );
+
+    return _self;
+}
+
+
+///
+//  DKPredicateAddToEgg()
+//
+static void DKPredicateAddToEgg( DKPredicateRef _self, DKEggArchiverRef egg )
+{
+    DKStringRef op = DKStringFromPredicateOp( _self->op );
+    DKEggAddObject( egg, DKSTR( "op" ), op );
+
+    DKEggAddObject( egg, DKSTR( "a" ), _self->a );
+
+    DKEggAddObject( egg, DKSTR( "b" ), _self->b );
+}
+
+
+///
 //  DKPredicateCopyDescription()
 //
 static DKStringRef DKPredicateCopyDescription( DKObjectRef _self )
@@ -121,23 +166,25 @@ static DKStringRef DKPredicateCopyDescription( DKObjectRef _self )
     DKPredicateRef predicate = (DKPredicateRef)_self;
 
     if( (predicate->op == DKPredicateFALSE) || (predicate->op == DKPredicateTRUE) )
-        return DKPredicateOpToString( predicate->op );
+        return DKStringFromPredicateOp( predicate->op );
 
     DKMutableStringRef desc = DKStringCreateMutable();
 
-    DKObjectRef a = predicate->a ? predicate->a : DKSTR( "$OBJECT" );
-    DKObjectRef b = predicate->b ? predicate->b : DKSTR( "$OBJECT" );
+    DKObjectRef a = predicate->a ? predicate->a : DKSTR( "*" );
+    DKObjectRef b = predicate->b ? predicate->b : DKSTR( "*" );
 
-    if( predicate->op == DKPredicateNOT )
+    if( (predicate->op == DKPredicateNOT) ||
+        ((predicate->op == DKPredicateAND) && (predicate->b == NULL)) ||
+        ((predicate->op == DKPredicateOR) && (predicate->b == NULL)) )
     {
     
-        DKSPrintf( desc, "(%@ %@)", DKPredicateOpToString( predicate->op ), a );
+        DKSPrintf( desc, "%@ %@", DKStringFromPredicateOp( predicate->op ), a );
         return desc;
     }
     
     else
     {
-        DKSPrintf( desc, "(%@ %@ %@)", DKPredicateOpToString( predicate->op ), a, b );
+        DKSPrintf( desc, "%@ %@ %@", a, DKStringFromPredicateOp( predicate->op ), b );
         return desc;
     }
 }
@@ -499,9 +546,9 @@ static void InitPredicateOpInfoTable( void )
 
 
 ///
-//  DKPredicateOpToString()
+//  DKStringFromPredicateOp()
 //
-DKStringRef DKPredicateOpToString( DKPredicateOp op )
+DKStringRef DKStringFromPredicateOp( DKPredicateOp op )
 {
     DKAssert( (op >= 0) && (op < DKMaxPredicateOp) );
 
@@ -511,9 +558,9 @@ DKStringRef DKPredicateOpToString( DKPredicateOp op )
 
 
 ///
-//  DKStringToPredicateOp()
+//  DKPredicateOpFromString()
 //
-DKPredicateOp DKStringToPredicateOp( DKStringRef str )
+DKPredicateOp DKPredicateOpFromString( DKStringRef str )
 {
     InitPredicateOpInfoTable();
 

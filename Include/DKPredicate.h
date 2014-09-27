@@ -81,8 +81,8 @@ DKPredicateRef DKPredicateCreate( DKPredicateOp op, DKObjectRef a, DKObjectRef b
 bool DKPredicateEvaluate( DKPredicateRef _self );
 bool DKPredicateEvaluateWithObject( DKPredicateRef _self, DKObjectRef subst );
 
-DKStringRef DKPredicateOpToString( DKPredicateOp op );
-DKPredicateOp DKStringToPredicateOp( DKStringRef str );
+DKStringRef DKStringFromPredicateOp( DKPredicateOp op );
+DKPredicateOp DKPredicateOpFromString( DKStringRef str );
 
 bool DKEvaluate( DKObjectRef obj );
 

@@ -357,12 +357,12 @@ static DKObjectRef DKStringInitWithEgg( DKStringRef _self, DKEggUnarchiverRef eg
 ///
 //  DKStringAddToEgg()
 //
-static void DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef archiver )
+static void DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef egg )
 {
     DKIndex length = _self->byteArray.length;
     
     if( length > 0 )
-        DKEggAddTextData( archiver, DKSTR( "str" ), (const char *)_self->byteArray.bytes, length );
+        DKEggAddTextData( egg, DKSTR( "str" ), (const char *)_self->byteArray.bytes, length );
 }
 
 

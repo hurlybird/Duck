@@ -238,7 +238,7 @@ static void FailedSemanticRequirement( DKObjectRef _self, DKPropertyRef property
     do                                                                                  \
     {                                                                                   \
         if( (property->semantic != NULL) &&                                             \
-            !DKStringEqual( semantic, property->semantic ) )                            \
+            !DKStringEqualToString( semantic, property->semantic ) )                    \
         {                                                                               \
             FailedSemanticRequirement( obj, property, semantic );                       \
             return __VA_ARGS__;                                                         \
