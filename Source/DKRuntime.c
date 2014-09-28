@@ -1139,10 +1139,12 @@ static DKInterface * DKLookupInterface( DKClassRef _class, DKSEL sel )
             #if SPIN_LOCKED_CACHE_ACCESS
             DKSpinLockUnlock( &cls->interfacesLock );
             #endif
+            
+            return interface;
         }
     }
 
-    return interface;
+    return NULL;
 }
 
 
@@ -1603,8 +1605,6 @@ void DKDealloc( DKObjectRef _self )
 
     DKAllocationInterfaceRef allocation;
 
-    // *** allocation->dealloc caused an exception once ***
-    
     if( DKQueryInterface( obj, DKSelector(Allocation), (DKInterfaceRef *)&allocation ) )
         allocation->dealloc( obj );
     
@@ -1779,6 +1779,9 @@ DKStringRef DKCopyDescription( DKObjectRef _self )
 {
     if( _self )
     {
+        if( DKIsKindOfClass( _self, DKClassClass() ) )
+            return DKRetain( DKGetClassName( _self ) );
+
         DKDescriptionInterfaceRef description = DKGetInterface( _self, DKSelector(Description) );
         return description->copyDescription( _self );
     }

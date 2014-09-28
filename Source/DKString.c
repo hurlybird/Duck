@@ -76,7 +76,7 @@ DKThreadSafeClassInit( DKStringClass )
     // Allocation
     struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
     allocation->alloc = (DKAllocMethod)DKStringAllocPlaceholder;
-    allocation->dealloc = DKDeallocObject;
+    allocation->dealloc = (DKDeallocMethod)DKStringDealloc;
 
     DKInstallInterface( cls, allocation );
     DKRelease( allocation );
@@ -101,7 +101,7 @@ DKThreadSafeClassInit( DKStringClass )
 
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKStringCopyDescription;
+    description->copyDescription = (DKCopyDescriptionMethod)DKRetain;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -155,6 +155,13 @@ DKThreadSafeClassInit( DKMutableStringClass )
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
+    
+    // Description
+    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    description->copyDescription = (DKCopyDescriptionMethod)DKStringCopy;
+    
+    DKInstallInterface( cls, description );
+    DKRelease( description );
     
     // Stream
     struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
@@ -266,6 +273,18 @@ static void * DKStringAllocPlaceholder( DKClassRef _class, size_t extraBytes )
 
 
 ///
+//  DKStringDealloc()
+//
+static void DKStringDealloc( DKStringRef _self )
+{
+    if( _self == &DKPlaceholderString )
+        return;
+    
+    DKDeallocObject( _self );
+}
+
+
+///
 //  DKStringInit()
 //
 static DKObjectRef DKStringInit( DKObjectRef _self )
@@ -363,24 +382,6 @@ static void DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef egg )
     
     if( length > 0 )
         DKEggAddTextData( egg, DKSTR( "str" ), (const char *)_self->byteArray.bytes, length );
-}
-
-
-///
-//  DKStringCopyDescription()
-//
-DKStringRef DKStringCopyDescription( DKStringRef _self )
-{
-    if( DKIsMemberOfClass( _self, DKMutableStringClass() ) )
-        return DKStringCopy( _self );
-    
-    else if( DKIsKindOfClass( _self, DKStringClass() ) )
-        return DKRetain( _self );
-        
-    else if( DKIsKindOfClass( _self, DKClassClass() ) )
-        return DKRetain( DKGetClassName( _self ) );
-    
-    return NULL;
 }
 
 

@@ -192,6 +192,8 @@ static dk_free_callback free_callback = NULL;
 //
 void DKSetExternalAllocator( dk_malloc_callback _malloc, dk_free_callback _free )
 {
+    DKFatal( !DKRuntimeIsInitialized() );
+
     malloc_callback = _malloc;
     free_callback = _free;
 }
