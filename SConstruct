@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+import os
+from os import path
+
+
 # Read some configuration from the command line
 platform = ARGUMENTS.get( 'os', Platform() )
 architecture = ARGUMENTS.get( 'arch', 'x86_64' )
@@ -18,7 +22,6 @@ else:
 
 # Set include paths
 cpppath = [
-	'Include',
 	'ThirdParty',
 	'ThirdParty/icu'
 ]
@@ -27,29 +30,45 @@ cpppath = [
 env = Environment( PLATFORM=platform, ARCH=architecture, CC=compiler, CCFLAGS=ccflags, CPPPATH=cpppath )
 
 # Build inside a build/platform/architecture specific location
-builddir = 'Build/'
+builddir = 'Build'
 
 if debug:
-	builddir += 'debug/'
+	builddir = path.join( builddir, 'Debug' )
 	
 else:
-	builddir += 'release/'
+	builddir = path.join( builddir, 'Release' )
 
-builddir += str( platform ) + '/' + architecture + '/'
+builddir = path.join( builddir, str( platform ), architecture )
 
 # Gather source file locations
 sourcedirs = [
 	'Source', 
-	'ThirdParty/icu' 
+	path.join( 'ThirdParty', 'icu' )
+]
+
+headerdirs = [
+	'.',
+	'Source'
 ]
 
 # Compile
 objects = []
 
 for sourcedir in sourcedirs:
-	env.VariantDir( builddir + sourcedir, sourcedir )
-	objects += env.Object( Glob( builddir + sourcedir + '/*.c' ) )
+	env.VariantDir( path.join( builddir, sourcedir ), sourcedir )
+	objects += env.Object( Glob( path.join( builddir, sourcedir, '*.c' ) ) )
 
 # Link
-StaticLibrary( builddir + 'duck', objects )
+StaticLibrary( path.join( builddir, 'duck' ), objects )
+
+# Copy public headers
+publicdir = path.join( builddir, 'Include' )
+
+for headerdir in headerdirs:
+	headers = Glob( path.join( headerdir, '*.h' ) )
+	for header in headers:
+		src = str( header )
+		dst = path.join( publicdir, path.basename( src ) )
+		Command( dst, src, Copy( "$TARGET", "$SOURCE" ) )
+
 

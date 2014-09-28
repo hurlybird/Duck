@@ -23,7 +23,7 @@ The Duck source is distributed under the MIT License. Any packages under the
 
 Duck is written in XCode and includes targets for Mac OS and iOS. It should
 compile anywhere with a C99 compliant compiler. A few types and functions,
-particularly those related to atomic operations will likely need to be redefined
+particularly those related to atomic operations, will likely need to be redefined
 on non-Apple or non-POSIX systems.
 
 A basic SConstruct file is included for building with scons.
