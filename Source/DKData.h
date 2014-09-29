@@ -37,6 +37,8 @@ typedef struct DKData * DKMutableDataRef;
 DKClassRef  DKDataClass( void );
 DKClassRef  DKMutableDataClass( void );
 
+// *** NOTE: Update this interface to alloc/init with placeholder ***
+
 #define     DKDataCreateEmpty()    DKCreate( DKDataClass() )
 DKMutableDataRef DKDataCreateMutable( DKIndex reserveLength );
 

@@ -98,8 +98,8 @@ DKThreadSafeClassInit( DKHashTableClass )
 
     // Dictionary
     struct DKDictionaryInterface * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );
-    dictionary->createWithVAKeysAndObjects = (DKDictionaryCreateWithVAKeysAndObjectsMethod)DKHashTableCreateDictionaryWithVAKeysAndObjects;
-    dictionary->createWithDictionary = (DKDictionaryCreateWithDictionaryMethod)DKHashTableCreateDictionaryWithDictionary;
+    dictionary->initWithVAKeysAndObjects = (DKDictionaryInitWithVAKeysAndObjectsMethod)DKHashTableInitDictionaryWithVAKeysAndObjects;
+    dictionary->initWithDictionary = (DKDictionaryInitWithDictionaryMethod)DKHashTableInitDictionaryWithDictionary;
     
     dictionary->getCount = (DKGetCountMethod)DKHashTableGetCount;
     dictionary->getObject = (DKDictionaryGetObjectMethod)DKHashTableGetObject;
@@ -113,9 +113,9 @@ DKThreadSafeClassInit( DKHashTableClass )
     
     // Set
     struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
-    set->createWithVAObjects = DKHashTableCreateSetWithVAObjects;
-    set->createWithCArray = DKHashTableCreateSetWithCArray;
-    set->createWithCollection = DKHashTableCreateSetWithCollection;
+    set->initWithVAObjects = (DKSetInitWithVAObjectsMethod)DKHashTableInitSetWithVAObjects;
+    set->initWithCArray = (DKSetInitWithCArrayMethod)DKHashTableInitSetWithCArray;
+    set->initWithCollection = (DKSetInitWithCollectionMethod)DKHashTableInitSetWithCollection;
     
     set->getCount = (DKGetCountMethod)DKHashTableGetCount;
     set->getMember = (DKSetGetMemberMethod)DKHashTableGetObject;
@@ -148,8 +148,8 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
 
     // Dictionary
     struct DKDictionaryInterface * dictionary = DKAllocInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );
-    dictionary->createWithVAKeysAndObjects = (DKDictionaryCreateWithVAKeysAndObjectsMethod)DKHashTableCreateDictionaryWithVAKeysAndObjects;
-    dictionary->createWithDictionary = (DKDictionaryCreateWithDictionaryMethod)DKHashTableCreateDictionaryWithDictionary;
+    dictionary->initWithVAKeysAndObjects = (DKDictionaryInitWithVAKeysAndObjectsMethod)DKHashTableInitDictionaryWithVAKeysAndObjects;
+    dictionary->initWithDictionary = (DKDictionaryInitWithDictionaryMethod)DKHashTableInitDictionaryWithDictionary;
 
     dictionary->getCount = (DKGetCountMethod)DKHashTableGetCount;
     dictionary->getObject = (DKDictionaryGetObjectMethod)DKHashTableGetObject;
@@ -163,9 +163,9 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     
     // Set
     struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
-    set->createWithVAObjects = DKHashTableCreateSetWithVAObjects;
-    set->createWithCArray = DKHashTableCreateSetWithCArray;
-    set->createWithCollection = DKHashTableCreateSetWithCollection;
+    set->initWithVAObjects = (DKSetInitWithVAObjectsMethod)DKHashTableInitSetWithVAObjects;
+    set->initWithCArray = (DKSetInitWithCArrayMethod)DKHashTableInitSetWithCArray;
+    set->initWithCollection = (DKSetInitWithCollectionMethod)DKHashTableInitSetWithCollection;
 
     set->getCount = (DKGetCountMethod)DKHashTableGetCount;
     set->getMember = (DKSetGetMemberMethod)DKHashTableGetObject;
@@ -341,19 +341,16 @@ static void DKHashTableFinalize( DKObjectRef _self )
 
 
 ///
-//  DKHashTableCreateDictionaryWithVAKeysAndObjects()
+//  DKHashTableInitDictionaryWithVAKeysAndObjects()
 //
-DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects )
+DKObjectRef DKHashTableInitDictionaryWithVAKeysAndObjects( DKHashTableRef _self, va_list keysAndObjects )
 {
-    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
-
-    if( _class == NULL )
-        _class = DKHashTableClass();
-
-    struct DKHashTable * hashTable = DKCreate( _class );
+    struct DKHashTable * hashTable = DKInit( _self );
         
     if( hashTable )
     {
+        DKAssertKindOfClass( hashTable, DKHashTableClass() );
+
         DKObjectRef key;
     
         while( (key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
@@ -374,19 +371,15 @@ DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, 
 
 
 ///
-//  DKHashTableCreateDictionaryWithDictionary()
+//  DKHashTableInitDictionaryWithDictionary()
 //
-DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef dictionary )
+DKObjectRef DKHashTableInitDictionaryWithDictionary( DKHashTableRef _self, DKDictionaryRef dictionary )
 {
-    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
-
-    if( _class == NULL )
-        _class = DKHashTableClass();
-
-    struct DKHashTable * hashTable = DKCreate( _class );
-        
+    struct DKHashTable * hashTable = DKInit( _self );
+    
     if( hashTable )
     {
+        DKAssertKindOfClass( hashTable, DKHashTableClass() );
         DKForeachKeyAndObject( dictionary, InsertKeyAndObject, hashTable );
     }
     
@@ -395,19 +388,16 @@ DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDict
 
 
 ///
-//  DKHashTableCreateSetWithVAObjects()
+//  DKHashTableInitSetWithVAObjects()
 //
-DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list objects )
+DKObjectRef DKHashTableInitSetWithVAObjects( DKHashTableRef _self, va_list objects )
 {
-    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
-
-    if( _class == NULL )
-        _class = DKHashTableClass();
-
-    struct DKHashTable * hashTable = DKCreate( _class );
-        
+    struct DKHashTable * hashTable = DKInit( _self );
+    
     if( hashTable )
     {
+        DKAssertKindOfClass( hashTable, DKHashTableClass() );
+
         struct DKHashTableRow row;
     
         while( (row.key = va_arg( objects, DKObjectRef ) ) != NULL )
@@ -424,19 +414,16 @@ DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list object
 
 
 ///
-//  DKHashTableCreateSetWithCArray()
+//  DKHashTableInitSetWithCArray()
 //
-DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+DKObjectRef DKHashTableInitSetWithCArray( DKHashTableRef _self, DKObjectRef objects[], DKIndex count )
 {
-    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
-
-    if( _class == NULL )
-        _class = DKHashTableClass();
-
-    struct DKHashTable * hashTable = DKCreate( _class );
-        
+    struct DKHashTable * hashTable = DKInit( _self );
+    
     if( hashTable )
     {
+        DKAssertKindOfClass( hashTable, DKHashTableClass() );
+
         struct DKHashTableRow row;
 
         for( DKIndex i = 0; i < count; ++i )
@@ -454,19 +441,15 @@ DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objec
 
 
 ///
-//  DKHashTableCreateSetWithCollection()
+//  DKHashTableInitSetWithCollection()
 //
-DKObjectRef DKHashTableCreateSetWithCollection( DKClassRef _class, DKObjectRef collection )
+DKObjectRef DKHashTableInitSetWithCollection( DKHashTableRef _self, DKObjectRef collection )
 {
-    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKHashTableClass() ) );
-
-    if( _class == NULL )
-        _class = DKHashTableClass();
-
-    struct DKHashTable * hashTable = DKCreate( _class );
-        
+    struct DKHashTable * hashTable = DKInit( _self );
+    
     if( hashTable )
     {
+        DKAssertKindOfClass( hashTable, DKHashTableClass() );
         DKForeachObject( collection, InsertObject, hashTable );
     }
     

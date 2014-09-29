@@ -38,8 +38,8 @@ typedef const void * DKDictionaryRef;
 typedef void * DKMutableDictionaryRef;
 
 
-typedef DKObjectRef (*DKDictionaryCreateWithVAKeysAndObjectsMethod)( DKClassRef _class, va_list keysAndObjects );
-typedef DKObjectRef (*DKDictionaryCreateWithDictionaryMethod)( DKClassRef _class, DKDictionaryRef srcDictionary );
+typedef DKObjectRef (*DKDictionaryInitWithVAKeysAndObjectsMethod)( DKClassRef _class, va_list keysAndObjects );
+typedef DKObjectRef (*DKDictionaryInitWithDictionaryMethod)( DKClassRef _class, DKDictionaryRef srcDictionary );
 
 typedef DKObjectRef (*DKDictionaryGetObjectMethod)( DKDictionaryRef _self, DKObjectRef key );
 
@@ -52,8 +52,8 @@ struct DKDictionaryInterface
 {
     const DKInterface _interface;
 
-    DKDictionaryCreateWithVAKeysAndObjectsMethod    createWithVAKeysAndObjects;
-    DKDictionaryCreateWithDictionaryMethod          createWithDictionary;
+    DKDictionaryInitWithVAKeysAndObjectsMethod initWithVAKeysAndObjects;
+    DKDictionaryInitWithDictionaryMethod       initWithDictionary;
 
     DKGetCountMethod                    getCount;
     DKDictionaryGetObjectMethod         getObject;
@@ -76,8 +76,11 @@ void        DKSetDefaultMutableDictionaryClass( DKClassRef _class );
 #define     DKDictionaryCreateEmpty()    DKCreate( DKDictionaryClass() )
 #define     DKDictionaryCreateMutable()  DKCreate( DKMutableDictionaryClass() )
 
-DKObjectRef DKDictionaryCreateWithKeysAndObjects( DKClassRef _class, DKObjectRef firstKey, ... );
-DKObjectRef DKDictionaryCreateWithDictionary( DKClassRef _class, DKDictionaryRef srcDictionary );
+#define     DKDictionaryCreateWithKeysAndObjects( cls, firstKey, ... )  DKDictionaryInitWithKeysAndObjects( DKAlloc( cls, 0 ), firstKey, __VA_ARGS__ )
+#define     DKDictionaryCreateWithDictionary( cls, srcDictionary )      DKDictionaryInitWithDictionary( DKAlloc( cls, 0 ), srcDictionary )
+
+DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, DKObjectRef firstKey, ... );
+DKObjectRef DKDictionaryInitWithDictionary( DKDictionaryRef _self, DKDictionaryRef srcDictionary );
 
 DKIndex     DKDictionaryGetCount( DKDictionaryRef _self );
 DKObjectRef DKDictionaryGetObject( DKDictionaryRef _self, DKObjectRef key );

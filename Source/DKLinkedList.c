@@ -93,9 +93,9 @@ DKThreadSafeClassInit( DKLinkedListClass )
 
     // List
     struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
-    list->createWithVAObjects = (DKListCreateWithVAObjectsMethod)DKLinkedListCreateWithVAObjects;
-    list->createWithCArray = (DKListCreateWithCArrayMethod)DKLinkedListCreateWithCArray;
-    list->createWithCollection = (DKListCreateWithCollectionMethod)DKLinkedListCreateWithCollection;
+    list->initWithVAObjects = (DKListInitWithVAObjectsMethod)DKLinkedListInitWithVAObjects;
+    list->initWithCArray = (DKListInitWithCArrayMethod)DKLinkedListInitWithCArray;
+    list->initWithCollection = (DKListInitWithCollectionMethod)DKLinkedListInitWithCollection;
     
     list->getCount = (DKGetCountMethod)DKLinkedListGetCount;
     list->getObjectAtIndex = (DKListGetObjectAtIndexMethod)DKLinkedListGetObjectAtIndex;
@@ -113,16 +113,16 @@ DKThreadSafeClassInit( DKLinkedListClass )
     
     // Set
     struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
-    set->createWithVAObjects = DKListCreateSetWithVAObjects;
-    set->createWithCArray = DKListCreateSetWithCArray;
-    set->createWithCollection = DKListCreateSetWithCollection;
+    set->initWithVAObjects = DKListInitSetWithVAObjects;
+    set->initWithCArray = DKListInitSetWithCArray;
+    set->initWithCollection = DKListInitSetWithCollection;
 
     set->getCount = (DKGetCountMethod)DKLinkedListGetCount;
     set->getMember = DKListGetMemberOfSet;
     
-    set->addObject = DKListAddObjectToSet;
-    set->removeObject = DKListRemoveObject;
-    set->removeAllObjects = DKListRemoveAllObjects;
+    set->addObject = (void *)DKImmutableObjectAccessError;
+    set->removeObject = (void *)DKImmutableObjectAccessError;
+    set->removeAllObjects = (void *)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, set );
     DKRelease( set );
@@ -148,9 +148,9 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
 
     // List
     struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
-    list->createWithVAObjects = (DKListCreateWithVAObjectsMethod)DKLinkedListCreateWithVAObjects;
-    list->createWithCArray = (DKListCreateWithCArrayMethod)DKLinkedListCreateWithCArray;
-    list->createWithCollection = (DKListCreateWithCollectionMethod)DKLinkedListCreateWithCollection;
+    list->initWithVAObjects = (DKListInitWithVAObjectsMethod)DKLinkedListInitWithVAObjects;
+    list->initWithCArray = (DKListInitWithCArrayMethod)DKLinkedListInitWithCArray;
+    list->initWithCollection = (DKListInitWithCollectionMethod)DKLinkedListInitWithCollection;
 
     list->getCount = (DKGetCountMethod)DKLinkedListGetCount;
     list->getObjectAtIndex = (DKListGetObjectAtIndexMethod)DKLinkedListGetObjectAtIndex;
@@ -166,6 +166,22 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     DKInstallInterface( cls, list );
     DKRelease( list );
     
+    // Set
+    struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    set->initWithVAObjects = DKListInitSetWithVAObjects;
+    set->initWithCArray = DKListInitSetWithCArray;
+    set->initWithCollection = DKListInitSetWithCollection;
+
+    set->getCount = (DKGetCountMethod)DKLinkedListGetCount;
+    set->getMember = DKListGetMemberOfSet;
+    
+    set->addObject = DKListAddObjectToSet;
+    set->removeObject = DKListRemoveObject;
+    set->removeAllObjects = DKListRemoveAllObjects;
+    
+    DKInstallInterface( cls, set );
+    DKRelease( set );
+
     return cls;
 }
 
@@ -517,70 +533,59 @@ static void DKLinkedListFinalize( DKObjectRef _self )
 
 
 ///
-//  DKLinkedListCreateWithVAObjects()
+//  DKLinkedListInitWithVAObjects()
 //
-DKObjectRef DKLinkedListCreateWithVAObjects( DKClassRef _class, va_list objects )
+DKObjectRef DKLinkedListInitWithVAObjects( DKLinkedListRef _self, va_list objects )
 {
-    DKAssert( (_class != NULL) || DKIsSubclass( _class, DKLinkedListClass() ) );
+    _self = DKInit( _self );
     
-    if( _class == NULL )
-        _class = DKLinkedListClass();
-
-    struct DKLinkedList * list = DKCreate( _class );
-
-    if( list )
+    if( _self )
     {
+        DKAssertKindOfClass( _self, DKLinkedListClass() );
+
         DKObjectRef object;
         
         while( (object = va_arg( objects, DKObjectRef )) != NULL )
         {
-            ReplaceRangeWithCArray( list, DKRangeMake( list->count, 0 ), &object, 1 );
+            ReplaceRangeWithCArray( (struct DKLinkedList *)_self, DKRangeMake( _self->count, 0 ), &object, 1 );
         }
     }
 
-    return list;
+    return _self;
 }
 
 
 ///
-//  DKLinkedListCreateWithCArray()
+//  DKLinkedListInitWithCArray()
 //
-DKObjectRef DKLinkedListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+DKObjectRef DKLinkedListInitWithCArray( DKLinkedListRef _self, DKObjectRef objects[], DKIndex count )
 {
-    DKAssert( (_class != NULL) || DKIsSubclass( _class, DKLinkedListClass() ) );
-    
-    if( _class == NULL )
-        _class = DKLinkedListClass();
+    _self = DKInit( _self );
 
-    struct DKLinkedList * list = DKCreate( _class );
-
-    if( list )
+    if( _self )
     {
-        ReplaceRangeWithCArray( list, DKRangeMake( 0, 0 ), objects, count );
+        DKAssertKindOfClass( _self, DKLinkedListClass() );
+        ReplaceRangeWithCArray( (struct DKLinkedList *)_self, DKRangeMake( 0, 0 ), objects, count );
     }
 
-    return list;
+    return _self;
 }
 
 
 ///
-//  DKLinkedListCreateWithCollection()
+//  DKLinkedListInitWithCollection()
 //
-DKObjectRef DKLinkedListCreateWithCollection( DKClassRef _class, DKObjectRef collection )
+DKObjectRef DKLinkedListInitWithCollection( DKLinkedListRef _self, DKObjectRef collection )
 {
-    DKAssert( (_class != NULL) || DKIsSubclass( _class, DKLinkedListClass() ) );
-    
-    if( _class == NULL )
-        _class = DKLinkedListClass();
+    _self = DKInit( _self );
 
-    struct DKLinkedList * list = DKCreate( _class );
-
-    if( list )
+    if( _self )
     {
-        ReplaceRangeWithCollection( list, DKRangeMake( 0, 0 ), collection );
+        DKAssertKindOfClass( _self, DKLinkedListClass() );
+        ReplaceRangeWithCollection( (struct DKLinkedList *)_self, DKRangeMake( 0, 0 ), collection );
     }
 
-    return list;
+    return _self;
 }
 
 

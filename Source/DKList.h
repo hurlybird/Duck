@@ -37,9 +37,9 @@ DKDeclareInterfaceSelector( List );
 //typedef const void * DKListRef; -- Declared in DKPlatform.h
 typedef void * DKMutableListRef;
 
-typedef DKObjectRef (*DKListCreateWithVAObjectsMethod)( DKClassRef _class, va_list objects );
-typedef DKObjectRef (*DKListCreateWithCArrayMethod)( DKClassRef _class, DKObjectRef objects[], DKIndex count );
-typedef DKObjectRef (*DKListCreateWithCollectionMethod)( DKClassRef _class, DKObjectRef srcCollection );
+typedef DKObjectRef (*DKListInitWithVAObjectsMethod)( DKListRef _self, va_list objects );
+typedef DKObjectRef (*DKListInitWithCArrayMethod)( DKListRef _self, DKObjectRef objects[], DKIndex count );
+typedef DKObjectRef (*DKListInitWithCollectionMethod)( DKListRef _self, DKObjectRef srcCollection );
 
 typedef DKObjectRef (*DKListGetObjectAtIndexMethod)( DKListRef _self, DKIndex index );
 typedef DKIndex     (*DKListGetObjectsInRangeMethod)( DKListRef _self, DKRange range, DKObjectRef objects[] );
@@ -58,9 +58,9 @@ struct DKListInterface
     const DKInterface _interface;
 
     // List creation
-    DKListCreateWithVAObjectsMethod         createWithVAObjects;
-    DKListCreateWithCArrayMethod            createWithCArray;
-    DKListCreateWithCollectionMethod        createWithCollection;
+    DKListInitWithVAObjectsMethod           initWithVAObjects;
+    DKListInitWithCArrayMethod              initWithCArray;
+    DKListInitWithCollectionMethod          initWithCollection;
 
     // Immutable lists
     DKGetCountMethod                        getCount;
@@ -90,16 +90,27 @@ void        DKSetDefaultMutableListClass( DKClassRef _self );
 #define     DKListCreateEmpty()    DKCreate( DKListClass() )
 #define     DKListCreateMutable()  DKCreate( DKMutableListClass() )
 
-DKObjectRef DKListCreateWithObject( DKClassRef _class, DKObjectRef object );
-DKObjectRef DKListCreateWithObjects( DKClassRef _class, ... );
-DKObjectRef DKListCreateWithVAObjects( DKClassRef _class, va_list objects );
-DKObjectRef DKListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKListCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection );
+#define     DKListCreateWithObject( cls, object )           DKListInitWithObject( DKAlloc( cls, 0 ), object )
+#define     DKListCreateWithObjects( cls, ... )             DKListInitWithObjects( DKAlloc( cls, 0 ), __VA_ARGS__ )
+#define     DKListCreateWithVAObjects( cls, objects )       DKListInitWithVAObjects( DKAlloc( cls, 0 ), objects )
+#define     DKListCreateWithCArray( cls, objects, count )   DKListInitWithCArray( DKAlloc( cls, 0 ), objects, count )
+#define     DKListCreateWithCollection( cls, collection )   DKListInitWithCollection( DKAlloc( cls, 0 ), collection )
 
-DKObjectRef DKListCreateSetWithObjects( DKClassRef _class, ... );
-DKObjectRef DKListCreateSetWithVAObjects( DKClassRef _class, va_list objects );
-DKObjectRef DKListCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKListCreateSetWithCollection( DKClassRef _class, DKObjectRef srcCollection );
+#define     DKListCreateSetWithObjects( cls, ... )              DKListInitSetWithObjects( DKAlloc( cls, 0 ), __VA_ARGS__ )
+#define     DKListCreateSetWithVAObjects( cls, objects )        DKListInitSetWithVAObjects( DKAlloc( cls, 0 ), objects )
+#define     DKListCreateSetWithCArray( cls, objects, count )    DKListInitSetWithCArray( DKAlloc( cls, 0 ), objects, count )
+#define     DKListCreateSetWithCollection( cls, collection )    DKListInitSetWithCollection( DKAlloc( cls, 0 ), collection )
+
+DKObjectRef DKListInitWithObject( DKListRef _self, DKObjectRef object );
+DKObjectRef DKListInitWithObjects( DKListRef _self, ... );
+DKObjectRef DKListInitWithVAObjects( DKListRef _self, va_list objects );
+DKObjectRef DKListInitWithCArray( DKListRef _self, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKListInitWithCollection( DKListRef _self, DKObjectRef srcCollection );
+
+DKObjectRef DKListInitSetWithObjects( DKListRef _self, ... );
+DKObjectRef DKListInitSetWithVAObjects( DKListRef _self, va_list objects );
+DKObjectRef DKListInitSetWithCArray( DKListRef _self, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKListInitSetWithCollection( DKListRef _self, DKObjectRef srcCollection );
 
 DKIndex     DKListGetCount( DKListRef _self );
 DKIndex     DKListGetCountOfObject( DKListRef _self, DKObjectRef object );

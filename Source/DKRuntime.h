@@ -286,7 +286,7 @@ DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
 // Alloc/Free Objects ====================================================================
 
 // These functions implement the default allocator for objects. You should never need to
-// call them outside of a custom allocation scheme. See DKAlloc and DKDealloc below.
+// call them outside of a custom allocation scheme. Use DKAlloc and DKDealloc instead.
 void *      DKAllocObject( DKClassRef cls, size_t extraBytes );
 void        DKDeallocObject( DKObjectRef _self );
 
@@ -327,6 +327,7 @@ void *      DKAllocInterface( DKSEL sel, size_t structSize );
 // Replacing interfaces after a class is in use (i.e. implementation swizzling) is not
 // currently supported.
 void        DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
+void        DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interface );
 
 // Install a message handler on a class.
 //
@@ -334,6 +335,7 @@ void        DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
 // Replacing message handlers after a class is in use (i.e. implementation swizzling) is
 // not currently supported.
 void        DKInstallMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
+void        DKInstallClassMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
 
 // Install properties
 //
@@ -351,17 +353,21 @@ void        DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRe
 // or any of its superclasses, DKGetInterace() will report an error and return the
 // DKInterfaceNotFound() interface.
 DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel );
+DKInterfaceRef DKGetClassInterface( DKObjectRef _self, DKSEL sel );
 
 // Check to see if an interface is available for an object.
 bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * interface );
+bool DKQueryClassInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * interface );
 
 // Retrieve an installed message handler. If a matching message handler cannot be found on
 // the class or any of its superclasses, DKGetMsgHandler() will report a warning and
 // return the DKMsgHandlerNotFound() message handler.
 DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel );
+DKMsgHandlerRef DKGetClassMsgHandler( DKObjectRef _self, DKSEL sel );
 
 // Check to see if a message handler is available for an object.
 bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
+bool DKQueryClassMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
 
 // Retrieve installed properties
 DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self );

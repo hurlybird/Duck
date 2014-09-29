@@ -73,132 +73,145 @@ void DKSetDefaultMutableListClass( DKClassRef _self )
 
 
 ///
-//  DKListCreateWithObject()
+//  DKListInitWithObject()
 //
-DKObjectRef DKListCreateWithObject( DKClassRef _class, DKObjectRef object )
+DKObjectRef DKListInitWithObject( DKObjectRef _self, DKObjectRef object )
 {
-    if( _class == NULL )
-        _class = DKListClass();
-    
-    DKListInterfaceRef list = DKGetInterface( _class, DKSelector(List) );
-
-    return list->createWithCArray( _class, NULL, 0 );
+    return DKListInitWithCArray( _self, &object, 1 );
 }
 
 
 ///
-//  DKListCreateWithObjects()
+//  DKListInitWithObjects()
 //
-DKObjectRef DKListCreateWithObjects( DKClassRef _class, ... )
+DKObjectRef DKListInitWithObjects( DKListRef _self, ... )
 {
     va_list arg_ptr;
-    va_start( arg_ptr, _class );
+    va_start( arg_ptr, _self );
     
-    DKObjectRef obj = DKListCreateWithVAObjects( _class, arg_ptr );
+    _self = DKListInitWithVAObjects( _self, arg_ptr );
     
     va_end( arg_ptr );
     
-    return obj;
+    return _self;
 }
 
 
 ///
-//  DKListCreateWithVAObjects()
+//  DKListInitWithVAObjects()
 //
-DKObjectRef DKListCreateWithVAObjects( DKClassRef _class, va_list objects )
+DKObjectRef DKListInitWithVAObjects( DKListRef _self, va_list objects )
 {
-    if( _class == NULL )
-        _class = DKListClass();
+    if( _self )
+    {
+        DKListInterfaceRef listInterface = DKGetInterface( _self, DKSelector(List) );
+        _self = listInterface->initWithVAObjects( _self, objects );
+    }
     
-    DKListInterfaceRef list = DKGetInterface( _class, DKSelector(List) );
-    
-    return list->createWithVAObjects( _class, objects );
+    return _self;
 }
 
 
 ///
-//  DKListCreateWithCArray()
+//  DKListInitWithCArray()
 //
-DKObjectRef DKListCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+DKObjectRef DKListInitWithCArray( DKListRef _self, DKObjectRef objects[], DKIndex count )
 {
-    if( _class == NULL )
-        _class = DKListClass();
+    if( _self )
+    {
+        DKListInterfaceRef listInterface = DKGetInterface( _self, DKSelector(List) );
+        _self = listInterface->initWithCArray( _self, objects, count );
+    }
     
-    DKListInterfaceRef list = DKGetInterface( _class, DKSelector(List) );
-
-    return list->createWithCArray( _class, objects, count );
+    return _self;
 }
 
 
 ///
-//  DKListCreateWithCollection()
+//  DKListInitWithCollection()
 //
-DKObjectRef DKListCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection )
+DKObjectRef DKListInitWithCollection( DKListRef _self, DKObjectRef srcCollection )
 {
-    if( _class == NULL )
-        _class = DKListClass();
+    if( _self )
+    {
+        DKListInterfaceRef listInterface = DKGetInterface( _self, DKSelector(List) );
+        _self = listInterface->initWithCollection( _self, srcCollection );
+    }
     
-    DKListInterfaceRef list = DKGetInterface( _class, DKSelector(List) );
-
-    return list->createWithCollection( _class, srcCollection );
+    return _self;
 }
 
 
 ///
-//  DKListCreateSetWithObjects()
+//  DKListInitSetWithObjects()
 //
-DKObjectRef DKListCreateSetWithObjects( DKClassRef _class, ... )
+DKObjectRef DKListInitSetWithObjects( DKListRef _self, ... )
 {
     va_list arg_ptr;
-    va_start( arg_ptr, _class );
+    va_start( arg_ptr, _self );
     
-    DKObjectRef obj = DKListCreateSetWithVAObjects( _class, arg_ptr );
+    _self = DKListInitSetWithVAObjects( _self, arg_ptr );
     
     va_end( arg_ptr );
     
-    return obj;
+    return _self;
 }
 
 
 ///
-//  DKListCreateSetWithVAObjects()
+//  DKListInitSetWithVAObjects()
 //
-DKObjectRef DKListCreateSetWithVAObjects( DKClassRef _class, va_list objects )
+DKObjectRef DKListInitSetWithVAObjects( DKListRef _self, va_list objects )
 {
-    DKSetRef set = DKSetCreateWithVAObjects( NULL, objects );
-    DKObjectRef list = DKListCreateWithCollection( _class, set );
+    if( _self )
+    {
+        DKSetRef set = DKSetCreateWithVAObjects( NULL, objects );
 
-    DKRelease( set );
+        DKListInterfaceRef listInterface = DKGetInterface( _self, DKSelector(List) );
+        _self = listInterface->initWithCollection( _self, set );
+        
+        DKRelease( set );
+    }
     
-    return list;
+    return _self;
 }
 
 
 ///
-//  DKListCreateSetWithCArray()
+//  DKListInitSetWithCArray()
 //
-DKObjectRef DKListCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+DKObjectRef DKListInitSetWithCArray( DKListRef _self, DKObjectRef objects[], DKIndex count )
 {
-    DKSetRef set = DKSetCreateWithCArray( NULL, objects, count );
-    DKObjectRef list = DKListCreateWithCollection( _class, set );
+    if( _self )
+    {
+        DKSetRef set = DKSetCreateWithCArray( NULL, objects, count );
 
-    DKRelease( set );
+        DKListInterfaceRef listInterface = DKGetInterface( _self, DKSelector(List) );
+        _self = listInterface->initWithCollection( _self, set );
+        
+        DKRelease( set );
+    }
     
-    return list;
+    return _self;
 }
 
 
 ///
-//  DKListCreateSetWithCollection()
+//  DKListInitSetWithCollection()
 //
-DKObjectRef DKListCreateSetWithCollection( DKClassRef _class, DKObjectRef srcCollection )
+DKObjectRef DKListInitSetWithCollection( DKListRef _self, DKObjectRef srcCollection )
 {
-    DKSetRef set = DKSetCreateWithCollection( NULL, srcCollection );
-    DKObjectRef list = DKListCreateWithCollection( _class, set );
+    if( _self )
+    {
+        DKSetRef set = DKSetCreateWithCollection( NULL, srcCollection );
 
-    DKRelease( set );
+        DKListInterfaceRef listInterface = DKGetInterface( _self, DKSelector(List) );
+        _self = listInterface->initWithCollection( _self, set );
+        
+        DKRelease( set );
+    }
     
-    return list;
+    return _self;
 }
 
 

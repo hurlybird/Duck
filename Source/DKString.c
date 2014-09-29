@@ -38,9 +38,9 @@
 
 struct DKString
 {
-    DKObject _obj;
-    DKByteArray byteArray;
-    DKIndex cursor;
+    DKObject _obj;          // 24 bytes
+    DKByteArray byteArray;  // 24 bytes
+    DKIndex cursor;         // 8 bytes
 };
 
 static void *       DKStringAllocPlaceholder( DKClassRef _class, size_t extraBytes );
@@ -78,7 +78,7 @@ DKThreadSafeClassInit( DKStringClass )
     allocation->alloc = (DKAllocMethod)DKStringAllocPlaceholder;
     allocation->dealloc = (DKDeallocMethod)DKStringDealloc;
 
-    DKInstallInterface( cls, allocation );
+    DKInstallClassInterface( cls, allocation );
     DKRelease( allocation );
     
     // Comparison

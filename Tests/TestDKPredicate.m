@@ -45,10 +45,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKNumberRef nope = DKNumberCreateInt32( 0 );
     DKNumberRef yep = DKNumberCreateInt32( 1 );
     
-    DKListRef nope_nope = DKListCreateWithObjects( NULL, nope, nope, NULL );
-    DKListRef nope_yep = DKListCreateWithObjects( NULL, nope, yep, NULL );
-    DKListRef yep_nope = DKListCreateWithObjects( NULL, yep, nope, NULL );
-    DKListRef yep_yep = DKListCreateWithObjects( NULL, yep, yep, NULL );
+    DKListRef nope_nope = DKListCreateWithObjects( DKListClass(), nope, nope, NULL );
+    DKListRef nope_yep = DKListCreateWithObjects( DKListClass(), nope, yep, NULL );
+    DKListRef yep_nope = DKListCreateWithObjects( DKListClass(), yep, nope, NULL );
+    DKListRef yep_yep = DKListCreateWithObjects( DKListClass(), yep, yep, NULL );
 
     // True/False
     PREDICATE( DKPredicateTRUE, NULL, NULL );

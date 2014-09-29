@@ -42,12 +42,12 @@ DKClassRef  DKMutableBinaryTreeClass( void );
 
 DKMutableBinaryTreeRef DKBinaryTreeCreateWithCompareFunction( DKCompareFunction keyCompare );
 
-DKObjectRef DKBinaryTreeCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects );
-DKObjectRef DKBinaryTreeCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef dictionary );
+DKObjectRef DKBinaryTreeInitDictionaryWithVAKeysAndObjects( DKBinaryTreeRef _self, va_list keysAndObjects );
+DKObjectRef DKBinaryTreeInitDictionaryWithDictionary( DKBinaryTreeRef _self, DKDictionaryRef dictionary );
 
-DKObjectRef DKBinaryTreeCreateSetWithVAObjects( DKClassRef _class, va_list objects );
-DKObjectRef DKBinaryTreeCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKBinaryTreeCreateSetWithCollection( DKClassRef _class, DKObjectRef collection );
+DKObjectRef DKBinaryTreeInitSetWithVAObjects( DKBinaryTreeRef _self, va_list objects );
+DKObjectRef DKBinaryTreeInitSetWithCArray( DKBinaryTreeRef _self, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKBinaryTreeInitSetWithCollection( DKBinaryTreeRef _self, DKObjectRef collection );
 
 DKBinaryTreeRef DKBinaryTreeCopy( DKBinaryTreeRef _self );
 DKMutableBinaryTreeRef DKBinaryTreeMutableCopy( DKBinaryTreeRef _self );

@@ -73,37 +73,38 @@ void DKSetDefaultMutableDictionaryClass( DKClassRef _self )
 
 
 ///
-//  DKDictionaryCreateWithKeysAndObjects()
+//  DKDictionaryInitWithKeysAndObjects()
 //
-DKObjectRef DKDictionaryCreateWithKeysAndObjects( DKClassRef _class, DKObjectRef firstKey, ... )
+DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, DKObjectRef firstKey, ... )
 {
-    if( _class == NULL )
-        _class = DKDictionaryClass();
-
-    DKDictionaryInterfaceRef dict = DKGetInterface( _class, DKSelector(Dictionary) );
+    if( _self )
+    {
+        DKDictionaryInterfaceRef dictInterface = DKGetInterface( _self, DKSelector(Dictionary) );
     
-    va_list arg_ptr;
-    va_start( arg_ptr, firstKey );
+        va_list arg_ptr;
+        va_start( arg_ptr, firstKey );
     
-    DKObjectRef obj = dict->createWithVAKeysAndObjects( _class, arg_ptr );
+        _self = dictInterface->initWithVAKeysAndObjects( _self, arg_ptr );
     
-    va_end( arg_ptr );
+        va_end( arg_ptr );
+    }
     
-    return obj;
+    return _self;
 }
 
 
 ///
-//  DKDictionaryCreateWithDictionary()
+//  DKDictionaryInitWithDictionary()
 //
-DKObjectRef DKDictionaryCreateWithDictionary( DKClassRef _class, DKDictionaryRef srcDictionary )
+DKObjectRef DKDictionaryInitWithDictionary( DKDictionaryRef _self, DKDictionaryRef srcDictionary )
 {
-    if( _class == NULL )
-        _class = DKDictionaryClass();
-
-    DKDictionaryInterfaceRef dict = DKGetInterface( _class, DKSelector(Dictionary) );
-
-    return dict->createWithDictionary( _class, srcDictionary );
+    if( _self )
+    {
+        DKDictionaryInterfaceRef dictInterface = DKGetInterface( _self, DKSelector(Dictionary) );
+        _self = dictInterface->initWithDictionary( _self, srcDictionary );
+    }
+    
+    return _self;
 }
 
 

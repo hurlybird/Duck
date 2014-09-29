@@ -56,65 +56,72 @@ void DKSetDefaultMutableSetClass( DKClassRef _self )
 
 
 ///
-//  DKSetCreateWithObjects()
+//  DKSetInitWithObject()
 //
-DKObjectRef DKSetCreateWithObjects( DKClassRef _class, ... )
+DKObjectRef DKSetInitWithObject( DKSetRef _self, DKObjectRef object )
 {
-    if( _class == NULL )
-        _class = DKSetClass();
-    
-    DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
-    
+    return DKSetInitWithCArray( _self, &object, 1 );
+}
+
+
+///
+//  DKSetInitWithObjects()
+//
+DKObjectRef DKSetInitWithObjects( DKSetRef _self, ... )
+{
     va_list arg_ptr;
-    va_start( arg_ptr, _class );
+    va_start( arg_ptr, _self );
     
-    DKObjectRef obj = set->createWithVAObjects( _class, arg_ptr );
+    _self = DKSetInitWithVAObjects( _self, arg_ptr );
     
     va_end( arg_ptr );
     
-    return obj;
+    return _self;
 }
 
 
 ///
-//  DKSetCreateWithVAObjects()
+//  DKSetInitWithVAObjects()
 //
-DKObjectRef DKSetCreateWithVAObjects( DKClassRef _class, va_list objects )
+DKObjectRef DKSetInitWithVAObjects( DKSetRef _self, va_list objects )
 {
-    if( _class == NULL )
-        _class = DKSetClass();
+    if( _self )
+    {
+        DKSetInterfaceRef setInterface = DKGetInterface( _self, DKSelector(Set) );
+        _self = setInterface->initWithVAObjects( _self, objects );
+    }
     
-    DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
-    
-    return set->createWithVAObjects( _class, objects );
+    return _self;
 }
 
 
 ///
-//  DKSetCreateWithCArray()
+//  DKSetInitWithCArray()
 //
-DKObjectRef DKSetCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+DKObjectRef DKSetInitWithCArray( DKSetRef _self, DKObjectRef objects[], DKIndex count )
 {
-    if( _class == NULL )
-        _class = DKSetClass();
+    if( _self )
+    {
+        DKSetInterfaceRef setInterface = DKGetInterface( _self, DKSelector(Set) );
+        _self = setInterface->initWithCArray( _self, objects, count );
+    }
     
-    DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
-
-    return set->createWithCArray( _class, objects, count );
+    return _self;
 }
 
 
 ///
-//  DKSetCreateWithCollection()
+//  DKSetInitWithCollection()
 //
-DKObjectRef DKSetCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection )
+DKObjectRef DKSetInitWithCollection( DKSetRef _self, DKObjectRef srcCollection )
 {
-    if( _class == NULL )
-        _class = DKSetClass();
+    if( _self )
+    {
+        DKSetInterfaceRef setInterface = DKGetInterface( _self, DKSelector(Set) );
+        _self = setInterface->initWithCollection( _self, srcCollection );
+    }
     
-    DKSetInterfaceRef set = DKGetInterface( _class, DKSelector(Set) );
-
-    return set->createWithCollection( _class, srcCollection );
+    return _self;
 }
 
 

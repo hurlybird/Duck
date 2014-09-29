@@ -69,16 +69,9 @@ static int RaiseException( const char * format, va_list arg_ptr )
     
     // Install some message handlers
     DKInstallMsgHandler( TestClassA, DKSelector(Square), (DKMsgFunction)TestOne );
-    XCTAssert( DKGetMsgHandler( TestClassA, DKSelector(Square) ) );
-
     DKInstallMsgHandler( TestClassA, DKSelector(Cube), (DKMsgFunction)TestOne );
-    XCTAssert( DKGetMsgHandler( TestClassA, DKSelector(Cube) ) );
-
     DKInstallMsgHandler( TestClassB, DKSelector(Square), (DKMsgFunction)TestSquare );
-    XCTAssert( DKGetMsgHandler( TestClassB, DKSelector(Square) ) );
-    
     DKInstallMsgHandler( TestClassB, DKSelector(Cube), (DKMsgFunction)TestCube );
-    XCTAssert( DKGetMsgHandler( TestClassB, DKSelector(Cube) ) );
     
     // Create some instances
     DKObjectRef a = DKCreate( TestClassA );
@@ -99,9 +92,6 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( !DKIsMemberOfClass( b, TestClassA ) );
     XCTAssert( DKIsMemberOfClass( b, TestClassB ) );
     
-    // DKGetInterface should return the same object when called on the class or an instance of the class
-    XCTAssert( DKGetInterface( TestClassB, DKSelector(Square) ) == DKGetInterface( b, DKSelector(Square) ) );
-
     // Try calling our custom message handlers
     intptr_t y = DKMsgSend( a, Square, 2 );
     XCTAssert( y == 1 );

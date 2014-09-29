@@ -40,10 +40,13 @@ DKClassRef  DKMutableArrayClass( void );
 #define     DKArrayCreateEmpty()    DKCreate( DKArrayClass() )
 #define     DKArrayCreateMutable()  DKCreate( DKMutableArrayClass() )
 
-DKObjectRef DKArrayCreateWithVAObjects( DKClassRef _class, va_list objects );
-DKObjectRef DKArrayCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
+#define     DKArrayCreateWithCArray( cls, objects, count )  DKArrayInitWithObjects( DKAlloc( cls, 0 ), objects, count )
+#define     DKArrayCreateWithCollection( cls, collection )  DKArrayInitWithCollection( DKAlloc( cls, 0 ), collection )
 DKObjectRef DKArrayCreateWithCArrayNoCopy( /* DKClassRef _class, */ DKObjectRef objects[], DKIndex count );
-DKObjectRef DKArrayCreateWithCollection( DKClassRef _class, DKObjectRef collection );
+
+DKObjectRef DKArrayInitWithVAObjects( DKArrayRef _self, va_list objects );
+DKObjectRef DKArrayInitWithCArray( DKArrayRef _self, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKArrayInitWithCollection( DKArrayRef _self, DKObjectRef collection );
 
 DKArrayRef  DKArrayCopy( DKArrayRef _self );
 DKMutableArrayRef DKArrayMutableCopy( DKArrayRef _self );

@@ -41,12 +41,12 @@ DKClassRef  DKMutableHashTableClass( void );
 #define     DKHashTableCreateEmpty()    DKCreate( DKHashTableClass() )
 #define     DKHashTableCreateMutable()  DKCreate( DKMutableHashTableClass() )
 
-DKObjectRef DKHashTableCreateDictionaryWithVAKeysAndObjects( DKClassRef _class, va_list keysAndObjects );
-DKObjectRef DKHashTableCreateDictionaryWithDictionary( DKClassRef _class, DKDictionaryRef srcDictionary );
+DKObjectRef DKHashTableInitDictionaryWithVAKeysAndObjects( DKHashTableRef _self, va_list keysAndObjects );
+DKObjectRef DKHashTableInitDictionaryWithDictionary( DKHashTableRef _self, DKDictionaryRef srcDictionary );
 
-DKObjectRef DKHashTableCreateSetWithVAObjects( DKClassRef _class, va_list objects );
-DKObjectRef DKHashTableCreateSetWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKHashTableCreateSetWithCollection( DKClassRef _class, DKObjectRef srcCollection );
+DKObjectRef DKHashTableInitSetWithVAObjects( DKHashTableRef _self, va_list objects );
+DKObjectRef DKHashTableInitSetWithCArray( DKHashTableRef _self, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKHashTableInitSetWithCollection( DKHashTableRef _self, DKObjectRef srcCollection );
 
 DKHashTableRef DKHashTableCopy( DKHashTableRef _self );
 DKMutableHashTableRef DKHashTableMutableCopy( DKHashTableRef _self );

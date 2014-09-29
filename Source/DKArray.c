@@ -74,9 +74,9 @@ DKThreadSafeClassInit( DKArrayClass )
 
     // List
     struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
-    list->createWithVAObjects = (DKListCreateWithVAObjectsMethod)DKArrayCreateWithVAObjects;
-    list->createWithCArray = (DKListCreateWithCArrayMethod)DKArrayCreateWithCArray;
-    list->createWithCollection = (DKListCreateWithCollectionMethod)DKArrayCreateWithCollection;
+    list->initWithVAObjects = (DKListInitWithVAObjectsMethod)DKArrayInitWithVAObjects;
+    list->initWithCArray = (DKListInitWithCArrayMethod)DKArrayInitWithCArray;
+    list->initWithCollection = (DKListInitWithCollectionMethod)DKArrayInitWithCollection;
     
     list->getCount = (DKGetCountMethod)DKArrayGetCount;
     list->getObjectAtIndex = (DKListGetObjectAtIndexMethod)DKArrayGetObjectAtIndex;
@@ -94,16 +94,16 @@ DKThreadSafeClassInit( DKArrayClass )
     
     // Set
     struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
-    set->createWithVAObjects = DKListCreateSetWithVAObjects;
-    set->createWithCArray = DKListCreateSetWithCArray;
-    set->createWithCollection = DKListCreateSetWithCollection;
+    set->initWithVAObjects = DKListInitSetWithVAObjects;
+    set->initWithCArray = DKListInitSetWithCArray;
+    set->initWithCollection = DKListInitSetWithCollection;
 
     set->getCount = (DKGetCountMethod)DKArrayGetCount;
     set->getMember = DKListGetMemberOfSet;
     
-    set->addObject = DKListAddObjectToSet;
-    set->removeObject = DKListRemoveObject;
-    set->removeAllObjects = DKListRemoveAllObjects;
+    set->addObject = (void *)DKImmutableObjectAccessError;
+    set->removeObject = (void *)DKImmutableObjectAccessError;
+    set->removeAllObjects = (void *)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, set );
     DKRelease( set );
@@ -129,9 +129,9 @@ DKThreadSafeClassInit( DKMutableArrayClass )
 
     // List
     struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
-    list->createWithVAObjects = (DKListCreateWithVAObjectsMethod)DKArrayCreateWithVAObjects;
-    list->createWithCArray = (DKListCreateWithCArrayMethod)DKArrayCreateWithCArray;
-    list->createWithCollection = (DKListCreateWithCollectionMethod)DKArrayCreateWithCollection;
+    list->initWithVAObjects = (DKListInitWithVAObjectsMethod)DKArrayInitWithVAObjects;
+    list->initWithCArray = (DKListInitWithCArrayMethod)DKArrayInitWithCArray;
+    list->initWithCollection = (DKListInitWithCollectionMethod)DKArrayInitWithCollection;
     
     list->getCount = (DKGetCountMethod)DKArrayGetCount;
     list->getObjectAtIndex = (DKListGetObjectAtIndexMethod)DKArrayGetObjectAtIndex;
@@ -146,6 +146,22 @@ DKThreadSafeClassInit( DKMutableArrayClass )
 
     DKInstallInterface( cls, list );
     DKRelease( list );
+
+    // Set
+    struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    set->initWithVAObjects = DKListInitSetWithVAObjects;
+    set->initWithCArray = DKListInitSetWithCArray;
+    set->initWithCollection = DKListInitSetWithCollection;
+
+    set->getCount = (DKGetCountMethod)DKArrayGetCount;
+    set->getMember = DKListGetMemberOfSet;
+    
+    set->addObject = DKListAddObjectToSet;
+    set->removeObject = DKListRemoveObject;
+    set->removeAllObjects = DKListRemoveAllObjects;
+    
+    DKInstallInterface( cls, set );
+    DKRelease( set );
     
     return cls;
 }
@@ -275,49 +291,59 @@ static void DKArrayFinalize( DKObjectRef _self )
 
 
 ///
-//  DKArrayCreateWithVAObjects()
+//  DKArrayInitWithVAObjects()
 //
-DKObjectRef DKArrayCreateWithVAObjects( DKClassRef _class, va_list objects )
+DKObjectRef DKArrayInitWithVAObjects( DKArrayRef _self, va_list objects )
 {
-    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKArrayClass() ) );
+    _self = DKInit( _self );
 
-    if( _class == NULL )
-        _class = DKArrayClass();
-
-    struct DKArray * array = DKCreate( _class );
-
-    if( array )
+    if( _self )
     {
+        DKAssertKindOfClass( _self, DKArrayClass() );
+
         DKObjectRef object;
         
         while( (object = va_arg( objects, DKObjectRef )) != NULL )
         {
-            ReplaceRangeWithCArray( array, DKRangeMake( array->ptrArray.length, 0 ), &object, 1 );
+            ReplaceRangeWithCArray( (struct DKArray *)_self, DKRangeMake( _self->ptrArray.length, 0 ), &object, 1 );
         }
     }
 
-    return array;
+    return _self;
 }
 
 
 ///
-//  DKArrayCreateWithCArray()
+//  DKArrayInitWithCArray()
 //
-DKObjectRef DKArrayCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count )
+DKObjectRef DKArrayInitWithCArray( DKArrayRef _self, DKObjectRef objects[], DKIndex count )
 {
-    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKArrayClass() ) );
+    _self = DKInit( _self );
 
-    if( _class == NULL )
-        _class = DKArrayClass();
-
-    struct DKArray * array = DKCreate( _class );
-
-    if( array )
+    if( _self )
     {
-        ReplaceRangeWithCArray( array, DKRangeMake( 0, 0 ), objects, count );
+        DKAssertKindOfClass( _self, DKArrayClass() );
+        ReplaceRangeWithCArray( (struct DKArray *)_self, DKRangeMake( 0, 0 ), objects, count );
     }
 
-    return array;
+    return _self;
+}
+
+
+///
+//  DKArrayInitWithCollection()
+//
+DKObjectRef DKArrayInitWithCollection( DKArrayRef _self, DKObjectRef collection )
+{
+    _self = DKInit( _self );
+
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKArrayClass() );
+        ReplaceRangeWithCollection( (struct DKArray *)_self, DKRangeMake( 0, 0 ), collection );
+    }
+
+    return _self;
 }
 
 
@@ -333,27 +359,6 @@ DKObjectRef DKArrayCreateWithCArrayNoCopy( /* DKClassRef _class, */ DKObjectRef 
         DKGenericArrayInitWithExternalStorage( &array->ptrArray, objects, sizeof(DKObjectRef), count );
     }
     
-    return array;
-}
-
-
-///
-//  DKArrayCreateWithCollection()
-//
-DKObjectRef DKArrayCreateWithCollection( DKClassRef _class, DKObjectRef collection )
-{
-    DKAssert( (_class == NULL) || DKIsSubclass( _class, DKArrayClass() ) );
-
-    if( _class == NULL )
-        _class = DKArrayClass();
-
-    struct DKArray * array = DKCreate( _class );
-
-    if( array )
-    {
-        ReplaceRangeWithCollection( array, DKRangeMake( 0, 0 ), collection );
-    }
-
     return array;
 }
 

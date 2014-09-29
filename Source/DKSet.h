@@ -40,9 +40,9 @@ typedef void * DKMutableSetRef;
 
 typedef int (*DKSetApplierFunction)( DKObjectRef object, void * context );
 
-typedef DKObjectRef (*DKSetCreateWithVAObjectsMethod)( DKClassRef _class, va_list objects );
-typedef DKObjectRef (*DKSetCreateWithCArrayMethod)( DKClassRef _class, DKObjectRef objects[], DKIndex count );
-typedef DKObjectRef (*DKSetCreateWithCollectionMethod)( DKClassRef _class, DKObjectRef srcCollection );
+typedef DKObjectRef (*DKSetInitWithVAObjectsMethod)( DKSetRef _self, va_list objects );
+typedef DKObjectRef (*DKSetInitWithCArrayMethod)( DKSetRef _self, DKObjectRef objects[], DKIndex count );
+typedef DKObjectRef (*DKSetInitWithCollectionMethod)( DKSetRef _self, DKObjectRef srcCollection );
 
 typedef DKObjectRef (*DKSetGetMemberMethod)( DKSetRef _self, DKObjectRef object );
 
@@ -55,9 +55,9 @@ struct DKSetInterface
 {
     const DKInterface _interface;
 
-    DKSetCreateWithVAObjectsMethod  createWithVAObjects;
-    DKSetCreateWithCArrayMethod     createWithCArray;
-    DKSetCreateWithCollectionMethod createWithCollection;
+    DKSetInitWithVAObjectsMethod  initWithVAObjects;
+    DKSetInitWithCArrayMethod     initWithCArray;
+    DKSetInitWithCollectionMethod initWithCollection;
 
     DKGetCountMethod            getCount;
     DKSetGetMemberMethod        getMember;
@@ -80,10 +80,17 @@ void        DKSetDefaultMutableSetClass( DKClassRef _self );
 #define     DKSetCreateEmpty()    DKCreate( DKSetClass() )
 #define     DKSetCreateMutable()  DKCreate( DKMutableSetClass() )
 
-DKObjectRef DKSetCreateWithObjects( DKClassRef _class, ... );
-DKObjectRef DKSetCreateWithVAObjects( DKClassRef _class, va_list objects );
-DKObjectRef DKSetCreateWithCArray( DKClassRef _class, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKSetCreateWithCollection( DKClassRef _class, DKObjectRef srcCollection );
+#define     DKSetCreateWithObject( cls, object )            DKSetInitWithObject( DKAlloc( cls, 0 ), object )
+#define     DKSetCreateWithObjects( cls, ... )              DKSetInitWithObjects( DKAlloc( cls, 0 ), __VA_ARGS__ )
+#define     DKSetCreateWithVAObjects( cls, objects )        DKSetInitWithVAObjects( DKAlloc( cls, 0 ), objects )
+#define     DKSetCreateWithCArray( cls, objects, count )    DKSetInitWithCArray( DKAlloc( cls, 0 ), objects, count )
+#define     DKSetCreateWithCollection( cls, collection )    DKSetInitWithCollection( DKAlloc( cls, 0 ), collection )
+
+DKObjectRef DKSetInitWithObject( DKSetRef _self, DKObjectRef object );
+DKObjectRef DKSetInitWithObjects( DKSetRef _self, ... );
+DKObjectRef DKSetInitWithVAObjects( DKSetRef _self, va_list objects );
+DKObjectRef DKSetInitWithCArray( DKSetRef _self, DKObjectRef objects[], DKIndex count );
+DKObjectRef DKSetInitWithCollection( DKSetRef _self, DKObjectRef srcCollection );
 
 DKIndex     DKSetGetCount( DKSetRef _self );
 DKObjectRef DKSetGetMember( DKSetRef _self, DKObjectRef object );

@@ -386,20 +386,22 @@ static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
         if( !cls )
             return NULL;
         
+        // Allocate the object
+        object = DKAlloc( cls, 0 );
+        
         // Make sure we can deserialize the object
         DKEggInterfaceRef eggInterface;
         
-        if( !DKQueryInterface( cls, DKSelector(Egg), (DKInterfaceRef *)&eggInterface ) )
+        if( !DKQueryInterface( object, DKSelector(Egg), (DKInterfaceRef *)&eggInterface ) )
         {
             DKError( "DKEggUnarchiver: %s does not implement .egg file archiving.\n",
                 DKStringGetCStringPtr( DKGetClassName( cls ) ) );
             
+            DKRelease( object );
+            
             return NULL;
         }
 
-        // Allocate the object
-        object = DKAlloc( cls, 0 );
-        
         // Add the object to the array
         DKGenericArrayReplaceElements( &_self->unarchivedObjects, DKRangeMake( index, 1 ), &object, 1 );
 
