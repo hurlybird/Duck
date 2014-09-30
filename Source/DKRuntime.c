@@ -24,6 +24,8 @@
 
 *****************************************************************************************/
 
+#define DK_RUNTIME_PRIVATE 1
+
 #include "DKPlatform.h"
 #include "DKGenericArray.h"
 #include "DKGenericHashTable.h"
@@ -51,42 +53,6 @@
 
 
 
-// DKClass
-struct DKInterfaceGroup
-{
-    DKSpinLock      lock;
-
-    DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
-    
-    // Classes usually have fewer than 10 interfaces and selectors are compared by
-    // pointer value (not name). It's hard to say whether a linear search on a small
-    // array is faster or slower than a hash table lookup. The search result is also
-    // cached, further mitigating any performance problems.
-    DKGenericArray  interfaces;
-};
-
-struct DKClass
-{
-    const DKObject          _obj;
-
-    // The name database requires that the name and hash fields of DKClass and DKSEL are
-    // in the same position in the structure (i.e. right after the object header).
-    DKStringRef             name;
-    DKHashCode              hash;
-    
-    DKClassRef              superclass;
-    size_t                  structSize;
-    DKClassOptions          options;
-    
-    DKInitMethod            init;
-    DKFinalizeMethod        finalize;
-
-    struct DKInterfaceGroup classInterfaces;
-    struct DKInterfaceGroup instanceInterfaces;
-    
-    DKSpinLock              propertiesLock;
-    DKMutableHashTableRef   properties;
-};
 
 
 // DKWeak
@@ -112,7 +78,7 @@ static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, str
 
 
 // Root Classes ==========================================================================
-static struct DKClass __DKMetaClass__;
+static struct DKClass __DKRootClass__;
 static struct DKClass __DKClassClass__;
 static struct DKClass __DKSelectorClass__;
 static struct DKClass __DKInterfaceClass__;
@@ -120,6 +86,12 @@ static struct DKClass __DKMsgHandlerClass__;
 static struct DKClass __DKWeakClass__;
 static struct DKClass __DKObjectClass__;
 
+
+DKClassRef DKRootClass( void )
+{
+    DKFatal( DKRuntimeIsInitialized() );
+    return &__DKRootClass__;
+}
 
 DKClassRef DKClassClass( void )
 {
@@ -392,195 +364,6 @@ static DKInterfaceRef DKInterfaceComparison( void )
 
 
 
-// Class and Selector Name Databases =====================================================
-
-struct NameDatabaseEntry
-{
-    const DKObject  _obj;
-    DKStringRef     name;
-    DKHashCode      hash;
-};
-
-static DKGenericHashTable ClassNameDatabase;
-static DKSpinLock ClassNameDatabaseSpinLock = DKSpinLockInit;
-
-static DKGenericHashTable SelectorNameDatabase;
-static DKSpinLock SelectorNameDatabaseSpinLock = DKSpinLockInit;
-
-#define NAME_DATABASE_DELETED_ENTRY ((void *)-1)
-
-static DKRowStatus NameDatabaseRowStatus( const void * _row )
-{
-    struct NameDatabaseEntry * const * row = _row;
-
-    if( *row == NULL )
-        return DKRowStatusEmpty;
-    
-    if( *row == NAME_DATABASE_DELETED_ENTRY )
-        return DKRowStatusDeleted;
-    
-    return DKRowStatusActive;
-}
-
-static DKHashCode NameDatabaseRowHash( const void * _row )
-{
-    struct NameDatabaseEntry * const * row = _row;
-    return (*row)->hash;
-}
-
-static bool NameDatabaseRowEqual( const void * _row1, const void * _row2 )
-{
-    struct NameDatabaseEntry * const * row1 = _row1;
-    struct NameDatabaseEntry * const * row2 = _row2;
-
-    if( (*row1)->hash != (*row2)->hash )
-        return false;
-
-    return DKStringEqualToString( (*row1)->name, (*row2)->name );
-}
-
-static void NameDatabaseRowInit( void * _row )
-{
-    struct NameDatabaseEntry ** row = _row;
-    *row = NULL;
-}
-
-static void NameDatabaseRowUpdate( void * _row, const void * _src )
-{
-    struct NameDatabaseEntry ** row = _row;
-    struct NameDatabaseEntry * const * src = _src;
-    *row = *src;
-}
-
-static void NameDatabaseRowDelete( void * _row )
-{
-    struct NameDatabaseEntry ** row = _row;
-    *row = NAME_DATABASE_DELETED_ENTRY;
-}
-
-
-///
-//  NameDatabaseInsertClass()
-//
-static void NameDatabaseInsertClass( DKClassRef _class )
-{
-    if( _class->name == NULL )
-        return;
-    
-    DKSpinLockLock( &ClassNameDatabaseSpinLock );
-
-    const DKClassRef * existing = DKGenericHashTableFind( &ClassNameDatabase, &_class );
-    
-    if( existing == NULL )
-        DKGenericHashTableInsert( &ClassNameDatabase, &_class, DKInsertIfNotFound );
-    
-    DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
-    
-    if( (existing != NULL) && (*existing != _class) )
-    {
-        DKError( "DKRuntime: A class named '%s' already exists.",
-            DKStringGetCStringPtr( _class->name ) );
-    }
-}
-
-
-///
-//  NameDatabaseRemoveClass()
-//
-static void NameDatabaseRemoveClass( DKClassRef _class )
-{
-    DKSpinLockLock( &ClassNameDatabaseSpinLock );
-    DKGenericHashTableRemove( &ClassNameDatabase, &_class );
-    DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
-}
-
-
-///
-//  DKClassFromString()
-//
-DKClassRef DKClassFromString( DKStringRef name )
-{
-    if( name )
-    {
-        struct NameDatabaseEntry _key;
-        _key.name = name;
-        _key.hash = DKStringHash( name );
-        
-        struct NameDatabaseEntry * key = &_key;
-
-        DKSpinLockLock( &ClassNameDatabaseSpinLock );
-        const DKClassRef * cls = DKGenericHashTableFind( &ClassNameDatabase, &key );
-        DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
-        
-        if( cls )
-            return *cls;
-    }
-    
-    return NULL;
-}
-
-
-///
-//  NameDatabaseInsertSelector()
-//
-static void NameDatabaseInsertSelector( DKSEL sel )
-{
-    if( sel->name == NULL )
-        return;
-
-    DKSpinLockLock( &SelectorNameDatabaseSpinLock );
-
-    const DKSEL * existing = DKGenericHashTableFind( &SelectorNameDatabase, &sel );
-    
-    if( existing == NULL )
-        DKGenericHashTableInsert( &SelectorNameDatabase, &sel, DKInsertIfNotFound );
-    
-    DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
-    
-    if( (existing != NULL) && (*existing != sel) )
-    {
-        DKError( "DKRuntime: A selector named '%s' already exists.",
-            DKStringGetCStringPtr( sel->name ) );
-    }
-}
-
-
-///
-//  NameDatabaseRemoveSelector()
-//
-static void NameDatabaseRemoveSelector( DKSEL sel )
-{
-    DKSpinLockLock( &SelectorNameDatabaseSpinLock );
-    DKGenericHashTableRemove( &SelectorNameDatabase, &sel );
-    DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
-}
-
-
-///
-//  DKSelectorFromString()
-//
-DKSEL DKSelectorFromString( DKStringRef name )
-{
-    if( name )
-    {
-        struct NameDatabaseEntry _key;
-        _key.name = name;
-        _key.hash = DKStringHash( name );
-        
-        struct NameDatabaseEntry * key = &_key;
-
-        DKSpinLockLock( &SelectorNameDatabaseSpinLock );
-        const DKSEL * sel = DKGenericHashTableFind( &SelectorNameDatabase, &key );
-        DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
-        
-        if( sel )
-            return *sel;
-    }
-    
-    return NULL;
-}
-
-
 
 
 // Runtime Init ==========================================================================
@@ -605,7 +388,7 @@ static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, si
     memset( cls, 0, sizeof(struct DKClass) );
     
     DKObject * obj = (DKObject *)cls;
-    obj->isa = &__DKMetaClass__;
+    obj->isa = &__DKRootClass__;
     obj->refcount = 1;
 
     cls->name = NULL;
@@ -644,7 +427,7 @@ static void SetRootClassName( struct DKClass * _class, DKStringRef name )
     _class->name = DKCopy( name );
     _class->hash = DKStringHash( name );
     
-    NameDatabaseInsertClass( _class );
+    DKNameDatabaseInsertClass( _class );
 }
 
 
@@ -656,7 +439,7 @@ static void SetStaticSelectorName( struct _DKSEL * sel, DKStringRef name )
     sel->name = DKCopy( name );
     sel->hash = DKStringHash( name );
     
-    NameDatabaseInsertSelector( sel );
+    DKNameDatabaseInsertSelector( sel );
 }
 
 
@@ -669,7 +452,7 @@ void DKRuntimeInit( void )
     {
         _DKRuntimeIsInitialized = true;
 
-        InitRootClass( &__DKMetaClass__,       NULL,                  sizeof(struct DKClass), DKAbstractBaseClass | DKDisableReferenceCounting, NULL, DKClassFinalize );
+        InitRootClass( &__DKRootClass__,       NULL,                  sizeof(struct DKClass), DKAbstractBaseClass | DKDisableReferenceCounting, NULL, DKClassFinalize );
         InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass), 0, NULL, DKClassFinalize );
         InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct _DKSEL),  0, NULL, DKSelectorFinalize );
         InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),    0, NULL, DKInterfaceFinalize );
@@ -677,8 +460,8 @@ void DKRuntimeInit( void )
         InitRootClass( &__DKWeakClass__,       NULL,                  sizeof(struct DKWeak),  0, NULL, NULL );
         InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObject),       0, NULL, NULL );
         
-        InstallRootClassInstanceInterface( &__DKMetaClass__, DKDefaultComparison() );
-        InstallRootClassInstanceInterface( &__DKMetaClass__, DKDefaultDescription() );
+        InstallRootClassInstanceInterface( &__DKRootClass__, DKDefaultComparison() );
+        InstallRootClassInstanceInterface( &__DKRootClass__, DKDefaultDescription() );
 
         InstallRootClassInstanceInterface( &__DKClassClass__, DKDefaultComparison() );
         InstallRootClassInstanceInterface( &__DKClassClass__, DKDefaultCopying() );
@@ -704,21 +487,11 @@ void DKRuntimeInit( void )
         InstallRootClassInstanceInterface( &__DKObjectClass__, DKDefaultCopying() );
         InstallRootClassInstanceInterface( &__DKObjectClass__, DKDefaultDescription() );
 
-        DKGenericHashTableCallbacks nameDatabaseCallbacks =
-        {
-            NameDatabaseRowStatus,
-            NameDatabaseRowHash,
-            NameDatabaseRowEqual,
-            NameDatabaseRowInit,
-            NameDatabaseRowUpdate,
-            NameDatabaseRowDelete
-        };
-
-        DKGenericHashTableInit( &ClassNameDatabase, sizeof(DKObjectRef), &nameDatabaseCallbacks );
-        DKGenericHashTableInit( &SelectorNameDatabase, sizeof(DKObjectRef), &nameDatabaseCallbacks );
+        // Initialize the name database
+        DKNameDatabaseInit();
 
         // Initialize the base class names now that constant strings are available.
-        SetRootClassName( &__DKMetaClass__, DKSTR( "DKMetaClass" ) );
+        SetRootClassName( &__DKRootClass__, DKSTR( "DKRootClass" ) );
         SetRootClassName( &__DKClassClass__, DKSTR( "DKClass" ) );
         SetRootClassName( &__DKSelectorClass__, DKSTR( "DKSelector" ) );
         SetRootClassName( &__DKInterfaceClass__, DKSTR( "DKInterface" ) );
@@ -864,7 +637,7 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
     cls->propertiesLock = DKSpinLockInit;
     
     // Insert the class into the name database
-    NameDatabaseInsertClass( cls );
+    DKNameDatabaseInsertClass( cls );
     
     return cls;
 }
@@ -879,7 +652,7 @@ static void DKClassFinalize( DKObjectRef _self )
     
     DKAssert( cls->_obj.isa == &__DKClassClass__ );
 
-    NameDatabaseRemoveClass( cls );
+    DKNameDatabaseRemoveClass( cls );
 
     DKPrintf( "Finalizing class %@\n", cls->name );
     
@@ -913,7 +686,7 @@ DKSEL DKAllocSelector( DKStringRef name )
     sel->name = DKCopy( name );
     sel->cacheline = DKDynamicCache;
 
-    NameDatabaseInsertSelector( sel );
+    DKNameDatabaseInsertSelector( sel );
 
     return sel;
 }
@@ -926,7 +699,7 @@ static void DKSelectorFinalize( DKObjectRef _self )
 {
     DKSEL sel = _self;
 
-    NameDatabaseRemoveSelector( sel );
+    DKNameDatabaseRemoveSelector( sel );
 
     DKRelease( sel->name );
 }
@@ -1113,7 +886,7 @@ void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef prope
 //
 static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, struct DKInterfaceGroup * interfaceGroup )
 {
-    DKAssert( (_class->_obj.isa == &__DKClassClass__) || (_class->_obj.isa == &__DKMetaClass__) );
+    DKAssert( (_class->_obj.isa == &__DKClassClass__) || (_class->_obj.isa == &__DKRootClass__) );
     DKAssert( sel->_obj.isa == &__DKSelectorClass__ );
 
     // Get the static cache line from the selector
@@ -1248,7 +1021,7 @@ DKInterfaceRef DKGetClassInterface( DKObjectRef _self, DKSEL sel )
         const DKObject * obj = _self;
         DKClassRef cls = obj->isa;
 
-        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+        if( (cls == &__DKClassClass__) || (cls == &__DKRootClass__) )
             cls = (struct DKClass *)_self;
         
         DKInterfaceRef interface = DKLookupInterfaceInGroup( cls, sel, (struct DKInterfaceGroup *)&cls->classInterfaces );
@@ -1298,7 +1071,7 @@ bool DKQueryClassInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _inte
         const DKObject * obj = _self;
         DKClassRef cls = obj->isa;
         
-        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+        if( (cls == &__DKClassClass__) || (cls == &__DKRootClass__) )
             cls = (struct DKClass *)_self;
         
         DKInterfaceRef interface = DKLookupInterfaceInGroup( cls, sel, (struct DKInterfaceGroup *)&cls->classInterfaces );
@@ -1352,7 +1125,7 @@ DKMsgHandlerRef DKGetClassMsgHandler( DKObjectRef _self, DKSEL sel )
         DKClassRef cls = obj->isa;
         
         // If this object is a class, look in its own interfaces
-        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+        if( (cls == &__DKClassClass__) || (cls == &__DKRootClass__) )
             cls = (struct DKClass *)_self;
 
         DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKLookupInterfaceInGroup( cls, sel, (struct DKInterfaceGroup *)&cls->classInterfaces );
@@ -1408,7 +1181,7 @@ bool DKQueryClassMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _ms
         DKClassRef cls = obj->isa;
         
         // If this object is a class, look in its own interfaces
-        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+        if( (cls == &__DKClassClass__) || (cls == &__DKRootClass__) )
             cls = (struct DKClass *)_self;
 
         DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKLookupInterfaceInGroup( cls, sel, (struct DKInterfaceGroup *)&cls->classInterfaces );
@@ -1439,7 +1212,7 @@ DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self )
         struct DKClass * cls = (struct DKClass *)obj->isa;
         
         // If this object is a class, look in its own properties
-        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+        if( (cls == &__DKClassClass__) || (cls == &__DKRootClass__) )
             cls = (struct DKClass *)_self;
 
         DKSpinLockLock( &cls->propertiesLock );
@@ -1464,7 +1237,7 @@ DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
         struct DKClass * cls = (struct DKClass *)obj->isa;
         
         // If this object is a class, look in its own properties
-        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
+        if( (cls == &__DKClassClass__) || (cls == &__DKRootClass__) )
             cls = (struct DKClass *)_self;
 
         DKSpinLockLock( &cls->propertiesLock );
@@ -1597,137 +1370,6 @@ DKObjectRef DKResolveWeak( DKWeakRef weak_ref )
     }
     
     return NULL;
-}
-
-
-
-
-// Reflection ============================================================================
-
-///
-//  DKGetClass()
-//
-DKClassRef DKGetClass( DKObjectRef _self )
-{
-    if( _self )
-    {
-        const DKObject * obj = _self;
-        return obj->isa;
-    }
-    
-    return NULL;
-}
-
-
-///
-//  DKGetClassName()
-//
-DKStringRef DKGetClassName( DKObjectRef _self )
-{
-    if( _self )
-    {
-        const DKObject * obj = _self;
-        DKClassRef cls = obj->isa;
-        
-        if( (cls == &__DKClassClass__) || (cls == &__DKMetaClass__) )
-            cls = (struct DKClass *)_self;
-        
-        return cls->name;
-    }
-    
-    return DKSTR( "null" );
-}
-
-
-///
-//  DKGetSuperclass()
-//
-DKClassRef DKGetSuperclass( DKObjectRef _self )
-{
-    if( _self )
-    {
-        const DKObject * obj = _self;
-        return obj->isa->superclass;
-    }
-    
-    return NULL;
-}
-
-
-///
-//  DKIsMemberOfClass()
-//
-bool DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class )
-{
-    if( _self )
-    {
-        const DKObject * obj = _self;
-        return obj->isa == _class;
-    }
-    
-    return false;
-}
-
-
-///
-//  DKIsKindOfClass()
-//
-bool DKIsKindOfClass( DKObjectRef _self, DKClassRef _class )
-{
-    if( _self )
-    {
-        const DKObject * obj = _self;
-        
-        for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
-        {
-            if( cls == _class )
-                return true;
-        }
-    }
-    
-    return false;
-}
-
-
-///
-//  DKIsSubclass()
-//
-bool DKIsSubclass( DKClassRef _class, DKClassRef otherClass )
-{
-    if( _class )
-    {
-        for( DKClassRef cls = _class; cls != NULL; cls = cls->superclass )
-        {
-            if( cls == otherClass )
-                return true;
-        }
-    }
-    
-    return false;
-}
-
-
-///
-//  DKStringFromClass()
-//
-DKStringRef DKStringFromClass( DKClassRef _class )
-{
-    if( _class )
-        return _class->name;
-    
-    return DKSTR( "null" );
-}
-
-
-///
-//  DKStringFromSelector()
-//
-DKStringRef DKStringFromSelector( DKSEL sel )
-{
-    if( sel )
-        return sel->name;
-    
-    return DKSTR( "null" );
 }
 
 

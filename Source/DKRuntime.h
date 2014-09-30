@@ -179,6 +179,7 @@ DKMsgHandlerRef DKMsgHandlerNotFound( void );
 
 
 // Root Classes ==========================================================================
+DKClassRef DKRootClass( void );
 DKClassRef DKClassClass( void );
 DKClassRef DKSelectorClass( void );
 DKClassRef DKInterfaceClass( void );
@@ -392,30 +393,6 @@ DKObjectRef DKResolveWeak( DKWeakRef weak_ref );
 
 
 
-// Reflection ============================================================================
-
-// Retrieve the class, superclass and class name. These functions return the same values
-// for classes and instances (i.e. DKGetClass(DKObjectClass()) == DKObjectClass()).
-DKClassRef  DKGetClass( DKObjectRef _self );
-DKStringRef DKGetClassName( DKObjectRef _self );
-DKClassRef  DKGetSuperclass( DKObjectRef _self );
-
-// Returns true if the object is a instance of the class.
-bool        DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class );
-
-// Returns true if the object is a instance of the class or one of its subclasses.
-bool        DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
-
-// Returns true if the class is a subclass of (or equal to) another class
-bool        DKIsSubclass( DKClassRef _class, DKClassRef otherClass );
-
-DKClassRef  DKClassFromString( DKStringRef className );
-DKStringRef DKStringFromClass( DKClassRef _class );
-
-DKSEL       DKSelectorFromString( DKStringRef name );
-DKStringRef DKStringFromSelector( DKSEL sel );
-
-
 // Polymorphic Wrappers ==================================================================
 
 // Allocates a new object. Use 'extraBytes' to allocate memory beyond the 'structSize'
@@ -539,6 +516,60 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
         sel->cacheline = DKStaticCache_ ## name;                                        \
         return sel;                                                                     \
     }
+
+
+
+
+// Submodules ============================================================================
+#include "DKRuntime+Reflection.h"
+
+
+
+
+// Private ===============================================================================
+#if DK_RUNTIME_PRIVATE
+
+#include "DKGenericArray.h"
+#include "DKHashTable.h"
+
+
+struct DKInterfaceGroup
+{
+    DKSpinLock      lock;
+
+    DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
+    
+    // Classes usually have fewer than 10 interfaces and selectors are compared by
+    // pointer value (not name). It's hard to say whether a linear search on a small
+    // array is faster or slower than a hash table lookup. The search result is also
+    // cached, further mitigating any performance problems.
+    DKGenericArray  interfaces;
+};
+
+struct DKClass
+{
+    const DKObject          _obj;
+
+    // The name database requires that the name and hash fields of DKClass and DKSEL are
+    // in the same position in the structure (i.e. right after the object header).
+    DKStringRef             name;
+    DKHashCode              hash;
+    
+    DKClassRef              superclass;
+    size_t                  structSize;
+    DKClassOptions          options;
+    
+    DKInitMethod            init;
+    DKFinalizeMethod        finalize;
+
+    struct DKInterfaceGroup classInterfaces;
+    struct DKInterfaceGroup instanceInterfaces;
+    
+    DKSpinLock              propertiesLock;
+    DKMutableHashTableRef   properties;
+};
+
+#endif // DK_RUNTIME_PRIVATE
 
 
 #endif // _DK_RUNTIME_H_
