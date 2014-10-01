@@ -77,34 +77,55 @@ typedef struct DKObject
 typedef enum
 {
     // Use the dynamic cache
-    DKDynamicCache =            0,
+    DKDynamicCache =                            0,
     
-    // 1-7 -- Static cache lines for Duck interfaces
-    DKStaticCache_Comparison,
+    // 1-7 -- Static cache lines for class interfaces
+    DKStaticCache_Allocation =                  1,
+    
+    DKStaticCache_ReservedClassInterface2,
+    DKStaticCache_ReservedClassInterface3,
+    DKStaticCache_ReservedClassInterface4,
+    DKStaticCache_ReservedClassInterface5,
+    DKStaticCache_ReservedClassInterface6,
+    DKStaticCache_ReservedClassInterface7,
+    
+    // 8-15 -- Static cache lines for user interfaces
+    DKStaticCache_UserClassInterface1,
+    DKStaticCache_UserClassInterface2,
+    DKStaticCache_UserClassInterface3,
+    DKStaticCache_UserClassInterface4,
+    
+    DKStaticCache_UserClassInterface5,
+    DKStaticCache_UserClassInterface6,
+    DKStaticCache_UserClassInterface7,
+    DKStaticCache_UserClassInterface8,
+
+    // 1-7 -- Static cache lines for instance interfaces
+    DKStaticCache_Comparison =                  1,
+    DKStaticCache_Copying,
     DKStaticCache_Collection,
     DKStaticCache_KeyedCollection,
     DKStaticCache_List,
     DKStaticCache_Dictionary,
     
-    DKStaticCache_Reserved6,
-    DKStaticCache_Reserved7,
-    
+    DKStaticCache_ReservedInstanceInterface7,
+
     // 8-15 -- Static cache lines for user interfaces
-    DKStaticCache_User1,
-    DKStaticCache_User2,
-    DKStaticCache_User3,
-    DKStaticCache_User4,
+    DKStaticCache_UserInstanceInterface1,
+    DKStaticCache_UserInstanceInterface2,
+    DKStaticCache_UserInstanceInterface3,
+    DKStaticCache_UserInstanceInterface4,
     
-    DKStaticCache_User5,
-    DKStaticCache_User6,
-    DKStaticCache_User7,
-    DKStaticCache_User8,
+    DKStaticCache_UserInstanceInterface5,
+    DKStaticCache_UserInstanceInterface6,
+    DKStaticCache_UserInstanceInterface7,
+    DKStaticCache_UserInstanceInterface8,
     
     // Size of the static cache
     DKStaticCacheSize,
     
     // Size of the dynamic cache (must be a power of 2)
-    DKDynamicCacheSize =        16
+    DKDynamicCacheSize =                        16
     
 } DKCacheUsage;
 
