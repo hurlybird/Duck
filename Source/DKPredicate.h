@@ -71,7 +71,7 @@ typedef enum
 } DKPredicateOp;
 
 
-typedef const struct DKPredicate * DKPredicateRef;
+// typedef const struct DKPredicate * DKPredicateRef; -- Declared in DKPlatform.h
 
 
 DKClassRef DKPredicateClass( void );

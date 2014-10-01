@@ -60,6 +60,7 @@ typedef const struct DKClass * DKClassRef;
 typedef const struct DKWeak * DKWeakRef;
 typedef const struct DKProperty * DKPropertyRef;
 typedef const struct DKString * DKStringRef;
+typedef const struct DKPredicate * DKPredicateRef;
 typedef const void * DKListRef;
 
 

@@ -27,7 +27,6 @@
 #ifndef _DK_RUNTIME_PROPERTIES_H_
 #define _DK_RUNTIME_PROPERTIES_H_
 
-#include "DKRuntime.h"
 #include "DKEncoding.h"
 #include "DKNumber.h"
 #include "DKPredicate.h"

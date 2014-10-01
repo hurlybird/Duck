@@ -26,7 +26,7 @@
 
 #define DK_RUNTIME_PRIVATE 1
 
-#include "DKRuntime+Reflection.h"
+#include "DKRuntime.h"
 #include "DKGenericHashTable.h"
 #include "DKString.h"
 

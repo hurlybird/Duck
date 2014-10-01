@@ -27,8 +27,6 @@
 #ifndef _DK_RUNTIME_REFLECTION_
 #define _DK_RUNTIME_REFLECTION_
 
-#include "DKRuntime.h"
-
 
 // Retrieve the class, superclass and class name. These functions return the same values
 // for classes and instances (i.e. DKGetClass(DKObjectClass()) == DKObjectClass()).
