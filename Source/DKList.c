@@ -365,7 +365,7 @@ void DKListAppendCollection( DKMutableListRef _self, DKObjectRef srcCollection )
 ///
 //  DKListSetObjectAtIndex()
 //
-void DKListSetObjectAtIndex( DKMutableListRef _self, DKIndex index, DKObjectRef object )
+void DKListSetObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index )
 {
     if( _self )
     {
@@ -379,7 +379,7 @@ void DKListSetObjectAtIndex( DKMutableListRef _self, DKIndex index, DKObjectRef 
 ///
 //  DKListInsertObjectAtIndex()
 //
-void DKListInsertObjectAtIndex( DKMutableListRef _self, DKIndex index, DKObjectRef object )
+void DKListInsertObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index )
 {
     if( _self )
     {

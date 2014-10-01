@@ -128,8 +128,8 @@ void        DKListAppendObject( DKMutableListRef _self, DKObjectRef object );
 void        DKListAppendCArray( DKMutableListRef _self, DKObjectRef objects[], DKIndex count );
 void        DKListAppendCollection( DKMutableListRef _self, DKListRef srcList );
 
-void        DKListSetObjectAtIndex( DKMutableListRef _self, DKIndex index, DKObjectRef object );
-void        DKListInsertObjectAtIndex( DKMutableListRef _self, DKIndex index, DKObjectRef object );
+void        DKListSetObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
+void        DKListInsertObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
 
 void        DKListReplaceRangeWithCArray( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
 void        DKListReplaceRangeWithCollection( DKMutableListRef _self, DKRange range, DKObjectRef srcCollection );

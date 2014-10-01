@@ -78,10 +78,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKListRemoveAllObjects( list );
     
     // Insert
-    DKListInsertObjectAtIndex( list, 0, a );
-    DKListInsertObjectAtIndex( list, 0, b );
-    DKListInsertObjectAtIndex( list, 0, c );
-    DKListInsertObjectAtIndex( list, 0, d );
+    DKListInsertObjectAtIndex( list, a, 0 );
+    DKListInsertObjectAtIndex( list, b, 0 );
+    DKListInsertObjectAtIndex( list, c, 0 );
+    DKListInsertObjectAtIndex( list, d, 0 );
 
     XCTAssert( DKListGetCount( list ) == 4 );
 
@@ -117,6 +117,83 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKRelease( c );
     DKRelease( d );
 }
+
+
+#define PERFORMANCE_N   100000
+
+- (void) testNSArrayPerformance
+{
+    NSMutableArray * array = [NSMutableArray array];
+
+    [self measureBlock:^{
+    
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+            [array addObject:[NSString stringWithFormat:@"%d", i]];
+        
+        srand( 0 );
+        
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+        {
+            int index1 = rand() % PERFORMANCE_N;
+            int index2 = rand() % PERFORMANCE_N;
+        
+            NSString * a = [array objectAtIndex:index1];
+            NSString * b = [array objectAtIndex:index1];
+            
+            [array replaceObjectAtIndex:index2 withObject:a];
+            [array replaceObjectAtIndex:index1 withObject:b];
+        }
+    }];
+}
+
+
+- (void) testDKArrayPerformance
+{
+    [self testListClassPerformance:DKMutableArrayClass()];
+}
+
+
+//- (void) testDKLinkedListPerformance
+//{
+//    [self testListClassPerformance:DKMutableLinkedListClass()];
+//}
+
+
+- (void) testListClassPerformance:(DKClassRef)listClass
+{
+    DKMutableListRef list = DKCreate( listClass );
+
+    [self measureBlock:^{
+    
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+        {
+            DKMutableStringRef s = DKStringCreateMutable();
+            DKSPrintf( s, "%d", i );
+            DKListAppendObject( list, s );
+            DKRelease( s );
+        }
+        
+        srand( 0 );
+        
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+        {
+            int index1 = rand() % PERFORMANCE_N;
+            int index2 = rand() % PERFORMANCE_N;
+        
+            DKStringRef a = DKRetain( DKListGetObjectAtIndex( list, index1 ) );
+            DKStringRef b = DKRetain( DKListGetObjectAtIndex( list, index2 ) );
+
+            DKListSetObjectAtIndex( list, a, index2 );
+            DKListSetObjectAtIndex( list, b, index1 );
+            
+            DKRelease( a );
+            DKRelease( b );
+        }
+    }];
+
+    DKRelease( list );
+}
+
 
 
 @end
