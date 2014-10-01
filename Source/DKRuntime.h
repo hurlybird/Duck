@@ -338,17 +338,11 @@ void        DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interfac
 void        DKInstallMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
 void        DKInstallClassMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
 
-// Install properties
-//
-// *** WARNING ***
-// Replacing properties after a class is in use (i.e. implementation swizzling) is not
-// currently supported.
-void        DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef property );
 
 
 
 
-// Retrieving Interfaces, Message Handlers and Properties ================================
+// Retrieving Interfaces and Message Handlers ============================================
 
 // Retrieve an installed interface. If a matching interface cannot be found on the class
 // or any of its superclasses, DKGetInterace() will report an error and return the
@@ -370,9 +364,6 @@ DKMsgHandlerRef DKGetClassMsgHandler( DKObjectRef _self, DKSEL sel );
 bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
 bool DKQueryClassMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
 
-// Retrieve installed properties
-DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self );
-DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
 
 
 
@@ -522,6 +513,7 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 
 // Submodules ============================================================================
 #include "DKRuntime+Reflection.h"
+#include "DKRuntime+Properties.h"
 
 
 

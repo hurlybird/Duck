@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  DKProperty.h
+  DKRuntime+Properties.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,8 +24,8 @@
 
 *****************************************************************************************/
 
-#ifndef _DK_PROPERTY_H_
-#define _DK_PROPERTY_H_
+#ifndef _DK_RUNTIME_PROPERTIES_H_
+#define _DK_RUNTIME_PROPERTIES_H_
 
 #include "DKRuntime.h"
 #include "DKEncoding.h"
@@ -75,7 +75,12 @@ struct DKProperty
 DKClassRef DKPropertyClass( void );
 
 
-// Defining Properties
+// Install properties
+//
+// *** WARNING ***
+// Replacing properties after a class is in use (i.e. implementation swizzling) is not
+// currently supported.
+
 void DKInstallObjectProperty( DKClassRef _class,
     DKStringRef name,
     int32_t attributes,
@@ -102,6 +107,9 @@ void DKInstallStructProperty( DKClassRef _class,
     DKPropertySetter setter,
     DKPropertyGetter getter );
 
+// Retrieve installed properties
+DKListRef   DKGetAllPropertyDefinitions( DKObjectRef _self );
+DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
 
 // Set an object property. DKNumbers and DKStructs will be automatically unpacked if the
 // property is stored as a number type or structure.
@@ -127,6 +135,8 @@ int64_t     DKGetIntegerProperty( DKObjectRef _self, DKStringRef name );
 
 void        DKSetFloatProperty( DKObjectRef _self, DKStringRef name, double x );
 double      DKGetFloatProperty( DKObjectRef _self, DKStringRef name );
+
+
 
 
 #endif // _DK_PROPERTY_H_

@@ -41,7 +41,6 @@ extern "C"
 #include "DKUnicode.h"
 
 #include "DKRuntime.h"
-#include "DKProperty.h"
 
 #include "DKStream.h"
 

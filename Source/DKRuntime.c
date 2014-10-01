@@ -33,7 +33,6 @@
 #include "DKString.h"
 #include "DKHashTable.h"
 #include "DKArray.h"
-#include "DKProperty.h"
 #include "DKStream.h"
 #include "DKEgg.h"
 
@@ -857,24 +856,6 @@ void DKInstallClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func 
 }
 
 
-///
-//  DKInstallProperty()
-//
-void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef property )
-{
-    DKAssert( _class && property && name );
-    
-    struct DKClass * cls = (struct DKClass *)_class;
-    
-    DKSpinLockLock( &cls->propertiesLock );
-    
-    if( cls->properties == NULL )
-        cls->properties = DKHashTableCreateMutable();
-    
-    DKHashTableInsertObject( cls->properties, name, property, DKInsertAlways );
-    
-    DKSpinLockUnlock( &cls->propertiesLock );
-}
 
 
 
@@ -1198,56 +1179,6 @@ bool DKQueryClassMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _ms
     }
 
     return false;
-}
-
-
-///
-//  DKGetAllPropertyDefinitions()
-//
-DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self )
-{
-    if( _self )
-    {
-        const DKObject * obj = _self;
-        struct DKClass * cls = (struct DKClass *)obj->isa;
-        
-        // If this object is a class, look in its own properties
-        if( (cls == &__DKClassClass__) || (cls == &__DKRootClass__) )
-            cls = (struct DKClass *)_self;
-
-        DKSpinLockLock( &cls->propertiesLock );
-        DKListRef properties = DKDictionaryGetAllObjects( cls->properties );
-        DKSpinLockUnlock( &cls->propertiesLock );
-        
-        return properties;
-    }
-    
-    return NULL;
-}
-
-
-///
-//  DKGetPropertyDefinition()
-//
-DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
-{
-    if( _self )
-    {
-        const DKObject * obj = _self;
-        struct DKClass * cls = (struct DKClass *)obj->isa;
-        
-        // If this object is a class, look in its own properties
-        if( (cls == &__DKClassClass__) || (cls == &__DKRootClass__) )
-            cls = (struct DKClass *)_self;
-
-        DKSpinLockLock( &cls->propertiesLock );
-        DKPropertyRef property = DKHashTableGetObject( cls->properties, name );
-        DKSpinLockUnlock( &cls->propertiesLock );
-        
-        return property;
-    }
-    
-    return NULL;
 }
 
 

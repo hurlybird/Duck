@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  DKProperty.c
+  DKRuntime+Properties.c
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,7 +24,9 @@
 
 *****************************************************************************************/
 
-#include "DKProperty.h"
+#define DK_RUNTIME_PRIVATE 1
+
+#include "DKRuntime+Properties.h"
 #include "DKString.h"
 #include "DKNumber.h"
 #include "DKStruct.h"
@@ -58,6 +60,26 @@ static void DKPropertyFinalize( DKObjectRef _self )
 
 
 // Defining Properties ===================================================================
+
+///
+//  DKInstallProperty()
+//
+static void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef property )
+{
+    DKAssert( _class && property && name );
+    
+    struct DKClass * cls = (struct DKClass *)_class;
+    
+    DKSpinLockLock( &cls->propertiesLock );
+    
+    if( cls->properties == NULL )
+        cls->properties = DKHashTableCreateMutable();
+    
+    DKHashTableInsertObject( cls->properties, name, property, DKInsertAlways );
+    
+    DKSpinLockUnlock( &cls->propertiesLock );
+}
+
 
 ///
 //  DKInstallObjectProperty()
@@ -147,6 +169,56 @@ void DKInstallStructProperty( DKClassRef _class,
     
     DKInstallProperty( _class, name, property );
     DKRelease( property );
+}
+
+
+///
+//  DKGetAllPropertyDefinitions()
+//
+DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self )
+{
+    if( _self )
+    {
+        const DKObject * obj = _self;
+        struct DKClass * cls = (struct DKClass *)obj->isa;
+        
+        // If this object is a class, look in its own properties
+        if( (cls == DKClassClass()) || (cls == DKRootClass()) )
+            cls = (struct DKClass *)_self;
+
+        DKSpinLockLock( &cls->propertiesLock );
+        DKListRef properties = DKDictionaryGetAllObjects( cls->properties );
+        DKSpinLockUnlock( &cls->propertiesLock );
+        
+        return properties;
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKGetPropertyDefinition()
+//
+DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
+{
+    if( _self )
+    {
+        const DKObject * obj = _self;
+        struct DKClass * cls = (struct DKClass *)obj->isa;
+        
+        // If this object is a class, look in its own properties
+        if( (cls == DKClassClass()) || (cls == DKRootClass()) )
+            cls = (struct DKClass *)_self;
+
+        DKSpinLockLock( &cls->propertiesLock );
+        DKPropertyRef property = DKHashTableGetObject( cls->properties, name );
+        DKSpinLockUnlock( &cls->propertiesLock );
+        
+        return property;
+    }
+    
+    return NULL;
 }
 
 
