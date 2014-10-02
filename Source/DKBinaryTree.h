@@ -61,6 +61,7 @@ int         DKBinaryTreeApplyFunctionToObjects( DKBinaryTreeRef _self, DKApplier
 
 int         DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKKeyedApplierFunction callback, void * context );
 
+void        DKBinaryTreeSetObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object );
 void        DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 void        DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef _self, DKObjectRef key );
 void        DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef _self );

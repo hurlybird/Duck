@@ -79,7 +79,7 @@ void        DKSetDefaultMutableDictionaryClass( DKClassRef _class );
 #define     DKDictionaryCreateWithKeysAndObjects( cls, firstKey, ... )  DKDictionaryInitWithKeysAndObjects( DKAlloc( cls, 0 ), firstKey, __VA_ARGS__ )
 #define     DKDictionaryCreateWithDictionary( cls, srcDictionary )      DKDictionaryInitWithDictionary( DKAlloc( cls, 0 ), srcDictionary )
 
-DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, DKObjectRef firstKey, ... );
+DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, ... );
 DKObjectRef DKDictionaryInitWithDictionary( DKDictionaryRef _self, DKDictionaryRef srcDictionary );
 
 DKIndex     DKDictionaryGetCount( DKDictionaryRef _self );
@@ -95,6 +95,7 @@ DKListRef   DKDictionaryGetAllObjects( DKDictionaryRef _self );
 void        DKDictionarySetObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
 void        DKDictionaryAddObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
 void        DKDictionaryReplaceObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
+void        DKDictionaryInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 void        DKDictionaryAddEntriesFromDictionary( DKMutableDictionaryRef _self, DKDictionaryRef src );
 
 void        DKDictionaryRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );

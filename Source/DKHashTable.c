@@ -127,6 +127,14 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKInstallInterface( cls, set );
     DKRelease( set );
     
+    // Property
+    struct DKPropertyInterface * property = DKAllocInterface( DKSelector(Property), sizeof(struct DKPropertyInterface) );
+    property->getProperty = (DKGetPropertyMethod)DKHashTableGetObject;
+    property->setProperty = (void *)DKImmutableObjectAccessError;
+    
+    DKInstallInterface( cls, property );
+    DKRelease( property );
+    
     return cls;
 }
 
@@ -177,6 +185,14 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     DKInstallInterface( cls, set );
     DKRelease( set );
 
+    // Property
+    struct DKPropertyInterface * property = DKAllocInterface( DKSelector(Property), sizeof(struct DKPropertyInterface) );
+    property->getProperty = (DKGetPropertyMethod)DKHashTableGetObject;
+    property->setProperty = (DKSetPropertyMethod)DKHashTableSetObject;
+    
+    DKInstallInterface( cls, property );
+    DKRelease( property );
+    
     return cls;
 }
 
@@ -550,7 +566,7 @@ int DKHashTableApplyFunction( DKHashTableRef _self, DKKeyedApplierFunction callb
     {
         DKAssertKindOfClass( _self, DKHashTableClass() );
 
-        for( DKIndex i = 0; i < DKGenericHashTableGetCount( &_self->table ); ++i )
+        for( DKIndex i = 0; i < DKGenericHashTableGetRowCount( &_self->table ); ++i )
         {
             const struct DKHashTableRow * row = DKGenericHashTableGetRow( &_self->table, i );
             
@@ -577,7 +593,7 @@ int DKHashTableApplyFunctionToKeys( DKHashTableRef _self, DKApplierFunction call
     {
         DKAssertKindOfClass( _self, DKHashTableClass() );
 
-        for( DKIndex i = 0; i < DKGenericHashTableGetCount( &_self->table ); ++i )
+        for( DKIndex i = 0; i < DKGenericHashTableGetRowCount( &_self->table ); ++i )
         {
             const struct DKHashTableRow * row = DKGenericHashTableGetRow( &_self->table, i );
             
@@ -604,7 +620,7 @@ int DKHashTableApplyFunctionToObjects( DKHashTableRef _self, DKApplierFunction c
     {
         DKAssertKindOfClass( _self, DKHashTableClass() );
 
-        for( DKIndex i = 0; i < DKGenericHashTableGetCount( &_self->table ); ++i )
+        for( DKIndex i = 0; i < DKGenericHashTableGetRowCount( &_self->table ); ++i )
         {
             const struct DKHashTableRow * row = DKGenericHashTableGetRow( &_self->table, i );
             
@@ -617,6 +633,15 @@ int DKHashTableApplyFunctionToObjects( DKHashTableRef _self, DKApplierFunction c
     }
     
     return result;
+}
+
+
+///
+//  DKHashTableSetObject()
+//
+void DKHashTableSetObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object )
+{
+    return DKHashTableInsertObject( _self, key, object, DKInsertAlways );
 }
 
 

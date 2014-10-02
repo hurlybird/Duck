@@ -71,6 +71,7 @@ void DKGenericHashTableFinalize( DKGenericHashTable * hashTable );
 
 #define DKGenericHashTableGetCount( table )     ((table)->activeCount)
 #define DKGenericHashTableGetRow( table, i )    (const void *)((table)->rows + ((table)->rowSize * i))
+#define DKGenericHashTableGetRowCount( table )  ((table)->rowCount)
 
 const void * DKGenericHashTableFind( DKGenericHashTable * hashTable, const void * entry );
 void DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entry, DKInsertPolicy policy );

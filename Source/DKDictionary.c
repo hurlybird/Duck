@@ -75,14 +75,14 @@ void DKSetDefaultMutableDictionaryClass( DKClassRef _self )
 ///
 //  DKDictionaryInitWithKeysAndObjects()
 //
-DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, DKObjectRef firstKey, ... )
+DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, ... )
 {
     if( _self )
     {
         DKDictionaryInterfaceRef dictInterface = DKGetInterface( _self, DKSelector(Dictionary) );
     
         va_list arg_ptr;
-        va_start( arg_ptr, firstKey );
+        va_start( arg_ptr, _self );
     
         _self = dictInterface->initWithVAKeysAndObjects( _self, arg_ptr );
     
@@ -234,6 +234,19 @@ void DKDictionaryReplaceObject( DKMutableDictionaryRef _self, DKObjectRef key, D
     {
         DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         dict->insertObject( _self, key, object, DKInsertIfFound );
+    }
+}
+
+
+///
+//  DKDictionaryInsertObject()
+//
+void DKDictionaryInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
+{
+    if( _self )
+    {
+        DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
+        dict->insertObject( _self, key, object, policy );
     }
 }
 

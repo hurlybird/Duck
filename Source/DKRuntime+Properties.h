@@ -74,6 +74,24 @@ struct DKProperty
 DKClassRef DKPropertyClass( void );
 
 
+// Interface for custom get/set property
+DKDeclareInterfaceSelector( Property );
+
+typedef DKObjectRef (*DKGetPropertyMethod)( DKObjectRef _self, DKStringRef name );
+typedef void        (*DKSetPropertyMethod)( DKObjectRef _self, DKStringRef name, DKObjectRef object );
+
+struct DKPropertyInterface
+{
+    const DKInterface _interface;
+
+    DKGetPropertyMethod getProperty;
+    DKSetPropertyMethod setProperty;
+};
+
+typedef const struct DKPropertyInterface * DKPropertyInterfaceRef;
+
+
+
 // Install properties
 //
 // *** WARNING ***
@@ -113,20 +131,26 @@ DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
 // Set an object property. DKNumbers and DKStructs will be automatically unpacked if the
 // property is stored as a number type or structure.
 void        DKSetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object );
+void        DKSetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object );
 
 // Get an object property. If the property is stored as a number type or structure, the
 // value will be automatically packaged in a DKNumber or DKStruct.
-
-// *** YOU MUST RELEASE THE RETURNED OJBECT ***
 DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name );
+DKObjectRef DKGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path );
 
 // Get/Set a numerical property, with automatic conversion to/from storage as a DKNumber object.
 void        DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKEncoding srcEncoding );
+void        DKSetNumberPropertyForKeyPath( DKObjectRef _self, DKStringRef path, const void * srcValue, DKEncoding srcEncoding );
+
 size_t      DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKEncoding dstEncoding );
+size_t      DKGetNumberPropertyForKeyPath( DKObjectRef _self, DKStringRef path, void * dstValue, DKEncoding dstEncoding );
 
 // Get/Set a struct property, with automatic conversion to/from storage as a DKStruct object.
 void        DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, const void * srcValue, size_t srcSize );
+void        DKSetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStringRef semantic, const void * srcValue, size_t srcSize );
+
 size_t      DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, void * dstValue, size_t dstSize );
+size_t      DKGetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStringRef semantic, void * dstValue, size_t dstSize );
 
 // Get/Set wrappers for basic types
 void        DKSetIntegerProperty( DKObjectRef _self, DKStringRef name, int64_t x );

@@ -35,6 +35,7 @@
 #include "DKConfig.h"
 
 #if DK_PLATFORM_APPLE
+#include <pthread.h>
 #include <libkern/OSAtomic.h>
 
 #elif DK_PLATFORM_ANDROID

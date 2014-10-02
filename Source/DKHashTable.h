@@ -58,6 +58,7 @@ int         DKHashTableApplyFunction( DKHashTableRef _self, DKKeyedApplierFuncti
 int         DKHashTableApplyFunctionToKeys( DKHashTableRef _self, DKApplierFunction callback, void * context );
 int         DKHashTableApplyFunctionToObjects( DKHashTableRef _self, DKApplierFunction callback, void * context );
 
+void        DKHashTableSetObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object );
 void        DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 void        DKHashTableRemoveObject( DKMutableHashTableRef _self, DKObjectRef key );
 void        DKHashTableRemoveAllObjects( DKMutableHashTableRef _self );

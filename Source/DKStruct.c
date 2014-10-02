@@ -107,12 +107,12 @@ size_t DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, 
 {
     if( _self )
     {
-        if( size == (size_t)DKGetObjectTag( _self ) )
+        size_t structSize = (size_t)DKGetObjectTag( _self );
+    
+        if( size == structSize )
         {
             if( DKEqual( _self->semantic, semantic ) )
             {
-                size_t size = DKGetObjectTag( _self );
-
                 const void * value = _self + 1;
                 memcpy( bytes, value, size );
             

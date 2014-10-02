@@ -130,6 +130,14 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     DKInstallInterface( cls, set );
     DKRelease( set );
     
+    // Property
+    struct DKPropertyInterface * property = DKAllocInterface( DKSelector(Property), sizeof(struct DKPropertyInterface) );
+    property->getProperty = (DKGetPropertyMethod)DKBinaryTreeGetObject;
+    property->setProperty = (void *)DKImmutableObjectAccessError;
+    
+    DKInstallInterface( cls, property );
+    DKRelease( property );
+
     return cls;
 }
 
@@ -179,6 +187,14 @@ DKThreadSafeClassInit( DKMutableBinaryTreeClass )
     
     DKInstallInterface( cls, set );
     DKRelease( set );
+    
+    // Property
+    struct DKPropertyInterface * property = DKAllocInterface( DKSelector(Property), sizeof(struct DKPropertyInterface) );
+    property->getProperty = (DKGetPropertyMethod)DKBinaryTreeGetObject;
+    property->setProperty = (DKSetPropertyMethod)DKBinaryTreeSetObject;
+    
+    DKInstallInterface( cls, property );
+    DKRelease( property );
     
     return cls;
 }
@@ -881,6 +897,15 @@ int DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKKeyedApplierFunction c
     }
     
     return 0;
+}
+
+
+///
+//  DKBinaryTreeSetObject()
+//
+void DKBinaryTreeSetObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object )
+{
+    return DKBinaryTreeInsertObject( _self, key, object, DKInsertAlways );
 }
 
 

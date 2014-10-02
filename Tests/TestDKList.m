@@ -25,11 +25,13 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     DKRuntimeInit();
     DKSetErrorCallback( RaiseException );
+    DKPushAutoreleasePool();
 }
 
 - (void) tearDown
 {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    DKPopAutoreleasePool();
+    
     [super tearDown];
 }
 
@@ -119,7 +121,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-#define PERFORMANCE_N   100000
+#define PERFORMANCE_N   1000
 
 - (void) testNSArrayPerformance
 {

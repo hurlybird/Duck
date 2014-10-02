@@ -44,11 +44,13 @@ struct TestObject
     DKRuntimeInit();
     DKSetErrorCallback( RaiseException );
     DKSetWarningCallback( RaiseException );
+    DKPushAutoreleasePool();
 }
 
 - (void) tearDown
 {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    DKPopAutoreleasePool();
+    
     [super tearDown];
 }
 
@@ -79,7 +81,6 @@ struct TestObject
 
     DKStringRef name = DKGetProperty( testObject, DKSTR( "name" ) );
     XCTAssert( DKStringEqual( DKSTR( "Jane" ), name ) );
-    DKRelease( name );
     
     DKRelease( testObject );
     DKRelease( testClass );
@@ -145,8 +146,6 @@ struct TestObject
     XCTAssert( r.a == 101 );
     XCTAssert( r.b == 202 );
     
-    DKRelease( structure );
-    
     // Convert from object
     Pair r2 = { 303, 404 };
     DKStructRef structure2 = DKStructCreateAs( &r2, Pair );
@@ -158,6 +157,44 @@ struct TestObject
     
     DKRelease( testObject );
     DKRelease( testClass );
+}
+
+
+- (void) testPropertyKeyPaths
+{
+    DKMutableDictionaryRef dick = (DKMutableDictionaryRef)DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
+        DKSTR( "name" ), DKSTR( "Dick" ),
+        DKSTR( "phoneNumber" ), DKSTR( "555-1234" ),
+        NULL );
+    
+    DKMutableDictionaryRef jane = (DKMutableDictionaryRef)DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
+        DKSTR( "name" ), DKSTR( "Jane" ),
+        DKSTR( "phoneNumber" ), DKSTR( "555-4321" ),
+        NULL );
+    
+    DKMutableDictionaryRef db = (DKMutableDictionaryRef)DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
+        DKSTR( "dick" ), dick,
+        DKSTR( "jane" ), jane,
+        NULL );
+    
+    DKPrintf( "%@", db );
+    
+    DKStringRef value = DKGetPropertyForKeyPath( db, DKSTR( "dick.name" ) );
+    XCTAssert( DKEqual( value, DKSTR( "Dick" ) ) );
+
+    value = DKGetPropertyForKeyPath( db, DKSTR( "jane.phoneNumber" ) );
+    XCTAssert( DKEqual( value, DKSTR( "555-4321" ) ) );
+
+    value = DKGetPropertyForKeyPath( db, DKSTR( "dick" ) );
+    XCTAssert( value == dick );
+
+    DKDictionaryAddObject( jane, DKSTR( "pet" ), DKSTR( "Spot" ) );
+    value = DKGetPropertyForKeyPath( db, DKSTR( "jane.pet" ) );
+    XCTAssert( DKEqual( value, DKSTR( "Spot" ) ) );
+    
+    DKRelease( db );
+    DKRelease( dick );
+    DKRelease( jane );
 }
 
 

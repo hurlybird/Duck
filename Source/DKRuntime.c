@@ -433,6 +433,8 @@ void DKRuntimeInit( void )
     {
         _DKRuntimeIsInitialized = true;
 
+        DKAutoreleasePoolInit( DK_AUTORELEASE_POOL_STACK_SIZE );
+
         InitRootClass( &__DKRootClass__,       NULL,                  sizeof(struct DKClass), DKAbstractBaseClass | DKDisableReferenceCounting, NULL, DKClassFinalize );
         InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass), 0, NULL, DKClassFinalize );
         InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct _DKSEL),  0, NULL, DKSelectorFinalize );
@@ -805,6 +807,138 @@ DKObjectRef DKResolveWeak( DKWeakRef weak_ref )
     }
     
     return NULL;
+}
+
+
+// --------------------------------------------
+#define DK_AUTORELEASE_POOL_RESERVE     128
+
+static pthread_key_t AutoreleasePoolStackKey;
+static bool AutoreleasePoolStackKeyInitialized = false;
+static int AutoreleasePoolStackSize = 0;
+
+struct DKAutoreleasePoolStack
+{
+    DKIndex top;
+    DKIndex size;
+    DKGenericArray pools[1]; // variable size
+};
+
+
+///
+//  DKFreeAutoreleasePoolStack()
+//
+static void DKFreeAutoreleasePoolStack( void * context )
+{
+    struct DKAutoreleasePoolStack * stack = context;
+    
+    DKFatal( stack->top == -1 );
+    
+    for( int i = 0; i < stack->size; i++ )
+        DKGenericArrayFinalize( &stack->pools[i] );
+    
+    dk_free( stack );
+}
+
+
+///
+//  DKAutoreleasePoolInit()
+//
+void DKAutoreleasePoolInit( int stackSize )
+{
+    DKAssert( stackSize > 0 );
+
+    if( !AutoreleasePoolStackKeyInitialized )
+    {
+        pthread_key_create( &AutoreleasePoolStackKey, DKFreeAutoreleasePoolStack );
+        AutoreleasePoolStackKeyInitialized = true;
+        AutoreleasePoolStackSize = stackSize;
+    }
+}
+
+
+///
+//  DKGetAutoreleasePoolStack()
+//
+static struct DKAutoreleasePoolStack * DKGetAutoreleasePoolStack( void )
+{
+    struct DKAutoreleasePoolStack * stack = pthread_getspecific( AutoreleasePoolStackKey );
+
+    if( !stack )
+    {
+        // Create a new stack
+        size_t bytes = sizeof(struct DKAutoreleasePoolStack) + (sizeof(DKGenericArray) * (AutoreleasePoolStackSize - 1));
+        stack = dk_malloc( bytes );
+        
+        stack->top = -1;
+        stack->size = AutoreleasePoolStackSize;
+
+        for( int i = 0; i < stack->size; i++ )
+            DKGenericArrayInit( &stack->pools[i], sizeof(DKObjectRef) );
+        
+        // Save the stack to the current thread
+        pthread_setspecific( AutoreleasePoolStackKey, stack );
+    }
+
+    return stack;
+}
+
+
+///
+//  DKPushAutoreleasePool()
+//
+void DKPushAutoreleasePool( void )
+{
+    struct DKAutoreleasePoolStack * stack = DKGetAutoreleasePoolStack();
+    DKFatal( (stack->top >= -1) && (stack->top < (stack->size - 1)) );
+    
+    stack->top++;
+    
+    DKGenericArray * pool = &stack->pools[stack->top];
+    DKGenericArrayReserve( pool, DK_AUTORELEASE_POOL_RESERVE );
+}
+
+
+///
+//  DKPopAutoreleasePool()
+//
+void DKPopAutoreleasePool( void )
+{
+    struct DKAutoreleasePoolStack * stack = DKGetAutoreleasePoolStack();
+    DKFatal( (stack->top >= 0) && (stack->top < stack->size) );
+    
+    DKGenericArray * pool = &stack->pools[stack->top];
+    DKIndex count = DKGenericArrayGetLength( pool );
+    
+    if( count > 0 )
+    {
+        DKObjectRef * objects = DKGenericArrayGetPointerToElementAtIndex( pool, 0 );
+    
+        for( DKIndex i = 0; i < count; ++i )
+            DKRelease( objects[i] );
+
+        DKGenericArrayReplaceElements( pool, DKRangeMake( 0, count ), NULL, 0 );
+    }
+    
+    stack->top--;
+}
+
+
+///
+//  DKAutorelease()
+//
+DKObjectRef DKAutorelease( DKObjectRef _self )
+{
+    if( _self )
+    {
+        struct DKAutoreleasePoolStack * stack = DKGetAutoreleasePoolStack();
+        DKFatal( (stack->top >= 0) && (stack->top < stack->size) );
+
+        DKGenericArray * pool = &stack->pools[stack->top];
+        DKGenericArrayAppendElements( pool, &_self, 1 );
+    }
+    
+    return _self;
 }
 
 
