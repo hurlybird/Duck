@@ -201,30 +201,6 @@ DKSEL       DKAllocSelector( DKStringRef name );
 
 
 
-
-// Reference Counting ====================================================================
-
-DKObjectRef DKRetain( DKObjectRef _self );
-void        DKRelease( DKObjectRef _self );
-
-// Get a weak reference to an object. The weak reference itself must be released when the
-// caller is finished with it.
-DKWeakRef   DKRetainWeak( DKObjectRef _self );
-
-// Resolve a weak reference into a strong reference. The returned object must be released
-// when the caller is finished with it. This will return NULL if the object has been
-// deallocated.
-DKObjectRef DKResolveWeak( DKWeakRef weak_ref );
-
-// Autorelease pools
-void DKAutoreleasePoolInit( int stackSize );
-void DKPushAutoreleasePool( void );
-void DKPopAutoreleasePool( void );
-
-DKObjectRef DKAutorelease( DKObjectRef _self );
-
-
-
 // Polymorphic Wrappers ==================================================================
 
 // Allocates a new object. Use 'extraBytes' to allocate memory beyond the 'structSize'
@@ -323,6 +299,7 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 
 
 // Submodules ============================================================================
+#include "DKRuntime+RefCount.h"
 #include "DKRuntime+Interfaces.h"
 #include "DKRuntime+Properties.h"
 #include "DKRuntime+Reflection.h"
@@ -381,6 +358,15 @@ struct DKClass
     DKSpinLock              propertiesLock;
     DKMutableHashTableRef   properties;
 };
+
+
+struct DKWeak
+{
+    DKObject        _obj;
+    DKSpinLock      lock;
+    DKObjectRef     target;
+};
+
 
 #endif // DK_RUNTIME_PRIVATE
 

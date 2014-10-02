@@ -113,6 +113,9 @@
 		02C8917918F169780097B6BC /* DKString.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5918EFED97000344C0 /* DKString.c */; };
 		02C8917A18F169780097B6BC /* DKUnicode.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5A18EFED97000344C0 /* DKUnicode.c */; };
 		02C8917B18F169780097B6BC /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
+		02D051CC19DDF32000827660 /* DKRuntime+RefCount.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */; };
+		02D051CD19DDF32000827660 /* DKRuntime+RefCount.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */; };
+		02D051CE19DDF32000827660 /* DKRuntime+RefCount.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D051CB19DDF32000827660 /* DKRuntime+RefCount.h */; };
 		02D5F50D19DBE79F00D2F52A /* DKRuntime+Interfaces.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D5F50B19DBE79F00D2F52A /* DKRuntime+Interfaces.c */; };
 		02D5F50E19DBE79F00D2F52A /* DKRuntime+Interfaces.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D5F50B19DBE79F00D2F52A /* DKRuntime+Interfaces.c */; };
 		02D5F50F19DBE79F00D2F52A /* DKRuntime+Interfaces.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D5F50C19DBE79F00D2F52A /* DKRuntime+Interfaces.h */; };
@@ -231,6 +234,8 @@
 		02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGenericHashTable.c; sourceTree = "<group>"; };
 		02C8914518F1690F0097B6BC /* libduck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libduck.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		02C8914618F1690F0097B6BC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+RefCount.c"; sourceTree = "<group>"; };
+		02D051CB19DDF32000827660 /* DKRuntime+RefCount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+RefCount.h"; sourceTree = "<group>"; };
 		02D5F50B19DBE79F00D2F52A /* DKRuntime+Interfaces.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+Interfaces.c"; sourceTree = "<group>"; };
 		02D5F50C19DBE79F00D2F52A /* DKRuntime+Interfaces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+Interfaces.h"; sourceTree = "<group>"; };
 		02DE16DE195E7ACB007D241D /* DKEncoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEncoding.c; sourceTree = "<group>"; };
@@ -377,6 +382,8 @@
 				02D5F50B19DBE79F00D2F52A /* DKRuntime+Interfaces.c */,
 				0269BF2819D85669002E876C /* DKRuntime+Properties.h */,
 				02083FA018F3BC2200EEBBAC /* DKRuntime+Properties.c */,
+				02D051CB19DDF32000827660 /* DKRuntime+RefCount.h */,
+				02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */,
 				023A719E19DADCE20088CDD9 /* DKRuntime+Reflection.h */,
 				023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */,
 			);
@@ -477,6 +484,7 @@
 				0269BF3319D85669002E876C /* DKConfig.h in Headers */,
 				0269BF3619D85669002E876C /* DKEgg.h in Headers */,
 				0269BF3419D85669002E876C /* DKData.h in Headers */,
+				02D051CE19DDF32000827660 /* DKRuntime+RefCount.h in Headers */,
 				0269BF4719D85669002E876C /* DKStruct.h in Headers */,
 				0269BF3819D85669002E876C /* DKFile.h in Headers */,
 				021EC2E118F07BA9004148AD /* urename.h in Headers */,
@@ -633,6 +641,7 @@
 				02083F9718F1E4EF00EEBBAC /* DKSet.c in Sources */,
 				025C0F7418EFED97000344C0 /* DKDictionary.c in Sources */,
 				025C0F7A18EFED97000344C0 /* DKNumber.c in Sources */,
+				02D051CC19DDF32000827660 /* DKRuntime+RefCount.c in Sources */,
 				028F5CE719CF59B900CF4D47 /* DKPredicate.c in Sources */,
 				025C0F7F18EFED97000344C0 /* DKStream.c in Sources */,
 				025C0F6F18EFED97000344C0 /* DKArray.c in Sources */,
@@ -685,6 +694,7 @@
 				02C8917118F169780097B6BC /* DKLinkedList.c in Sources */,
 				02C8917218F169780097B6BC /* DKList.c in Sources */,
 				02083FAA18F4C48600EEBBAC /* DKSet.c in Sources */,
+				02D051CD19DDF32000827660 /* DKRuntime+RefCount.c in Sources */,
 				028F5CE819CF59B900CF4D47 /* DKPredicate.c in Sources */,
 				02C8917318F169780097B6BC /* DKNodePool.c in Sources */,
 				02C8917418F169780097B6BC /* DKNumber.c in Sources */,
