@@ -209,9 +209,9 @@ static int PrintDescriptionCallback( DKObjectRef object, void * context )
     return 0;
 }
 
-DKStringRef DKCollectionCopyDescription( DKObjectRef _self )
+DKStringRef DKCollectionGetDescription( DKObjectRef _self )
 {
-    DKMutableStringRef desc = DKStringCreateMutable();
+    DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
 
     DKCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(Collection) );
     
@@ -255,9 +255,9 @@ static int PrintKeyedDescriptionCallback( DKObjectRef key, DKObjectRef object, v
     return 0;
 }
 
-DKStringRef DKKeyedCollectionCopyDescription( DKObjectRef _self )
+DKStringRef DKKeyedCollectionGetDescription( DKObjectRef _self )
 {
-    DKMutableStringRef desc = DKStringCreateMutable();
+    DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
 
     DKKeyedCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(KeyedCollection) );
     

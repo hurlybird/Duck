@@ -200,6 +200,16 @@ void DKNameDatabaseRemoveSelector( DKSEL sel )
 
 // Public Interfaces =====================================================================
 
+
+///
+//  DKGetSelf()
+//
+DKObjectRef DKGetSelf( DKObjectRef _self )
+{
+    return _self;
+}
+
+
 ///
 //  DKGetClass()
 //

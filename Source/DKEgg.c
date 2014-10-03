@@ -29,6 +29,7 @@
 #include "DKByteArray.h"
 #include "DKGenericArray.h"
 #include "DKGenericHashTable.h"
+#include "DKComparison.h"
 
 
 // The egg selector is initialized by DKRuntimeInit() so that constant strings can be

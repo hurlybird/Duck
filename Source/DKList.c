@@ -28,6 +28,7 @@
 #include "DKLinkedList.h"
 #include "DKString.h"
 #include "DKStream.h"
+#include "DKComparison.h"
 #include "DKSet.h"
 
 

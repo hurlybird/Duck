@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKComparison.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,54 +24,54 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#ifndef _DK_COMPARISON_H_
+#define _DK_COMPARISON_H_
 
 #include "DKRuntime.h"
 
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKStream.h"
 
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
-
-#include "DKFile.h"
-#include "DKEgg.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
+DKDeclareInterfaceSelector( Comparison );
 
 
-#ifdef __cplusplus
-}
-#endif
+typedef DKEqualityFunction DKEqualityMethod;
+typedef DKCompareFunction DKCompareMethod;
+typedef DKHashFunction DKHashMethod;
+
+struct DKComparisonInterface
+{
+    const DKInterface _interface;
+    
+    DKEqualityMethod    equal;
+    DKEqualityMethod    like;
+    DKCompareMethod     compare;
+    DKHashMethod        hash;
+};
+
+typedef const struct DKComparisonInterface * DKComparisonInterfaceRef;
 
 
-#endif
+// Default comparison interface that implements pointer comparison/equality. This
+// is used by the root classes so it's defined in DKRuntime.c.
+DKInterfaceRef DKDefaultComparison( void );
+
+
+// Pointer equality, comparison and hashing
+bool        DKPointerEqual( DKObjectRef _self, DKObjectRef other );
+int         DKPointerCompare( DKObjectRef _self, DKObjectRef other );
+DKHashCode  DKPointerHash( DKObjectRef ptr );
+
+
+// Wrappers for the comparison interface
+bool        DKEqual( DKObjectRef a, DKObjectRef b );
+bool        DKLike( DKObjectRef a, DKObjectRef b );
+int         DKCompare( DKObjectRef a, DKObjectRef b );
+DKHashCode  DKHash( DKObjectRef _self );
+
+
+
+
+
+#endif // _DK_COMPARISON_H_
+
+
+

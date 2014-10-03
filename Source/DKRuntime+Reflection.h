@@ -28,6 +28,9 @@
 #define _DK_RUNTIME_REFLECTION_
 
 
+// Returns the object itself (useful for callbacks).
+DKObjectRef DKGetSelf( DKObjectRef _self );
+
 // Retrieve the class, superclass and class name. These functions return the same values
 // for classes and instances (i.e. DKGetClass(DKObjectClass()) == DKObjectClass()).
 DKClassRef  DKGetClass( DKObjectRef _self );
@@ -50,6 +53,7 @@ DKStringRef DKStringFromClass( DKClassRef _class );
 // Convert between selectors and strings
 DKSEL       DKSelectorFromString( DKStringRef name );
 DKStringRef DKStringFromSelector( DKSEL sel );
+
 
 
 

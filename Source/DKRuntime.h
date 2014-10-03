@@ -66,88 +66,17 @@ typedef struct DKObject
 #define DKStaticObject( cls )   { cls, 1, 0, NULL }
 
 
+// Objects are at least 16 bytes long so there must exist a location in memory that is
+// both 16-byte aligned and inside the object. Given that, we can generate hash code from
+// the object pointer that strips out the uninteresting lower bits to make things a bit
+// more random. This is particularly important in a hash table that uses hash % prime to
+// derive an internal hash code.
+#define DKObjectUniqueHash( obj )   ((((uintptr_t)obj) + 15) >> 4)
+
+
 // Get/Set the object tag.
 #define DKGetObjectTag( obj )           (((DKObject *)(obj))->tag)
 #define DKSetObjectTag( obj, value )    do{ ((DKObject *)(obj))->tag = (value); } while(0)
-
-
-
-
-// DKSelector ============================================================================
-typedef enum
-{
-    // Use the dynamic cache
-    DKDynamicCache =                            0,
-    
-    // 1-7 -- Static cache lines for class interfaces
-    DKStaticCache_Allocation =                  1,
-    
-    DKStaticCache_ReservedClassInterface2,
-    DKStaticCache_ReservedClassInterface3,
-    DKStaticCache_ReservedClassInterface4,
-    DKStaticCache_ReservedClassInterface5,
-    DKStaticCache_ReservedClassInterface6,
-    DKStaticCache_ReservedClassInterface7,
-    
-    // 8-15 -- Static cache lines for user interfaces
-    DKStaticCache_UserClassInterface1,
-    DKStaticCache_UserClassInterface2,
-    DKStaticCache_UserClassInterface3,
-    DKStaticCache_UserClassInterface4,
-    
-    DKStaticCache_UserClassInterface5,
-    DKStaticCache_UserClassInterface6,
-    DKStaticCache_UserClassInterface7,
-    DKStaticCache_UserClassInterface8,
-
-    // 1-7 -- Static cache lines for instance interfaces
-    DKStaticCache_Comparison =                  1,
-    DKStaticCache_Copying,
-    DKStaticCache_Collection,
-    DKStaticCache_KeyedCollection,
-    DKStaticCache_List,
-    DKStaticCache_Dictionary,
-    
-    DKStaticCache_ReservedInstanceInterface7,
-
-    // 8-15 -- Static cache lines for user interfaces
-    DKStaticCache_UserInstanceInterface1,
-    DKStaticCache_UserInstanceInterface2,
-    DKStaticCache_UserInstanceInterface3,
-    DKStaticCache_UserInstanceInterface4,
-    
-    DKStaticCache_UserInstanceInterface5,
-    DKStaticCache_UserInstanceInterface6,
-    DKStaticCache_UserInstanceInterface7,
-    DKStaticCache_UserInstanceInterface8,
-    
-    // Size of the static cache
-    DKStaticCacheSize,
-    
-    // Size of the dynamic cache (must be a power of 2)
-    DKDynamicCacheSize =                        16
-    
-} DKCacheUsage;
-
-struct _DKSEL
-{
-    const DKObject  _obj;
-
-    // Selectors are typically compared by pointer value, but the name is required to
-    // look up a selector by name
-
-    // The name database requires that the name and hash fields of DKClass and DKSEL are
-    // in the same position in the structure (i.e. right after the object header).
-    DKStringRef     name;
-    DKHashCode      hash;
-    
-    // Controls how interfaces retrieved by this selector are cached.
-    DKCacheUsage    cacheline;
-};
-
-typedef const struct _DKSEL * DKSEL;
-
-#define DKSelector( name )      DKSelector_ ## name()
 
 
 
@@ -160,16 +89,6 @@ DKClassRef DKInterfaceClass( void );
 DKClassRef DKMsgHandlerClass( void );
 DKClassRef DKWeakClass( void );
 DKClassRef DKObjectClass( void );
-
-
-
-// Alloc/Free Objects ====================================================================
-
-// These functions implement the default allocator for objects. You should never need to
-// call them outside of a custom allocation scheme. Use DKAlloc and DKDealloc instead.
-void *      DKAllocObject( DKClassRef cls, size_t extraBytes );
-void        DKDeallocObject( DKObjectRef _self );
-
 
 
 
@@ -195,13 +114,15 @@ typedef void (*DKFinalizeMethod)( DKObjectRef _self );
 DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize,
     DKClassOptions options, DKInitMethod init, DKFinalizeMethod finalize );
 
-// Allocate a new selector object.
-DKSEL       DKAllocSelector( DKStringRef name );
 
 
 
+// Alloc/Free Objects ====================================================================
 
-// Polymorphic Wrappers ==================================================================
+// These functions implement the default allocator for objects. You should never need to
+// call them outside of a custom allocation scheme. Use DKAlloc and DKDealloc instead.
+void *      DKAllocObject( DKClassRef cls, size_t extraBytes );
+void        DKDeallocObject( DKObjectRef _self );
 
 // Allocates a new object. Use 'extraBytes' to allocate memory beyond the 'structSize'
 // specified in the class. The extra memory is not automatically zeroed for you.
@@ -224,20 +145,6 @@ void        DKFinalize( DKObjectRef _self );
 
 // Wrapper for DKAlloc + DKInit
 #define     DKCreate( _class )  DKInit( DKAlloc( _class, 0 ) )
-
-// Comparison Interface Wrappers
-bool        DKEqual( DKObjectRef a, DKObjectRef b );
-bool        DKLike( DKObjectRef a, DKObjectRef b );
-int         DKCompare( DKObjectRef a, DKObjectRef b );
-DKHashCode  DKHash( DKObjectRef _self );
-
-// Copying Interface Wrappers
-DKObjectRef DKCopy( DKObjectRef _self );
-DKMutableObjectRef DKMutableCopy( DKObjectRef _self );
-
-// CopyDescription Interface Wrappers
-DKStringRef DKCopyDescription( DKObjectRef _self );
-
 
 
 
@@ -278,24 +185,6 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
     DKThreadSafeSharedObjectInit( accessor, DKClassRef )
 
 
-// Thread-safe initialization of selector objects.
-#define DKThreadSafeSelectorInit( name )                                                \
-    DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
-    {                                                                                   \
-        return DKAllocSelector( DKSTR( #name ) );                                       \
-    }
-
-// Thread-safe initialization of "fast" selectors. Each fast selector is assigned a
-// unique, reserved cache line in the interface cache.
-#define DKThreadSafeFastSelectorInit( name )                                            \
-    DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
-    {                                                                                   \
-        struct _DKSEL * sel = (struct _DKSEL *)DKAllocSelector( DKSTR( #name ) );       \
-        sel->cacheline = DKStaticCache_ ## name;                                        \
-        return sel;                                                                     \
-    }
-
-
 
 
 // Submodules ============================================================================
@@ -312,15 +201,6 @@ DKStringRef DKCopyDescription( DKObjectRef _self );
 
 #include "DKGenericArray.h"
 #include "DKHashTable.h"
-
-
-// Objects are at least 16 bytes long so there must exist a location in memory
-// that is 16-byte aligned and inside the object. Given that, we can generate a
-// hash code from the object pointer that strips out the uninteresting lower
-// bits to make things a bit more random. This is particularly important in a
-// hash table that uses hash % prime to derive an internal hash code.
-#define DKObjectUniqueHash( obj )   ((((uintptr_t)obj) + 15) >> 4)
-
 
 struct DKInterfaceGroup
 {

@@ -27,6 +27,7 @@
 #include "DKStream.h"
 #include "DKString.h"
 #include "DKUnicode.h"
+#include "DKDescription.h"
 
 
 // The stream selector is initialized by DKRuntimeInit() so that constant strings can be
@@ -214,10 +215,9 @@ DKIndex DKVSPrintf( DKMutableObjectRef _self, const char * format, va_list arg_p
         // %@
         case '@':
             object = va_arg( arg_ptr, DKObjectRef );
-            desc = DKCopyDescription( object );
+            desc = DKGetDescription( object );
             cstr = DKStringGetCStringPtr( desc );
             write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
-            DKRelease( desc );
             break;
         
         // %n

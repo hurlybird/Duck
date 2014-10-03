@@ -30,6 +30,9 @@
 #include "DKNumber.h"
 #include "DKCollection.h"
 #include "DKEgg.h"
+#include "DKComparison.h"
+#include "DKCopying.h"
+#include "DKDescription.h"
 
 
 
@@ -60,7 +63,7 @@ static void         DKPredicateFinalize( DKObjectRef _self );
 static DKObjectRef  DKPredicateInitWithEgg( DKPredicateRef _self, DKEggUnarchiverRef egg );
 static void         DKPredicateAddToEgg( DKPredicateRef _self, DKEggArchiverRef egg );
 
-static DKStringRef  DKPredicateCopyDescription( DKObjectRef _self );
+static DKStringRef  DKPredicateGetDescription( DKObjectRef _self );
 
 static const struct PredicateOpInfo * GetPredicateOpInfo( DKPredicateOp op );
 static void         InitPredicateOpInfoTable( void );
@@ -88,7 +91,8 @@ DKThreadSafeClassInit( DKPredicateClass )
 
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKPredicateCopyDescription;
+    description->getDescription = (DKGetDescriptionMethod)DKPredicateGetDescription;
+    description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -159,16 +163,16 @@ static void DKPredicateAddToEgg( DKPredicateRef _self, DKEggArchiverRef egg )
 
 
 ///
-//  DKPredicateCopyDescription()
+//  DKPredicateGetDescription()
 //
-static DKStringRef DKPredicateCopyDescription( DKObjectRef _self )
+static DKStringRef DKPredicateGetDescription( DKObjectRef _self )
 {
     DKPredicateRef predicate = (DKPredicateRef)_self;
 
     if( (predicate->op == DKPredicateFALSE) || (predicate->op == DKPredicateTRUE) )
         return DKStringFromPredicateOp( predicate->op );
 
-    DKMutableStringRef desc = DKStringCreateMutable();
+    DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
 
     DKObjectRef a = predicate->a ? predicate->a : DKSTR( "*" );
     DKObjectRef b = predicate->b ? predicate->b : DKSTR( "*" );

@@ -32,6 +32,10 @@
 #include "DKList.h"
 #include "DKArray.h"
 #include "DKEgg.h"
+#include "DKAllocation.h"
+#include "DKComparison.h"
+#include "DKCopying.h"
+#include "DKDescription.h"
 
 #include "icu/unicode/utf8.h"
 
@@ -51,6 +55,8 @@ static void         DKStringFinalize( DKObjectRef _self );
 
 static DKObjectRef  DKStringInitWithEgg( DKStringRef _self, DKEggUnarchiverRef egg );
 static void         DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef egg );
+
+static DKStringRef  DKMutableStringGetDescription( DKMutableStringRef _self );
 
 static struct DKString DKPlaceholderString =
 {
@@ -101,7 +107,8 @@ DKThreadSafeClassInit( DKStringClass )
 
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKRetain;
+    description->getDescription = (DKGetDescriptionMethod)DKGetSelf;
+    description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -158,7 +165,8 @@ DKThreadSafeClassInit( DKMutableStringClass )
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKStringCopy;
+    description->getDescription = (DKGetDescriptionMethod)DKMutableStringGetDescription;
+    description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -382,6 +390,15 @@ static void DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef egg )
     
     if( length > 0 )
         DKEggAddTextData( egg, DKSTR( "str" ), (const char *)_self->byteArray.bytes, length );
+}
+
+
+///
+//  DKMutableStringGetDescription()
+//
+static DKStringRef DKMutableStringGetDescription( DKMutableStringRef _self )
+{
+    return DKAutorelease( DKStringCopy( _self ) );
 }
 
 

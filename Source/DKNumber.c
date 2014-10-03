@@ -28,6 +28,8 @@
 #include "DKRuntime.h"
 #include "DKString.h"
 #include "DKStream.h"
+#include "DKComparison.h"
+#include "DKDescription.h"
 
 
 
@@ -232,14 +234,6 @@ DKThreadSafeClassInit( DKNumberClass )
 {
     DKClassRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(struct DKNumber), 0, NULL, NULL );
     
-    // Copying
-    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
-    copying->copy = DKRetain;
-    copying->mutableCopy = (void *)DKRetain;
-    
-    DKInstallInterface( cls, copying );
-    DKRelease( copying );
-    
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (void *)DKNumberEqual;
@@ -252,7 +246,8 @@ DKThreadSafeClassInit( DKNumberClass )
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (void *)DKNumberCopyDescription;
+    description->getDescription = (void *)DKNumberGetDescription;
+    description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -527,16 +522,16 @@ DKHashCode DKNumberHash( DKNumberRef _self )
 
 
 ///
-//  DKNumberCopyDescription()
+//  DKNumberGetDescription()
 //
-DKStringRef DKNumberCopyDescription( DKNumberRef _self )
+DKStringRef DKNumberGetDescription( DKNumberRef _self )
 {
     if( _self )
     {
         DKAssertKindOfClass( _self, DKNumberClass() );
         const struct DKNumber * number = _self;
         
-        DKMutableStringRef desc = DKStringCreateMutable();
+        DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
 
         DKEncoding encoding = DKGetObjectTag( _self );
         DKEncodingType type = DKEncodingGetType( encoding );

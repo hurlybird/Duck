@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKAllocation.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,54 +24,33 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#ifndef _DK_ALLOCATION_H_
+#define _DK_ALLOCATION_H_
 
 #include "DKRuntime.h"
 
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKStream.h"
 
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
-
-#include "DKFile.h"
-#include "DKEgg.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
+DKDeclareInterfaceSelector( Allocation );
 
 
-#ifdef __cplusplus
-}
-#endif
+typedef void * (*DKAllocMethod)( DKClassRef _class, size_t extraBytes );
+typedef void (*DKDeallocMethod)( DKObjectRef _self );
+
+struct DKAllocationInterface
+{
+    const DKInterface _interface;
+ 
+    DKAllocMethod       alloc;
+    DKDeallocMethod     dealloc;
+};
 
 
-#endif
+typedef const struct DKAllocationInterface * DKAllocationInterfaceRef;
+
+
+
+
+#endif // _DK_ALLOCATION_H_
+
+
+

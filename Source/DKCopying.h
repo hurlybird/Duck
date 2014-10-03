@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKCopying.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,54 +24,37 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#ifndef _DK_COPYING_H_
+#define __Duck__DKCopying__
 
 #include "DKRuntime.h"
 
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKStream.h"
 
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
-
-#include "DKFile.h"
-#include "DKEgg.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
+DKDeclareInterfaceSelector( Copying );
 
 
-#ifdef __cplusplus
-}
-#endif
+typedef DKObjectRef        (*DKCopyMethod)( DKObjectRef );
+typedef DKMutableObjectRef (*DKMutableCopyMethod)( DKObjectRef );
+
+struct DKCopyingInterface
+{
+    const DKInterface _interface;
+
+    DKCopyMethod        copy;
+    DKMutableCopyMethod mutableCopy;
+};
+
+typedef const struct DKCopyingInterface * DKCopyingInterfaceRef;
 
 
-#endif
+// Default copying interface that retains and returns the object. This is used by the
+// root classes so it's defined in DKRuntime.c.
+DKInterfaceRef DKDefaultCopying( void );
+
+
+DKObjectRef DKCopy( DKObjectRef _self );
+DKMutableObjectRef DKMutableCopy( DKObjectRef _self );
+
+
+
+#endif // _DK_COPYING_H_

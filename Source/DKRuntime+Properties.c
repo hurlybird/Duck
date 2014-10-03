@@ -30,6 +30,8 @@
 #include "DKString.h"
 #include "DKNumber.h"
 #include "DKStruct.h"
+#include "DKCopying.h"
+#include "DKDescription.h"
 
 
 
@@ -274,14 +276,12 @@ static void PropertyNotReadWrite( DKObjectRef _self, DKPropertyRef property )
 //
 static void FailedPredicateRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
 {
-    DKStringRef desc = DKCopyDescription( property->predicate );
+    DKStringRef desc = DKGetDescription( property->predicate );
 
     DKWarning( "DKProperty: '%s' does not meet the requirements ('%s') for property '%s'.\n",
         DKStringGetCStringPtr( DKGetClassName( object ) ),
         DKStringGetCStringPtr( desc ),
         DKStringGetCStringPtr( property->name ) );
-    
-    DKRelease( desc );
 }
 
 #define CheckPredicateRequirement( obj, property, object, ... )                         \

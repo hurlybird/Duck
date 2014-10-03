@@ -28,6 +28,8 @@
 #include "DKByteArray.h"
 #include "DKStream.h"
 #include "DKString.h"
+#include "DKComparison.h"
+#include "DKCopying.h"
 
 
 struct DKData

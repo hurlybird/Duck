@@ -28,6 +28,8 @@
 
 #include "DKRuntime.h"
 #include "DKString.h"
+#include "DKComparison.h"
+#include "DKCopying.h"
 
 
 // Get a dynamic cache index for a selector
@@ -35,6 +37,42 @@
 
 // Inline selector equality
 #define DKFastSelectorEqual( a, b ) (a == b)
+
+
+
+
+// DKSelector ============================================================================
+
+///
+//  DKAllocSelector()
+//
+DKSEL DKAllocSelector( DKStringRef name )
+{
+    struct _DKSEL * sel = DKInit( DKAlloc( DKSelectorClass(), 0 ) );
+
+    DKAssert( sel != NULL );
+
+    sel->name = DKCopy( name );
+    sel->cacheline = DKDynamicCache;
+
+    DKNameDatabaseInsertSelector( sel );
+
+    return sel;
+}
+
+
+///
+//  DKSelectorFinalize()
+//
+void DKSelectorFinalize( DKObjectRef _self )
+{
+    DKSEL sel = _self;
+
+    DKNameDatabaseRemoveSelector( sel );
+
+    DKRelease( sel->name );
+}
+
 
 
 
@@ -93,7 +131,7 @@ static void DKInstallInterfaceInGroup( DKClassRef _class, DKInterfaceRef _interf
     DKRetain( interface );
 
     // Resolve the cache line from the selector
-    int cacheline = interface->sel->cacheline;
+    DKIndex cacheline = interface->sel->cacheline;
     DKAssert( (cacheline >= 0) && (cacheline < DKStaticCacheSize) );
 
     if( cacheline == DKDynamicCache )
@@ -167,7 +205,7 @@ static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, str
     DKAssert( sel->_obj.isa == DKSelectorClass() );
 
     // Get the static cache line from the selector
-    int cacheline = sel->cacheline;
+    DKIndex cacheline = sel->cacheline;
     DKAssert( (cacheline >= 0) && (cacheline < DKStaticCacheSize) );
 
     // We shoudn't need to acquire the spin lock while reading and writing to the cache
@@ -496,6 +534,10 @@ bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * _ms
 
     return false;
 }
+
+
+
+
 
 
 

@@ -46,7 +46,7 @@ typedef struct
     DKNumberRef n = DKNumberCreateInt32( 100 );
     XCTAssert( DKNumberGetInt32( n ) == 100 );
     
-    DKStringRef desc = DKNumberCopyDescription( n );
+    DKStringRef desc = DKNumberGetDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "100" ) ) );
 
     int32_t i32;
@@ -65,27 +65,24 @@ typedef struct
     DKNumberCastValue( n, &d, DKNumberDouble );
     XCTAssert( d == 100.0 );
     
-    DKRelease( desc );
     DKRelease( n );
     
 
     n = DKNumberCreateFloat( 100 );
     XCTAssert( DKNumberGetFloat( n ) == 100.0f );
     
-    desc = DKNumberCopyDescription( n );
+    desc = DKNumberGetDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "100.000000" ) ) );
     
-    DKRelease( desc );
     DKRelease( n );
 
 
     n = DKNumberCreateDouble( 100 );
     XCTAssert( DKNumberGetDouble( n ) == 100.0 );
     
-    desc = DKNumberCopyDescription( n );
+    desc = DKNumberGetDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "100.000000" ) ) );
     
-    DKRelease( desc );
     DKRelease( n );
     
     
@@ -95,10 +92,9 @@ typedef struct
     Vector3 w = DKNumberGetValueAs( n, Vector3 );
     XCTAssert( (v.x == w.x) && (v.y == w.y) && (v.z == w.z) );
     
-    desc = DKNumberCopyDescription( n );
+    desc = DKNumberGetDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "1.000000 2.000000 3.000000" ) ) );
     
-    DKRelease( desc );
     DKRelease( n );
 }
 

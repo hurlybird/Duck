@@ -27,6 +27,9 @@
 #include "DKHashTable.h"
 #include "DKGenericHashTable.h"
 #include "DKString.h"
+#include "DKComparison.h"
+#include "DKCopying.h"
+#include "DKDescription.h"
 
 
 struct DKHashTableRow
@@ -70,7 +73,8 @@ DKThreadSafeClassInit( DKHashTableClass )
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKKeyedCollectionCopyDescription;
+    description->getDescription = (DKGetDescriptionMethod)DKKeyedCollectionGetDescription;
+    description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
     DKInstallInterface( cls, description );
     DKRelease( description );

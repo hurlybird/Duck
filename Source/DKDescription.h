@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKDescription.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,54 +24,44 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#ifndef _DK_DESCRIPTION_H_
+#define _DK_DESCRIPTION_H_
 
 #include "DKRuntime.h"
 
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKStream.h"
 
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
-
-#include "DKFile.h"
-#include "DKEgg.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
+DKDeclareInterfaceSelector( Description );
 
 
-#ifdef __cplusplus
-}
-#endif
+typedef DKStringRef (*DKGetDescriptionMethod)( DKObjectRef _self );
+typedef size_t      (*DKGetSizeInBytesMethod)( DKObjectRef _self );
+
+struct DKDescriptionInterface
+{
+    const DKInterface _interface;
+    
+    DKGetDescriptionMethod getDescription;
+    DKGetSizeInBytesMethod getSizeInBytes;
+};
+
+typedef const struct DKDescriptionInterface * DKDescriptionInterfaceRef;
 
 
-#endif
+// Default description interface. This is used by the root classes so it's defined in
+// DKRuntime.c.
+DKInterfaceRef DKDefaultDescription( void );
+
+
+// A default copyDescription method that returns the class name
+DKStringRef DKDefaultGetDescription( DKObjectRef _self );
+size_t      DKDefaultGetSizeInBytes( DKObjectRef _self );
+
+
+DKStringRef DKGetDescription( DKObjectRef _self );
+size_t      DKGetSizeInBytes( DKObjectRef _self );
+
+
+#endif // _DK_DESCRIPTION_H_
+
+
+

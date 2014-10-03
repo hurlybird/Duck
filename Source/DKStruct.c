@@ -27,6 +27,8 @@
 #include "DKStruct.h"
 #include "DKString.h"
 #include "DKStream.h"
+#include "DKComparison.h"
+#include "DKDescription.h"
 
 
 struct DKStruct
@@ -37,7 +39,7 @@ struct DKStruct
 
 
 static void DKStructFinalize( DKStructRef _self );
-static DKStringRef DKStructCopyDescription( DKStructRef _self );
+static DKStringRef DKStructGetDescription( DKStructRef _self );
 
 
 DKThreadSafeClassInit( DKStructClass )
@@ -46,7 +48,8 @@ DKThreadSafeClassInit( DKStructClass )
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKStructCopyDescription;
+    description->getDescription = (DKGetDescriptionMethod)DKStructGetDescription;
+    description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -139,13 +142,13 @@ size_t DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, 
 
 
 ///
-//  DKStructCopyDescription()
+//  DKStructGetDescription()
 //
-static DKStringRef DKStructCopyDescription( DKStructRef _self )
+static DKStringRef DKStructGetDescription( DKStructRef _self )
 {
     if( _self )
     {
-        DKMutableStringRef desc = DKStringCreateMutable();
+        DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
         
         DKSPrintf( desc, "%@ (%@)", DKGetClassName( _self ), _self->semantic );
         

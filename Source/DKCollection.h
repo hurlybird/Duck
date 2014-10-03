@@ -79,8 +79,8 @@ int         DKForeachKey( DKObjectRef _self, DKApplierFunction callback, void * 
 int         DKForeachObject( DKObjectRef _self, DKApplierFunction callback, void * context );
 int         DKForeachKeyAndObject( DKObjectRef _self, DKKeyedApplierFunction callback, void * context );
 
-DKStringRef DKCollectionCopyDescription( DKObjectRef _self );
-DKStringRef DKKeyedCollectionCopyDescription( DKObjectRef _self );
+DKStringRef DKCollectionGetDescription( DKObjectRef _self );
+DKStringRef DKKeyedCollectionGetDescription( DKObjectRef _self );
 
 
 

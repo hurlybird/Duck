@@ -35,13 +35,16 @@
 #include "DKArray.h"
 #include "DKStream.h"
 #include "DKEgg.h"
+#include "DKAllocation.h"
+#include "DKComparison.h"
+#include "DKCopying.h"
+#include "DKDescription.h"
 
 
 
 // Internal Types ========================================================================
 
 static void DKClassFinalize( DKObjectRef _self );
-static void DKSelectorFinalize( DKObjectRef _self );
 
 static void DKInterfaceGroupInit( struct DKInterfaceGroup * interfaceGroup );
 static void DKInterfaceGroupFinalize( struct DKInterfaceGroup * interfaceGroup );
@@ -225,26 +228,6 @@ DKInterfaceRef DKDefaultComparison( void )
     return &DKDefaultComparison_StaticObject;
 }
 
-bool DKPointerEqual( DKObjectRef _self, DKObjectRef other )
-{
-    return _self == other;
-}
-
-int DKPointerCompare( DKObjectRef _self, DKObjectRef other )
-{
-    if( _self < other )
-        return 1;
-    
-    if( _self > other )
-        return -1;
-    
-    return 0;
-}
-
-DKHashCode DKPointerHash( DKObjectRef _self )
-{
-    return DKObjectUniqueHash( _self );
-}
 
 
 // DefaultCopying ------------------------------------------------------------------------
@@ -265,17 +248,13 @@ DKInterfaceRef DKDefaultCopying( void )
 static struct DKDescriptionInterface DKDefaultDescription_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Description_StaticObject ),
-    DKDefaultCopyDescription
+    DKDefaultGetDescription,
+    DKDefaultGetSizeInBytes
 };
 
 DKInterfaceRef DKDefaultDescription( void )
 {
     return &DKDefaultDescription_StaticObject;
-}
-
-DKStringRef DKDefaultCopyDescription( DKObjectRef _self )
-{
-    return DKCopy( DKGetClassName( _self ) );
 }
 
 
@@ -490,69 +469,6 @@ void DKRuntimeInit( void )
 
 
 
-// Alloc/Free Objects ====================================================================
-
-///
-//  DKAllocObject()
-//
-void * DKAllocObject( DKClassRef cls, size_t extraBytes )
-{
-    if( !cls )
-    {
-        DKError( "DKAllocObject: Specified class object is NULL.\n" );
-        return NULL;
-    }
-    
-    if( cls->structSize < sizeof(DKObject) )
-    {
-        DKFatalError( "DKAllocObject: Requested struct size is smaller than DKObject.\n" );
-        return NULL;
-    }
-    
-    if( (cls->options & DKAbstractBaseClass) != 0 )
-    {
-        DKFatalError( "DKAllocObject: Class '%s' is an abstract base class.\n", DKStringGetCStringPtr( cls->name ) );
-        return NULL;
-    }
-    
-    // Allocate the structure + extra bytes
-    DKObject * obj = dk_malloc( cls->structSize + extraBytes );
-    
-    // Zero the structure bytes
-    memset( obj, 0, cls->structSize );
-    
-    // Setup the object header
-    obj->isa = DKRetain( cls );
-    obj->weakref = NULL;
-    obj->refcount = 1;
-    
-    return obj;
-}
-
-
-///
-//  DKDeallocObject()
-//
-void DKDeallocObject( DKObjectRef _self )
-{
-    DKObject * obj = (DKObject *)_self;
-    
-    DKAssert( obj );
-    DKAssert( obj->refcount == 0 );
-    DKAssert( obj->weakref == NULL );
-
-    DKClassRef cls = obj->isa;
-
-    // Deallocate
-    dk_free( obj );
-    
-    // Finally release the class object
-    DKRelease( cls );
-}
-
-
-
-
 // Creating Classes ======================================================================
 
 ///
@@ -648,40 +564,68 @@ static void DKClassFinalize( DKObjectRef _self )
 }
 
 
+
+
+// Alloc/Free Objects ====================================================================
+
 ///
-//  DKAllocSelector()
+//  DKAllocObject()
 //
-DKSEL DKAllocSelector( DKStringRef name )
+void * DKAllocObject( DKClassRef cls, size_t extraBytes )
 {
-    struct _DKSEL * sel = DKInit( DKAlloc( DKSelectorClass(), 0 ) );
-
-    DKAssert( sel != NULL );
-
-    sel->name = DKCopy( name );
-    sel->cacheline = DKDynamicCache;
-
-    DKNameDatabaseInsertSelector( sel );
-
-    return sel;
+    if( !cls )
+    {
+        DKError( "DKAllocObject: Specified class object is NULL.\n" );
+        return NULL;
+    }
+    
+    if( cls->structSize < sizeof(DKObject) )
+    {
+        DKFatalError( "DKAllocObject: Requested struct size is smaller than DKObject.\n" );
+        return NULL;
+    }
+    
+    if( (cls->options & DKAbstractBaseClass) != 0 )
+    {
+        DKFatalError( "DKAllocObject: Class '%s' is an abstract base class.\n", DKStringGetCStringPtr( cls->name ) );
+        return NULL;
+    }
+    
+    // Allocate the structure + extra bytes
+    DKObject * obj = dk_malloc( cls->structSize + extraBytes );
+    
+    // Zero the structure bytes
+    memset( obj, 0, cls->structSize );
+    
+    // Setup the object header
+    obj->isa = DKRetain( cls );
+    obj->weakref = NULL;
+    obj->refcount = 1;
+    
+    return obj;
 }
 
 
 ///
-//  DKSelectorFinalize()
+//  DKDeallocObject()
 //
-static void DKSelectorFinalize( DKObjectRef _self )
+void DKDeallocObject( DKObjectRef _self )
 {
-    DKSEL sel = _self;
+    DKObject * obj = (DKObject *)_self;
+    
+    DKAssert( obj );
+    DKAssert( obj->refcount == 0 );
+    DKAssert( obj->weakref == NULL );
 
-    DKNameDatabaseRemoveSelector( sel );
+    DKClassRef cls = obj->isa;
 
-    DKRelease( sel->name );
+    // Deallocate
+    dk_free( obj );
+    
+    // Finally release the class object
+    DKRelease( cls );
 }
 
-
-
-
-// Polymorphic Wrappers ==================================================================
 
 ///
 //  DKAlloc()
@@ -783,121 +727,6 @@ void DKFinalize( DKObjectRef _self )
     }
 }
 
-
-///
-//  DKEqual()
-//
-bool DKEqual( DKObjectRef a, DKObjectRef b )
-{
-    if( a && b )
-    {
-        if( a == b )
-            return true;
-        
-        DKComparisonInterfaceRef comparison = DKGetInterface( a, DKSelector(Comparison) );
-        return comparison->equal( a, b );
-    }
-    
-    return false;
-}
-
-
-///
-//  DKLike()
-//
-bool DKLike( DKObjectRef a, DKObjectRef b )
-{
-    if( a && b )
-    {
-        if( a == b )
-            return true;
-        
-        DKComparisonInterfaceRef comparison = DKGetInterface( a, DKSelector(Comparison) );
-        return comparison->like( a, b );
-    }
-    
-    return false;
-}
-
-
-///
-//  DKCompare()
-//
-int DKCompare( DKObjectRef a, DKObjectRef b )
-{
-    if( a == b )
-    {
-        return 0;
-    }
-
-    if( a && b )
-    {
-        DKComparisonInterfaceRef comparison = DKGetInterface( a, DKSelector(Comparison) );
-        return comparison->compare( a, b );
-    }
-    
-    return a < b ? -1 : 1;
-}
-
-
-///
-//  DKHash()
-//
-DKHashCode DKHash( DKObjectRef _self )
-{
-    if( _self )
-    {
-        DKComparisonInterfaceRef comparison = DKGetInterface( _self, DKSelector(Comparison) );
-        return comparison->hash( _self );
-    }
-    
-    return 0;
-}
-
-
-///
-//  DKCopy()
-//
-DKObjectRef DKCopy( DKObjectRef _self )
-{
-    if( _self )
-    {
-        DKCopyingInterfaceRef copying = DKGetInterface( _self, DKSelector(Copying) );
-        return copying->copy( _self );
-    }
-
-    return _self;
-}
-
-
-///
-//  DKMutableCopy()
-//
-DKMutableObjectRef DKMutableCopy( DKObjectRef _self )
-{
-    if( _self )
-    {
-        DKCopyingInterfaceRef copying = DKGetInterface( _self, DKSelector(Copying) );
-        return copying->mutableCopy( _self );
-    }
-
-    return NULL;
-}
-
-
-///
-//  DKCopyDescription()
-//
-DKStringRef DKCopyDescription( DKObjectRef _self )
-{
-    if( _self )
-    {
-        DKDescriptionInterfaceRef description = DKGetInterface( _self, DKSelector(Description) );
-        return description->copyDescription( _self );
-    }
-    
-    return DKSTR( "null" );
-}
 
 
 

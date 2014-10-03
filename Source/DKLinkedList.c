@@ -29,6 +29,8 @@
 #include "DKGenericArray.h"
 #include "DKString.h"
 #include "DKSet.h"
+#include "DKCopying.h"
+#include "DKDescription.h"
 
 
 struct DKLinkedListNode
@@ -77,7 +79,8 @@ DKThreadSafeClassInit( DKLinkedListClass )
 
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->copyDescription = (DKCopyDescriptionMethod)DKCollectionCopyDescription;
+    description->getDescription = (DKGetDescriptionMethod)DKCollectionGetDescription;
+    description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
     DKInstallInterface( cls, description );
     DKRelease( description );

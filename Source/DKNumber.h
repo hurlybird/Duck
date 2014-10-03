@@ -84,7 +84,7 @@ bool        DKNumberEqual( DKNumberRef a, DKNumberRef b );
 int         DKNumberCompare( DKNumberRef a, DKNumberRef b );
 DKHashCode  DKNumberHash( DKNumberRef _self );
 
-DKStringRef DKNumberCopyDescription( DKNumberRef _self );
+DKStringRef DKNumberGetDescription( DKNumberRef _self );
 
 // Utility function for converting number types
 size_t DKNumberConvert( const void * src, DKEncoding srcType, void * dst, DKEncoding dstType );

@@ -29,6 +29,86 @@
 
 
 
+
+// DKSelector ============================================================================
+
+// Selector cache configuration
+typedef enum
+{
+    // Use the dynamic cache
+    DKDynamicCache =                            0,
+    
+    // 1-7  -- Static cache lines for class interfaces
+    DKStaticCache_Allocation =                  1,
+    
+    // 8-15 -- Static cache lines for user class interfaces
+
+    // 1-7  -- Static cache lines for instance interfaces
+    DKStaticCache_Comparison =                  1,
+    DKStaticCache_Copying,
+    DKStaticCache_Collection,
+    DKStaticCache_KeyedCollection,
+    DKStaticCache_List,
+    DKStaticCache_Dictionary,
+    
+    // 8-15 -- Static cache lines for user instance interfaces
+    
+    // Size of the static cache
+    DKStaticCacheSize =                         16,
+    
+    // Size of the dynamic cache (must be a power of 2)
+    DKDynamicCacheSize =                        16
+    
+} DKCacheUsage;
+
+
+struct _DKSEL
+{
+    const DKObject  _obj;
+
+    // Selectors are typically compared by pointer value, but the name is required to
+    // look up a selector by name
+
+    // The name database requires that the name and hash fields of DKClass and DKSEL are
+    // in the same position in the structure (i.e. right after the object header).
+    DKStringRef     name;
+    DKHashCode      hash;
+    
+    // Controls how interfaces retrieved by this selector are cached.
+    DKIndex         cacheline;
+};
+
+typedef const struct _DKSEL * DKSEL;
+
+
+// A friendly macro for accessing selector objects.
+#define DKSelector( name )      DKSelector_ ## name()
+
+
+// Allocate a new selector object.
+DKSEL       DKAllocSelector( DKStringRef name );
+
+
+// Thread-safe initialization of selector objects.
+#define DKThreadSafeSelectorInit( name )                                                \
+    DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
+    {                                                                                   \
+        return DKAllocSelector( DKSTR( #name ) );                                       \
+    }
+
+// Thread-safe initialization of "fast" selectors. Each fast selector is assigned a
+// unique, reserved cache line in the interface cache.
+#define DKThreadSafeFastSelectorInit( name )                                            \
+    DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
+    {                                                                                   \
+        struct _DKSEL * sel = (struct _DKSEL *)DKAllocSelector( DKSTR( #name ) );       \
+        sel->cacheline = DKStaticCache_ ## name;                                        \
+        return sel;                                                                     \
+    }
+
+
+
+
 // DKInterface ===========================================================================
 #define DK_MAX_INTERFACE_SIZE   32
 
@@ -144,104 +224,7 @@ bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * msg
 
 #define DKMsgSend( _self, msg, ... ) \
     ((DKMsgHandler_ ## msg)DKGetMsgHandler( _self, DKSelector(msg) )->func)( _self, DKSelector(msg) , ## __VA_ARGS__ )
-    
 
-
-
-
-
-
-// Default Interfaces ====================================================================
-
-// Allocation ----------------------------------------------------------------------------
-DKDeclareInterfaceSelector( Allocation );
-
-typedef void * (*DKAllocMethod)( DKClassRef _class, size_t extraBytes );
-typedef void (*DKDeallocMethod)( DKObjectRef _self );
-
-struct DKAllocationInterface
-{
-    const DKInterface _interface;
- 
-    DKAllocMethod       alloc;
-    DKDeallocMethod     dealloc;
-};
-
-typedef const struct DKAllocationInterface * DKAllocationInterfaceRef;
-
-
-
-
-// Comparison ----------------------------------------------------------------------------
-DKDeclareInterfaceSelector( Comparison );
-
-typedef DKEqualityFunction DKEqualityMethod;
-typedef DKCompareFunction DKCompareMethod;
-typedef DKHashFunction DKHashMethod;
-
-struct DKComparisonInterface
-{
-    const DKInterface _interface;
-    
-    DKEqualityMethod    equal;
-    DKEqualityMethod    like;
-    DKCompareMethod     compare;
-    DKHashMethod        hash;
-};
-
-typedef const struct DKComparisonInterface * DKComparisonInterfaceRef;
-
-DKInterfaceRef DKDefaultComparison( void );
-
-
-// Pointer equality, comparison and hashing
-bool        DKPointerEqual( DKObjectRef _self, DKObjectRef other );
-int         DKPointerCompare( DKObjectRef _self, DKObjectRef other );
-DKHashCode  DKPointerHash( DKObjectRef ptr );
-
-
-
-
-// Copying -------------------------------------------------------------------------------
-DKDeclareInterfaceSelector( Copying );
-
-typedef DKObjectRef        (*DKCopyMethod)( DKObjectRef );
-typedef DKMutableObjectRef (*DKMutableCopyMethod)( DKObjectRef );
-
-struct DKCopyingInterface
-{
-    const DKInterface _interface;
-
-    DKCopyMethod        copy;
-    DKMutableCopyMethod mutableCopy;
-};
-
-typedef const struct DKCopyingInterface * DKCopyingInterfaceRef;
-
-DKInterfaceRef DKDefaultCopying( void );
-
-
-
-
-// Description ---------------------------------------------------------------------------
-DKDeclareInterfaceSelector( Description );
-
-typedef DKStringRef (*DKCopyDescriptionMethod)( DKObjectRef _self );
-
-struct DKDescriptionInterface
-{
-    const DKInterface _interface;
-    
-    DKCopyDescriptionMethod copyDescription;
-};
-
-typedef const struct DKDescriptionInterface * DKDescriptionInterfaceRef;
-
-DKInterfaceRef DKDefaultDescription( void );
-
-
-// A default copyDescription method that returns a copy of the class name
-DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
 
 
 
@@ -249,6 +232,7 @@ DKStringRef DKDefaultCopyDescription( DKObjectRef _self );
 // Private ===============================================================================
 #if DK_RUNTIME_PRIVATE
 
+void DKSelectorFinalize( DKObjectRef _self );
 void DKInterfaceFinalize( DKObjectRef _self );
 
 #endif // DK_RUNTIME_PRIVATE
