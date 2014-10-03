@@ -680,22 +680,25 @@ size_t DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue
             }
         }
         
-        if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
-        {
-            DKObjectRef number = DKReadPropertyObject( _self, property );
-            result = UnpackNumber( number, dstValue, dstEncoding );
-            DKRelease( number );
-            
-            if( result != 0 )
-                return result;
-        }
-        
         else
         {
-            void * srcValue = (uint8_t *)_self + property->offset;
+            if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
+            {
+                DKObjectRef number = DKReadPropertyObject( _self, property );
+                result = UnpackNumber( number, dstValue, dstEncoding );
+                DKRelease( number );
+                
+                if( result != 0 )
+                    return result;
+            }
+            
+            else
+            {
+                void * srcValue = (uint8_t *)_self + property->offset;
 
-            if( (result = DKNumberConvert( srcValue, property->encoding, dstValue, dstEncoding )) != 0 )
-                return result;
+                if( (result = DKNumberConvert( srcValue, property->encoding, dstValue, dstEncoding )) != 0 )
+                    return result;
+            }
         }
 
         DKWarning( "DKProperty: No available conversion for property '%s' to %s[%d].\n",
@@ -836,23 +839,26 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef sem
             }
         }
         
-        CheckSemanticRequirement( _self, property, semantic, 0 );
-        
-        if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
+        else
         {
-            DKObjectRef structure = DKReadPropertyObject( _self, property );
-            result = UnpackStructure( structure, semantic, dstValue, dstSize );
-            DKRelease( structure );
+            CheckSemanticRequirement( _self, property, semantic, 0 );
             
-            if( result != 0 )
-                return result;
-        }
+            if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
+            {
+                DKObjectRef structure = DKReadPropertyObject( _self, property );
+                result = UnpackStructure( structure, semantic, dstValue, dstSize );
+                DKRelease( structure );
+                
+                if( result != 0 )
+                    return result;
+            }
 
-        if( property->encoding == DKEncode( DKEncodingTypeBinaryData, dstSize ) )
-        {
-            const void * srcValue = (uint8_t *)_self + property->offset;
-            memcpy( dstValue, srcValue, dstSize );
-            return dstSize;
+            if( property->encoding == DKEncode( DKEncodingTypeBinaryData, dstSize ) )
+            {
+                const void * srcValue = (uint8_t *)_self + property->offset;
+                memcpy( dstValue, srcValue, dstSize );
+                return dstSize;
+            }
         }
         
         DKWarning( "DKProperty: No available conversion for property '%s' to structure (%s).\n",
