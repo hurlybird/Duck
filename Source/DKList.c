@@ -509,6 +509,84 @@ void DKListRemoveAllObjects( DKMutableListRef _self )
 
 
 ///
+//  DKListEqual()
+//
+bool DKListEqual( DKListRef _self, DKListRef other )
+{
+    if( _self )
+    {
+        DKListInterfaceRef list1 = DKGetInterface( _self, DKSelector(List) );
+        
+        DKListInterfaceRef list2;
+        
+        if( DKQueryInterface( other, DKSelector(List), (DKInterfaceRef *)&list2 ) )
+        {
+            DKIndex count = list1->getCount( _self );
+            
+            if( list2->getCount( other ) == count )
+            {
+                for( DKIndex i = 0; i < count; ++i )
+                {
+                    DKObjectRef obj1 = list1->getObjectAtIndex( _self, i );
+                    DKObjectRef obj2 = list2->getObjectAtIndex( other, i );
+                    
+                    if( !DKEqual( obj1, obj2 ) )
+                        return false;
+                }
+                
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+
+
+///
+//  DKListCompare()
+//
+int DKListCompare( DKListRef _self, DKListRef other )
+{
+    if( _self )
+    {
+        DKListInterfaceRef list1 = DKGetInterface( _self, DKSelector(List) );
+        
+        DKListInterfaceRef list2;
+        
+        if( DKQueryInterface( other, DKSelector(List), (DKInterfaceRef *)&list2 ) )
+        {
+            DKIndex count1 = list1->getCount( _self );
+            DKIndex count2 = list2->getCount( _self );
+            
+            DKIndex count = (count1 < count2) ? count1 : count2;
+            
+            for( DKIndex i = 0; i < count; ++i )
+            {
+                DKObjectRef obj1 = list1->getObjectAtIndex( _self, i );
+                DKObjectRef obj2 = list2->getObjectAtIndex( other, i );
+                
+                int cmp = DKCompare( obj1, obj2 );
+                
+                if( cmp != 0 )
+                    return cmp;
+            }
+            
+            if( count1 < count2 )
+                return -1;
+            
+            else if( count1 > count2 )
+                return 1;
+            
+            return 0;
+        }
+    }
+    
+    return DKPointerCompare( _self, other );
+}
+
+
+///
 //  DKListSort()
 //
 void DKListSort( DKMutableListRef _self, DKCompareFunction cmp )

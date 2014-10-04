@@ -302,16 +302,23 @@ int DKDataCompare( DKDataRef _self, DKDataRef other )
         // requirement.
         DKCheckKindOfClass( other, DKDataClass(), DKPointerCompare( _self, other ) );
 
-        if( _self->byteArray.length < other->byteArray.length )
-            return 1;
+        DKIndex length1 = _self->byteArray.length;
+        DKIndex length2 = other->byteArray.length;
         
-        if( _self->byteArray.length > other->byteArray.length )
+        DKIndex length = (length1 < length2) ? length1 : length2;
+        
+        int cmp = memcmp( _self->byteArray.bytes, other->byteArray.bytes, length );
+        
+        if( cmp != 0 )
+            return cmp;
+        
+        if( length1 < length2 )
             return -1;
         
-        if( _self->byteArray.length == 0 )
-            return 0;
-
-        return memcmp( _self->byteArray.bytes, other->byteArray.bytes, _self->byteArray.length );
+        else if( length1 > length2 )
+            return 1;
+        
+        return 0;
     }
     
     return DKPointerCompare( _self, other );

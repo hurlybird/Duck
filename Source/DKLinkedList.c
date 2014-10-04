@@ -29,8 +29,10 @@
 #include "DKGenericArray.h"
 #include "DKString.h"
 #include "DKSet.h"
+#include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
+#include "DKEgg.h"
 
 
 struct DKLinkedListNode
@@ -61,6 +63,9 @@ struct DKLinkedList
 static DKObjectRef DKLinkedListInitialize( DKObjectRef _self );
 static void        DKLinkedListFinalize( DKObjectRef _self );
 
+static DKObjectRef  DKLinkedListInitWithEgg( DKLinkedListRef _self, DKEggUnarchiverRef egg );
+static void         DKLinkedListAddToEgg( DKLinkedListRef _self, DKEggArchiverRef egg );
+
 
 ///
 //  DKLinkedListClass()
@@ -69,6 +74,16 @@ DKThreadSafeClassInit( DKLinkedListClass )
 {
     DKClassRef cls = DKAllocClass( DKSTR( "DKLinkedList" ), DKObjectClass(), sizeof(struct DKLinkedList), 0, DKLinkedListInitialize, DKLinkedListFinalize );
     
+    // Comparison
+    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    comparison->equal = (DKEqualityMethod)DKListEqual;
+    comparison->like = (DKEqualityMethod)DKListEqual;
+    comparison->compare = (DKCompareMethod)DKListCompare;
+    comparison->hash = (DKHashMethod)DKPointerHash;
+
+    DKInstallInterface( cls, comparison );
+    DKRelease( comparison );
+
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
@@ -129,6 +144,14 @@ DKThreadSafeClassInit( DKLinkedListClass )
     
     DKInstallInterface( cls, set );
     DKRelease( set );
+
+    // Egg
+    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    egg->initWithEgg = (DKInitWithEggMethod)DKLinkedListInitWithEgg;
+    egg->addToEgg = (DKAddToEggMethod)DKLinkedListAddToEgg;
+    
+    DKInstallInterface( cls, egg );
+    DKRelease( egg );
 
     return cls;
 }
@@ -550,7 +573,7 @@ DKObjectRef DKLinkedListInitWithVAObjects( DKLinkedListRef _self, va_list object
         
         while( (object = va_arg( objects, DKObjectRef )) != NULL )
         {
-            ReplaceRangeWithCArray( (struct DKLinkedList *)_self, DKRangeMake( _self->count, 0 ), &object, 1 );
+            InsertObject( (struct DKLinkedList *)_self, _self->count, object );
         }
     }
 
@@ -589,6 +612,45 @@ DKObjectRef DKLinkedListInitWithCollection( DKLinkedListRef _self, DKObjectRef c
     }
 
     return _self;
+}
+
+
+///
+//  DKLinkedListInitWithEgg()
+//
+static int DKLinkedListInitWithEggCallback( DKObjectRef object, void * context )
+{
+    struct DKLinkedList * list = context;
+
+    InsertObject( list, list->count, object );
+    
+    return 0;
+}
+
+static DKObjectRef DKLinkedListInitWithEgg( DKLinkedListRef _self, DKEggUnarchiverRef egg )
+{
+    _self = DKInit( _self );
+    
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKLinkedListClass() );
+        DKEggGetCollection( egg, DKSTR( "objects" ), DKLinkedListInitWithEggCallback, (void *)_self );
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKLinkedListAddToEgg()
+//
+static void DKLinkedListAddToEgg( DKLinkedListRef _self, DKEggArchiverRef egg )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKLinkedListClass() );
+        DKEggAddCollection( egg, DKSTR( "objects" ), _self );
+    }
 }
 
 

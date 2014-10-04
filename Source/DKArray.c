@@ -28,8 +28,10 @@
 #include "DKGenericArray.h"
 #include "DKString.h"
 #include "DKSet.h"
+#include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
+#include "DKEgg.h"
 
 
 struct DKArray
@@ -42,6 +44,9 @@ struct DKArray
 static DKObjectRef DKArrayInitialize( DKObjectRef _self );
 static void        DKArrayFinalize( DKObjectRef _self );
 
+static DKObjectRef  DKArrayInitWithEgg( DKArrayRef _self, DKEggUnarchiverRef egg );
+static void         DKArrayAddToEgg( DKArrayRef _self, DKEggArchiverRef egg );
+
 
 ///
 //  DKArrayClass()
@@ -50,6 +55,16 @@ DKThreadSafeClassInit( DKArrayClass )
 {
     DKClassRef cls = DKAllocClass( DKSTR( "DKArray" ), DKObjectClass(), sizeof(struct DKArray), 0, DKArrayInitialize, DKArrayFinalize );
     
+    // Comparison
+    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    comparison->equal = (DKEqualityMethod)DKListEqual;
+    comparison->like = (DKEqualityMethod)DKListEqual;
+    comparison->compare = (DKCompareMethod)DKListCompare;
+    comparison->hash = (DKHashMethod)DKPointerHash;
+
+    DKInstallInterface( cls, comparison );
+    DKRelease( comparison );
+
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
@@ -110,6 +125,14 @@ DKThreadSafeClassInit( DKArrayClass )
     
     DKInstallInterface( cls, set );
     DKRelease( set );
+
+    // Egg
+    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    egg->initWithEgg = (DKInitWithEggMethod)DKArrayInitWithEgg;
+    egg->addToEgg = (DKAddToEggMethod)DKArrayAddToEgg;
+    
+    DKInstallInterface( cls, egg );
+    DKRelease( egg );
 
     return cls;
 }
@@ -351,18 +374,59 @@ DKObjectRef DKArrayInitWithCollection( DKArrayRef _self, DKObjectRef collection 
 
 
 ///
-//  DKArrayCreateWithCArrayNoCopy()
+//  DKArrayInitWithCArrayNoCopy()
 //
-DKObjectRef DKArrayCreateWithCArrayNoCopy( /* DKClassRef _class, */ DKObjectRef objects[], DKIndex count )
+DKObjectRef DKArrayInitWithCArrayNoCopy( DKArrayRef _self, DKObjectRef objects[], DKIndex count )
 {
-    struct DKArray * array = DKCreate( DKArrayClass() );
+    _self = DKInit( _self );
 
-    if( array )
+    if( _self )
     {
-        DKGenericArrayInitWithExternalStorage( &array->ptrArray, objects, sizeof(DKObjectRef), count );
+        DKAssertMemberOfClass( _self, DKArrayClass() );
+        DKGenericArrayInitWithExternalStorage( (DKGenericArray *)&_self->ptrArray, objects, sizeof(DKObjectRef), count );
     }
     
-    return array;
+    return _self;
+}
+
+
+///
+//  DKArrayInitWithEgg()
+//
+static int DKArrayInitWithEggCallback( DKObjectRef object, void * context )
+{
+    struct DKArray * array = context;
+
+    DKRetain( object );
+    DKGenericArrayAppendElements( &array->ptrArray, &object, 1 );
+    
+    return 0;
+}
+
+static DKObjectRef DKArrayInitWithEgg( DKArrayRef _self, DKEggUnarchiverRef egg )
+{
+    _self = DKInit( _self );
+    
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKArrayClass() );
+        DKEggGetCollection( egg, DKSTR( "objects" ), DKArrayInitWithEggCallback, (void *)_self );
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKArrayAddToEgg()
+//
+static void DKArrayAddToEgg( DKArrayRef _self, DKEggArchiverRef egg )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKArrayClass() );
+        DKEggAddCollection( egg, DKSTR( "objects" ), _self );
+    }
 }
 
 

@@ -143,6 +143,9 @@ void        DKListRemoveObjectAtIndex( DKMutableListRef _self, DKIndex index );
 void        DKListRemoveObjectsInRange( DKMutableListRef _self, DKRange range );
 void        DKListRemoveAllObjects( DKMutableListRef _self );
 
+bool        DKListEqual( DKListRef _self, DKListRef other );
+int         DKListCompare( DKListRef _self, DKListRef other );
+
 void        DKListSort( DKMutableListRef _self, DKCompareFunction cmp );
 void        DKListShuffle( DKMutableListRef _self );
 

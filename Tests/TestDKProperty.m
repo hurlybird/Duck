@@ -177,8 +177,6 @@ struct TestObject
         DKSTR( "jane" ), jane,
         NULL );
     
-    DKPrintf( "%@", db );
-    
     DKStringRef value = DKGetPropertyForKeyPath( db, DKSTR( "dick.name" ) );
     XCTAssert( DKEqual( value, DKSTR( "Dick" ) ) );
 
