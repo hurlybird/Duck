@@ -28,8 +28,10 @@
 #include "DKRuntime.h"
 #include "DKString.h"
 #include "DKStream.h"
+#include "DKAllocation.h"
 #include "DKComparison.h"
 #include "DKDescription.h"
+#include "DKEgg.h"
 
 
 
@@ -40,7 +42,7 @@
 
 typedef union
 {
-    int8_t      _int8_t[1];
+    int8_t      _int8_t[1];     // Variable size
     int16_t     _int16_t[1];
     int32_t     _int32_t[1];
     int64_t     _int64_t[1];
@@ -227,12 +229,36 @@ struct DKNumber
 };
 
 
+static struct DKNumber DKPlaceholderNumber =
+{
+    DKStaticObject( NULL ),
+};
+
+
+static void * DKNumberAllocPlaceholder( DKClassRef _class, size_t extraBytes );
+static void DKNumberDealloc( DKNumberRef _self );
+
+static DKObjectRef  DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef egg );
+static void         DKNumberAddToEgg( DKNumberRef _self, DKEggArchiverRef egg );
+
+
 ///
 //  DKNumberClass()
 //
 DKThreadSafeClassInit( DKNumberClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(struct DKNumber), 0, NULL, NULL );
+    // NOTE: The value field of DKNumber is dynamically sized, and not included in the
+    // base instance structure size.
+    DKAssert( sizeof(struct DKNumber) == (sizeof(DKObject) + sizeof(DKNumberValue)) );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(DKObject), 0, NULL, NULL );
+    
+    // Allocation
+    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
+    allocation->alloc = (DKAllocMethod)DKNumberAllocPlaceholder;
+    allocation->dealloc = (DKDeallocMethod)DKNumberDealloc;
+
+    DKInstallClassInterface( cls, allocation );
+    DKRelease( allocation );
     
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
@@ -252,29 +278,108 @@ DKThreadSafeClassInit( DKNumberClass )
     DKInstallInterface( cls, description );
     DKRelease( description );
 
+    // Egg
+    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    egg->initWithEgg = (DKInitWithEggMethod)DKNumberInitWithEgg;
+    egg->addToEgg = (DKAddToEggMethod)DKNumberAddToEgg;
+    
+    DKInstallInterface( cls, egg );
+    DKRelease( egg );
+
     return cls;
 }
 
 
 ///
-//  DKNumberCreate()
+//  DKNumberAllocPlaceholder()
 //
-DKNumberRef DKNumberCreate( const void * value, DKEncoding encoding )
+static void * DKNumberAllocPlaceholder( DKClassRef _class, size_t extraBytes )
 {
-    DKAssert( DKEncodingIsNumber( encoding ) );
-    DKAssert( value != NULL );
-
-    size_t size = DKEncodingGetSize( encoding );
-    
-    struct DKNumber * number = DKInit( DKAlloc( DKNumberClass(), size ) );
-    
-    if( number )
+    if( _class == DKNumberClass_SharedObject )
     {
-        DKSetObjectTag( number, encoding );
-        memcpy( &number->value, value, size );
+        DKPlaceholderNumber._obj.isa = DKNumberClass_SharedObject;
+        return &DKPlaceholderNumber;
     }
     
-    return number;
+    DKAssert( 0 );
+    return NULL;
+}
+
+
+///
+//  DKNumberDealloc()
+//
+static void DKNumberDealloc( DKNumberRef _self )
+{
+    if( _self == &DKPlaceholderNumber )
+        return;
+    
+    DKDeallocObject( _self );
+}
+
+
+///
+//  DKNumberInit()
+//
+DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding )
+{
+    if( _self == &DKPlaceholderNumber  )
+    {
+        DKAssert( value != NULL );
+        DKAssert( DKEncodingIsNumber( encoding ) );
+
+        size_t size = DKEncodingGetSize( encoding );
+
+        _self = DKAllocObject( DKNumberClass(), size );
+        
+        DKSetObjectTag( _self, encoding );
+        memcpy( (void *)&_self->value, value, size );
+    }
+    
+    else if( _self != NULL )
+    {
+        DKFatalError( "DKNumberInit: Trying to initialize a non-number object.\n" );
+    }
+
+    return _self;
+}
+
+
+///
+//  DKNumberInitWithEgg()
+//
+static DKObjectRef DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef egg )
+{
+    if( _self == &DKPlaceholderNumber  )
+    {
+        DKEncoding encoding = DKEggGetEncoding( egg, DKSTR( "val" ) );
+        DKAssert( DKEncodingIsNumber( encoding ) );
+
+        size_t size = DKEncodingGetSize( encoding );
+
+        _self = DKAllocObject( DKNumberClass(), size );
+        
+        DKSetObjectTag( _self, encoding );
+        
+        DKEggGetNumberData( egg, DKSTR( "val" ), (void *)&_self->value );
+    }
+    
+    else if( _self != NULL )
+    {
+        DKFatalError( "DKNumberInitWithEgg: Trying to initialize a non-number object.\n" );
+    }
+
+    return _self;
+}
+
+
+///
+//  DKNumberAddToEgg()
+//
+static void DKNumberAddToEgg( DKNumberRef _self, DKEggArchiverRef egg )
+{
+    DKEncoding encoding = DKGetObjectTag( _self );
+    DKEggAddNumberData( egg, DKSTR( "val" ), encoding, &_self->value );
 }
 
 

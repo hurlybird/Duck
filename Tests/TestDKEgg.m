@@ -37,22 +37,28 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testEgg
 {
-    DKStringRef string1 = DKStringCreateWithCString( DKStringClass(), "Hello World!" );
+    DKStringRef s1 = DKStringCreateWithCString( DKStringClass(), "Hello World!" );
+    DKNumberRef n1 = DKNumberCreateInt32( 1 );
 
     DKEggArchiverRef archiver = DKCreate( DKEggArchiverClass() );
-    DKEggAddObject( archiver, DKSTR( "string" ), string1 );
+    DKEggAddObject( archiver, DKSTR( "string" ), s1 );
+    DKEggAddObject( archiver, DKSTR( "number" ), n1 );
     
     DKDataRef archivedData = DKEggArchiverCreateData( archiver );
     
     DKEggUnarchiverRef unarchiver = DKEggCreateUnarchiverWithData( archivedData );
-    DKStringRef string2 = DKRetain( DKEggGetObject( unarchiver, DKSTR( "string" ) ) );
+    DKStringRef s2 = DKEggGetObject( unarchiver, DKSTR( "string" ) );
+    DKNumberRef n2 = DKEggGetObject( unarchiver, DKSTR( "number" ) );
+
+    XCTAssert( DKEqual( s1, s2 ) );
+    XCTAssert( DKEqual( n1, n2 ) );
 
     DKRelease( archiver );
     DKRelease( unarchiver );
     
     DKRelease( archivedData );
-    DKRelease( string1 );
-    DKRelease( string2 );
+    DKRelease( s1 );
+    DKRelease( n1 );
 }
 
 @end

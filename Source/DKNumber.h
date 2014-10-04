@@ -52,7 +52,7 @@ typedef const struct DKNumber * DKNumberRef;
 
 DKClassRef  DKNumberClass( void );
 
-DKNumberRef DKNumberCreate( const void * value, DKEncoding encoding );
+#define     DKNumberCreate( value, encoding )   DKNumberInit( DKAlloc( DKNumberClass(), 0 ), value, encoding )
 
 DKNumberRef DKNumberCreateInt32( int32_t x );
 DKNumberRef DKNumberCreateInt64( int64_t x );
@@ -62,6 +62,8 @@ DKNumberRef DKNumberCreateFloat( float x );
 DKNumberRef DKNumberCreateDouble( double x );
 DKNumberRef DKNumberCreateUUID( const DKUUID * uuid );
 DKNumberRef DKNumberCreateDate( const DKDateTime * date );
+
+DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding );
 
 DKEncoding  DKNumberGetEncoding( DKNumberRef _self );
 
