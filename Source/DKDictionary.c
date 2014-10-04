@@ -29,6 +29,7 @@
 #include "DKArray.h"
 #include "DKString.h"
 #include "DKStream.h"
+#include "DKComparison.h"
 
 
 DKThreadSafeFastSelectorInit( Dictionary );
@@ -292,6 +293,61 @@ void DKDictionaryRemoveAllObjects( DKMutableDictionaryRef _self )
         DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
         return dict->removeAllObjects( _self );
     }
+}
+
+
+///
+//  DKDictionaryEqual()
+//
+static int DKDictionaryEqualCallback( DKObjectRef key, DKObjectRef object, void * context )
+{
+    DKObjectRef object2 = DKDictionaryGetObject( context, key );
+    
+    if( DKEqual( object, object2 ) )
+        return 0;
+    
+    return 1;
+}
+
+bool DKDictionaryEqual( DKDictionaryRef _self, DKDictionaryRef other )
+{
+    if( _self )
+    {
+        DKDictionaryInterfaceRef dict1 = DKGetInterface( _self, DKSelector(Dictionary) );
+        
+        DKDictionaryInterfaceRef dict2;
+        
+        if( DKQueryInterface( other, DKSelector(Dictionary), (DKInterfaceRef *)&dict2 ) )
+        {
+            if( dict1->getCount( _self ) == dict2->getCount( other ) )
+            {
+                int result = DKForeachKeyAndObject( _self, DKDictionaryEqualCallback, (void *)other );
+                return result == 0;
+            }
+        }
+    }
+    
+    return false;
+}
+
+
+///
+//  DKDictionaryLike()
+//
+bool DKDictionaryLike( DKDictionaryRef _self, DKDictionaryRef other )
+{
+    if( _self )
+    {
+        // This check may be pendantic, but a keyed collection isn't technically required
+        // to be a dictionary (i.e. it could be a multimap or something).
+        if( DKQueryInterface( other, DKSelector(Dictionary), NULL ) )
+        {
+            int result = DKForeachKeyAndObject( other, DKDictionaryEqualCallback, (void *)_self );
+            return result == 0;
+        }
+    }
+    
+    return false;
 }
 
 

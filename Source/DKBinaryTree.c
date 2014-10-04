@@ -30,6 +30,7 @@
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
+#include "DKEgg.h"
 
 
 struct DKBinaryTreeNode
@@ -58,6 +59,9 @@ struct DKBinaryTree
 static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _self );
 static void        DKBinaryTreeFinalize( DKObjectRef _self );
 
+static DKObjectRef DKBinaryTreeInitWithEgg( DKBinaryTreeRef _self, DKEggUnarchiverRef egg );
+static void DKBinaryTreeAddToEgg( DKBinaryTreeRef _self, DKEggArchiverRef egg );
+
 
 ///
 //  DKBinaryTreeClass()
@@ -66,6 +70,16 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
 {
     DKClassRef cls = DKAllocClass( DKSTR( "DKBinaryTree" ), DKObjectClass(), sizeof(struct DKBinaryTree), 0, DKBinaryTreeInitialize, DKBinaryTreeFinalize );
     
+    // Comparison
+    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    comparison->equal = (DKEqualityMethod)DKDictionaryEqual;
+    comparison->like = (DKEqualityMethod)DKDictionaryLike;
+    comparison->compare = (DKCompareMethod)DKPointerCompare;
+    comparison->hash = (DKHashMethod)DKPointerHash;
+
+    DKInstallInterface( cls, comparison );
+    DKRelease( comparison );
+
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
@@ -141,6 +155,14 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     
     DKInstallInterface( cls, property );
     DKRelease( property );
+
+    // Egg
+    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    egg->initWithEgg = (DKInitWithEggMethod)DKBinaryTreeInitWithEgg;
+    egg->addToEgg = (DKAddToEggMethod)DKBinaryTreeAddToEgg;
+    
+    DKInstallInterface( cls, egg );
+    DKRelease( egg );
 
     return cls;
 }
@@ -742,6 +764,36 @@ DKObjectRef DKBinaryTreeInitSetWithCollection( DKBinaryTreeRef _self, DKObjectRe
     }
     
     return _self;
+}
+
+
+///
+//  DKBinaryTreeInitWithEgg()
+//
+static DKObjectRef DKBinaryTreeInitWithEgg( DKBinaryTreeRef _self, DKEggUnarchiverRef egg )
+{
+    _self = DKInit( _self );
+    
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKBinaryTreeClass() );
+        DKEggGetKeyedCollection( egg, DKSTR( "pairs" ), InsertKeyAndObject, (void *)_self );
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKBinaryTreeAddToEgg()
+//
+static void DKBinaryTreeAddToEgg( DKBinaryTreeRef _self, DKEggArchiverRef egg )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKBinaryTreeClass() );
+        DKEggAddKeyedCollection( egg, DKSTR( "pairs" ), _self );
+    }
 }
 
 

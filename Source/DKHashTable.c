@@ -30,6 +30,7 @@
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
+#include "DKEgg.h"
 
 
 struct DKHashTableRow
@@ -53,6 +54,9 @@ struct DKHashTable
 static DKObjectRef DKHashTableInitialize( DKObjectRef _self );
 static void        DKHashTableFinalize( DKObjectRef _self );
 
+static DKObjectRef DKHashTableInitWithEgg( DKHashTableRef _self, DKEggUnarchiverRef egg );
+static void        DKHashTableAddToEgg( DKHashTableRef _self, DKEggArchiverRef egg );
+
 static void        Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 
 
@@ -63,6 +67,16 @@ DKThreadSafeClassInit( DKHashTableClass )
 {
     DKClassRef cls = DKAllocClass( DKSTR( "DKHashTable" ), DKObjectClass(), sizeof(struct DKHashTable), 0, DKHashTableInitialize, DKHashTableFinalize );
     
+    // Comparison
+    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    comparison->equal = (DKEqualityMethod)DKDictionaryEqual;
+    comparison->like = (DKEqualityMethod)DKDictionaryLike;
+    comparison->compare = (DKCompareMethod)DKPointerCompare;
+    comparison->hash = (DKHashMethod)DKPointerHash;
+
+    DKInstallInterface( cls, comparison );
+    DKRelease( comparison );
+
     // Copying
     struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
@@ -139,6 +153,14 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKInstallInterface( cls, property );
     DKRelease( property );
     
+    // Egg
+    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    egg->initWithEgg = (DKInitWithEggMethod)DKHashTableInitWithEgg;
+    egg->addToEgg = (DKAddToEggMethod)DKHashTableAddToEgg;
+    
+    DKInstallInterface( cls, egg );
+    DKRelease( egg );
+
     return cls;
 }
 
@@ -474,6 +496,36 @@ DKObjectRef DKHashTableInitSetWithCollection( DKHashTableRef _self, DKObjectRef 
     }
     
     return hashTable;
+}
+
+
+///
+//  DKHashTableInitWithEgg()
+//
+static DKObjectRef DKHashTableInitWithEgg( DKHashTableRef _self, DKEggUnarchiverRef egg )
+{
+    _self = DKInit( _self );
+    
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKHashTableClass() );
+        DKEggGetKeyedCollection( egg, DKSTR( "pairs" ), InsertKeyAndObject, (void *)_self );
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKHashTableAddToEgg()
+//
+static void DKHashTableAddToEgg( DKHashTableRef _self, DKEggArchiverRef egg )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKHashTableClass() );
+        DKEggAddKeyedCollection( egg, DKSTR( "pairs" ), _self );
+    }
 }
 
 

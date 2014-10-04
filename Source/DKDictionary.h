@@ -100,6 +100,8 @@ void        DKDictionaryAddEntriesFromDictionary( DKMutableDictionaryRef _self, 
 void        DKDictionaryRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );
 void        DKDictionaryRemoveAllObjects( DKMutableDictionaryRef _self );
 
+bool        DKDictionaryEqual( DKDictionaryRef _self, DKDictionaryRef other );
+bool        DKDictionaryLike( DKDictionaryRef _self, DKDictionaryRef other );
 
 
 #endif // _DK_DICTIONARY_H_

@@ -245,10 +245,22 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
     {                                                                                   \
         if( !DKIsKindOfClass( _self, cls ) )                                            \
         {                                                                               \
-            _DKFatalError( "%s: Required kind of class %s, received %s\n",              \
+            _DKFatalError( "%s: Required member of class %s, received %s\n",            \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
+        }                                                                               \
+    } while( 0 )
+
+#define DKAssertInterface( _self, sel )                                                 \
+    do                                                                                  \
+    {                                                                                   \
+        if( !DKQueryInterface( _self, sel, NULL ) )                                     \
+        {                                                                               \
+            _DKFatalError( "%s: Required interface %s on class %s\n",                   \
+                __func__,                                                               \
+                DKStringGetCStringPtr( DKStringFromSelector( sel ) ),                   \
+                DKStringGetCStringPtr( DKGetClassName( cls ) ) );                       \
         }                                                                               \
     } while( 0 )
 
@@ -257,6 +269,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #define DKAssertMsg( x, ... )
 #define DKAssertKindOfClass( _self, cls )
 #define DKAssertMemberOfClass( _self, cls ) 
+#define DKAssertHasInterface( _self, sel )
 #endif
 
 
@@ -268,7 +281,9 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
         if( !DKIsKindOfClass( _self, cls ) )                                            \
         {                                                                               \
             _DKError( "%s: Expected kind of class %s, received %s\n",                   \
-                __func__, DKGetClassName( cls ), DKGetClassName( _self ) );             \
+                __func__,                                                               \
+                DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
+                DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
@@ -279,7 +294,9 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
         if( !DKIsKindOfClass( _self, cls ) )                                            \
         {                                                                               \
             _DKError( "%s: Expected member of class %s, received %s\n",                 \
-                __func__, DKGetClassName( cls ), DKGetClassName( _self ) );             \
+                __func__,                                                               \
+                DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
+                DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
@@ -290,7 +307,9 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
         if( !DKQueryInterface( _self, sel, NULL ) )                                     \
         {                                                                               \
             _DKError( "%s: Expected interface %s on class %s\n",                        \
-                __func__, (sel)->name, DKGetClassName( _self ) );                       \
+                __func__,                                                               \
+                DKStringGetCStringPtr( DKStringFromSelector( sel ) ),                   \
+                DKStringGetCStringPtr( DKGetClassName( cls ) ) );                       \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
