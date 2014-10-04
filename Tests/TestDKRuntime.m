@@ -115,7 +115,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-static void * ReleaseThread( void * list )
+static void * LinearReleaseThread( void * list )
 {
     DKIndex count = DKListGetCount( list );
     
@@ -127,23 +127,39 @@ static void * ReleaseThread( void * list )
     return NULL;
 }
 
-static void * ResolveWeakThread( void * list )
+static void * RandomReleaseThread( void * list )
 {
     DKIndex count = DKListGetCount( list );
     
-    intptr_t n = 0;
-    
     for( DKIndex i = 0; i < count; ++i )
     {
-        DKWeakRef weakref = DKListGetObjectAtIndex( list, i );
-        DKObjectRef strongref = DKResolveWeak( weakref );
-        
-        n += (strongref != NULL);
-        
-        DKRelease( strongref );
+        DKIndex x = (DKIndex)rand() % DKListGetCount( list );
+        DKListRemoveObjectAtIndex( list, x );
+    }
+
+    return NULL;
+}
+
+static void * ResolveWeakThread( void * list )
+{
+    DKIndex count;
+
+    while( (count = DKListGetCount( list )) != 0 )
+    {
+        for( DKIndex i = count - 1; i >= 0; --i )
+        {
+            DKWeakRef weakref = DKListGetObjectAtIndex( list, i );
+            DKObjectRef strongref = DKResolveWeak( weakref );
+
+            if( strongref == NULL )
+                DKListRemoveObjectAtIndex( list, i );
+
+            else
+                DKRelease( strongref );
+        }
     }
     
-    return (void *)n;
+    return NULL;
 }
 
 - (void) testDKReferenceCountingStressTest
@@ -155,10 +171,7 @@ static void * ResolveWeakThread( void * list )
 
     for( int i = 0; i < N; i++ )
     {
-        char buffer[32];
-        sprintf( buffer, "%d", i );
-    
-        DKStringRef s = DKStringCreateWithCString( DKStringClass(), buffer );
+        DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
         
         DKListAppendObject( array1, s );
         DKListAppendObject( array2, s );
@@ -166,10 +179,10 @@ static void * ResolveWeakThread( void * list )
     }
 
     pthread_t thread1;
-    pthread_create( &thread1, NULL, ReleaseThread, (void *)array1 );
+    pthread_create( &thread1, NULL, LinearReleaseThread, (void *)array1 );
     
     pthread_t thread2;
-    pthread_create( &thread2, NULL, ReleaseThread, (void *)array2 );
+    pthread_create( &thread2, NULL, RandomReleaseThread, (void *)array2 );
     
     void * result1;
     pthread_join( thread1, &result1 );
@@ -191,10 +204,7 @@ static void * ResolveWeakThread( void * list )
 
     for( int i = 0; i < N; i++ )
     {
-        char buffer[32];
-        sprintf( buffer, "%d", i );
-    
-        DKStringRef s = DKStringCreateWithCString( DKStringClass(), buffer );
+        DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
         DKWeakRef w = DKRetainWeak( s );
         
         DKListAppendObject( array1, s );
@@ -205,7 +215,7 @@ static void * ResolveWeakThread( void * list )
     }
 
     pthread_t thread1;
-    pthread_create( &thread1, NULL, ReleaseThread, (void *)array1 );
+    pthread_create( &thread1, NULL, RandomReleaseThread, (void *)array1 );
     
     pthread_t thread2;
     pthread_create( &thread2, NULL, ResolveWeakThread, (void *)array2 );

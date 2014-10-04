@@ -41,13 +41,17 @@ DKClassRef  DKMutableStringClass( void );
 #define     DKStringCreateEmpty()    DKSTR( "" )
 #define     DKStringCreateMutable()  DKInit( DKAlloc( DKMutableStringClass(), 0 ) )
 
-#define     DKStringCreateWithString( _class, str )     DKStringInitWithString( DKAlloc( _class, 0 ), str )
-#define     DKStringCreateWithCString( _class, cstr )   DKStringInitWithCString( DKAlloc( _class, 0 ), cstr )
+#define     DKStringCreateWithString( cls, str )        DKStringInitWithString( DKAlloc( cls, 0 ), str )
+#define     DKStringCreateWithCString( cls, cstr )      DKStringInitWithCString( DKAlloc( cls, 0 ), cstr )
 #define     DKStringCreateWithCStringNoCopy( cstr )     DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass(), 0 ), cstr )
+#define     DKStringCreateWithFormat( cls, fmt, ... )   DKStringInitWithFormat( DKAlloc( cls, 0 ), fmt, __VA_ARGS__ )
 
 void *      DKStringInitWithString( DKStringRef _self, DKStringRef other );
 void *      DKStringInitWithCString( DKStringRef _self, const char * cstr );
 void *      DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr );
+void *      DKStringInitWithFormat( DKStringRef _self, const char * format, ... );
+
+DKStringRef DKStringMakeImmutable( DKMutableStringRef _self );
 
 DKStringRef DKStringCopy( DKStringRef _self );
 DKMutableStringRef DKStringMutableCopy( DKStringRef _self );

@@ -275,6 +275,21 @@ static void DKDataAddToEgg( DKDataRef _self, DKEggArchiverRef egg )
 
 
 ///
+//  DKDataMakeImmutable()
+//
+DKDataRef DKDataMakeImmutable( DKMutableDataRef _self )
+{
+    if( DKIsMemberOfClass( _self, DKMutableDataClass() ) )
+    {
+        DKRelease( _self->_obj.isa );
+        ((struct DKData *)_self)->_obj.isa = DKRetain( DKDataClass() );
+    }
+    
+    return _self;
+}
+
+
+///
 //  DKDataEqual()
 //
 bool DKDataEqual( DKDataRef _self, DKObjectRef other )

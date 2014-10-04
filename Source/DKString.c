@@ -239,7 +239,7 @@ static void * InitString( DKStringRef _self, const char * cstr, DKIndex length )
             _self = CopySubstring( cstr, DKRangeMake( 0, length ) );
     }
     
-    else if( _self->_obj.isa == DKMutableStringClass_SharedObject )
+    else if( _self && (_self->_obj.isa == DKMutableStringClass_SharedObject) )
     {
         DKByteArrayInit( (DKByteArray *)&_self->byteArray );
         DKByteArrayAppendBytes( (DKByteArray *)&_self->byteArray, (const uint8_t *)cstr, length );
@@ -370,6 +370,49 @@ void * DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr )
 
 
 ///
+//  DKStringInitWithFormat()
+//
+void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
+{
+    if( _self == &DKPlaceholderString  )
+    {
+        _self = DKAllocObject( DKMutableStringClass(), 0 );
+        DKByteArrayInit( (DKByteArray *)&_self->byteArray );
+
+        va_list arg_ptr;
+        va_start( arg_ptr, format );
+        
+        DKVSPrintf( (DKMutableStringRef)_self, format, arg_ptr );
+        SetCursor( _self, 0 );
+
+        va_end( arg_ptr );
+
+        _self = DKStringMakeImmutable( (DKMutableStringRef)_self );
+    }
+    
+    else if( DKIsMemberOfClass( _self, DKMutableStringClass() ) )
+    {
+        DKByteArrayInit( (DKByteArray *)&_self->byteArray );
+
+        va_list arg_ptr;
+        va_start( arg_ptr, format );
+        
+        DKVSPrintf( (DKMutableStringRef)_self, format, arg_ptr );
+        SetCursor( _self, 0 );
+
+        va_end( arg_ptr );
+    }
+    
+    else if( _self != NULL )
+    {
+        DKFatalError( "DKStringInit: Trying to initialize a non-string object.\n" );
+    }
+    
+    return (void *)_self;
+}
+
+
+///
 //  DKStringInitWithEgg()
 //
 static DKObjectRef DKStringInitWithEgg( DKStringRef _self, DKEggUnarchiverRef egg )
@@ -390,6 +433,21 @@ static void DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef egg )
     
     if( length > 0 )
         DKEggAddTextData( egg, DKSTR( "str" ), (const char *)_self->byteArray.bytes, length );
+}
+
+
+///
+//  DKStringMakeImmutable()
+//
+DKStringRef DKStringMakeImmutable( DKMutableStringRef _self )
+{
+    if( DKIsMemberOfClass( _self, DKMutableStringClass() ) )
+    {
+        DKRelease( _self->_obj.isa );
+        ((struct DKString *)_self)->_obj.isa = DKRetain( DKStringClass() );
+    }
+    
+    return _self;
 }
 
 

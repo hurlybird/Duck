@@ -121,29 +121,29 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-#define PERFORMANCE_N   1000
+#define PERFORMANCE_N   10000
 
 - (void) testNSArrayPerformance
 {
     NSMutableArray * array = [NSMutableArray array];
+
+    srand( 0 );
 
     [self measureBlock:^{
     
         for( int i = 0; i < PERFORMANCE_N; i++ )
             [array addObject:[NSString stringWithFormat:@"%d", i]];
         
-        srand( 0 );
-        
         for( int i = 0; i < PERFORMANCE_N; i++ )
         {
             int index1 = rand() % PERFORMANCE_N;
             int index2 = rand() % PERFORMANCE_N;
         
-            NSString * a = [array objectAtIndex:index1];
-            NSString * b = [array objectAtIndex:index1];
+            NSString * value1 = [array objectAtIndex:index1];
+            NSString * value2 = [array objectAtIndex:index2];
             
-            [array replaceObjectAtIndex:index2 withObject:a];
-            [array replaceObjectAtIndex:index1 withObject:b];
+            [array replaceObjectAtIndex:index2 withObject:value1];
+            [array replaceObjectAtIndex:index1 withObject:value2];
         }
     }];
 }
@@ -165,31 +165,30 @@ static int RaiseException( const char * format, va_list arg_ptr )
 {
     DKMutableListRef list = DKCreate( listClass );
 
+    srand( 0 );
+
     [self measureBlock:^{
     
         for( int i = 0; i < PERFORMANCE_N; i++ )
         {
-            DKMutableStringRef s = DKStringCreateMutable();
-            DKSPrintf( s, "%d", i );
+            DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
             DKListAppendObject( list, s );
             DKRelease( s );
         }
-        
-        srand( 0 );
         
         for( int i = 0; i < PERFORMANCE_N; i++ )
         {
             int index1 = rand() % PERFORMANCE_N;
             int index2 = rand() % PERFORMANCE_N;
         
-            DKStringRef a = DKRetain( DKListGetObjectAtIndex( list, index1 ) );
-            DKStringRef b = DKRetain( DKListGetObjectAtIndex( list, index2 ) );
+            DKStringRef value1 = DKRetain( DKListGetObjectAtIndex( list, index1 ) );
+            DKStringRef value2 = DKRetain( DKListGetObjectAtIndex( list, index2 ) );
 
-            DKListSetObjectAtIndex( list, a, index2 );
-            DKListSetObjectAtIndex( list, b, index1 );
+            DKListSetObjectAtIndex( list, value1, index2 );
+            DKListSetObjectAtIndex( list, value2, index1 );
             
-            DKRelease( a );
-            DKRelease( b );
+            DKRelease( value1 );
+            DKRelease( value2 );
         }
     }];
 

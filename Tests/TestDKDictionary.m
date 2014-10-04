@@ -135,4 +135,100 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKGenericArrayFinalize( &values );
 }
 
+
+#define PERFORMANCE_N   10000
+
+- (void) testNSDictionaryPerformance
+{
+    NSMutableDictionary * dict = [NSMutableDictionary dictionary];
+    NSMutableArray * keys = [NSMutableArray array];
+    
+    for( int i = 0; i < PERFORMANCE_N; i++ )
+        [keys addObject:[NSString stringWithFormat:@"%d", i]];
+
+    srand( 0 );
+
+    [self measureBlock:^{
+    
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+            [dict setObject:@"Object" forKey:[keys objectAtIndex:i]];
+
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+        {
+            int index1 = rand() % PERFORMANCE_N;
+            int index2 = rand() % PERFORMANCE_N;
+        
+            NSString * key1 = [keys objectAtIndex:index1];
+            NSString * key2 = [keys objectAtIndex:index2];
+            
+            NSString * value1 = [dict objectForKey:key1];
+            NSString * value2 = [dict objectForKey:key2];
+            
+            [dict setObject:value1 forKey:key2];
+            [dict setObject:value2 forKey:key1];
+        }
+    }];
+}
+
+
+- (void) testDKHashTablePerformance
+{
+    [self testDictionaryClassPerformance:DKMutableHashTableClass()];
+}
+
+
+- (void) testDKBinaryTreePerformance
+{
+    [self testDictionaryClassPerformance:DKMutableBinaryTreeClass()];
+}
+
+
+- (void) testDictionaryClassPerformance:(DKClassRef)dictionaryClass
+{
+    DKMutableDictionaryRef dict = DKCreate( dictionaryClass );
+    DKMutableListRef keys = DKCreate( DKMutableArrayClass() );
+
+    for( int i = 0; i < PERFORMANCE_N; i++ )
+    {
+        DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
+        DKListAppendObject( keys, s );
+        DKRelease( s );
+    }
+
+    srand( 0 );
+
+    [self measureBlock:^{
+
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+        {
+            DKStringRef key = DKListGetObjectAtIndex( keys, i );
+            DKDictionarySetObject( dict, key, DKSTR( "Object" ) );
+        }
+
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+        {
+            int index1 = rand() % PERFORMANCE_N;
+            int index2 = rand() % PERFORMANCE_N;
+        
+            DKStringRef key1 = DKListGetObjectAtIndex( keys, index1 );
+            DKStringRef key2 = DKListGetObjectAtIndex( keys, index2 );
+
+            DKStringRef value1 = DKRetain( DKDictionaryGetObject( dict, key1 ) );
+            DKStringRef value2 = DKRetain( DKDictionaryGetObject( dict, key2 ) );
+
+            DKDictionarySetObject( dict, key2, value1 );
+            DKDictionarySetObject( dict, key1, value2 );
+
+            DKRelease( value1 );
+            DKRelease( value2 );
+        }
+    }];
+
+    DKRelease( dict );
+    DKRelease( keys );
+}
+
 @end
+
+
+

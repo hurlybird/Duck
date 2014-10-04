@@ -46,6 +46,8 @@ DKDataRef   DKDataInitWithBytesNoCopy( DKDataRef _self, const void * bytes, DKIn
 DKDataRef   DKDataInitWithLength( DKDataRef _self, DKIndex length );
 DKMutableDataRef DKDataInitWithCapacity( DKMutableDataRef _self, DKIndex capacity );
 
+DKDataRef DKDataMakeImmutable( DKMutableDataRef _self );
+
 DKDataRef   DKDataCopy( DKDataRef _self );
 DKMutableDataRef DKDataMutableCopy( DKDataRef _self );
 
