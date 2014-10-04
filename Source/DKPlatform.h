@@ -269,7 +269,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #define DKAssertMsg( x, ... )
 #define DKAssertKindOfClass( _self, cls )
 #define DKAssertMemberOfClass( _self, cls ) 
-#define DKAssertHasInterface( _self, sel )
+#define DKAssertInterface( _self, sel )
 #endif
 
 

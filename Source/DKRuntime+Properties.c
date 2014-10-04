@@ -276,11 +276,9 @@ static void PropertyNotReadWrite( DKObjectRef _self, DKPropertyRef property )
 //
 static void FailedPredicateRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
 {
-    DKStringRef desc = DKGetDescription( property->predicate );
-
     DKWarning( "DKProperty: '%s' does not meet the requirements ('%s') for property '%s'.\n",
         DKStringGetCStringPtr( DKGetClassName( object ) ),
-        DKStringGetCStringPtr( desc ),
+        DKStringGetCStringPtr( DKGetDescription( property->predicate ) ),
         DKStringGetCStringPtr( property->name ) );
 }
 
