@@ -27,24 +27,61 @@
 #include "DKStruct.h"
 #include "DKString.h"
 #include "DKStream.h"
+#include "DKAllocation.h"
 #include "DKComparison.h"
+#include "DKCopying.h"
 #include "DKDescription.h"
+#include "DKEgg.h"
 
 
 struct DKStruct
 {
-    const DKObject _obj;
+    DKObject _obj;
     DKStringRef semantic;
+    uint8_t value[1];       // variable size
 };
 
 
-static void DKStructFinalize( DKStructRef _self );
-static DKStringRef DKStructGetDescription( DKStructRef _self );
+static struct DKStruct DKPlaceholderStruct =
+{
+    DKStaticObject( NULL ),
+    NULL
+};
+
+
+static void *       DKStructAllocPlaceholder( DKClassRef _class, size_t extraBytes );
+static void         DKStructDealloc( DKStructRef _self );
+
+static void         DKStructFinalize( DKStructRef _self );
+static DKStringRef  DKStructGetDescription( DKStructRef _self );
+
+static DKObjectRef  DKStructInitWithEgg( DKStructRef _self, DKEggUnarchiverRef egg );
+static void         DKStructAddToEgg( DKStructRef _self, DKEggArchiverRef egg );
 
 
 DKThreadSafeClassInit( DKStructClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKStruct" ), DKObjectClass(), sizeof(struct DKStruct), 0, NULL, (DKFinalizeMethod)DKStructFinalize );
+    // NOTE: The value field of DKStruct is dynamically sized, and not included in the
+    // base instance structure size.
+    DKClassRef cls = DKAllocClass( DKSTR( "DKStruct" ), DKObjectClass(), sizeof(struct DKStruct) - 1, 0, NULL, (DKFinalizeMethod)DKStructFinalize );
+    
+    // Allocation
+    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
+    allocation->alloc = (DKAllocMethod)DKStructAllocPlaceholder;
+    allocation->dealloc = (DKDeallocMethod)DKStructDealloc;
+
+    DKInstallClassInterface( cls, allocation );
+    DKRelease( allocation );
+    
+    // Comparison
+    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    comparison->equal = (void *)DKStructEqual;
+    comparison->like = (void *)DKStructEqual;
+    comparison->compare = (void *)DKStructCompare;
+    comparison->hash = (void *)DKStructHash;
+
+    DKInstallInterface( cls, comparison );
+    DKRelease( comparison );
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
@@ -54,9 +91,45 @@ DKThreadSafeClassInit( DKStructClass )
     DKInstallInterface( cls, description );
     DKRelease( description );
 
+    // Egg
+    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    egg->initWithEgg = (DKInitWithEggMethod)DKStructInitWithEgg;
+    egg->addToEgg = (DKAddToEggMethod)DKStructAddToEgg;
+    
+    DKInstallInterface( cls, egg );
+    DKRelease( egg );
+
     return cls;
 }
 
+
+
+///
+//  DKStructAllocPlaceholder()
+//
+static void * DKStructAllocPlaceholder( DKClassRef _class, size_t extraBytes )
+{
+    if( _class == DKStructClass_SharedObject )
+    {
+        DKPlaceholderStruct._obj.isa = DKStructClass_SharedObject;
+        return &DKPlaceholderStruct;
+    }
+    
+    DKAssert( 0 );
+    return NULL;
+}
+
+
+///
+//  DKStructDealloc()
+//
+static void DKStructDealloc( DKStructRef _self )
+{
+    if( _self == &DKPlaceholderStruct )
+        return;
+    
+    DKDeallocObject( _self );
+}
 
 
 ///
@@ -69,25 +142,141 @@ static void DKStructFinalize( DKStructRef _self )
 
 
 ///
-//  DKStructCreate()
+//  DKStructInit()
 //
-DKStructRef DKStructCreate( DKStringRef semantic, const void * bytes, size_t size )
+DKStructRef DKStructInit( DKStructRef _self, DKStringRef semantic, const void * bytes, size_t size )
 {
-    // Arbitrary size limit, but > 1K is probably an error
-    DKAssert( size < 1024 );
+    // The real size limit is MAX_INT, but > 64K in a structure is almost certainly an error
+    DKAssert( size < (64 * 1024) );
 
-    struct DKStruct * structure = DKInit( DKAlloc( DKStructClass(), size ) );
-    
-    if( structure )
+    if( _self == &DKPlaceholderStruct  )
     {
-        structure->semantic = DKRetain( semantic );
-        DKSetObjectTag( structure, (int32_t)size );
+        if( (bytes == NULL) || (size == 0) )
+            return NULL;
         
-        void * value = structure + 1;
-        memcpy( value, bytes, size );
+        _self = DKAllocObject( DKStructClass(), size );
+        
+        ((struct DKStruct *)_self)->semantic = DKCopy( semantic );
+        
+        DKSetObjectTag( _self, (int32_t)size );
+        
+        memcpy( (void *)_self->value, bytes, size );
     }
     
-    return structure;
+    else if( _self != NULL )
+    {
+        DKFatalError( "DKStructInit: Trying to initialize a non-struct object.\n" );
+    }
+
+    return _self;
+}
+
+
+///
+//  DKStructInitWithEgg()
+//
+static DKObjectRef DKStructInitWithEgg( DKStructRef _self, DKEggUnarchiverRef egg )
+{
+    DKStringRef semantic = DKEggGetObject( egg, DKSTR( "semantic" ) );
+
+    size_t length = 0;
+    const void * bytes = DKEggGetBinaryDataPtr( egg, DKSTR( "value" ), &length );
+
+    return DKStructInit( _self, semantic, bytes, length );
+}
+
+
+///
+//  DKStructAddToEgg()
+//
+static void DKStructAddToEgg( DKStructRef _self, DKEggArchiverRef egg )
+{
+    DKEggAddObject( egg, DKSTR( "semantic" ), _self->semantic );
+
+    size_t size = (size_t)DKGetObjectTag( _self );
+    DKEggAddBinaryData( egg, DKSTR( "value" ), _self->value, size );
+}
+
+
+///
+//  DKStructEqual()
+//
+bool DKStructEqual( DKStructRef _self, DKStructRef other )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStructClass() );
+        
+        if( DKIsKindOfClass( other, DKStructClass() ) )
+        {
+            if( DKStringEqualToString( _self->semantic, other->semantic ) )
+            {
+                size_t size1 = (size_t)DKGetObjectTag( _self );
+                size_t size2 = (size_t)DKGetObjectTag( other );
+                
+                if( size1 == size2 )
+                    return memcmp( _self->value, other->value, size1 ) == 0;
+            }
+        }
+    }
+    
+    return false;
+}
+
+
+///
+//  DKStructCompare()
+//
+int DKStructCompare( DKStructRef _self, DKStructRef other )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStructClass() );
+        
+        // DKCompare requires that the objects have some strict ordering property useful
+        // for comparison, yet has no way of checking if the objects actually meet that
+        // requirement.
+        DKCheckKindOfClass( other, DKStructClass(), DKPointerCompare( _self, other ) );
+
+        int cmp = DKStringCompare( _self->semantic, other->semantic );
+
+        if( cmp != 0 )
+            return cmp;
+
+        size_t size1 = (size_t)DKGetObjectTag( _self );
+        size_t size2 = (size_t)DKGetObjectTag( other );
+        
+        if( size1 < size2 )
+            return 1;
+        
+        if( size1 > size2 )
+            return -1;
+        
+        if( size1 == 0 )
+            return 0;
+
+        return memcmp( _self->value, other->value, size1 );
+    }
+    
+    return DKPointerCompare( _self, other );
+}
+
+
+///
+//  DKStructHash()
+//
+DKHashCode DKStructHash( DKStructRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStructClass() );
+
+        size_t size = (size_t)DKGetObjectTag( _self );
+        
+        return dk_memhash( _self->value, size );
+    }
+    
+    return 0;
 }
 
 
@@ -97,7 +286,10 @@ DKStructRef DKStructCreate( DKStringRef semantic, const void * bytes, size_t siz
 DKStringRef DKStructGetSemantic( DKStructRef _self )
 {
     if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStructClass() );
         return _self->semantic;
+    }
     
     return NULL;
 }
@@ -110,14 +302,15 @@ size_t DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, 
 {
     if( _self )
     {
+        DKAssertKindOfClass( _self, DKStructClass() );
+    
         size_t structSize = (size_t)DKGetObjectTag( _self );
     
         if( size == structSize )
         {
             if( DKEqual( _self->semantic, semantic ) )
             {
-                const void * value = _self + 1;
-                memcpy( bytes, value, size );
+                memcpy( bytes, _self->value, size );
             
                 return size;
             }

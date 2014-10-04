@@ -35,7 +35,13 @@ typedef const struct DKStruct * DKStructRef;
 
 DKClassRef  DKStructClass( void );
 
-DKStructRef DKStructCreate( DKStringRef semantic, const void * bytes, size_t size );
+#define     DKStructCreate( semantic, bytes, size ) DKStructInit( DKAlloc( DKStructClass(), 0 ), semantic, bytes, size )
+
+DKStructRef DKStructInit( DKStructRef _self, DKStringRef semantic, const void * bytes, size_t size );
+
+bool        DKStructEqual( DKStructRef _self, DKStructRef other );
+int         DKStructCompare( DKStructRef _self, DKStructRef other );
+DKHashCode  DKStructHash( DKStructRef _self );
 
 DKStringRef DKStructGetSemantic( DKStructRef _self );
 size_t      DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, size_t size );

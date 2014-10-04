@@ -176,7 +176,7 @@ DKListRef DKDictionaryGetAllKeys( DKDictionaryRef _self )
     
     DKForeachKeyAndObject( _self, DKDictionaryGetAllKeysCallback, (void *)list );
     
-    return list;
+    return DKAutorelease( list );
 }
 
 
@@ -195,7 +195,7 @@ DKListRef DKDictionaryGetAllObjects( DKDictionaryRef _self )
     
     DKForeachKeyAndObject( _self, DKDictionaryGetAllObjectsCallback, (void *)list );
     
-    return list;
+    return DKAutorelease( list );
 }
 
 

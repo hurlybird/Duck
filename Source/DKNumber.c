@@ -235,8 +235,8 @@ static struct DKNumber DKPlaceholderNumber =
 };
 
 
-static void * DKNumberAllocPlaceholder( DKClassRef _class, size_t extraBytes );
-static void DKNumberDealloc( DKNumberRef _self );
+static void *       DKNumberAllocPlaceholder( DKClassRef _class, size_t extraBytes );
+static void         DKNumberDealloc( DKNumberRef _self );
 
 static DKObjectRef  DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef egg );
 static void         DKNumberAddToEgg( DKNumberRef _self, DKEggArchiverRef egg );
@@ -352,7 +352,7 @@ static DKObjectRef DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef eg
 {
     if( _self == &DKPlaceholderNumber  )
     {
-        DKEncoding encoding = DKEggGetEncoding( egg, DKSTR( "val" ) );
+        DKEncoding encoding = DKEggGetEncoding( egg, DKSTR( "value" ) );
         DKAssert( DKEncodingIsNumber( encoding ) );
 
         size_t size = DKEncodingGetSize( encoding );
@@ -361,7 +361,7 @@ static DKObjectRef DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef eg
         
         DKSetObjectTag( _self, encoding );
         
-        DKEggGetNumberData( egg, DKSTR( "val" ), (void *)&_self->value );
+        DKEggGetNumberData( egg, DKSTR( "value" ), (void *)&_self->value );
     }
     
     else if( _self != NULL )
@@ -379,7 +379,7 @@ static DKObjectRef DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef eg
 static void DKNumberAddToEgg( DKNumberRef _self, DKEggArchiverRef egg )
 {
     DKEncoding encoding = DKGetObjectTag( _self );
-    DKEggAddNumberData( egg, DKSTR( "val" ), encoding, &_self->value );
+    DKEggAddNumberData( egg, DKSTR( "value" ), encoding, &_self->value );
 }
 
 
