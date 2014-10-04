@@ -34,7 +34,10 @@ typedef struct DKFile * DKFileRef;
 
 DKClassRef  DKFileClass( void );
 
+// Create and open a new file
 DKFileRef   DKFileOpen( DKStringRef filename, const char * mode );
+
+// Close the file and release the object reference
 int         DKFileClose( DKFileRef _self );
 
 int         DKFileSeek( DKFileRef _self, DKIndex offset, int origin );

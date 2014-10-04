@@ -65,7 +65,13 @@ DKThreadSafeClassInit( DKFileClass )
 //
 static void DKFileFinalize( DKObjectRef _self )
 {
-    DKFileClose( (DKFileRef)_self );
+    struct DKFile * file = (struct DKFile *)_self;
+    
+    if( file->file )
+    {
+        fclose( file->file );
+        file->file = NULL;
+    }
 }
 
 
@@ -76,14 +82,17 @@ DKFileRef DKFileOpen( DKStringRef filename, const char * mode )
 {
     struct DKFile * file = DKCreate( DKFileClass() );
     
-    const char * fname = DKStringGetCStringPtr( filename );
-    
-    file->file = fopen( fname, mode );
-    
-    if( file->file )
-        return file;
-    
-    DKRelease( file );
+    if( file )
+    {
+        const char * fname = DKStringGetCStringPtr( filename );
+        
+        file->file = fopen( fname, mode );
+        
+        if( file->file )
+            return file;
+        
+        DKRelease( file );
+    }
     
     return NULL;
 }
@@ -107,6 +116,8 @@ int DKFileClose( DKFileRef _self )
             result = fclose( file->file );
             file->file = NULL;
         }
+        
+        DKRelease( _self );
     }
     
     return result;
