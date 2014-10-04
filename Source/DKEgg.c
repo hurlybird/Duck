@@ -940,7 +940,7 @@ DKDataRef DKEggArchiverCreateData( DKEggArchiverRef _self )
     BuildHeader( _self, &header );
 
     DKIndex size = header.data.index + header.data.length;
-    DKMutableDataRef data = DKDataCreateMutable( size );
+    DKMutableDataRef data = DKDataInitWithCapacity( DKAlloc( DKMutableDataClass(), 0 ), size );
     
     WriteHeader( _self, &header, data );
     WriteObjectTable( _self, &header, data );

@@ -138,17 +138,6 @@ Some possible/probable areas for further work:
 Classes for useful system-level stuff like threads, run loops, notifications,
 URLs, etc.
 
-Class and selector registry for looking up classes and selectors by name as in
-Objective-C with NSClassFromString and NSSelectorFromString.
-
-Implicit property storage. Right now each property must be bound to a member of
-the instance structure. Allowing properties to be stored in a dictionary
-associated with the object would facillitate creating truly dynamic classes.
-
-Property list and/or JSON serialization, with automatic serialization of
-properties. A object graph serialization format (like NSCoding) might also be
-useful.
-
 A time/date class.
 
 More unicode support. DKString currently supports enough UTF-8 for basic string
