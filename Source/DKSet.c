@@ -204,6 +204,16 @@ void DKSetRemoveAllObjects( DKMutableSetRef _self )
 
 
 ///
+//  DKSetEqualToSet()
+//
+bool DKSetEqualToSet( DKSetRef _self, DKSetRef otherSet )
+{
+    return (DKSetGetCount( _self ) == DKSetGetCount( otherSet )) &&
+        DKSetIsSubsetOfSet( _self, otherSet );
+}
+
+
+///
 //  DKSetIsSubsetOfSet()
 //
 static int DKSetIsSubsetOfSetCallback( DKObjectRef object, void * otherSet )
@@ -213,6 +223,8 @@ static int DKSetIsSubsetOfSetCallback( DKObjectRef object, void * otherSet )
 
 int DKSetIsSubsetOfSet( DKSetRef _self, DKSetRef otherSet )
 {
+    DKAssertInterface( _self, DKSelector(Set) );
+    
     return !DKForeachObject( _self, DKSetIsSubsetOfSetCallback, (void *)otherSet );
 }
 
@@ -227,6 +239,8 @@ static int DKSetIntersectsSetCallback( DKObjectRef object, void * otherSet )
 
 int DKSetIntersectsSet( DKSetRef _self, DKSetRef otherSet )
 {
+    DKAssertInterface( _self, DKSelector(Set) );
+
     return !DKForeachObject( _self, DKSetIntersectsSetCallback, (void *)otherSet );
 }
 

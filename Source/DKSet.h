@@ -101,6 +101,7 @@ void        DKSetAddObject( DKMutableSetRef _self, DKObjectRef object );
 void        DKSetRemoveObject( DKMutableSetRef _self, DKObjectRef object );
 void        DKSetRemoveAllObjects( DKMutableSetRef _self );
 
+bool        DKSetEqualToSet( DKSetRef _self, DKSetRef otherSet );
 int         DKSetIsSubsetOfSet( DKSetRef _self, DKSetRef otherSet );
 int         DKSetIntersectsSet( DKSetRef _self, DKSetRef otherSet );
 

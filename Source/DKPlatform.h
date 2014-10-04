@@ -260,7 +260,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
             _DKFatalError( "%s: Required interface %s on class %s\n",                   \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKStringFromSelector( sel ) ),                   \
-                DKStringGetCStringPtr( DKGetClassName( cls ) ) );                       \
+                DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
         }                                                                               \
     } while( 0 )
 
@@ -309,7 +309,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
             _DKError( "%s: Expected interface %s on class %s\n",                        \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKStringFromSelector( sel ) ),                   \
-                DKStringGetCStringPtr( DKGetClassName( cls ) ) );                       \
+                DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
