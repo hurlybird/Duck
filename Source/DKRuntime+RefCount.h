@@ -41,7 +41,9 @@ DKWeakRef   DKRetainWeak( DKObjectRef _self );
 DKObjectRef DKResolveWeak( DKWeakRef weak_ref );
 
 // Autorelease pools
-void        DKAutoreleasePoolInit( int stackSize );
+void        DKAutoreleasePoolInit( void );
+
+// Push/Pop the current autorelease pool
 void        DKPushAutoreleasePool( void );
 void        DKPopAutoreleasePool( void );
 

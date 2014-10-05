@@ -54,6 +54,59 @@ static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, str
 
 
 
+// Thread Context ========================================================================
+static pthread_key_t DKThreadContextKey;
+
+
+///
+//  DKFreeThreadContext()
+//
+static void DKFreeThreadContext( void * context )
+{
+    struct DKThreadContext * threadContext = context;
+    
+    DKRelease( threadContext->threadObject );
+    DKRelease( threadContext->threadDictionary );
+    
+    DKFatal( threadContext->arpStack.top == -1 );
+    
+    for( int i = 0; i < DK_AUTORELEASE_POOL_STACK_SIZE; i++ )
+        DKGenericArrayFinalize( &threadContext->arpStack.arp[i] );
+    
+    dk_free( threadContext );
+
+    pthread_setspecific( DKThreadContextKey, NULL );
+}
+
+
+///
+//  DKGetThreadContext()
+//
+struct DKThreadContext * DKGetThreadContext( void )
+{
+    struct DKThreadContext * threadContext = pthread_getspecific( DKThreadContextKey );
+
+    if( !threadContext )
+    {
+        // Create a new stack
+        threadContext = dk_malloc( sizeof(struct DKThreadContext) );
+        memset( threadContext, 0, sizeof(struct DKThreadContext) );
+        
+        // Initialize the autorelease pool stack
+        threadContext->arpStack.top = -1;
+
+        for( int i = 0; i < DK_AUTORELEASE_POOL_STACK_SIZE; i++ )
+            DKGenericArrayInit( &threadContext->arpStack.arp[i], sizeof(DKObjectRef) );
+        
+        // Save the stack to the current thread
+        pthread_setspecific( DKThreadContextKey, threadContext );
+    }
+
+    return threadContext;
+}
+
+
+
 
 // Root Classes ==========================================================================
 static struct DKClass __DKRootClass__;
@@ -403,7 +456,7 @@ void DKRuntimeInit( void )
     {
         _DKRuntimeIsInitialized = true;
 
-        DKAutoreleasePoolInit( DK_AUTORELEASE_POOL_STACK_SIZE );
+        pthread_key_create( &DKThreadContextKey, DKFreeThreadContext );
 
         InitRootClass( &__DKRootClass__,       NULL,                  sizeof(struct DKClass), DKAbstractBaseClass | DKDisableReferenceCounting, NULL, DKClassFinalize );
         InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass), 0, NULL, DKClassFinalize );

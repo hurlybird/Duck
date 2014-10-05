@@ -240,6 +240,22 @@ struct DKClass
 };
 
 
+struct DKThreadContext
+{
+    DKObjectRef threadObject;
+    DKMutableHashTableRef threadDictionary;
+
+    struct
+    {
+        DKIndex top;
+        DKGenericArray arp[DK_AUTORELEASE_POOL_STACK_SIZE];
+        
+    } arpStack;
+};
+
+struct DKThreadContext * DKGetThreadContext( void );
+
+
 struct DKWeak
 {
     DKObject        _obj;
