@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKLocking.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,55 +24,36 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#ifndef _DK_LOCKING_H_
+#define _DK_LOCKING_H_
 
 #include "DKRuntime.h"
 
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKLocking.h"
-#include "DKStream.h"
 
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
-
-#include "DKFile.h"
-#include "DKEgg.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
+DKDeclareInterfaceSelector( Locking );
 
 
-#ifdef __cplusplus
-}
-#endif
+typedef void (*DKLockMethod)( DKObjectRef _self );
+typedef bool (*DKTryLockMethod)( DKObjectRef _self );
+typedef void (*DKUnlockMethod)( DKObjectRef _self );
 
 
-#endif
+struct DKLockingInterface
+{
+    const DKInterface _interface;
+
+    DKLockMethod    lock;
+    DKTryLockMethod tryLock;
+    DKUnlockMethod  unlock;
+};
+
+typedef const struct DKLockingInterface * DKLockingInterfaceRef;
+
+
+void DKLock( DKObjectRef _self );
+bool DKTryLock( DKObjectRef _self );
+void DKUnlock( DKObjectRef _self );
+
+
+
+#endif // _DK_LOCKING_H_

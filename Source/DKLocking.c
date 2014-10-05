@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKLocking.c
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,55 +24,53 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
-
-#include "DKRuntime.h"
-
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
 #include "DKLocking.h"
-#include "DKStream.h"
-
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
-
-#include "DKFile.h"
-#include "DKEgg.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
 
 
-#ifdef __cplusplus
+DKThreadSafeFastSelectorInit( Locking );
+
+
+///
+//  DKLock()
+//
+void DKLock( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKLockingInterfaceRef lockingInterface = DKGetInterface( _self, DKSelector(Locking) );
+        lockingInterface->lock( _self );
+    }
 }
-#endif
 
 
-#endif
+///
+//  DKTryLock()
+//
+bool DKTryLock( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKLockingInterfaceRef lockingInterface = DKGetInterface( _self, DKSelector(Locking) );
+        return lockingInterface->tryLock( _self );
+    }
+    
+    // Allow the lock when the locking object is NULL?
+    return true;
+}
+
+
+///
+//  DKUnlock()
+//
+void DKUnlock( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKLockingInterfaceRef lockingInterface = DKGetInterface( _self, DKSelector(Locking) );
+        lockingInterface->unlock( _self );
+    }
+}
+
+
+
+

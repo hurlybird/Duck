@@ -37,6 +37,9 @@
 		023A719F19DADCE20088CDD9 /* DKRuntime+Reflection.c in Sources */ = {isa = PBXBuildFile; fileRef = 023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */; };
 		023A71A019DADCE20088CDD9 /* DKRuntime+Reflection.c in Sources */ = {isa = PBXBuildFile; fileRef = 023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */; };
 		023A71A119DADCE20088CDD9 /* DKRuntime+Reflection.h in Headers */ = {isa = PBXBuildFile; fileRef = 023A719E19DADCE20088CDD9 /* DKRuntime+Reflection.h */; };
+		023B128219E0C25800B2D683 /* DKLocking.c in Sources */ = {isa = PBXBuildFile; fileRef = 023B128019E0C25800B2D683 /* DKLocking.c */; };
+		023B128319E0C25800B2D683 /* DKLocking.c in Sources */ = {isa = PBXBuildFile; fileRef = 023B128019E0C25800B2D683 /* DKLocking.c */; };
+		023B128419E0C25800B2D683 /* DKLocking.h in Headers */ = {isa = PBXBuildFile; fileRef = 023B128119E0C25800B2D683 /* DKLocking.h */; };
 		025C0F6F18EFED97000344C0 /* DKArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4818EFED96000344C0 /* DKArray.c */; };
 		025C0F7018EFED97000344C0 /* DKBinaryTree.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4918EFED96000344C0 /* DKBinaryTree.c */; };
 		025C0F7118EFED97000344C0 /* DKByteArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4A18EFED96000344C0 /* DKByteArray.c */; };
@@ -184,6 +187,8 @@
 		023098FD19D53E7F00C3DB59 /* TestDKPredicate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKPredicate.m; sourceTree = "<group>"; };
 		023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+Reflection.c"; sourceTree = "<group>"; };
 		023A719E19DADCE20088CDD9 /* DKRuntime+Reflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+Reflection.h"; sourceTree = "<group>"; };
+		023B128019E0C25800B2D683 /* DKLocking.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKLocking.c; sourceTree = "<group>"; };
+		023B128119E0C25800B2D683 /* DKLocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKLocking.h; sourceTree = "<group>"; };
 		024EE3E2148E0B21008FDADC /* libduck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libduck.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		025C0F4818EFED96000344C0 /* DKArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKArray.c; sourceTree = "<group>"; };
 		025C0F4918EFED96000344C0 /* DKBinaryTree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKBinaryTree.c; sourceTree = "<group>"; };
@@ -500,6 +505,8 @@
 				02D051DA19DE345100827660 /* DKCopying.c */,
 				02D051E019DE39D700827660 /* DKDescription.h */,
 				02D051DF19DE39D700827660 /* DKDescription.c */,
+				023B128119E0C25800B2D683 /* DKLocking.h */,
+				023B128019E0C25800B2D683 /* DKLocking.c */,
 				0269BF2B19D85669002E876C /* DKStream.h */,
 				025C0F5818EFED97000344C0 /* DKStream.c */,
 			);
@@ -540,6 +547,7 @@
 				02D051E319DE39D700827660 /* DKDescription.h in Headers */,
 				0269BF3019D85669002E876C /* DKBinaryTree.h in Headers */,
 				0269BF3519D85669002E876C /* DKDictionary.h in Headers */,
+				023B128419E0C25800B2D683 /* DKLocking.h in Headers */,
 				021EC2E418F07BA9004148AD /* utf32.h in Headers */,
 				0269BF3719D85669002E876C /* DKEncoding.h in Headers */,
 				0269BF4219D85669002E876C /* DKRuntime+Properties.h in Headers */,
@@ -672,6 +680,7 @@
 				02083FA118F3BC2200EEBBAC /* DKRuntime+Properties.c in Sources */,
 				025C0F7818EFED97000344C0 /* DKList.c in Sources */,
 				02D051E119DE39D700827660 /* DKDescription.c in Sources */,
+				023B128219E0C25800B2D683 /* DKLocking.c in Sources */,
 				025C0F7B18EFED97000344C0 /* DKPlatform.c in Sources */,
 				02D051DC19DE345100827660 /* DKCopying.c in Sources */,
 				021EC2C218F0774B004148AD /* utf_impl.c in Sources */,
@@ -729,6 +738,7 @@
 				02083FA918F4C48100EEBBAC /* DKRuntime+Properties.c in Sources */,
 				02C8916A18F169780097B6BC /* DKBinaryTree.c in Sources */,
 				02D051E219DE39D700827660 /* DKDescription.c in Sources */,
+				023B128319E0C25800B2D683 /* DKLocking.c in Sources */,
 				02C8916B18F169780097B6BC /* DKByteArray.c in Sources */,
 				02D051DD19DE345100827660 /* DKCopying.c in Sources */,
 				02083FA718F4A86700EEBBAC /* DKStruct.c in Sources */,

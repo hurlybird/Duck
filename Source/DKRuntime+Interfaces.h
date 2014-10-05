@@ -46,6 +46,7 @@ typedef enum
     // 1-7  -- Static cache lines for instance interfaces
     DKStaticCache_Comparison =                  1,
     DKStaticCache_Copying,
+    DKStaticCache_Locking,
     DKStaticCache_Collection,
     DKStaticCache_KeyedCollection,
     DKStaticCache_List,
