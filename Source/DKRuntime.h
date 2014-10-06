@@ -243,7 +243,6 @@ struct DKClass
 struct DKThreadContext
 {
     DKObjectRef threadObject;
-    DKMutableHashTableRef threadDictionary;
 
     struct
     {
@@ -253,7 +252,8 @@ struct DKThreadContext
     } arpStack;
 };
 
-struct DKThreadContext * DKGetThreadContext( void );
+struct DKThreadContext * DKGetCurrentThreadContext( void );
+struct DKThreadContext * DKGetMainThreadContext( void );
 
 
 struct DKWeak

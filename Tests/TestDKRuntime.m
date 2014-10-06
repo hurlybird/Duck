@@ -115,20 +115,22 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-static void * LinearReleaseThread( void * list )
+static void LinearReleaseThread( DKObjectRef param )
 {
+    DKMutableListRef list = (DKMutableListRef)param;
+
     DKIndex count = DKListGetCount( list );
     
     for( DKIndex i = 0; i < count; ++i )
     {
         DKListRemoveObjectAtIndex( list, 0 );
     }
-
-    return NULL;
 }
 
-static void * RandomReleaseThread( void * list )
+static void RandomReleaseThread( DKObjectRef param )
 {
+    DKMutableListRef list = (DKMutableListRef)param;
+
     DKIndex count = DKListGetCount( list );
     
     for( DKIndex i = 0; i < count; ++i )
@@ -136,12 +138,12 @@ static void * RandomReleaseThread( void * list )
         DKIndex x = (DKIndex)rand() % DKListGetCount( list );
         DKListRemoveObjectAtIndex( list, x );
     }
-
-    return NULL;
 }
 
-static void * ResolveWeakThread( void * list )
+static void ResolveWeakThread( DKObjectRef param )
 {
+    DKMutableListRef list = (DKMutableListRef)param;
+
     DKIndex count;
 
     while( (count = DKListGetCount( list )) != 0 )
@@ -158,8 +160,6 @@ static void * ResolveWeakThread( void * list )
                 DKRelease( strongref );
         }
     }
-    
-    return NULL;
 }
 
 - (void) testDKReferenceCountingStressTest
@@ -178,18 +178,18 @@ static void * ResolveWeakThread( void * list )
         DKRelease( s );
     }
 
-    pthread_t thread1;
-    pthread_create( &thread1, NULL, LinearReleaseThread, (void *)array1 );
+    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass(), 0 ), LinearReleaseThread, array1 );
+    DKThreadStart( thread1 );
+
+    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass(), 0 ), RandomReleaseThread, array2 );
+    DKThreadStart( thread2 );
     
-    pthread_t thread2;
-    pthread_create( &thread2, NULL, RandomReleaseThread, (void *)array2 );
+    DKThreadJoin( thread1 );
+    DKThreadJoin( thread2 );
     
-    void * result1;
-    pthread_join( thread1, &result1 );
-    
-    void * result2;
-    pthread_join( thread2, &result2 );
-    
+    DKRelease( thread1 );
+    DKRelease( thread2 );
+
     DKRelease( array1 );
     DKRelease( array2 );
 }
@@ -214,17 +214,17 @@ static void * ResolveWeakThread( void * list )
         DKRelease( w );
     }
 
-    pthread_t thread1;
-    pthread_create( &thread1, NULL, RandomReleaseThread, (void *)array1 );
+    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass(), 0 ), RandomReleaseThread, array1 );
+    DKThreadStart( thread1 );
+
+    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass(), 0 ), ResolveWeakThread, array2 );
+    DKThreadStart( thread2 );
     
-    pthread_t thread2;
-    pthread_create( &thread2, NULL, ResolveWeakThread, (void *)array2 );
-    
-    intptr_t result1;
-    pthread_join( thread1, (void **)&result1 );
-    
-    intptr_t result2;
-    pthread_join( thread2, (void **)&result2 );
+    DKThreadJoin( thread1 );
+    DKThreadJoin( thread2 );
+
+    DKRelease( thread1 );
+    DKRelease( thread2 );
     
     DKRelease( array1 );
     DKRelease( array2 );

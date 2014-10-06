@@ -18,6 +18,9 @@
 		02083FA918F4C48100EEBBAC /* DKRuntime+Properties.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA018F3BC2200EEBBAC /* DKRuntime+Properties.c */; };
 		02083FAA18F4C48600EEBBAC /* DKSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9618F1E4EF00EEBBAC /* DKSet.c */; };
 		0208A644190576130041677A /* TestDKEgg.m in Sources */ = {isa = PBXBuildFile; fileRef = 0208A643190576130041677A /* TestDKEgg.m */; };
+		021E0E1719E1A5B200ECD817 /* DKThread.c in Sources */ = {isa = PBXBuildFile; fileRef = 021E0E1519E1A5B200ECD817 /* DKThread.c */; };
+		021E0E1819E1A5B200ECD817 /* DKThread.c in Sources */ = {isa = PBXBuildFile; fileRef = 021E0E1519E1A5B200ECD817 /* DKThread.c */; };
+		021E0E1919E1A5B200ECD817 /* DKThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 021E0E1619E1A5B200ECD817 /* DKThread.h */; };
 		021EC2C218F0774B004148AD /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
 		021EC2DC18F07BA9004148AD /* uassert.h in Headers */ = {isa = PBXBuildFile; fileRef = 021EC2CD18F07BA9004148AD /* uassert.h */; };
 		021EC2DD18F07BA9004148AD /* platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 021EC2CF18F07BA9004148AD /* platform.h */; };
@@ -168,6 +171,8 @@
 		02083FA218F3C49E00EEBBAC /* TestDKProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKProperty.m; sourceTree = "<group>"; };
 		02083FA518F4A86700EEBBAC /* DKStruct.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKStruct.c; sourceTree = "<group>"; };
 		0208A643190576130041677A /* TestDKEgg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKEgg.m; sourceTree = "<group>"; };
+		021E0E1519E1A5B200ECD817 /* DKThread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKThread.c; sourceTree = "<group>"; };
+		021E0E1619E1A5B200ECD817 /* DKThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKThread.h; sourceTree = "<group>"; };
 		021EC2B718F0774B004148AD /* utf_impl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf_impl.c; sourceTree = "<group>"; };
 		021EC2CD18F07BA9004148AD /* uassert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uassert.h; sourceTree = "<group>"; };
 		021EC2CF18F07BA9004148AD /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
@@ -480,6 +485,8 @@
 				025C0F4E18EFED96000344C0 /* DKFile.c */,
 				0269BF2719D85669002E876C /* DKPredicate.h */,
 				028F5CE619CF59B900CF4D47 /* DKPredicate.c */,
+				021E0E1619E1A5B200ECD817 /* DKThread.h */,
+				021E0E1519E1A5B200ECD817 /* DKThread.c */,
 				0269BF2E19D85669002E876C /* DKUnicode.h */,
 				025C0F5A18EFED97000344C0 /* DKUnicode.c */,
 			);
@@ -543,6 +550,7 @@
 				0269BF3219D85669002E876C /* DKCollection.h in Headers */,
 				0269BF3D19D85669002E876C /* DKList.h in Headers */,
 				0269BF3B19D85669002E876C /* DKHashTable.h in Headers */,
+				021E0E1919E1A5B200ECD817 /* DKThread.h in Headers */,
 				021EC2E018F07BA9004148AD /* umachine.h in Headers */,
 				02D051E319DE39D700827660 /* DKDescription.h in Headers */,
 				0269BF3019D85669002E876C /* DKBinaryTree.h in Headers */,
@@ -709,6 +717,7 @@
 				02BD1E151946C5CC00F35A5B /* DKGenericHashTable.c in Sources */,
 				025C0F7718EFED97000344C0 /* DKLinkedList.c in Sources */,
 				025C0F7E18EFED97000344C0 /* DKRuntime.c in Sources */,
+				021E0E1719E1A5B200ECD817 /* DKThread.c in Sources */,
 				025C0F7318EFED97000344C0 /* DKData.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -767,6 +776,7 @@
 				02BD1E161946C5CC00F35A5B /* DKGenericHashTable.c in Sources */,
 				02C8917918F169780097B6BC /* DKString.c in Sources */,
 				02C8917A18F169780097B6BC /* DKUnicode.c in Sources */,
+				021E0E1819E1A5B200ECD817 /* DKThread.c in Sources */,
 				02C8917B18F169780097B6BC /* utf_impl.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

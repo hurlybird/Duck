@@ -39,6 +39,7 @@
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
+#include "DKThread.h"
 
 
 
@@ -56,6 +57,7 @@ static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, str
 
 // Thread Context ========================================================================
 static pthread_key_t DKThreadContextKey;
+static struct DKThreadContext * DKMainThreadContext = NULL;
 
 
 ///
@@ -66,7 +68,6 @@ static void DKFreeThreadContext( void * context )
     struct DKThreadContext * threadContext = context;
     
     DKRelease( threadContext->threadObject );
-    DKRelease( threadContext->threadDictionary );
     
     DKFatal( threadContext->arpStack.top == -1 );
     
@@ -80,9 +81,9 @@ static void DKFreeThreadContext( void * context )
 
 
 ///
-//  DKGetThreadContext()
+//  DKGetCurrentThreadContext()
 //
-struct DKThreadContext * DKGetThreadContext( void )
+struct DKThreadContext * DKGetCurrentThreadContext( void )
 {
     struct DKThreadContext * threadContext = pthread_getspecific( DKThreadContextKey );
 
@@ -103,6 +104,15 @@ struct DKThreadContext * DKGetThreadContext( void )
     }
 
     return threadContext;
+}
+
+
+///
+//  DKGetMainThreadContext()
+//
+struct DKThreadContext * DKGetMainThreadContext( void )
+{
+    return DKMainThreadContext;
 }
 
 
@@ -456,8 +466,11 @@ void DKRuntimeInit( void )
     {
         _DKRuntimeIsInitialized = true;
 
+        // Initialize the main thread context
         pthread_key_create( &DKThreadContextKey, DKFreeThreadContext );
+        DKMainThreadContext = DKGetCurrentThreadContext();
 
+        // Initialize the root classes
         InitRootClass( &__DKRootClass__,       NULL,                  sizeof(struct DKClass), DKAbstractBaseClass | DKDisableReferenceCounting, NULL, DKClassFinalize );
         InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass), 0, NULL, DKClassFinalize );
         InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct _DKSEL),  0, NULL, DKSelectorFinalize );
@@ -516,6 +529,9 @@ void DKRuntimeInit( void )
         
         SetRootClassName( (struct DKClass *)DKStringClass(), DKSTR( "DKString" ) );
         SetRootClassName( (struct DKClass *)DKConstantStringClass(), DKSTR( "DKConstantString" ) );
+
+        // Initialize the main thread object
+        DKThreadGetCurrentThread();
     }
 }
 

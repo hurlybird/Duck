@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKThread.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,56 +24,55 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#ifndef _DK_THREAD_H_
+#define _DK_THREAD_H_
 
 #include "DKRuntime.h"
-#include "DKThread.h"
-
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKLocking.h"
-#include "DKStream.h"
-
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
-
-#include "DKFile.h"
-#include "DKEgg.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
 #include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
 
 
-#ifdef __cplusplus
-}
-#endif
+typedef const struct DKThread * DKThreadRef;
+
+typedef void (*DKThreadProc)( DKObjectRef object );
+
+typedef enum
+{
+    DKThreadCreated,
+    DKThreadStarted,
+    DKThreadRunning,
+    DKThreadCancelled,
+    DKThreadFinished,
+
+    // The thread was not created by DKThread
+    DKThreadUnknown
+
+} DKThreadState;
 
 
-#endif
+DKClassRef DKThreadClass( void );
+
+DKThreadRef DKThreadGetCurrentThread( void );
+DKThreadRef DKThreadGetMainThread( void );
+
+
+void DKDetachNewThread( DKThreadProc threadProc, DKObjectRef threadParam );
+
+DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc threadProc, DKObjectRef threadParam );
+
+void DKThreadStart( DKThreadRef _self );
+void DKThreadJoin( DKThreadRef _self );
+void DKThreadCancel( DKThreadRef _self );
+void DKThreadExit( void );
+
+// Get thread information. Unlike most interfaces, if '_self' is NULL, the values
+// associated with the current thread are returned.
+DKThreadState DKThreadGetState( DKThreadRef _self );
+DKMutableDictionaryRef DKThreadGetDictionary( DKThreadRef _self );
+bool DKThreadIsMainThread( DKThreadRef _self );
+
+
+
+
+#endif // _DK_THREAD_H_
+
+
