@@ -63,7 +63,7 @@ static DKObjectRef DKThreadInitialize( DKObjectRef _self )
 {
     if( _self )
     {
-        struct DKThread * thread = (struct DKThread *)_self;
+        struct DKThread * thread = _self;
         
         thread->state = DKThreadCreated;
         thread->lock = DKSpinLockInit;
@@ -78,7 +78,7 @@ static DKObjectRef DKThreadInitialize( DKObjectRef _self )
 //
 static void DKThreadFinalize( DKObjectRef _self )
 {
-    struct DKThread * thread = (struct DKThread *)_self;
+    struct DKThread * thread = _self;
     
     DKAssert( (thread->state != DKThreadRunning) && (thread->state != DKThreadCancelled) );
     
@@ -102,7 +102,7 @@ DKThreadRef DKThreadGetCurrentThread( void )
         thread->threadId = pthread_self();
     }
     
-    return (DKThreadRef)threadContext->threadObject;
+    return threadContext->threadObject;
 }
 
 
@@ -116,7 +116,7 @@ DKThreadRef DKThreadGetMainThread( void )
     // The main thread object should have been created by DKRuntimeInit.
     DKAssert( threadContext->threadObject );
     
-    return (DKThreadRef)threadContext->threadObject;
+    return threadContext->threadObject;
 }
 
 
@@ -140,7 +140,7 @@ DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc threadProc, DKObjectRe
     
     if( _self )
     {
-        struct DKThread * thread = (struct DKThread *)_self;
+        struct DKThread * thread = _self;
         
         thread->proc = threadProc;
         thread->param = DKRetain( threadParam );
@@ -182,25 +182,24 @@ void DKThreadStart( DKThreadRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKThreadClass() );
-        struct DKThread * thread = (struct DKThread *)_self;
         
-        DKSpinLockLock( &thread->lock );
+        DKSpinLockLock( &_self->lock );
 
-        if( thread->state == DKThreadCreated )
+        if( _self->state == DKThreadCreated )
         {
-            thread->state = DKThreadStarted;
+            _self->state = DKThreadStarted;
 
-            DKSpinLockUnlock( &thread->lock );
+            DKSpinLockUnlock( &_self->lock );
             
             DKRetain( _self ); // Released by the associated DKThreadContext
             
-            pthread_create( &thread->threadId, NULL, DKThreadExec, thread );
-            pthread_detach( thread->threadId );
+            pthread_create( &_self->threadId, NULL, DKThreadExec, _self );
+            pthread_detach( _self->threadId );
         }
         
         else
         {
-            DKSpinLockUnlock( &thread->lock );
+            DKSpinLockUnlock( &_self->lock );
         }
     }
 }
@@ -214,20 +213,19 @@ void DKThreadJoin( DKThreadRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKThreadClass() );
-        struct DKThread * thread = (struct DKThread *)_self;
 
-        DKSpinLockLock( &thread->lock );
+        DKSpinLockLock( &_self->lock );
         
-        if( thread->state < DKThreadStarted )
+        if( _self->state < DKThreadStarted )
         {
-            DKSpinLockUnlock( &thread->lock );
+            DKSpinLockUnlock( &_self->lock );
             DKError( "DKThreadJoin: Trying to join a thread that was never started." );
         }
         
         else
         {
-            DKSpinLockUnlock( &thread->lock );
-            pthread_join( thread->threadId, NULL );
+            DKSpinLockUnlock( &_self->lock );
+            pthread_join( _self->threadId, NULL );
         }
     }
 }
@@ -241,21 +239,20 @@ void DKThreadCancel( DKThreadRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKThreadClass() );
-        struct DKThread * thread = (struct DKThread *)_self;
         
-        if( thread->state < DKThreadStarted )
+        if( _self->state < DKThreadStarted )
         {
             DKError( "DKThreadJoin: Trying to join a thread that was never started." );
         }
         
         else
         {
-            DKSpinLockLock( &thread->lock );
+            DKSpinLockLock( &_self->lock );
             
-            if( (thread->state == DKThreadStarted) || (thread->state == DKThreadRunning) )
-                thread->state = DKThreadCancelled;
+            if( (_self->state == DKThreadStarted) || (_self->state == DKThreadRunning) )
+                _self->state = DKThreadCancelled;
 
-            DKSpinLockUnlock( &thread->lock );
+            DKSpinLockUnlock( &_self->lock );
         }
     }
 }
@@ -266,7 +263,7 @@ void DKThreadCancel( DKThreadRef _self )
 //
 void DKThreadExit( void )
 {
-    struct DKThread * thread = (struct DKThread *)DKThreadGetCurrentThread();
+    DKThreadRef thread = DKThreadGetCurrentThread();
 
     DKSpinLockLock( &thread->lock );
     thread->state = DKThreadFinished;
@@ -285,11 +282,10 @@ DKThreadState DKThreadGetState( DKThreadRef _self )
         _self = DKThreadGetCurrentThread();
 
     DKAssertKindOfClass( _self, DKThreadClass() );
-    struct DKThread * thread = (struct DKThread *)_self;
     
-    DKSpinLockLock( &thread->lock );
-    DKThreadState state = thread->state;
-    DKSpinLockUnlock( &thread->lock );
+    DKSpinLockLock( &_self->lock );
+    DKThreadState state = _self->state;
+    DKSpinLockUnlock( &_self->lock );
     
     return state;
 }
@@ -306,10 +302,7 @@ DKMutableDictionaryRef DKThreadGetDictionary( DKThreadRef _self )
     DKAssertKindOfClass( _self, DKThreadClass() );
     
     if( !_self->dictionary )
-    {
-        struct DKThread * thread = (struct DKThread *)_self;
-        thread->dictionary = DKCreate( DKMutableDictionaryClass() );
-    }
+        _self->dictionary = DKCreate( DKMutableDictionaryClass() );
     
     return _self->dictionary;
 }

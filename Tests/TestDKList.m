@@ -52,7 +52,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKStringRef c = DKSTR( "c" );
     DKStringRef d = DKSTR( "d" );
     
-    DKMutableListRef list = (DKMutableListRef)DKCreate( listClass );
+    DKMutableListRef list = DKCreate( listClass );
     
     // Append
     DKListAppendObject( list, a );

@@ -188,7 +188,7 @@ int DKForeachKeyAndObject( DKObjectRef _self, DKKeyedApplierFunction callback, v
 //
 struct PrintDescriptionContext
 {
-    DKMutableObjectRef stream;
+    DKObjectRef stream;
     DKIndex n;
 };
 
@@ -211,7 +211,7 @@ static int PrintDescriptionCallback( DKObjectRef object, void * context )
 
 DKStringRef DKCollectionGetDescription( DKObjectRef _self )
 {
-    DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
+    DKMutableStringRef desc = DKAutorelease( DKStringCreateMutable() );
 
     DKCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(Collection) );
     
@@ -257,7 +257,7 @@ static int PrintKeyedDescriptionCallback( DKObjectRef key, DKObjectRef object, v
 
 DKStringRef DKKeyedCollectionGetDescription( DKObjectRef _self )
 {
-    DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
+    DKMutableStringRef desc = DKAutorelease( DKStringCreateMutable() );
 
     DKKeyedCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(KeyedCollection) );
     

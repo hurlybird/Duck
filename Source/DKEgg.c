@@ -134,7 +134,7 @@ DKThreadSafeClassInit( DKEggUnarchiverClass )
 //
 static void DKEggUnarchiverFinalize( DKObjectRef _self )
 {
-    struct DKEggUnarchiver * egg = (struct DKEggUnarchiver *)_self;
+    struct DKEggUnarchiver * egg = _self;
 
     DKAssert( DKGenericArrayGetLength( &egg->stack ) == 1 );
 
@@ -757,7 +757,7 @@ static DKObjectRef DKEggArchiverInit( DKObjectRef _self )
 
     if( _self )
     {
-        DKEggArchiverRef egg = (DKEggArchiverRef)_self;
+        DKEggArchiverRef egg = _self;
     
         egg->byteOrder = DKByteOrderNative;
         
@@ -797,7 +797,7 @@ static DKObjectRef DKEggArchiverInit( DKObjectRef _self )
 //
 static void DKEggArchiverFinalize( DKObjectRef _self )
 {
-    DKEggArchiverRef egg = (DKEggArchiverRef)_self;
+    DKEggArchiverRef egg = _self;
     
     DKAssert( DKGenericArrayGetLength( &egg->stack ) == 1 );
     
@@ -851,7 +851,7 @@ static void BuildHeader( DKEggArchiverRef _self, DKEggHeader * header )
 ///
 //  WriteHeader()
 //
-static void WriteHeader( DKEggArchiverRef _self, const DKEggHeader * header, DKMutableObjectRef stream )
+static void WriteHeader( DKEggArchiverRef _self, const DKEggHeader * header, DKObjectRef stream )
 {
     DKWrite( stream, header, sizeof(DKEggHeader), 1 );
 }
@@ -860,7 +860,7 @@ static void WriteHeader( DKEggArchiverRef _self, const DKEggHeader * header, DKM
 ///
 //  WriteObjectTable()
 //
-static void WriteObjectTable( DKEggArchiverRef _self, const DKEggHeader * header, DKMutableObjectRef stream )
+static void WriteObjectTable( DKEggArchiverRef _self, const DKEggHeader * header, DKObjectRef stream )
 {
     DKIndex index = 0;
 
@@ -885,7 +885,7 @@ static void WriteObjectTable( DKEggArchiverRef _self, const DKEggHeader * header
 ///
 //  WriteAttributeTable()
 //
-static void WriteAttributeTable( DKEggArchiverRef _self, const DKEggHeader * header, DKMutableObjectRef stream )
+static void WriteAttributeTable( DKEggArchiverRef _self, const DKEggHeader * header, DKObjectRef stream )
 {
     for( DKIndex i = 0; i < header->objectTable.length; ++i )
     {
@@ -905,7 +905,7 @@ static void WriteAttributeTable( DKEggArchiverRef _self, const DKEggHeader * hea
 ///
 //  WriteData()
 //
-static void WriteData( DKEggArchiverRef _self, const DKEggHeader * header, DKMutableObjectRef stream )
+static void WriteData( DKEggArchiverRef _self, const DKEggHeader * header, DKObjectRef stream )
 {
     DKIndex length = DKByteArrayGetLength( &_self->data );
     
@@ -919,7 +919,7 @@ static void WriteData( DKEggArchiverRef _self, const DKEggHeader * header, DKMut
 ///
 //  DKEggArchiverWriteToStream()
 //
-void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKMutableObjectRef stream )
+void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKObjectRef stream )
 {
     DKEggHeader header;
     BuildHeader( _self, &header );

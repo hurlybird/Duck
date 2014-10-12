@@ -57,7 +57,7 @@ static void         DKDataAddToEgg( DKDataRef _self, DKEggArchiverRef egg );
 //
 DKThreadSafeClassInit( DKDataClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData), 0, DKDataInitialize, DKDataFinalize );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData), DKImmutableInstances, DKDataInitialize, DKDataFinalize );
     
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
@@ -163,7 +163,7 @@ DKObjectRef DKDataInitialize( DKObjectRef _self )
 
     if( _self )
     {
-        struct DKData * data = (struct DKData *)_self;
+        struct DKData * data = _self;
         DKByteArrayInit( &data->byteArray );
         data->cursor = 0;
     }
@@ -177,7 +177,7 @@ DKObjectRef DKDataInitialize( DKObjectRef _self )
 //
 static void DKDataFinalize( DKObjectRef _self )
 {
-    struct DKData * data = (struct DKData *)_self;
+    struct DKData * data = _self;
     DKByteArrayFinalize( &data->byteArray );
 }
 
@@ -282,7 +282,7 @@ DKDataRef DKDataMakeImmutable( DKMutableDataRef _self )
     if( DKIsMemberOfClass( _self, DKMutableDataClass() ) )
     {
         DKRelease( _self->_obj.isa );
-        ((struct DKData *)_self)->_obj.isa = DKRetain( DKDataClass() );
+        _self->_obj.isa = DKRetain( DKDataClass() );
     }
     
     return _self;
@@ -315,25 +315,26 @@ int DKDataCompare( DKDataRef _self, DKDataRef other )
         // DKCompare requires that the objects have some strict ordering property useful
         // for comparison, yet has no way of checking if the objects actually meet that
         // requirement.
-        DKCheckKindOfClass( other, DKDataClass(), DKPointerCompare( _self, other ) );
-
-        DKIndex length1 = _self->byteArray.length;
-        DKIndex length2 = other->byteArray.length;
-        
-        DKIndex length = (length1 < length2) ? length1 : length2;
-        
-        int cmp = memcmp( _self->byteArray.bytes, other->byteArray.bytes, length );
-        
-        if( cmp != 0 )
-            return cmp;
-        
-        if( length1 < length2 )
-            return -1;
-        
-        else if( length1 > length2 )
-            return 1;
-        
-        return 0;
+        if( DKIsKindOfClass( other, DKDataClass() ) )
+        {
+            DKIndex length1 = _self->byteArray.length;
+            DKIndex length2 = other->byteArray.length;
+            
+            DKIndex length = (length1 < length2) ? length1 : length2;
+            
+            int cmp = memcmp( _self->byteArray.bytes, other->byteArray.bytes, length );
+            
+            if( cmp != 0 )
+                return cmp;
+            
+            if( length1 < length2 )
+                return -1;
+            
+            else if( length1 > length2 )
+                return 1;
+            
+            return 0;
+        }
     }
     
     return DKPointerCompare( _self, other );
@@ -380,7 +381,7 @@ DKMutableDataRef DKDataMutableCopy( DKDataRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKDataClass() );
-        return (DKMutableDataRef)DKDataCreateWithBytes( DKMutableDataClass(), _self->byteArray.bytes, _self->byteArray.length );
+        return DKDataCreateWithBytes( DKMutableDataClass(), _self->byteArray.bytes, _self->byteArray.length );
     }
     
     return NULL;
@@ -409,7 +410,7 @@ void DKDataSetLength( DKMutableDataRef _self, DKIndex length )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableDataClass() );
+        DKCheckKindOfClass( _self, DKMutableDataClass() );
 
         if( length > _self->byteArray.length )
         {
@@ -433,7 +434,7 @@ void DKDataIncreaseLength( DKMutableDataRef _self, DKIndex length )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableDataClass() );
+        DKCheckKindOfClass( _self, DKMutableDataClass() );
 
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
         DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, length );
@@ -484,7 +485,7 @@ void * DKDataGetMutableBytePtr( DKMutableDataRef _self, DKIndex index )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableDataClass() );
+        DKCheckKindOfClass( _self, DKMutableDataClass(), NULL );
         DKCheckIndex( index, _self->byteArray.length, NULL );
         
         return _self->byteArray.bytes;
@@ -501,7 +502,7 @@ void * DKDataGetMutableByteRange( DKMutableDataRef _self, DKRange range )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableDataClass() );
+        DKCheckKindOfClass( _self, DKMutableDataClass(), NULL );
         DKCheckRange( range, _self->byteArray.length, NULL );
 
         // DKCheckRange allows a 0-length range at the end of the sequence
@@ -545,7 +546,7 @@ void DKDataAppendBytes( DKMutableDataRef _self, const void * bytes, DKIndex leng
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableDataClass() );
+        DKCheckKindOfClass( _self, DKMutableDataClass() );
 
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
         DKByteArrayReplaceBytes( &_self->byteArray, range, bytes, length );
@@ -560,7 +561,7 @@ void DKDataReplaceBytes( DKMutableDataRef _self, DKRange range, const void * byt
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableDataClass() );
+        DKCheckKindOfClass( _self, DKMutableDataClass() );
         DKCheckRange( range, _self->byteArray.length );
 
         DKByteArrayReplaceBytes( &_self->byteArray, range, bytes, length );
@@ -575,7 +576,7 @@ void DKDataDeleteBytes( DKMutableDataRef _self, DKRange range )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableDataClass() );
+        DKCheckKindOfClass( _self, DKMutableDataClass() );
         DKCheckRange( range, _self->byteArray.length );
 
         DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
@@ -592,9 +593,7 @@ int DKDataSeek( DKDataRef _self, DKIndex offset, int origin )
     {
         DKAssertKindOfClass( _self, DKDataClass() );
 
-        struct DKData * data = (struct DKData *)_self;
-        
-        DKIndex cursor = data->cursor;
+        DKIndex cursor = _self->cursor;
         
         if( origin == DKSeekSet )
             cursor = offset;
@@ -603,9 +602,9 @@ int DKDataSeek( DKDataRef _self, DKIndex offset, int origin )
             cursor += offset;
         
         else
-            cursor = data->byteArray.length + cursor;
+            cursor = _self->byteArray.length + cursor;
 
-        SetCursor( data, cursor );
+        SetCursor( _self, cursor );
         
         return 0;
     }
@@ -623,8 +622,7 @@ DKIndex DKDataTell( DKDataRef _self )
     {
         DKAssertKindOfClass( _self, DKDataClass() );
 
-        struct DKData * data = (struct DKData *)_self;
-        return data->cursor;
+        return _self->cursor;
     }
     
     return -1;
@@ -640,18 +638,16 @@ DKIndex DKDataRead( DKDataRef _self, void * buffer, DKIndex size, DKIndex count 
     {
         DKAssertKindOfClass( _self, DKDataClass() );
 
-        struct DKData * data = (struct DKData *)_self;
+        SetCursor( _self, _self->cursor );
+        
+        DKRange range = DKRangeMake( _self->cursor, size * count );
+        
+        if( range.length > (_self->byteArray.length - _self->cursor) )
+            range.length = _self->byteArray.length - _self->cursor;
 
-        SetCursor( data, data->cursor );
+        memcpy( buffer, &_self->byteArray.bytes[range.location], range.length );
         
-        DKRange range = DKRangeMake( data->cursor, size * count );
-        
-        if( range.length > (data->byteArray.length - data->cursor) )
-            range.length = data->byteArray.length - data->cursor;
-
-        memcpy( buffer, &data->byteArray.bytes[range.location], range.length );
-        
-        SetCursor( data, data->cursor + range.length );
+        SetCursor( _self, _self->cursor + range.length );
         
         return range.length / size;
     }
@@ -667,20 +663,18 @@ DKIndex DKDataWrite( DKMutableDataRef _self, const void * buffer, DKIndex size, 
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableDataClass() );
+        DKCheckKindOfClass( _self, DKMutableDataClass(), 0 );
 
-        struct DKData * data = (struct DKData *)_self;
+        SetCursor( _self, _self->cursor );
+        
+        DKRange range = DKRangeMake( _self->cursor, size * count );
+        
+        if( range.length > (_self->byteArray.length - _self->cursor) )
+            range.length = _self->byteArray.length - _self->cursor;
+        
+        DKByteArrayReplaceBytes( &_self->byteArray, range, buffer, size * count );
 
-        SetCursor( data, data->cursor );
-        
-        DKRange range = DKRangeMake( data->cursor, size * count );
-        
-        if( range.length > (data->byteArray.length - data->cursor) )
-            range.length = data->byteArray.length - data->cursor;
-        
-        DKByteArrayReplaceBytes( &data->byteArray, range, buffer, size * count );
-
-        SetCursor( data, data->cursor + (size * count) );
+        SetCursor( _self, _self->cursor + (size * count) );
         
         return count;
     }

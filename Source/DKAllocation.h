@@ -33,7 +33,7 @@
 DKDeclareInterfaceSelector( Allocation );
 
 
-typedef void * (*DKAllocMethod)( DKClassRef _class, size_t extraBytes );
+typedef DKObjectRef (*DKAllocMethod)( DKClassRef _class, size_t extraBytes );
 typedef void (*DKDeallocMethod)( DKObjectRef _self );
 
 struct DKAllocationInterface

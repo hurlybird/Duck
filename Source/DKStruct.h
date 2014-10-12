@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-typedef const struct DKStruct * DKStructRef;
+typedef struct DKStruct * DKStructRef;
 
 
 DKClassRef  DKStructClass( void );

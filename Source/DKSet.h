@@ -34,8 +34,8 @@
 DKDeclareInterfaceSelector( Set );
 
 
-typedef const void * DKSetRef;
-typedef void * DKMutableSetRef;
+typedef struct DKSet * DKSetRef;
+typedef struct DKSet * DKMutableSetRef;
 
 
 typedef int (*DKSetApplierFunction)( DKObjectRef object, void * context );

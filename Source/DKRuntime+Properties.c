@@ -53,7 +53,7 @@ DKThreadSafeSelectorInit( Property );
 //
 static void DKPropertyFinalize( DKObjectRef _self )
 {
-    struct DKProperty * property = (struct DKProperty *)_self;
+    struct DKProperty * property = _self;
     
     DKRelease( property->name );
     DKRelease( property->semantic );
@@ -188,10 +188,10 @@ DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self )
         
         // If this object is a class, look in its own properties
         if( (cls == DKClassClass()) || (cls == DKRootClass()) )
-            cls = (struct DKClass *)_self;
+            cls = _self;
 
         DKSpinLockLock( &cls->propertiesLock );
-        DKListRef properties = DKDictionaryGetAllObjects( cls->properties );
+        DKListRef properties = DKDictionaryGetAllObjects( (DKDictionaryRef)cls->properties );
         DKSpinLockUnlock( &cls->propertiesLock );
         
         return properties;
@@ -213,7 +213,7 @@ DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
         
         // If this object is a class, look in its own properties
         if( (cls == DKClassClass()) || (cls == DKRootClass()) )
-            cls = (struct DKClass *)_self;
+            cls = _self;
 
         DKSpinLockLock( &cls->propertiesLock );
         DKPropertyRef property = DKHashTableGetObject( cls->properties, name );
@@ -475,7 +475,7 @@ void DKSetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object )
         {
             DKPropertyInterfaceRef propertyInterface;
             
-            if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
+            if( DKQueryInterface( _self, DKSelector(Property), (DKInterfaceRef *)&propertyInterface ) )
             {
                 propertyInterface->setProperty( _self, name, object );
                 return;

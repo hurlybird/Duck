@@ -250,7 +250,7 @@ DKThreadSafeClassInit( DKNumberClass )
     // NOTE: The value field of DKNumber is dynamically sized, and not included in the
     // base instance structure size.
     DKAssert( sizeof(struct DKNumber) == (sizeof(DKObject) + sizeof(DKNumberValue)) );
-    DKClassRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(DKObject), 0, NULL, NULL );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(DKObject), DKImmutableInstances, NULL, NULL );
     
     // Allocation
     struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
@@ -262,17 +262,17 @@ DKThreadSafeClassInit( DKNumberClass )
     
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
-    comparison->equal = (void *)DKNumberEqual;
-    comparison->like = (void *)DKNumberEqual;
-    comparison->compare = (void *)DKNumberCompare;
-    comparison->hash = (void *)DKNumberHash;
+    comparison->equal = (DKEqualityMethod)DKNumberEqual;
+    comparison->like = (DKEqualityMethod)DKNumberEqual;
+    comparison->compare = (DKCompareMethod)DKNumberCompare;
+    comparison->hash = (DKHashMethod)DKNumberHash;
 
     DKInstallInterface( cls, comparison );
     DKRelease( comparison );
     
     // Description
     struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
-    description->getDescription = (void *)DKNumberGetDescription;
+    description->getDescription = (DKGetDescriptionMethod)DKNumberGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
     DKInstallInterface( cls, description );
@@ -333,7 +333,7 @@ DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding enco
         _self = DKAllocObject( DKNumberClass(), size );
         
         DKSetObjectTag( _self, encoding );
-        memcpy( (void *)&_self->value, value, size );
+        memcpy( &_self->value, value, size );
     }
     
     else if( _self != NULL )
@@ -361,7 +361,7 @@ static DKObjectRef DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef eg
         
         DKSetObjectTag( _self, encoding );
         
-        DKEggGetNumberData( egg, DKSTR( "value" ), (void *)&_self->value );
+        DKEggGetNumberData( egg, DKSTR( "value" ), &_self->value );
     }
     
     else if( _self != NULL )
@@ -636,7 +636,7 @@ DKStringRef DKNumberGetDescription( DKNumberRef _self )
         DKAssertKindOfClass( _self, DKNumberClass() );
         const struct DKNumber * number = _self;
         
-        DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
+        DKMutableStringRef desc = DKAutorelease( DKStringCreateMutable() );
 
         DKEncoding encoding = DKGetObjectTag( _self );
         DKEncodingType type = DKEncodingGetType( encoding );

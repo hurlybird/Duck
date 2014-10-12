@@ -30,7 +30,7 @@
 #include "DKList.h"
 
 
-typedef const struct DKArray * DKArrayRef;
+typedef struct DKArray * DKArrayRef;
 typedef struct DKArray * DKMutableArrayRef;
 
 

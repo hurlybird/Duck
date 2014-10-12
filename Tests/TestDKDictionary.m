@@ -59,7 +59,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKGenericArrayReserve( &values, N );
     values.length = N;
     
-    DKMutableDictionaryRef dict = (DKMutableDictionaryRef)DKCreate( dictionaryClass );
+    DKMutableDictionaryRef dict = DKCreate( dictionaryClass );
     
     for( int i = 0; i < N; i++ )
     {

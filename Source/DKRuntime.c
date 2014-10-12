@@ -607,7 +607,7 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
 //
 static void DKClassFinalize( DKObjectRef _self )
 {
-    struct DKClass * cls = (struct DKClass *)_self;
+    struct DKClass * cls = _self;
     
     DKAssert( cls->_obj.isa == &__DKClassClass__ );
 
@@ -640,7 +640,7 @@ static void DKClassFinalize( DKObjectRef _self )
 ///
 //  DKAllocObject()
 //
-void * DKAllocObject( DKClassRef cls, size_t extraBytes )
+DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
 {
     if( !cls )
     {
@@ -680,7 +680,7 @@ void * DKAllocObject( DKClassRef cls, size_t extraBytes )
 //
 void DKDeallocObject( DKObjectRef _self )
 {
-    DKObject * obj = (DKObject *)_self;
+    DKObject * obj = _self;
     
     DKAssert( obj );
     DKAssert( obj->refcount == 0 );
@@ -699,7 +699,7 @@ void DKDeallocObject( DKObjectRef _self )
 ///
 //  DKAlloc()
 //
-void * DKAlloc( DKClassRef _class, size_t extraBytes )
+DKObjectRef DKAlloc( DKClassRef _class, size_t extraBytes )
 {
     DKObject * obj = NULL;
     
@@ -723,7 +723,7 @@ void * DKAlloc( DKClassRef _class, size_t extraBytes )
 //
 void DKDealloc( DKObjectRef _self )
 {
-    DKObject * obj = (DKObject *)_self;
+    DKObject * obj = _self;
     
     DKAssert( obj );
     DKAssert( obj->refcount == 0 );
@@ -742,11 +742,11 @@ void DKDealloc( DKObjectRef _self )
 ///
 //  DKInit()
 //
-void * DKInit( DKObjectRef _self )
+DKObjectRef DKInit( DKObjectRef _self )
 {
     if( _self )
     {
-        const DKObject * obj = _self;
+        DKObject * obj = _self;
         
         if( obj->isa->init )
             _self = obj->isa->init( _self );
@@ -755,14 +755,14 @@ void * DKInit( DKObjectRef _self )
             _self = DKSuperInit( _self, DKGetSuperclass( _self ) );
     }
     
-    return (void *)_self;
+    return _self;
 }
 
 
 ///
 //  DKSuperInit()
 //
-void * DKSuperInit( DKObjectRef _self, DKClassRef superclass )
+DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass )
 {
     if( _self && superclass )
     {
@@ -775,7 +775,7 @@ void * DKSuperInit( DKObjectRef _self, DKClassRef superclass )
             _self = DKSuperInit( _self, superclass->superclass );
     }
     
-    return (void *)_self;
+    return _self;
 }
 
 
@@ -786,7 +786,7 @@ void DKFinalize( DKObjectRef _self )
 {
     if( _self )
     {
-        const DKObject * obj = _self;
+        DKObject * obj = _self;
 
         for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
         {

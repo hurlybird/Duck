@@ -52,17 +52,16 @@
 // Basic Types & Constants ===============================================================
 
 // Objects
-typedef const void * DKObjectRef;
-typedef void * DKMutableObjectRef;
+typedef void * DKObjectRef;
 
 
 // Forward declarations of common object types
-typedef const struct DKClass * DKClassRef;
-typedef const struct DKWeak * DKWeakRef;
-typedef const struct DKProperty * DKPropertyRef;
-typedef const struct DKString * DKStringRef;
-typedef const struct DKPredicate * DKPredicateRef;
-typedef const void * DKListRef;
+typedef struct DKClass * DKClassRef;
+typedef struct DKWeak * DKWeakRef;
+typedef struct DKProperty * DKPropertyRef;
+typedef struct DKString * DKStringRef;
+typedef struct DKPredicate * DKPredicateRef;
+typedef struct DKList * DKListRef;
 
 
 // Define a constant string with a compile-time constant C string.
@@ -264,6 +263,17 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
         }                                                                               \
     } while( 0 )
 
+#define DKAssertMutable( _self )                                                        \
+    do                                                                                  \
+    {                                                                                   \
+        if( !DKIsMutable( _self, cls ) )                                                \
+        {                                                                               \
+            _DKFatalError( "%s: Trying to modify an instance of immutable class %s\n",  \
+                __func__,                                                               \
+                DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
+        }                                                                               \
+    } while( 0 )
+
 #else
 #define DKAssert( x )
 #define DKAssertMsg( x, ... )
@@ -314,10 +324,23 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
         }                                                                               \
     } while( 0 )
 
+#define DKCheckMutable( _self, ... )                                                    \
+    do                                                                                  \
+    {                                                                                   \
+        if( !DKIsMutable( _self ) )                                                     \
+        {                                                                               \
+            _DKError( "%s: Trying to modify an instance of immutable class %s\n",       \
+                __func__,                                                               \
+                DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
+
 #else
 #define DKCheckKindOfClass( _self, cls, ... )
 #define DKCheckMemberOfClass( _self, cls, ... )
 #define DKCheckInterface( _self, sel, ... )
+#define DKCheckMutable( _self, ... )
 #endif
 
 

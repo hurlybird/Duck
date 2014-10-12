@@ -35,6 +35,12 @@
 DKThreadSafeFastSelectorInit( List );
 
 
+struct DKList
+{
+    const DKObject * _obj;
+};
+
+
 ///
 //  DKListClass()
 //
@@ -76,7 +82,7 @@ void DKSetDefaultMutableListClass( DKClassRef _self )
 ///
 //  DKListInitWithObject()
 //
-DKObjectRef DKListInitWithObject( DKObjectRef _self, DKObjectRef object )
+DKObjectRef DKListInitWithObject( DKListRef _self, DKObjectRef object )
 {
     return DKListInitWithCArray( _self, &object, 1 );
 }

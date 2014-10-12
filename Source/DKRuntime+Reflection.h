@@ -31,6 +31,9 @@
 // Returns the object itself (useful for callbacks).
 DKObjectRef DKGetSelf( DKObjectRef _self );
 
+// Returns false if the object's class was created with the DKImmutableInstances option.
+bool        DKIsMutable( DKObjectRef _self );
+
 // Retrieve the class, superclass and class name. These functions return the same values
 // for classes and instances (i.e. DKGetClass(DKObjectClass()) == DKObjectClass()).
 DKClassRef  DKGetClass( DKObjectRef _self );

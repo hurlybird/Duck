@@ -246,7 +246,7 @@ void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex
 //
 void DKGenericArraySort( DKGenericArray * array, DKCompareFunction cmp )
 {
-    qsort( array->elements, array->length, array->elementSize, cmp );
+    qsort( array->elements, array->length, array->elementSize, (void *)cmp );
 }
 
 

@@ -33,8 +33,8 @@
 DKDeclareInterfaceSelector( Copying );
 
 
-typedef DKObjectRef        (*DKCopyMethod)( DKObjectRef );
-typedef DKMutableObjectRef (*DKMutableCopyMethod)( DKObjectRef );
+typedef DKObjectRef (*DKCopyMethod)( DKObjectRef );
+typedef DKObjectRef (*DKMutableCopyMethod)( DKObjectRef );
 
 struct DKCopyingInterface
 {
@@ -53,7 +53,7 @@ DKInterfaceRef DKDefaultCopying( void );
 
 
 DKObjectRef DKCopy( DKObjectRef _self );
-DKMutableObjectRef DKMutableCopy( DKObjectRef _self );
+DKObjectRef DKMutableCopy( DKObjectRef _self );
 
 
 

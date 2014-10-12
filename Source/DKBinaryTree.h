@@ -31,7 +31,7 @@
 #include "DKSet.h"
 
 
-typedef const struct DKBinaryTree * DKBinaryTreeRef;
+typedef struct DKBinaryTree * DKBinaryTreeRef;
 typedef struct DKBinaryTree * DKMutableBinaryTreeRef;
 
 DKClassRef  DKBinaryTreeClass( void );

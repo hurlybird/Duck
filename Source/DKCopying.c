@@ -50,7 +50,7 @@ DKObjectRef DKCopy( DKObjectRef _self )
 ///
 //  DKMutableCopy()
 //
-DKMutableObjectRef DKMutableCopy( DKObjectRef _self )
+DKObjectRef DKMutableCopy( DKObjectRef _self )
 {
     if( _self )
     {

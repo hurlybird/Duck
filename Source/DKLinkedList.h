@@ -30,7 +30,7 @@
 #include "DKList.h"
 
 
-typedef const struct DKLinkedList * DKLinkedListRef;
+typedef struct DKLinkedList * DKLinkedListRef;
 typedef struct DKLinkedList * DKMutableLinkedListRef;
 
 

@@ -46,6 +46,9 @@ typedef struct DKObject
     // The class of this object.
     DKClassRef isa;
     
+    // The weak reference associated with this object. (This may be relocated.)
+    DKWeakRef weakref;
+    
     // Reference count. Never modify this directly.
     int32_t refcount;
     
@@ -54,16 +57,13 @@ typedef struct DKObject
     // leftover 4 bytes.
     int32_t tag;
     
-    // The weak reference associated with this object. (This may be relocated.)
-    DKWeakRef weakref;
-    
 } DKObject;
 
 
 // Use this macro when declaring a static instance of a DKObject. This will insulate your
 // code from any changes to the DKObject structure. Your code is (obviously) responsible
 // for properly initializing and finalizing static objects.
-#define DKStaticObject( cls )   { cls, 1, 0, NULL }
+#define DKStaticObject( cls )   { cls, NULL, 1, 0 }
 
 
 // Objects are at least 16 bytes long so there must exist a location in memory that is
@@ -93,16 +93,21 @@ DKClassRef DKObjectClass( void );
 
 
 // Creating Classes ======================================================================
+
+// Class Options
 enum
 {
     // Disable allocating of instances
-    DKAbstractBaseClass =     (1 << 0),
+    DKAbstractBaseClass =           (1 << 0),
 
     // Disable reference counting for instances
-    DKDisableReferenceCounting =   (1 << 1),
+    DKDisableReferenceCounting =    (1 << 1),
     
-    // This class cannot be subclassed
-    DKPreventSubclassing =          (1 << 2)
+    // The class cannot be subclassed
+    DKPreventSubclassing =          (1 << 2),
+    
+    // Instances of the class are considered immutable
+    DKImmutableInstances =          (1 << 3)
 };
 
 typedef uint32_t DKClassOptions;
@@ -121,12 +126,12 @@ DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t struct
 
 // These functions implement the default allocator for objects. You should never need to
 // call them outside of a custom allocation scheme. Use DKAlloc and DKDealloc instead.
-void *      DKAllocObject( DKClassRef cls, size_t extraBytes );
+DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes );
 void        DKDeallocObject( DKObjectRef _self );
 
 // Allocates a new object. Use 'extraBytes' to allocate memory beyond the 'structSize'
 // specified in the class. The extra memory is not automatically zeroed for you.
-void *      DKAlloc( DKClassRef _class, size_t extraBytes );
+DKObjectRef DKAlloc( DKClassRef _class, size_t extraBytes );
 
 // Deallocates an object created. You should never need to call this directly unless
 // dealing with an object that bypasses normal reference counting.
@@ -134,10 +139,10 @@ void        DKDealloc( DKObjectRef _self );
 
 // Call the object's default initializer. The object returned by DKIntializeObject may
 // not be the same as the object passed to it.
-void *      DKInit( DKObjectRef _self );
+DKObjectRef DKInit( DKObjectRef _self );
 
 // Call the object's superclass initializer.
-void *      DKSuperInit( DKObjectRef _self, DKClassRef superclass );
+DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass );
 
 // Call the object's finalizer chain. You should never need to call this directly unless
 // dealing with an object that bypasses normal reference counting.

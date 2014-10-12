@@ -35,6 +35,12 @@
 DKThreadSafeFastSelectorInit( Dictionary );
 
 
+struct DKDictionary
+{
+    const DKObject * _obj;
+};
+
+
 ///
 //  DKDictionaryClass()
 //
@@ -158,7 +164,7 @@ static int DKDictionaryContainsObjectCallback( DKObjectRef key, DKObjectRef obje
 
 int DKDictionaryContainsObject( DKDictionaryRef _self, DKObjectRef object )
 {
-    return DKForeachKeyAndObject( _self, DKDictionaryContainsObjectCallback, (void *)object );
+    return DKForeachKeyAndObject( _self, DKDictionaryContainsObjectCallback, object );
 }
 
 
@@ -173,9 +179,9 @@ static int DKDictionaryGetAllKeysCallback( DKObjectRef key, DKObjectRef object, 
 
 DKListRef DKDictionaryGetAllKeys( DKDictionaryRef _self )
 {
-    DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableArrayClass() );
+    DKMutableListRef list = DKCreate( DKMutableArrayClass() );
     
-    DKForeachKeyAndObject( _self, DKDictionaryGetAllKeysCallback, (void *)list );
+    DKForeachKeyAndObject( _self, DKDictionaryGetAllKeysCallback, list );
     
     return DKAutorelease( list );
 }
@@ -192,9 +198,9 @@ static int DKDictionaryGetAllObjectsCallback( DKObjectRef key, DKObjectRef objec
 
 DKListRef DKDictionaryGetAllObjects( DKDictionaryRef _self )
 {
-    DKMutableListRef list = (DKMutableListRef)DKCreate( DKMutableArrayClass() );
+    DKMutableListRef list = DKCreate( DKMutableArrayClass() );
     
-    DKForeachKeyAndObject( _self, DKDictionaryGetAllObjectsCallback, (void *)list );
+    DKForeachKeyAndObject( _self, DKDictionaryGetAllObjectsCallback, list );
     
     return DKAutorelease( list );
 }
@@ -265,7 +271,7 @@ void DKDictionaryAddEntriesFromDictionary( DKMutableDictionaryRef _self, DKDicti
 {
     if( _self )
     {
-        DKForeachKeyAndObject( src, DKDictionaryAddEntriesCallback, (void *)_self );
+        DKForeachKeyAndObject( src, DKDictionaryAddEntriesCallback, _self );
     }
 }
 
@@ -321,7 +327,7 @@ bool DKDictionaryEqual( DKDictionaryRef _self, DKDictionaryRef other )
         {
             if( dict1->getCount( _self ) == dict2->getCount( other ) )
             {
-                int result = DKForeachKeyAndObject( _self, DKDictionaryEqualCallback, (void *)other );
+                int result = DKForeachKeyAndObject( _self, DKDictionaryEqualCallback, other );
                 return result == 0;
             }
         }
@@ -342,7 +348,7 @@ bool DKDictionaryLike( DKDictionaryRef _self, DKDictionaryRef other )
         // to be a dictionary (i.e. it could be a multimap or something).
         if( DKQueryInterface( other, DKSelector(Dictionary), NULL ) )
         {
-            int result = DKForeachKeyAndObject( other, DKDictionaryEqualCallback, (void *)_self );
+            int result = DKForeachKeyAndObject( other, DKDictionaryEqualCallback, _self );
             return result == 0;
         }
     }

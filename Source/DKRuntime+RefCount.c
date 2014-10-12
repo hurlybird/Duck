@@ -41,7 +41,7 @@ DKObjectRef DKRetain( DKObjectRef _self )
 {
     if( _self )
     {
-        DKObject * obj = (DKObject *)_self;
+        DKObject * obj = _self;
 
         if( (obj->isa->options & DKDisableReferenceCounting) == 0 )
         {
@@ -60,7 +60,7 @@ void DKRelease( DKObjectRef _self )
 {
     if( _self )
     {
-        DKObject * obj = (DKObject *)_self;
+        DKObject * obj = _self;
 
         if( (obj->isa->options & DKDisableReferenceCounting) == 0 )
         {
@@ -112,7 +112,7 @@ DKWeakRef DKRetainWeak( DKObjectRef _self )
 {
     if( _self )
     {
-        const DKObject * obj = _self;
+        DKObject * obj = _self;
         
         // It doesn't make sense to get a weak reference to a weak reference.
         if( obj->isa == DKWeakClass() )

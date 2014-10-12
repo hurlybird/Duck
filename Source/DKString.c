@@ -77,7 +77,7 @@ DKThreadSafeClassInit( DKStringClass )
 {
     // Since constant strings are used for class and selector names, the name fields of
     // DKString and DKConstantString are initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString), 0, DKStringInit, DKStringFinalize );
+    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString), DKImmutableInstances, DKStringInit, DKStringFinalize );
 
     // Allocation
     struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
@@ -142,7 +142,7 @@ DKThreadSafeClassInit( DKConstantStringClass )
 {
     // Since constant strings are used for class and selector names, the name fields of
     // DKString and DKConstantString are initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString), DKPreventSubclassing | DKDisableReferenceCounting, NULL, NULL );
+    DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString), DKPreventSubclassing | DKDisableReferenceCounting | DKImmutableInstances, NULL, NULL );
     
     return cls;
 }
@@ -250,7 +250,7 @@ static void * InitString( DKStringRef _self, const char * cstr, DKIndex length )
         DKFatalError( "DKStringInit: Trying to initialize a non-string object.\n" );
     }
 
-    return (void *)_self;
+    return _self;
 }
 
 
@@ -312,8 +312,8 @@ static void DKStringFinalize( DKObjectRef _self )
         return;
     }
 
-    struct DKString * String = (struct DKString *)_self;
-    DKByteArrayFinalize( &String->byteArray );
+    struct DKString * string = (struct DKString *)_self;
+    DKByteArrayFinalize( &string->byteArray );
 }
 
 
@@ -365,7 +365,7 @@ void * DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr )
         DKFatalError( "DKStringInitWithCStringNoCopy: Trying to initialize a non-immutable string object.\n" );
     }
 
-    return (void *)_self;
+    return _self;
 }
 
 
@@ -382,12 +382,12 @@ void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
         va_list arg_ptr;
         va_start( arg_ptr, format );
         
-        DKVSPrintf( (DKMutableStringRef)_self, format, arg_ptr );
+        DKVSPrintf( _self, format, arg_ptr );
         SetCursor( _self, 0 );
 
         va_end( arg_ptr );
 
-        _self = DKStringMakeImmutable( (DKMutableStringRef)_self );
+        _self = DKStringMakeImmutable( _self );
     }
     
     else if( DKIsMemberOfClass( _self, DKMutableStringClass() ) )
@@ -397,7 +397,7 @@ void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
         va_list arg_ptr;
         va_start( arg_ptr, format );
         
-        DKVSPrintf( (DKMutableStringRef)_self, format, arg_ptr );
+        DKVSPrintf( _self, format, arg_ptr );
         SetCursor( _self, 0 );
 
         va_end( arg_ptr );
@@ -408,7 +408,7 @@ void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
         DKFatalError( "DKStringInit: Trying to initialize a non-string object.\n" );
     }
     
-    return (void *)_self;
+    return _self;
 }
 
 
@@ -444,7 +444,7 @@ DKStringRef DKStringMakeImmutable( DKMutableStringRef _self )
     if( DKIsMemberOfClass( _self, DKMutableStringClass() ) )
     {
         DKRelease( _self->_obj.isa );
-        ((struct DKString *)_self)->_obj.isa = DKRetain( DKStringClass() );
+        _self->_obj.isa = DKRetain( DKStringClass() );
     }
     
     return _self;
@@ -502,12 +502,11 @@ int DKStringCompare( DKStringRef _self, DKStringRef other )
         // DKCompare requires that the objects have some strict ordering property useful
         // for comparison, yet has no way of checking if the objects actually meet that
         // requirement.
-        DKCheckKindOfClass( other, DKStringClass(), DKPointerCompare( _self, other ) );
-    
-        return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes );
+        if( DKIsKindOfClass( other, DKStringClass() ) )
+            return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes );
     }
     
-    return 0;
+    return DKPointerCompare( _self, other );
 }
 
 
@@ -774,7 +773,7 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
 //
 DKListRef DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef separator )
 {
-    DKMutableArrayRef array = DKCreate( DKMutableArrayClass() );
+    DKMutableListRef list = DKCreate( DKMutableArrayClass() );
 
     if( _self )
     {
@@ -793,7 +792,7 @@ DKListRef DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef 
             if( copyRange.length > 0 )
             {
                 DKStringRef copy = DKStringCopySubstring( _self, copyRange );
-                DKListAppendObject( array, copy );
+                DKListAppendObject( list, copy );
                 DKRelease( copy );
             }
             
@@ -807,12 +806,12 @@ DKListRef DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef 
         if( copyRange.length > 0 )
         {
             DKStringRef copy = DKStringCopySubstring( _self, copyRange );
-            DKListAppendObject( array, copy );
+            DKListAppendObject( list, copy );
             DKRelease( copy );
         }
     }
     
-    return array;
+    return list;
 }
 
 
@@ -855,7 +854,7 @@ void DKStringSetString( DKMutableStringRef _self, DKStringRef str )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
         
         DKRange range = DKRangeMake( 0, _self->byteArray.length );
         
@@ -882,7 +881,7 @@ void DKStringAppendString( DKMutableStringRef _self, DKStringRef str )
 {
     if( _self && str )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
         DKAssertKindOfClass( str, DKStringClass() );
         
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
@@ -898,7 +897,7 @@ void DKStringAppendFormat( DKMutableStringRef _self, const char * format, ... )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
 
         SetCursor( _self, _self->byteArray.length );
 
@@ -919,7 +918,7 @@ void DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKString
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
         DKAssertKindOfClass( str, DKStringClass() );
         DKCheckRange( range, _self->byteArray.length );
         
@@ -935,7 +934,7 @@ void DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef p
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
         
         DKRange range = DKStringGetRangeOfString( _self, pattern, 0 );
         DKIndex length = DKStringGetLength( replacement );
@@ -956,7 +955,7 @@ void DKStringDeleteSubstring( DKMutableStringRef _self, DKRange range )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
         DKCheckRange( range, _self->byteArray.length );
         
         DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
@@ -1081,7 +1080,7 @@ void DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComp
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
         DKAssertKindOfClass( pathComponent, DKStringClass() );
 
         if( _self->byteArray.length > 0 )
@@ -1104,7 +1103,7 @@ void DKStringRemoveLastPathComponent( DKMutableStringRef _self )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
 
         DKStringStandardizePath( _self );
 
@@ -1149,7 +1148,7 @@ void DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extensio
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
         DKAssertKindOfClass( extension, DKStringClass() );
 
         DKStringStandardizePath( _self );
@@ -1179,7 +1178,7 @@ void DKStringRemovePathExtension( DKMutableStringRef _self )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
 
         DKStringStandardizePath( _self );
 
@@ -1212,7 +1211,7 @@ void DKStringStandardizePath( DKMutableStringRef _self )
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
 
         // Remove redundant slashes
         char * dst = (char *)_self->byteArray.bytes;
@@ -1302,7 +1301,7 @@ DKIndex DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex co
     {
         DKAssertKindOfClass( _self, DKStringClass() );
 
-        SetCursor( (struct DKString *)_self, _self->cursor );
+        SetCursor( _self, _self->cursor );
         
         DKRange range = DKRangeMake( _self->cursor, size * count );
         
@@ -1311,7 +1310,7 @@ DKIndex DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex co
         
         memcpy( buffer, &_self->byteArray.bytes[range.location], range.length );
         
-        SetCursor( (struct DKString *)_self, _self->cursor + range.length );
+        SetCursor( _self, _self->cursor + range.length );
         
         return range.length / size;
     }
@@ -1327,7 +1326,7 @@ DKIndex DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex si
 {
     if( _self )
     {
-        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKCheckKindOfClass( _self, DKMutableStringClass(), 0 );
 
         SetCursor( _self, _self->cursor );
         

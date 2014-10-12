@@ -211,6 +211,21 @@ DKObjectRef DKGetSelf( DKObjectRef _self )
 
 
 ///
+//  DKIsMutable()
+//
+bool DKIsMutable( DKObjectRef _self )
+{
+    if( _self )
+    {
+        const DKObject * obj = _self;
+        return (obj->isa->options & DKImmutableInstances) == 0;
+    }
+    
+    return false;
+}
+
+
+///
 //  DKGetClass()
 //
 DKClassRef DKGetClass( DKObjectRef _self )
@@ -236,7 +251,7 @@ DKStringRef DKGetClassName( DKObjectRef _self )
         DKClassRef cls = obj->isa;
         
         if( (cls == DKClassClass()) || (cls == DKRootClass()) )
-            cls = (struct DKClass *)_self;
+            cls = _self;
         
         return cls->name;
     }

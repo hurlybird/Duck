@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-typedef const struct DKData * DKDataRef;
+typedef struct DKData * DKDataRef;
 typedef struct DKData * DKMutableDataRef;
 
 

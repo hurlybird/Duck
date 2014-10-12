@@ -48,7 +48,7 @@
 #define DKNumberDate    DKEncode( DKEncodingTypeDouble, 1 )
 
 
-typedef const struct DKNumber * DKNumberRef;
+typedef struct DKNumber * DKNumberRef;
 
 DKClassRef  DKNumberClass( void );
 

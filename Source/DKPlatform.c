@@ -175,8 +175,7 @@ int _DKFatalError( const char * format, ... )
 //
 void DKImmutableObjectAccessError( DKObjectRef _self )
 {
-    DKFatalError( "DKImmutableObjectAccessError: Trying to modify immutable object '%s'.",
-        DKStringGetCStringPtr( DKGetClassName( _self ) ) );
+    DKCheckMutable( _self );
 }
 
 

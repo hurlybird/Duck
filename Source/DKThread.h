@@ -31,7 +31,7 @@
 #include "DKDictionary.h"
 
 
-typedef const struct DKThread * DKThreadRef;
+typedef struct DKThread * DKThreadRef;
 
 typedef void (*DKThreadProc)( DKObjectRef object );
 

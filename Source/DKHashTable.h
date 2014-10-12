@@ -31,7 +31,7 @@
 #include "DKSet.h"
 
 
-typedef const struct DKHashTable * DKHashTableRef;
+typedef struct DKHashTable * DKHashTableRef;
 typedef struct DKHashTable * DKMutableHashTableRef;
 
 

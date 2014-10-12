@@ -54,7 +54,7 @@ size_t DKDefaultGetSizeInBytes( DKObjectRef _self )
         DKClassRef cls = obj->isa;
         
         if( (cls == DKClassClass()) || (cls == DKRootClass()) )
-            cls = (struct DKClass *)_self;
+            cls = _self;
         
         return cls->structSize;
     }

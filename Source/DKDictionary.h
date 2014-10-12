@@ -34,12 +34,12 @@
 DKDeclareInterfaceSelector( Dictionary );
 
 
-typedef const void * DKDictionaryRef;
-typedef void * DKMutableDictionaryRef;
+typedef struct DKDictionary * DKDictionaryRef;
+typedef struct DKDictionary * DKMutableDictionaryRef;
 
 
-typedef DKObjectRef (*DKDictionaryInitWithVAKeysAndObjectsMethod)( DKClassRef _class, va_list keysAndObjects );
-typedef DKObjectRef (*DKDictionaryInitWithDictionaryMethod)( DKClassRef _class, DKDictionaryRef srcDictionary );
+typedef DKObjectRef (*DKDictionaryInitWithVAKeysAndObjectsMethod)( DKDictionaryRef _self, va_list keysAndObjects );
+typedef DKObjectRef (*DKDictionaryInitWithDictionaryMethod)( DKDictionaryRef _self, DKDictionaryRef srcDictionary );
 
 typedef DKObjectRef (*DKDictionaryGetObjectMethod)( DKDictionaryRef _self, DKObjectRef key );
 

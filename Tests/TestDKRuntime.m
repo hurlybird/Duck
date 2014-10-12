@@ -117,7 +117,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 static void LinearReleaseThread( DKObjectRef param )
 {
-    DKMutableListRef list = (DKMutableListRef)param;
+    DKMutableListRef list = param;
 
     DKIndex count = DKListGetCount( list );
     
@@ -129,7 +129,7 @@ static void LinearReleaseThread( DKObjectRef param )
 
 static void RandomReleaseThread( DKObjectRef param )
 {
-    DKMutableListRef list = (DKMutableListRef)param;
+    DKMutableListRef list = param;
 
     DKIndex count = DKListGetCount( list );
     
@@ -142,7 +142,7 @@ static void RandomReleaseThread( DKObjectRef param )
 
 static void ResolveWeakThread( DKObjectRef param )
 {
-    DKMutableListRef list = (DKMutableListRef)param;
+    DKMutableListRef list = param;
 
     DKIndex count;
 

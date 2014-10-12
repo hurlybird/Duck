@@ -81,7 +81,7 @@ void DKSelectorFinalize( DKObjectRef _self )
 ///
 //  DKAllocInterface()
 //
-void * DKAllocInterface( DKSEL sel, size_t structSize )
+DKInterfaceRef DKAllocInterface( DKSEL sel, size_t structSize )
 {
     if( sel )
     {
@@ -112,7 +112,7 @@ void * DKAllocInterface( DKSEL sel, size_t structSize )
 //
 void DKInterfaceFinalize( DKObjectRef _self )
 {
-    DKInterface * interface = (DKInterface *)_self;
+    DKInterface * interface = _self;
     DKRelease( interface->sel );
 }
 
@@ -448,7 +448,7 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
 
         if( msgHandler )
         {
-            DKCheckKindOfClass( msgHandler, DKMsgHandlerClass(), DKMsgHandlerNotFound() );
+            DKAssertKindOfClass( msgHandler, DKMsgHandlerClass() );
             return msgHandler;
         }
 
@@ -472,7 +472,7 @@ DKMsgHandlerRef DKGetClassMsgHandler( DKClassRef _class, DKSEL sel )
 
         if( msgHandler )
         {
-            DKCheckKindOfClass( msgHandler, DKMsgHandlerClass(), DKMsgHandlerNotFound() );
+            DKAssertKindOfClass( msgHandler, DKMsgHandlerClass() );
             return msgHandler;
         }
 
@@ -497,7 +497,7 @@ bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHand
 
         if( msgHandler )
         {
-            DKCheckKindOfClass( msgHandler, DKMsgHandlerClass(), 0 );
+            DKAssertKindOfClass( msgHandler, DKMsgHandlerClass() );
 
             if( _msgHandler )
                 *_msgHandler = msgHandler;
@@ -523,7 +523,7 @@ bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * _ms
 
         if( msgHandler )
         {
-            DKCheckKindOfClass( msgHandler, DKMsgHandlerClass(), 0 );
+            DKAssertKindOfClass( msgHandler, DKMsgHandlerClass() );
 
             if( _msgHandler )
                 *_msgHandler = msgHandler;

@@ -65,7 +65,7 @@ DKThreadSafeClassInit( DKFileClass )
 //
 static void DKFileFinalize( DKObjectRef _self )
 {
-    struct DKFile * file = (struct DKFile *)_self;
+    struct DKFile * file = _self;
     
     if( file->file )
     {
@@ -109,12 +109,10 @@ int DKFileClose( DKFileRef _self )
     {
         DKAssertKindOfClass( _self, DKFileClass() );
 
-        struct DKFile * file = (struct DKFile *)_self;
-        
-        if( file->file )
+        if( _self->file )
         {
-            result = fclose( file->file );
-            file->file = NULL;
+            result = fclose( _self->file );
+            _self->file = NULL;
         }
         
         DKRelease( _self );
@@ -184,10 +182,8 @@ DKIndex DKFileWrite( DKFileRef _self, const void * buffer, DKIndex size, DKIndex
     {
         DKAssertKindOfClass( _self, DKFileClass() );
 
-        struct DKFile * file = (struct DKFile *)_self;
-        
-        if( file->file )
-            return fwrite( buffer, size, count, file->file );
+        if( _self->file )
+            return fwrite( buffer, size, count, _self->file );
     }
     
     return 0;

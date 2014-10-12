@@ -68,7 +68,7 @@ struct _DKSEL
     const DKObject  _obj;
 
     // Selectors are typically compared by pointer value, but the name is required to
-    // look up a selector by name
+    // look up a selector by name.
 
     // The name database requires that the name and hash fields of DKClass and DKSEL are
     // in the same position in the structure (i.e. right after the object header).
@@ -79,7 +79,7 @@ struct _DKSEL
     DKIndex         cacheline;
 };
 
-typedef const struct _DKSEL * DKSEL;
+typedef struct _DKSEL * DKSEL;
 
 
 // A friendly macro for accessing selector objects.
@@ -121,7 +121,7 @@ typedef struct _DKInterface
     
 } DKInterface;
 
-typedef const void * DKInterfaceRef;
+typedef void * DKInterfaceRef;
 
 // Declare an interface selector.
 #define DKDeclareInterfaceSelector( name )                                              \
@@ -132,7 +132,7 @@ typedef const void * DKInterfaceRef;
 DKInterfaceRef DKInterfaceNotFound( void );
 
 // Allocate a new interface object.
-void * DKAllocInterface( DKSEL sel, size_t structSize );
+DKInterfaceRef DKAllocInterface( DKSEL sel, size_t structSize );
 
 // Install an interface on a class.
 //
@@ -166,7 +166,7 @@ typedef struct DKMsgHandler
     
 } DKMsgHandler;
 
-typedef const struct DKMsgHandler * DKMsgHandlerRef;
+typedef struct DKMsgHandler * DKMsgHandlerRef;
 
 // Declare a message handler selector. This also defines a callback type used by
 // DKMsgSend() for type safety.

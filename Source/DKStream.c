@@ -83,7 +83,7 @@ DKIndex DKRead( DKObjectRef _self, void * data, DKIndex size, DKIndex count )
 ///
 //  DKWrite()
 //
-DKIndex DKWrite( DKMutableObjectRef _self, const void * data, DKIndex size, DKIndex count )
+DKIndex DKWrite( DKObjectRef _self, const void * data, DKIndex size, DKIndex count )
 {
     if( _self )
     {
@@ -98,7 +98,7 @@ DKIndex DKWrite( DKMutableObjectRef _self, const void * data, DKIndex size, DKIn
 ///
 //  DKSPrintf()
 //
-DKIndex DKSPrintf( DKMutableObjectRef _self, const char * format, ... )
+DKIndex DKSPrintf( DKObjectRef _self, const char * format, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, format );
@@ -114,7 +114,7 @@ DKIndex DKSPrintf( DKMutableObjectRef _self, const char * format, ... )
 ///
 //  DKVSPrintf()
 //
-static size_t WriteNumber( DKMutableObjectRef _self, DKStreamInterfaceRef stream, const char * format, size_t formatLength, va_list arg_ptr )
+static size_t WriteNumber( DKObjectRef _self, DKStreamInterfaceRef stream, const char * format, size_t formatLength, va_list arg_ptr )
 {
     char fmt[32];
     char num[32];
@@ -131,7 +131,7 @@ static size_t WriteNumber( DKMutableObjectRef _self, DKStreamInterfaceRef stream
     return n;
 }
 
-DKIndex DKVSPrintf( DKMutableObjectRef _self, const char * format, va_list arg_ptr )
+DKIndex DKVSPrintf( DKObjectRef _self, const char * format, va_list arg_ptr )
 {
     if( !_self )
         return 0;

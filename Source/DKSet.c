@@ -16,6 +16,12 @@
 DKThreadSafeSelectorInit( Set );
 
 
+struct DKSet
+{
+    const DKObject * _obj;
+};
+
+
 ///
 //  DKSetClass()
 //
@@ -143,7 +149,7 @@ DKIndex DKSetGetCount( DKSetRef _self )
 ///
 //  DKSetGetMember()
 //
-DKObjectRef DKSetGetMember( DKDictionaryRef _self, DKObjectRef object )
+DKObjectRef DKSetGetMember( DKSetRef _self, DKObjectRef object )
 {
     if( _self )
     {
@@ -158,7 +164,7 @@ DKObjectRef DKSetGetMember( DKDictionaryRef _self, DKObjectRef object )
 ///
 //  DKSetContainsObject()
 //
-int DKSetContainsObject( DKDictionaryRef _self, DKObjectRef object )
+int DKSetContainsObject( DKSetRef _self, DKObjectRef object )
 {
     return DKSetGetMember( _self, object ) != NULL;
 }
@@ -225,7 +231,7 @@ int DKSetIsSubsetOfSet( DKSetRef _self, DKSetRef otherSet )
 {
     DKAssertInterface( _self, DKSelector(Set) );
     
-    return !DKForeachObject( _self, DKSetIsSubsetOfSetCallback, (void *)otherSet );
+    return !DKForeachObject( _self, DKSetIsSubsetOfSetCallback, otherSet );
 }
 
 
@@ -241,7 +247,7 @@ int DKSetIntersectsSet( DKSetRef _self, DKSetRef otherSet )
 {
     DKAssertInterface( _self, DKSelector(Set) );
 
-    return !DKForeachObject( _self, DKSetIntersectsSetCallback, (void *)otherSet );
+    return !DKForeachObject( _self, DKSetIntersectsSetCallback, otherSet );
 }
 
 

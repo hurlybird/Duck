@@ -49,7 +49,7 @@ static struct DKStruct DKPlaceholderStruct =
 };
 
 
-static void *       DKStructAllocPlaceholder( DKClassRef _class, size_t extraBytes );
+static DKObjectRef  DKStructAllocPlaceholder( DKClassRef _class, size_t extraBytes );
 static void         DKStructDealloc( DKStructRef _self );
 
 static void         DKStructFinalize( DKStructRef _self );
@@ -63,7 +63,7 @@ DKThreadSafeClassInit( DKStructClass )
 {
     // NOTE: The value field of DKStruct is dynamically sized, and not included in the
     // base instance structure size.
-    DKClassRef cls = DKAllocClass( DKSTR( "DKStruct" ), DKObjectClass(), sizeof(struct DKStruct) - 1, 0, NULL, (DKFinalizeMethod)DKStructFinalize );
+    DKClassRef cls = DKAllocClass( DKSTR( "DKStruct" ), DKObjectClass(), sizeof(struct DKStruct) - 1, DKImmutableInstances, NULL, (DKFinalizeMethod)DKStructFinalize );
     
     // Allocation
     struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
@@ -75,10 +75,10 @@ DKThreadSafeClassInit( DKStructClass )
     
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
-    comparison->equal = (void *)DKStructEqual;
-    comparison->like = (void *)DKStructEqual;
-    comparison->compare = (void *)DKStructCompare;
-    comparison->hash = (void *)DKStructHash;
+    comparison->equal = (DKEqualityMethod)DKStructEqual;
+    comparison->like = (DKEqualityMethod)DKStructEqual;
+    comparison->compare = (DKCompareMethod)DKStructCompare;
+    comparison->hash = (DKHashMethod)DKStructHash;
 
     DKInstallInterface( cls, comparison );
     DKRelease( comparison );
@@ -107,7 +107,7 @@ DKThreadSafeClassInit( DKStructClass )
 ///
 //  DKStructAllocPlaceholder()
 //
-static void * DKStructAllocPlaceholder( DKClassRef _class, size_t extraBytes )
+static DKObjectRef DKStructAllocPlaceholder( DKClassRef _class, size_t extraBytes )
 {
     if( _class == DKStructClass_SharedObject )
     {
@@ -156,11 +156,11 @@ DKStructRef DKStructInit( DKStructRef _self, DKStringRef semantic, const void * 
         
         _self = DKAllocObject( DKStructClass(), size );
         
-        ((struct DKStruct *)_self)->semantic = DKCopy( semantic );
+        _self->semantic = DKCopy( semantic );
         
         DKSetObjectTag( _self, (int32_t)size );
         
-        memcpy( (void *)_self->value, bytes, size );
+        memcpy( _self->value, bytes, size );
     }
     
     else if( _self != NULL )
@@ -236,26 +236,27 @@ int DKStructCompare( DKStructRef _self, DKStructRef other )
         // DKCompare requires that the objects have some strict ordering property useful
         // for comparison, yet has no way of checking if the objects actually meet that
         // requirement.
-        DKCheckKindOfClass( other, DKStructClass(), DKPointerCompare( _self, other ) );
+        if( DKIsKindOfClass( other, DKStructClass() ) )
+        {
+            int cmp = DKStringCompare( _self->semantic, other->semantic );
 
-        int cmp = DKStringCompare( _self->semantic, other->semantic );
+            if( cmp != 0 )
+                return cmp;
 
-        if( cmp != 0 )
-            return cmp;
+            size_t size1 = (size_t)DKGetObjectTag( _self );
+            size_t size2 = (size_t)DKGetObjectTag( other );
+            
+            if( size1 < size2 )
+                return 1;
+            
+            if( size1 > size2 )
+                return -1;
+            
+            if( size1 == 0 )
+                return 0;
 
-        size_t size1 = (size_t)DKGetObjectTag( _self );
-        size_t size2 = (size_t)DKGetObjectTag( other );
-        
-        if( size1 < size2 )
-            return 1;
-        
-        if( size1 > size2 )
-            return -1;
-        
-        if( size1 == 0 )
-            return 0;
-
-        return memcmp( _self->value, other->value, size1 );
+            return memcmp( _self->value, other->value, size1 );
+        }
     }
     
     return DKPointerCompare( _self, other );
@@ -341,7 +342,7 @@ static DKStringRef DKStructGetDescription( DKStructRef _self )
 {
     if( _self )
     {
-        DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
+        DKMutableStringRef desc = DKAutorelease( DKStringCreateMutable() );
         
         DKSPrintf( desc, "%@ (%@)", DKGetClassName( _self ), _self->semantic );
         

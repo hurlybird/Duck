@@ -162,22 +162,22 @@ struct TestObject
 
 - (void) testPropertyKeyPaths
 {
-    DKMutableDictionaryRef dick = (DKMutableDictionaryRef)DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
+    DKMutableDictionaryRef dick = DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
         DKSTR( "name" ), DKSTR( "Dick" ),
         DKSTR( "phoneNumber" ), DKSTR( "555-1234" ),
         NULL );
     
-    DKMutableDictionaryRef jane = (DKMutableDictionaryRef)DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
+    DKMutableDictionaryRef jane = DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
         DKSTR( "name" ), DKSTR( "Jane" ),
         DKSTR( "phoneNumber" ), DKSTR( "555-4321" ),
         NULL );
     
-    DKMutableDictionaryRef db = (DKMutableDictionaryRef)DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
+    DKMutableDictionaryRef db = DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
         DKSTR( "dick" ), dick,
         DKSTR( "jane" ), jane,
         NULL );
     
-    DKStringRef value = DKGetPropertyForKeyPath( db, DKSTR( "dick.name" ) );
+    DKObjectRef value = DKGetPropertyForKeyPath( db, DKSTR( "dick.name" ) );
     XCTAssert( DKEqual( value, DKSTR( "Dick" ) ) );
 
     value = DKGetPropertyForKeyPath( db, DKSTR( "jane.phoneNumber" ) );

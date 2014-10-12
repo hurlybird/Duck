@@ -123,7 +123,7 @@ static DKObjectRef DKPredicateInitialize( DKObjectRef _self )
 //
 static void DKPredicateFinalize( DKObjectRef _self )
 {
-    DKPredicateRef predicate = (DKPredicateRef)_self;
+    DKPredicateRef predicate = _self;
 
     DKRelease( predicate->a );
     DKRelease( predicate->b );
@@ -135,14 +135,12 @@ static void DKPredicateFinalize( DKObjectRef _self )
 //
 static DKObjectRef DKPredicateInitWithEgg( DKPredicateRef _self, DKEggUnarchiverRef egg )
 {
-    struct DKPredicate * predicate = (struct DKPredicate *)_self;
-
     DKStringRef op = DKEggGetObject( egg, DKSTR( "op" ) );
-    predicate->op = DKPredicateOpFromString( op );
+    _self->op = DKPredicateOpFromString( op );
 
-    predicate->a = DKRetain( DKEggGetObject( egg, DKSTR( "a" ) ) );
+    _self->a = DKRetain( DKEggGetObject( egg, DKSTR( "a" ) ) );
 
-    predicate->b = DKRetain( DKEggGetObject( egg, DKSTR( "b" ) ) );
+    _self->b = DKRetain( DKEggGetObject( egg, DKSTR( "b" ) ) );
 
     return _self;
 }
@@ -167,12 +165,12 @@ static void DKPredicateAddToEgg( DKPredicateRef _self, DKEggArchiverRef egg )
 //
 static DKStringRef DKPredicateGetDescription( DKObjectRef _self )
 {
-    DKPredicateRef predicate = (DKPredicateRef)_self;
+    DKPredicateRef predicate = _self;
 
     if( (predicate->op == DKPredicateFALSE) || (predicate->op == DKPredicateTRUE) )
         return DKStringFromPredicateOp( predicate->op );
 
-    DKMutableStringRef desc = (DKMutableStringRef)DKAutorelease( DKStringCreateMutable() );
+    DKMutableStringRef desc = DKAutorelease( DKStringCreateMutable() );
 
     DKObjectRef a = predicate->a ? predicate->a : DKSTR( "*" );
     DKObjectRef b = predicate->b ? predicate->b : DKSTR( "*" );
@@ -299,7 +297,7 @@ static bool EvaluateAND( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
     
     if( (b == NULL) && DKQueryInterface( a, DKSelector(Collection), (DKInterfaceRef *)&collectionInterface ) )
     {
-        int result = collectionInterface->foreachObject( a, EvaluateANDCallback, (void *)subst );
+        int result = collectionInterface->foreachObject( a, EvaluateANDCallback, subst );
         return result == 0;
     }
 
@@ -324,7 +322,7 @@ static bool EvaluateOR( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
     
     if( (b == NULL) && DKQueryInterface( a, DKSelector(Collection), (DKInterfaceRef *)&collectionInterface ) )
     {
-        int result = collectionInterface->foreachObject( a, EvaluateORCallback, (void *)subst );
+        int result = collectionInterface->foreachObject( a, EvaluateORCallback, subst );
         return result != 0;
     }
 

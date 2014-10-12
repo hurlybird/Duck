@@ -35,7 +35,7 @@ DKDeclareInterfaceSelector( List );
 
 
 //typedef const void * DKListRef; -- Declared in DKPlatform.h
-typedef void * DKMutableListRef;
+typedef struct DKList * DKMutableListRef;
 
 typedef DKObjectRef (*DKListInitWithVAObjectsMethod)( DKListRef _self, va_list objects );
 typedef DKObjectRef (*DKListInitWithCArrayMethod)( DKListRef _self, DKObjectRef objects[], DKIndex count );
@@ -126,7 +126,7 @@ DKIndex     DKListGetObjectsInRange( DKListRef _self, DKRange range, DKObjectRef
 
 void        DKListAppendObject( DKMutableListRef _self, DKObjectRef object );
 void        DKListAppendCArray( DKMutableListRef _self, DKObjectRef objects[], DKIndex count );
-void        DKListAppendCollection( DKMutableListRef _self, DKListRef srcList );
+void        DKListAppendCollection( DKMutableListRef _self, DKObjectRef srcCollection );
 
 void        DKListSetObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
 void        DKListInsertObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
