@@ -62,6 +62,15 @@ static void        DKBinaryTreeFinalize( DKObjectRef _self );
 static DKObjectRef DKBinaryTreeInitWithEgg( DKBinaryTreeRef _self, DKEggUnarchiverRef egg );
 static void DKBinaryTreeAddToEgg( DKBinaryTreeRef _self, DKEggArchiverRef egg );
 
+static DKIndex     INTERNAL_DKBinaryTreeGetCount( DKBinaryTreeRef _self );
+static DKObjectRef INTERNAL_DKBinaryTreeGetObject( DKBinaryTreeRef _self, DKObjectRef key );
+
+static void        INTERNAL_DKBinaryTreeSetObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object );
+static void        INTERNAL_DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
+static void        INTERNAL_DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef _self, DKObjectRef key );
+static void        INTERNAL_DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef _self );
+
+static void        INTERNAL_DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef object );
 
 ///
 //  DKBinaryTreeClass()
@@ -98,7 +107,7 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
 
     // Collection
     struct DKCollectionInterface * collection = DKAllocInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
-    collection->getCount = (DKGetCountMethod)DKBinaryTreeGetCount;
+    collection->getCount = (DKGetCountMethod)INTERNAL_DKBinaryTreeGetCount;
     collection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKBinaryTreeApplyFunctionToObjects;
     
@@ -107,7 +116,7 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
 
     // KeyedCollection
     struct DKKeyedCollectionInterface * keyedCollection = DKAllocInterface( DKSelector(KeyedCollection), sizeof(struct DKKeyedCollectionInterface) );
-    keyedCollection->getCount = (DKGetCountMethod)DKBinaryTreeGetCount;
+    keyedCollection->getCount = (DKGetCountMethod)INTERNAL_DKBinaryTreeGetCount;
     keyedCollection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
     keyedCollection->foreachObject = (DKForeachObjectMethod)DKBinaryTreeApplyFunctionToObjects;
     keyedCollection->containsKey = (DKContainsMethod)DKDictionaryContainsKey;
@@ -122,8 +131,8 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     dictionary->initWithVAKeysAndObjects = (DKDictionaryInitWithVAKeysAndObjectsMethod)DKBinaryTreeInitDictionaryWithVAKeysAndObjects;
     dictionary->initWithDictionary = (DKDictionaryInitWithDictionaryMethod)DKBinaryTreeInitDictionaryWithDictionary;
     
-    dictionary->getCount = (DKGetCountMethod)DKBinaryTreeGetCount;
-    dictionary->getObject = (DKDictionaryGetObjectMethod)DKBinaryTreeGetObject;
+    dictionary->getCount = (DKGetCountMethod)INTERNAL_DKBinaryTreeGetCount;
+    dictionary->getObject = (DKDictionaryGetObjectMethod)INTERNAL_DKBinaryTreeGetObject;
     
     dictionary->insertObject = (void *)DKImmutableObjectAccessError;
     dictionary->removeObject = (void *)DKImmutableObjectAccessError;
@@ -138,8 +147,8 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     set->initWithCArray = (DKSetInitWithCArrayMethod)DKBinaryTreeInitSetWithCArray;
     set->initWithCollection = (DKSetInitWithCollectionMethod)DKBinaryTreeInitSetWithCollection;
 
-    set->getCount = (DKGetCountMethod)DKBinaryTreeGetCount;
-    set->getMember = (DKSetGetMemberMethod)DKBinaryTreeGetObject;
+    set->getCount = (DKGetCountMethod)INTERNAL_DKBinaryTreeGetCount;
+    set->getMember = (DKSetGetMemberMethod)INTERNAL_DKBinaryTreeGetObject;
     
     set->addObject = (void *)DKImmutableObjectAccessError;
     set->removeObject = (void *)DKImmutableObjectAccessError;
@@ -150,7 +159,7 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     
     // Property
     struct DKPropertyInterface * property = DKAllocInterface( DKSelector(Property), sizeof(struct DKPropertyInterface) );
-    property->getProperty = (DKGetPropertyMethod)DKBinaryTreeGetObject;
+    property->getProperty = (DKGetPropertyMethod)INTERNAL_DKBinaryTreeGetObject;
     property->setProperty = (void *)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, property );
@@ -188,12 +197,12 @@ DKThreadSafeClassInit( DKMutableBinaryTreeClass )
     dictionary->initWithVAKeysAndObjects = (DKDictionaryInitWithVAKeysAndObjectsMethod)DKBinaryTreeInitDictionaryWithVAKeysAndObjects;
     dictionary->initWithDictionary = (DKDictionaryInitWithDictionaryMethod)DKBinaryTreeInitDictionaryWithDictionary;
     
-    dictionary->getCount = (DKGetCountMethod)DKBinaryTreeGetCount;
-    dictionary->getObject = (DKDictionaryGetObjectMethod)DKBinaryTreeGetObject;
+    dictionary->getCount = (DKGetCountMethod)INTERNAL_DKBinaryTreeGetCount;
+    dictionary->getObject = (DKDictionaryGetObjectMethod)INTERNAL_DKBinaryTreeGetObject;
 
-    dictionary->insertObject = (DKDictionaryInsertObjectMethod)DKBinaryTreeInsertObject;
-    dictionary->removeObject = (DKDictionaryRemoveObjectMethod)DKBinaryTreeRemoveObject;
-    dictionary->removeAllObjects = (DKDictionaryRemoveAllObjectsMethod)DKBinaryTreeRemoveAllObjects;
+    dictionary->insertObject = (DKDictionaryInsertObjectMethod)INTERNAL_DKBinaryTreeInsertObject;
+    dictionary->removeObject = (DKDictionaryRemoveObjectMethod)INTERNAL_DKBinaryTreeRemoveObject;
+    dictionary->removeAllObjects = (DKDictionaryRemoveAllObjectsMethod)INTERNAL_DKBinaryTreeRemoveAllObjects;
 
     DKInstallInterface( cls, dictionary );
     DKRelease( dictionary );
@@ -204,20 +213,20 @@ DKThreadSafeClassInit( DKMutableBinaryTreeClass )
     set->initWithCArray = (DKSetInitWithCArrayMethod)DKBinaryTreeInitSetWithCArray;
     set->initWithCollection = (DKSetInitWithCollectionMethod)DKBinaryTreeInitSetWithCollection;
 
-    set->getCount = (DKGetCountMethod)DKBinaryTreeGetCount;
-    set->getMember = (DKSetGetMemberMethod)DKBinaryTreeGetObject;
+    set->getCount = (DKGetCountMethod)INTERNAL_DKBinaryTreeGetCount;
+    set->getMember = (DKSetGetMemberMethod)INTERNAL_DKBinaryTreeGetObject;
     
-    set->addObject = (DKSetAddObjectMethod)DKBinaryTreeAddObjectToSet;
-    set->removeObject = (DKSetRemoveObjectMethod)DKBinaryTreeRemoveObject;
-    set->removeAllObjects = (DKSetRemoveAllObjectsMethod)DKBinaryTreeRemoveAllObjects;
+    set->addObject = (DKSetAddObjectMethod)INTERNAL_DKBinaryTreeAddObjectToSet;
+    set->removeObject = (DKSetRemoveObjectMethod)INTERNAL_DKBinaryTreeRemoveObject;
+    set->removeAllObjects = (DKSetRemoveAllObjectsMethod)INTERNAL_DKBinaryTreeRemoveAllObjects;
     
     DKInstallInterface( cls, set );
     DKRelease( set );
     
     // Property
     struct DKPropertyInterface * property = DKAllocInterface( DKSelector(Property), sizeof(struct DKPropertyInterface) );
-    property->getProperty = (DKGetPropertyMethod)DKBinaryTreeGetObject;
-    property->setProperty = (DKSetPropertyMethod)DKBinaryTreeSetObject;
+    property->getProperty = (DKGetPropertyMethod)INTERNAL_DKBinaryTreeGetObject;
+    property->setProperty = (DKSetPropertyMethod)INTERNAL_DKBinaryTreeSetObject;
     
     DKInstallInterface( cls, property );
     DKRelease( property );
@@ -538,33 +547,6 @@ static void Remove( struct DKBinaryTree * tree, DKObjectRef key, struct DKBinary
 
 
 ///
-//  RemoveAll()
-//
-static void RemoveAllRecursive( struct DKBinaryTree * tree, struct DKBinaryTreeNode * node )
-{
-    while( node != &tree->null_node )
-    {
-        struct DKBinaryTreeNode * next = node->right;
-        
-        RemoveAllRecursive( tree, node->left );
-        FreeNode( tree, node );
-        
-        node = next;
-    }
-}
-
-static void RemoveAll( struct DKBinaryTree * tree )
-{
-    RemoveAllRecursive( tree, tree->root );
-    DKAssert( tree->count == 0 );
-
-    tree->root = &tree->null_node;
-
-    CheckTreeIntegrity( tree );
-}
-
-
-///
 //  InsertKeyAndObject()
 //
 static int InsertKeyAndObject( DKObjectRef key, DKObjectRef object, void * context )
@@ -635,7 +617,7 @@ static void DKBinaryTreeFinalize( DKObjectRef _self )
 {
     struct DKBinaryTree * tree = _self;
 
-    RemoveAll( tree );
+    INTERNAL_DKBinaryTreeRemoveAllObjects( tree );
     
     DKNodePoolFinalize( &tree->nodePool );
 }
@@ -855,6 +837,12 @@ DKIndex DKBinaryTreeGetCount( DKBinaryTreeRef _self )
     return 0;
 }
 
+static DKIndex INTERNAL_DKBinaryTreeGetCount( DKBinaryTreeRef _self )
+{
+    return _self->count;
+}
+
+
 ///
 //  DKBinaryTreeGetObject()
 //
@@ -863,12 +851,18 @@ DKObjectRef DKBinaryTreeGetObject( DKBinaryTreeRef _self, DKObjectRef key )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKBinaryTreeClass() );
-
-        const struct DKBinaryTreeNode * node = FindNode( _self, key );
-    
-        if( node )
-            return node->object;
+        return INTERNAL_DKBinaryTreeGetObject( _self, key );
     }
+
+    return NULL;
+}
+
+static DKObjectRef INTERNAL_DKBinaryTreeGetObject( DKBinaryTreeRef _self, DKObjectRef key )
+{
+    const struct DKBinaryTreeNode * node = FindNode( _self, key );
+
+    if( node )
+        return node->object;
 
     return NULL;
 }
@@ -959,9 +953,9 @@ int DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKKeyedApplierFunction c
 ///
 //  DKBinaryTreeSetObject()
 //
-void DKBinaryTreeSetObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object )
+static void INTERNAL_DKBinaryTreeSetObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object )
 {
-    return DKBinaryTreeInsertObject( _self, key, object, DKInsertAlways );
+    return INTERNAL_DKBinaryTreeInsertObject( _self, key, object, DKInsertAlways );
 }
 
 
@@ -973,15 +967,19 @@ void DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DK
     if( _self )
     {
         DKCheckKindOfClass( _self, DKMutableBinaryTreeClass() );
-
-        DKObjectRef keyCopy = DKCopy ( key );
-
-        Insert( _self, keyCopy, object, policy );
-        
-        DKRelease( keyCopy );
-
-        CheckTreeIntegrity( _self );
+        INTERNAL_DKBinaryTreeInsertObject( _self, key, object, policy );
     }
+}
+
+static void INTERNAL_DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
+{
+    DKObjectRef keyCopy = DKCopy ( key );
+
+    Insert( _self, keyCopy, object, policy );
+    
+    DKRelease( keyCopy );
+
+    CheckTreeIntegrity( _self );
 }
 
 
@@ -993,14 +991,18 @@ void DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef _self, DKObjectRef key )
     if( _self )
     {
         DKCheckKindOfClass( _self, DKMutableBinaryTreeClass() );
-
-        struct DKBinaryTreeNode * leaf_node = NULL;
-        struct DKBinaryTreeNode * erase_node = &_self->null_node;
-
-        Remove( _self, key, &_self->root, &leaf_node, &erase_node );
-
-        CheckTreeIntegrity( _self );
+        INTERNAL_DKBinaryTreeRemoveObject( _self, key );
     }
+}
+
+static void INTERNAL_DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef _self, DKObjectRef key )
+{
+    struct DKBinaryTreeNode * leaf_node = NULL;
+    struct DKBinaryTreeNode * erase_node = &_self->null_node;
+
+    Remove( _self, key, &_self->root, &leaf_node, &erase_node );
+
+    CheckTreeIntegrity( _self );
 }
 
 
@@ -1012,10 +1014,34 @@ void DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef _self )
     if( _self )
     {
         DKCheckKindOfClass( _self, DKMutableBinaryTreeClass() );
-        
-        RemoveAll( _self );
+        INTERNAL_DKBinaryTreeRemoveAllObjects( _self );
     }
 }
+
+static void RemoveAllRecursive( struct DKBinaryTree * tree, struct DKBinaryTreeNode * node )
+{
+    while( node != &tree->null_node )
+    {
+        struct DKBinaryTreeNode * next = node->right;
+        
+        RemoveAllRecursive( tree, node->left );
+        FreeNode( tree, node );
+        
+        node = next;
+    }
+}
+
+static void INTERNAL_DKBinaryTreeRemoveAllObjects( DKBinaryTreeRef tree )
+{
+    RemoveAllRecursive( tree, tree->root );
+    DKAssert( tree->count == 0 );
+
+    tree->root = &tree->null_node;
+
+    CheckTreeIntegrity( tree );
+}
+
+
 
 
 ///
@@ -1026,11 +1052,15 @@ void DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef objec
     if( _self )
     {
         DKCheckKindOfClass( _self, DKMutableBinaryTreeClass() );
-
-        Insert( _self, object, object, DKInsertIfNotFound );
-
-        CheckTreeIntegrity( _self );
+        INTERNAL_DKBinaryTreeAddObjectToSet( _self, object );
     }
+}
+
+static void INTERNAL_DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef object )
+{
+    Insert( _self, object, object, DKInsertIfNotFound );
+
+    CheckTreeIntegrity( _self );
 }
 
 
