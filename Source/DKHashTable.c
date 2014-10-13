@@ -35,7 +35,6 @@
 
 struct DKHashTableRow
 {
-    DKHashCode  hash;
     DKObjectRef key;
     DKObjectRef object;
 };
@@ -253,16 +252,13 @@ static DKRowStatus RowStatus( const void * _row )
 static DKHashCode RowHash( const void * _row )
 {
     const struct DKHashTableRow * row = _row;
-    return row->hash;
+    return DKHash( row->key );
 }
 
 static bool RowEqual( const void * _row1, const void * _row2 )
 {
     const struct DKHashTableRow * row1 = _row1;
     const struct DKHashTableRow * row2 = _row2;
-
-    if( row1->hash != row2->hash )
-        return false;
 
     return DKEqual( row1->key, row2->key );
 }
@@ -271,7 +267,6 @@ static void RowInit( void * _row )
 {
     struct DKHashTableRow * row = _row;
     
-    row->hash = 0;
     row->key = NULL;
     row->object = NULL;
 }
@@ -280,8 +275,6 @@ static void RowUpdate( void * _row, const void * _src )
 {
     struct DKHashTableRow * row = _row;
     const struct DKHashTableRow * src = _src;
-    
-    row->hash = src->hash;
     
     DKRetain( src->key );
     
@@ -302,7 +295,6 @@ static void RowDelete( void * _row )
     DKRelease( row->key );
     DKRelease( row->object );
     
-    row->hash = 0;
     row->key = DELETED_KEY;
     row->object = NULL;
 }
@@ -320,7 +312,6 @@ static int InsertKeyAndObject( DKObjectRef key, DKObjectRef object, void * conte
     struct DKHashTable * hashTable = context;
     
     struct DKHashTableRow row;
-    row.hash = DKHash( key );
     row.key = DKCopy( key );
     row.object = object;
     
@@ -340,7 +331,6 @@ static int InsertObject( DKObjectRef object, void * context )
     struct DKHashTable * hashTable = context;
     
     struct DKHashTableRow row;
-    row.hash = DKHash( object );
     row.key = object;
     row.object = object;
     
@@ -408,7 +398,6 @@ DKObjectRef DKHashTableInitDictionaryWithVAKeysAndObjects( DKHashTableRef _self,
         while( (key = va_arg( keysAndObjects, DKObjectRef ) ) != NULL )
         {
             struct DKHashTableRow row;
-            row.hash = DKHash( key );
             row.key = DKCopy( key );
             row.object = va_arg( keysAndObjects, DKObjectRef );
     
@@ -454,7 +443,6 @@ DKObjectRef DKHashTableInitSetWithVAObjects( DKHashTableRef _self, va_list objec
     
         while( (row.key = va_arg( objects, DKObjectRef ) ) != NULL )
         {
-            row.hash = DKHash( row.key );
             row.object = row.key;
 
             DKGenericHashTableInsert( &hashTable->table, &row, DKInsertAlways );
@@ -481,7 +469,6 @@ DKObjectRef DKHashTableInitSetWithCArray( DKHashTableRef _self, DKObjectRef obje
         for( DKIndex i = 0; i < count; ++i )
         {
             row.key = objects[i];
-            row.hash = DKHash( row.key );
             row.object = row.key;
             
             DKGenericHashTableInsert( &hashTable->table, &row, DKInsertAlways );
@@ -616,7 +603,6 @@ DKObjectRef DKHashTableGetObject( DKHashTableRef _self, DKObjectRef key )
 static DKObjectRef INTERNAL_DKHashTableGetObject( DKHashTableRef _self, DKObjectRef key )
 {
     struct DKHashTableRow findRow;
-    findRow.hash = DKHash( key );
     findRow.key = key;
     findRow.object = NULL;
     
@@ -734,7 +720,6 @@ void DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKOb
 static void INTERNAL_DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     struct DKHashTableRow row;
-    row.hash = DKHash( key );
     row.key = DKCopy( key );
     row.object = object;
 
@@ -759,7 +744,6 @@ void DKHashTableRemoveObject( DKMutableHashTableRef _self, DKObjectRef key )
 static void INTERNAL_DKHashTableRemoveObject( DKMutableHashTableRef _self, DKObjectRef key )
 {
     struct DKHashTableRow row;
-    row.hash = DKHash( key );
     row.key = key;
     row.object = NULL;
 
@@ -800,7 +784,6 @@ void DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object 
 static void INTERNAL_DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object )
 {
     struct DKHashTableRow row;
-    row.hash = DKHash( object );
     row.key = object;
     row.object = object;
 

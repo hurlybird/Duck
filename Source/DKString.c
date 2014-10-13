@@ -44,6 +44,7 @@ struct DKString
 {
     DKObject _obj;          // 24 bytes
     DKByteArray byteArray;  // 24 bytes
+    DKIndex hashCode;       // 8 bytes
     DKIndex cursor;         // 8 bytes
 };
 
@@ -62,6 +63,7 @@ static struct DKString DKPlaceholderString =
 {
     DKStaticObject( NULL ),
     { NULL, 0, 0 },
+    0,
     0
 };
 
@@ -208,6 +210,26 @@ static void SetCursor( const struct DKString * string, DKIndex cursor )
 
 
 ///
+//  AppendBytes()
+//
+static void AppendBytes( DKStringRef _self, const void * bytes, DKIndex length )
+{
+    DKByteArrayAppendBytes( &_self->byteArray, bytes, length );
+    _self->hashCode = 0;
+}
+
+
+///
+//  ReplaceBytes()
+//
+static void ReplaceBytes( DKStringRef _self, DKRange range, const void * bytes, DKIndex length )
+{
+    DKByteArrayReplaceBytes( &_self->byteArray, range, bytes, length );
+    _self->hashCode = 0;
+}
+
+
+///
 //  CopySubstring()
 //
 static DKStringRef CopySubstring( const char * cstr, DKRange byteRange )
@@ -242,7 +264,7 @@ static void * InitString( DKStringRef _self, const char * cstr, DKIndex length )
     else if( _self && (_self->_obj.isa == DKMutableStringClass_SharedObject) )
     {
         DKByteArrayInit( (DKByteArray *)&_self->byteArray );
-        DKByteArrayAppendBytes( (DKByteArray *)&_self->byteArray, (const uint8_t *)cstr, length );
+        AppendBytes( _self, (const uint8_t *)cstr, length );
     }
     
     else if( _self != NULL )
@@ -559,7 +581,13 @@ DKHashCode DKStringHash( DKStringRef _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
 
-        return dk_strhash( (const char *)_self->byteArray.bytes );
+        if( _self->hashCode == 0 )
+        {
+            if( _self->byteArray.length > 0 )
+                _self->hashCode = dk_strhash( (const char *)_self->byteArray.bytes );
+        }
+        
+        return _self->hashCode;
     }
     
     return 0;
@@ -863,12 +891,12 @@ void DKStringSetString( DKMutableStringRef _self, DKStringRef str )
             DKAssertKindOfClass( str, DKStringClass() );
             const struct DKString * src = str;
 
-            DKByteArrayReplaceBytes( &_self->byteArray, range, src->byteArray.bytes, src->byteArray.length );
+            ReplaceBytes( _self, range, src->byteArray.bytes, src->byteArray.length );
         }
         
         else
         {
-            DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
+            ReplaceBytes( _self, range, NULL, 0 );
         }
     }
 }
@@ -885,7 +913,7 @@ void DKStringAppendString( DKMutableStringRef _self, DKStringRef str )
         DKAssertKindOfClass( str, DKStringClass() );
         
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
-        DKByteArrayReplaceBytes( &_self->byteArray, range, str->byteArray.bytes, str->byteArray.length );
+        ReplaceBytes( _self, range, str->byteArray.bytes, str->byteArray.length );
     }
 }
 
@@ -922,7 +950,7 @@ void DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKString
         DKAssertKindOfClass( str, DKStringClass() );
         DKCheckRange( range, _self->byteArray.length );
         
-        DKByteArrayReplaceBytes( &_self->byteArray, range, str->byteArray.bytes, str->byteArray.length );
+        ReplaceBytes( _self, range, str->byteArray.bytes, str->byteArray.length );
     }
 }
 
@@ -958,7 +986,7 @@ void DKStringDeleteSubstring( DKMutableStringRef _self, DKRange range )
         DKCheckKindOfClass( _self, DKMutableStringClass() );
         DKCheckRange( range, _self->byteArray.length );
         
-        DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
+        ReplaceBytes( _self, range, NULL, 0 );
     }
 }
 
@@ -1086,10 +1114,10 @@ void DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComp
         if( _self->byteArray.length > 0 )
         {
             const char separator[2] = { DKPathComponentSeparator, '\0' };
-            DKByteArrayAppendBytes( &_self->byteArray, (const uint8_t *)separator, 1 );
+            AppendBytes( _self, (const uint8_t *)separator, 1 );
         }
 
-        DKByteArrayAppendBytes( &_self->byteArray, pathComponent->byteArray.bytes, pathComponent->byteArray.length );
+        AppendBytes( _self, pathComponent->byteArray.bytes, pathComponent->byteArray.length );
 
         DKStringStandardizePath( _self );
     }
@@ -1136,7 +1164,7 @@ void DKStringRemoveLastPathComponent( DKMutableStringRef _self )
             range.length = _self->byteArray.length - range.location;
         }
         
-        DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
+        ReplaceBytes( _self, range, NULL, 0 );
     }
 }
 
@@ -1164,9 +1192,9 @@ void DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extensio
         }
 
         const char separator[2] = { DKPathExtensionSeparator, '\0' };
-        DKByteArrayAppendBytes( &_self->byteArray, (const uint8_t *)separator, 1 );
+        AppendBytes( _self, (const uint8_t *)separator, 1 );
         
-        DKByteArrayAppendBytes( &_self->byteArray, extension->byteArray.bytes, extension->byteArray.length );
+        AppendBytes( _self, extension->byteArray.bytes, extension->byteArray.length );
     }
 }
 
@@ -1199,7 +1227,7 @@ void DKStringRemovePathExtension( DKMutableStringRef _self )
         range.location = ext - path;
         range.length = _self->byteArray.length - range.location;
         
-        DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
+        ReplaceBytes( _self, range, NULL, 0 );
     }
 }
 
@@ -1243,7 +1271,7 @@ void DKStringStandardizePath( DKMutableStringRef _self )
         
         range.length = _self->byteArray.length - range.location;
         
-        DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
+        ReplaceBytes( _self, range, NULL, 0 );
     }
 }
 
@@ -1335,7 +1363,7 @@ DKIndex DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex si
         if( range.length > (_self->byteArray.length - _self->cursor) )
             range.length = _self->byteArray.length - _self->cursor;
         
-        DKByteArrayReplaceBytes( &_self->byteArray, range, buffer, size * count );
+        ReplaceBytes( _self, range, buffer, size * count );
 
         SetCursor( _self, _self->cursor + (size * count) );
         

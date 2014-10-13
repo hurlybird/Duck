@@ -25,6 +25,7 @@
 *****************************************************************************************/
 
 #include "DKList.h"
+#include "DKArray.h"
 #include "DKLinkedList.h"
 #include "DKString.h"
 #include "DKStream.h"
@@ -51,7 +52,7 @@ DKClassRef DKListClass( void )
     if( DefaultListClass )
         return DefaultListClass;
     
-    return DKLinkedListClass();
+    return DKArrayClass();
 }
 
 void DKSetDefaultListClass( DKClassRef _self )
@@ -70,7 +71,7 @@ DKClassRef DKMutableListClass( void )
     if( DefaultMutableListClass )
         return DefaultMutableListClass;
     
-    return DKMutableLinkedListClass();
+    return DKMutableArrayClass();
 }
 
 void DKSetDefaultMutableListClass( DKClassRef _self )

@@ -136,7 +136,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-#define PERFORMANCE_N   10000
+#define PERFORMANCE_N   1000000
 
 - (void) testNSDictionaryPerformance
 {
@@ -179,7 +179,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKBinaryTreePerformance
 {
-    [self testDictionaryClassPerformance:DKMutableBinaryTreeClass()];
+    //[self testDictionaryClassPerformance:DKMutableBinaryTreeClass()];
 }
 
 
