@@ -281,7 +281,6 @@ static struct DKComparisonInterface DKDefaultComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
     DKPointerEqual,
-    DKPointerEqual,
     DKPointerCompare,
     DKPointerHash
 };
@@ -334,7 +333,6 @@ static struct DKComparisonInterface DKSelectorComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
     DKPointerEqual,
-    DKPointerEqual,
     DKPointerCompare,
     DKPointerHash
 };
@@ -364,7 +362,6 @@ static DKHashCode DKInterfaceHash( DKInterface * a )
 static struct DKComparisonInterface DKInterfaceComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
-    (DKEqualityMethod)DKInterfaceEqual,
     (DKEqualityMethod)DKInterfaceEqual,
     (DKCompareMethod)DKInterfaceCompare,
     (DKHashMethod)DKInterfaceHash

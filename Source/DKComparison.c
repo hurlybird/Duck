@@ -84,24 +84,6 @@ bool DKEqual( DKObjectRef a, DKObjectRef b )
 
 
 ///
-//  DKLike()
-//
-bool DKLike( DKObjectRef a, DKObjectRef b )
-{
-    if( a && b )
-    {
-        if( a == b )
-            return true;
-        
-        DKComparisonInterfaceRef comparison = DKGetInterface( a, DKSelector(Comparison) );
-        return comparison->like( a, b );
-    }
-    
-    return false;
-}
-
-
-///
 //  DKCompare()
 //
 int DKCompare( DKObjectRef a, DKObjectRef b )

@@ -42,7 +42,6 @@ struct DKComparisonInterface
     const DKInterface _interface;
     
     DKEqualityMethod    equal;
-    DKEqualityMethod    like;
     DKCompareMethod     compare;
     DKHashMethod        hash;
 };
@@ -63,7 +62,6 @@ DKHashCode  DKPointerHash( DKObjectRef ptr );
 
 // Wrappers for the comparison interface
 bool        DKEqual( DKObjectRef a, DKObjectRef b );
-bool        DKLike( DKObjectRef a, DKObjectRef b );
 int         DKCompare( DKObjectRef a, DKObjectRef b );
 DKHashCode  DKHash( DKObjectRef _self );
 

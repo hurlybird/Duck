@@ -44,7 +44,7 @@ struct DKString
 {
     DKObject _obj;          // 24 bytes
     DKByteArray byteArray;  // 24 bytes
-    DKIndex hashCode;       // 8 bytes
+    DKHashCode hashCode;    // 8 bytes
     DKIndex cursor;         // 8 bytes
 };
 
@@ -92,7 +92,6 @@ DKThreadSafeClassInit( DKStringClass )
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (DKEqualityMethod)DKStringEqual;
-    comparison->like = (DKEqualityMethod)DKStringEqual;
     comparison->compare = (DKCompareMethod)DKStringCompare;
     comparison->hash = (DKHashMethod)DKStringHash;
 
@@ -206,6 +205,37 @@ static void SetCursor( const struct DKString * string, DKIndex cursor )
     
     else
         _string->cursor = cursor;
+}
+
+
+///
+//  UpdateHash()
+//
+static void UpdateHash( DKStringRef _self )
+{
+    if( _self->hashCode == 0 )
+    {
+        if( _self->byteArray.length > 0 )
+            _self->hashCode = dk_strhash( (const char *)_self->byteArray.bytes );
+    }
+}
+
+
+///
+//  TestEquality()
+//
+static bool TestEquality( DKStringRef _self, DKStringRef other )
+{
+    if( _self == other )
+        return true;
+
+    UpdateHash( _self );
+    UpdateHash( other );
+
+    if( _self->hashCode != other->hashCode )
+        return false;
+    
+    return strcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes ) == 0;
 }
 
 
@@ -506,9 +536,12 @@ DKMutableStringRef DKStringMutableCopy( DKStringRef _self )
 bool DKStringEqual( DKStringRef _self, DKObjectRef other )
 {
     if( DKIsKindOfClass( other, DKStringClass() ) )
-        return DKStringCompare( _self, other ) == 0;
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        return TestEquality( _self, other );
+    }
     
-    return 0;
+    return false;
 }
 
 
@@ -542,10 +575,7 @@ bool DKStringEqualToString( DKStringRef _self, DKStringRef other )
         DKAssertKindOfClass( _self, DKStringClass() );
         DKAssertKindOfClass( other, DKStringClass() );
 
-        if( _self == other )
-            return true;
-
-        return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes ) == 0;
+        return TestEquality( _self, other );
     }
     
     return false;
@@ -581,16 +611,50 @@ DKHashCode DKStringHash( DKStringRef _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
 
-        if( _self->hashCode == 0 )
-        {
-            if( _self->byteArray.length > 0 )
-                _self->hashCode = dk_strhash( (const char *)_self->byteArray.bytes );
-        }
+        UpdateHash( _self );
         
         return _self->hashCode;
     }
     
     return 0;
+}
+
+
+///
+//  DKStringHasPrefix()
+//
+bool DKStringHasPrefix( DKStringRef _self, DKStringRef other )
+{
+    DKRange substring = DKStringGetRangeOfString( _self, other, 0 );
+    return substring.location == 0;
+}
+
+
+///
+//  DKStringHasSuffix()
+//
+bool DKStringHasSuffix( DKStringRef _self, DKStringRef other )
+{
+    DKIndex a = DKStringGetLength( _self );
+    DKIndex b = DKStringGetLength( other );
+    
+    if( a > b )
+    {
+        DKRange substring = DKStringGetRangeOfString( _self, other, a - b );
+        return substring.location != DKNotFound;
+    }
+    
+    return false;
+}
+
+
+///
+//  DKStringHasSubstring()
+//
+bool DKStringHasSubstring( DKStringRef _self, DKStringRef other )
+{
+    DKRange substring = DKStringGetRangeOfString( _self, other, 0 );
+    return substring.location != DKNotFound;
 }
 
 

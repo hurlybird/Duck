@@ -95,13 +95,14 @@ void        DKDictionarySetObject( DKMutableDictionaryRef _self, DKObjectRef key
 void        DKDictionaryAddObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
 void        DKDictionaryReplaceObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
 void        DKDictionaryInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
-void        DKDictionaryAddEntriesFromDictionary( DKMutableDictionaryRef _self, DKDictionaryRef src );
+void        DKDictionaryInsertEntriesFromDictionary( DKMutableDictionaryRef _self, DKDictionaryRef src, DKInsertPolicy policy );
 
 void        DKDictionaryRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );
 void        DKDictionaryRemoveAllObjects( DKMutableDictionaryRef _self );
 
 bool        DKDictionaryEqual( DKDictionaryRef _self, DKDictionaryRef other );
-bool        DKDictionaryLike( DKDictionaryRef _self, DKDictionaryRef other );
+
+bool        DKDictionaryIsSubsetOfDictionary( DKDictionaryRef _self, DKDictionaryRef other );
 
 
 #endif // _DK_DICTIONARY_H_

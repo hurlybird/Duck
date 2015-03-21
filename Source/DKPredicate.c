@@ -421,10 +421,7 @@ static bool EvaluateGTE( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 static bool EvaluateIN( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
     if( DKIsKindOfClass( b, DKStringClass() ) )
-    {
-        DKRange range = DKStringGetRangeOfString( b, a, 0 );
-        return range.location != DKNotFound;
-    }
+        return DKStringHasSubstring( b, a );
 
     return DKContainsObject( b, a );
 }
@@ -459,8 +456,7 @@ static bool EvaluateISA( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 //
 static bool EvaluateHASPREFIX( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
-    //return DKStringHasPrefix( a, b );
-    return false;
+    return DKStringHasPrefix( a, b );
 }
 
 
@@ -469,8 +465,7 @@ static bool EvaluateHASPREFIX( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 //
 static bool EvaluateHASSUFFIX( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
-    //return DKStringHasSuffix( a, b );
-    return false;
+    return DKStringHasSuffix( a, b );
 }
 
 
@@ -520,7 +515,7 @@ static void InitPredicateOpInfoTable( void )
         // DKEqual( A, B )
         InitTableRow( EQ );
         InitTableRow( NEQ );
-
+        
         // DKCompare( A, B )
         InitTableRow( LT );
         InitTableRow( LTE );

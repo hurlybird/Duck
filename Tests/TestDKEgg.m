@@ -55,7 +55,7 @@ struct TestStruct
         DKSTR( "Jane" ), DKSTR( "Girl" ),
         DKSTR( "Spot" ), DKSTR( "Dog" ),
         NULL ) );
-    DKHashTableRef b1 = DKAutorelease( DKDictionaryCreateWithKeysAndObjects( DKBinaryTreeClass(),
+    DKBinaryTreeRef b1 = DKAutorelease( DKDictionaryCreateWithKeysAndObjects( DKBinaryTreeClass(),
         DKSTR( "Dick" ), DKSTR( "Boy" ),
         DKSTR( "Jane" ), DKSTR( "Girl" ),
         DKSTR( "Spot" ), DKSTR( "Dog" ),

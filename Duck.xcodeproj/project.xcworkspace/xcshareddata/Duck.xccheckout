@@ -11,17 +11,17 @@
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>C44D7E57ACED9015617E8584E484EE47E2D567BC</key>
-		<string>file:///Users/dwnylen/Hurlybird/Projects/../Old%20Projects/</string>
+		<string>https://github.com/hurlybird/Duck.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Duck.xcodeproj/project.xcworkspace</string>
+	<string>Duck.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>C44D7E57ACED9015617E8584E484EE47E2D567BC</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>file:///Users/dwnylen/Hurlybird/Projects/../Old%20Projects/</string>
+	<string>https://github.com/hurlybird/Duck.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>

@@ -259,19 +259,34 @@ void DKDictionaryInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DK
 
 
 ///
-//  DKDictionaryAddEntriesFromDictionary()
+//  DKDictionaryInsertEntriesFromDictionary()
 //
-static int DKDictionaryAddEntriesCallback( DKObjectRef key, DKObjectRef object, void * context )
+struct DKDictionaryInsertEntriesContext
 {
-    DKDictionaryAddObject( context, key, object );
+    DKMutableDictionaryRef _self;
+    DKDictionaryInterfaceRef dict;
+    DKInsertPolicy policy;
+};
+
+static int DKDictionaryInsertEntriesCallback( DKObjectRef key, DKObjectRef object, void * context )
+{
+    struct DKDictionaryInsertEntriesContext * ctx = context;
+    ctx->dict->insertObject( ctx->_self, key, object, ctx->policy );
     return 0;
 }
 
-void DKDictionaryAddEntriesFromDictionary( DKMutableDictionaryRef _self, DKDictionaryRef src )
+void DKDictionaryInsertEntriesFromDictionary( DKMutableDictionaryRef _self, DKDictionaryRef src, DKInsertPolicy policy )
 {
     if( _self )
     {
-        DKForeachKeyAndObject( src, DKDictionaryAddEntriesCallback, _self );
+        struct DKDictionaryInsertEntriesContext ctx =
+        {
+            _self,
+            DKGetInterface( _self, DKSelector(Dictionary) ),
+            policy
+        };
+        
+        DKForeachKeyAndObject( src, DKDictionaryInsertEntriesCallback, &ctx );
     }
 }
 
@@ -338,17 +353,18 @@ bool DKDictionaryEqual( DKDictionaryRef _self, DKDictionaryRef other )
 
 
 ///
-//  DKDictionaryLike()
+//  DKDictionaryIsSubsetOfDictionary()
 //
-bool DKDictionaryLike( DKDictionaryRef _self, DKDictionaryRef other )
+bool DKDictionaryIsSubsetOfDictionary( DKDictionaryRef _self, DKDictionaryRef other )
 {
     if( _self )
     {
-        // This check may be pendantic, but a keyed collection isn't technically required
-        // to be a dictionary (i.e. it could be a multimap or something).
-        if( DKQueryInterface( other, DKSelector(Dictionary), NULL ) )
+        // This check may be pendantic, but we don't do a dictionary interface lookup on
+        // 'other' and a keyed collection isn't technically required to be a dictionary
+        // (i.e. it could be a multimap or something).
+        if( DKQueryInterface( _self, DKSelector(Dictionary), NULL ) )
         {
-            int result = DKForeachKeyAndObject( other, DKDictionaryEqualCallback, _self );
+            int result = DKForeachKeyAndObject( _self, DKDictionaryEqualCallback, other );
             return result == 0;
         }
     }

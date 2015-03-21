@@ -119,6 +119,20 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKRelease( cat );
 }
 
+- (void) testDKStringPrefixAndSuffix
+{
+    DKStringRef str = DKSTR( "She sells sea shells by the sea shore" );
+
+    XCTAssert( DKStringHasPrefix( str, DKSTR( "She" ) ) );
+    XCTAssert( !DKStringHasPrefix( str, DKSTR( "sea" ) ) );
+
+    XCTAssert( DKStringHasSuffix( str, DKSTR( "shore" ) ) );
+    XCTAssert( !DKStringHasSuffix( str, DKSTR( "sea" ) ) );
+
+    XCTAssert( DKStringHasSubstring( str, DKSTR( "shells" ) ) );
+    XCTAssert( !DKStringHasSubstring( str, DKSTR( "blueberry" ) ) );
+}
+
 - (void) testDKStringPrintf
 {
     DKMutableStringRef str = DKStringCreateMutable();

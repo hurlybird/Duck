@@ -65,7 +65,7 @@
 #else
 
 #ifndef DK_RUNTIME_WARNINGS
-#define DK_RUNTIME_WARNINGS 0
+#define DK_RUNTIME_WARNINGS 1
 #endif
 
 #ifndef DK_RUNTIME_ASSERTIONS

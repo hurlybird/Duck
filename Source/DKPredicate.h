@@ -62,9 +62,13 @@ typedef enum
     // Is kind of class, or implements an interface
     DKPredicateISA,
     
-    // Contains a String prefix/suffix
+    // String comparison
     DKPredicateHASPREFIX,
     DKPredicateHASSUFFIX,
+    
+    // Set comprison
+    //DKPredicateISSUBSET,
+    //DKPredicateINTERSECTS,
     
     DKMaxPredicateOp
 

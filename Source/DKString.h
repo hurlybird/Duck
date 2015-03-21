@@ -65,6 +65,7 @@ int         DKStringCompareString( DKStringRef _self, DKStringRef other );
 
 bool        DKStringHasPrefix( DKStringRef _self, DKStringRef other );
 bool        DKStringHasSuffix( DKStringRef _self, DKStringRef other );
+bool        DKStringHasSubstring( DKStringRef _self, DKStringRef other );
 
 DKIndex     DKStringGetLength( DKStringRef _self );
 DKIndex     DKStringGetByteLength( DKStringRef _self );

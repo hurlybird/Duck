@@ -76,7 +76,6 @@ DKThreadSafeClassInit( DKStructClass )
     // Comparison
     struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (DKEqualityMethod)DKStructEqual;
-    comparison->like = (DKEqualityMethod)DKStructEqual;
     comparison->compare = (DKCompareMethod)DKStructCompare;
     comparison->hash = (DKHashMethod)DKStructHash;
 
