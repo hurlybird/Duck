@@ -296,6 +296,21 @@ DKStringRef DKStructGetSemantic( DKStructRef _self )
 
 
 ///
+//  DKStructGetSize()
+//
+size_t DKStructGetSize( DKStructRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStructClass() );
+        return (size_t)DKGetObjectTag( _self );
+    }
+    
+    return 0;
+}
+
+
+///
 //  DKStructGetValue()
 //
 size_t DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, size_t size )
@@ -325,7 +340,7 @@ size_t DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, 
         
         else
         {
-            DKWarning( "DKStructGetValue: Size mismatch %u != %u.\n",
+            DKError( "DKStructGetValue: Size mismatch %u != %u.\n",
                 (unsigned int)DKGetObjectTag( _self ), (unsigned int)size );
         }
     }

@@ -44,6 +44,7 @@ int         DKStructCompare( DKStructRef _self, DKStructRef other );
 DKHashCode  DKStructHash( DKStructRef _self );
 
 DKStringRef DKStructGetSemantic( DKStructRef _self );
+size_t      DKStructGetSize( DKStructRef _self );
 size_t      DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, size_t size );
 
 // Macros for creating/retrieving C structs
