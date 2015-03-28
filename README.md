@@ -38,6 +38,12 @@ Here's a snippet of code that shows what using Duck looks like.
 
 int main( int argc, const char * argv[] )
 {
+    // Initialize the library
+    DKRuntimeInit();
+    
+    // Create an autorelease pool
+    DKPushAutoreleasePool();
+
     // Create a mutable list
     DKMutableListRef list = DKListCreateMutable();
     
@@ -61,6 +67,9 @@ int main( int argc, const char * argv[] )
     
     // Release the list and the objects it contains
     DKRelease( list );
+
+    // Free the autorelease pool
+    DKPopAutoreleasePool();
 
     return 0;
 }
@@ -130,15 +139,21 @@ Duck also defines some common interfaces:
 * *DKCopying* has methods for creating mutable and immutable copies of objects.
 * *DKStream* provides stream-style access to *DKData*, *DKString*, and *DKFile*.
 
+### Other Useful Stuff
+
+* *DKThread* and friends - wrapper classes for pthreads and thread synchronization.
+* *DKPredicate* - evaluation of logical predicates.
+* *DKEgg* - object graph serialization.
+* JSON serialization functions.
+* Low-level utilites for managing Generic arrays, hash tables and node/block pools.
 
 ## Future Development
 
 Some possible/probable areas for further work:
 
-Classes for useful system-level stuff like threads, run loops, notifications,
-URLs, etc.
+Classes for useful system-level stuff like run loops, notifications, URLs, etc.
 
-A time/date class.
+A time/date class, or formatting functions that work with DKNumber.
 
 More unicode support. DKString currently supports enough UTF-8 for basic string
 functions, but more powerful string comparison and locale support would be nice.
