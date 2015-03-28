@@ -34,7 +34,7 @@
 DKDeclareInterfaceSelector( List );
 
 
-//typedef const void * DKListRef; -- Declared in DKPlatform.h
+//typedef struct DKList * DKListRef; -- Declared in DKPlatform.h
 typedef struct DKList * DKMutableListRef;
 
 typedef DKObjectRef (*DKListInitWithVAObjectsMethod)( DKListRef _self, va_list objects );
@@ -95,6 +95,12 @@ void        DKSetDefaultMutableListClass( DKClassRef _self );
 #define     DKListCreateWithVAObjects( cls, objects )       DKListInitWithVAObjects( DKAlloc( cls, 0 ), objects )
 #define     DKListCreateWithCArray( cls, objects, count )   DKListInitWithCArray( DKAlloc( cls, 0 ), objects, count )
 #define     DKListCreateWithCollection( cls, collection )   DKListInitWithCollection( DKAlloc( cls, 0 ), collection )
+
+#define     DKListWithObject( object )          DKAutorelease( DKListInitWithObject( DKAlloc( DKListClass(), 0 ), object ) )
+#define     DKListWithObjects( ... )            DKAutorelease( DKListInitWithObjects( DKAlloc( DKListClass(), 0 ), __VA_ARGS__ ) )
+#define     DKListWithVAObjects( objects )      DKAutorelease( DKListInitWithVAObjects( DKAlloc( DKListClass(), 0 ), objects ) )
+#define     DKListWithCArray( objects, count )  DKAutorelease( DKListInitWithCArray( DKAlloc( DKListClass(), 0 ), objects, count ) )
+#define     DKListWithCollection( collection )  DKAutorelease( DKListInitWithCollection( DKAlloc( DKListClass(), 0 ), collection ) )
 
 #define     DKListCreateSetWithObjects( cls, ... )              DKListInitSetWithObjects( DKAlloc( cls, 0 ), __VA_ARGS__ )
 #define     DKListCreateSetWithVAObjects( cls, objects )        DKListInitSetWithVAObjects( DKAlloc( cls, 0 ), objects )

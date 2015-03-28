@@ -216,11 +216,16 @@ DKObjectRef DKAutorelease( DKObjectRef _self )
 {
     if( _self )
     {
-        struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
-        DKFatal( (threadContext->arpStack.top >= 0) && (threadContext->arpStack.top < DK_AUTORELEASE_POOL_STACK_SIZE) );
+        DKObject * obj = _self;
 
-        DKGenericArray * arp = &threadContext->arpStack.arp[threadContext->arpStack.top];
-        DKGenericArrayAppendElements( arp, &_self, 1 );
+        if( (obj->isa->options & DKDisableReferenceCounting) == 0 )
+        {
+            struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
+            DKFatal( (threadContext->arpStack.top >= 0) && (threadContext->arpStack.top < DK_AUTORELEASE_POOL_STACK_SIZE) );
+
+            DKGenericArray * arp = &threadContext->arpStack.arp[threadContext->arpStack.top];
+            DKGenericArrayAppendElements( arp, &_self, 1 );
+        }
     }
     
     return _self;

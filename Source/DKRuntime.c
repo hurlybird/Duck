@@ -582,7 +582,7 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
     cls->name = DKCopy( name );
     cls->hash = DKStringHash( name );
     cls->superclass = DKRetain( superclass );
-    cls->structSize = structSize;
+    cls->structSize = (structSize > 0) ? structSize : superclass->structSize;
     cls->options = options;
     cls->init = init;
     cls->finalize = finalize;

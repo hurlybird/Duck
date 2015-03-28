@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKJSON.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,58 +24,26 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#ifndef _DK_JSON_H_
+#define _DK_JSON_H_
 
 #include "DKRuntime.h"
-#include "DKThread.h"
-
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKLocking.h"
 #include "DKStream.h"
 
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKBoolean.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
 
-#include "DKFile.h"
-#include "DKEgg.h"
-#include "DKJSON.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
+enum
+{
+    DK_JSON_PRETTY =    (1 << 0)
+};
 
 
-#ifdef __cplusplus
-}
-#endif
+int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options );
+
+DKObjectRef DKJSONParse( DKStreamRef json, int options );
 
 
-#endif
+
+
+#endif // _DK_JSON_H_
+
+

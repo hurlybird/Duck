@@ -86,6 +86,12 @@ void        DKSetDefaultMutableSetClass( DKClassRef _self );
 #define     DKSetCreateWithCArray( cls, objects, count )    DKSetInitWithCArray( DKAlloc( cls, 0 ), objects, count )
 #define     DKSetCreateWithCollection( cls, collection )    DKSetInitWithCollection( DKAlloc( cls, 0 ), collection )
 
+#define     DKSetWithObject( object )           DKAutorelease( DKSetInitWithObject( DKAlloc( DKSetClass(), 0 ), object ) )
+#define     DKSetWithObjects( ... )             DKAutorelease( DKSetInitWithObjects( DKAlloc( DKSetClass(), 0 ), __VA_ARGS__ ) )
+#define     DKSetWithVAObjects( objects )       DKAutorelease( DKSetInitWithVAObjects( DKAlloc( DKSetClass(), 0 ), objects ) )
+#define     DKSetWithCArray( objects, count )   DKAutorelease( DKSetInitWithCArray( DKAlloc( DKSetClass(), 0 ), objects, count ) )
+#define     DKSetWithCollection( collection )   DKAutorelease( DKSetInitWithCollection( DKAlloc( DKSetClass(), 0 ), collection ) )
+
 DKObjectRef DKSetInitWithObject( DKSetRef _self, DKObjectRef object );
 DKObjectRef DKSetInitWithObjects( DKSetRef _self, ... );
 DKObjectRef DKSetInitWithVAObjects( DKSetRef _self, va_list objects );

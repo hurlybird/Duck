@@ -33,6 +33,9 @@
 DKDeclareInterfaceSelector( Stream );
 
 
+typedef DKObjectRef DKStreamRef;
+
+
 enum
 {
     DKSeekSet = SEEK_SET,
@@ -58,15 +61,15 @@ struct DKStreamInterface
 typedef const struct DKStreamInterface * DKStreamInterfaceRef;
 
 
-int DKSeek( DKObjectRef _self, DKIndex offset, int origin );
-DKIndex DKTell( DKObjectRef _self );
+int DKSeek( DKStreamRef _self, DKIndex offset, int origin );
+DKIndex DKTell( DKStreamRef _self );
 
-DKIndex DKRead( DKObjectRef _self, void * data, DKIndex size, DKIndex count );
-DKIndex DKWrite( DKObjectRef _self, const void * data, DKIndex size, DKIndex count );
+DKIndex DKRead( DKStreamRef _self, void * data, DKIndex size, DKIndex count );
+DKIndex DKWrite( DKStreamRef _self, const void * data, DKIndex size, DKIndex count );
 
-DKIndex DKSPrintf( DKObjectRef _self, const char * format, ... );
+DKIndex DKSPrintf( DKStreamRef _self, const char * format, ... );
 
-DKIndex DKVSPrintf( DKObjectRef _self, const char * format, va_list arg_ptr );
+DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr );
 
 
 

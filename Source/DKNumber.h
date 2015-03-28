@@ -52,7 +52,7 @@ typedef struct DKNumber * DKNumberRef;
 
 DKClassRef  DKNumberClass( void );
 
-#define     DKNumberCreate( value, encoding )   DKNumberInit( DKAlloc( DKNumberClass(), 0 ), value, encoding )
+#define     DKNumberCreate( value, encoding )       DKNumberInit( DKAlloc( DKNumberClass(), 0 ), value, encoding )
 
 DKNumberRef DKNumberCreateInt32( int32_t x );
 DKNumberRef DKNumberCreateInt64( int64_t x );
@@ -62,6 +62,15 @@ DKNumberRef DKNumberCreateFloat( float x );
 DKNumberRef DKNumberCreateDouble( double x );
 DKNumberRef DKNumberCreateUUID( const DKUUID * uuid );
 DKNumberRef DKNumberCreateDate( const DKDateTime * date );
+
+#define     DKNumberWithInt32( x )      DKAutorelease( DKNumberCreateInt32( x ) )
+#define     DKNumberWithInt64( x )      DKAutorelease( DKNumberCreateInt64( x ) )
+#define     DKNumberWithUInt32( x )     DKAutorelease( DKNumberCreateUInt32( x ) )
+#define     DKNumberWithUInt64( x )     DKAutorelease( DKNumberCreateUInt64( x ) )
+#define     DKNumberWithFloat( x )      DKAutorelease( DKNumberCreateFloat( x ) )
+#define     DKNumberWithDouble( x )     DKAutorelease( DKNumberCreateDouble( x ) )
+#define     DKNumberWithUUID( x )       DKAutorelease( DKNumberCreateUUID( x ) )
+#define     DKNumberWithDate( x )       DKAutorelease( DKNumberCreateDate( x ) )
 
 DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding );
 
@@ -73,8 +82,12 @@ const void* DKNumberGetValuePtr( DKNumberRef _self );
 
 #define     DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
 
+#define     DKNumberGetInt8( _self )      (*((int8_t *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetInt16( _self )     (*((int16_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetInt32( _self )     (*((int32_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetInt64( _self )     (*((int64_t *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetUInt8( _self )     (*((uint8_t *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetUInt16( _self )    (*((uint16_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetUInt32( _self )    (*((uint32_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetUInt64( _self )    (*((uint64_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetFloat( _self )     (*((float *)DKNumberGetValuePtr( _self )))

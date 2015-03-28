@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		020482AA1AC6972B00936FA1 /* DKBoolean.c in Sources */ = {isa = PBXBuildFile; fileRef = 020482A81AC6972B00936FA1 /* DKBoolean.c */; };
+		020482AB1AC6972B00936FA1 /* DKBoolean.c in Sources */ = {isa = PBXBuildFile; fileRef = 020482A81AC6972B00936FA1 /* DKBoolean.c */; };
+		020482AC1AC6972B00936FA1 /* DKBoolean.h in Headers */ = {isa = PBXBuildFile; fileRef = 020482A91AC6972B00936FA1 /* DKBoolean.h */; };
 		02083F9718F1E4EF00EEBBAC /* DKSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9618F1E4EF00EEBBAC /* DKSet.c */; };
 		02083F9918F1EDBE00EEBBAC /* TestDKSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9818F1EDBE00EEBBAC /* TestDKSet.m */; };
 		02083F9C18F2615E00EEBBAC /* DKCollection.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9B18F2615E00EEBBAC /* DKCollection.c */; };
@@ -99,6 +102,11 @@
 		0269BF4B19D856BC002E876C /* Duck.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF4A19D856BC002E876C /* Duck.h */; };
 		028F5CE719CF59B900CF4D47 /* DKPredicate.c in Sources */ = {isa = PBXBuildFile; fileRef = 028F5CE619CF59B900CF4D47 /* DKPredicate.c */; };
 		028F5CE819CF59B900CF4D47 /* DKPredicate.c in Sources */ = {isa = PBXBuildFile; fileRef = 028F5CE619CF59B900CF4D47 /* DKPredicate.c */; };
+		02A25AFD1AC3D1B600D97B11 /* DKJSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 02A25AFB1AC3D1B600D97B11 /* DKJSON.c */; };
+		02A25AFE1AC3D1B600D97B11 /* DKJSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 02A25AFB1AC3D1B600D97B11 /* DKJSON.c */; };
+		02A25AFF1AC3D1B600D97B11 /* DKJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = 02A25AFC1AC3D1B600D97B11 /* DKJSON.h */; };
+		02A25B071AC3D5AA00D97B11 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 02A25B061AC3D5AA00D97B11 /* main.c */; };
+		02A25B0D1AC3D5C600D97B11 /* libduck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libduck.a */; };
 		02BD1E151946C5CC00F35A5B /* DKGenericHashTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */; };
 		02BD1E161946C5CC00F35A5B /* DKGenericHashTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */; };
 		02C8916918F169780097B6BC /* DKArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4818EFED96000344C0 /* DKArray.c */; };
@@ -149,9 +157,25 @@
 			remoteGlobalIDString = 024EE3E1148E0B21008FDADC;
 			remoteInfo = Duck;
 		};
+		02A25B0B1AC3D5BE00D97B11 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 024EE3D9148E0B21008FDADC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 024EE3E1148E0B21008FDADC;
+			remoteInfo = "Duck-OSX";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		02A25B021AC3D5A900D97B11 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		02C8914318F1690F0097B6BC /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -164,6 +188,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		020482A81AC6972B00936FA1 /* DKBoolean.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKBoolean.c; sourceTree = "<group>"; };
+		020482A91AC6972B00936FA1 /* DKBoolean.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBoolean.h; sourceTree = "<group>"; };
 		02083F9618F1E4EF00EEBBAC /* DKSet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKSet.c; sourceTree = "<group>"; };
 		02083F9818F1EDBE00EEBBAC /* TestDKSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKSet.m; sourceTree = "<group>"; };
 		02083F9B18F2615E00EEBBAC /* DKCollection.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKCollection.c; sourceTree = "<group>"; };
@@ -252,6 +278,10 @@
 		0269BF2E19D85669002E876C /* DKUnicode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKUnicode.h; sourceTree = "<group>"; };
 		0269BF4A19D856BC002E876C /* Duck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Duck.h; sourceTree = "<group>"; };
 		028F5CE619CF59B900CF4D47 /* DKPredicate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKPredicate.c; sourceTree = "<group>"; };
+		02A25AFB1AC3D1B600D97B11 /* DKJSON.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKJSON.c; sourceTree = "<group>"; };
+		02A25AFC1AC3D1B600D97B11 /* DKJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKJSON.h; sourceTree = "<group>"; };
+		02A25B041AC3D5A900D97B11 /* TestBed */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestBed; sourceTree = BUILT_PRODUCTS_DIR; };
+		02A25B061AC3D5AA00D97B11 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		02AFC05D18F172A0006B70B9 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGenericHashTable.c; sourceTree = "<group>"; };
 		02C8914518F1690F0097B6BC /* libduck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libduck.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -284,6 +314,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				025C0FA218EFEEC5000344C0 /* libduck.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02A25B011AC3D5A900D97B11 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02A25B0D1AC3D5C600D97B11 /* libduck.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,6 +364,7 @@
 				025C0F4718EFED96000344C0 /* Source */,
 				025C0F8818EFEE33000344C0 /* Tests */,
 				0263C4A718EFD957005E0ED5 /* ThirdParty */,
+				02A25B051AC3D5AA00D97B11 /* TestBed */,
 				02D00FB518E6258C00FC3054 /* Frameworks */,
 				024EE3E3148E0B21008FDADC /* Products */,
 			);
@@ -337,6 +376,7 @@
 				024EE3E2148E0B21008FDADC /* libduck.a */,
 				025C0F8618EFEE33000344C0 /* Tests.xctest */,
 				02C8914518F1690F0097B6BC /* libduck.a */,
+				02A25B041AC3D5A900D97B11 /* TestBed */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -447,6 +487,8 @@
 		0269BF4D19D857CC002E876C /* Data Types */ = {
 			isa = PBXGroup;
 			children = (
+				020482A91AC6972B00936FA1 /* DKBoolean.h */,
+				020482A81AC6972B00936FA1 /* DKBoolean.c */,
 				0269BF1A19D85669002E876C /* DKData.h */,
 				025C0F4C18EFED96000344C0 /* DKData.c */,
 				0269BF2519D85669002E876C /* DKNumber.h */,
@@ -483,6 +525,8 @@
 				02DE16DE195E7ACB007D241D /* DKEncoding.c */,
 				0269BF1E19D85669002E876C /* DKFile.h */,
 				025C0F4E18EFED96000344C0 /* DKFile.c */,
+				02A25AFB1AC3D1B600D97B11 /* DKJSON.c */,
+				02A25AFC1AC3D1B600D97B11 /* DKJSON.h */,
 				0269BF2719D85669002E876C /* DKPredicate.h */,
 				028F5CE619CF59B900CF4D47 /* DKPredicate.c */,
 				021E0E1619E1A5B200ECD817 /* DKThread.h */,
@@ -491,6 +535,14 @@
 				025C0F5A18EFED97000344C0 /* DKUnicode.c */,
 			);
 			name = Other;
+			sourceTree = "<group>";
+		};
+		02A25B051AC3D5AA00D97B11 /* TestBed */ = {
+			isa = PBXGroup;
+			children = (
+				02A25B061AC3D5AA00D97B11 /* main.c */,
+			);
+			path = TestBed;
 			sourceTree = "<group>";
 		};
 		02D00FB518E6258C00FC3054 /* Frameworks */ = {
@@ -551,6 +603,7 @@
 				0269BF3D19D85669002E876C /* DKList.h in Headers */,
 				0269BF3B19D85669002E876C /* DKHashTable.h in Headers */,
 				021E0E1919E1A5B200ECD817 /* DKThread.h in Headers */,
+				020482AC1AC6972B00936FA1 /* DKBoolean.h in Headers */,
 				021EC2E018F07BA9004148AD /* umachine.h in Headers */,
 				02D051E319DE39D700827660 /* DKDescription.h in Headers */,
 				0269BF3019D85669002E876C /* DKBinaryTree.h in Headers */,
@@ -559,6 +612,7 @@
 				021EC2E418F07BA9004148AD /* utf32.h in Headers */,
 				0269BF3719D85669002E876C /* DKEncoding.h in Headers */,
 				0269BF4219D85669002E876C /* DKRuntime+Properties.h in Headers */,
+				02A25AFF1AC3D1B600D97B11 /* DKJSON.h in Headers */,
 				0269BF4419D85669002E876C /* DKSet.h in Headers */,
 				0269BF3119D85669002E876C /* DKByteArray.h in Headers */,
 				0269BF4019D85669002E876C /* DKPlatform.h in Headers */,
@@ -618,6 +672,24 @@
 			productReference = 025C0F8618EFEE33000344C0 /* Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		02A25B031AC3D5A900D97B11 /* TestBed */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 02A25B081AC3D5AA00D97B11 /* Build configuration list for PBXNativeTarget "TestBed" */;
+			buildPhases = (
+				02A25B001AC3D5A900D97B11 /* Sources */,
+				02A25B011AC3D5A900D97B11 /* Frameworks */,
+				02A25B021AC3D5A900D97B11 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				02A25B0C1AC3D5BE00D97B11 /* PBXTargetDependency */,
+			);
+			name = TestBed;
+			productName = TestBed;
+			productReference = 02A25B041AC3D5A900D97B11 /* TestBed */;
+			productType = "com.apple.product-type.tool";
+		};
 		02C8914418F1690F0097B6BC /* Duck-iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 02C8916718F1690F0097B6BC /* Build configuration list for PBXNativeTarget "Duck-iOS" */;
@@ -647,6 +719,9 @@
 					025C0F8518EFEE33000344C0 = {
 						TestTargetID = 024EE3E1148E0B21008FDADC;
 					};
+					02A25B031AC3D5A900D97B11 = {
+						CreatedOnToolsVersion = 6.2;
+					};
 				};
 			};
 			buildConfigurationList = 024EE3DC148E0B21008FDADC /* Build configuration list for PBXProject "Duck" */;
@@ -664,6 +739,7 @@
 				024EE3E1148E0B21008FDADC /* Duck-OSX */,
 				025C0F8518EFEE33000344C0 /* Tests */,
 				02C8914418F1690F0097B6BC /* Duck-iOS */,
+				02A25B031AC3D5A900D97B11 /* TestBed */,
 			);
 		};
 /* End PBXProject section */
@@ -706,6 +782,7 @@
 				025C0F6F18EFED97000344C0 /* DKArray.c in Sources */,
 				02D051D719DE32CB00827660 /* DKAllocation.c in Sources */,
 				025C0F7018EFED97000344C0 /* DKBinaryTree.c in Sources */,
+				02A25AFD1AC3D1B600D97B11 /* DKJSON.c in Sources */,
 				025C0F7618EFED97000344C0 /* DKHashTable.c in Sources */,
 				02083F9C18F2615E00EEBBAC /* DKCollection.c in Sources */,
 				02624EC0190366C50023B3EE /* DKEgg.c in Sources */,
@@ -716,6 +793,7 @@
 				02DE16DF195E7ACB007D241D /* DKEncoding.c in Sources */,
 				02BD1E151946C5CC00F35A5B /* DKGenericHashTable.c in Sources */,
 				025C0F7718EFED97000344C0 /* DKLinkedList.c in Sources */,
+				020482AA1AC6972B00936FA1 /* DKBoolean.c in Sources */,
 				025C0F7E18EFED97000344C0 /* DKRuntime.c in Sources */,
 				021E0E1719E1A5B200ECD817 /* DKThread.c in Sources */,
 				025C0F7318EFED97000344C0 /* DKData.c in Sources */,
@@ -736,6 +814,14 @@
 				02083F9918F1EDBE00EEBBAC /* TestDKSet.m in Sources */,
 				025C0FA118EFEE5D000344C0 /* TestDKString.m in Sources */,
 				02083FA318F3C49E00EEBBAC /* TestDKProperty.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02A25B001AC3D5A900D97B11 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02A25B071AC3D5AA00D97B11 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -765,6 +851,7 @@
 				02C8917418F169780097B6BC /* DKNumber.c in Sources */,
 				02D051D819DE32CB00827660 /* DKAllocation.c in Sources */,
 				02C8917518F169780097B6BC /* DKPlatform.c in Sources */,
+				02A25AFE1AC3D1B600D97B11 /* DKJSON.c in Sources */,
 				02C8917618F169780097B6BC /* DKGenericArray.c in Sources */,
 				02083FA818F4C47500EEBBAC /* DKCollection.c in Sources */,
 				02624EC1190366C50023B3EE /* DKEgg.c in Sources */,
@@ -775,6 +862,7 @@
 				02DE16E0195E7ACB007D241D /* DKEncoding.c in Sources */,
 				02BD1E161946C5CC00F35A5B /* DKGenericHashTable.c in Sources */,
 				02C8917918F169780097B6BC /* DKString.c in Sources */,
+				020482AB1AC6972B00936FA1 /* DKBoolean.c in Sources */,
 				02C8917A18F169780097B6BC /* DKUnicode.c in Sources */,
 				021E0E1819E1A5B200ECD817 /* DKThread.c in Sources */,
 				02C8917B18F169780097B6BC /* utf_impl.c in Sources */,
@@ -788,6 +876,11 @@
 			isa = PBXTargetDependency;
 			target = 024EE3E1148E0B21008FDADC /* Duck-OSX */;
 			targetProxy = 025C0F9118EFEE33000344C0 /* PBXContainerItemProxy */;
+		};
+		02A25B0C1AC3D5BE00D97B11 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 024EE3E1148E0B21008FDADC /* Duck-OSX */;
+			targetProxy = 02A25B0B1AC3D5BE00D97B11 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -937,6 +1030,66 @@
 			};
 			name = Release;
 		};
+		02A25B091AC3D5AA00D97B11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		02A25B0A1AC3D5AA00D97B11 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		02C8916318F1690F0097B6BC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1025,6 +1178,15 @@
 			buildConfigurations = (
 				025C0F9418EFEE33000344C0 /* Debug */,
 				025C0F9518EFEE33000344C0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		02A25B081AC3D5AA00D97B11 /* Build configuration list for PBXNativeTarget "TestBed" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				02A25B091AC3D5AA00D97B11 /* Debug */,
+				02A25B0A1AC3D5AA00D97B11 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
