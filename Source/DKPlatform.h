@@ -400,10 +400,18 @@ typedef OSSpinLock DKSpinLock;
 #define DKSpinLockUnlock( s )       OSSpinLockUnlock( s )
 
 #elif DK_PLATFORM_ANDROID
-// Do stuff here...
+typedef spinlock_t DKSpinLock;
+
+#define DKSpinLockInit              SPIN_LOCK_UNLOCKED
+#define DKSpinLockLock( s )         spin_lock( s )
+#define DKSpinLockUnlock( s )       spin_unlock( s )
 
 #elif DK_PLATFORM_LINUX
-// Do stuff here...
+typedef spinlock_t DKSpinLock;
+
+#define DKSpinLockInit              SPIN_LOCK_UNLOCKED
+#define DKSpinLockLock( s )         spin_lock( s )
+#define DKSpinLockUnlock( s )       spin_unlock( s )
 
 #endif
 
