@@ -223,7 +223,7 @@ DKStringRef DKCollectionGetDescription( DKObjectRef _self )
 
     collection->foreachObject( _self, PrintDescriptionCallback, &context );
     
-    DKSPrintf( desc, "\n)\n" );
+    DKSPrintf( desc, "\n)" );
     
     return desc;
 }
@@ -269,7 +269,7 @@ DKStringRef DKKeyedCollectionGetDescription( DKObjectRef _self )
 
     collection->foreachKeyAndObject( _self, PrintKeyedDescriptionCallback, &context );
     
-    DKSPrintf( desc, "\n)\n" );
+    DKSPrintf( desc, "\n)" );
     
     return desc;
 }

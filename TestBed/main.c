@@ -16,9 +16,8 @@ int main( int argc, const char * argv[] )
     DKRuntimeInit();
     DKPushAutoreleasePool();
 
-    DKStringRef desc = DKGetDescription( DKTrue() );
-    DKPrintf( "%@\n\n", desc );
 
+    // Create a document
     DKMutableDictionaryRef document = DKDictionaryWithKeysAndObjects(
         DKSTR( "Dick" ), DKSTR( "boy" ),
         DKSTR( "Jane" ), DKSTR( "girl" ),
@@ -33,11 +32,20 @@ int main( int argc, const char * argv[] )
         DKSTR( "Null" ), NULL,
         NULL );
 
-    
+    DKPrintf( "Orignal Document:\n%@\n\n", document );
+
+
+    // Convert it to JSON
     DKMutableStringRef json = DKAutorelease( DKStringCreateMutable() );
     DKJSONWrite( json, document, DK_JSON_PRETTY );
     
-    DKPrintf( "%@\n", json );
+    DKPrintf( "JSON:\n%@\n\n", json );
+
+    
+    // Parse the JSON
+    DKObjectRef parsedDocument = DKJSONParse( json, 0 );
+    
+    DKPrintf( "Parsed Document:\n%@\n\n", parsedDocument );
     
 
     DKPopAutoreleasePool();

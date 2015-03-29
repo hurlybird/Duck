@@ -39,7 +39,7 @@ enum
 
 int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options );
 
-DKObjectRef DKJSONParse( DKStreamRef json, int options );
+DKObjectRef DKJSONParse( DKStringRef json, int options );
 
 
 

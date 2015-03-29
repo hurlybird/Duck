@@ -42,12 +42,12 @@ DKClassRef  DKMutableStringClass( void );
 #define     DKStringCreateMutable()  DKInit( DKAlloc( DKMutableStringClass(), 0 ) )
 
 #define     DKStringCreateWithString( cls, str )        DKStringInitWithString( DKAlloc( cls, 0 ), str )
-#define     DKStringCreateWithCString( cls, cstr )      DKStringInitWithCString( DKAlloc( cls, 0 ), cstr )
+#define     DKStringCreateWithCString( cls, cstr, len ) DKStringInitWithCString( DKAlloc( cls, 0 ), cstr, len )
 #define     DKStringCreateWithCStringNoCopy( cstr )     DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass(), 0 ), cstr )
 #define     DKStringCreateWithFormat( cls, fmt, ... )   DKStringInitWithFormat( DKAlloc( cls, 0 ), fmt, __VA_ARGS__ )
 
 DKObjectRef DKStringInitWithString( DKStringRef _self, DKStringRef other );
-DKObjectRef DKStringInitWithCString( DKStringRef _self, const char * cstr );
+DKObjectRef DKStringInitWithCString( DKStringRef _self, const char * cstr, size_t length );
 DKObjectRef DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr );
 DKObjectRef DKStringInitWithFormat( DKStringRef _self, const char * format, ... );
 
@@ -99,6 +99,9 @@ int         DKStringSeek( DKStringRef _self, DKIndex offset, int origin );
 DKIndex     DKStringTell( DKStringRef _self );
 DKIndex     DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex count );
 DKIndex     DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex size, DKIndex count );
+
+// Escaping strings
+DKStringRef DKStringCreateByEscapingString( DKStringRef _self, const char * from[], const char * to[] );
 
 // Paths
 int         DKStringIsAbsolutePath( DKStringRef _self );

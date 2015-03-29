@@ -391,9 +391,10 @@ void * DKStringInitWithString( DKStringRef _self, DKStringRef other )
 ///
 //  DKStringInitWithCString()
 //
-void * DKStringInitWithCString( DKStringRef _self, const char * cstr )
+void * DKStringInitWithCString( DKStringRef _self, const char * cstr, size_t length )
 {
-    DKIndex length = strlen( cstr );
+    if( length <= 0 )
+        length = strlen( cstr );
 
     return InitString( _self, cstr, length );
 }
@@ -1052,6 +1053,15 @@ void DKStringDeleteSubstring( DKMutableStringRef _self, DKRange range )
         
         ReplaceBytes( _self, range, NULL, 0 );
     }
+}
+
+
+///
+//  DKStringCreateByEscapingString()
+//
+DKStringRef DKStringCreateByEscapingString( DKStringRef _self, const char * from[], const char * to[] )
+{
+    return DKRetain( _self );
 }
 
 
