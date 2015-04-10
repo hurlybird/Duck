@@ -44,7 +44,7 @@ struct DKStruct
 
 static struct DKStruct DKPlaceholderStruct =
 {
-    DKStaticObject( NULL ),
+    DKInitObjectHeader( NULL ),
     NULL
 };
 

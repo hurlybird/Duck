@@ -42,7 +42,7 @@ DKClassRef  DKMutableStringClass( void );
 #define     DKStringCreateMutable()  DKInit( DKAlloc( DKMutableStringClass(), 0 ) )
 
 #define     DKStringCreateWithString( cls, str )        DKStringInitWithString( DKAlloc( cls, 0 ), str )
-#define     DKStringCreateWithCString( cls, cstr, len ) DKStringInitWithCString( DKAlloc( cls, 0 ), cstr, len )
+#define     DKStringCreateWithCString( cls, cstr )      DKStringInitWithCString( DKAlloc( cls, 0 ), cstr, 0 )
 #define     DKStringCreateWithCStringNoCopy( cstr )     DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass(), 0 ), cstr )
 #define     DKStringCreateWithFormat( cls, fmt, ... )   DKStringInitWithFormat( DKAlloc( cls, 0 ), fmt, __VA_ARGS__ )
 

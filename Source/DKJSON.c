@@ -442,7 +442,8 @@ static int ParseValue( Token token, DKObjectRef * value )
     {
         if( token.length >= 2 )
         {
-            DKStringRef escapedString = DKStringCreateWithCString( DKStringClass(), token.str + 1, token.length - 2 );
+            DKStringRef escapedString = DKStringInitWithCString( DKAlloc( DKStringClass(), 0 ), token.str + 1, token.length - 2 );
+            
             *value = DKStringCreateByEscapingString( escapedString, EscapedPatterns, UnescapedPatterns );
             DKRelease( escapedString );
             

@@ -87,7 +87,7 @@ typedef struct _DKSEL * DKSEL;
 
 
 // Allocate a new selector object.
-DKSEL       DKAllocSelector( DKStringRef name );
+DKSEL DKAllocSelector( DKStringRef name );
 
 
 // Thread-safe initialization of selector objects.

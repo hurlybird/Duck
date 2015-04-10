@@ -177,7 +177,7 @@ DKClassRef DKObjectClass( void )
 #define DKStaticSelectorInit( name )                                                    \
     static struct _DKSEL DKSelector_ ## name ##_StaticObject =                          \
     {                                                                                   \
-        DKStaticObject( &__DKSelectorClass__ ),                                         \
+        DKInitObjectHeader( &__DKSelectorClass__ ),                                     \
         NULL,                                                                           \
         DKDynamicCache                                                                  \
     };                                                                                  \
@@ -191,7 +191,7 @@ DKClassRef DKObjectClass( void )
 #define DKStaticFastSelectorInit( name )                                                \
     static struct _DKSEL DKSelector_ ## name ##_StaticObject =                          \
     {                                                                                   \
-        DKStaticObject( &__DKSelectorClass__ ),                                         \
+        DKInitObjectHeader( &__DKSelectorClass__ ),                                     \
         NULL,                                                                           \
         DKStaticCache_ ## name                                                          \
     };                                                                                  \
@@ -204,7 +204,7 @@ DKClassRef DKObjectClass( void )
 
 #define DKStaticInterfaceObject( sel )                                                  \
     {                                                                                   \
-        DKStaticObject( &__DKInterfaceClass__ ),                                        \
+        DKInitObjectHeader( &__DKInterfaceClass__ ),                                    \
         sel                                                                             \
     }
 

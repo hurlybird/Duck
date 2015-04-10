@@ -41,7 +41,7 @@ bool DKRuntimeIsInitialized( void );
 
 
 // DKObject ==============================================================================
-typedef struct DKObject
+typedef struct
 {
     // The class of this object.
     DKClassRef isa;
@@ -60,17 +60,17 @@ typedef struct DKObject
 } DKObject;
 
 
-// Use this macro when declaring a static instance of a DKObject. This will insulate your
-// code from any changes to the DKObject structure. Your code is (obviously) responsible
-// for properly initializing and finalizing static objects.
-#define DKStaticObject( cls )   { cls, NULL, 1, 0 }
+// Use this macro when declaring a static instance of a DKObject to insulate your code
+// from any changes to the DKObject structure. Your code is (obviously) responsible for
+// properly initializing and finalizing static objects.
+#define DKInitObjectHeader( cls )   { cls, NULL, 1, 0 }
 
 
 // Objects are at least 16 bytes long so there must exist a location in memory that is
-// both 16-byte aligned and inside the object. Given that, we can generate hash code from
-// the object pointer that strips out the uninteresting lower bits to make things a bit
-// more random. This is particularly important in a hash table that uses hash % prime to
-// derive an internal hash code.
+// both 16-byte aligned and inside the object. Given that, we can generate a hash code
+// from the object pointer that strips out the uninteresting lower bits to make things a
+// bit more random. This is particularly important in a hash table that uses hash % prime
+// to derive an internal hash code.
 #define DKObjectUniqueHash( obj )   ((((uintptr_t)obj) + 15) >> 4)
 
 

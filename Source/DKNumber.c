@@ -231,7 +231,7 @@ struct DKNumber
 
 static struct DKNumber DKPlaceholderNumber =
 {
-    DKStaticObject( NULL ),
+    DKInitObjectHeader( NULL ),
 };
 
 
