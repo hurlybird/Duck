@@ -373,6 +373,7 @@ static DKSEL GetSelector( DKEggUnarchiverRef _self, uint32_t offset )
 //
 static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
 {
+    DKAssert( index > 0 );
     DKCheckIndex( index, _self->header->objectTable.length, NULL );
     
     DKObjectRef object = DKGenericArrayGetElementAtIndex( &_self->unarchivedObjects, index, DKObjectRef );
@@ -471,10 +472,8 @@ void DKEggGetCollection( DKEggUnarchiverRef _self, DKStringRef key, DKApplierFun
             
             if( count == 1 )
             {
-                DKObjectRef object = GetObject( _self, attribute->value );
-                
-                if( object )
-                    callback( object, context );
+                DKObjectRef object = (attribute->value > 0) ? GetObject( _self, attribute->value ) : NULL;
+                callback( object, context );
             }
             
             else
@@ -483,10 +482,8 @@ void DKEggGetCollection( DKEggUnarchiverRef _self, DKStringRef key, DKApplierFun
             
                 for( uint32_t i = 0; i < count; ++i )
                 {
-                    DKObjectRef object = GetObject( _self, indexes[i] );
-                    
-                    if( object )
-                        callback( object, context );
+                    DKObjectRef object = (indexes[i] > 0) ? GetObject( _self, indexes[i] ) : NULL;
+                    callback( object, context );
                 }
             }
         }
@@ -512,10 +509,12 @@ void DKEggGetKeyedCollection( DKEggUnarchiverRef _self, DKStringRef key, DKKeyed
             for( uint32_t i = 0; i < count; ++i )
             {
                 DKObjectRef key = GetObject( _self, indexes[i].key );
-                DKObjectRef object = GetObject( _self, indexes[i].value );
                 
-                if( key && object )
+                if( key )
+                {
+                    DKObjectRef object = indexes[i].value ? GetObject( _self, indexes[i].value ) : NULL;
                     callback( key, object, context );
+                }
             }
         }
     }
@@ -1135,7 +1134,7 @@ void DKEggAddObject( DKEggArchiverRef _self, DKStringRef key, DKObjectRef object
 struct DKEggAddCollectionContext
 {
     DKEggArchiverRef eggArchiver;
-    uint32_t * indexes;
+    DKIndex offset;
     DKIndex count;
 };
 
@@ -1143,12 +1142,17 @@ static int DKEggAddCollectionCallback( DKObjectRef object, void * context )
 {
     struct DKEggAddCollectionContext * ctx = context;
     
-    DKIndex index = AddObject( ctx->eggArchiver, object );
-    
-    if( index > 0 )
+    if( object )
     {
-        ctx->indexes[ctx->count] = (uint32_t)index;
-        ctx->count++;
+        DKIndex index = object ? AddObject( ctx->eggArchiver, object ) : 0;
+        
+        if( index >= 0 )
+        {
+            uint32_t * indexes = (uint32_t *)&ctx->eggArchiver->data.bytes[ctx->offset];
+            
+            indexes[ctx->count] = (uint32_t)index;
+            ctx->count++;
+        }
     }
     
     return 0;
@@ -1159,20 +1163,19 @@ void DKEggAddCollection( DKEggArchiverRef _self, DKStringRef key, DKObjectRef co
     DKIndex count = DKGetCount( collection );
     DKEncoding encoding = DKEncode( DKEncodingTypeObject, (uint32_t)count );
  
+    if( count == 0 )
+    {
+        // Nothing to do here
+    }
+ 
     // A one-object collection is encoded the same as a single object
-    if( count == 1 )
+    else if( count == 1 )
     {
         DKObjectRef object = DKGetAnyObject( collection );
-        
-        if( object )
-        {
-            DKIndex index = AddObject( _self, object );
+        DKIndex index = object ? AddObject( _self, object ) : 0;
             
-            if( index > 0 )
-            {
-                AddAttribute( _self, key, DKEncode( DKEncodingTypeObject, 1 ), (uint32_t)index );
-            }
-        }
+        if( index >= 0 )
+            AddAttribute( _self, key, encoding, (uint32_t)index );
     }
     
     else
@@ -1187,7 +1190,7 @@ void DKEggAddCollection( DKEggArchiverRef _self, DKStringRef key, DKObjectRef co
         // Add the objects in the collection
         struct DKEggAddCollectionContext ctx;
         ctx.eggArchiver = _self;
-        ctx.indexes = (uint32_t *)&_self->data.bytes[offset];
+        ctx.offset = offset;
         ctx.count = 0;
         
         DKForeachObject( collection, DKEggAddCollectionCallback, &ctx );
@@ -1204,7 +1207,7 @@ void DKEggAddCollection( DKEggArchiverRef _self, DKStringRef key, DKObjectRef co
 struct DKEggAddKeyedCollectionContext
 {
     DKEggArchiverRef eggArchiver;
-    DKEggKVPair * kvpairs;
+    DKIndex offset;
     DKIndex count;
 };
 
@@ -1216,12 +1219,14 @@ static int DKEggAddKeyedCollectionCallback( DKObjectRef key, DKObjectRef object,
     
     if( keyIndex > 0 )
     {
-        DKIndex objectIndex = AddObject( ctx->eggArchiver, object );
-    
-        if( objectIndex > 0 )
+        DKIndex objectIndex = object ? AddObject( ctx->eggArchiver, object ) : 0;
+        
+        if( objectIndex >= 0 )
         {
-            ctx->kvpairs[ctx->count].key = (uint32_t)keyIndex;
-            ctx->kvpairs[ctx->count].value = (uint32_t)objectIndex;
+            DKEggKVPair * kvpairs = (DKEggKVPair *)&ctx->eggArchiver->data.bytes[ctx->offset];
+            
+            kvpairs[ctx->count].key = (uint32_t)keyIndex;
+            kvpairs[ctx->count].value = (uint32_t)objectIndex;
             ctx->count++;
         }
     }
@@ -1244,7 +1249,7 @@ void DKEggAddKeyedCollection( DKEggArchiverRef _self, DKStringRef key, DKObjectR
     // Add the key+object pairs in the collection
     struct DKEggAddKeyedCollectionContext ctx;
     ctx.eggArchiver = _self;
-    ctx.kvpairs = (DKEggKVPair *)&_self->data.bytes[offset];
+    ctx.offset = offset;
     ctx.count = 0;
     
     DKForeachKeyAndObject( collection, DKEggAddKeyedCollectionCallback, &ctx );

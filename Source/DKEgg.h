@@ -86,8 +86,6 @@ size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * num
 // DKEggArchiver =========================================================================
 DKClassRef DKEggArchiverClass( void );
 
-DKEggArchiverRef DKEggArchiverInitWithOptions( DKEggArchiverRef _self, int options );
-
 void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKObjectRef stream );
 DKDataRef DKEggArchiverCreateData( DKEggArchiverRef _self );
 

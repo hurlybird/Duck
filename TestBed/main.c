@@ -40,12 +40,32 @@ int main( int argc, const char * argv[] )
     DKJSONWrite( json, document, DK_JSON_PRETTY );
     
     DKPrintf( "JSON:\n%@\n\n", json );
+    
+    
+    // Convert it to an egg
+    DKEggArchiverRef archiver = DKCreate( DKEggArchiverClass() );
+    DKEggAddObject( archiver, DKSTR( "*" ), document );
+    
+    DKDataRef egg = DKAutorelease( DKEggArchiverCreateData( archiver ) );
+    
+    DKRelease( archiver );
 
     
     // Parse the JSON
     DKObjectRef parsedDocument = DKJSONParse( json, 0 );
-    
     DKPrintf( "Parsed Document:\n%@\n\n", parsedDocument );
+
+
+    // Deserialize the egg
+    DKEggUnarchiverRef unarchiver = DKEggCreateUnarchiverWithData( egg );
+    DKObjectRef unarchivedDocument = DKEggGetObject( unarchiver, DKSTR( "*" ) );
+    DKPrintf( "Unarchived Document:\n%@\n\n", unarchivedDocument );
+
+    DKRelease( unarchiver );
+
+
+    // Print out some statistics
+    DKPrintf( "JSON Size: %d\nEGG Size:  %d\n\n", DKStringGetByteLength( json ), DKDataGetLength( egg ) );
     
 
     DKPopAutoreleasePool();
