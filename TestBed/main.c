@@ -19,7 +19,7 @@ int main( int argc, const char * argv[] )
 
     // Create a document
     DKMutableDictionaryRef document = DKDictionaryWithKeysAndObjects(
-        DKSTR( "Dick" ), DKSTR( "boy" ),
+        DKSTR( "Dick" ), DKSTR( "\"boy\"" ),
         DKSTR( "Jane" ), DKSTR( "girl" ),
         DKSTR( "Spot" ), DKSTR( "dog" ),
         DKSTR( "List" ), DKListWithObjects(

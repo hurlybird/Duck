@@ -61,7 +61,7 @@ static DKStringRef  DKMutableStringGetDescription( DKMutableStringRef _self );
 
 static struct DKString DKPlaceholderString =
 {
-    DKStaticObject( NULL ),
+    DKInitObjectHeader( NULL ),
     { NULL, 0, 0 },
     0,
     0
@@ -979,6 +979,8 @@ void DKStringAppendString( DKMutableStringRef _self, DKStringRef str )
         
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
         ReplaceBytes( _self, range, str->byteArray.bytes, str->byteArray.length );
+        
+        SetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -1000,6 +1002,24 @@ void DKStringAppendFormat( DKMutableStringRef _self, const char * format, ... )
         DKVSPrintf( _self, format, arg_ptr );
         
         va_end( arg_ptr );
+    }
+}
+
+
+///
+//  DKStringAppendCString()
+//
+void DKStringAppendCString( DKMutableStringRef _self, const char * cstr )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
+
+        size_t length = strlen( cstr );
+        DKRange range = DKRangeMake( _self->byteArray.length, 0 );
+        ReplaceBytes( _self, range, cstr, length );
+        
+        SetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -1053,15 +1073,6 @@ void DKStringDeleteSubstring( DKMutableStringRef _self, DKRange range )
         
         ReplaceBytes( _self, range, NULL, 0 );
     }
-}
-
-
-///
-//  DKStringCreateByEscapingString()
-//
-DKStringRef DKStringCreateByEscapingString( DKStringRef _self, const char * from[], const char * to[] )
-{
-    return DKRetain( _self );
 }
 
 
@@ -1568,7 +1579,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
     
     struct DKString lookupString =
     {
-        DKStaticObject( constantStringClass ),
+        DKInitObjectHeader( constantStringClass ),
     };
     
     DKIndex length = strlen( str );

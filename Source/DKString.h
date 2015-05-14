@@ -88,6 +88,7 @@ void        DKStringSetString( DKMutableStringRef _self, DKStringRef str );
 
 void        DKStringAppendString( DKMutableStringRef _self, DKStringRef str );
 void        DKStringAppendFormat( DKMutableStringRef _self, const char * format, ... );
+void        DKStringAppendCString( DKMutableStringRef _self, const char * cstr );
 
 void        DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKStringRef str );
 void        DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement );
@@ -99,9 +100,6 @@ int         DKStringSeek( DKStringRef _self, DKIndex offset, int origin );
 DKIndex     DKStringTell( DKStringRef _self );
 DKIndex     DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex count );
 DKIndex     DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex size, DKIndex count );
-
-// Escaping strings
-DKStringRef DKStringCreateByEscapingString( DKStringRef _self, const char * from[], const char * to[] );
 
 // Paths
 int         DKStringIsAbsolutePath( DKStringRef _self );

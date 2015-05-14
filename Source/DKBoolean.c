@@ -44,13 +44,13 @@ struct DKBoolean
 
 static struct DKBoolean DKBooleanTrue =
 {
-    DKStaticObject( NULL ),
+    DKInitObjectHeader( NULL ),
     1
 };
 
 static struct DKBoolean DKBooleanFalse =
 {
-    DKStaticObject( NULL ),
+    DKInitObjectHeader( NULL ),
     0
 };
 
