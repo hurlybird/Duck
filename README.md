@@ -17,6 +17,7 @@ The Duck source is distributed under the MIT License. Any packages under the
 * Thread-safe reference counting and zeroing weak references.
 * String class with basic UTF-8 support.
 * Container classes for lists, dictionaries and sets.
+* Object graph serialization.
 
 
 ## Porting
@@ -26,12 +27,20 @@ compile anywhere with a C99 compliant compiler. A few types and functions,
 particularly those related to atomic operations, will likely need to be redefined
 on non-Apple or non-POSIX systems.
 
+(Eventually Duck should transition to C11 once compiler and OS support for that
+specification is better.)
+
+While Duck objects can be used by C++ code, C++ compilers will no doubt complain
+about some of the C99 code that Duck uses--namely explicit casts from void and
+inline struct initialization. The main workaround for these issues is to add extra
+casts where needed and avoid any convenience macros that aren't C++ friendly.
+
 A basic SConstruct file is included for building with scons.
 
 
 ## Quick Start
 
-Here's a snippet of code that shows what using Duck looks like.
+Here's a snippet of code that shows what using Duck Objects looks like.
 
 ```C
 #include "Duck.h"
@@ -144,8 +153,8 @@ Duck also defines some common interfaces:
 * *DKThread* and friends - wrapper classes for pthreads and thread synchronization.
 * *DKPredicate* - evaluation of logical predicates.
 * *DKEgg* - object graph serialization.
-* JSON serialization functions.
-* Low-level utilites for managing Generic arrays, hash tables and node/block pools.
+* *DKJSON* - JSON serialization functions.
+* Low-level utilites for generic arrays, hash tables and node/block pools.
 
 ## Future Development
 

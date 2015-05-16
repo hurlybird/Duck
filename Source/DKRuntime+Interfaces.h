@@ -70,10 +70,9 @@ struct _DKSEL
     // Selectors are typically compared by pointer value, but the name is required to
     // look up a selector by name.
 
-    // The name database requires that the name and hash fields of DKClass and DKSEL are
+    // The name database requires that the name field of DKClass and DKSEL is
     // in the same position in the structure (i.e. right after the object header).
     DKStringRef     name;
-    DKHashCode      hash;
     
     // Controls how interfaces retrieved by this selector are cached.
     DKIndex         cacheline;
@@ -84,6 +83,11 @@ typedef struct _DKSEL * DKSEL;
 
 // A friendly macro for accessing selector objects.
 #define DKSelector( name )      DKSelector_ ## name()
+
+#define DKSelectorEqual( a, b )         ((a) == (b))
+#define DKSelectorCompare( a, b )       DKPointerCompare( a, b )
+#define DKSelectorHash( _self )         DKPointerHash( _self )
+
 
 
 // Allocate a new selector object.

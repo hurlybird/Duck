@@ -154,8 +154,7 @@ DKBooleanRef DKFalse( void )
 //
 static DKObjectRef DKBooleanInitWithEgg( DKBooleanRef _self, DKEggUnarchiverRef egg )
 {
-    DKEncoding encoding = DKEggGetEncoding( egg, DKSTR( "value" ) );
-    DKAssert( encoding == DKNumberUInt8 );
+    DKAssert( DKEggGetEncoding( egg, DKSTR( "value" ) ) == DKNumberUInt8 );
 
     uint8_t value;
     DKEggGetNumberData( egg, DKSTR( "value" ), &value );

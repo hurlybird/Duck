@@ -27,7 +27,7 @@
 #ifndef _DK_GENERIC_HASH_TABLE_H_
 #define _DK_GENERIC_HASH_TABLE_H_
 
-#include "DKRuntime.h"
+#include "DKPlatform.h"
 
 
 typedef enum

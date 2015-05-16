@@ -323,12 +323,6 @@ DKInterfaceRef DKDefaultDescription( void )
 
 
 // Root Class Interfaces =================================================================
-
-// Selector Comparison -------------------------------------------------------------------
-#define DKSelectorEqual( a, b )         DKPointerEqual( a, b );
-#define DKSelectorCompare( a, b )       DKPointerCompare( a, b );
-#define DKSelectorHash( _self )         DKPointerHash( _self )
-
 static struct DKComparisonInterface DKSelectorComparison_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
@@ -375,6 +369,99 @@ static DKInterfaceRef DKInterfaceComparison( void )
 
 
 
+// DKInterfaceGroup ======================================================================
+
+// Hash Table Callbacks
+#define INTERFACE_TABLE_DELETED_ENTRY ((void *)-1)
+
+static DKRowStatus InterfaceTableRowStatus( const void * _row )
+{
+    DKInterface * const * row = _row;
+
+    if( *row == NULL )
+        return DKRowStatusEmpty;
+    
+    if( *row == INTERFACE_TABLE_DELETED_ENTRY )
+        return DKRowStatusDeleted;
+    
+    return DKRowStatusActive;
+}
+
+static DKHashCode InterfaceTableRowHash( const void * _row )
+{
+    DKInterface * const * row = _row;
+    return DKObjectUniqueHash( (*row)->sel );
+}
+
+static bool InterfaceTableRowEqual( const void * _row1, const void * _row2 )
+{
+    DKInterface * const * row1 = _row1;
+    DKInterface * const * row2 = _row2;
+
+    return DKSelectorEqual( (*row1)->sel, (*row2)->sel );
+}
+
+static void InterfaceTableRowInit( void * _row )
+{
+    DKInterface ** row = _row;
+    *row = NULL;
+}
+
+static void InterfaceTableRowUpdate( void * _row, const void * _src )
+{
+    DKInterface ** row = _row;
+    DKInterface * const * src = _src;
+    
+    DKRetain( *src );
+    DKRelease( *row );
+    *row = *src;
+}
+
+static void InterfaceTableRowDelete( void * _row )
+{
+    DKInterface ** row = _row;
+    
+    DKRelease( *row );
+    *row = INTERFACE_TABLE_DELETED_ENTRY;
+}
+
+
+///
+//  DKInterfaceGroupInit()
+//
+static void DKInterfaceGroupInit( struct DKInterfaceGroup * interfaceGroup )
+{
+    DKGenericHashTableCallbacks InterfaceTableCallbacks =
+    {
+        InterfaceTableRowStatus,
+        InterfaceTableRowHash,
+        InterfaceTableRowEqual,
+        InterfaceTableRowInit,
+        InterfaceTableRowUpdate,
+        InterfaceTableRowDelete
+    };
+
+    interfaceGroup->lock = DKSpinLockInit;
+
+    memset( interfaceGroup->cache, 0, sizeof(interfaceGroup->cache) );
+
+    DKGenericHashTableInit( &interfaceGroup->interfaces, sizeof(DKObjectRef), &InterfaceTableCallbacks );
+}
+
+
+///
+//  DKInterfaceGroupFinalize()
+//
+static void DKInterfaceGroupFinalize( struct DKInterfaceGroup * interfaceGroup )
+{
+    DKGenericHashTableFinalize( &interfaceGroup->interfaces );
+}
+
+
+
+
+
+
 
 
 // Runtime Init ==========================================================================
@@ -409,11 +496,8 @@ static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, si
     cls->init = init;
     cls->finalize = finalize;
 
-    cls->classInterfaces.lock = DKSpinLockInit;
-    DKGenericArrayInit( &cls->classInterfaces.interfaces, sizeof(DKObjectRef) );
-
-    cls->instanceInterfaces.lock = DKSpinLockInit;
-    DKGenericArrayInit( &cls->instanceInterfaces.interfaces, sizeof(DKObjectRef) );
+    DKInterfaceGroupInit( &cls->classInterfaces );
+    DKInterfaceGroupInit( &cls->instanceInterfaces );
     
     cls->propertiesLock = DKSpinLockInit;
 }
@@ -426,7 +510,7 @@ static void InstallRootClassInstanceInterface( struct DKClass * _class, DKInterf
 {
     // Bypass the normal installation process here since the classes that allow it to
     // work haven't been fully initialized yet.
-    DKGenericArrayAppendElements( &_class->instanceInterfaces.interfaces, &interface, 1 );
+    DKGenericHashTableInsert( &_class->instanceInterfaces.interfaces, &interface, DKInsertAlways );
 }
 
 
@@ -436,8 +520,6 @@ static void InstallRootClassInstanceInterface( struct DKClass * _class, DKInterf
 static void SetRootClassName( struct DKClass * _class, DKStringRef name )
 {
     _class->name = DKCopy( name );
-    _class->hash = DKStringHash( name );
-    
     DKNameDatabaseInsertClass( _class );
 }
 
@@ -448,8 +530,6 @@ static void SetRootClassName( struct DKClass * _class, DKStringRef name )
 static void SetStaticSelectorName( struct _DKSEL * sel, DKStringRef name )
 {
     sel->name = DKCopy( name );
-    sel->hash = DKStringHash( name );
-    
     DKNameDatabaseInsertSelector( sel );
 }
 
@@ -538,34 +618,6 @@ void DKRuntimeInit( void )
 // Creating Classes ======================================================================
 
 ///
-//  DKInterfaceGroupInit()
-//
-static void DKInterfaceGroupInit( struct DKInterfaceGroup * interfaceGroup )
-{
-    interfaceGroup->lock = DKSpinLockInit;
-    memset( interfaceGroup->cache, 0, sizeof(interfaceGroup->cache) );
-    DKGenericArrayInit( &interfaceGroup->interfaces, sizeof(DKObjectRef) );
-}
-
-
-///
-//  DKInterfaceGroupFinalize()
-//
-static void DKInterfaceGroupFinalize( struct DKInterfaceGroup * interfaceGroup )
-{
-    DKIndex count = interfaceGroup->interfaces.length;
-    
-    for( DKIndex i = 0; i < count; ++i )
-    {
-        DKInterface * interface = DKGenericArrayGetElementAtIndex( &interfaceGroup->interfaces, i, DKInterface * );
-        DKRelease( interface );
-    }
-    
-    DKGenericArrayFinalize( &interfaceGroup->interfaces );
-}
-
-
-///
 //  DKAllocClass()
 //
 DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize,
@@ -580,7 +632,6 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
     struct DKClass * cls = DKCreate( DKClassClass() );
 
     cls->name = DKCopy( name );
-    cls->hash = DKStringHash( name );
     cls->superclass = DKRetain( superclass );
     cls->structSize = (structSize > 0) ? structSize : superclass->structSize;
     cls->options = options;

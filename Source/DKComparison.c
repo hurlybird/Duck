@@ -70,11 +70,13 @@ DKHashCode DKPointerHash( DKObjectRef _self )
 //
 bool DKEqual( DKObjectRef a, DKObjectRef b )
 {
+    if( a == b )
+    {
+        return true;
+    }
+
     if( a && b )
     {
-        if( a == b )
-            return true;
-        
         DKComparisonInterfaceRef comparison = DKGetInterface( a, DKSelector(Comparison) );
         return comparison->equal( a, b );
     }

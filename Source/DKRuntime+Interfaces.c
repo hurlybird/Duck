@@ -35,9 +35,6 @@
 // Get a dynamic cache index for a selector
 #define GetDynamicCacheline( sel )  (int)((DKObjectUniqueHash(sel) & (DKDynamicCacheSize-1)) + DKStaticCacheSize)
 
-// Inline selector equality
-#define DKFastSelectorEqual( a, b ) (a == b)
-
 
 
 
@@ -153,26 +150,7 @@ static void DKInstallInterfaceInGroup( DKClassRef _class, DKInterfaceRef _interf
     interfaceGroup->cache[cacheline] = NULL;
 
     // Replace the interface in the interface table
-    DKIndex count = interfaceGroup->interfaces.length;
-    
-    for( DKIndex i = 0; i < count; ++i )
-    {
-        DKInterface * oldInterface = DKGenericArrayGetElementAtIndex( &interfaceGroup->interfaces, i, DKInterface * );
-        
-        if( DKEqual( oldInterface->sel, interface->sel ) )
-        {
-            DKGenericArrayGetElementAtIndex( &interfaceGroup->interfaces, i, DKInterface * ) = interface;
-
-            DKSpinLockUnlock( &interfaceGroup->lock );
-
-            // Release the old interface after unlocking
-            DKRelease( oldInterface );
-            return;
-        }
-    }
-    
-    // Add the interface to the interface table
-    DKGenericArrayAppendElements( &interfaceGroup->interfaces, &interface, 1 );
+    DKGenericHashTableInsert( &interfaceGroup->interfaces, &interface, DKInsertAlways );
 
     DKSpinLockUnlock( &interfaceGroup->lock );
 }
@@ -223,7 +201,7 @@ static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, str
     
     if( interface )
     {
-        DKAssert( DKFastSelectorEqual( interface->sel, sel ) );
+        DKAssert( DKSelectorEqual( interface->sel, sel ) );
     
         #if SPIN_LOCKED_CACHE_ACCESS
         DKSpinLockUnlock( &interfaceGroup->lock );
@@ -240,7 +218,7 @@ static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, str
         
         interface = interfaceGroup->cache[cacheline];
         
-        if( interface && DKFastSelectorEqual( interface->sel, sel ) )
+        if( interface && DKSelectorEqual( interface->sel, sel ) )
         {
             #if SPIN_LOCKED_CACHE_ACCESS
             DKSpinLockUnlock( &interfaceGroup->lock );
@@ -254,22 +232,20 @@ static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, str
     #if !SPIN_LOCKED_CACHE_ACCESS
     DKSpinLockLock( &interfaceGroup->lock );
     #endif
-    
-    DKIndex count = interfaceGroup->interfaces.length;
-    
-    for( DKIndex i = 0; i < count; ++i )
-    {
-        DKInterface * interface = DKGenericArrayGetElementAtIndex( &interfaceGroup->interfaces, i, DKInterface * );
-        DKAssert( interface != NULL );
-        
-        if( DKFastSelectorEqual( interface->sel, sel ) )
-        {
-            // Update the cache
-            interfaceGroup->cache[cacheline] = interface;
 
-            DKSpinLockUnlock( &interfaceGroup->lock );
-            return interface;
-        }
+    DKInterface _key;
+    _key.sel = sel;
+    
+    DKInterface * key = &_key;
+    DKInterface ** entry = (DKInterface **)DKGenericHashTableFind( &interfaceGroup->interfaces, &key );
+    
+    if( entry )
+    {
+        // Update the cache
+        interfaceGroup->cache[cacheline] = *entry;
+
+        DKSpinLockUnlock( &interfaceGroup->lock );
+        return *entry;
     }
 
     // Lookup the interface in our superclasses

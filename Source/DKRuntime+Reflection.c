@@ -35,7 +35,6 @@ struct NameDatabaseEntry
 {
     const DKObject  _obj;
     DKStringRef     name;
-    DKHashCode      hash;
 };
 
 #define NAME_DATABASE_DELETED_ENTRY ((void *)-1)
@@ -66,16 +65,13 @@ static DKRowStatus NameDatabaseRowStatus( const void * _row )
 static DKHashCode NameDatabaseRowHash( const void * _row )
 {
     struct NameDatabaseEntry * const * row = _row;
-    return (*row)->hash;
+    return DKStringHash( (*row)->name );
 }
 
 static bool NameDatabaseRowEqual( const void * _row1, const void * _row2 )
 {
     struct NameDatabaseEntry * const * row1 = _row1;
     struct NameDatabaseEntry * const * row2 = _row2;
-
-    if( (*row1)->hash != (*row2)->hash )
-        return false;
 
     return DKStringEqualToString( (*row1)->name, (*row2)->name );
 }
@@ -349,7 +345,6 @@ DKClassRef DKClassFromString( DKStringRef name )
     {
         struct NameDatabaseEntry _key;
         _key.name = name;
-        _key.hash = DKStringHash( name );
         
         struct NameDatabaseEntry * key = &_key;
 
@@ -386,7 +381,6 @@ DKSEL DKSelectorFromString( DKStringRef name )
     {
         struct NameDatabaseEntry _key;
         _key.name = name;
-        _key.hash = DKStringHash( name );
         
         struct NameDatabaseEntry * key = &_key;
 

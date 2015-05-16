@@ -46,6 +46,10 @@ DKClassRef  DKMutableStringClass( void );
 #define     DKStringCreateWithCStringNoCopy( cstr )     DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass(), 0 ), cstr )
 #define     DKStringCreateWithFormat( cls, fmt, ... )   DKStringInitWithFormat( DKAlloc( cls, 0 ), fmt, __VA_ARGS__ )
 
+#define     DKStringWithString( cls, str )              DKAutorelease( DKStringInitWithString( DKAlloc( cls, 0 ), str ) )
+#define     DKStringWithCString( cls, cstr )            DKAutorelease( DKStringInitWithCString( DKAlloc( cls, 0 ), cstr, 0 ) )
+#define     DKStringWithFormat( cls, fmt, ... )         DKAutorelease( DKStringInitWithFormat( DKAlloc( cls, 0 ), fmt, __VA_ARGS__ ) )
+
 DKObjectRef DKStringInitWithString( DKStringRef _self, DKStringRef other );
 DKObjectRef DKStringInitWithCString( DKStringRef _self, const char * cstr, size_t length );
 DKObjectRef DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr );

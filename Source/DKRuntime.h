@@ -205,19 +205,14 @@ void        DKFinalize( DKObjectRef _self );
 #if DK_RUNTIME_PRIVATE
 
 #include "DKGenericArray.h"
+#include "DKGenericHashTable.h"
 #include "DKHashTable.h"
 
 struct DKInterfaceGroup
 {
-    DKSpinLock      lock;
-
-    struct _DKInterface * cache[DKStaticCacheSize + DKDynamicCacheSize];
-    
-    // Classes usually have fewer than 10 interfaces and selectors are compared by
-    // pointer value (not name). It's hard to say whether a linear search on a small
-    // array is faster or slower than a hash table lookup. The search result is also
-    // cached, further mitigating any performance problems.
-    DKGenericArray  interfaces;
+    DKSpinLock              lock;
+    struct _DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
+    DKGenericHashTable      interfaces;
 };
 
 
@@ -225,10 +220,9 @@ struct DKClass
 {
     const DKObject          _obj;
 
-    // The name database requires that the name and hash fields of DKClass and DKSEL are
+    // The name database requires that the name field of DKClass and DKSEL is
     // in the same position in the structure (i.e. right after the object header).
     DKStringRef             name;
-    DKHashCode              hash;
     
     DKClassRef              superclass;
     size_t                  structSize;
