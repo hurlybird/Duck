@@ -35,30 +35,40 @@
 // Selector cache configuration
 typedef enum
 {
-    // Use the dynamic cache
-    DKDynamicCache =                            0,
-    
-    // 1-7  -- Static cache lines for class interfaces
-    DKStaticCache_Allocation =                  1,
-    
-    // 8-15 -- Static cache lines for user class interfaces
+    // 0 - Allocation (Class), Copying (Instances)
+    DKStaticCache_Allocation =      0,
+    DKStaticCache_Copying =         0,
 
-    // 1-7  -- Static cache lines for instance interfaces
-    DKStaticCache_Comparison =                  1,
-    DKStaticCache_Copying,
-    DKStaticCache_Locking,
-    DKStaticCache_Collection,
-    DKStaticCache_KeyedCollection,
-    DKStaticCache_List,
-    DKStaticCache_Dictionary,
+    // 1 - Comparison
+    DKStaticCache_Comparison =      1,
     
-    // 8-15 -- Static cache lines for user instance interfaces
+    // 2 - Locking
+    DKStaticCache_Locking =         2,
+    
+    // 3 - Collections
+    DKStaticCache_Collection =      3,
+    DKStaticCache_KeyedCollection = 3,
+    
+    // 4 - Containers
+    DKStaticCache_List =            4,
+    DKStaticCache_Dictionary =      4,
+    DKStaticCache_Set =             4,
+    
+    // 5 - Reserved
+    // 6 - Reserved
+    
+    // 7 - I/O used by root classes
+    DKStaticCache_Description =     7,
+    DKStaticCache_Stream =          7,
+    DKStaticCache_Egg =             7,
+    
+    // 8-15 - Static cache lines reserved for user interfaces
     
     // Size of the static cache
-    DKStaticCacheSize =                         16,
+    DKStaticCacheSize =             16,
     
     // Size of the dynamic cache (must be a power of 2)
-    DKDynamicCacheSize =                        16
+    DKDynamicCacheSize =            32
     
 } DKCacheUsage;
 
@@ -75,7 +85,7 @@ struct _DKSEL
     DKStringRef     name;
     
     // Controls how interfaces retrieved by this selector are cached.
-    DKIndex         cacheline;
+    unsigned int    cacheline;
 };
 
 typedef struct _DKSEL * DKSEL;

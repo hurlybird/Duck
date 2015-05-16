@@ -179,20 +179,6 @@ DKClassRef DKObjectClass( void )
     {                                                                                   \
         DKInitObjectHeader( &__DKSelectorClass__ ),                                     \
         NULL,                                                                           \
-        DKDynamicCache                                                                  \
-    };                                                                                  \
-                                                                                        \
-    DKSEL DKSelector_ ## name( void )                                                   \
-    {                                                                                   \
-        return &DKSelector_ ## name ##_StaticObject;                                    \
-    }
-
-
-#define DKStaticFastSelectorInit( name )                                                \
-    static struct _DKSEL DKSelector_ ## name ##_StaticObject =                          \
-    {                                                                                   \
-        DKInitObjectHeader( &__DKSelectorClass__ ),                                     \
-        NULL,                                                                           \
         DKStaticCache_ ## name                                                          \
     };                                                                                  \
                                                                                         \
@@ -209,9 +195,9 @@ DKClassRef DKObjectClass( void )
     }
 
 
-DKStaticFastSelectorInit( Allocation );
-DKStaticFastSelectorInit( Comparison );
-DKStaticFastSelectorInit( Copying );
+DKStaticSelectorInit( Allocation );
+DKStaticSelectorInit( Comparison );
+DKStaticSelectorInit( Copying );
 DKStaticSelectorInit( Description );
 DKStaticSelectorInit( Stream );
 DKStaticSelectorInit( Egg );
@@ -221,10 +207,10 @@ DKStaticSelectorInit( Egg );
 
 // Error Handling Interfaces =============================================================
 DKDeclareInterfaceSelector( InterfaceNotFound );
-DKStaticSelectorInit( InterfaceNotFound );
+DKThreadSafeSelectorInit( InterfaceNotFound );
 
 DKDeclareMessageSelector( MsgHandlerNotFound );
-DKStaticSelectorInit( MsgHandlerNotFound );
+DKThreadSafeSelectorInit( MsgHandlerNotFound );
 
 typedef void (*DKInterfaceNotFoundFunction)( DKObjectRef _self );
 
@@ -460,10 +446,6 @@ static void DKInterfaceGroupFinalize( struct DKInterfaceGroup * interfaceGroup )
 
 
 
-
-
-
-
 // Runtime Init ==========================================================================
 static bool _DKRuntimeIsInitialized = false;
 
@@ -595,8 +577,6 @@ void DKRuntimeInit( void )
         SetRootClassName( &__DKObjectClass__, DKSTR( "DKObject" ) );
         SetRootClassName( &__DKWeakClass__, DKSTR( "DKWeak" ) );
 
-        SetStaticSelectorName( &DKSelector_InterfaceNotFound_StaticObject, DKSTR( "InterfaceNotFound" ) );
-        SetStaticSelectorName( &DKSelector_MsgHandlerNotFound_StaticObject, DKSTR( "MsgHandlerNotFound" ) );
         SetStaticSelectorName( &DKSelector_Allocation_StaticObject, DKSTR( "Allocation" ) );
         SetStaticSelectorName( &DKSelector_Comparison_StaticObject, DKSTR( "Comparison" ) );
         SetStaticSelectorName( &DKSelector_Copying_StaticObject, DKSTR( "Copying" ) );

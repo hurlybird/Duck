@@ -32,13 +32,13 @@
 #include "DKCopying.h"
 
 
-// Get a dynamic cache index for a selector
-#define GetDynamicCacheline( sel )  (int)((DKObjectUniqueHash(sel) & (DKDynamicCacheSize-1)) + DKStaticCacheSize)
-
-
 
 
 // DKSelector ============================================================================
+
+static DKSpinLock NextCacheLineSpinLock = DKSpinLockInit;
+static unsigned int NextCacheLine = 0;
+
 
 ///
 //  DKAllocSelector()
@@ -50,7 +50,11 @@ DKSEL DKAllocSelector( DKStringRef name )
     DKAssert( sel != NULL );
 
     sel->name = DKCopy( name );
-    sel->cacheline = DKDynamicCache;
+    
+    DKSpinLockLock( &NextCacheLineSpinLock );
+    sel->cacheline = DKStaticCacheSize + (NextCacheLine & (DKDynamicCacheSize - 1));
+    NextCacheLine++;
+    DKSpinLockUnlock( &NextCacheLineSpinLock );
 
     DKNameDatabaseInsertSelector( sel );
 
@@ -124,17 +128,9 @@ static void DKInstallInterfaceInGroup( DKClassRef _class, DKInterfaceRef _interf
 
     DKInterface * interface = (DKInterface *)_interface;
 
-    // Retain the new interface
-    DKRetain( interface );
-
-    // Resolve the cache line from the selector
-    DKIndex cacheline = interface->sel->cacheline;
-    DKAssert( (cacheline >= 0) && (cacheline < DKStaticCacheSize) );
-
-    if( cacheline == DKDynamicCache )
-        cacheline = GetDynamicCacheline( interface->sel );
-    
-    DKAssert( (cacheline > 0) && (cacheline < (DKStaticCacheSize + DKDynamicCacheSize)) );
+    // Get the cache line from the selector
+    unsigned int cacheline = interface->sel->cacheline;
+    DKAssert( cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
     
     // Lock while we make changes
     DKSpinLockLock( &interfaceGroup->lock );
@@ -182,9 +178,9 @@ static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, str
     DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
     DKAssert( sel->_obj.isa == DKSelectorClass() );
 
-    // Get the static cache line from the selector
-    DKIndex cacheline = sel->cacheline;
-    DKAssert( (cacheline >= 0) && (cacheline < DKStaticCacheSize) );
+    // Get the cache line from the selector
+    unsigned int cacheline = sel->cacheline;
+    DKAssert( cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
 
     // We shoudn't need to acquire the spin lock while reading and writing to the cache
     // since the worst that can happen is doing an extra lookup after reading a stale
@@ -196,36 +192,16 @@ static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, str
     DKSpinLockLock( &interfaceGroup->lock );
     #endif
     
-    // First check the static cache (line 0 will always be NULL)
+    // Check the cached interface
     DKInterface * interface = interfaceGroup->cache[cacheline];
     
-    if( interface )
+    if( interface && DKSelectorEqual( interface->sel, sel ) )
     {
-        DKAssert( DKSelectorEqual( interface->sel, sel ) );
-    
         #if SPIN_LOCKED_CACHE_ACCESS
         DKSpinLockUnlock( &interfaceGroup->lock );
         #endif
         
         return interface;
-    }
-    
-    // Next check the dynamic cache
-    if( cacheline == DKDynamicCache )
-    {
-        cacheline = GetDynamicCacheline( sel );
-        DKAssert( (cacheline > 0) && (cacheline < (DKStaticCacheSize + DKDynamicCacheSize)) );
-        
-        interface = interfaceGroup->cache[cacheline];
-        
-        if( interface && DKSelectorEqual( interface->sel, sel ) )
-        {
-            #if SPIN_LOCKED_CACHE_ACCESS
-            DKSpinLockUnlock( &interfaceGroup->lock );
-            #endif
-            
-            return interface;
-        }
     }
 
     // Search our interface table

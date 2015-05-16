@@ -13,7 +13,7 @@
 #include "DKStream.h"
 
 
-DKThreadSafeSelectorInit( Set );
+DKThreadSafeFastSelectorInit( Set );
 
 
 struct DKSet
