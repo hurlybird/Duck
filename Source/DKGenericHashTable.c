@@ -287,7 +287,7 @@ const void * DKGenericHashTableFind( DKGenericHashTable * hashTable, const void 
 ///
 //  DKGenericHashTableInsert()
 //
-void DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entry, DKInsertPolicy policy )
+bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entry, DKInsertPolicy policy )
 {
     // Lazy table allocation
     if( hashTable->rows == NULL )
@@ -299,7 +299,7 @@ void DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entr
     if( status == DKRowStatusActive )
     {
         if( policy == DKInsertIfNotFound )
-            return;
+            return false;
         
         hashTable->callbacks.rowUpdate( row, entry );
     }
@@ -307,7 +307,7 @@ void DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entr
     else
     {
         if( policy == DKInsertIfFound )
-            return;
+            return false;
         
         hashTable->callbacks.rowUpdate( row, entry );
 
@@ -315,6 +315,8 @@ void DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entr
         
         ResizeAndRehash( hashTable );
     }
+    
+    return true;
 }
 
 

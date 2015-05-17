@@ -358,19 +358,10 @@ static DKInterfaceRef DKInterfaceComparison( void )
 // DKInterfaceGroup ======================================================================
 
 // Hash Table Callbacks
-#define INTERFACE_TABLE_DELETED_ENTRY ((void *)-1)
-
 static DKRowStatus InterfaceTableRowStatus( const void * _row )
 {
     DKInterface * const * row = _row;
-
-    if( *row == NULL )
-        return DKRowStatusEmpty;
-    
-    if( *row == INTERFACE_TABLE_DELETED_ENTRY )
-        return DKRowStatusDeleted;
-    
-    return DKRowStatusActive;
+    return (DKRowStatus)DK_HASHTABLE_ROW_STATUS( *row );
 }
 
 static DKHashCode InterfaceTableRowHash( const void * _row )
@@ -390,7 +381,7 @@ static bool InterfaceTableRowEqual( const void * _row1, const void * _row2 )
 static void InterfaceTableRowInit( void * _row )
 {
     DKInterface ** row = _row;
-    *row = NULL;
+    *row = DK_HASHTABLE_EMPTY_KEY;
 }
 
 static void InterfaceTableRowUpdate( void * _row, const void * _src )
@@ -399,7 +390,10 @@ static void InterfaceTableRowUpdate( void * _row, const void * _src )
     DKInterface * const * src = _src;
     
     DKRetain( *src );
-    DKRelease( *row );
+    
+    if( DK_HASHTABLE_IS_POINTER( *row ) )
+        DKRelease( *row );
+        
     *row = *src;
 }
 
@@ -408,7 +402,7 @@ static void InterfaceTableRowDelete( void * _row )
     DKInterface ** row = _row;
     
     DKRelease( *row );
-    *row = INTERFACE_TABLE_DELETED_ENTRY;
+    *row = DK_HASHTABLE_DELETED_KEY;
 }
 
 
@@ -709,12 +703,11 @@ DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
 void DKDeallocObject( DKObjectRef _self )
 {
     DKObject * obj = _self;
+    DKClassRef cls = obj->isa;
     
     DKAssert( obj );
-    DKAssert( obj->refcount == 0 );
+    DKAssert( (obj->refcount == 0) || ((cls->options & DKDisableReferenceCounting) != 0) );
     DKAssert( obj->weakref == NULL );
-
-    DKClassRef cls = obj->isa;
 
     // Deallocate
     dk_free( obj );

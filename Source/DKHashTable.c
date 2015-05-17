@@ -47,9 +47,6 @@ struct DKHashTable
 };
 
 
-#define DELETED_KEY         ((void *)-1)
-
-
 static DKObjectRef DKHashTableInitialize( DKObjectRef _self );
 static void        DKHashTableFinalize( DKObjectRef _self );
 
@@ -238,14 +235,7 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
 static DKRowStatus RowStatus( const void * _row )
 {
     const struct DKHashTableRow * row = _row;
-
-    if( row->key == NULL )
-        return DKRowStatusEmpty;
-    
-    if( row->key == DELETED_KEY )
-        return DKRowStatusDeleted;
-    
-    return DKRowStatusActive;
+    return (DKRowStatus)DK_HASHTABLE_ROW_STATUS( row->key );
 }
 
 static DKHashCode RowHash( const void * _row )
@@ -266,7 +256,7 @@ static void RowInit( void * _row )
 {
     struct DKHashTableRow * row = _row;
     
-    row->key = NULL;
+    row->key = DK_HASHTABLE_EMPTY_KEY;
     row->object = NULL;
 }
 
@@ -277,7 +267,7 @@ static void RowUpdate( void * _row, const void * _src )
     
     DKRetain( src->key );
     
-    if( (row->key != NULL) && (row->key != DELETED_KEY) )
+    if( DK_HASHTABLE_IS_POINTER( row->key ) )
         DKRelease( row->key );
         
     row->key = src->key;
@@ -294,7 +284,7 @@ static void RowDelete( void * _row )
     DKRelease( row->key );
     DKRelease( row->object );
     
-    row->key = DELETED_KEY;
+    row->key = DK_HASHTABLE_DELETED_KEY;
     row->object = NULL;
 }
 

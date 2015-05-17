@@ -11,12 +11,8 @@
 #include "Duck.h"
 
 
-int main( int argc, const char * argv[] )
+static void TestSerialization( void )
 {
-    DKRuntimeInit();
-    DKPushAutoreleasePool();
-
-
     // Create a document
     DKMutableDictionaryRef document = DKDictionaryWithKeysAndObjects(
         DKSTR( "Dick" ), DKSTR( "\"boy\"" ),
@@ -66,9 +62,70 @@ int main( int argc, const char * argv[] )
 
     // Print out some statistics
     DKPrintf( "JSON Size: %d\nEGG Size:  %d\n\n", DKStringGetByteLength( json ), DKDataGetLength( egg ) );
+}
+
+
+static void TestDictionaryPerformance()
+{
+    const int PERFORMANCE_N = 100;
+    const int PERFORMANCE_I = 1000000;
+
+    DKMutableDictionaryRef dict = DKCreate( DKMutableHashTableClass() );
+    DKMutableListRef keys = DKCreate( DKMutableArrayClass() );
+
+    for( int i = 0; i < PERFORMANCE_N; i++ )
+    {
+        DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
+        DKListAppendObject( keys, s );
+        DKRelease( s );
+    }
+
+    srand( 0 );
+
+    while( 1 )
+    {
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+        {
+            DKStringRef key = DKListGetObjectAtIndex( keys, i );
+            DKDictionarySetObject( dict, key, DKSTR( "Object" ) );
+        }
+
+        for( int i = 0; i < PERFORMANCE_I; i++ )
+        {
+            int index1 = rand() % PERFORMANCE_N;
+            int index2 = rand() % PERFORMANCE_N;
+        
+            DKStringRef key1 = DKListGetObjectAtIndex( keys, index1 );
+            DKStringRef key2 = DKListGetObjectAtIndex( keys, index2 );
+
+            DKStringRef value1 = DKRetain( DKDictionaryGetObject( dict, key1 ) );
+            DKStringRef value2 = DKRetain( DKDictionaryGetObject( dict, key2 ) );
+
+            DKDictionarySetObject( dict, key2, value1 );
+            DKDictionarySetObject( dict, key1, value2 );
+
+            DKRelease( value1 );
+            DKRelease( value2 );
+        }
+    }
+
+    DKRelease( dict );
+    DKRelease( keys );
+}
+
+
+int main( int argc, const char * argv[] )
+{
+    DKRuntimeInit();
+    DKPushAutoreleasePool();
+
+
+    //TestSerialization();
+    TestDictionaryPerformance();
     
 
     DKPopAutoreleasePool();
     
     return 0;
 }
+

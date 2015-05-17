@@ -136,7 +136,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-#define PERFORMANCE_N   1000000
+const int PERFORMANCE_N = 1000;
+const int PERFORMANCE_I = 1000000;
 
 - (void) testNSDictionaryPerformance
 {
@@ -153,7 +154,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
         for( int i = 0; i < PERFORMANCE_N; i++ )
             [dict setObject:@"Object" forKey:[keys objectAtIndex:i]];
 
-        for( int i = 0; i < PERFORMANCE_N; i++ )
+        for( int i = 0; i < PERFORMANCE_I; i++ )
         {
             int index1 = rand() % PERFORMANCE_N;
             int index2 = rand() % PERFORMANCE_N;
@@ -205,7 +206,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
             DKDictionarySetObject( dict, key, DKSTR( "Object" ) );
         }
 
-        for( int i = 0; i < PERFORMANCE_N; i++ )
+        for( int i = 0; i < PERFORMANCE_I; i++ )
         {
             int index1 = rand() % PERFORMANCE_N;
             int index2 = rand() % PERFORMANCE_N;
@@ -213,13 +214,12 @@ static int RaiseException( const char * format, va_list arg_ptr )
             DKStringRef key1 = DKListGetObjectAtIndex( keys, index1 );
             DKStringRef key2 = DKListGetObjectAtIndex( keys, index2 );
 
-            DKStringRef value1 = DKRetain( DKDictionaryGetObject( dict, key1 ) );
+            DKStringRef value1 = DKDictionaryGetObject( dict, key1 );
             DKStringRef value2 = DKRetain( DKDictionaryGetObject( dict, key2 ) );
 
             DKDictionarySetObject( dict, key2, value1 );
             DKDictionarySetObject( dict, key1, value2 );
 
-            DKRelease( value1 );
             DKRelease( value2 );
         }
     }];

@@ -32,11 +32,20 @@
 
 typedef enum
 {
-    DKRowStatusEmpty,
-    DKRowStatusActive,
-    DKRowStatusDeleted
+    // Don't change these values; they allow storing the row status in a tagged pointer
+    DKRowStatusActive =     0,
+    DKRowStatusEmpty =      1,
+    DKRowStatusDeleted =    2
 
 } DKRowStatus;
+
+
+// Sentinels and macros for tagged pointer. These are safe when the stored pointers are
+// at least 4-byte aligned (which should be true for objects).
+#define DK_HASHTABLE_EMPTY_KEY           (void *)DKRowStatusEmpty
+#define DK_HASHTABLE_DELETED_KEY         (void *)DKRowStatusDeleted
+#define DK_HASHTABLE_ROW_STATUS(x)       ((intptr_t)(x) & 0x3)
+#define DK_HASHTABLE_IS_POINTER(x)       (((intptr_t)(x) & 0x3) == 0)
 
 
 typedef struct
@@ -74,7 +83,7 @@ void DKGenericHashTableFinalize( DKGenericHashTable * hashTable );
 #define DKGenericHashTableGetRowCount( table )  ((table)->rowCount)
 
 const void * DKGenericHashTableFind( DKGenericHashTable * hashTable, const void * entry );
-void DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entry, DKInsertPolicy policy );
+bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entry, DKInsertPolicy policy );
 void DKGenericHashTableRemove( DKGenericHashTable * hashTable, const void * entry );
 void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable );
 

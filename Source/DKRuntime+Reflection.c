@@ -37,8 +37,6 @@ struct NameDatabaseEntry
     DKStringRef     name;
 };
 
-#define NAME_DATABASE_DELETED_ENTRY ((void *)-1)
-
 
 static DKGenericHashTable ClassNameDatabase;
 static DKSpinLock ClassNameDatabaseSpinLock = DKSpinLockInit;
@@ -52,14 +50,7 @@ static DKSpinLock SelectorNameDatabaseSpinLock = DKSpinLockInit;
 static DKRowStatus NameDatabaseRowStatus( const void * _row )
 {
     struct NameDatabaseEntry * const * row = _row;
-
-    if( *row == NULL )
-        return DKRowStatusEmpty;
-    
-    if( *row == NAME_DATABASE_DELETED_ENTRY )
-        return DKRowStatusDeleted;
-    
-    return DKRowStatusActive;
+    return (DKRowStatus)DK_HASHTABLE_ROW_STATUS( *row );
 }
 
 static DKHashCode NameDatabaseRowHash( const void * _row )
@@ -79,7 +70,7 @@ static bool NameDatabaseRowEqual( const void * _row1, const void * _row2 )
 static void NameDatabaseRowInit( void * _row )
 {
     struct NameDatabaseEntry ** row = _row;
-    *row = NULL;
+    *row = DK_HASHTABLE_EMPTY_KEY;
 }
 
 static void NameDatabaseRowUpdate( void * _row, const void * _src )
@@ -92,7 +83,7 @@ static void NameDatabaseRowUpdate( void * _row, const void * _src )
 static void NameDatabaseRowDelete( void * _row )
 {
     struct NameDatabaseEntry ** row = _row;
-    *row = NAME_DATABASE_DELETED_ENTRY;
+    *row = DK_HASHTABLE_DELETED_KEY;
 }
 
 

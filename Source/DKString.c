@@ -1466,76 +1466,43 @@ static DKGenericHashTable * DKConstantStringTable = NULL;
 static DKSpinLock DKConstantStringTableLock = DKSpinLockInit;
 
 
-struct DKConstantStringTableRow
-{
-    DKHashCode hash;
-    DKStringRef string;
-};
-
-#define DELETED_CONSTANT_STRING ((void *)-1)
-
-
 static DKRowStatus DKConstantStringTableRowStatus( const void * _row )
 {
-    const struct DKConstantStringTableRow * row = _row;
-
-    if( row->string == NULL )
-        return DKRowStatusEmpty;
-    
-    if( row->string == DELETED_CONSTANT_STRING )
-        return DKRowStatusDeleted;
-    
-    return DKRowStatusActive;
+    struct DKString * const * row = _row;
+    return (DKRowStatus)DK_HASHTABLE_ROW_STATUS( *row );
 }
 
 static DKHashCode DKConstantStringTableRowHash( const void * _row )
 {
-    const struct DKConstantStringTableRow * row = _row;
-    return row->hash;
+    struct DKString * const * row = _row;
+    return (*row)->hashCode;
 }
 
 static bool DKConstantStringTableRowEqual( const void * _row1, const void * _row2 )
 {
-    const struct DKConstantStringTableRow * row1 = _row1;
-    const struct DKConstantStringTableRow * row2 = _row2;
+    struct DKString * const * row1 = _row1;
+    struct DKString * const * row2 = _row2;
 
-    if( row1->hash != row2->hash )
-        return false;
-
-    return DKStringEqualToString( row1->string, row2->string );
+    return DKStringEqualToString( *row1, *row2 );
 }
 
 static void DKConstantStringTableRowInit( void * _row )
 {
-    struct DKConstantStringTableRow * row = _row;
-    
-    row->hash = 0;
-    row->string = NULL;
+    struct DKString ** row = _row;
+    *row = DK_HASHTABLE_EMPTY_KEY;
 }
 
 static void DKConstantStringTableRowUpdate( void * _row, const void * _src )
 {
-    struct DKConstantStringTableRow * row = _row;
-    const struct DKConstantStringTableRow * src = _src;
-    
-    row->hash = src->hash;
-    
-    DKRetain( src->string );
-    
-    if( (row->string != NULL) && (row->string != DELETED_CONSTANT_STRING) )
-        DKRelease( row->string );
-        
-    row->string = src->string;
+    struct DKString ** row = _row;
+    struct DKString * const * src = _src;
+    *row = *src;
 }
 
 static void DKConstantStringTableRowDelete( void * _row )
 {
-    struct DKConstantStringTableRow * row = _row;
-    
-    DKRelease( row->string );
-    
-    row->hash = 0;
-    row->string = DELETED_CONSTANT_STRING;
+    struct DKString ** row = _row;
+    *row = DK_HASHTABLE_DELETED_KEY;
 }
 
 
@@ -1558,7 +1525,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
             DKConstantStringTableRowDelete
         };
 
-        DKGenericHashTableInit( table, sizeof(struct DKConstantStringTableRow), &callbacks );
+        DKGenericHashTableInit( table, sizeof(DKStringRef), &callbacks );
         
         DKSpinLockLock( &DKConstantStringTableLock );
         
@@ -1574,62 +1541,56 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
         }
     }
 
+    // Get the length and hash code of the string
+    DKIndex length = strlen( str );
+    DKHashCode hashCode = dk_strhash( str );
+
     // Create a temporary stack object for the table lookup
     DKClassRef constantStringClass = DKConstantStringClass();
     
-    struct DKString lookupString =
+    struct DKString _lookupString =
     {
         DKInitObjectHeader( constantStringClass ),
     };
     
-    DKIndex length = strlen( str );
-    DKByteArrayInitWithExternalStorage( &lookupString.byteArray, (const uint8_t *)str, length );
+    struct DKString * lookupString = &_lookupString;
     
-    // Check the table for an existing copy of the string
-    struct DKConstantStringTableRow insertRow;
-    insertRow.hash = dk_strhash( str );
-    insertRow.string = &lookupString;
-    
+    DKByteArrayInitWithExternalStorage( &lookupString->byteArray, (const uint8_t *)str, length );
+    lookupString->hashCode = hashCode;
+
+    // Lookup the string in the hash table
     DKSpinLockLock( &DKConstantStringTableLock );
-    const struct DKConstantStringTableRow * existingRow = DKGenericHashTableFind( DKConstantStringTable, &insertRow );
+    const DKStringRef * existingRow = DKGenericHashTableFind( DKConstantStringTable, &lookupString );
     DKSpinLockUnlock( &DKConstantStringTableLock );
     
     if( existingRow )
-        return existingRow->string;
+        return *existingRow;
     
     if( !insert )
         return NULL;
 
     // Create a new constant string
-    DKStringRef constantString = NULL;
-    
-    insertRow.string = DKAllocObject( constantStringClass, 0 );
-    DKByteArrayInitWithExternalStorage( (DKByteArray *)&insertRow.string->byteArray, (const uint8_t *)str, length );
+    DKStringRef newConstantString = DKAllocObject( constantStringClass, 0 );
+    DKByteArrayInitWithExternalStorage( &newConstantString->byteArray, (const uint8_t *)str, length );
+    newConstantString->hashCode = hashCode;
 
     // Try to insert it in the table
     DKSpinLockLock( &DKConstantStringTableLock );
     
-    DKIndex count = DKGenericHashTableGetCount( DKConstantStringTable );
-    DKGenericHashTableInsert( DKConstantStringTable, &insertRow, DKInsertIfNotFound );
-    
-    // If the insert failed lookup the string again and use the existing copy
-    if( DKGenericHashTableGetCount( DKConstantStringTable ) == count )
+    if( DKGenericHashTableInsert( DKConstantStringTable, &newConstantString, DKInsertIfNotFound ) )
     {
-        existingRow = DKGenericHashTableFind( DKConstantStringTable, &insertRow );
-        constantString = existingRow->string;
+        DKSpinLockUnlock( &DKConstantStringTableLock );
+        return newConstantString;
     }
     
-    else
-    {
-        constantString = insertRow.string;
-    }
-    
+    // If the insert failed discard the new string and do the lookup again
+    existingRow = DKGenericHashTableFind( DKConstantStringTable, &lookupString );
+
     DKSpinLockUnlock( &DKConstantStringTableLock );
 
-    // Remove the extra retain on the inserted string, or release it if the insert failed
-    DKRelease( insertRow.string );
+    DKDeallocObject( newConstantString );
     
-    return constantString;
+    return *existingRow;
 }
 
 
