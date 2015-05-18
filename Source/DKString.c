@@ -36,6 +36,7 @@
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
+#include "DKFile.h"
 
 #include "icu/unicode/utf8.h"
 
@@ -60,6 +61,14 @@ static void         DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef egg );
 static DKStringRef  DKMutableStringGetDescription( DKMutableStringRef _self );
 
 static struct DKString DKPlaceholderString =
+{
+    DKInitObjectHeader( NULL ),
+    { NULL, 0, 0 },
+    0,
+    0
+};
+
+static struct DKString DKPlaceholderConstantString =
 {
     DKInitObjectHeader( NULL ),
     { NULL, 0, 0 },
@@ -285,8 +294,15 @@ static void * InitString( DKStringRef _self, const char * cstr, DKIndex length )
 {
     if( _self == &DKPlaceholderString  )
     {
+        _self = CopySubstring( cstr, DKRangeMake( 0, length ) );
+    }
+    
+    else if( _self == &DKPlaceholderConstantString )
+    {
+        // Note: constant strings must be externally allocated, which we can't
+        // guarantee in this case
         _self = __DKStringGetConstantString( cstr, false );
-        
+
         if( !_self )
             _self = CopySubstring( cstr, DKRangeMake( 0, length ) );
     }
@@ -316,10 +332,16 @@ static void * InitString( DKStringRef _self, const char * cstr, DKIndex length )
 //
 static void * DKStringAllocPlaceholder( DKClassRef _class, size_t extraBytes )
 {
-    if( (_class == DKStringClass_SharedObject) || (_class == DKConstantStringClass_SharedObject) )
+    if( _class == DKStringClass_SharedObject )
     {
         DKPlaceholderString._obj.isa = DKStringClass_SharedObject;
         return &DKPlaceholderString;
+    }
+    
+    else if( _class == DKConstantStringClass_SharedObject )
+    {
+        DKPlaceholderConstantString._obj.isa = DKConstantStringClass_SharedObject;
+        return &DKPlaceholderConstantString;
     }
     
     else if( _class == DKMutableStringClass_SharedObject )
@@ -337,7 +359,7 @@ static void * DKStringAllocPlaceholder( DKClassRef _class, size_t extraBytes )
 //
 static void DKStringDealloc( DKStringRef _self )
 {
-    if( _self == &DKPlaceholderString )
+    if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString) )
         return;
     
     DKDeallocObject( _self );
@@ -358,7 +380,7 @@ static DKObjectRef DKStringInit( DKObjectRef _self )
 //
 static void DKStringFinalize( DKObjectRef _self )
 {
-    if( _self == &DKPlaceholderString )
+    if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString) )
     {
         DKFatalError( "DKStringFinalize: Trying to finalize a string that was never initialized.\n" );
         return;
@@ -376,15 +398,20 @@ void * DKStringInitWithString( DKStringRef _self, DKStringRef other )
 {
     const char * cstr = "";
     DKIndex length = 0;
+    DKHashCode hashCode = 0;
     
     if( other )
     {
         DKAssertKindOfClass( other, DKStringClass() );
         cstr = (const char *)other->byteArray.bytes;
         length = other->byteArray.length;
+        hashCode = other->hashCode;
     }
     
-    return InitString( _self, cstr, length );
+    _self = InitString( _self, cstr, length );
+    _self->hashCode = hashCode;
+    
+    return _self;
 }
 
 
@@ -407,10 +434,10 @@ void * DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr )
 {
     DKIndex length = strlen( cstr );
 
-    if( _self == &DKPlaceholderString )
+    if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString) )
     {
-        _self = DKAllocObject( DKStringClass_SharedObject, 0 );
-        DKByteArrayInitWithExternalStorage( (DKByteArray *)&_self->byteArray, (const uint8_t *)cstr, length );
+        _self = DKAllocObject( DKStringClass(), 0 );
+        DKByteArrayInitWithExternalStorage( &_self->byteArray, (const uint8_t *)cstr, length );
     }
     
     else if( _self != NULL )
@@ -427,10 +454,10 @@ void * DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr )
 //
 void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
 {
-    if( _self == &DKPlaceholderString  )
+    if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString)  )
     {
         _self = DKAllocObject( DKMutableStringClass(), 0 );
-        DKByteArrayInit( (DKByteArray *)&_self->byteArray );
+        DKByteArrayInit( &_self->byteArray );
 
         va_list arg_ptr;
         va_start( arg_ptr, format );
@@ -445,7 +472,7 @@ void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
     
     else if( DKIsMemberOfClass( _self, DKMutableStringClass() ) )
     {
-        DKByteArrayInit( (DKByteArray *)&_self->byteArray );
+        DKByteArrayInit( &_self->byteArray );
 
         va_list arg_ptr;
         va_start( arg_ptr, format );
@@ -459,6 +486,54 @@ void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
     else if( _self != NULL )
     {
         DKFatalError( "DKStringInit: Trying to initialize a non-string object.\n" );
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKStringInitWithContentsOfFile()
+//
+DKObjectRef DKStringInitWithContentsOfFile( DKStringRef _self, DKStringRef filename )
+{
+    if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString)  )
+    {
+        _self = DKAllocObject( DKStringClass(), 0 );
+    }
+    
+    else if( DKIsMemberOfClass( _self, DKMutableStringClass() ) )
+    {
+    }
+    
+    else if( _self != NULL )
+    {
+        DKFatalError( "DKStringInit: Trying to initialize a non-string object.\n" );
+    }
+    
+    if( _self )
+    {
+        DKByteArrayInit( &_self->byteArray );
+
+        DKFileRef file = DKFileOpen( filename, "r" );
+        
+        if( file )
+        {
+            // Note: on Windows this won't get the correct length for text mode files
+            DKFileSeek( file, 0, SEEK_END );
+            DKIndex length = DKFileTell( file );
+            DKFileSeek( file, 0, SEEK_SET );
+        
+            if( length > 0 )
+            {
+                DKByteArraySetLength( &_self->byteArray, length );
+
+                void * buffer = DKByteArrayGetBytePtr( &_self->byteArray, 0 );
+                DKFileRead( file, buffer, 1, length );
+            }
+
+            DKFileClose( file );
+        }
     }
     
     return _self;
@@ -866,45 +941,39 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
 //
 DKListRef DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef separator )
 {
-    DKMutableListRef list = DKCreate( DKMutableArrayClass() );
+    DKMutableArrayRef array = DKCreate( DKMutableArrayClass() );
 
     if( _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
         DKAssertKindOfClass( separator, DKStringClass() );
         
-        DKRange prev = DKRangeMake( 0, 0 );
-        DKRange next = DKStringGetRangeOfString( _self, separator, 0 );
-        DKRange copyRange;
+        const char * str = (const char *)_self->byteArray.bytes;
+        const char * sep = (const char *)separator->byteArray.bytes;
+        size_t len = strlen( sep );
         
-        while( next.location != DKNotFound )
+        const char * a = str;
+        const char * b = dk_ustrstr( a, sep );
+        
+        while( a < b )
         {
-            copyRange.location = prev.location + prev.length;
-            copyRange.length = next.location - copyRange.location;
+            DKStringRef copy = CopySubstring( a, DKRangeMake( 0, b - a ) );
+            DKArrayAppendCArray( array, (DKObjectRef *)&copy, 1 );
+            DKRelease( copy );
             
-            if( copyRange.length > 0 )
-            {
-                DKStringRef copy = DKStringCopySubstring( _self, copyRange );
-                DKListAppendObject( list, copy );
-                DKRelease( copy );
-            }
-            
-            prev = next;
-            next = DKStringGetRangeOfString( _self, separator, next.location + next.length );
+            a = b + len;
+            b = dk_ustrstr( a, sep );
         }
         
-        copyRange.location = prev.location + prev.length;
-        copyRange.length = DKStringGetLength( _self ) - copyRange.location;
-        
-        if( copyRange.length > 0 )
+        if( *a != '\0' )
         {
-            DKStringRef copy = DKStringCopySubstring( _self, copyRange );
-            DKListAppendObject( list, copy );
+            DKStringRef copy = CopySubstring( a, DKRangeMake( 0, strlen( a ) ) );
+            DKArrayAppendCArray( array, (DKObjectRef *)&copy, 1 );
             DKRelease( copy );
         }
     }
     
-    return list;
+    return (DKListRef)array;
 }
 
 

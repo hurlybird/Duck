@@ -152,6 +152,16 @@ static void * ResizeArray( void * ptr, DKIndex oldLength, DKIndex requestedLengt
 
 
 ///
+//  DKByteArraySetLength()
+//
+void DKByteArraySetLength( DKByteArray * array, DKIndex length )
+{
+    DKByteArrayReserve( array, length );
+    array->length = length;
+}
+
+
+///
 //  DKByteArrayReplaceBytes()
 //
 void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t bytes[], DKIndex length )
