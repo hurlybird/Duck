@@ -136,37 +136,30 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-const int PERFORMANCE_N = 1000;
-const int PERFORMANCE_I = 1000000;
+const int PERFORMANCE_ITERATIONS = 2;
+const int PERFORMANCE_N = 1000000;
 
 - (void) testNSDictionaryPerformance
 {
-    NSMutableDictionary * dict = [NSMutableDictionary dictionary];
-    NSMutableArray * keys = [NSMutableArray array];
+    NSString * path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
+    NSString * file = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    NSArray * words = [file componentsSeparatedByString:@"\n"];
+    int count = (int)[words count];
     
-    for( int i = 0; i < PERFORMANCE_N; i++ )
-        [keys addObject:[NSString stringWithFormat:@"%d", i]];
-
     srand( 0 );
-
-    [self measureBlock:^{
     
-        for( int i = 0; i < PERFORMANCE_N; i++ )
-            [dict setObject:@"Object" forKey:[keys objectAtIndex:i]];
+    [self measureBlock:^{
 
-        for( int i = 0; i < PERFORMANCE_I; i++ )
+        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
         {
-            int index1 = rand() % PERFORMANCE_N;
-            int index2 = rand() % PERFORMANCE_N;
-        
-            NSString * key1 = [keys objectAtIndex:index1];
-            NSString * key2 = [keys objectAtIndex:index2];
-            
-            NSString * value1 = [dict objectForKey:key1];
-            NSString * value2 = [dict objectForKey:key2];
-            
-            [dict setObject:value1 forKey:key2];
-            [dict setObject:value2 forKey:key1];
+            NSMutableDictionary * dict = [NSMutableDictionary dictionary];
+
+            for( int i = 0; i < PERFORMANCE_N; i++ )
+            {
+                int x = rand() % count;
+                NSString * word = [words objectAtIndex:x];
+                [dict setObject:word forKey:word];
+            }
         }
     }];
 }
@@ -186,46 +179,32 @@ const int PERFORMANCE_I = 1000000;
 
 - (void) testDictionaryClassPerformance:(DKClassRef)dictionaryClass
 {
-    DKMutableDictionaryRef dict = DKCreate( dictionaryClass );
-    DKMutableListRef keys = DKCreate( DKMutableArrayClass() );
-
-    for( int i = 0; i < PERFORMANCE_N; i++ )
-    {
-        DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
-        DKListAppendObject( keys, s );
-        DKRelease( s );
-    }
-
+    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
+    DKStringRef path = DKStringWithCString( DKStringClass(), [_path UTF8String] );
+    DKStringRef file = DKStringCreateWithContentsOfFile( DKStringClass(), path );
+    DKArrayRef words = (DKArrayRef)DKStringCreateListBySeparatingStrings( file, DKSTR( "\n" ) );
+    int count = (int)DKArrayGetCount( words );
+    
     srand( 0 );
-
+    
     [self measureBlock:^{
 
-        for( int i = 0; i < PERFORMANCE_N; i++ )
+        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
         {
-            DKStringRef key = DKListGetObjectAtIndex( keys, i );
-            DKDictionarySetObject( dict, key, DKSTR( "Object" ) );
-        }
+            DKMutableDictionaryRef dict = DKCreate( dictionaryClass );
 
-        for( int i = 0; i < PERFORMANCE_I; i++ )
-        {
-            int index1 = rand() % PERFORMANCE_N;
-            int index2 = rand() % PERFORMANCE_N;
-        
-            DKStringRef key1 = DKListGetObjectAtIndex( keys, index1 );
-            DKStringRef key2 = DKListGetObjectAtIndex( keys, index2 );
+            for( int i = 0; i < PERFORMANCE_N; i++ )
+            {
+                int x = rand() % count;
+                DKStringRef word = DKArrayGetObjectAtIndex( words, x );
+                DKDictionarySetObject( dict, word, word );
+            }
 
-            DKStringRef value1 = DKDictionaryGetObject( dict, key1 );
-            DKStringRef value2 = DKRetain( DKDictionaryGetObject( dict, key2 ) );
-
-            DKDictionarySetObject( dict, key2, value1 );
-            DKDictionarySetObject( dict, key1, value2 );
-
-            DKRelease( value2 );
+            DKRelease( dict );
         }
     }];
 
-    DKRelease( dict );
-    DKRelease( keys );
+    DKRelease( words );
 }
 
 @end

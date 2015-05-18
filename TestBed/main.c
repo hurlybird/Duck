@@ -67,50 +67,35 @@ static void TestSerialization( void )
 
 static void TestDictionaryPerformance()
 {
-    const int PERFORMANCE_N = 100;
-    const int PERFORMANCE_I = 1000000;
+    const int PERFORMANCE_ITERATIONS = 100;
+    const int PERFORMANCE_N = 1000000;
 
-    DKMutableDictionaryRef dict = DKCreate( DKMutableHashTableClass() );
-    DKMutableListRef keys = DKCreate( DKMutableArrayClass() );
-
-    for( int i = 0; i < PERFORMANCE_N; i++ )
-    {
-        DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
-        DKListAppendObject( keys, s );
-        DKRelease( s );
-    }
-
+    DKStringRef file = DKStringCreateWithContentsOfFile( DKStringClass(), DKSTR( "dictionary.txt" ) );
+    DKArrayRef words = (DKArrayRef)DKStringCreateListBySeparatingStrings( file, DKSTR( "\n" ) );
+    int count = (int)DKArrayGetCount( words );
+    
     srand( 0 );
-
-    while( 1 )
+    
+    for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
     {
+        DKPushAutoreleasePool();
+
+        DKMutableDictionaryRef dict = DKCreate( DKMutableHashTableClass() );
+
         for( int i = 0; i < PERFORMANCE_N; i++ )
         {
-            DKStringRef key = DKListGetObjectAtIndex( keys, i );
-            DKDictionarySetObject( dict, key, DKSTR( "Object" ) );
+            int x = rand() % count;
+            DKStringRef word = DKArrayGetObjectAtIndex( words, x );
+            DKDictionarySetObject( dict, word, word );
         }
-
-        for( int i = 0; i < PERFORMANCE_I; i++ )
-        {
-            int index1 = rand() % PERFORMANCE_N;
-            int index2 = rand() % PERFORMANCE_N;
         
-            DKStringRef key1 = DKListGetObjectAtIndex( keys, index1 );
-            DKStringRef key2 = DKListGetObjectAtIndex( keys, index2 );
+        DKRelease( dict );
 
-            DKStringRef value1 = DKRetain( DKDictionaryGetObject( dict, key1 ) );
-            DKStringRef value2 = DKRetain( DKDictionaryGetObject( dict, key2 ) );
-
-            DKDictionarySetObject( dict, key2, value1 );
-            DKDictionarySetObject( dict, key1, value2 );
-
-            DKRelease( value1 );
-            DKRelease( value2 );
-        }
+        DKPopAutoreleasePool();
     }
 
-    DKRelease( dict );
-    DKRelease( keys );
+    DKRelease( file );
+    DKRelease( words );
 }
 
 

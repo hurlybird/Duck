@@ -100,6 +100,7 @@
 		0269BF4719D85669002E876C /* DKStruct.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2D19D85669002E876C /* DKStruct.h */; };
 		0269BF4819D85669002E876C /* DKUnicode.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2E19D85669002E876C /* DKUnicode.h */; };
 		0269BF4B19D856BC002E876C /* Duck.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF4A19D856BC002E876C /* Duck.h */; };
+		028F1A831B093BDC006FDFDF /* dictionary.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02A54D271B08C4D600D00EEE /* dictionary.txt */; };
 		028F5CE719CF59B900CF4D47 /* DKPredicate.c in Sources */ = {isa = PBXBuildFile; fileRef = 028F5CE619CF59B900CF4D47 /* DKPredicate.c */; };
 		028F5CE819CF59B900CF4D47 /* DKPredicate.c in Sources */ = {isa = PBXBuildFile; fileRef = 028F5CE619CF59B900CF4D47 /* DKPredicate.c */; };
 		02A25AFD1AC3D1B600D97B11 /* DKJSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 02A25AFB1AC3D1B600D97B11 /* DKJSON.c */; };
@@ -107,6 +108,7 @@
 		02A25AFF1AC3D1B600D97B11 /* DKJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = 02A25AFC1AC3D1B600D97B11 /* DKJSON.h */; };
 		02A25B071AC3D5AA00D97B11 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 02A25B061AC3D5AA00D97B11 /* main.c */; };
 		02A25B0D1AC3D5C600D97B11 /* libduck.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 024EE3E2148E0B21008FDADC /* libduck.a */; };
+		02A54D281B08C4D600D00EEE /* dictionary.txt in Resources */ = {isa = PBXBuildFile; fileRef = 02A54D271B08C4D600D00EEE /* dictionary.txt */; };
 		02BD1E151946C5CC00F35A5B /* DKGenericHashTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */; };
 		02BD1E161946C5CC00F35A5B /* DKGenericHashTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */; };
 		02C8916918F169780097B6BC /* DKArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4818EFED96000344C0 /* DKArray.c */; };
@@ -167,6 +169,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		028F1A821B093BC4006FDFDF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				028F1A831B093BDC006FDFDF /* dictionary.txt in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		02A25B021AC3D5A900D97B11 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -282,6 +294,7 @@
 		02A25AFC1AC3D1B600D97B11 /* DKJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKJSON.h; sourceTree = "<group>"; };
 		02A25B041AC3D5A900D97B11 /* TestBed */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestBed; sourceTree = BUILT_PRODUCTS_DIR; };
 		02A25B061AC3D5AA00D97B11 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		02A54D271B08C4D600D00EEE /* dictionary.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 0; path = dictionary.txt; sourceTree = "<group>"; };
 		02AFC05D18F172A0006B70B9 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGenericHashTable.c; sourceTree = "<group>"; };
 		02C8914518F1690F0097B6BC /* libduck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libduck.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -400,6 +413,7 @@
 		025C0F8818EFEE33000344C0 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				02A54D271B08C4D600D00EEE /* dictionary.txt */,
 				0208A643190576130041677A /* TestDKEgg.m */,
 				025C0F9618EFEE5D000344C0 /* TestDKData.m */,
 				025C0F9718EFEE5D000344C0 /* TestDKDictionary.m */,
@@ -679,6 +693,7 @@
 				02A25B001AC3D5A900D97B11 /* Sources */,
 				02A25B011AC3D5A900D97B11 /* Frameworks */,
 				02A25B021AC3D5A900D97B11 /* CopyFiles */,
+				028F1A821B093BC4006FDFDF /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -749,6 +764,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				02A54D281B08C4D600D00EEE /* dictionary.txt in Resources */,
 				025C0F8D18EFEE33000344C0 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -932,6 +948,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
