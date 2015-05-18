@@ -87,7 +87,8 @@ bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entr
 void DKGenericHashTableRemove( DKGenericHashTable * hashTable, const void * entry );
 void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable );
 
-
+typedef void (*DKGenericHashTableForeachRowCallback)( const void * row, void * context );
+void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHashTableForeachRowCallback callback, void * context );
 
 
 

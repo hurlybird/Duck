@@ -360,6 +360,23 @@ void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable )
 }
 
 
+///
+//  DKGenericHashTableForeachRow()
+//
+void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHashTableForeachRowCallback callback, void * context )
+{
+    for( DKIndex i = 0; i < hashTable->rowCount; ++i )
+    {
+        void * row = hashTable->rows + (hashTable->rowSize * i);
+
+        DKRowStatus status = hashTable->callbacks.rowStatus( row );
+
+        if( status == DKRowStatusActive )
+            callback( row, context );
+    }
+}
+
+
 
 
 
