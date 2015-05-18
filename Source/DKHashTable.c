@@ -265,16 +265,16 @@ static void RowUpdate( void * _row, const void * _src )
     struct DKHashTableRow * row = _row;
     const struct DKHashTableRow * src = _src;
     
-    DKRetain( src->key );
-    
-    if( DK_HASHTABLE_IS_POINTER( row->key ) )
-        DKRelease( row->key );
-        
-    row->key = src->key;
-    
-    DKRetain( src->object );
-    DKRelease( row->object );
-    row->object = src->object;
+    if( !DK_HASHTABLE_IS_POINTER( row->key ) )
+    {
+        row->key = DKCopy( src->key );
+    }
+
+    if( row->object != src->object )
+    {
+        DKRelease( row->object );
+        row->object = DKRetain( src->object );
+    }
 }
 
 static void RowDelete( void * _row )
@@ -709,12 +709,10 @@ void DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKOb
 static void INTERNAL_DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
     struct DKHashTableRow row;
-    row.key = DKCopy( key );
+    row.key = key;
     row.object = object;
 
     DKGenericHashTableInsert( &_self->table, &row, policy );
-    
-    DKRelease( row.key );
 }
 
 
