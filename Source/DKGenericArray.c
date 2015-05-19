@@ -253,36 +253,85 @@ void DKGenericArraySort( DKGenericArray * array, DKCompareFunction cmp )
 ///
 //  DKGenericArrayReverse()
 //
-void DKGenericArrayReverse( DKGenericArray * array )
+static void Reverse16( DKGenericArray * array )
 {
     DKIndex n = array->length / 2;
 
-    if( array->elementSize == sizeof(intptr_t) )
+    for( DKIndex i = 0; i < n; ++i )
     {
-        for( DKIndex i = 0; i < n; ++i )
-        {
-            intptr_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
-            intptr_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
-            
-            intptr_t tmp = *elem_i;
-            *elem_i = *elem_j;
-            *elem_j = tmp;
-        }
-    }
-    
-    else
-    {
-        uint8_t tmp[array->elementSize];
+        int16_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+        int16_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
         
-        for( DKIndex i = 0; i < n; ++i )
-        {
-            uint8_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
-            uint8_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
-            
-            memcpy( tmp, elem_i, array->elementSize );
-            memcpy( elem_i, elem_j, array->elementSize );
-            memcpy( elem_j, tmp, array->elementSize );
-        }
+        int16_t tmp = *elem_i;
+        *elem_i = *elem_j;
+        *elem_j = tmp;
+    }
+}
+
+static void Reverse32( DKGenericArray * array )
+{
+    DKIndex n = array->length / 2;
+
+    for( DKIndex i = 0; i < n; ++i )
+    {
+        int32_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+        int32_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
+        
+        int32_t tmp = *elem_i;
+        *elem_i = *elem_j;
+        *elem_j = tmp;
+    }
+}
+
+static void Reverse64( DKGenericArray * array )
+{
+    DKIndex n = array->length / 2;
+
+    for( DKIndex i = 0; i < n; ++i )
+    {
+        int64_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+        int64_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
+        
+        int64_t tmp = *elem_i;
+        *elem_i = *elem_j;
+        *elem_j = tmp;
+    }
+}
+
+static void Reverse( DKGenericArray * array )
+{
+    DKIndex n = array->length / 2;
+    uint8_t tmp[array->elementSize];
+    
+    for( DKIndex i = 0; i < n; ++i )
+    {
+        uint8_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+        uint8_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, array->length - 1 - i );
+        
+        memcpy( tmp, elem_i, array->elementSize );
+        memcpy( elem_i, elem_j, array->elementSize );
+        memcpy( elem_j, tmp, array->elementSize );
+    }
+}
+
+void DKGenericArrayReverse( DKGenericArray * array )
+{
+    switch( array->elementSize )
+    {
+    case 2:
+        Reverse16( array );
+        break;
+        
+    case 4:
+        Reverse32( array );
+        break;
+        
+    case 8:
+        Reverse64( array );
+        
+    default:
+        Reverse( array );
+        break;
     }
 }
 
@@ -290,43 +339,93 @@ void DKGenericArrayReverse( DKGenericArray * array )
 ///
 //  DKGenericArrayShuffle()
 //
-void DKGenericArrayShuffle( DKGenericArray * array )
+static void Shuffle16( DKGenericArray * array )
 {
     DKIndex n = array->length - 1;
 
-    if( n > 0 )
+    for( DKIndex i = 0; i < n; ++i )
     {
-        if( array->elementSize == sizeof(intptr_t) )
-        {
-            for( DKIndex i = 0; i < n; ++i )
-            {
-                DKIndex j = rand() % n;
-                
-                intptr_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
-                intptr_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, j );
-                
-                intptr_t tmp = *elem_i;
-                *elem_i = *elem_j;
-                *elem_j = tmp;
-            }
-        }
+        DKIndex j = rand() % n;
         
-        else
-        {
-            uint8_t tmp[array->elementSize];
+        int16_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+        int16_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, j );
         
-            for( DKIndex i = 0; i < n; ++i )
-            {
-                DKIndex j = rand() % n;
-                
-                uint8_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
-                uint8_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, j );
-                
-                memcpy( tmp, elem_i, array->elementSize );
-                memcpy( elem_i, elem_j, array->elementSize );
-                memcpy( elem_j, tmp, array->elementSize );
-            }
-        }
+        int16_t tmp = *elem_i;
+        *elem_i = *elem_j;
+        *elem_j = tmp;
+    }
+}
+
+static void Shuffle32( DKGenericArray * array )
+{
+    DKIndex n = array->length - 1;
+
+    for( DKIndex i = 0; i < n; ++i )
+    {
+        DKIndex j = rand() % n;
+        
+        int32_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+        int32_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, j );
+        
+        int32_t tmp = *elem_i;
+        *elem_i = *elem_j;
+        *elem_j = tmp;
+    }
+}
+
+static void Shuffle64( DKGenericArray * array )
+{
+    DKIndex n = array->length - 1;
+
+    for( DKIndex i = 0; i < n; ++i )
+    {
+        DKIndex j = rand() % n;
+        
+        int64_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+        int64_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, j );
+        
+        int64_t tmp = *elem_i;
+        *elem_i = *elem_j;
+        *elem_j = tmp;
+    }
+}
+
+static void Shuffle( DKGenericArray * array )
+{
+    DKIndex n = array->length - 1;
+    uint8_t tmp[array->elementSize];
+
+    for( DKIndex i = 0; i < n; ++i )
+    {
+        DKIndex j = rand() % n;
+        
+        uint8_t * elem_i = DKGenericArrayGetPointerToElementAtIndex( array, i );
+        uint8_t * elem_j = DKGenericArrayGetPointerToElementAtIndex( array, j );
+        
+        memcpy( tmp, elem_i, array->elementSize );
+        memcpy( elem_i, elem_j, array->elementSize );
+        memcpy( elem_j, tmp, array->elementSize );
+    }
+}
+
+void DKGenericArrayShuffle( DKGenericArray * array )
+{
+    switch( array->elementSize )
+    {
+    case 2:
+        Shuffle16( array );
+        break;
+        
+    case 4:
+        Shuffle32( array );
+        break;
+        
+    case 8:
+        Shuffle64( array );
+        
+    default:
+        Shuffle( array );
+        break;
     }
 }
 
