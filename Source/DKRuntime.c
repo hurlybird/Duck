@@ -46,12 +46,9 @@
 // Internal Types ========================================================================
 
 static void DKClassFinalize( DKObjectRef _self );
+static void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKInterfaceTable * inheritedInterfaces );
+static void DKInterfaceTableFinalize( struct DKInterfaceTable * interfaceTable );
 
-static void DKInterfaceGroupInit( struct DKInterfaceGroup * interfaceGroup );
-static void DKInterfaceGroupFinalize( struct DKInterfaceGroup * interfaceGroup );
-
-static void DKInstallInterfaceInGroup( DKClassRef _class, DKInterfaceRef _interface, struct DKInterfaceGroup * interfaceGroup );
-static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, struct DKInterfaceGroup * interfaceGroup );
 
 
 
@@ -205,62 +202,22 @@ DKStaticSelectorInit( Egg );
 
 
 
-// Error Handling Interfaces =============================================================
-DKDeclareInterfaceSelector( InterfaceNotFound );
-DKThreadSafeSelectorInit( InterfaceNotFound );
+// Default Interfaces ====================================================================
 
-DKDeclareMessageSelector( MsgHandlerNotFound );
-DKThreadSafeSelectorInit( MsgHandlerNotFound );
-
-typedef void (*DKInterfaceNotFoundFunction)( DKObjectRef _self );
-
-struct DKInterfaceNotFoundInterface
+// DefaultAllocation ---------------------------------------------------------------------
+static struct DKAllocationInterface DKDefaultAllocation_StaticObject =
 {
-    DKInterface _interface;
-    DKInterfaceNotFoundFunction func[DK_MAX_INTERFACE_SIZE];
+    DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject ),
+    DKAllocObject,
+    DKDeallocObject,
 };
 
-static void DKInterfaceNotFoundCallback( DKObjectRef _self )
+DKInterfaceRef DKDefaultAllocation( void )
 {
-    // Note: '_self' is for debugging only and may not be valid. Most interface functions
-    // take an object as a first arguement, but it's not actually required.
-
-    // The only time this code is ever likely to be called is when calling an interface
-    // function on a NULL object. We don't have the Objective-C luxury of tweaking the
-    // call stack and return value in assembly for such cases.
-
-    DKFatalError( "DKRuntime: Invalid interface call.\n" );
-}
-
-static intptr_t DKMsgHandlerNotFoundCallback( DKObjectRef _self, DKSEL sel )
-{
-    // This handles silently failing when sending messages to NULL objects.
-    return 0;
-}
-
-DKThreadSafeSharedObjectInit( DKInterfaceNotFound, DKInterfaceRef )
-{
-    struct DKInterfaceNotFoundInterface * interface = DKAllocInterface( DKSelector(InterfaceNotFound), sizeof(struct DKInterfaceNotFoundInterface) );
-
-    for( int i = 0; i < DK_MAX_INTERFACE_SIZE; i++ )
-        interface->func[i] = DKInterfaceNotFoundCallback;
-    
-    return interface;
-}
-
-DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
-{
-    struct DKMsgHandler * msgHandler = DKAllocInterface( DKSelector(MsgHandlerNotFound), sizeof(struct DKMsgHandler) );
-
-    msgHandler->func = DKMsgHandlerNotFoundCallback;
-
-    return msgHandler;
+    return &DKDefaultAllocation_StaticObject;
 }
 
 
-
-
-// Default Interfaces ====================================================================
 
 // DefaultComparison ---------------------------------------------------------------------
 static struct DKComparisonInterface DKDefaultComparison_StaticObject =
@@ -355,7 +312,7 @@ static DKInterfaceRef DKInterfaceComparison( void )
 
 
 
-// DKInterfaceGroup ======================================================================
+// DKInterfaceTable ======================================================================
 
 // Hash Table Callbacks
 static DKRowStatus InterfaceTableRowStatus( const void * _row )
@@ -405,11 +362,17 @@ static void InterfaceTableRowDelete( void * _row )
     *row = DK_HASHTABLE_DELETED_KEY;
 }
 
+static void InterfaceTableForeachRowCallback( const void * _row, void * context )
+{
+    struct DKInterfaceTable * interfaceTable = context;
+    DKGenericHashTableInsert( &interfaceTable->interfaces, _row, DKInsertAlways );
+}
+
 
 ///
-//  DKInterfaceGroupInit()
+//  DKInterfaceTableInit()
 //
-static void DKInterfaceGroupInit( struct DKInterfaceGroup * interfaceGroup )
+static void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKInterfaceTable * inheritedInterfaces )
 {
     DKGenericHashTableCallbacks InterfaceTableCallbacks =
     {
@@ -421,20 +384,95 @@ static void DKInterfaceGroupInit( struct DKInterfaceGroup * interfaceGroup )
         InterfaceTableRowDelete
     };
 
-    interfaceGroup->lock = DKSpinLockInit;
+    memset( interfaceTable->cache, 0, sizeof(interfaceTable->cache) );
 
-    memset( interfaceGroup->cache, 0, sizeof(interfaceGroup->cache) );
+    interfaceTable->lock = DKSpinLockInit;
 
-    DKGenericHashTableInit( &interfaceGroup->interfaces, sizeof(DKObjectRef), &InterfaceTableCallbacks );
+    DKGenericHashTableInit( &interfaceTable->interfaces, sizeof(DKObjectRef), &InterfaceTableCallbacks );
+    
+    if( inheritedInterfaces )
+        DKGenericHashTableForeachRow( &inheritedInterfaces->interfaces, InterfaceTableForeachRowCallback, interfaceTable );
 }
 
 
 ///
-//  DKInterfaceGroupFinalize()
+//  DKInterfaceTableFinalize()
 //
-static void DKInterfaceGroupFinalize( struct DKInterfaceGroup * interfaceGroup )
+static void DKInterfaceTableFinalize( struct DKInterfaceTable * interfaceTable )
 {
-    DKGenericHashTableFinalize( &interfaceGroup->interfaces );
+    DKGenericHashTableFinalize( &interfaceTable->interfaces );
+}
+
+
+///
+//  DKInterfaceTableInsert()
+//
+void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKInterfaceRef _interface )
+{
+    // *** WARNING ***
+    // Swizzling interfaces on base classes isn't fully supported. In order to do so we
+    // would need to update the interfaces tables of all subclasses.
+    // *** WARNING ***
+    
+    DKAssertMemberOfClass( _class, DKClassClass() );
+    DKAssertKindOfClass( _interface, DKInterfaceClass() );
+
+    DKInterface * interface = (DKInterface *)_interface;
+
+    // Get the cache line from the selector
+    unsigned int cacheline = interface->sel->cacheline;
+    DKAssert( cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
+    
+    // Invalidate the cache
+    interfaceTable->cache[cacheline] = NULL;
+
+    // Replace the interface in the interface table
+    DKSpinLockLock( &interfaceTable->lock );
+    DKGenericHashTableInsert( &interfaceTable->interfaces, &interface, DKInsertAlways );
+    DKSpinLockUnlock( &interfaceTable->lock );
+}
+
+
+///
+//  DKInterfaceTableFind()
+//
+DKInterface * DKInterfaceTableFind( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel, DKInterfaceNotFoundCallback interfaceNotFound )
+{
+    DKAssert( sel->_obj.isa == DKSelectorClass() );
+
+    // Get the cache line from the selector
+    unsigned int cacheline = sel->cacheline;
+    DKAssert( cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
+
+    // We shoudn't need to acquire the spin lock while reading and writing to the cache
+    // since the worst that can happen is doing an extra lookup after reading a stale
+    // cache line.
+
+    // Check the cached interface
+    DKInterface * interface = interfaceTable->cache[cacheline];
+    
+    if( interface && DKSelectorEqual( interface->sel, sel ) )
+        return interface;
+
+    // Search our interface table
+    DKInterface _key;
+    _key.sel = sel;
+    
+    DKInterface * key = &_key;
+
+    DKSpinLockLock( &interfaceTable->lock );
+    DKInterface ** entry = (DKInterface **)DKGenericHashTableFind( &interfaceTable->interfaces, &key );
+    DKSpinLockUnlock( &interfaceTable->lock );
+    
+    if( entry )
+    {
+        // Update the cache
+        interfaceTable->cache[cacheline] = *entry;
+
+        return *entry;
+    }
+
+    return interfaceNotFound( _class, sel );
 }
 
 
@@ -454,10 +492,32 @@ bool DKRuntimeIsInitialized( void )
 
 
 ///
+//  InstallRootClassClassInterface()
+//
+static void InstallRootClassClassInterface( struct DKClass * _class, DKInterfaceRef interface )
+{
+    // Bypass the normal installation process here since the classes that allow it to
+    // work haven't been fully initialized yet.
+    DKGenericHashTableInsert( &_class->classInterfaces.interfaces, &interface, DKInsertAlways );
+}
+
+
+///
+//  InstallRootClassInstanceInterface()
+//
+static void InstallRootClassInstanceInterface( struct DKClass * _class, DKInterfaceRef interface )
+{
+    // Bypass the normal installation process here since the classes that allow it to
+    // work haven't been fully initialized yet.
+    DKGenericHashTableInsert( &_class->instanceInterfaces.interfaces, &interface, DKInsertAlways );
+}
+
+
+///
 //  InitRootClass()
 //
 static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, size_t structSize,
-    DKClassOptions options, DKInitMethod init, DKFinalizeMethod finalize )
+    uint32_t options, DKInitMethod init, DKFinalizeMethod finalize )
 {
     memset( cls, 0, sizeof(struct DKClass) );
     
@@ -467,26 +527,20 @@ static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, si
 
     cls->name = NULL;
     cls->superclass = DKRetain( superclass );
-    cls->structSize = structSize;
+    cls->structSize = (uint32_t)structSize;
     cls->options = options;
     cls->init = init;
     cls->finalize = finalize;
 
-    DKInterfaceGroupInit( &cls->classInterfaces );
-    DKInterfaceGroupInit( &cls->instanceInterfaces );
+    DKInterfaceTableInit( &cls->classInterfaces, superclass ? &superclass->classInterfaces : NULL );
+    DKInterfaceTableInit( &cls->instanceInterfaces, superclass ? &superclass->instanceInterfaces : NULL );
+
+    InstallRootClassClassInterface( cls, DKDefaultAllocation() );
+    InstallRootClassInstanceInterface( cls, DKDefaultComparison() );
+    InstallRootClassInstanceInterface( cls, DKDefaultCopying() );
+    InstallRootClassInstanceInterface( cls, DKDefaultDescription() );
     
     cls->propertiesLock = DKSpinLockInit;
-}
-
-
-///
-//  InstallRootClassInterface()
-//
-static void InstallRootClassInstanceInterface( struct DKClass * _class, DKInterfaceRef interface )
-{
-    // Bypass the normal installation process here since the classes that allow it to
-    // work haven't been fully initialized yet.
-    DKGenericHashTableInsert( &_class->instanceInterfaces.interfaces, &interface, DKInsertAlways );
 }
 
 
@@ -532,32 +586,10 @@ void DKRuntimeInit( void )
         InitRootClass( &__DKWeakClass__,       NULL,                  sizeof(struct DKWeak),  0, NULL, NULL );
         InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObject),       0, NULL, NULL );
         
-        InstallRootClassInstanceInterface( &__DKRootClass__, DKDefaultComparison() );
-        InstallRootClassInstanceInterface( &__DKRootClass__, DKDefaultDescription() );
-
-        InstallRootClassInstanceInterface( &__DKClassClass__, DKDefaultComparison() );
-        InstallRootClassInstanceInterface( &__DKClassClass__, DKDefaultCopying() );
-        InstallRootClassInstanceInterface( &__DKClassClass__, DKDefaultDescription() );
-
+        // Install custom comparison for selectors, interfaces and message handlers
         InstallRootClassInstanceInterface( &__DKSelectorClass__, DKSelectorComparison() );
-        InstallRootClassInstanceInterface( &__DKSelectorClass__, DKDefaultCopying() );
-        InstallRootClassInstanceInterface( &__DKSelectorClass__, DKDefaultDescription() );
-
         InstallRootClassInstanceInterface( &__DKInterfaceClass__, DKInterfaceComparison() );
-        InstallRootClassInstanceInterface( &__DKInterfaceClass__, DKDefaultCopying() );
-        InstallRootClassInstanceInterface( &__DKInterfaceClass__, DKDefaultDescription() );
-
         InstallRootClassInstanceInterface( &__DKMsgHandlerClass__, DKInterfaceComparison() );
-        InstallRootClassInstanceInterface( &__DKMsgHandlerClass__, DKDefaultCopying() );
-        InstallRootClassInstanceInterface( &__DKMsgHandlerClass__, DKDefaultDescription() );
-
-        InstallRootClassInstanceInterface( &__DKWeakClass__, DKDefaultComparison() );
-        InstallRootClassInstanceInterface( &__DKWeakClass__, DKDefaultCopying() );
-        InstallRootClassInstanceInterface( &__DKWeakClass__, DKDefaultDescription() );
-
-        InstallRootClassInstanceInterface( &__DKObjectClass__, DKDefaultComparison() );
-        InstallRootClassInstanceInterface( &__DKObjectClass__, DKDefaultCopying() );
-        InstallRootClassInstanceInterface( &__DKObjectClass__, DKDefaultDescription() );
 
         // Initialize the name database
         DKNameDatabaseInit();
@@ -595,25 +627,28 @@ void DKRuntimeInit( void )
 //  DKAllocClass()
 //
 DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize,
-    DKClassOptions options, DKInitMethod init, DKFinalizeMethod finalize )
+    uint32_t options, DKInitMethod init, DKFinalizeMethod finalize )
 {
     if( superclass && ((superclass->options & DKPreventSubclassing) != 0) )
     {
         DKFatalError( "DKAllocClass: Class '%s' does not allow subclasses.\n", DKStringGetCStringPtr( superclass->name ) );
         return NULL;
     }
+    
+    if( structSize == 0 )
+        structSize = superclass ? superclass->structSize : sizeof(DKObject);
 
     struct DKClass * cls = DKCreate( DKClassClass() );
 
     cls->name = DKCopy( name );
     cls->superclass = DKRetain( superclass );
-    cls->structSize = (structSize > 0) ? structSize : superclass->structSize;
+    cls->structSize = (uint32_t)structSize;
     cls->options = options;
     cls->init = init;
     cls->finalize = finalize;
 
-    DKInterfaceGroupInit( &cls->classInterfaces );
-    DKInterfaceGroupInit( &cls->instanceInterfaces );
+    DKInterfaceTableInit( &cls->classInterfaces, superclass ? &superclass->classInterfaces : NULL );
+    DKInterfaceTableInit( &cls->instanceInterfaces, superclass ? &superclass->instanceInterfaces : NULL );
     
     cls->propertiesLock = DKSpinLockInit;
     
@@ -646,8 +681,8 @@ static void DKClassFinalize( DKObjectRef _self )
     DKRelease( cls->superclass );
     cls->superclass = NULL;
 
-    DKInterfaceGroupFinalize( &cls->classInterfaces );
-    DKInterfaceGroupFinalize( &cls->instanceInterfaces );
+    DKInterfaceTableFinalize( &cls->classInterfaces );
+    DKInterfaceTableFinalize( &cls->instanceInterfaces );
     
     // Release properties
     DKRelease( cls->properties );
@@ -726,13 +761,8 @@ DKObjectRef DKAlloc( DKClassRef _class, size_t extraBytes )
     
     if( _class )
     {
-        DKAllocationInterfaceRef allocation;
-        
-        if( DKQueryClassInterface( _class, DKSelector(Allocation), (DKInterfaceRef *)&allocation ) )
-            obj = allocation->alloc( _class, extraBytes );
-        
-        else
-            obj = DKAllocObject( _class, extraBytes );
+        DKAllocationInterfaceRef allocation = DKGetClassInterface( _class, DKSelector(Allocation) );
+        obj = allocation->alloc( _class, extraBytes );
     }
     
     return obj;
@@ -744,19 +774,17 @@ DKObjectRef DKAlloc( DKClassRef _class, size_t extraBytes )
 //
 void DKDealloc( DKObjectRef _self )
 {
-    DKObject * obj = _self;
-    
-    DKAssert( obj );
-    DKAssert( obj->refcount == 0 );
-    DKAssert( obj->weakref == NULL );
+    if( _self )
+    {
+        DKObject * obj = _self;
+        
+        DKAssert( obj );
+        DKAssert( obj->refcount == 0 );
+        DKAssert( obj->weakref == NULL );
 
-    DKAllocationInterfaceRef allocation;
-
-    if( DKQueryClassInterface( obj->isa, DKSelector(Allocation), (DKInterfaceRef *)&allocation ) )
+        DKAllocationInterfaceRef allocation = DKGetClassInterface( obj->isa, DKSelector(Allocation) );
         allocation->dealloc( obj );
-    
-    else
-        DKDeallocObject( obj );
+    }
 }
 
 

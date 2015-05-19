@@ -141,10 +141,6 @@ typedef void * DKInterfaceRef;
 #define DKDeclareInterfaceSelector( name )                                              \
     DKSEL DKSelector_ ## name( void )
 
-// A generic interface where calling any method causes a fatal error. Returned by
-// DKGetMsgHandler() when a matching message handler cannot be located.
-DKInterfaceRef DKInterfaceNotFound( void );
-
 // Allocate a new interface object.
 DKInterfaceRef DKAllocInterface( DKSEL sel, size_t structSize );
 

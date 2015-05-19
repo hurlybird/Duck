@@ -110,14 +110,12 @@ enum
     DKImmutableInstances =          (1 << 3)
 };
 
-typedef uint32_t DKClassOptions;
-
 typedef DKObjectRef (*DKInitMethod)( DKObjectRef _self );
 typedef void (*DKFinalizeMethod)( DKObjectRef _self );
 
 // Allocate a new class object.
 DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize,
-    DKClassOptions options, DKInitMethod init, DKFinalizeMethod finalize );
+    uint32_t options, DKInitMethod init, DKFinalizeMethod finalize );
 
 
 
@@ -208,12 +206,19 @@ void        DKFinalize( DKObjectRef _self );
 #include "DKGenericHashTable.h"
 #include "DKHashTable.h"
 
-struct DKInterfaceGroup
+struct DKInterfaceTable
 {
-    DKSpinLock              lock;
     struct _DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
+
+    DKSpinLock              lock;
     DKGenericHashTable      interfaces;
 };
+
+typedef DKInterfaceRef (*DKInterfaceNotFoundCallback)( DKClassRef _class, DKSEL sel );
+
+void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKInterfaceRef _interface );
+DKInterface * DKInterfaceTableFind( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel,
+    DKInterfaceNotFoundCallback interfaceNotFound );
 
 
 struct DKClass
@@ -225,14 +230,14 @@ struct DKClass
     DKStringRef             name;
     
     DKClassRef              superclass;
-    size_t                  structSize;
-    DKClassOptions          options;
+    uint32_t                structSize;
+    uint32_t                options;
     
     DKInitMethod            init;
     DKFinalizeMethod        finalize;
 
-    struct DKInterfaceGroup classInterfaces;
-    struct DKInterfaceGroup instanceInterfaces;
+    struct DKInterfaceTable classInterfaces;
+    struct DKInterfaceTable instanceInterfaces;
     
     DKSpinLock              propertiesLock;
     DKMutableHashTableRef   properties;

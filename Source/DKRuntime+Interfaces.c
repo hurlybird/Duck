@@ -34,6 +34,30 @@
 
 
 
+// Error Handling Interfaces =============================================================
+
+// This handles sending messages to NULL objects.
+
+DKDeclareMessageSelector( MsgHandlerNotFound );
+DKThreadSafeSelectorInit( MsgHandlerNotFound );
+
+static intptr_t DKMsgHandlerNotFoundMethod( DKObjectRef _self, DKSEL sel )
+{
+    return 0;
+}
+
+DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
+{
+    struct DKMsgHandler * msgHandler = DKAllocInterface( DKSelector(MsgHandlerNotFound), sizeof(struct DKMsgHandler) );
+
+    msgHandler->func = DKMsgHandlerNotFoundMethod;
+
+    return msgHandler;
+}
+
+
+
+
 // DKSelector ============================================================================
 
 static DKSpinLock NextCacheLineSpinLock = DKSpinLockInit;
@@ -119,45 +143,11 @@ void DKInterfaceFinalize( DKObjectRef _self )
 
 
 ///
-//  DKInstallInterfaceInGroup()
-//
-static void DKInstallInterfaceInGroup( DKClassRef _class, DKInterfaceRef _interface, struct DKInterfaceGroup * interfaceGroup )
-{
-    DKAssertMemberOfClass( _class, DKClassClass() );
-    DKAssertKindOfClass( _interface, DKInterfaceClass() );
-
-    DKInterface * interface = (DKInterface *)_interface;
-
-    // Get the cache line from the selector
-    unsigned int cacheline = interface->sel->cacheline;
-    DKAssert( cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
-    
-    // Lock while we make changes
-    DKSpinLockLock( &interfaceGroup->lock );
-    
-    // Invalidate the cache
-    
-    // *** WARNING ***
-    // This doesn't invalidate the caches of any subclasses, so it's possible that
-    // subclasses will still reference the old interface, or even crash if the old
-    // interface is released (the cache doesn't maintain a reference).
-    // *** WARNING ***
-    
-    interfaceGroup->cache[cacheline] = NULL;
-
-    // Replace the interface in the interface table
-    DKGenericHashTableInsert( &interfaceGroup->interfaces, &interface, DKInsertAlways );
-
-    DKSpinLockUnlock( &interfaceGroup->lock );
-}
-
-
-///
 //  DKInstallInterface()
 //
 void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
 {
-    DKInstallInterfaceInGroup( _class, _interface, (struct DKInterfaceGroup *)&_class->instanceInterfaces );
+    DKInterfaceTableInsert( _class, &_class->instanceInterfaces, _interface );
 }
 
 
@@ -166,158 +156,71 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
 //
 void DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interface )
 {
-    DKInstallInterfaceInGroup( _class, _interface, (struct DKInterfaceGroup *)&_class->classInterfaces );
-}
-
-
-///
-//  DKLookupInterfaceInGroup()
-//
-static DKInterface * DKLookupInterfaceInGroup( DKClassRef _class, DKSEL sel, struct DKInterfaceGroup * interfaceGroup )
-{
-    DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
-    DKAssert( sel->_obj.isa == DKSelectorClass() );
-
-    // Get the cache line from the selector
-    unsigned int cacheline = sel->cacheline;
-    DKAssert( cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
-
-    // We shoudn't need to acquire the spin lock while reading and writing to the cache
-    // since the worst that can happen is doing an extra lookup after reading a stale
-    // cache line.
-    #define SPIN_LOCKED_CACHE_ACCESS 0
-
-    // Lock while we lookup the interface
-    #if SPIN_LOCKED_CACHE_ACCESS
-    DKSpinLockLock( &interfaceGroup->lock );
-    #endif
-    
-    // Check the cached interface
-    DKInterface * interface = interfaceGroup->cache[cacheline];
-    
-    if( interface && DKSelectorEqual( interface->sel, sel ) )
-    {
-        #if SPIN_LOCKED_CACHE_ACCESS
-        DKSpinLockUnlock( &interfaceGroup->lock );
-        #endif
-        
-        return interface;
-    }
-
-    // Search our interface table
-    #if !SPIN_LOCKED_CACHE_ACCESS
-    DKSpinLockLock( &interfaceGroup->lock );
-    #endif
-
-    DKInterface _key;
-    _key.sel = sel;
-    
-    DKInterface * key = &_key;
-    DKInterface ** entry = (DKInterface **)DKGenericHashTableFind( &interfaceGroup->interfaces, &key );
-    
-    if( entry )
-    {
-        // Update the cache
-        interfaceGroup->cache[cacheline] = *entry;
-
-        DKSpinLockUnlock( &interfaceGroup->lock );
-        return *entry;
-    }
-
-    // Lookup the interface in our superclasses
-    DKSpinLockUnlock( &interfaceGroup->lock );
-    
-    if( _class->superclass )
-    {
-        // This pointer math lets this function work for both class and instance interfaces
-        intptr_t offset = (void *)interfaceGroup - (void *)_class;
-        struct DKInterfaceGroup * superclassInterfaceGroup = (void *)_class->superclass + offset;
-    
-        interface = DKLookupInterfaceInGroup( _class->superclass, sel, superclassInterfaceGroup );
-
-        // Update the cache
-        if( interface )
-        {
-            #if SPIN_LOCKED_CACHE_ACCESS
-            DKSpinLockLock( &interfaceGroup->lock );
-            #endif
-            
-            interfaceGroup->cache[cacheline] = interface;
-            
-            #if SPIN_LOCKED_CACHE_ACCESS
-            DKSpinLockUnlock( &interfaceGroup->lock );
-            #endif
-            
-            return interface;
-        }
-    }
-
-    return NULL;
+    DKInterfaceTableInsert( _class, &_class->classInterfaces, _interface );
 }
 
 
 ///
 //  DKGetInterface()
 //
+static DKInterfaceRef DKGetInterfaceNotFound( DKClassRef _class, DKSEL sel )
+{
+    DKFatalError( "DKRuntime: Interface '%s' not found on object '%s'\n", sel->name, _class->name );
+    return NULL;
+}
+
 DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
 {
-    if( _self )
-    {
-        const DKObject * obj = _self;
-        DKClassRef cls = obj->isa;
-        
-        DKInterfaceRef interface = DKLookupInterfaceInGroup( cls, sel, (struct DKInterfaceGroup *)&cls->instanceInterfaces );
-        
-        if( interface )
-            return interface;
+    DKAssert( (_self != NULL) && (sel != NULL) );
 
-        DKFatalError( "DKRuntime: Interface '%s' not found on object '%s'\n", sel->name, cls->name );
-    }
-
-    return DKInterfaceNotFound();
+    const DKObject * obj = _self;
+    DKClassRef cls = obj->isa;
+    
+    return DKInterfaceTableFind( cls, &cls->instanceInterfaces, sel, DKGetInterfaceNotFound );
 }
 
 
 ///
 //  DKGetClassInterface()
 //
+static DKInterfaceRef DKGetClassInterfaceNotFound( DKClassRef _class, DKSEL sel )
+{
+    DKFatalError( "DKRuntime: Class interface '%s' not found on object '%s'\n", sel->name, _class->name );
+    return NULL;
+}
+
 DKInterfaceRef DKGetClassInterface( DKClassRef _class, DKSEL sel )
 {
-    if( _class )
-    {
-        DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
+    DKAssert( (_class != NULL) && (sel != NULL) );
+    DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
 
-        DKInterfaceRef interface = DKLookupInterfaceInGroup( _class, sel, (struct DKInterfaceGroup *)&_class->classInterfaces );
-        
-        if( interface )
-            return interface;
-
-        DKFatalError( "DKRuntime: Class interface '%s' not found in class '%s'\n", sel->name, _class->name );
-    }
-
-    return DKInterfaceNotFound();
+    return DKInterfaceTableFind( _class, &_class->classInterfaces, sel, DKGetClassInterfaceNotFound );
 }
 
 
 ///
 //  DKQueryInterface()
 //
+static DKInterfaceRef DKQueryInterfaceNotFound( DKClassRef _class, DKSEL sel )
+{
+    return NULL;
+}
+
 bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface )
 {
-    if( _self )
-    {
-        const DKObject * obj = _self;
-        DKClassRef cls = obj->isa;
-        
-        DKInterfaceRef interface = DKLookupInterfaceInGroup( cls, sel, (struct DKInterfaceGroup *)&cls->instanceInterfaces );
+    DKAssert( (_self != NULL) && (sel != NULL) );
 
-        if( interface )
-        {
-            if( _interface )
-                *_interface = interface;
-            
-            return true;
-        }
+    const DKObject * obj = _self;
+    DKClassRef cls = obj->isa;
+    
+    DKInterfaceRef interface = DKInterfaceTableFind( cls, &cls->instanceInterfaces, sel, DKQueryInterfaceNotFound );
+
+    if( interface )
+    {
+        if( _interface )
+            *_interface = interface;
+        
+        return true;
     }
     
     return false;
@@ -329,19 +232,17 @@ bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface
 //
 bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * _interface )
 {
-    if( _class )
-    {
-        DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
-        
-        DKInterfaceRef interface = DKLookupInterfaceInGroup( _class, sel, (struct DKInterfaceGroup *)&_class->classInterfaces );
+    DKAssert( (_class != NULL) && (sel != NULL) );
+    DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
+    
+    DKInterfaceRef interface = DKInterfaceTableFind( _class, &_class->classInterfaces, sel, DKQueryInterfaceNotFound );
 
-        if( interface )
-        {
-            if( _interface )
-                *_interface = interface;
-            
-            return true;
-        }
+    if( interface )
+    {
+        if( _interface )
+            *_interface = interface;
+        
+        return true;
     }
     
     return false;
@@ -363,7 +264,7 @@ void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func )
     msgHandler->sel = DKRetain( sel );
     msgHandler->func = func;
     
-    DKInstallInterfaceInGroup( _class, msgHandler, (struct DKInterfaceGroup *)&_class->instanceInterfaces );
+    DKInterfaceTableInsert( _class, &_class->instanceInterfaces, msgHandler );
     
     DKRelease( msgHandler );
 }
@@ -380,7 +281,7 @@ void DKInstallClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func 
     msgHandler->sel = DKRetain( sel );
     msgHandler->func = func;
     
-    DKInstallInterfaceInGroup( _class, msgHandler, (struct DKInterfaceGroup *)&_class->classInterfaces );
+    DKInterfaceTableInsert( _class, &_class->classInterfaces, msgHandler );
     
     DKRelease( msgHandler );
 }
@@ -389,6 +290,11 @@ void DKInstallClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func 
 ///
 //  DKGetMsgHandler()
 //
+static DKInterfaceRef DKGetMsgHandlerNotFound( DKClassRef _class, DKSEL sel )
+{
+    return DKMsgHandlerNotFound();
+}
+
 DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
 {
     if( _self )
@@ -396,15 +302,7 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
         const DKObject * obj = _self;
         DKClassRef cls = obj->isa;
         
-        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKLookupInterfaceInGroup( cls, sel, (struct DKInterfaceGroup *)&cls->instanceInterfaces );
-
-        if( msgHandler )
-        {
-            DKAssertKindOfClass( msgHandler, DKMsgHandlerClass() );
-            return msgHandler;
-        }
-
-        DKWarning( "DKRuntime: Message handler for '%s' not found on object '%s'\n", sel->name, obj->isa->name );
+        return (DKMsgHandlerRef)DKInterfaceTableFind( cls, &cls->instanceInterfaces, sel, DKGetMsgHandlerNotFound );
     }
 
     return DKMsgHandlerNotFound();
@@ -420,15 +318,7 @@ DKMsgHandlerRef DKGetClassMsgHandler( DKClassRef _class, DKSEL sel )
     {
         DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
 
-        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKLookupInterfaceInGroup( _class, sel, (struct DKInterfaceGroup *)&_class->classInterfaces );
-
-        if( msgHandler )
-        {
-            DKAssertKindOfClass( msgHandler, DKMsgHandlerClass() );
-            return msgHandler;
-        }
-
-        DKWarning( "DKRuntime: Class message handler for '%s' not found in class '%s'\n", sel->name, _class->name );
+        return (DKMsgHandlerRef)DKInterfaceTableFind( _class, &_class->classInterfaces, sel, DKGetMsgHandlerNotFound );
     }
 
     return DKMsgHandlerNotFound();
@@ -445,7 +335,7 @@ bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHand
         const DKObject * obj = _self;
         DKClassRef cls = obj->isa;
         
-        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKLookupInterfaceInGroup( cls, sel, (struct DKInterfaceGroup *)&cls->instanceInterfaces );
+        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKInterfaceTableFind( cls, &cls->instanceInterfaces, sel, DKQueryInterfaceNotFound );
 
         if( msgHandler )
         {
@@ -457,6 +347,9 @@ bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHand
             return true;
         }
     }
+
+    if( _msgHandler )
+        *_msgHandler = DKMsgHandlerNotFound();
 
     return false;
 }
@@ -471,7 +364,7 @@ bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * _ms
     {
         DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
 
-        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKLookupInterfaceInGroup( _class, sel, (struct DKInterfaceGroup *)&_class->classInterfaces );
+        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKInterfaceTableFind( _class, &_class->classInterfaces, sel, DKQueryInterfaceNotFound );
 
         if( msgHandler )
         {
@@ -483,6 +376,9 @@ bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * _ms
             return true;
         }
     }
+
+    if( _msgHandler )
+        *_msgHandler = DKMsgHandlerNotFound();
 
     return false;
 }
