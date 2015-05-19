@@ -420,12 +420,14 @@ typedef spinlock_t DKSpinLock;
 
 // Atomic Operations =====================================================================
 #if DK_PLATFORM_APPLE
+#define DKAtomicAdd32( ptr, x )                 OSAtomicAdd32Barrier( x, ptr )
 #define DKAtomicIncrement32( ptr )              OSAtomicIncrement32Barrier( ptr )
 #define DKAtomicDecrement32( ptr )              OSAtomicDecrement32Barrier( ptr )
 #define DKAtomicCmpAndSwap32( val, old, new )   OSAtomicCompareAndSwap32Barrier( old, new, val )
 #define DKAtomicCmpAndSwapPtr( val, old, new )  OSAtomicCompareAndSwapPtrBarrier( old, new, val )
 
 #elif DK_PLATFORM_ANDROID
+#define DKAtomicAdd32( ptr, x )                 __sync_add_and_fetch( ptr, x )
 #define DKAtomicIncrement32( ptr )              __sync_add_and_fetch( ptr, 1 )
 #define DKAtomicDecrement32( ptr )              __sync_sub_and_fetch( ptr, 1 )
 #define DKAtomicCmpAndSwap32( val, old, new )   __sync_bool_compare_and_swap( val, old, new )

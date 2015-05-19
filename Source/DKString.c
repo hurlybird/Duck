@@ -62,7 +62,7 @@ static DKStringRef  DKMutableStringGetDescription( DKMutableStringRef _self );
 
 static struct DKString DKPlaceholderString =
 {
-    DKInitObjectHeader( NULL ),
+    DKInitStaticObjectHeader( NULL ),
     { NULL, 0, 0 },
     0,
     0
@@ -70,7 +70,7 @@ static struct DKString DKPlaceholderString =
 
 static struct DKString DKPlaceholderConstantString =
 {
-    DKInitObjectHeader( NULL ),
+    DKInitStaticObjectHeader( NULL ),
     { NULL, 0, 0 },
     0,
     0
@@ -1619,7 +1619,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
     
     struct DKString _lookupString =
     {
-        DKInitObjectHeader( constantStringClass ),
+        DKInitStaticObjectHeader( constantStringClass ),
     };
     
     struct DKString * lookupString = &_lookupString;
@@ -1628,12 +1628,21 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
     lookupString->hashCode = hashCode;
 
     // Lookup the string in the hash table
+    DKStringRef constantString;
+
     DKSpinLockLock( &DKConstantStringTableLock );
-    const DKStringRef * existingRow = DKGenericHashTableFind( DKConstantStringTable, &lookupString );
-    DKSpinLockUnlock( &DKConstantStringTableLock );
+    const DKStringRef * entry = DKGenericHashTableFind( DKConstantStringTable, &lookupString );
     
-    if( existingRow )
-        return *existingRow;
+    if( entry )
+    {
+        constantString = *entry;
+
+        DKSpinLockUnlock( &DKConstantStringTableLock );
+
+        return constantString;
+    }
+    
+    DKSpinLockUnlock( &DKConstantStringTableLock );
     
     if( !insert )
         return NULL;
@@ -1648,18 +1657,22 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
     
     if( DKGenericHashTableInsert( DKConstantStringTable, &newConstantString, DKInsertIfNotFound ) )
     {
-        DKSpinLockUnlock( &DKConstantStringTableLock );
-        return newConstantString;
+        constantString = newConstantString;
     }
     
-    // If the insert failed discard the new string and do the lookup again
-    existingRow = DKGenericHashTableFind( DKConstantStringTable, &lookupString );
+    else
+    {
+        entry = DKGenericHashTableFind( DKConstantStringTable, &lookupString );
+        constantString = *entry;
+    }
 
     DKSpinLockUnlock( &DKConstantStringTableLock );
 
-    DKDeallocObject( newConstantString );
+    // Discard the new string if we're not using it
+    if( constantString != newConstantString )
+        DKDeallocObject( newConstantString );
     
-    return *existingRow;
+    return constantString;
 }
 
 

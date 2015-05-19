@@ -46,24 +46,37 @@ typedef struct
     // The class of this object.
     DKClassRef isa;
     
-    // The weak reference associated with this object. (This may be relocated.)
-    DKWeakRef weakref;
-    
     // Reference count. Never modify this directly.
     int32_t refcount;
     
     // The usage of the object tag is entirely up to individual classes. On 64-bit
-    // platforms DKObject must be 8-byte aligned, so this field allows the use of the
-    // leftover 4 bytes.
+    // platforms DKObject should be 8-byte aligned anyway, so this field allows the use
+    // of the leftover 4 bytes.
     int32_t tag;
     
+    // Force a 16 byte struct size on 32-bit systems.
+    #if !__LP64__
+    int32_t pad;
+    #endif
+    
 } DKObject;
+
+
+// Reference Count Flags
+enum
+{
+    DKRefCountErrorBit =    0x10000000,
+    DKRefCountDisabledBit = 0x20000000,
+    DKRefCountWeakBit =     0x40000000,
+    
+    DKRefCountMask =        0x0fffffff
+};
 
 
 // Use this macro when declaring a static instance of a DKObject to insulate your code
 // from any changes to the DKObject structure. Your code is (obviously) responsible for
 // properly initializing and finalizing static objects.
-#define DKInitObjectHeader( cls )   { cls, NULL, 1, 0 }
+#define DKInitStaticObjectHeader( cls ) { cls, DKRefCountDisabledBit | 1, 0 }
 
 
 // Objects are at least 16 bytes long so there must exist a location in memory that is
@@ -71,7 +84,7 @@ typedef struct
 // from the object pointer that strips out the uninteresting lower bits to make things a
 // bit more random. This is particularly important in a hash table that uses hash % prime
 // to derive an internal hash code.
-#define DKObjectUniqueHash( obj )   ((((uintptr_t)obj) + 15) >> 4)
+#define DKObjectUniqueHash( obj )       ((((uintptr_t)obj) + 15) >> 4)
 
 
 // Get/Set the object tag.
@@ -205,6 +218,7 @@ void        DKFinalize( DKObjectRef _self );
 #include "DKGenericArray.h"
 #include "DKGenericHashTable.h"
 #include "DKHashTable.h"
+
 
 struct DKInterfaceTable
 {

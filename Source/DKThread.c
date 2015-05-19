@@ -111,7 +111,7 @@ DKThreadRef DKThreadGetCurrentThread( void )
 //
 DKThreadRef DKThreadGetMainThread( void )
 {
-    struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
+    struct DKThreadContext * threadContext = DKGetMainThreadContext();
     
     // The main thread object should have been created by DKRuntimeInit.
     DKAssert( threadContext->threadObject );

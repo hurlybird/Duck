@@ -38,16 +38,23 @@ DKWeakRef   DKRetainWeak( DKObjectRef _self );
 // Resolve a weak reference into a strong reference. The returned object must be released
 // when the caller is finished with it. This will return NULL if the object has been
 // deallocated.
-DKObjectRef DKResolveWeak( DKWeakRef weak_ref );
-
-// Autorelease pools
-void        DKAutoreleasePoolInit( void );
+DKObjectRef DKResolveWeak( DKWeakRef weakref );
 
 // Push/Pop the current autorelease pool
 void        DKPushAutoreleasePool( void );
 void        DKPopAutoreleasePool( void );
 
 DKObjectRef DKAutorelease( DKObjectRef _self );
+
+
+
+
+// Private ===============================================================================
+#if DK_RUNTIME_PRIVATE
+
+void DKWeakReferenceTableInit( void );
+
+#endif // DK_RUNTIME_PRIVATE
 
 
 #endif // _DK_RUNTIME_REFERENCE_COUNTING_H_

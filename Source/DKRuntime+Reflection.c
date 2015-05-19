@@ -121,17 +121,13 @@ void DKNameDatabaseInsertClass( DKClassRef _class )
     
     DKSpinLockLock( &ClassNameDatabaseSpinLock );
 
-    const DKClassRef * existing = DKGenericHashTableFind( &ClassNameDatabase, &_class );
-    
-    if( existing == NULL )
-        DKGenericHashTableInsert( &ClassNameDatabase, &_class, DKInsertIfNotFound );
+    bool inserted = DKGenericHashTableInsert( &ClassNameDatabase, &_class, DKInsertIfNotFound );
     
     DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
     
-    if( (existing != NULL) && (*existing != _class) )
+    if( !inserted )
     {
-        DKError( "DKRuntime: A class named '%s' already exists.",
-            DKStringGetCStringPtr( _class->name ) );
+        DKError( "DKRuntime: A class named '%s' already exists.", DKStringGetCStringPtr( _class->name ) );
     }
 }
 
@@ -157,17 +153,13 @@ void DKNameDatabaseInsertSelector( DKSEL sel )
 
     DKSpinLockLock( &SelectorNameDatabaseSpinLock );
 
-    const DKSEL * existing = DKGenericHashTableFind( &SelectorNameDatabase, &sel );
-    
-    if( existing == NULL )
-        DKGenericHashTableInsert( &SelectorNameDatabase, &sel, DKInsertIfNotFound );
+    bool inserted = DKGenericHashTableInsert( &SelectorNameDatabase, &sel, DKInsertIfNotFound );
     
     DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
     
-    if( (existing != NULL) && (*existing != sel) )
+    if( !inserted )
     {
-        DKError( "DKRuntime: A selector named '%s' already exists.",
-            DKStringGetCStringPtr( sel->name ) );
+        DKError( "DKRuntime: A selector named '%s' already exists.", DKStringGetCStringPtr( sel->name ) );
     }
 }
 
@@ -332,6 +324,8 @@ DKStringRef DKStringFromClass( DKClassRef _class )
 //
 DKClassRef DKClassFromString( DKStringRef name )
 {
+    DKClassRef cls = NULL;
+    
     if( name )
     {
         struct NameDatabaseEntry _key;
@@ -340,14 +334,16 @@ DKClassRef DKClassFromString( DKStringRef name )
         struct NameDatabaseEntry * key = &_key;
 
         DKSpinLockLock( &ClassNameDatabaseSpinLock );
-        const DKClassRef * cls = DKGenericHashTableFind( &ClassNameDatabase, &key );
-        DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
         
-        if( cls )
-            return *cls;
+        const DKClassRef * entry = DKGenericHashTableFind( &ClassNameDatabase, &key );
+        
+        if( entry )
+            cls = *entry;
+        
+        DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
     }
     
-    return NULL;
+    return cls;
 }
 
 
@@ -368,6 +364,8 @@ DKStringRef DKStringFromSelector( DKSEL sel )
 //
 DKSEL DKSelectorFromString( DKStringRef name )
 {
+    DKSEL sel = NULL;
+    
     if( name )
     {
         struct NameDatabaseEntry _key;
@@ -376,14 +374,16 @@ DKSEL DKSelectorFromString( DKStringRef name )
         struct NameDatabaseEntry * key = &_key;
 
         DKSpinLockLock( &SelectorNameDatabaseSpinLock );
-        const DKSEL * sel = DKGenericHashTableFind( &SelectorNameDatabase, &key );
-        DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
         
-        if( sel )
-            return *sel;
+        const DKSEL * entry = DKGenericHashTableFind( &SelectorNameDatabase, &key );
+        
+        if( entry )
+            sel = *entry;
+        
+        DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
     }
     
-    return NULL;
+    return sel;
 }
 
 
