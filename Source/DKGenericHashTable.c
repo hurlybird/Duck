@@ -31,39 +31,37 @@
 struct HashTableSize
 {
     size_t rowCount;    // prime
-    size_t maxActive;   // rowCount / 2
+    size_t maxActive;   // rowCount / 2, load < 0.5 is required by quadratic probing
 };
 
 static const struct HashTableSize HashTableSizes[] =
 {
     { 11, 5 },
     { 23, 11 },
-    { 47, 23 },
-    { 97, 48 },
-    { 197, 98 },
-    { 397, 198 },
-    { 797, 398 },
-    { 1597, 798 },
-    { 3203, 1601 },
-    { 6421, 3210 },
-    { 12853, 6426 },
-    { 25717, 12858 },
-    { 51437, 25718 },
-    { 102877, 51438 },
-    { 205759, 102879 },
-    { 411527, 205763 },
-    { 823117, 411558 },
-    { 1646237, 823118 },
-    { 3292489, 1646244 },
-    { 6584983, 3292491 },
-    { 13169977, 6584988 },
-    { 26339969, 13169984 },
-    { 52679969, 26339984 },
-    { 105359939, 52679969 },
-    { 210719881, 105359940 },
-    { 421439783, 210719891 },
-    { 842879579, 421439789 },
-    { 1685759167, 842879583 },
+    { 61, 30 },
+    { 127, 63 },
+    { 509, 254 },
+    { 1021, 510 },
+    { 2297, 1148 },
+    { 4603, 2301 },
+    { 9209, 4604 },
+    { 18427, 9213 },
+    { 36857, 18428 },
+    { 73727, 36863 },
+    { 147709, 73854 },
+    { 295663, 147831 },
+    { 591341, 295670 },
+    { 1182703, 591351 },
+    { 2365439, 1182719 },
+    { 4731119, 2365559 },
+    { 9462263, 4731131 },
+    { 18924793, 9462396 },
+    { 37849849, 18924924 },
+    { 75699709, 37849854 },
+    { 151399421, 75699710 },
+    { 302799097, 151399548 },
+    { 605598407, 302799203 },
+    { 1211196923, 605598461 },
     
     // This could be larger on 64-bit architectures...
     
@@ -71,10 +69,15 @@ static const struct HashTableSize HashTableSizes[] =
 };
 
 
-// Size table generation for load < 0.5
+///
+//  Hash Table Size Generators
+//
 #if 0
 static bool IsPrime( int64_t x )
 {
+    if( x <= 3 )
+        return x != 0;
+
     for( int64_t i = 3; (i * i) < x; i += 2 )
     {
         if( (x % i) == 0 )
@@ -95,15 +98,43 @@ static int64_t NextPrime( int64_t x )
     return x;
 }
 
-static void GenerateHashTableSizes( void )
+static void GenerateSizes( int64_t (*nextSize)( int64_t x ) )
 {
     int64_t max = 0x7fffffff;
 
     for( int64_t i = 11; i <= max; )
     {
         printf( "    { %lld, %lld },\n", i, i / 2 );
-        i = NextPrime( i * 2 );
+        i = nextSize( i * 2 );
+
+        // Round up the table size to multiples of N allocated bytes for better memory
+        // allocation behaviour. This assumes each hash table row is 16 bytes, i.e. two
+        // pointers on 64-bit systems.
+        size_t bytes = i * 16;
+        size_t boundary = 0;
+    
+        if( bytes >= 4096 )
+            boundary = (bytes + 4095) & ~4095;
+    
+        else if( bytes >= 512 )
+            boundary = (bytes + 511) & ~511;
+            
+        while( 1 )
+        {
+            size_t j = nextSize( i + 1 );
+            bytes = j * 16;
+            
+            if( bytes > boundary )
+                break;
+            
+            i = j;
+        }
     }
+}
+
+void DKGenerateHashTableSizes( void )
+{
+    GenerateSizes( NextPrime );
 }
 #endif
 
@@ -172,6 +203,7 @@ static void ResizeAndRehash( DKGenericHashTable * hashTable )
 ///
 //  DKGenericHashTableFind()
 //
+#if 1
 static void * Find( DKGenericHashTable * hashTable, const void * _row, DKRowStatus * outStatus )
 {
     DKHashCode hash = hashTable->callbacks.rowHash( _row );
@@ -228,7 +260,70 @@ static void * Find( DKGenericHashTable * hashTable, const void * _row, DKRowStat
     DKAssert( 0 );
     return NULL;
 }
+#else
 
+static void * Find( DKGenericHashTable * hashTable, const void * _row, DKRowStatus * outStatus )
+{
+    DKHashCode hash = hashTable->callbacks.rowHash( _row );
+
+    size_t n = hashTable->rowCount;
+    size_t h1 = hash % hashTable->rowCount;
+    
+    if( h1 <= 1 )
+        h1 = 2;
+    
+    else if( h1 >= (n - 1) )
+        h1 = 3;
+    
+    size_t h2 = 1;
+    
+    void * firstDeletedRow = NULL;
+    
+    for( size_t i = 0; i < n; ++i )
+    {
+        size_t index = (h1 + h2) % n;
+        void * row = hashTable->rows + (index * hashTable->rowSize);
+
+        DKRowStatus status = hashTable->callbacks.rowStatus( row );
+        
+        // If the row is empty we've come to the end of the probe, so either return the
+        // empty row or recycle the first deleted row we found
+        if( status == DKRowStatusEmpty )
+        {
+            if( firstDeletedRow )
+            {
+                *outStatus = DKRowStatusDeleted;
+                return firstDeletedRow;
+            }
+            
+            *outStatus = DKRowStatusEmpty;
+            return row;
+        }
+        
+        // If this is the row we're looking for, return it
+        else if( status == DKRowStatusActive )
+        {
+            if( hashTable->callbacks.rowEqual( row, _row ) )
+            {
+                *outStatus = DKRowStatusActive;
+                return row;
+            }
+        }
+        
+        // Remember the first deleted row we find
+        else if( firstDeletedRow == NULL )
+        {
+            firstDeletedRow = row;
+        }
+
+        // Exponential probing
+        h2 = (h2 * h1) % n;
+    }
+        
+    DKAssert( 0 );
+    return NULL;
+}
+#endif
 
 ///
 //  DKGenericHashTableInit()

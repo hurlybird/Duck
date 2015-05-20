@@ -98,19 +98,18 @@ static void TestDictionaryPerformance()
     DKRelease( words );
 }
 
+void DKGenerateHashTableSizes( void );
 
 int main( int argc, const char * argv[] )
 {
     DKRuntimeInit();
     DKPushAutoreleasePool();
 
-
     //TestSerialization();
     TestDictionaryPerformance();
-    
 
     DKPopAutoreleasePool();
-    
+
     return 0;
 }
 

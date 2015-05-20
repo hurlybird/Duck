@@ -136,7 +136,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-const int PERFORMANCE_ITERATIONS = 2;
+const int PERFORMANCE_ITERATIONS = 3;
 const int PERFORMANCE_N = 1000000;
 
 - (void) testNSDictionaryPerformance
