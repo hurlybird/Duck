@@ -122,11 +122,10 @@ structure.
 
 ### Properties
 
-In additon to interfaces and message handlers, Duck classes can also define
-properties to provide an abstract mechanism to access instance data. The runtime
-handles most property get/set behaviour automatically (including translating
-between object and base types), but it's also possible to use custom
-getter/setter methods.
+Duck classes can also define properties to provide an abstract mechanism to
+access instance data. The runtime handles most property get/set behaviour
+automatically (including translating between object and base types), but it's
+also possible to use custom getter/setter methods.
 
 ### Built-In Container Classes
 

@@ -109,7 +109,7 @@ static void GenerateSizes( int64_t (*nextSize)( int64_t x ) )
 
         // Round up the table size to multiples of N allocated bytes for better memory
         // allocation behaviour. This assumes each hash table row is 16 bytes, i.e. two
-        // pointers on 64-bit systems.
+        // pointers, which is true for DKHashTable on 64-bit systems.
         size_t bytes = i * 16;
         size_t boundary = 0;
     

@@ -178,17 +178,20 @@ void        DKFinalize( DKObjectRef _self );
 // Thread-safe initialization of shared objects.
 #define DKThreadSafeSharedObjectInit( accessor, type )                                  \
     static type accessor ## _SharedObject = NULL;                                       \
+    static DKSpinLock accessor ## _SharedObjectLock = DKSpinLockInit;                   \
     static type accessor ## _Create( void );                                            \
                                                                                         \
     type accessor( void )                                                               \
     {                                                                                   \
-        if( accessor ## _SharedObject == NULL )                                         \
-        {                                                                               \
-            type tmp = accessor ## _Create();                                           \
+        if( accessor ## _SharedObject != NULL )                                         \
+            return accessor ## _SharedObject;                                           \
                                                                                         \
-            if( !DKAtomicCmpAndSwapPtr( (void * volatile *)&(accessor ## _SharedObject), NULL, (void *)tmp ) ) \
-                DKRelease( tmp );                                                       \
-        }                                                                               \
+        DKSpinLockLock( &accessor ## _SharedObjectLock );                               \
+                                                                                        \
+        if( accessor ## _SharedObject == NULL )                                         \
+            accessor ## _SharedObject = accessor ## _Create();                          \
+                                                                                        \
+        DKSpinLockUnlock( &accessor ## _SharedObjectLock );                             \
                                                                                         \
         return accessor ## _SharedObject;                                               \
     }                                                                                   \

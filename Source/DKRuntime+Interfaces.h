@@ -57,9 +57,9 @@ typedef enum
     // 5 - Reserved
     // 6 - Reserved
     
-    // 7 - I/O used by root classes
-    DKStaticCache_Description =     7,
+    // 7 - I/O and static selectors used by root classes
     DKStaticCache_Stream =          7,
+    DKStaticCache_Description =     7,
     DKStaticCache_Egg =             7,
     
     // 8-15 - Static cache lines reserved for user interfaces
@@ -67,7 +67,7 @@ typedef enum
     // Size of the static cache
     DKStaticCacheSize =             16,
     
-    // Size of the dynamic cache (must be a power of 2)
+    // Size of the dynamic cache
     DKDynamicCacheSize =            32
     
 } DKCacheUsage;

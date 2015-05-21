@@ -76,7 +76,7 @@ DKSEL DKAllocSelector( DKStringRef name )
     sel->name = DKCopy( name );
     
     DKSpinLockLock( &NextCacheLineSpinLock );
-    sel->cacheline = DKStaticCacheSize + (NextCacheLine & (DKDynamicCacheSize - 1));
+    sel->cacheline = DKStaticCacheSize + (NextCacheLine % DKDynamicCacheSize);
     NextCacheLine++;
     DKSpinLockUnlock( &NextCacheLineSpinLock );
 
