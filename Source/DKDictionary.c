@@ -179,7 +179,7 @@ static int DKDictionaryGetAllKeysCallback( DKObjectRef key, DKObjectRef object, 
 
 DKListRef DKDictionaryGetAllKeys( DKDictionaryRef _self )
 {
-    DKMutableListRef list = DKCreate( DKMutableArrayClass() );
+    DKMutableListRef list = DKNew( DKMutableArrayClass() );
     
     DKForeachKeyAndObject( _self, DKDictionaryGetAllKeysCallback, list );
     
@@ -198,7 +198,7 @@ static int DKDictionaryGetAllObjectsCallback( DKObjectRef key, DKObjectRef objec
 
 DKListRef DKDictionaryGetAllObjects( DKDictionaryRef _self )
 {
-    DKMutableListRef list = DKCreate( DKMutableArrayClass() );
+    DKMutableListRef list = DKNew( DKMutableArrayClass() );
     
     DKForeachKeyAndObject( _self, DKDictionaryGetAllObjectsCallback, list );
     

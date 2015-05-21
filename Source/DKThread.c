@@ -96,7 +96,7 @@ DKThreadRef DKThreadGetCurrentThread( void )
     
     if( !threadContext->threadObject )
     {
-        struct DKThread * thread = DKCreate( DKThreadClass() );
+        struct DKThread * thread = DKNew( DKThreadClass() );
         
         thread->state = DKThreadUnknown;
         thread->threadId = pthread_self();
@@ -125,7 +125,7 @@ DKThreadRef DKThreadGetMainThread( void )
 //
 void DKDetachNewThread( DKThreadProc threadProc, DKObjectRef threadParam )
 {
-    DKThreadRef thread = DKThreadInit( DKAlloc( DKThreadClass(), 0 ), threadProc, threadParam );
+    DKThreadRef thread = DKThreadInit( DKAlloc( DKThreadClass() ), threadProc, threadParam );
     DKThreadStart( thread );
     DKRelease( thread );
 }
@@ -302,7 +302,7 @@ DKMutableDictionaryRef DKThreadGetDictionary( DKThreadRef _self )
     DKAssertKindOfClass( _self, DKThreadClass() );
     
     if( !_self->dictionary )
-        _self->dictionary = DKCreate( DKMutableDictionaryClass() );
+        _self->dictionary = DKNew( DKMutableDictionaryClass() );
     
     return _self->dictionary;
 }

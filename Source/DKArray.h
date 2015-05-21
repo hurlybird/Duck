@@ -37,11 +37,13 @@ typedef struct DKArray * DKMutableArrayRef;
 DKClassRef  DKArrayClass( void );
 DKClassRef  DKMutableArrayClass( void );
 
-#define     DKArrayCreateEmpty()    DKCreate( DKArrayClass() )
-#define     DKArrayCreateMutable()  DKCreate( DKMutableArrayClass() )
+#define     DKEmptyArray()          DKAutorelease( DKNew( DKArrayClass() ) )
+#define     DKMutableArray()        DKAutorelease( DKNew( DKMutableArrayClass() ) )
 
-#define     DKArrayCreateWithCArray( cls, objects, count )  DKArrayInitWithObjects( DKAlloc( cls, 0 ), objects, count )
-#define     DKArrayCreateWithCollection( cls, collection )  DKArrayInitWithCollection( DKAlloc( cls, 0 ), collection )
+#define     DKArrayWithCArray( objects, count )  DKArrayInitWithObjects( DKAlloc( DKArrayClass() ), objects, count )
+#define     DKArrayWithCollection( collection )  DKArrayInitWithCollection( DKAlloc( DKArrayClass() ), collection )
+
+#define     DKNewMutableArray()     DKNew( DKMutableArrayClass() )
 
 DKObjectRef DKArrayInitWithVAObjects( DKArrayRef _self, va_list objects );
 DKObjectRef DKArrayInitWithCArray( DKArrayRef _self, DKObjectRef objects[], DKIndex count );

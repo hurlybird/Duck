@@ -126,7 +126,7 @@ static DKWeakRef WeakReferenceTableFindOrInsert( DKObject * obj )
     DKSpinLockUnlock( &WeakReferenceTableLock );
 
     // Create a new weak reference
-    DKWeakRef newWeakref = DKAlloc( DKWeakClass(), 0 );
+    DKWeakRef newWeakref = DKAlloc( DKWeakClass() );
     newWeakref->lock = DKSpinLockInit;
     newWeakref->target = obj;
 

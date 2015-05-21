@@ -173,7 +173,7 @@ DKObjectRef DKListInitSetWithVAObjects( DKListRef _self, va_list objects )
 {
     if( _self )
     {
-        DKSetRef set = DKSetCreateWithVAObjects( NULL, objects );
+        DKSetRef set = DKSetInitWithVAObjects( DKAlloc( DKSetClass() ), objects );
 
         DKListInterfaceRef listInterface = DKGetInterface( _self, DKSelector(List) );
         _self = listInterface->initWithCollection( _self, set );
@@ -192,7 +192,7 @@ DKObjectRef DKListInitSetWithCArray( DKListRef _self, DKObjectRef objects[], DKI
 {
     if( _self )
     {
-        DKSetRef set = DKSetCreateWithCArray( NULL, objects, count );
+        DKSetRef set = DKSetInitWithCArray( DKAlloc( DKSetClass() ), objects, count );
 
         DKListInterfaceRef listInterface = DKGetInterface( _self, DKSelector(List) );
         _self = listInterface->initWithCollection( _self, set );
@@ -211,7 +211,7 @@ DKObjectRef DKListInitSetWithCollection( DKListRef _self, DKObjectRef srcCollect
 {
     if( _self )
     {
-        DKSetRef set = DKSetCreateWithCollection( NULL, srcCollection );
+        DKSetRef set = DKSetInitWithCollection( DKAlloc( DKSetClass() ), srcCollection );
 
         DKListInterfaceRef listInterface = DKGetInterface( _self, DKSelector(List) );
         _self = listInterface->initWithCollection( _self, set );

@@ -291,7 +291,7 @@ void DKSetIntersect( DKMutableSetRef _self, DKSetRef otherSet )
         DKSetInterfaceRef set = DKGetInterface( _self, DKSelector(Set) );
         DKSetInterfaceRef other = DKGetInterface( _self, DKSelector(Set) );
 
-        DKArrayRef objects = DKArrayCreateWithCollection( DKArrayClass(), _self );
+        DKArrayRef objects = DKArrayInitWithCollection( DKAlloc( DKArrayClass() ), _self );
         
         DKIndex count = DKArrayGetCount( objects );
         

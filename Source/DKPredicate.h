@@ -80,7 +80,10 @@ typedef enum
 
 DKClassRef DKPredicateClass( void );
 
-DKPredicateRef DKPredicateCreate( DKPredicateOp op, DKObjectRef a, DKObjectRef b );
+#define DKPredicate( op, a, b )     DKAutorelease( DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, b ) )
+#define DKNewPredicate( op, a, b )  DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, b )
+
+DKObjectRef DKPredicateInit( DKObjectRef _self, DKPredicateOp op, DKObjectRef a, DKObjectRef b );
 
 bool DKPredicateEvaluate( DKPredicateRef _self );
 bool DKPredicateEvaluateWithObject( DKPredicateRef _self, DKObjectRef subst );

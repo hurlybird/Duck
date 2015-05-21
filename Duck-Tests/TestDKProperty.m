@@ -59,14 +59,12 @@ struct TestObject
 {
     DKClassRef testClass = DKAllocClass( DKSTR( "Test" ), DKObjectClass(), sizeof(struct TestObject), 0, NULL, NULL );
 
-    DKPredicateRef predicate = DKPredicateCreate( DKPredicateISA, NULL, DKStringClass() );
+    DKPredicateRef predicate = DKPredicate( DKPredicateISA, NULL, DKStringClass() );
 
     DKInstallObjectProperty( testClass, DKSTR( "name" ), 0, offsetof(struct TestObject, name), predicate, NULL, NULL );
     DKInstallNumberProperty( testClass, DKSTR( "x" ), 0, offsetof(struct TestObject, x), DKNumberInt32, NULL, NULL, NULL );
     DKInstallNumberProperty( testClass, DKSTR( "y" ), 0, offsetof(struct TestObject, y), DKNumberDouble, NULL, NULL, NULL );
     DKInstallStructProperty( testClass, DKSTR( "z" ), 0, offsetof(struct TestObject, z), sizeof(Pair), DKSemantic(Pair), NULL, NULL );
-
-    DKRelease( predicate );
 
     return testClass;
 }
@@ -75,7 +73,7 @@ struct TestObject
 {
     DKClassRef testClass = [self createTestClass];
     
-    struct TestObject * testObject = DKCreate( testClass );
+    struct TestObject * testObject = DKNew( testClass );
     
     DKSetProperty( testObject, DKSTR( "name" ), DKSTR( "Jane" ) );
     XCTAssert( DKStringEqual( DKSTR( "Jane" ), testObject->name ) );
@@ -91,10 +89,10 @@ struct TestObject
 {
     DKClassRef testClass = [self createTestClass];
 
-    struct TestObject * testObject = DKCreate( testClass );
+    struct TestObject * testObject = DKNew( testClass );
     
     // Implicit conversion from number object
-    DKNumberRef intNumber = DKNumberCreateInt32( 3 );
+    DKNumberRef intNumber = DKNumberWithInt32( 3 );
     DKSetProperty( testObject, DKSTR( "x" ), intNumber );
     
     XCTAssertThrows( DKSetProperty( testObject, DKSTR( "name" ), intNumber ) );
@@ -102,15 +100,12 @@ struct TestObject
     
     float v[3] = { 0, 0, 0 };
     XCTAssertThrows( DKSetNumberProperty( testObject, DKSTR( "x" ), v, DKEncode( DKEncodingTypeFloat, 3 ) ) );
-    
     XCTAssert( testObject->x == 3 );
-    DKRelease( intNumber );
 
     // Implicit conversion from number object + cast
-    DKNumberRef floatNumber = DKNumberCreateFloat( 7 );
+    DKNumberRef floatNumber = DKNumberWithFloat( 7 );
     DKSetProperty( testObject, DKSTR( "x" ), floatNumber );
     XCTAssert( testObject->x == 7 );
-    DKRelease( floatNumber );
     
     
     DKRelease( testObject );
@@ -121,7 +116,7 @@ struct TestObject
 - (void) testStructProperty
 {
     DKClassRef testClass = [self createTestClass];
-    struct TestObject * testObject = DKCreate( testClass );
+    struct TestObject * testObject = DKNew( testClass );
     
     Pair p = { 101, 202 };
     
@@ -142,16 +137,15 @@ struct TestObject
     DKStructRef structure = DKGetProperty( testObject, DKSTR( "z" ) );
 
     Pair r;
-    DKStructGetValueAs( structure, &r, Pair );
+    DKStructGetValueAsType( structure, &r, Pair );
 
     XCTAssert( r.a == 101 );
     XCTAssert( r.b == 202 );
     
     // Convert from object
     Pair r2 = { 303, 404 };
-    DKStructRef structure2 = DKStructCreateAs( &r2, Pair );
+    DKStructRef structure2 = DKStructWithType( &r2, Pair );
     DKSetProperty( testObject, DKSTR( "z" ), structure2 );
-    DKRelease( structure2 );
     
     XCTAssert( testObject->z.a == 303 );
     XCTAssert( testObject->z.b == 404 );
@@ -163,17 +157,17 @@ struct TestObject
 
 - (void) testPropertyKeyPaths
 {
-    DKMutableDictionaryRef dick = DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
+    DKMutableDictionaryRef dick = DKDictionaryWithKeysAndObjects(
         DKSTR( "name" ), DKSTR( "Dick" ),
         DKSTR( "phoneNumber" ), DKSTR( "555-1234" ),
         NULL );
     
-    DKMutableDictionaryRef jane = DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
+    DKMutableDictionaryRef jane = DKDictionaryWithKeysAndObjects(
         DKSTR( "name" ), DKSTR( "Jane" ),
         DKSTR( "phoneNumber" ), DKSTR( "555-4321" ),
         NULL );
     
-    DKMutableDictionaryRef db = DKDictionaryCreateWithKeysAndObjects( DKMutableDictionaryClass(),
+    DKMutableDictionaryRef db = DKDictionaryWithKeysAndObjects(
         DKSTR( "dick" ), dick,
         DKSTR( "jane" ), jane,
         NULL );
@@ -186,14 +180,6 @@ struct TestObject
 
     value = DKGetPropertyForKeyPath( db, DKSTR( "dick" ) );
     XCTAssert( value == dick );
-
-    DKDictionaryAddObject( jane, DKSTR( "pet" ), DKSTR( "Spot" ) );
-    value = DKGetPropertyForKeyPath( db, DKSTR( "jane.pet" ) );
-    XCTAssert( DKEqual( value, DKSTR( "Spot" ) ) );
-    
-    DKRelease( db );
-    DKRelease( dick );
-    DKRelease( jane );
 }
 
 

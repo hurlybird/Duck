@@ -35,7 +35,13 @@ typedef struct DKStruct * DKStructRef;
 
 DKClassRef  DKStructClass( void );
 
-#define     DKStructCreate( semantic, bytes, size ) DKStructInit( DKAlloc( DKStructClass(), 0 ), semantic, bytes, size )
+#define     DKSemantic( type )                      DKSTR( #type )
+
+#define     DKStruct( semantic, bytes, size )       DKAutorelease( DKStructInit( DKAlloc( DKStructClass() ), semantic, bytes, size ) )
+#define     DKStructWithType( ptr, type )           DKAutorelease( DKStructInit( DKAlloc( DKStructClass() ), DKSTR( #type ), ptr, sizeof(type) ) )
+
+#define     DKNewStruct( semantic, bytes, size )    DKStructInit( DKAlloc( DKStructClass() ), semantic, bytes, size )
+#define     DKNewStructWithType( ptr, type )        DKStructInit( DKAlloc( DKStructClass() ), DKSTR( #type ), ptr, sizeof(type) )
 
 DKStructRef DKStructInit( DKStructRef _self, DKStringRef semantic, const void * bytes, size_t size );
 
@@ -47,11 +53,7 @@ DKStringRef DKStructGetSemantic( DKStructRef _self );
 size_t      DKStructGetSize( DKStructRef _self );
 size_t      DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, size_t size );
 
-// Macros for creating/retrieving C structs
-#define DKSemantic( type )                  DKSTR( #type )
-
-#define DKStructCreateAs( ptr, type )       DKStructCreate( DKSTR( #type ), ptr, sizeof(type) );
-#define DKStructGetValueAs( st, dst, type ) DKStructGetValue( st, DKSTR( #type ), dst, sizeof(type) );
+#define     DKStructGetValueAsType( st, dst, type ) DKStructGetValue( st, DKSTR( #type ), dst, sizeof(type) );
 
 
 #endif

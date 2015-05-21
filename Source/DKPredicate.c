@@ -170,7 +170,7 @@ static DKStringRef DKPredicateGetDescription( DKObjectRef _self )
     if( (predicate->op == DKPredicateFALSE) || (predicate->op == DKPredicateTRUE) )
         return DKStringFromPredicateOp( predicate->op );
 
-    DKMutableStringRef desc = DKAutorelease( DKStringCreateMutable() );
+    DKMutableStringRef desc = DKMutableString();
 
     DKObjectRef a = predicate->a ? predicate->a : DKSTR( "*" );
     DKObjectRef b = predicate->b ? predicate->b : DKSTR( "*" );
@@ -195,9 +195,9 @@ static DKStringRef DKPredicateGetDescription( DKObjectRef _self )
 ///
 //  DKPredicateCreate()
 //
-DKPredicateRef DKPredicateCreate( DKPredicateOp op, DKObjectRef a, DKObjectRef b )
+DKObjectRef DKPredicateInit( DKObjectRef _self, DKPredicateOp op, DKObjectRef a, DKObjectRef b )
 {
-    struct DKPredicate * predicate = DKCreate( DKPredicateClass() );
+    struct DKPredicate * predicate = _self;
 
     if( predicate )
     {
@@ -206,7 +206,7 @@ DKPredicateRef DKPredicateCreate( DKPredicateOp op, DKObjectRef a, DKObjectRef b
         predicate->b = DKCopy( b );
     }
     
-    return predicate;
+    return _self;
 }
 
 

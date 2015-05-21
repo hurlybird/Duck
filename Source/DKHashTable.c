@@ -522,7 +522,7 @@ DKHashTableRef DKHashTableCopy( DKHashTableRef _self )
     {
         DKAssertKindOfClass( _self, DKHashTableClass() );
 
-        struct DKHashTable * copy = DKCreate( DKGetClass( _self ) );
+        struct DKHashTable * copy = DKNew( DKGetClass( _self ) );
 
         DKHashTableApplyFunction( _self, InsertKeyAndObject, copy );
         
@@ -542,7 +542,7 @@ DKMutableHashTableRef DKHashTableMutableCopy( DKHashTableRef _self )
     {
         DKAssertKindOfClass( _self, DKHashTableClass() );
 
-        struct DKHashTable * copy = DKCreate( DKMutableHashTableClass() );
+        struct DKHashTable * copy = DKNew( DKMutableHashTableClass() );
 
         DKHashTableApplyFunction( _self, InsertKeyAndObject, copy );
         

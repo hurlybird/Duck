@@ -44,7 +44,7 @@ typedef struct
 
 - (void) testDKNumber
 {
-    DKNumberRef n = DKNumberCreateInt32( 100 );
+    DKNumberRef n = DKNumberWithInt32( 100 );
     XCTAssert( DKNumberGetInt32( n ) == 100 );
     
     DKStringRef desc = DKNumberGetDescription( n );
@@ -66,37 +66,29 @@ typedef struct
     DKNumberCastValue( n, &d, DKNumberDouble );
     XCTAssert( d == 100.0 );
     
-    DKRelease( n );
-    
 
-    n = DKNumberCreateFloat( 100 );
+    n = DKNumberWithFloat( 100 );
     XCTAssert( DKNumberGetFloat( n ) == 100.0f );
     
     desc = DKNumberGetDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "100.000000" ) ) );
-    
-    DKRelease( n );
 
 
-    n = DKNumberCreateDouble( 100 );
+    n = DKNumberWithDouble( 100 );
     XCTAssert( DKNumberGetDouble( n ) == 100.0 );
     
     desc = DKNumberGetDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "100.000000" ) ) );
     
-    DKRelease( n );
-    
     
     const Vector3 v = { 1, 2, 3 };
-    n = DKNumberCreate( &v, DKEncode( DKEncodingTypeFloat, 3 ) );
+    n = DKNumber( &v, DKEncode( DKEncodingTypeFloat, 3 ) );
     
     Vector3 w = DKNumberGetValueAs( n, Vector3 );
     XCTAssert( (v.x == w.x) && (v.y == w.y) && (v.z == w.z) );
     
     desc = DKNumberGetDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "1.000000 2.000000 3.000000" ) ) );
-    
-    DKRelease( n );
 }
 
 @end

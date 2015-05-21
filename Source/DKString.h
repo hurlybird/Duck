@@ -38,21 +38,19 @@ DKClassRef  DKStringClass( void );
 DKClassRef  DKConstantStringClass( void );
 DKClassRef  DKMutableStringClass( void );
 
-#define     DKStringCreateEmpty()    DKSTR( "" )
-#define     DKStringCreateMutable()  DKInit( DKAlloc( DKMutableStringClass(), 0 ) )
+#define     DKEmptyString()         DKSTR( "" )
+#define     DKMutableString()       DKAutorelease( DKNew( DKMutableStringClass() ) )
 
-#define     DKStringCreateWithString( cls, str )        DKStringInitWithString( DKAlloc( cls, 0 ), str )
-#define     DKStringCreateWithCString( cls, cstr )      DKStringInitWithCString( DKAlloc( cls, 0 ), cstr, 0 )
-#define     DKStringCreateWithCStringNoCopy( cstr )     DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass(), 0 ), cstr )
-#define     DKStringCreateWithFormat( cls, fmt, ... )   DKStringInitWithFormat( DKAlloc( cls, 0 ), fmt, __VA_ARGS__ )
-#define     DKStringCreateWithContentsOfFile( cls, filename )   DKStringInitWithContentsOfFile( DKAlloc( cls, 0 ), filename )
+#define     DKStringWithString( str )               DKAutorelease( DKStringInitWithString( DKAlloc( DKStringClass() ), str ) )
+#define     DKStringWithCString( cstr )             DKAutorelease( DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr ) )
+#define     DKStringWithCStringNoCopy( cstr )       DKAutorelease( DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass() ), cstr ) )
+#define     DKStringWithFormat( fmt, ... )          DKAutorelease( DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ ) )
+#define     DKStringWithContentsOfFile( filename )  DKAutorelease( DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename ) )
 
-#define     DKStringWithString( cls, str )              DKAutorelease( DKStringInitWithString( DKAlloc( cls, 0 ), str ) )
-#define     DKStringWithCString( cls, cstr )            DKAutorelease( DKStringInitWithCString( DKAlloc( cls, 0 ), cstr, 0 ) )
-#define     DKStringWithFormat( cls, fmt, ... )         DKAutorelease( DKStringInitWithFormat( DKAlloc( cls, 0 ), fmt, __VA_ARGS__ ) )
+#define     DKNewMutableString()    DKNew( DKMutableStringClass() )
 
 DKObjectRef DKStringInitWithString( DKStringRef _self, DKStringRef other );
-DKObjectRef DKStringInitWithCString( DKStringRef _self, const char * cstr, size_t length );
+DKObjectRef DKStringInitWithCString( DKStringRef _self, const char * cstr );
 DKObjectRef DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr );
 DKObjectRef DKStringInitWithFormat( DKStringRef _self, const char * format, ... );
 DKObjectRef DKStringInitWithContentsOfFile( DKStringRef _self, DKStringRef filename );

@@ -37,11 +37,13 @@ typedef struct DKLinkedList * DKMutableLinkedListRef;
 DKClassRef  DKLinkedListClass( void );
 DKClassRef  DKMutableLinkedListClass( void );
 
-#define     DKLinkedListCreateEmpty()    DKCreate( DKLinkedListClass() )
-#define     DKLinkedListCreateMutable()  DKCreate( DKMutableLinkedListClass() )
+#define     DKEmptyLinkedList()         DKAutorelease( DKNew( DKLinkedListClass() ) )
+#define     DKMutableLinkedList()       DKAutorelease( DKNew( DKMutableLinkedListClass() ) )
 
-#define     DKLinkedListCreateWithCArray( cls, objects, count )  DKLinkedListInitWithObjects( DKAlloc( cls, 0 ), objects, count )
-#define     DKLinkedListCreateWithCollection( cls, collection )  DKLinkedListInitWithCollection( DKAlloc( cls, 0 ), collection )
+#define     DKLinkedListWithCArray( objects, count )  DKLinkedListInitWithObjects( DKAlloc( DKLinkedListClass() ), objects, count )
+#define     DKLinkedListWithCollection( collection )  DKLinkedListInitWithCollection( DKAlloc( DKLinkedListClass() ), collection )
+
+#define     DKNewMutableLinkedList()    DKNew( DKMutableLinkedListClass() )
 
 DKObjectRef DKLinkedListInitWithVAObjects( DKLinkedListRef _self, va_list objects );
 DKObjectRef DKLinkedListInitWithCArray( DKLinkedListRef _self, DKObjectRef objects[], DKIndex count );

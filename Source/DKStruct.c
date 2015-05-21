@@ -356,7 +356,7 @@ static DKStringRef DKStructGetDescription( DKStructRef _self )
 {
     if( _self )
     {
-        DKMutableStringRef desc = DKAutorelease( DKStringCreateMutable() );
+        DKMutableStringRef desc = DKMutableString();
         
         DKSPrintf( desc, "%@ (%@)", DKGetClassName( _self ), _self->semantic );
         

@@ -87,25 +87,16 @@ void        DKSetDefaultListClass( DKClassRef _self );
 DKClassRef  DKMutableListClass( void );
 void        DKSetDefaultMutableListClass( DKClassRef _self );
 
-#define     DKListCreateEmpty()    DKCreate( DKListClass() )
-#define     DKListCreateMutable()  DKCreate( DKMutableListClass() )
+#define     DKEmptyList()           DKAutorelease( DKNew( DKListClass() ) )
+#define     DKMutableList()         DKAutorelease( DKNew( DKMutableListClass() ) )
 
-#define     DKListCreateWithObject( cls, object )           DKListInitWithObject( DKAlloc( cls, 0 ), object )
-#define     DKListCreateWithObjects( cls, ... )             DKListInitWithObjects( DKAlloc( cls, 0 ), __VA_ARGS__ )
-#define     DKListCreateWithVAObjects( cls, objects )       DKListInitWithVAObjects( DKAlloc( cls, 0 ), objects )
-#define     DKListCreateWithCArray( cls, objects, count )   DKListInitWithCArray( DKAlloc( cls, 0 ), objects, count )
-#define     DKListCreateWithCollection( cls, collection )   DKListInitWithCollection( DKAlloc( cls, 0 ), collection )
+#define     DKListWithObject( object )          DKAutorelease( DKListInitWithObject( DKAlloc( DKListClass() ), object ) )
+#define     DKListWithObjects( ... )            DKAutorelease( DKListInitWithObjects( DKAlloc( DKListClass() ), __VA_ARGS__ ) )
+#define     DKListWithVAObjects( objects )      DKAutorelease( DKListInitWithVAObjects( DKAlloc( DKListClass() ), objects ) )
+#define     DKListWithCArray( objects, count )  DKAutorelease( DKListInitWithCArray( DKAlloc( DKListClass() ), objects, count ) )
+#define     DKListWithCollection( collection )  DKAutorelease( DKListInitWithCollection( DKAlloc( DKListClass() ), collection ) )
 
-#define     DKListWithObject( object )          DKAutorelease( DKListInitWithObject( DKAlloc( DKListClass(), 0 ), object ) )
-#define     DKListWithObjects( ... )            DKAutorelease( DKListInitWithObjects( DKAlloc( DKListClass(), 0 ), __VA_ARGS__ ) )
-#define     DKListWithVAObjects( objects )      DKAutorelease( DKListInitWithVAObjects( DKAlloc( DKListClass(), 0 ), objects ) )
-#define     DKListWithCArray( objects, count )  DKAutorelease( DKListInitWithCArray( DKAlloc( DKListClass(), 0 ), objects, count ) )
-#define     DKListWithCollection( collection )  DKAutorelease( DKListInitWithCollection( DKAlloc( DKListClass(), 0 ), collection ) )
-
-#define     DKListCreateSetWithObjects( cls, ... )              DKListInitSetWithObjects( DKAlloc( cls, 0 ), __VA_ARGS__ )
-#define     DKListCreateSetWithVAObjects( cls, objects )        DKListInitSetWithVAObjects( DKAlloc( cls, 0 ), objects )
-#define     DKListCreateSetWithCArray( cls, objects, count )    DKListInitSetWithCArray( DKAlloc( cls, 0 ), objects, count )
-#define     DKListCreateSetWithCollection( cls, collection )    DKListInitSetWithCollection( DKAlloc( cls, 0 ), collection )
+#define     DKNewMutableList()      DKNew( DKMutableListClass() )
 
 DKObjectRef DKListInitWithObject( DKListRef _self, DKObjectRef object );
 DKObjectRef DKListInitWithObjects( DKListRef _self, ... );

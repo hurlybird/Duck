@@ -383,43 +383,43 @@ static void DKNumberAddToEgg( DKNumberRef _self, DKEggArchiverRef egg )
 
 
 ///
-//  DKNumberCreate*()
+//  DKNewNumberWith*()
 //
-DKNumberRef DKNumberCreateInt32( int32_t x )
+DKNumberRef DKNewNumberWithInt32( int32_t x )
 {
-    return DKNumberCreate( &x, DKNumberInt32 );
+    return DKNewNumber( &x, DKNumberInt32 );
 }
 
-DKNumberRef DKNumberCreateInt64( int64_t x )
+DKNumberRef DKNewNumberWithInt64( int64_t x )
 {
-    return DKNumberCreate( &x, DKNumberInt64 );
+    return DKNewNumber( &x, DKNumberInt64 );
 }
 
-DKNumberRef DKNumberCreateUInt32( uint32_t x )
+DKNumberRef DKNewNumberWithUInt32( uint32_t x )
 {
-    return DKNumberCreate( &x, DKNumberUInt32 );
+    return DKNewNumber( &x, DKNumberUInt32 );
 }
 
-DKNumberRef DKNumberCreateUInt64( uint64_t x )
+DKNumberRef DKNewNumberWithUInt64( uint64_t x )
 {
-    return DKNumberCreate( &x, DKNumberUInt64 );
+    return DKNewNumber( &x, DKNumberUInt64 );
 }
 
-DKNumberRef DKNumberCreateFloat( float x )
+DKNumberRef DKNewNumberWithFloat( float x )
 {
-    return DKNumberCreate( &x, DKNumberFloat );
+    return DKNewNumber( &x, DKNumberFloat );
 }
 
-DKNumberRef DKNumberCreateDouble( double x )
+DKNumberRef DKNewNumberWithDouble( double x )
 {
-    return DKNumberCreate( &x, DKNumberDouble );
+    return DKNewNumber( &x, DKNumberDouble );
 }
 
 
 ///
-//  DKNumberCreateUUID()
+//  DKNewNumberWithUUID()
 //
-DKNumberRef DKNumberCreateUUID( const DKUUID * uuid )
+DKNumberRef DKNewNumberWithUUID( const DKUUID * uuid )
 {
     DKUUID _uuid;
     
@@ -429,14 +429,14 @@ DKNumberRef DKNumberCreateUUID( const DKUUID * uuid )
         uuid = &_uuid;
     }
     
-    return DKNumberCreate( uuid, DKNumberUUID );
+    return DKNewNumber( uuid, DKNumberUUID );
 }
 
 
 ///
-//  DKNumberCreateDate()
+//  DKNewNumberWithDate()
 //
-DKNumberRef DKNumberCreateDate( const DKDateTime * date )
+DKNumberRef DKNewNumberWithDate( const DKDateTime * date )
 {
     DKDateTime _date;
     
@@ -446,7 +446,7 @@ DKNumberRef DKNumberCreateDate( const DKDateTime * date )
         date = &_date;
     }
 
-    return DKNumberCreate( &date, DKNumberDate );
+    return DKNewNumber( &date, DKNumberDate );
 }
 
 
@@ -635,7 +635,7 @@ DKStringRef DKNumberGetDescription( DKNumberRef _self )
         DKAssertKindOfClass( _self, DKNumberClass() );
         const struct DKNumber * number = _self;
         
-        DKMutableStringRef desc = DKAutorelease( DKStringCreateMutable() );
+        DKMutableStringRef desc = DKMutableString();
 
         DKEncoding encoding = DKGetObjectTag( _self );
         DKEncodingType type = DKEncodingGetType( encoding );

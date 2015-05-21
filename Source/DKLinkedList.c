@@ -621,7 +621,7 @@ static void DKLinkedListAddToEgg( DKLinkedListRef _self, DKEggArchiverRef egg )
 //
 DKLinkedListRef DKLinkedListCopy( DKLinkedListRef _self )
 {
-    return DKLinkedListCreateWithCollection( DKGetClass( _self ), _self );
+    return DKLinkedListInitWithCollection( DKAlloc( DKGetClass( _self ) ), _self );
 }
 
 
@@ -630,7 +630,7 @@ DKLinkedListRef DKLinkedListCopy( DKLinkedListRef _self )
 //
 DKMutableLinkedListRef DKLinkedListMutableCopy( DKLinkedListRef _self )
 {
-    return DKLinkedListCreateWithCollection( DKMutableLinkedListClass(), _self );
+    return DKLinkedListInitWithCollection( DKAlloc( DKMutableLinkedListClass() ), _self );
 }
 
 

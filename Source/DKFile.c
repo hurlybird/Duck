@@ -80,7 +80,7 @@ static void DKFileFinalize( DKObjectRef _self )
 //
 DKFileRef DKFileOpen( DKStringRef filename, const char * mode )
 {
-    struct DKFile * file = DKCreate( DKFileClass() );
+    struct DKFile * file = DKNew( DKFileClass() );
     
     if( file )
     {

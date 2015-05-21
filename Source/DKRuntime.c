@@ -643,7 +643,7 @@ DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structS
     if( structSize == 0 )
         structSize = superclass ? superclass->structSize : sizeof(DKObject);
 
-    struct DKClass * cls = DKCreate( DKClassClass() );
+    struct DKClass * cls = DKNew( DKClassClass() );
 
     cls->name = DKCopy( name );
     cls->superclass = DKRetain( superclass );
@@ -761,9 +761,9 @@ void DKDeallocObject( DKObjectRef _self )
 
 
 ///
-//  DKAlloc()
+//  DKAllocEx()
 //
-DKObjectRef DKAlloc( DKClassRef _class, size_t extraBytes )
+DKObjectRef DKAllocEx( DKClassRef _class, size_t extraBytes )
 {
     DKObject * obj = NULL;
     
@@ -801,11 +801,11 @@ DKObjectRef DKInit( DKObjectRef _self )
     {
         DKObject * obj = _self;
         
-        if( obj->isa->init )
-            _self = obj->isa->init( _self );
-        
-        else
-            _self = DKSuperInit( _self, DKGetSuperclass( _self ) );
+        for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
+        {
+            if( cls->init )
+                return cls->init( _self );
+        }
     }
     
     return _self;
@@ -820,12 +820,12 @@ DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass )
     if( _self && superclass )
     {
         DKAssertKindOfClass( _self, superclass );
-    
-        if( superclass->init )
-            _self = superclass->init( _self );
-        
-        else
-            _self = DKSuperInit( _self, superclass->superclass );
+
+        for( DKClassRef cls = superclass; cls != NULL; cls = cls->superclass )
+        {
+            if( cls->init )
+                return cls->init( _self );
+        }
     }
     
     return _self;

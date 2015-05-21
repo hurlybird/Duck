@@ -38,8 +38,10 @@ typedef struct DKHashTable * DKMutableHashTableRef;
 DKClassRef  DKHashTableClass( void );
 DKClassRef  DKMutableHashTableClass( void );
 
-#define     DKHashTableCreateEmpty()    DKCreate( DKHashTableClass() )
-#define     DKHashTableCreateMutable()  DKCreate( DKMutableHashTableClass() )
+#define     DKEmptyHashTable()      DKAutorelease( DKNew( DKHashTableClass() ) )
+#define     DKMutableHashTable()    DKAutorelease( DKNew( DKMutableHashTableClass() ) )
+
+#define     DKNewMutableHashTable() DKNew( DKMutableHashTableClass() )
 
 DKObjectRef DKHashTableInitDictionaryWithVAKeysAndObjects( DKHashTableRef _self, va_list keysAndObjects );
 DKObjectRef DKHashTableInitDictionaryWithDictionary( DKHashTableRef _self, DKDictionaryRef srcDictionary );

@@ -37,10 +37,12 @@ typedef struct DKBinaryTree * DKMutableBinaryTreeRef;
 DKClassRef  DKBinaryTreeClass( void );
 DKClassRef  DKMutableBinaryTreeClass( void );
 
-#define     DKBinaryTreeCreateEmpty()    DKCreate( DKBinaryTreeClass() )
-#define     DKBinaryTreeCreateMutable()  DKCreate( DKMutableBinaryTreeClass() )
+#define     DKEmptyBinaryTree()         DKAutorelease( DKNew( DKBinaryTreeClass() ) )
+#define     DKMutableBinaryTree()       DKAutorelease( DKNew( DKMutableBinaryTreeClass() ) )
 
-DKMutableBinaryTreeRef DKBinaryTreeCreateWithCompareFunction( DKCompareFunction keyCompare );
+#define     DKNewMutableBinaryTree()    DKNew( DKMutableBinaryTreeClass() )
+
+DKMutableBinaryTreeRef DKNewBinaryTreeWithCompareFunction( DKCompareFunction keyCompare );
 
 DKObjectRef DKBinaryTreeInitDictionaryWithVAKeysAndObjects( DKBinaryTreeRef _self, va_list keysAndObjects );
 DKObjectRef DKBinaryTreeInitDictionaryWithDictionary( DKBinaryTreeRef _self, DKDictionaryRef dictionary );

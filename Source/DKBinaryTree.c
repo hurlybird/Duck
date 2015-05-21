@@ -623,11 +623,11 @@ static void DKBinaryTreeFinalize( DKObjectRef _self )
 
 
 ///
-//  DKBinaryTreeCreateWithCompareFunction()
+//  DKNewBinaryTreeWithCompareFunction()
 //
-DKMutableBinaryTreeRef DKBinaryTreeCreateWithCompareFunction( DKCompareFunction keyCompare )
+DKMutableBinaryTreeRef DKNewBinaryTreeWithCompareFunction( DKCompareFunction keyCompare )
 {
-    struct DKBinaryTree * tree = DKCreate( DKMutableBinaryTreeClass() );
+    struct DKBinaryTree * tree = DKNew( DKMutableBinaryTreeClass() );
 
     if( tree && keyCompare )
     {
@@ -787,7 +787,7 @@ DKBinaryTreeRef DKBinaryTreeCopy( DKBinaryTreeRef _self )
     {
         DKAssertKindOfClass( _self, DKBinaryTreeClass() );
 
-        struct DKBinaryTree * copy = DKCreate( DKGetClass( _self ) );
+        struct DKBinaryTree * copy = DKNew( DKGetClass( _self ) );
 
         copy->keyCompare = _self->keyCompare;
 
@@ -809,7 +809,7 @@ DKMutableBinaryTreeRef DKBinaryTreeMutableCopy( DKBinaryTreeRef _self )
     {
         DKAssertKindOfClass( _self, DKBinaryTreeClass() );
 
-        struct DKBinaryTree * copy = DKCreate( DKMutableBinaryTreeClass() );
+        struct DKBinaryTree * copy = DKNew( DKMutableBinaryTreeClass() );
 
         copy->keyCompare = _self->keyCompare;
 

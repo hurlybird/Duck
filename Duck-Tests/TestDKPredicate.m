@@ -38,128 +38,110 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKPredicate
 {
-    DKPredicateRef test = NULL;
-    #define PREDICATE( op, a, b )               \
-    {                                           \
-        DKRelease( test );                      \
-        test = DKPredicateCreate( op, a, b );   \
-    }
+    DKBooleanRef nope = DKFalse();
+    DKBooleanRef yep = DKTrue();
     
-    DKNumberRef nope = DKNumberCreateInt32( 0 );
-    DKNumberRef yep = DKNumberCreateInt32( 1 );
-    
-    DKListRef nope_nope = DKListCreateWithObjects( DKListClass(), nope, nope, NULL );
-    DKListRef nope_yep = DKListCreateWithObjects( DKListClass(), nope, yep, NULL );
-    DKListRef yep_nope = DKListCreateWithObjects( DKListClass(), yep, nope, NULL );
-    DKListRef yep_yep = DKListCreateWithObjects( DKListClass(), yep, yep, NULL );
+    DKListRef nope_nope = DKListWithObjects( nope, nope, NULL );
+    DKListRef nope_yep = DKListWithObjects( nope, yep, NULL );
+    DKListRef yep_nope = DKListWithObjects( yep, nope, NULL );
+    DKListRef yep_yep = DKListWithObjects( yep, yep, NULL );
 
     // True/False
-    PREDICATE( DKPredicateTRUE, NULL, NULL );
+    DKPredicateRef test = DKPredicate( DKPredicateTRUE, NULL, NULL );
     XCTAssert( DKEvaluate( test ) == true );
     
-    PREDICATE( DKPredicateFALSE, NULL, NULL );
+    test = DKPredicate( DKPredicateFALSE, NULL, NULL );
     XCTAssert( DKEvaluate( test ) == false );
 
     // Not
-    PREDICATE( DKPredicateNOT, nope, NULL );
+    test = DKPredicate( DKPredicateNOT, nope, NULL );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateNOT, yep, nope );
+    test = DKPredicate( DKPredicateNOT, yep, nope );
     XCTAssert( DKEvaluate( test ) == false );
 
     // And
-    PREDICATE( DKPredicateAND, nope, nope );
+    test = DKPredicate( DKPredicateAND, nope, nope );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateAND, nope, yep );
+    test = DKPredicate( DKPredicateAND, nope, yep );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateAND, yep, nope );
+    test = DKPredicate( DKPredicateAND, yep, nope );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateAND, yep, yep );
+    test = DKPredicate( DKPredicateAND, yep, yep );
     XCTAssert( DKEvaluate( test ) == true );
     
-    PREDICATE( DKPredicateAND, nope_nope, NULL );
+    test = DKPredicate( DKPredicateAND, nope_nope, NULL );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateAND, nope_yep, NULL );
+    test = DKPredicate( DKPredicateAND, nope_yep, NULL );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateAND, yep_nope, NULL );
+    test = DKPredicate( DKPredicateAND, yep_nope, NULL );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateAND, yep_yep, NULL );
+    test = DKPredicate( DKPredicateAND, yep_yep, NULL );
     XCTAssert( DKEvaluate( test ) == true );
 
     // Or
-    PREDICATE( DKPredicateOR, nope, nope );
+    test = DKPredicate( DKPredicateOR, nope, nope );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateOR, nope, yep );
+    test = DKPredicate( DKPredicateOR, nope, yep );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateOR, yep, nope );
+    test = DKPredicate( DKPredicateOR, yep, nope );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateOR, yep, yep );
+    test = DKPredicate( DKPredicateOR, yep, yep );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateOR, nope_nope, NULL );
+    test = DKPredicate( DKPredicateOR, nope_nope, NULL );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateOR, nope_yep, NULL );
+    test = DKPredicate( DKPredicateOR, nope_yep, NULL );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateOR, yep_nope, NULL );
+    test = DKPredicate( DKPredicateOR, yep_nope, NULL );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateOR, yep_yep, NULL );
+    test = DKPredicate( DKPredicateOR, yep_yep, NULL );
     XCTAssert( DKEvaluate( test ) == true );
 
     // Eq
-    PREDICATE( DKPredicateEQ, yep, yep );
+    test = DKPredicate( DKPredicateEQ, yep, yep );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateEQ, yep, nope );
+    test = DKPredicate( DKPredicateEQ, yep, nope );
     XCTAssert( DKEvaluate( test ) == false );
     
     // In
-    PREDICATE( DKPredicateIN, yep, yep_nope );
+    test = DKPredicate( DKPredicateIN, yep, yep_nope );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateIN, yep, nope_nope );
+    test = DKPredicate( DKPredicateIN, yep, nope_nope );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateIN, DKSTR( "cat" ), DKSTR( "lolcat" ) );
+    test = DKPredicate( DKPredicateIN, DKSTR( "cat" ), DKSTR( "lolcat" ) );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateIN, DKSTR( "cat" ), DKSTR( "dinosaur" ) );
+    test = DKPredicate( DKPredicateIN, DKSTR( "cat" ), DKSTR( "dinosaur" ) );
     XCTAssert( DKEvaluate( test ) == false );
     
     // Isa
-    PREDICATE( DKPredicateISA, yep, DKNumberClass() );
+    test = DKPredicate( DKPredicateISA, yep, DKNumberClass() );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateISA, yep, DKSelector(Comparison) );
+    test = DKPredicate( DKPredicateISA, yep, DKSelector(Comparison) );
     XCTAssert( DKEvaluate( test ) == true );
 
-    PREDICATE( DKPredicateISA, yep, DKDataClass() );
+    test = DKPredicate( DKPredicateISA, yep, DKDataClass() );
     XCTAssert( DKEvaluate( test ) == false );
 
-    PREDICATE( DKPredicateISA, yep, DKSelector(List) );
+    test = DKPredicate( DKPredicateISA, yep, DKSelector(List) );
     XCTAssert( DKEvaluate( test ) == false );
-
-    // Cleanup
-    DKRelease( nope );
-    DKRelease( yep );
-    
-    DKRelease( nope_nope );
-    DKRelease( nope_yep );
-    DKRelease( yep_nope );
-    DKRelease( yep_yep );
-    
-    DKRelease( test );
 }
 
 

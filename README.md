@@ -43,7 +43,7 @@ A basic SConstruct file is included for building with scons.
 Here's a snippet of code that shows what using Duck Objects looks like.
 
 ```C
-#include "Duck.h"
+#include <Duck/Duck.h>
 
 int main( int argc, const char * argv[] )
 {
@@ -54,30 +54,24 @@ int main( int argc, const char * argv[] )
     DKPushAutoreleasePool();
 
     // Create a mutable list
-    DKMutableListRef list = DKListCreateMutable();
+    DKMutableListRef list = DKMutableList();
     
     for( int i = 0; i < 10; i++ )
     {
         // Create a string
-        DKMutableStringRef str = DKStringCreateMutable();
+        DKMutableStringRef str = DKMutableString();
         
         // Strings support the stream interface so we can print to them thusly
         DKSPrintf( str, "Hello World %d", i );
 
         // Add the string to the list
         DKListAppendObject( list, str );
-        
-        // Release the local reference to the string
-        DKRelease( str );
     }
     
     // Print the list to stdout
     DKPrintf( "%@\n", list );
     
-    // Release the list and the objects it contains
-    DKRelease( list );
-
-    // Free the autorelease pool
+    // Free the autorelease pool (and all the temporary objects we allocated)
     DKPopAutoreleasePool();
 
     return 0;

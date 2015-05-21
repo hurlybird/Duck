@@ -336,7 +336,7 @@ static const DKEggAttribute * GetAttribute( DKEggUnarchiverRef _self, DKStringRe
 static DKClassRef GetClass( DKEggUnarchiverRef _self, uint32_t offset )
 {
     const char * cstr = (const char *)&_self->data[offset];
-    DKStringRef className = DKStringCreateWithCString( DKStringClass(), cstr );
+    DKStringRef className = DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr );
     DKClassRef cls = DKClassFromString( className );
     DKRelease( className );
     
@@ -355,7 +355,7 @@ static DKClassRef GetClass( DKEggUnarchiverRef _self, uint32_t offset )
 static DKSEL GetSelector( DKEggUnarchiverRef _self, uint32_t offset )
 {
     const char * cstr = (const char *)&_self->data[offset];
-    DKStringRef selectorName = DKStringCreateWithCString( DKStringClass(), cstr );
+    DKStringRef selectorName = DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr );
     DKSEL sel = DKSelectorFromString( selectorName );
     DKRelease( selectorName );
     
@@ -389,7 +389,7 @@ static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
             return NULL;
         
         // Allocate the object
-        object = DKAlloc( cls, 0 );
+        object = DKAlloc( cls );
         
         // Make sure we can deserialize the object
         DKEggInterfaceRef eggInterface;
@@ -922,15 +922,15 @@ void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKObjectRef stream )
 
 
 ///
-//  DKEggArchiverCreateData()
+//  DKEggArchiverCopyData()
 //
-DKDataRef DKEggArchiverCreateData( DKEggArchiverRef _self )
+DKDataRef DKEggArchiverCopyData( DKEggArchiverRef _self )
 {
     DKEggHeader header;
     BuildHeader( _self, &header );
 
     DKIndex size = header.data.index + header.data.length;
-    DKMutableDataRef data = DKDataInitWithCapacity( DKAlloc( DKMutableDataClass(), 0 ), size );
+    DKMutableDataRef data = DKDataInitWithCapacity( DKAlloc( DKMutableDataClass() ), size );
     
     WriteHeader( _self, &header, data );
     WriteObjectTable( _self, &header, data );

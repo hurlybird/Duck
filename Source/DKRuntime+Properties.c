@@ -77,7 +77,7 @@ static void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRe
     DKSpinLockLock( &cls->propertiesLock );
     
     if( cls->properties == NULL )
-        cls->properties = DKHashTableCreateMutable();
+        cls->properties = DKNewMutableHashTable();
     
     DKHashTableInsertObject( cls->properties, name, property, DKInsertAlways );
     
@@ -96,7 +96,7 @@ void DKInstallObjectProperty( DKClassRef _class,
     DKPropertySetter setter,
     DKPropertyGetter getter )
 {
-    struct DKProperty * property = DKCreate( DKPropertyClass() );
+    struct DKProperty * property = DKNew( DKPropertyClass() );
     
     property->name = DKCopy( name );
     
@@ -128,7 +128,7 @@ void DKInstallNumberProperty( DKClassRef _class,
 {
     DKAssert( DKEncodingIsNumber( encoding ) );
     
-    struct DKProperty * property = DKCreate( DKPropertyClass() );
+    struct DKProperty * property = DKNew( DKPropertyClass() );
     
     property->name = DKCopy( name );
     
@@ -158,7 +158,7 @@ void DKInstallStructProperty( DKClassRef _class,
     DKPropertySetter setter,
     DKPropertyGetter getter )
 {
-    struct DKProperty * property = DKCreate( DKPropertyClass() );
+    struct DKProperty * property = DKNew( DKPropertyClass() );
     
     property->name = DKCopy( name );
     
@@ -406,14 +406,14 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
     // Automatic conversion of numerical types
     if( DKEncodingIsNumber( property->encoding ) )
     {
-        DKNumberRef number = DKNumberCreate( value, property->encoding );
+        DKNumberRef number = DKNewNumber( value, property->encoding );
         return DKAutorelease( number );
     }
 
     // Automatic conversion of structure types
     if( property->semantic != NULL )
     {
-        DKStructRef structure = DKStructCreate( property->semantic, value, DKEncodingGetSize( property->encoding ) );
+        DKStructRef structure = DKNewStruct( property->semantic, value, DKEncodingGetSize( property->encoding ) );
         return DKAutorelease( structure );
     }
 
@@ -578,7 +578,7 @@ void DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcV
             
             if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
             {
-                DKNumberRef number = DKNumberCreate( srcValue, srcEncoding );
+                DKNumberRef number = DKNewNumber( srcValue, srcEncoding );
                 propertyInterface->setProperty( _self, name, number );
                 DKRelease( number );
                 return;
@@ -592,7 +592,7 @@ void DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcV
         
         if( property->setter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
         {
-            DKNumberRef number = DKNumberCreate( srcValue, srcEncoding );
+            DKNumberRef number = DKNewNumber( srcValue, srcEncoding );
             DKWritePropertyObject( _self, property, number );
             DKRelease( number );
             return;
@@ -739,7 +739,7 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef seman
             
             if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
             {
-                DKStructRef structure = DKStructCreate( semantic, srcValue, srcSize );
+                DKStructRef structure = DKNewStruct( semantic, srcValue, srcSize );
                 propertyInterface->setProperty( _self, name, structure );
                 DKRelease( structure );
                 return;
@@ -754,7 +754,7 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef seman
         
         if( property->setter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
         {
-            DKStructRef structure = DKStructCreate( semantic, srcValue, srcSize );
+            DKStructRef structure = DKNewStruct( semantic, srcValue, srcSize );
             DKWritePropertyObject( _self, property, structure );
             DKRelease( structure );
             return;

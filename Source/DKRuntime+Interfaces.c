@@ -69,7 +69,7 @@ static unsigned int NextCacheLine = 0;
 //
 DKSEL DKAllocSelector( DKStringRef name )
 {
-    struct _DKSEL * sel = DKInit( DKAlloc( DKSelectorClass(), 0 ) );
+    struct _DKSEL * sel = DKInit( DKAlloc( DKSelectorClass() ) );
 
     DKAssert( sel != NULL );
 
@@ -117,7 +117,7 @@ DKInterfaceRef DKAllocInterface( DKSEL sel, size_t structSize )
         // with the largest interface or it'll cause an access error at run time.
         DKAssert( (extraBytes / sizeof(void *)) <= DK_MAX_INTERFACE_SIZE );
         
-        DKInterface * interface = DKInit( DKAlloc( DKInterfaceClass(), extraBytes ) );
+        DKInterface * interface = DKInit( DKAllocEx( DKInterfaceClass(), extraBytes ) );
         DKAssert( interface != NULL );
 
         interface->sel = DKRetain( sel );
@@ -258,7 +258,7 @@ bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * _inte
 //
 void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func )
 {
-    struct DKMsgHandler * msgHandler = DKInit( DKAlloc( DKMsgHandlerClass(), sizeof(void *) ) );
+    struct DKMsgHandler * msgHandler = DKInit( DKAllocEx( DKMsgHandlerClass(), sizeof(void *) ) );
     DKAssert( msgHandler != NULL );
 
     msgHandler->sel = DKRetain( sel );
@@ -275,7 +275,7 @@ void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func )
 //
 void DKInstallClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func )
 {
-    struct DKMsgHandler * msgHandler = DKInit( DKAlloc( DKMsgHandlerClass(), sizeof(void *) ) );
+    struct DKMsgHandler * msgHandler = DKInit( DKAllocEx( DKMsgHandlerClass(), sizeof(void *) ) );
     DKAssert( msgHandler != NULL );
 
     msgHandler->sel = DKRetain( sel );

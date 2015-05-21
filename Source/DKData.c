@@ -365,7 +365,7 @@ DKDataRef DKDataCopy( DKDataRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKDataClass() );
-        return DKDataCreateWithBytes( DKGetClass( _self ), _self->byteArray.bytes, _self->byteArray.length );
+        return DKDataInitWithBytes( DKAlloc( DKGetClass( _self ) ), _self->byteArray.bytes, _self->byteArray.length );
     }
     
     return NULL;
@@ -380,7 +380,7 @@ DKMutableDataRef DKDataMutableCopy( DKDataRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKDataClass() );
-        return DKDataCreateWithBytes( DKMutableDataClass(), _self->byteArray.bytes, _self->byteArray.length );
+        return DKDataInitWithBytes( DKAlloc( DKMutableDataClass() ), _self->byteArray.bytes, _self->byteArray.length );
     }
     
     return NULL;

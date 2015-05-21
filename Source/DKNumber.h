@@ -52,25 +52,26 @@ typedef struct DKNumber * DKNumberRef;
 
 DKClassRef  DKNumberClass( void );
 
-#define     DKNumberCreate( value, encoding )       DKNumberInit( DKAlloc( DKNumberClass(), 0 ), value, encoding )
+#define     DKNumber( value, encoding )         DKAutorelease( DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding ) )
+#define     DKNewNumber( value, encoding )      DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding )
 
-DKNumberRef DKNumberCreateInt32( int32_t x );
-DKNumberRef DKNumberCreateInt64( int64_t x );
-DKNumberRef DKNumberCreateUInt32( uint32_t x );
-DKNumberRef DKNumberCreateUInt64( uint64_t x );
-DKNumberRef DKNumberCreateFloat( float x );
-DKNumberRef DKNumberCreateDouble( double x );
-DKNumberRef DKNumberCreateUUID( const DKUUID * uuid );
-DKNumberRef DKNumberCreateDate( const DKDateTime * date );
+DKNumberRef DKNewNumberWithInt32( int32_t x );
+DKNumberRef DKNewNumberWithInt64( int64_t x );
+DKNumberRef DKNewNumberWithUInt32( uint32_t x );
+DKNumberRef DKNewNumberWithUInt64( uint64_t x );
+DKNumberRef DKNewNumberWithFloat( float x );
+DKNumberRef DKNewNumberWithDouble( double x );
+DKNumberRef DKNewNumberWithUUID( const DKUUID * uuid );     // Passing NULL will generate a new UUID
+DKNumberRef DKNewNumberWithDate( const DKDateTime * date ); // Passing NULL will retrieve the current date+time
 
-#define     DKNumberWithInt32( x )      DKAutorelease( DKNumberCreateInt32( x ) )
-#define     DKNumberWithInt64( x )      DKAutorelease( DKNumberCreateInt64( x ) )
-#define     DKNumberWithUInt32( x )     DKAutorelease( DKNumberCreateUInt32( x ) )
-#define     DKNumberWithUInt64( x )     DKAutorelease( DKNumberCreateUInt64( x ) )
-#define     DKNumberWithFloat( x )      DKAutorelease( DKNumberCreateFloat( x ) )
-#define     DKNumberWithDouble( x )     DKAutorelease( DKNumberCreateDouble( x ) )
-#define     DKNumberWithUUID( x )       DKAutorelease( DKNumberCreateUUID( x ) )
-#define     DKNumberWithDate( x )       DKAutorelease( DKNumberCreateDate( x ) )
+#define     DKNumberWithInt32( x )      DKAutorelease( DKNewNumberWithInt32( x ) )
+#define     DKNumberWithInt64( x )      DKAutorelease( DKNewNumberWithInt64( x ) )
+#define     DKNumberWithUInt32( x )     DKAutorelease( DKNewNumberWithUInt32( x ) )
+#define     DKNumberWithUInt64( x )     DKAutorelease( DKNewNumberWithUInt64( x ) )
+#define     DKNumberWithFloat( x )      DKAutorelease( DKNewNumberWithFloat( x ) )
+#define     DKNumberWithDouble( x )     DKAutorelease( DKNewNumberWithDouble( x ) )
+#define     DKNumberWithUUID( x )       DKAutorelease( DKNewNumberWithUUID( x ) )
+#define     DKNumberWithDate( x )       DKAutorelease( DKNewNumberWithDate( x ) )
 
 DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding );
 

@@ -365,7 +365,7 @@ static void DKArrayAddToEgg( DKArrayRef _self, DKEggArchiverRef egg )
 //
 DKArrayRef DKArrayCopy( DKArrayRef _self )
 {
-    return DKArrayCreateWithCollection( DKGetClass( _self ), _self );
+    return DKArrayInitWithCollection( DKAlloc( DKGetClass( _self ) ), _self );
 }
 
 
@@ -374,7 +374,7 @@ DKArrayRef DKArrayCopy( DKArrayRef _self )
 //
 DKMutableArrayRef DKArrayMutableCopy( DKArrayRef _self )
 {
-    return DKArrayCreateWithCollection( DKMutableArrayClass(), _self );
+    return DKArrayInitWithCollection( DKAlloc( DKMutableArrayClass() ), _self );
 }
 
 

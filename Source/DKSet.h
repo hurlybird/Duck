@@ -77,20 +77,16 @@ void        DKSetDefaultSetClass( DKClassRef _self );
 DKClassRef  DKMutableSetClass( void );
 void        DKSetDefaultMutableSetClass( DKClassRef _self );
 
-#define     DKSetCreateEmpty()    DKCreate( DKSetClass() )
-#define     DKSetCreateMutable()  DKCreate( DKMutableSetClass() )
+#define     DKEmptySet()            DKAutorelease( DKNew( DKSetClass() ) )
+#define     DKMutableSet()          DKAutorelease( DKNew( DKMutableSetClass() ) )
 
-#define     DKSetCreateWithObject( cls, object )            DKSetInitWithObject( DKAlloc( cls, 0 ), object )
-#define     DKSetCreateWithObjects( cls, ... )              DKSetInitWithObjects( DKAlloc( cls, 0 ), __VA_ARGS__ )
-#define     DKSetCreateWithVAObjects( cls, objects )        DKSetInitWithVAObjects( DKAlloc( cls, 0 ), objects )
-#define     DKSetCreateWithCArray( cls, objects, count )    DKSetInitWithCArray( DKAlloc( cls, 0 ), objects, count )
-#define     DKSetCreateWithCollection( cls, collection )    DKSetInitWithCollection( DKAlloc( cls, 0 ), collection )
+#define     DKSetWithObject( object )           DKAutorelease( DKSetInitWithObject( DKAlloc( DKSetClass() ), object ) )
+#define     DKSetWithObjects( ... )             DKAutorelease( DKSetInitWithObjects( DKAlloc( DKSetClass() ), __VA_ARGS__ ) )
+#define     DKSetWithVAObjects( objects )       DKAutorelease( DKSetInitWithVAObjects( DKAlloc( DKSetClass() ), objects ) )
+#define     DKSetWithCArray( objects, count )   DKAutorelease( DKSetInitWithCArray( DKAlloc( DKSetClass() ), objects, count ) )
+#define     DKSetWithCollection( collection )   DKAutorelease( DKSetInitWithCollection( DKAlloc( DKSetClass() ), collection ) )
 
-#define     DKSetWithObject( object )           DKAutorelease( DKSetInitWithObject( DKAlloc( DKSetClass(), 0 ), object ) )
-#define     DKSetWithObjects( ... )             DKAutorelease( DKSetInitWithObjects( DKAlloc( DKSetClass(), 0 ), __VA_ARGS__ ) )
-#define     DKSetWithVAObjects( objects )       DKAutorelease( DKSetInitWithVAObjects( DKAlloc( DKSetClass(), 0 ), objects ) )
-#define     DKSetWithCArray( objects, count )   DKAutorelease( DKSetInitWithCArray( DKAlloc( DKSetClass(), 0 ), objects, count ) )
-#define     DKSetWithCollection( collection )   DKAutorelease( DKSetInitWithCollection( DKAlloc( DKSetClass(), 0 ), collection ) )
+#define     DKNewMutableSet()       DKNew( DKMutableSetClass() )
 
 DKObjectRef DKSetInitWithObject( DKSetRef _self, DKObjectRef object );
 DKObjectRef DKSetInitWithObjects( DKSetRef _self, ... );

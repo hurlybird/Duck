@@ -36,31 +36,41 @@ static int RaiseException( const char * format, va_list arg_ptr )
     [super tearDown];
 }
 
-struct TestStruct
+typedef struct
 {
     int x;
     float y;
-};
+    
+} TestStruct;
+
 
 - (void) testEgg
 {
-    struct TestStruct testStruct = { 11, 17.0f };
+    TestStruct testStruct = { 11, 17.0f };
 
-    DKStringRef s1 = DKStringWithCString( DKStringClass(), "Hello World!" );
-    DKNumberRef n1 = DKNumberCreateInt32( 1 );
-    DKStructRef x1 = DKStructCreate( DKSTR( "TestStruct" ), &testStruct, sizeof(struct TestStruct) );
-    DKArrayRef a1 = DKListCreateWithObjects( DKArrayClass(), DKSTR( "Dick" ), DKSTR( "Jane" ), DKSTR( "Spot" ), NULL );
-    DKLinkedListRef l1 = DKListCreateWithObjects( DKListClass(), DKSTR( "Dick" ), DKSTR( "Jane" ), DKSTR( "Spot" ), NULL );
-    DKHashTableRef h1 = DKDictionaryCreateWithKeysAndObjects( DKHashTableClass(),
+    DKStringRef s1 = DKStringWithCString( "Hello World!" );
+    DKNumberRef n1 = DKNumberWithInt32( 1 );
+    DKStructRef x1 = DKStructWithType( &testStruct, TestStruct );
+    DKArrayRef a1 = DKAutorelease( DKListInitWithObjects( DKAlloc( DKArrayClass() ),
+        DKSTR( "Dick" ),
+        DKSTR( "Jane" ),
+        DKSTR( "Spot" ),
+        NULL ) );
+    DKLinkedListRef l1 = DKAutorelease( DKListInitWithObjects( DKAlloc( DKListClass() ),
+        DKSTR( "Dick" ),
+        DKSTR( "Jane" ),
+        DKSTR( "Spot" ),
+        NULL ) );
+    DKHashTableRef h1 = DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKHashTableClass() ),
         DKSTR( "Dick" ), DKSTR( "Boy" ),
         DKSTR( "Jane" ), DKSTR( "Girl" ),
         DKSTR( "Spot" ), DKSTR( "Dog" ),
-        NULL );
-    DKBinaryTreeRef b1 = DKDictionaryCreateWithKeysAndObjects( DKBinaryTreeClass(),
+        NULL ) );
+    DKBinaryTreeRef b1 = DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKBinaryTreeClass() ),
         DKSTR( "Dick" ), DKSTR( "Boy" ),
         DKSTR( "Jane" ), DKSTR( "Girl" ),
         DKSTR( "Spot" ), DKSTR( "Dog" ),
-        NULL );
+        NULL ) );
     DKMutableDictionaryRef doc1 = DKDictionaryWithKeysAndObjects(
         DKSTR( "Dick" ), DKSTR( "\"boy\"" ),
         DKSTR( "Jane" ), DKSTR( "girl" ),
@@ -75,7 +85,7 @@ struct TestStruct
         DKSTR( "Null" ), NULL,
         NULL );
 
-    DKEggArchiverRef archiver = DKCreate( DKEggArchiverClass() );
+    DKEggArchiverRef archiver = DKNew( DKEggArchiverClass() );
     DKEggAddObject( archiver, DKSTR( "string" ), s1 );
     DKEggAddObject( archiver, DKSTR( "number" ), n1 );
     DKEggAddObject( archiver, DKSTR( "struct" ), x1 );
@@ -85,9 +95,9 @@ struct TestStruct
     DKEggAddObject( archiver, DKSTR( "binary-tree" ), b1 );
     DKEggAddObject( archiver, DKSTR( "document" ), doc1 );
     
-    DKDataRef archivedData = DKEggArchiverCreateData( archiver );
+    DKDataRef archivedData = DKEggArchiverCopyData( archiver );
     
-    DKEggUnarchiverRef unarchiver = DKEggCreateUnarchiverWithData( archivedData );
+    DKEggUnarchiverRef unarchiver = DKNewEggUnarchiverWithData( archivedData );
 
     DKStringRef s2 = DKEggGetObject( unarchiver, DKSTR( "string" ) );
     XCTAssert( DKEqual( s1, s2 ) );

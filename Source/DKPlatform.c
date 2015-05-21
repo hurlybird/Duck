@@ -84,7 +84,7 @@ int _DKPrintf( const char * format, ... )
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
-    DKMutableStringRef tmp = DKStringCreateMutable();
+    DKMutableStringRef tmp = DKNewMutableString();
     DKVSPrintf( tmp, format, arg_ptr );
 
     va_end( arg_ptr );

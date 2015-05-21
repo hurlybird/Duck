@@ -140,19 +140,22 @@ DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t struct
 DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes );
 void        DKDeallocObject( DKObjectRef _self );
 
-// Allocates a new object. Use 'extraBytes' to allocate memory beyond the 'structSize'
-// specified in the class. The extra memory is not automatically zeroed for you.
-DKObjectRef DKAlloc( DKClassRef _class, size_t extraBytes );
+// Allocates a new object using the Allocation interface of its class. Use 'extraBytes' to
+// allocate memory beyond the 'structSize' specified by the class. The extra memory is not
+// automatically zeroed for you.
+#define     DKAlloc( _class )   DKAllocEx( _class, 0 )
+DKObjectRef DKAllocEx( DKClassRef _class, size_t extraBytes );
 
-// Deallocates an object created. You should never need to call this directly unless
-// dealing with an object that bypasses normal reference counting.
+// Deallocates an object using the Allocation interface of its class. You should never
+// need to call this directly unless dealing with an object that bypasses normal reference
+// counting.
 void        DKDealloc( DKObjectRef _self );
 
-// Call the object's default initializer. The object returned by DKIntializeObject may
+// Call the default initializer specified by the object's class. The object returned may
 // not be the same as the object passed to it.
 DKObjectRef DKInit( DKObjectRef _self );
 
-// Call the object's superclass initializer.
+// Call the default initializer specified by 'superclass'.
 DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass );
 
 // Call the object's finalizer chain. You should never need to call this directly unless
@@ -160,7 +163,7 @@ DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass );
 void        DKFinalize( DKObjectRef _self );
 
 // Wrapper for DKAlloc + DKInit
-#define     DKCreate( _class )  DKInit( DKAlloc( _class, 0 ) )
+#define     DKNew( _class )  DKInit( DKAllocEx( _class, 0 ) )
 
 
 

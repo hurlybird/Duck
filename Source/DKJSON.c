@@ -366,7 +366,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     // Array
     else if( ch == '[' )
     {
-        *obj = DKListCreateMutable();
+        *obj = DKNewMutableList();
     
         while( true )
         {
@@ -406,7 +406,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     // Object
     else if( ch == '{' )
     {
-        *obj = DKDictionaryCreateMutable();
+        *obj = DKNewMutableDictionary();
     
         while( true )
         {
@@ -470,7 +470,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
             double x;
             sscanf( token.str, "%lf", &x );
             
-            *obj = DKNumberCreateDouble( x );
+            *obj = DKNewNumberWithDouble( x );
             return 0;
         }
         
@@ -479,7 +479,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
             int64_t x;
             sscanf( token.str, "%lld", &x );
             
-            *obj = DKNumberCreateInt64( x );
+            *obj = DKNewNumberWithInt64( x );
             return 0;
         }
     }
@@ -549,7 +549,7 @@ static Token ScanToken( ParseContext * context, DKStringRef * stringValue )
     if( ch == '"' )
     {
         DKAssert( stringValue != NULL );
-        *stringValue = DKStringCreateMutable();
+        *stringValue = DKNewMutableString();
     
         while( true )
         {

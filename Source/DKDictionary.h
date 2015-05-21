@@ -73,14 +73,13 @@ void        DKSetDefaultDictionaryClass( DKClassRef _class );
 DKClassRef  DKMutableDictionaryClass( void );
 void        DKSetDefaultMutableDictionaryClass( DKClassRef _class );
 
-#define     DKDictionaryCreateEmpty()    DKCreate( DKDictionaryClass() )
-#define     DKDictionaryCreateMutable()  DKCreate( DKMutableDictionaryClass() )
+#define     DKEmptyDictionary()         DKAutorelease( DKNew( DKDictionaryClass() ) )
+#define     DKMutableDictionary()       DKAutorelease( DKNew( DKMutableDictionaryClass() ) )
 
-#define     DKDictionaryCreateWithKeysAndObjects( cls, firstKey, ... )  DKDictionaryInitWithKeysAndObjects( DKAlloc( cls, 0 ), firstKey, __VA_ARGS__ )
-#define     DKDictionaryCreateWithDictionary( cls, srcDictionary )      DKDictionaryInitWithDictionary( DKAlloc( cls, 0 ), srcDictionary )
+#define     DKDictionaryWithKeysAndObjects( firstKey, ... )     DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__ ) )
+#define     DKDictionaryWithDictionary( srcDictionary )         DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary ) )
 
-#define     DKDictionaryWithKeysAndObjects( firstKey, ... )     DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass(), 0 ), firstKey, __VA_ARGS__ ) )
-#define     DKDictionaryWithDictionary( srcDictionary )         DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass(), 0 ), srcDictionary ) )
+#define     DKNewMutableDictionary()    DKNew( DKMutableDictionaryClass() )
 
 DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, ... );
 DKObjectRef DKDictionaryInitWithDictionary( DKDictionaryRef _self, DKDictionaryRef srcDictionary );

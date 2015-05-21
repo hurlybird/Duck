@@ -58,12 +58,12 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKSetClass:(DKClassRef)setClass
 {
-    DKMutableSetRef set = DKCreate( setClass );
+    DKMutableSetRef set = DKNew( setClass );
     
-    DKStringRef a = DKStringCreateWithCString( DKStringClass(), "A" );
-    DKStringRef b = DKStringCreateWithCString( DKStringClass(), "B" );
-    DKStringRef c = DKStringCreateWithCString( DKStringClass(), "A" );
-    DKStringRef d = DKStringCreateWithCString( DKStringClass(), "B" );
+    DKStringRef a = DKStringWithCString( "A" );
+    DKStringRef b = DKStringWithCString( "B" );
+    DKStringRef c = DKStringWithCString( "A" );
+    DKStringRef d = DKStringWithCString( "B" );
     
     DKSetAddObject( set, a );
     DKSetAddObject( set, b );
@@ -86,11 +86,6 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( DKSetContainsObject( set, DKSTR( "B" ) ) );
     XCTAssert( DKSetContainsObject( set, DKSTR( "C" ) ) == 0 );
     XCTAssert( DKSetContainsObject( set, DKSTR( "D" ) ) == 0 );
-    
-    DKRelease( a );
-    DKRelease( b );
-    DKRelease( c );
-    DKRelease( d );
     
     DKRelease( set );
 }

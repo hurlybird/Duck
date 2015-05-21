@@ -418,11 +418,9 @@ void * DKStringInitWithString( DKStringRef _self, DKStringRef other )
 ///
 //  DKStringInitWithCString()
 //
-void * DKStringInitWithCString( DKStringRef _self, const char * cstr, size_t length )
+void * DKStringInitWithCString( DKStringRef _self, const char * cstr )
 {
-    if( length <= 0 )
-        length = strlen( cstr );
-
+    size_t length = strlen( cstr );
     return InitString( _self, cstr, length );
 }
 
@@ -593,7 +591,7 @@ static DKStringRef DKMutableStringGetDescription( DKMutableStringRef _self )
 //
 DKStringRef DKStringCopy( DKStringRef _self )
 {
-    return DKStringCreateWithString( DKStringClass(), _self );
+    return DKStringInitWithString( DKAlloc( DKStringClass() ), _self );
 }
 
 
@@ -602,7 +600,7 @@ DKStringRef DKStringCopy( DKStringRef _self )
 //
 DKMutableStringRef DKStringMutableCopy( DKStringRef _self )
 {
-    return DKStringCreateWithString( DKMutableStringClass(), _self );
+    return DKStringInitWithString( DKAlloc( DKMutableStringClass() ), _self );
 }
 
 
@@ -941,7 +939,7 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
 //
 DKListRef DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef separator )
 {
-    DKMutableArrayRef array = DKCreate( DKMutableArrayClass() );
+    DKMutableArrayRef array = DKNew( DKMutableArrayClass() );
 
     if( _self )
     {
@@ -982,7 +980,7 @@ DKListRef DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef 
 //
 DKStringRef DKStringCreateByCombiningStrings( DKListRef list, DKStringRef separator )
 {
-    DKMutableStringRef combinedString = DKStringCreateMutable();
+    DKMutableStringRef combinedString = DKNewMutableString();
 
     if( list )
     {

@@ -53,7 +53,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKStringRef c = DKSTR( "c" );
     DKStringRef d = DKSTR( "d" );
     
-    DKMutableListRef list = DKCreate( listClass );
+    DKMutableListRef list = DKNew( listClass );
     
     // Append
     DKListAppendObject( list, a );
@@ -126,6 +126,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testNSArrayPerformance
 {
+#if !DEBUG
     NSMutableArray * array = [NSMutableArray array];
 
     srand( 0 );
@@ -147,24 +148,29 @@ static int RaiseException( const char * format, va_list arg_ptr )
             [array replaceObjectAtIndex:index1 withObject:value2];
         }
     }];
+#endif
 }
 
 
 - (void) testDKArrayPerformance
 {
+#if !DEBUG
     [self testListClassPerformance:DKMutableArrayClass()];
+#endif
 }
 
 
-//- (void) testDKLinkedListPerformance
-//{
-//    [self testListClassPerformance:DKMutableLinkedListClass()];
-//}
+- (void) testDKLinkedListPerformance
+{
+#if !DEBUG
+    //[self testListClassPerformance:DKMutableLinkedListClass()];
+#endif
+}
 
 
 - (void) testListClassPerformance:(DKClassRef)listClass
 {
-    DKMutableListRef list = DKCreate( listClass );
+    DKMutableListRef list = DKNew( listClass );
 
     srand( 0 );
 
@@ -172,7 +178,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     
         for( int i = 0; i < PERFORMANCE_N; i++ )
         {
-            DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
+            DKStringRef s = DKStringInitWithFormat( DKAlloc( DKStringClass() ), "%d", i );
             DKListAppendObject( list, s );
             DKRelease( s );
         }

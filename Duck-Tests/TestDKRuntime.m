@@ -77,10 +77,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKInstallMsgHandler( TestClassB, DKSelector(Cube), (DKMsgFunction)TestCube );
     
     // Create some instances
-    DKObjectRef a = DKCreate( TestClassA );
+    DKObjectRef a = DKNew( TestClassA );
     XCTAssert( a );
 
-    DKObjectRef b = DKCreate( TestClassB );
+    DKObjectRef b = DKNew( TestClassB );
     XCTAssert( b );
     
     // Test class membership
@@ -167,22 +167,22 @@ static void ResolveWeakThread( DKObjectRef param )
 {
     const int N = 10000;
 
-    DKMutableListRef array1 = DKCreate( DKMutableArrayClass() );
-    DKMutableListRef array2 = DKCreate( DKMutableArrayClass() );
+    DKMutableListRef array1 = DKNew( DKMutableArrayClass() );
+    DKMutableListRef array2 = DKNew( DKMutableArrayClass() );
 
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
+        DKStringRef s = DKStringInitWithFormat( DKAlloc( DKStringClass() ), "%d", i );
         
         DKListAppendObject( array1, s );
         DKListAppendObject( array2, s );
         DKRelease( s );
     }
 
-    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass(), 0 ), LinearReleaseThread, array1 );
-    DKThreadStart( thread1 );
+    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass() ), LinearReleaseThread, array1 );
+    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass() ), RandomReleaseThread, array2 );
 
-    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass(), 0 ), RandomReleaseThread, array2 );
+    DKThreadStart( thread1 );
     DKThreadStart( thread2 );
     
     DKThreadJoin( thread1 );
@@ -200,12 +200,12 @@ static void ResolveWeakThread( DKObjectRef param )
 {
     const int N = 10000;
 
-    DKMutableListRef array1 = DKCreate( DKMutableArrayClass() );
-    DKMutableListRef array2 = DKCreate( DKMutableArrayClass() );
+    DKMutableListRef array1 = DKNew( DKMutableArrayClass() );
+    DKMutableListRef array2 = DKNew( DKMutableArrayClass() );
 
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef s = DKStringCreateWithFormat( DKStringClass(), "%d", i );
+        DKStringRef s = DKStringInitWithFormat( DKAlloc( DKStringClass() ), "%d", i );
         DKWeakRef w = DKRetainWeak( s );
         
         DKListAppendObject( array1, s );
@@ -215,10 +215,10 @@ static void ResolveWeakThread( DKObjectRef param )
         DKRelease( w );
     }
 
-    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass(), 0 ), RandomReleaseThread, array1 );
-    DKThreadStart( thread1 );
+    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass() ), RandomReleaseThread, array1 );
+    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass() ), ResolveWeakThread, array2 );
 
-    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass(), 0 ), ResolveWeakThread, array2 );
+    DKThreadStart( thread1 );
     DKThreadStart( thread2 );
     
     DKThreadJoin( thread1 );

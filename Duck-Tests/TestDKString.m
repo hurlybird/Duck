@@ -85,7 +85,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     const char * b = "bbbbbbbbbb";
     const char * c = "cccccccccc";
 
-    DKMutableStringRef str = DKStringCreateMutable();
+    DKMutableStringRef str = DKMutableString();
     
     XCTAssert( DKWrite( str, a, 1, 10 ) == 10 );
     XCTAssert( DKTell( str ) == 10 );
@@ -102,8 +102,6 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( DKSeek( str, 10, SEEK_SET ) == 0 );
     XCTAssert( DKRead( str, buffer, 1, 10 ) == 10 );
     XCTAssert( strcmp( buffer, b ) == 0 );
-    
-    DKRelease( str );
 }
 
 - (void) testDKStringConcatenation
@@ -136,7 +134,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKStringPrintf
 {
-    DKMutableStringRef str = DKStringCreateMutable();
+    DKMutableStringRef str = DKMutableString();
     
     DKSPrintf( str, "%d", 100 );
     XCTAssert( DKStringEqual( str, DKSTR( "100" ) ) );
@@ -152,8 +150,6 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKStringSetString( str, DKSTR( "" ) );
     DKSPrintf( str, "%@", DKSTR( "Hello" ) );
     XCTAssert( DKStringEqual( str, DKSTR( "Hello" ) ) );
-    
-    DKRelease( str );
 }
 
 - (void) testDKStringUTF8
