@@ -49,26 +49,6 @@ DKIndex DKGetCount( DKObjectRef _self )
 
 
 ///
-//  DKGetAnyKey()
-//
-static int DKGetAnyKeyCallback( DKObjectRef key, void * context )
-{
-    DKObjectRef * result = context;
-    *result = key;
-    return 1;
-}
-
-DKObjectRef DKGetAnyKey( DKObjectRef _self )
-{
-    DKObjectRef key = NULL;
-    
-    DKForeachKey( _self, DKGetAnyKeyCallback, &key );
-    
-    return key;
-}
-
-
-///
 //  DKGetAnyObject()
 //
 static int DKGetAnyObjectCallback( DKObjectRef object, void * context )
@@ -82,9 +62,22 @@ DKObjectRef DKGetAnyObject( DKObjectRef _self )
 {
     DKObjectRef object = NULL;
     
-    DKForeachObject( _self, DKGetAnyKeyCallback, &object );
+    DKForeachObject( _self, DKGetAnyObjectCallback, &object );
     
     return object;
+}
+
+
+///
+//  DKGetAnyKey()
+//
+DKObjectRef DKGetAnyKey( DKObjectRef _self )
+{
+    DKObjectRef key = NULL;
+    
+    DKForeachKey( _self, DKGetAnyObjectCallback, &key );
+    
+    return key;
 }
 
 

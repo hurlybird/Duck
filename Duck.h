@@ -27,10 +27,18 @@
 #ifndef _DUCK_LIBRARY_H_
 #define _DUCK_LIBRARY_H_
 
+//! Project version number for Duck.
+//FOUNDATION_EXPORT double DuckVersionNumber;
+
+//! Project version string for Duck.
+//FOUNDATION_EXPORT const unsigned char DuckVersionString[];
+
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
 
 #include "DKConfig.h"
 #include "DKPlatform.h"

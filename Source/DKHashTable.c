@@ -53,8 +53,6 @@ static void        DKHashTableFinalize( DKObjectRef _self );
 static DKObjectRef DKHashTableInitWithEgg( DKHashTableRef _self, DKEggUnarchiverRef egg );
 static void        DKHashTableAddToEgg( DKHashTableRef _self, DKEggArchiverRef egg );
 
-static void        Insert( struct DKHashTable * hashTable, DKHashCode hash, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
-
 static DKIndex     INTERNAL_DKHashTableGetCount( DKHashTableRef _self );
 static DKObjectRef INTERNAL_DKHashTableGetObject( DKHashTableRef _self, DKObjectRef key );
 

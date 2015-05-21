@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <Duck/Duck.h>
 #include <pthread.h>
 
 

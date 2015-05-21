@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <Duck/Duck.h>
 
 static int RaiseException( const char * format, va_list arg_ptr )
 {
