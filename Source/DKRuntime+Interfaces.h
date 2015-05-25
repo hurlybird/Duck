@@ -125,7 +125,6 @@ DKSEL DKAllocSelector( DKStringRef name );
 
 
 // DKInterface ===========================================================================
-#define DK_MAX_INTERFACE_SIZE   32
 
 typedef struct _DKInterface
 {
@@ -141,8 +140,8 @@ typedef void * DKInterfaceRef;
 #define DKDeclareInterfaceSelector( name )                                              \
     DKSEL DKSelector_ ## name( void )
 
-// Allocate a new interface object.
-DKInterfaceRef DKAllocInterface( DKSEL sel, size_t structSize );
+// Create a new interface object.
+DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize );
 
 // Install an interface on a class.
 //

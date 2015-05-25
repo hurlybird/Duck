@@ -29,7 +29,7 @@
 
 // The comparison selector is initialized by DKRuntimeInit() so that constant strings can
 // be used during initialization.
-//DKThreadSafeSelectorInit( Comparison );
+//DKThreadSafeFastSelectorInit( Comparison );
 
 
 ///

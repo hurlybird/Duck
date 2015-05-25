@@ -88,10 +88,10 @@ DKThreadSafeClassInit( DKStringClass )
 {
     // Since constant strings are used for class and selector names, the name fields of
     // DKString and DKConstantString are initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKObjectClass(), sizeof(struct DKString), DKImmutableInstances, DKStringInit, DKStringFinalize );
+    DKClassRef cls = DKNewClass( NULL, DKObjectClass(), sizeof(struct DKString), DKImmutableInstances, DKStringInit, DKStringFinalize );
 
     // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
+    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
     allocation->alloc = (DKAllocMethod)DKStringAllocPlaceholder;
     allocation->dealloc = (DKDeallocMethod)DKStringDealloc;
 
@@ -99,7 +99,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( allocation );
     
     // Comparison
-    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (DKEqualityMethod)DKStringEqual;
     comparison->compare = (DKCompareMethod)DKStringCompare;
     comparison->hash = (DKHashMethod)DKStringHash;
@@ -108,7 +108,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( comparison );
     
     // Copying
-    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKStringMutableCopy;
     
@@ -116,7 +116,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( copying );
 
     // Description
-    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->getDescription = (DKGetDescriptionMethod)DKGetSelf;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -124,7 +124,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( description );
     
     // Stream
-    struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
+    struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKStringSeek;
     stream->tell = (DKStreamTellMethod)DKStringTell;
     stream->read = (DKStreamReadMethod)DKStringRead;
@@ -134,7 +134,7 @@ DKThreadSafeClassInit( DKStringClass )
     DKRelease( stream );
 
     // Egg
-    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
     egg->initWithEgg = (DKInitWithEggMethod)DKStringInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKStringAddToEgg;
     
@@ -152,7 +152,7 @@ DKThreadSafeClassInit( DKConstantStringClass )
 {
     // Since constant strings are used for class and selector names, the name fields of
     // DKString and DKConstantString are initialized in DKRuntimeInit().
-    DKClassRef cls = DKAllocClass( NULL, DKStringClass(), sizeof(struct DKString), DKPreventSubclassing | DKDisableReferenceCounting | DKImmutableInstances, NULL, NULL );
+    DKClassRef cls = DKNewClass( NULL, DKStringClass(), sizeof(struct DKString), DKPreventSubclassing | DKDisableReferenceCounting | DKImmutableInstances, NULL, NULL );
     
     return cls;
 }
@@ -163,10 +163,10 @@ DKThreadSafeClassInit( DKConstantStringClass )
 //
 DKThreadSafeClassInit( DKMutableStringClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableString" ), DKStringClass(), sizeof(struct DKString), 0, NULL, NULL );
+    DKClassRef cls = DKNewClass( DKSTR( "DKMutableString" ), DKStringClass(), sizeof(struct DKString), 0, NULL, NULL );
     
     // Copying
-    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = (DKCopyMethod)DKStringMutableCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKStringMutableCopy;
     
@@ -174,7 +174,7 @@ DKThreadSafeClassInit( DKMutableStringClass )
     DKRelease( copying );
     
     // Description
-    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->getDescription = (DKGetDescriptionMethod)DKMutableStringGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -182,7 +182,7 @@ DKThreadSafeClassInit( DKMutableStringClass )
     DKRelease( description );
     
     // Stream
-    struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
+    struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKStringSeek;
     stream->tell = (DKStreamTellMethod)DKStringTell;
     stream->read = (DKStreamReadMethod)DKStringRead;

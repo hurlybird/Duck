@@ -57,10 +57,10 @@ static void         DKDataAddToEgg( DKDataRef _self, DKEggArchiverRef egg );
 //
 DKThreadSafeClassInit( DKDataClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData), DKImmutableInstances, DKDataInitialize, DKDataFinalize );
+    DKClassRef cls = DKNewClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData), DKImmutableInstances, DKDataInitialize, DKDataFinalize );
     
     // Comparison
-    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (DKEqualityMethod)DKDataEqual;
     comparison->compare = (DKCompareMethod)DKDataCompare;
     comparison->hash = (DKHashMethod)DKDataHash;
@@ -69,7 +69,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( comparison );
 
     // Copying
-    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKDataMutableCopy;
     
@@ -77,7 +77,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( copying );
 
     // Stream
-    struct DKStreamInterface * stream =DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
+    struct DKStreamInterface * stream =DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKDataSeek;
     stream->tell = (DKStreamTellMethod)DKDataTell;
     stream->read = (DKStreamReadMethod)DKDataRead;
@@ -87,7 +87,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( stream );
     
     // Egg
-    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
     egg->initWithEgg = (DKInitWithEggMethod)DKDataInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKDataAddToEgg;
     
@@ -103,10 +103,10 @@ DKThreadSafeClassInit( DKDataClass )
 //
 DKThreadSafeClassInit( DKMutableDataClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableData" ), DKDataClass(), sizeof(struct DKData), 0, NULL, NULL );
+    DKClassRef cls = DKNewClass( DKSTR( "DKMutableData" ), DKDataClass(), sizeof(struct DKData), 0, NULL, NULL );
     
     // Copying
-    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = (DKCopyMethod)DKDataMutableCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKDataMutableCopy;
     
@@ -114,7 +114,7 @@ DKThreadSafeClassInit( DKMutableDataClass )
     DKRelease( copying );
     
     // Stream
-    struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
+    struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKDataSeek;
     stream->tell = (DKStreamTellMethod)DKDataTell;
     stream->read = (DKStreamReadMethod)DKDataRead;

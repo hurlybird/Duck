@@ -64,10 +64,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
 - (void) testRuntime
 {
     // Define a sample class
-    DKClassRef TestClassA = DKAllocClass( DKSTR( "A" ), DKObjectClass(), sizeof(DKObject), 0, NULL, NULL );
+    DKClassRef TestClassA = DKNewClass( DKSTR( "A" ), DKObjectClass(), sizeof(DKObject), 0, NULL, NULL );
     XCTAssert( TestClassA );
     
-    DKClassRef TestClassB = DKAllocClass( DKSTR( "B" ), TestClassA, sizeof(DKObject), 0, NULL, NULL );
+    DKClassRef TestClassB = DKNewClass( DKSTR( "B" ), TestClassA, sizeof(DKObject), 0, NULL, NULL );
     XCTAssert( TestClassB );
     
     // Install some message handlers

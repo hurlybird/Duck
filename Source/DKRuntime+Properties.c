@@ -40,7 +40,7 @@ static void DKPropertyFinalize( DKObjectRef _self );
 
 DKThreadSafeClassInit( DKPropertyClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKProperty" ), DKObjectClass(), sizeof(struct DKProperty), 0, NULL, DKPropertyFinalize );
+    DKClassRef cls = DKNewClass( DKSTR( "DKProperty" ), DKObjectClass(), sizeof(struct DKProperty), 0, NULL, DKPropertyFinalize );
 
     return cls;
 }

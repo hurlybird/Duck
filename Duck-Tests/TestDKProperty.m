@@ -57,7 +57,7 @@ struct TestObject
 
 - (DKClassRef) createTestClass
 {
-    DKClassRef testClass = DKAllocClass( DKSTR( "Test" ), DKObjectClass(), sizeof(struct TestObject), 0, NULL, NULL );
+    DKClassRef testClass = DKNewClass( DKSTR( "Test" ), DKObjectClass(), sizeof(struct TestObject), 0, NULL, NULL );
 
     DKPredicateRef predicate = DKPredicate( DKPredicateISA, NULL, DKStringClass() );
 

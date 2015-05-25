@@ -44,10 +44,10 @@ static void DKFileFinalize( DKObjectRef _self );
 //
 DKThreadSafeClassInit( DKFileClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKFile" ), DKObjectClass(), sizeof(struct DKFile), 0, NULL, DKFileFinalize );
+    DKClassRef cls = DKNewClass( DKSTR( "DKFile" ), DKObjectClass(), sizeof(struct DKFile), 0, NULL, DKFileFinalize );
     
     // Stream
-    struct DKStreamInterface * stream = DKAllocInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
+    struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKFileSeek;
     stream->tell = (DKStreamTellMethod)DKFileTell;
     stream->read = (DKStreamReadMethod)DKFileRead;

@@ -29,7 +29,7 @@
 
 // The copying selector is initialized by DKRuntimeInit() so that constant strings can
 // be used during initialization.
-//DKThreadSafeSelectorInit( Copying );
+//DKThreadSafeFastSelectorInit( Copying );
 
 
 ///

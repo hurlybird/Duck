@@ -50,7 +50,7 @@ static void DKThreadFinalize( DKObjectRef _self );
 
 DKThreadSafeClassInit( DKThreadClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKThread" ), DKObjectClass(), sizeof(struct DKThread), 0, DKThreadInitialize, DKThreadFinalize );
+    DKClassRef cls = DKNewClass( DKSTR( "DKThread" ), DKObjectClass(), sizeof(struct DKThread), 0, DKThreadInitialize, DKThreadFinalize );
     
     return cls;
 }

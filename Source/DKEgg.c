@@ -123,7 +123,7 @@ static void DKEggUnarchiverFinalize( DKObjectRef _self );
 //
 DKThreadSafeClassInit( DKEggUnarchiverClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKEggUnarchiver" ), DKObjectClass(), sizeof(struct DKEggUnarchiver), 0, NULL, DKEggUnarchiverFinalize );
+    DKClassRef cls = DKNewClass( DKSTR( "DKEggUnarchiver" ), DKObjectClass(), sizeof(struct DKEggUnarchiver), 0, NULL, DKEggUnarchiverFinalize );
 
     return cls;
 }
@@ -732,7 +732,7 @@ static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object );
 //
 DKThreadSafeClassInit( DKEggArchiverClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKEggArchiver" ), DKObjectClass(), sizeof(struct DKEggArchiver), 0, DKEggArchiverInit, DKEggArchiverFinalize );
+    DKClassRef cls = DKNewClass( DKSTR( "DKEggArchiver" ), DKObjectClass(), sizeof(struct DKEggArchiver), 0, DKEggArchiverInit, DKEggArchiverFinalize );
 
     return cls;
 }

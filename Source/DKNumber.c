@@ -250,10 +250,10 @@ DKThreadSafeClassInit( DKNumberClass )
     // NOTE: The value field of DKNumber is dynamically sized, and not included in the
     // base instance structure size.
     DKAssert( sizeof(struct DKNumber) == (sizeof(DKObject) + sizeof(DKNumberValue)) );
-    DKClassRef cls = DKAllocClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(DKObject), DKImmutableInstances, NULL, NULL );
+    DKClassRef cls = DKNewClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(DKObject), DKImmutableInstances, NULL, NULL );
     
     // Allocation
-    struct DKAllocationInterface * allocation = DKAllocInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
+    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
     allocation->alloc = (DKAllocMethod)DKNumberAllocPlaceholder;
     allocation->dealloc = (DKDeallocMethod)DKNumberDealloc;
 
@@ -261,7 +261,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( allocation );
     
     // Comparison
-    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (DKEqualityMethod)DKNumberEqual;
     comparison->compare = (DKCompareMethod)DKNumberCompare;
     comparison->hash = (DKHashMethod)DKNumberHash;
@@ -270,7 +270,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( comparison );
     
     // Description
-    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->getDescription = (DKGetDescriptionMethod)DKNumberGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -278,7 +278,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( description );
 
     // Egg
-    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
     egg->initWithEgg = (DKInitWithEggMethod)DKNumberInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKNumberAddToEgg;
     

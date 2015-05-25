@@ -27,7 +27,9 @@
 #include "DKLocking.h"
 
 
-DKThreadSafeFastSelectorInit( Locking );
+// The copying selector is initialized by DKRuntimeInit() so that constant strings can
+// be used during initialization.
+//DKThreadSafeFastSelectorInit( Locking );
 
 
 ///

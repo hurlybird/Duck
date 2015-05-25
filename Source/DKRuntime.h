@@ -105,7 +105,7 @@ DKClassRef DKObjectClass( void );
 
 
 
-// Creating Classes ======================================================================
+// Classes ===============================================================================
 
 // Class Options
 enum
@@ -126,14 +126,15 @@ enum
 typedef DKObjectRef (*DKInitMethod)( DKObjectRef _self );
 typedef void (*DKFinalizeMethod)( DKObjectRef _self );
 
-// Allocate a new class object.
-DKClassRef  DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize,
+// Create a new class object.
+DKClassRef  DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSize,
     uint32_t options, DKInitMethod init, DKFinalizeMethod finalize );
 
 
 
 
-// Alloc/Free Objects ====================================================================
+
+// Objects ===============================================================================
 
 // These functions implement the default allocator for objects. You should never need to
 // call them outside of a custom allocation scheme. Use DKAlloc and DKDealloc instead.
@@ -165,10 +166,7 @@ void        DKFinalize( DKObjectRef _self );
 // Wrapper for DKAlloc + DKInit
 #define     DKNew( _class )  DKInit( DKAllocEx( _class, 0 ) )
 
-
-
-
-// Object Synchronization ================================================================
+// Simple object synchronization
 void        DKLockObject( DKObjectRef _self );
 bool        DKTryLockObject( DKObjectRef _self );
 void        DKUnlockObject( DKObjectRef _self );

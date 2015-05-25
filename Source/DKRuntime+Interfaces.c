@@ -34,10 +34,19 @@
 
 
 
-// Error Handling Interfaces =============================================================
+// Error Handling ========================================================================
+
+// Called when an interface vtable hasn't been properly initialized.
+static void DKUninitializedMethodError( DKObjectRef _self )
+{
+    // Note: The '_self' pointer is for debugging only -- it may not be valid since
+    // interface methods do not require it.
+
+    DKFatalError( "DKRuntime: Calling an uninitialized interface method\n" );
+}
+
 
 // This handles sending messages to NULL objects.
-
 DKDeclareMessageSelector( MsgHandlerNotFound );
 DKThreadSafeSelectorInit( MsgHandlerNotFound );
 
@@ -48,7 +57,7 @@ static intptr_t DKMsgHandlerNotFoundMethod( DKObjectRef _self, DKSEL sel )
 
 DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
 {
-    struct DKMsgHandler * msgHandler = DKAllocInterface( DKSelector(MsgHandlerNotFound), sizeof(struct DKMsgHandler) );
+    struct DKMsgHandler * msgHandler = DKNewInterface( DKSelector(MsgHandlerNotFound), sizeof(struct DKMsgHandler) );
 
     msgHandler->func = DKMsgHandlerNotFoundMethod;
 
@@ -270,26 +279,24 @@ void DKSelectorFinalize( DKObjectRef _self )
 // DKInterface ===========================================================================
 
 ///
-//  DKAllocInterface()
+//  DKNewInterface()
 //
-DKInterfaceRef DKAllocInterface( DKSEL sel, size_t structSize )
+DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize )
 {
     if( sel )
     {
         size_t extraBytes = structSize - sizeof(DKInterface);
         
-        // DKGetInterface returns a generic interface filled with DK_MAX_INTERFACE_SIZE
-        // pointers to DKInterfaceNotFound. The size needs to be large enough to deal
-        // with the largest interface or it'll cause an access error at run time.
-        DKAssert( (extraBytes / sizeof(void *)) <= DK_MAX_INTERFACE_SIZE );
-        
         DKInterface * interface = DKInit( DKAllocEx( DKInterfaceClass(), extraBytes ) );
-        DKAssert( interface != NULL );
 
         interface->sel = DKRetain( sel );
     
-        // Init all the function pointers to NULL
-        memset( interface + 1, 0, extraBytes );
+        // Init all the function pointers
+        void ** methods = (void **)(interface + 1);
+        size_t methodCount = extraBytes / sizeof(void *);
+        
+        for( size_t i = 0; i < methodCount; i++ )
+            methods[i] = DKUninitializedMethodError;
     
         return interface;
     }

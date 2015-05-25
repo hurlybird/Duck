@@ -64,10 +64,10 @@ static void        INTERNAL_DKArrayReplaceRangeWithCollection( DKMutableArrayRef
 //
 DKThreadSafeClassInit( DKArrayClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKArray" ), DKObjectClass(), sizeof(struct DKArray), DKImmutableInstances, DKArrayInitialize, DKArrayFinalize );
+    DKClassRef cls = DKNewClass( DKSTR( "DKArray" ), DKObjectClass(), sizeof(struct DKArray), DKImmutableInstances, DKArrayInitialize, DKArrayFinalize );
     
     // Comparison
-    struct DKComparisonInterface * comparison = DKAllocInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
     comparison->equal = (DKEqualityMethod)DKListEqual;
     comparison->compare = (DKCompareMethod)DKListCompare;
     comparison->hash = (DKHashMethod)DKPointerHash;
@@ -76,7 +76,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( comparison );
 
     // Copying
-    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKArrayMutableCopy;
     
@@ -84,7 +84,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( copying );
 
     // Description
-    struct DKDescriptionInterface * description = DKAllocInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->getDescription = (DKGetDescriptionMethod)DKCollectionGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -92,7 +92,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( description );
 
     // Collection
-    struct DKCollectionInterface * collection = DKAllocInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
+    struct DKCollectionInterface * collection = DKNewInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
     collection->getCount = (DKGetCountMethod)INTERNAL_DKArrayGetCount;
     collection->containsObject = (DKContainsMethod)DKListContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKArrayApplyFunction;
@@ -101,7 +101,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( collection );
 
     // List
-    struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
+    struct DKListInterface * list = DKNewInterface( DKSelector(List), sizeof(struct DKListInterface) );
     list->initWithVAObjects = (DKListInitWithVAObjectsMethod)DKArrayInitWithVAObjects;
     list->initWithCArray = (DKListInitWithCArrayMethod)DKArrayInitWithCArray;
     list->initWithCollection = (DKListInitWithCollectionMethod)DKArrayInitWithCollection;
@@ -121,7 +121,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( list );
     
     // Set
-    struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    struct DKSetInterface * set = DKNewInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
     set->initWithVAObjects = (DKSetInitWithVAObjectsMethod)DKListInitSetWithVAObjects;
     set->initWithCArray = (DKSetInitWithCArrayMethod)DKListInitSetWithCArray;
     set->initWithCollection = (DKSetInitWithCollectionMethod)DKListInitSetWithCollection;
@@ -137,7 +137,7 @@ DKThreadSafeClassInit( DKArrayClass )
     DKRelease( set );
 
     // Egg
-    struct DKEggInterface * egg = DKAllocInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
     egg->initWithEgg = (DKInitWithEggMethod)DKArrayInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKArrayAddToEgg;
     
@@ -153,10 +153,10 @@ DKThreadSafeClassInit( DKArrayClass )
 //
 DKThreadSafeClassInit( DKMutableArrayClass )
 {
-    DKClassRef cls = DKAllocClass( DKSTR( "DKMutableArray" ), DKArrayClass(), sizeof(struct DKArray), 0, NULL, NULL );
+    DKClassRef cls = DKNewClass( DKSTR( "DKMutableArray" ), DKArrayClass(), sizeof(struct DKArray), 0, NULL, NULL );
     
     // Copying
-    struct DKCopyingInterface * copying = DKAllocInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
     copying->copy = (DKCopyMethod)DKArrayMutableCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKArrayMutableCopy;
     
@@ -164,7 +164,7 @@ DKThreadSafeClassInit( DKMutableArrayClass )
     DKRelease( copying );
 
     // List
-    struct DKListInterface * list = DKAllocInterface( DKSelector(List), sizeof(struct DKListInterface) );
+    struct DKListInterface * list = DKNewInterface( DKSelector(List), sizeof(struct DKListInterface) );
     list->initWithVAObjects = (DKListInitWithVAObjectsMethod)DKArrayInitWithVAObjects;
     list->initWithCArray = (DKListInitWithCArrayMethod)DKArrayInitWithCArray;
     list->initWithCollection = (DKListInitWithCollectionMethod)DKArrayInitWithCollection;
@@ -184,7 +184,7 @@ DKThreadSafeClassInit( DKMutableArrayClass )
     DKRelease( list );
 
     // Set
-    struct DKSetInterface * set = DKAllocInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    struct DKSetInterface * set = DKNewInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
     set->initWithVAObjects = (DKSetInitWithVAObjectsMethod)DKListInitSetWithVAObjects;
     set->initWithCArray = (DKSetInitWithCArrayMethod)DKListInitSetWithCArray;
     set->initWithCollection = (DKSetInitWithCollectionMethod)DKListInitSetWithCollection;

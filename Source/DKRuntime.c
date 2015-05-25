@@ -39,6 +39,7 @@
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
+#include "DKLocking.h"
 #include "DKThread.h"
 
 
@@ -193,6 +194,7 @@ DKStaticSelectorInit( Allocation );
 DKStaticSelectorInit( Comparison );
 DKStaticSelectorInit( Copying );
 DKStaticSelectorInit( Description );
+DKStaticSelectorInit( Locking );
 DKStaticSelectorInit( Stream );
 DKStaticSelectorInit( Egg );
 
@@ -251,6 +253,21 @@ static struct DKDescriptionInterface DKDefaultDescription_StaticObject =
 DKInterfaceRef DKDefaultDescription( void )
 {
     return &DKDefaultDescription_StaticObject;
+}
+
+
+// DefaultLocking ------------------------------------------------------------------------
+static struct DKLockingInterface DKDefaultLocking_StaticObject =
+{
+    DKStaticInterfaceObject( &DKSelector_Locking_StaticObject ),
+    DKLockObject,
+    DKTryLockObject,
+    DKUnlockObject
+};
+
+DKInterfaceRef DKDefaultLocking( void )
+{
+    return &DKDefaultLocking_StaticObject;
 }
 
 
@@ -414,6 +431,9 @@ void DKRuntimeInit( void )
         InstallRootClassInstanceInterface( &__DKInterfaceClass__, DKInterfaceComparison() );
         InstallRootClassInstanceInterface( &__DKMsgHandlerClass__, DKInterfaceComparison() );
 
+        // Install default locking for instances of DKObject
+        InstallRootClassInstanceInterface( &__DKObjectClass__, DKDefaultLocking() );
+
         // Initialize the name database
         DKNameDatabaseInit();
 
@@ -447,17 +467,17 @@ void DKRuntimeInit( void )
 
 
 
-// Creating Classes ======================================================================
+// Classes ===============================================================================
 
 ///
-//  DKAllocClass()
+//  DKNewClass()
 //
-DKClassRef DKAllocClass( DKStringRef name, DKClassRef superclass, size_t structSize,
+DKClassRef DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSize,
     uint32_t options, DKInitMethod init, DKFinalizeMethod finalize )
 {
     if( superclass && ((superclass->options & DKPreventSubclassing) != 0) )
     {
-        DKFatalError( "DKAllocClass: Class '%s' does not allow subclasses.\n", DKStringGetCStringPtr( superclass->name ) );
+        DKFatalError( "DKNewClass: Class '%s' does not allow subclasses.\n", DKStringGetCStringPtr( superclass->name ) );
         return NULL;
     }
     
@@ -518,7 +538,7 @@ static void DKClassFinalize( DKObjectRef _self )
 
 
 
-// Alloc/Free Objects ====================================================================
+// Objects ===============================================================================
 
 ///
 //  DKAllocObject()
@@ -670,10 +690,6 @@ void DKFinalize( DKObjectRef _self )
     }
 }
 
-
-
-
-// Object Synchronization ================================================================
 
 ///
 //  DKLockObject()
