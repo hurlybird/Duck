@@ -27,132 +27,8 @@
 #define DK_RUNTIME_PRIVATE 1
 
 #include "DKRuntime.h"
+#include "DKString.h"
 #include "DKGenericArray.h"
-#include "DKGenericHashTable.h"
-
-
-
-
-// Weak Reference Table ==================================================================
-
-static DKSpinLock WeakReferenceTableLock = DKSpinLockInit;
-static DKGenericHashTable WeakReferenceTable;
-
-
-// Hash Table Callbacks
-static DKRowStatus WeakReferenceTableRowStatus( const void * _row )
-{
-    const DKWeakRef * row = _row;
-    return (DKRowStatus)DK_HASHTABLE_ROW_STATUS( *row );
-}
-
-static DKHashCode WeakReferenceTableRowHash( const void * _row )
-{
-    const DKWeakRef * row = _row;
-    return DKObjectUniqueHash( (*row)->target );
-}
-
-static bool WeakReferenceTableRowEqual( const void * _row1, const void * _row2 )
-{
-    const DKWeakRef * row1 = _row1;
-    const DKWeakRef * row2 = _row2;
-    return (*row1)->target == (*row2)->target;
-}
-
-static void WeakReferenceTableRowInit( void * _row )
-{
-    DKWeakRef * row = _row;
-    (*row) = DK_HASHTABLE_EMPTY_KEY;
-}
-
-static void WeakReferenceTableRowUpdate( void * _row, const void * _src )
-{
-    DKWeakRef * row = _row;
-    const DKWeakRef * src = _src;
-    *row = *src;
-}
-
-static void WeakReferenceTableRowDelete( void * _row )
-{
-    DKWeakRef * row = _row;
-    (*row) = DK_HASHTABLE_DELETED_KEY;
-}
-
-
-///
-//  DKWeakReferenceTableInit()
-//
-void DKWeakReferenceTableInit( void )
-{
-    DKGenericHashTableCallbacks callbacks =
-    {
-        WeakReferenceTableRowStatus,
-        WeakReferenceTableRowHash,
-        WeakReferenceTableRowEqual,
-        WeakReferenceTableRowInit,
-        WeakReferenceTableRowUpdate,
-        WeakReferenceTableRowDelete
-    };
-    
-    DKGenericHashTableInit( &WeakReferenceTable, sizeof(DKWeakRef), &callbacks );
-}
-
-
-///
-//  WeakReferenceTableFindOrInsert()
-//
-static DKWeakRef WeakReferenceTableFindOrInsert( DKObject * obj )
-{
-    DKWeakRef weakref = NULL;
-    
-    struct DKWeak _key;
-    _key.target = obj;
-    struct DKWeak * key = &_key;
-
-    // Check the table for a weak reference
-    DKSpinLockLock( &WeakReferenceTableLock );
-    
-    const DKWeakRef * entry = DKGenericHashTableFind( &WeakReferenceTable, &key );
-    
-    if( entry )
-    {
-        weakref = *entry;
-        
-        DKSpinLockUnlock( &WeakReferenceTableLock );
-        
-        return weakref;
-    }
-    
-    DKSpinLockUnlock( &WeakReferenceTableLock );
-
-    // Create a new weak reference
-    DKWeakRef newWeakref = DKAlloc( DKWeakClass() );
-    newWeakref->lock = DKSpinLockInit;
-    newWeakref->target = obj;
-
-    // Try to insert it into the table
-    DKSpinLockLock( &WeakReferenceTableLock );
-
-    if( DKGenericHashTableInsert( &WeakReferenceTable, &newWeakref, DKInsertIfNotFound ) )
-    {
-        DKAtomicAdd32( &obj->refcount, DKRefCountWeakBit );
-        weakref = newWeakref;
-    }
-    
-    else
-    {
-        const DKWeakRef * entry = DKGenericHashTableFind( &WeakReferenceTable, &key );
-        weakref = *entry;
-    }
-
-    DKSpinLockUnlock( &WeakReferenceTableLock );
-
-    // Discard the new weak reference if we're not using it
-    if( weakref != newWeakref )
-        DKRelease( newWeakref );
-    
-    return weakref;
-}
 
 
 
@@ -194,7 +70,7 @@ void DKRelease( DKObjectRef _self )
 
         if( (rc & DKRefCountDisabledBit) == 0 )
         {
-            if( (rc & DKRefCountWeakBit) == 0 )
+            if( (rc & DKRefCountMetadataBit) == 0 )
             {
                 rc = DKAtomicDecrement32( &obj->refcount );
                 DKAssert( (rc & DKRefCountErrorBit) == 0 );
@@ -208,29 +84,21 @@ void DKRelease( DKObjectRef _self )
             
             else
             {
-                DKWeakRef weakref = WeakReferenceTableFindOrInsert( obj );
+                DKMetadataRef metadata = DKMetadataFindOrInsert( obj );
                 
-                DKSpinLockLock( &weakref->lock );
+                DKSpinLockLock( &metadata->weakLock );
                 
                 rc = DKAtomicDecrement32( &obj->refcount );
                 DKAssert( (rc & DKRefCountErrorBit) == 0 );
 
                 if( (rc & DKRefCountMask) == 0 )
-                    weakref->target = NULL;
+                    metadata->weakTarget = NULL;
 
-                DKSpinLockUnlock( &weakref->lock );
+                DKSpinLockUnlock( &metadata->weakLock );
                 
                 if( (rc & DKRefCountMask) == 0 )
                 {
-                    struct DKWeak _key;
-                    _key.target = obj;
-                    struct DKWeak * key = &_key;
-
-                    DKSpinLockLock( &WeakReferenceTableLock );
-                    DKGenericHashTableRemove( &WeakReferenceTable, &key );
-                    DKSpinLockUnlock( &WeakReferenceTableLock );
-                
-                    DKRelease( weakref );
+                    DKMetadataRemove( metadata );
                     DKFinalize( _self );
                     DKDealloc( _self );
                 }
@@ -251,7 +119,7 @@ DKWeakRef DKRetainWeak( DKObjectRef _self )
 {
     if( _self )
     {
-        DKWeakRef weakref = WeakReferenceTableFindOrInsert( _self );
+        DKWeakRef weakref = DKMetadataFindOrInsert( _self );
 
         return DKRetain( weakref );
     }
@@ -267,11 +135,15 @@ DKObjectRef DKResolveWeak( DKWeakRef weakref )
 {
     if( weakref )
     {
-        DKSpinLockLock( &weakref->lock );
+        DKAssertMemberOfClass( weakref, DKMetadataClass() );
+    
+        DKMetadataRef metadata = weakref;
+    
+        DKSpinLockLock( &metadata->weakLock );
         
-        DKObjectRef target = DKRetain( weakref->target );
+        DKObjectRef target = DKRetain( metadata->weakTarget );
         
-        DKSpinLockUnlock( &weakref->lock );
+        DKSpinLockUnlock( &metadata->weakLock );
         
         return target;
     }

@@ -243,8 +243,29 @@ bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * msg
 // Private ===============================================================================
 #if DK_RUNTIME_PRIVATE
 
+#include "DKGenericHashTable.h"
+
+
+struct DKInterfaceTable
+{
+    struct _DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
+
+    DKSpinLock              lock;
+    DKGenericHashTable      interfaces;
+};
+
+typedef DKInterfaceRef (*DKInterfaceNotFoundCallback)( DKClassRef _class, DKSEL sel );
+
+void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKInterfaceTable * inheritedInterfaces );
+void DKInterfaceTableFinalize( struct DKInterfaceTable * interfaceTable );
+void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKInterfaceRef _interface );
+DKInterface * DKInterfaceTableFind( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel,
+    DKInterfaceNotFoundCallback interfaceNotFound );
+
+
 void DKSelectorFinalize( DKObjectRef _self );
 void DKInterfaceFinalize( DKObjectRef _self );
+
 
 #endif // DK_RUNTIME_PRIVATE
 

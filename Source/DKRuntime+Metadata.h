@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  DKLocking.h
+  DKRuntime+Metadata.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,43 +24,40 @@
 
 *****************************************************************************************/
 
-#ifndef _DK_LOCKING_H_
-#define _DK_LOCKING_H_
-
-#include "DKRuntime.h"
+#ifndef _DK_RUNTIME_METADATA_
 
 
-DKDeclareInterfaceSelector( Locking );
 
 
-typedef void (*DKLockMethod)( DKObjectRef _self );
-typedef bool (*DKTryLockMethod)( DKObjectRef _self );
-typedef void (*DKUnlockMethod)( DKObjectRef _self );
+// Private ===============================================================================
+#if DK_RUNTIME_PRIVATE
 
-
-struct DKLockingInterface
+struct DKMetadata
 {
-    const DKInterface _interface;
+    DKObject        _obj;
 
-    DKLockMethod    lock;
-    DKTryLockMethod tryLock;
-    DKUnlockMethod  unlock;
+    // Owner of this metadata
+    DKObjectRef     owner;
+    
+    // Weak referencing
+    DKSpinLock      weakLock;
+    DKObjectRef     weakTarget;
+    
+    // Thread Synchronization
+    pthread_mutex_t mutex;
 };
 
-typedef const struct DKLockingInterface * DKLockingInterfaceRef;
+typedef struct DKMetadata * DKMetadataRef;
 
 
-// Default locking interface that associates aretains and returns the object. This is used by the
-// root classes so it's defined in DKRuntime.c.
-DKInterfaceRef DKDefaultCopying( void );
+void DKMetadataTableInit( void );
+
+DKMetadataRef DKMetadataFindOrInsert( DKObject * obj );
+void DKMetadataRemove( DKMetadataRef metadata );
+
+void DKMetadataFinalize( DKObjectRef _self );
+
+#endif // DK_RUNTIME_PRIVATE
 
 
-void DKLock( DKObjectRef _self );
-bool DKTryLock( DKObjectRef _self );
-void DKUnlock( DKObjectRef _self );
-
-
-
-
-
-#endif // _DK_LOCKING_H_
+#endif // _DK_RUNTIME_METADATA_

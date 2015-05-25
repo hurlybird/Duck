@@ -62,12 +62,12 @@ typedef struct
 } DKObject;
 
 
-// Reference Count Flags
+// Flags that get stored in the 'refcount' field
 enum
 {
     DKRefCountErrorBit =    0x10000000,
     DKRefCountDisabledBit = 0x20000000,
-    DKRefCountWeakBit =     0x40000000,
+    DKRefCountMetadataBit = 0x40000000,
     
     DKRefCountMask =        0x0fffffff
 };
@@ -100,7 +100,7 @@ DKClassRef DKClassClass( void );
 DKClassRef DKSelectorClass( void );
 DKClassRef DKInterfaceClass( void );
 DKClassRef DKMsgHandlerClass( void );
-DKClassRef DKWeakClass( void );
+DKClassRef DKMetadataClass( void );
 DKClassRef DKObjectClass( void );
 
 
@@ -168,6 +168,14 @@ void        DKFinalize( DKObjectRef _self );
 
 
 
+// Object Synchronization ================================================================
+void        DKLockObject( DKObjectRef _self );
+bool        DKTryLockObject( DKObjectRef _self );
+void        DKUnlockObject( DKObjectRef _self );
+
+
+
+
 // Thread-Safe Object Construction =======================================================
 
 // These macros are for the thread-safe creation of shared object pointers exposed by a
@@ -214,6 +222,7 @@ void        DKFinalize( DKObjectRef _self );
 #include "DKRuntime+Interfaces.h"
 #include "DKRuntime+Properties.h"
 #include "DKRuntime+Reflection.h"
+#include "DKRuntime+Metadata.h"
 
 
 
@@ -222,25 +231,10 @@ void        DKFinalize( DKObjectRef _self );
 #if DK_RUNTIME_PRIVATE
 
 #include "DKGenericArray.h"
-#include "DKGenericHashTable.h"
 #include "DKHashTable.h"
 
 
-struct DKInterfaceTable
-{
-    struct _DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
-
-    DKSpinLock              lock;
-    DKGenericHashTable      interfaces;
-};
-
-typedef DKInterfaceRef (*DKInterfaceNotFoundCallback)( DKClassRef _class, DKSEL sel );
-
-void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKInterfaceRef _interface );
-DKInterface * DKInterfaceTableFind( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel,
-    DKInterfaceNotFoundCallback interfaceNotFound );
-
-
+// DKClass -------------------------------------------------------------------------------
 struct DKClass
 {
     const DKObject          _obj;
@@ -264,6 +258,7 @@ struct DKClass
 };
 
 
+// DKThreadContext -----------------------------------------------------------------------
 struct DKThreadContext
 {
     DKObjectRef threadObject;
@@ -279,13 +274,6 @@ struct DKThreadContext
 struct DKThreadContext * DKGetCurrentThreadContext( void );
 struct DKThreadContext * DKGetMainThreadContext( void );
 
-
-struct DKWeak
-{
-    DKObject        _obj;
-    DKSpinLock      lock;
-    DKObjectRef     target;
-};
 
 
 #endif // DK_RUNTIME_PRIVATE

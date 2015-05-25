@@ -38,7 +38,6 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKData
 {
-
     DKMutableDataRef data = DKNewMutableData();
     
     const char * a = "aaaaaaaa";

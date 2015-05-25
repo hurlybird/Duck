@@ -48,13 +48,4 @@ DKObjectRef DKAutorelease( DKObjectRef _self );
 
 
 
-
-// Private ===============================================================================
-#if DK_RUNTIME_PRIVATE
-
-void DKWeakReferenceTableInit( void );
-
-#endif // DK_RUNTIME_PRIVATE
-
-
 #endif // _DK_RUNTIME_REFERENCE_COUNTING_H_

@@ -54,11 +54,11 @@
 
 // Objects
 typedef void * DKObjectRef;
+typedef void * DKWeakRef;
 
 
 // Forward declarations of common object types
 typedef struct DKClass * DKClassRef;
-typedef struct DKWeak * DKWeakRef;
 typedef struct DKProperty * DKPropertyRef;
 typedef struct DKString * DKStringRef;
 typedef struct DKPredicate * DKPredicateRef;
@@ -243,7 +243,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 #define DKAssertMemberOfClass( _self, cls )                                             \
     do                                                                                  \
     {                                                                                   \
-        if( !DKIsKindOfClass( _self, cls ) )                                            \
+        if( !DKIsMemberOfClass( _self, cls ) )                                          \
         {                                                                               \
             _DKFatalError( "%s: Required member of class %s, received %s\n",            \
                 __func__,                                                               \
