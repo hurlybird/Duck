@@ -262,6 +262,10 @@ static struct DKLockingInterface DKDefaultLocking_StaticObject =
     DKStaticInterfaceObject( &DKSelector_Locking_StaticObject ),
     DKLockObject,
     DKTryLockObject,
+    DKLockObject,
+    DKTryLockObject,
+    DKLockObject,
+    DKTryLockObject,
     DKUnlockObject
 };
 

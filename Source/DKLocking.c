@@ -62,6 +62,64 @@ bool DKTryLock( DKObjectRef _self )
 
 
 ///
+//  DKReadLock()
+//
+void DKReadLock( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKLockingInterfaceRef lockingInterface = DKGetInterface( _self, DKSelector(Locking) );
+        lockingInterface->readLock( _self );
+    }
+}
+
+
+///
+//  DKTryReadLock()
+//
+bool DKTryReadLock( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKLockingInterfaceRef lockingInterface = DKGetInterface( _self, DKSelector(Locking) );
+        return lockingInterface->tryReadLock( _self );
+    }
+    
+    // Allow the lock when the locking object is NULL?
+    return true;
+}
+
+
+///
+//  DKWriteLock()
+//
+void DKWriteLock( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKLockingInterfaceRef lockingInterface = DKGetInterface( _self, DKSelector(Locking) );
+        lockingInterface->writeLock( _self );
+    }
+}
+
+
+///
+//  DKTryWriteLock()
+//
+bool DKTryWriteLock( DKObjectRef _self )
+{
+    if( _self )
+    {
+        DKLockingInterfaceRef lockingInterface = DKGetInterface( _self, DKSelector(Locking) );
+        return lockingInterface->tryWriteLock( _self );
+    }
+    
+    // Allow the lock when the locking object is NULL?
+    return true;
+}
+
+
+///
 //  DKUnlock()
 //
 void DKUnlock( DKObjectRef _self )
