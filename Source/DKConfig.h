@@ -91,7 +91,6 @@
 
 // Platform ==============================================================================
 
-// These are mainly for reference -- they don't do much yet
 #ifndef DK_PLATFORM_APPLE
 #define DK_PLATFORM_APPLE       1
 #endif
