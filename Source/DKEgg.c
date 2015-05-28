@@ -279,6 +279,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
         if( _self->header->byteOrder != DKByteOrderNative )
         {
             // *** DO STUFF HERE ***
+            DKAssert( 0 );
         }
 
         if( DKDataGetLength( data ) < (_self->header->data.index + _self->header->data.length) )
@@ -604,26 +605,37 @@ size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * num
             size_t size = DKEncodingGetTypeSize( attribute->encoding );
             size_t count = DKEncodingGetCount( attribute->encoding );
             
-            const void * src = &_self->data[attribute->value];
-            
             if( (size == 1) || (_self->header->byteOrder == DKByteOrderNative) )
             {
+                const void * src = &_self->data[attribute->value];
                 memcpy( number, src, size * count );
             }
             
             else if( size == 2 )
             {
-                memcpy( number, src, size * count );
+                uint16_t * dst = number;
+                const uint16_t * src = (uint16_t *)&_self->data[attribute->value];
+                
+                for( DKIndex i = 0; i < count; ++i )
+                    dst[i] = DKSwapInt16( src[i] );
             }
             
             else if( size == 4 )
             {
-                memcpy( number, src, size * count );
+                uint32_t * dst = number;
+                const uint32_t * src = (uint32_t *)&_self->data[attribute->value];
+                
+                for( DKIndex i = 0; i < count; ++i )
+                    dst[i] = DKSwapInt32( src[i] );
             }
             
             else if( size == 8 )
             {
-                memcpy( number, src, size * count );
+                uint64_t * dst = number;
+                const uint64_t * src = (uint64_t *)&_self->data[attribute->value];
+                
+                for( DKIndex i = 0; i < count; ++i )
+                    dst[i] = DKSwapInt64( src[i] );
             }
             
             else
@@ -962,17 +974,29 @@ static DKIndex AddEncodedData( DKEggArchiverRef _self, DKEncoding encoding, cons
 
     else if( size == 2 )
     {
-        memcpy( &_self->data.bytes[offset], data, size * count );
+        uint16_t * dst = (uint16_t *)&_self->data.bytes[offset];
+        const uint16_t * src = data;
+        
+        for( DKIndex i = 0; i < count; ++i )
+            dst[i] = DKSwapInt16( src[i] );
     }
 
     else if( size == 4 )
     {
-        memcpy( &_self->data.bytes[offset], data, size * count );
+        uint32_t * dst = (uint32_t *)&_self->data.bytes[offset];
+        const uint32_t * src = data;
+        
+        for( DKIndex i = 0; i < count; ++i )
+            dst[i] = DKSwapInt32( src[i] );
     }
 
     else if( size == 8 )
     {
-        memcpy( &_self->data.bytes[offset], data, size * count );
+        uint64_t * dst = (uint64_t *)&_self->data.bytes[offset];
+        const uint64_t * src = data;
+        
+        for( DKIndex i = 0; i < count; ++i )
+            dst[i] = DKSwapInt64( src[i] );
     }
     
     else

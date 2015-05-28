@@ -140,7 +140,13 @@ typedef enum
     DKByteOrderBigEndian,
     DKByteOrderLittleEndian,
     
+    #ifdef __LITTLE_ENDIAN__
     DKByteOrderNative = DKByteOrderLittleEndian
+    #endif
+    
+    #ifdef __BIG_ENDIAN__
+    DKByteOrderNative = DKByteOrderBigEndian
+    #endif
 
 } DKByteOrder;
 
@@ -451,6 +457,93 @@ typedef spinlock_t DKSpinLock;
 
 #endif
 
+
+
+
+// Byte Order Operations =================================================================
+#if DK_PLATFORM_APPLE
+#define DKSwapInt16( x )                        OSSwapInt16( x )
+#define DKSwapInt32( x )                        OSSwapInt32( x )
+#define DKSwapInt64( x )                        OSSwapInt64( x )
+
+#elif DK_PLATFORM_ANDROID
+// Do stuff here
+
+#elif DK_PLATFORM_LINUX
+// Do stuff here
+
+#endif
+
+static inline float DKSwapFloat( float x )
+{
+    union Swap { float fval; int32_t ival; } swap;
+    swap.fval = x;
+    swap.ival = DKSwapInt32( swap.ival );
+    return swap.fval;
+}
+
+static inline double DKSwapDouble( double x )
+{
+    union Swap { double fval; int64_t ival; } swap;
+    swap.fval = x;
+    swap.ival = DKSwapInt64( swap.ival );
+    return swap.fval;
+}
+
+
+#ifdef __LITTLE_ENDIAN__
+#define DKSwapInt16BigToHost( x )               DKSwapInt16( x )
+#define DKSwapInt16HostToBig( x )               DKSwapInt16( x )
+#define DKSwapInt16LittleToHost( x )            ( x )
+#define DKSwapInt16HostToLittle( x )            ( x )
+
+#define DKSwapInt32BigToHost( x )               DKSwapInt32( x )
+#define DKSwapInt32HostToBig( x )               DKSwapInt32( x )
+#define DKSwapInt32LittleToHost( x )            ( x )
+#define DKSwapInt32HostToLittle( x )            ( x )
+
+#define DKSwapInt64BigToHost( x )               DKSwapInt64( x )
+#define DKSwapInt64HostToBig( x )               DKSwapInt64( x )
+#define DKSwapInt64LittleToHost( x )            ( x )
+#define DKSwapInt64HostToLittle( x )            ( x )
+
+#define DKSwapFloatBigToHost( x )               DKSwapFloat( x )
+#define DKSwapFloatHostToBig( x )               DKSwapFloat( x )
+#define DKSwapFloatLittleToHost( x )            ( x )
+#define DKSwapFloatHostToLittle( x )            ( x )
+
+#define DKSwapDoubleBigToHost( x )              DKSwapDouble( x )
+#define DKSwapDoubleHostToBig( x )              DKSwapDouble( x )
+#define DKSwapDoubleLittleToHost( x )           ( x )
+#define DKSwapDoubleHostToLittle( x )           ( x )
+#endif
+
+#ifdef __BIG_ENDIAN__
+#define DKSwapInt16BigToHost( x )               ( x )
+#define DKSwapInt16HostToBig( x )               ( x )
+#define DKSwapInt16LittleToHost( x )            DKSwapInt16( x )
+#define DKSwapInt16HostToLittle( x )            DKSwapInt16( x )
+
+#define DKSwapInt32BigToHost( x )               ( x )
+#define DKSwapInt32HostToBig( x )               ( x )
+#define DKSwapInt32LittleToHost( x )            DKSwapInt32( x )
+#define DKSwapInt32HostToLittle( x )            DKSwapInt32( x )
+
+#define DKSwapInt64BigToHost( x )               ( x )
+#define DKSwapInt64HostToBig( x )               ( x )
+#define DKSwapInt64LittleToHost( x )            DKSwapInt64( x )
+#define DKSwapInt64HostToLittle( x )            DKSwapInt64( x )
+
+#define DKSwapFloatBigToHost( x )               ( x )
+#define DKSwapFloatHostToBig( x )               ( x )
+#define DKSwapFloatLittleToHost( x )            DKSwapFloat( x )
+#define DKSwapFloatHostToLittle( x )            DKSwapFloat( x )
+
+#define DKSwapDoubleBigToHost( x )              ( x )
+#define DKSwapDoubleHostToBig( x )              ( x )
+#define DKSwapDoubleLittleToHost( x )           DKSwapDouble( x )
+#define DKSwapDoubleHostToLittle( x )           DKSwapDouble( x )
+#endif
 
 
 
