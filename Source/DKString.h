@@ -61,7 +61,7 @@ DKStringRef DKStringCopy( DKStringRef _self );
 DKMutableStringRef DKStringMutableCopy( DKStringRef _self );
 
 bool        DKStringEqual( DKStringRef _self, DKObjectRef other );
-int         DKStringCompare( DKStringRef _self, DKStringRef other );
+int         DKStringCompare( DKStringRef _self, DKObjectRef other );
 DKHashCode  DKStringHash( DKStringRef _self );
 
 bool        DKStringEqualToString( DKStringRef _self, DKStringRef other );

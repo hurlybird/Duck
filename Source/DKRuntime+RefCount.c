@@ -164,7 +164,7 @@ DKObjectRef DKResolveWeak( DKWeakRef weakref )
 void DKPushAutoreleasePool( void )
 {
     struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
-    DKFatal( (threadContext->arpStack.top >= -1) && (threadContext->arpStack.top < (DK_AUTORELEASE_POOL_STACK_SIZE - 1)) );
+    DKRequire( (threadContext->arpStack.top >= -1) && (threadContext->arpStack.top < (DK_AUTORELEASE_POOL_STACK_SIZE - 1)) );
     
     threadContext->arpStack.top++;
     
@@ -179,7 +179,7 @@ void DKPushAutoreleasePool( void )
 void DKPopAutoreleasePool( void )
 {
     struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
-    DKFatal( (threadContext->arpStack.top >= 0) && (threadContext->arpStack.top < DK_AUTORELEASE_POOL_STACK_SIZE) );
+    DKRequire( (threadContext->arpStack.top >= 0) && (threadContext->arpStack.top < DK_AUTORELEASE_POOL_STACK_SIZE) );
     
     DKGenericArray * arp = &threadContext->arpStack.arp[threadContext->arpStack.top];
     DKIndex count = DKGenericArrayGetLength( arp );
@@ -210,7 +210,7 @@ DKObjectRef DKAutorelease( DKObjectRef _self )
         if( (obj->refcount & DKRefCountDisabledBit) == 0 )
         {
             struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
-            DKFatal( (threadContext->arpStack.top >= 0) && (threadContext->arpStack.top < DK_AUTORELEASE_POOL_STACK_SIZE) );
+            DKRequire( (threadContext->arpStack.top >= 0) && (threadContext->arpStack.top < DK_AUTORELEASE_POOL_STACK_SIZE) );
 
             DKGenericArray * arp = &threadContext->arpStack.arp[threadContext->arpStack.top];
             DKGenericArrayAppendElements( arp, &_self, 1 );

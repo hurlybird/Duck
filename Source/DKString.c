@@ -622,7 +622,7 @@ bool DKStringEqual( DKStringRef _self, DKObjectRef other )
 ///
 //  DKStringCompare()
 //
-int DKStringCompare( DKStringRef _self, DKStringRef other )
+int DKStringCompare( DKStringRef _self, DKObjectRef other )
 {
     if( _self )
     {
@@ -632,7 +632,10 @@ int DKStringCompare( DKStringRef _self, DKStringRef other )
         // for comparison, yet has no way of checking if the objects actually meet that
         // requirement.
         if( DKIsKindOfClass( other, DKStringClass() ) )
-            return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes );
+        {
+            DKStringRef otherString = other;
+            return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)otherString->byteArray.bytes );
+        }
     }
     
     return DKPointerCompare( _self, other );
@@ -712,7 +715,7 @@ bool DKStringHasSuffix( DKStringRef _self, DKStringRef other )
     DKIndex a = DKStringGetLength( _self );
     DKIndex b = DKStringGetLength( other );
     
-    if( a > b )
+    if( a >= b )
     {
         DKRange substring = DKStringGetRangeOfString( _self, other, a - b );
         return substring.location != DKNotFound;

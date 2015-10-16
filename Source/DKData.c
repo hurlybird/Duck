@@ -298,14 +298,14 @@ bool DKDataEqual( DKDataRef _self, DKObjectRef other )
     if( DKIsKindOfClass( _self, DKDataClass() ) )
         return DKDataCompare( _self, other ) == 0;
     
-    return 0;
+    return false;
 }
 
 
 ///
 //  DKDataCompare()
 //
-int DKDataCompare( DKDataRef _self, DKDataRef other )
+int DKDataCompare( DKDataRef _self, DKObjectRef other )
 {
     if( _self )
     {
@@ -316,12 +316,14 @@ int DKDataCompare( DKDataRef _self, DKDataRef other )
         // requirement.
         if( DKIsKindOfClass( other, DKDataClass() ) )
         {
+            DKDataRef otherData = other;
+        
             DKIndex length1 = _self->byteArray.length;
-            DKIndex length2 = other->byteArray.length;
+            DKIndex length2 = otherData->byteArray.length;
             
             DKIndex length = (length1 < length2) ? length1 : length2;
             
-            int cmp = memcmp( _self->byteArray.bytes, other->byteArray.bytes, length );
+            int cmp = memcmp( _self->byteArray.bytes, otherData->byteArray.bytes, length );
             
             if( cmp != 0 )
                 return cmp;

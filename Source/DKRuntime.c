@@ -64,7 +64,7 @@ static void DKFreeThreadContext( void * context )
     
     DKRelease( threadContext->threadObject );
     
-    DKFatal( threadContext->arpStack.top == -1 );
+    DKRequire( threadContext->arpStack.top == -1 );
     
     for( int i = 0; i < DK_AUTORELEASE_POOL_STACK_SIZE; i++ )
         DKGenericArrayFinalize( &threadContext->arpStack.arp[i] );
@@ -125,43 +125,43 @@ static struct DKClass __DKObjectClass__;
 
 DKClassRef DKRootClass( void )
 {
-    DKFatal( DKRuntimeIsInitialized() );
+    DKRequire( DKRuntimeIsInitialized() );
     return &__DKRootClass__;
 }
 
 DKClassRef DKClassClass( void )
 {
-    DKFatal( DKRuntimeIsInitialized() );
+    DKRequire( DKRuntimeIsInitialized() );
     return &__DKClassClass__;
 }
 
 DKClassRef DKSelectorClass( void )
 {
-    DKFatal( DKRuntimeIsInitialized() );
+    DKRequire( DKRuntimeIsInitialized() );
     return &__DKSelectorClass__;
 }
 
 DKClassRef DKInterfaceClass( void )
 {
-    DKFatal( DKRuntimeIsInitialized() );
+    DKRequire( DKRuntimeIsInitialized() );
     return &__DKInterfaceClass__;
 }
 
 DKClassRef DKMsgHandlerClass( void )
 {
-    DKFatal( DKRuntimeIsInitialized() );
+    DKRequire( DKRuntimeIsInitialized() );
     return &__DKMsgHandlerClass__;
 }
 
 DKClassRef DKMetadataClass( void )
 {
-    DKFatal( DKRuntimeIsInitialized() );
+    DKRequire( DKRuntimeIsInitialized() );
     return &__DKMetadataClass__;
 }
 
 DKClassRef DKObjectClass( void )
 {
-    DKFatal( DKRuntimeIsInitialized() );
+    DKRequire( DKRuntimeIsInitialized() );
     return &__DKObjectClass__;
 }
 

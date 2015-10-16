@@ -55,7 +55,7 @@ DKDataRef   DKDataCopy( DKDataRef _self );
 DKMutableDataRef DKDataMutableCopy( DKDataRef _self );
 
 bool        DKDataEqual( DKDataRef _self, DKObjectRef other );
-int         DKDataCompare( DKDataRef _self, DKDataRef other );
+int         DKDataCompare( DKDataRef _self, DKObjectRef other );
 DKHashCode  DKDataHash( DKDataRef _self );
 
 DKIndex     DKDataGetLength( DKDataRef _self );

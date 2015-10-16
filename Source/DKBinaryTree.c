@@ -972,6 +972,8 @@ void DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DK
 
 static void INTERNAL_DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
+    DKRequire( key != NULL );
+
     DKObjectRef keyCopy = DKCopy ( key );
 
     Insert( _self, keyCopy, object, policy );
@@ -1057,6 +1059,8 @@ void DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef objec
 
 static void INTERNAL_DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef object )
 {
+    DKRequire( object != NULL );
+
     Insert( _self, object, object, DKInsertIfNotFound );
 
     CheckTreeIntegrity( _self );

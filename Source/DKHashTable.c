@@ -706,6 +706,8 @@ void DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKOb
 
 static void INTERNAL_DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
 {
+    DKRequire( key != NULL );
+
     struct DKHashTableRow row;
     row.key = key;
     row.object = object;
@@ -768,6 +770,8 @@ void DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object 
 
 static void INTERNAL_DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object )
 {
+    DKRequire( object != NULL );
+
     struct DKHashTableRow row;
     row.key = object;
     row.object = object;

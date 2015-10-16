@@ -213,12 +213,24 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
 
 // Raise a fatal error if the given condition is not met. These checks are not omitted
 // from release builds so use them sparingly.
-#define DKFatal( x )                                                                    \
+#define DKRequire( x )                                                                  \
     do                                                                                  \
     {                                                                                   \
         if( !(x) )                                                                      \
         {                                                                               \
-            _DKFatalError( "%s: Fatal Error( %s )\n", __func__, #x );                   \
+            _DKFatalError( "%s: Failed Requirement( %s )\n", __func__, #x );            \
+        }                                                                               \
+    } while( 0 )
+
+// Raise a non-fatal error if the given condition is not met. These checks are not omitted
+// from release builds so use them sparingly.
+#define DKCheck( x, ... )                                                               \
+    do                                                                                  \
+    {                                                                                   \
+        if( !(x) )                                                                      \
+        {                                                                               \
+            _DKError( "%s: Failed Check( %s )\n", __func__, #x );                       \
+            return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
 
