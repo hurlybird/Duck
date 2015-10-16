@@ -48,6 +48,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
             DKNumberWithInt32( 2 ),
             DKNumberWithDouble( 3.5 ),
             NULL ),
+        DKSTR( "Date" ), DKNumberWithDate( NULL ),
         DKSTR( "Yup" ), DKTrue(),
         DKSTR( "Nope" ), DKFalse(),
         DKSTR( "Null" ), NULL,

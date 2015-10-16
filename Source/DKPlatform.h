@@ -89,9 +89,10 @@ typedef int32_t DKChar32;
 
 // Date and time
 typedef double DKDateTime;
+typedef double DKTimeInterval;
 
-extern const DKDateTime DKAbsoluteTimeSince1970; // POSIX reference time
-extern const DKDateTime DKAbsoluteTimeSince2001; // CoreFoundation reference time
+#define DKAbsoluteTimeSince1970     978307200.0L    // POSIX reference time
+#define DKAbsoluteTimeSince2001     0.0L            // CoreFoundation reference time
 
 
 // Ranges

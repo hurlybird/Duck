@@ -438,15 +438,15 @@ DKNumberRef DKNewNumberWithUUID( const DKUUID * uuid )
 //
 DKNumberRef DKNewNumberWithDate( const DKDateTime * date )
 {
-    DKDateTime _date;
+    DKDateTime _now;
     
     if( date == NULL )
     {
-        _date = dk_datetime();
-        date = &_date;
+        _now = dk_datetime();
+        date = &_now;
     }
 
-    return DKNewNumber( &date, DKNumberDate );
+    return DKNewNumber( date, DKNumberDate );
 }
 
 

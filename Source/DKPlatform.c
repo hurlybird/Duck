@@ -316,11 +316,8 @@ uint64_t dk_memhash64( const void * buffer, size_t buffer_size )
 
 
 ///
-//  dk_time()
+//  dk_datetime()
 //
-const DKDateTime DKAbsoluteTimeSince1970 = 978307200.0L;    // POSIX reference time
-const DKDateTime DKAbsoluteTimeSince2001 = 0.0L;            // CoreFoundation reference time
-
 #if DK_PLATFORM_POSIX
 #include <sys/time.h>
 

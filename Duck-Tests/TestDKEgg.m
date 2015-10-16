@@ -50,6 +50,7 @@ typedef struct
 
     DKStringRef s1 = DKStringWithCString( "Hello World!" );
     DKNumberRef n1 = DKNumberWithInt32( 1 );
+    DKNumberRef d1 = DKNumberWithDate( NULL );
     DKStructRef x1 = DKStructWithType( &testStruct, TestStruct );
     DKArrayRef a1 = DKAutorelease( DKListInitWithObjects( DKAlloc( DKArrayClass() ),
         DKSTR( "Dick" ),
@@ -88,6 +89,7 @@ typedef struct
     DKEggArchiverRef archiver = DKNew( DKEggArchiverClass() );
     DKEggAddObject( archiver, DKSTR( "string" ), s1 );
     DKEggAddObject( archiver, DKSTR( "number" ), n1 );
+    DKEggAddObject( archiver, DKSTR( "date" ), d1 );
     DKEggAddObject( archiver, DKSTR( "struct" ), x1 );
     DKEggAddObject( archiver, DKSTR( "array" ), a1 );
     DKEggAddObject( archiver, DKSTR( "linked-list" ), l1 );
@@ -104,6 +106,9 @@ typedef struct
 
     DKNumberRef n2 = DKEggGetObject( unarchiver, DKSTR( "number" ) );
     XCTAssert( DKEqual( n1, n2 ) );
+
+    DKNumberRef d2 = DKEggGetObject( unarchiver, DKSTR( "date" ) );
+    XCTAssert( DKEqual( d1, d2 ) );
 
     DKStructRef x2 = DKEggGetObject( unarchiver, DKSTR( "struct" ) );
     XCTAssert( DKEqual( x1, x2 ) );
