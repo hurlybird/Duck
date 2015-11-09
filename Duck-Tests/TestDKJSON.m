@@ -56,7 +56,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     // Convert it to JSON
     DKMutableStringRef json = DKMutableString();
-    DKJSONWrite( json, document, DK_JSON_PRETTY );
+    DKJSONWrite( json, document, DKJSONWritePretty );
     
     // Parse the JSON
     DKObjectRef parsedDocument = DKJSONParse( json, 0 );

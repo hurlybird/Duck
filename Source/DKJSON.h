@@ -33,7 +33,7 @@
 
 enum
 {
-    DK_JSON_PRETTY =    (1 << 0)
+    DKJSONWritePretty =     (1 << 0)
 };
 
 

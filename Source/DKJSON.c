@@ -70,7 +70,7 @@ int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options )
     
     int result = WriteObject( object, &context );
 
-    if( options & DK_JSON_PRETTY )
+    if( options & DKJSONWritePretty )
         DKSPrintf( stream, "\n" );
     
     return result;
@@ -110,8 +110,8 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
         
         else
         {
-            DKWarning( "DKJSON: Only scalar number encodings are supported." );
-            DKSPrintf( context->stream, "0" );
+            DKWarning( "DKJSON: Only scalar number encodings are supported. Writing vector as string.\n" );
+            DKSPrintf( context->stream, "\"%@\"", obj );
         }
     }
     
@@ -143,7 +143,7 @@ static int WriteKeyAndObject( DKObjectRef key, DKObjectRef obj, WriteContext * c
 {
     WriteComma( context );
     
-    const char * fmt = (context->options & DK_JSON_PRETTY) ? "\"%@\" : " : "\"%@\":";
+    const char * fmt = (context->options & DKJSONWritePretty) ? "\"%@\" : " : "\"%@\":";
     DKSPrintf( context->stream, fmt, key );
 
     context->comma = 0;
@@ -233,7 +233,7 @@ static void WriteComma( WriteContext * context )
 {
     if( context->comma )
     {
-        if( context->options & DK_JSON_PRETTY )
+        if( context->options & DKJSONWritePretty )
         {
             DKSPrintf( context->stream, ",\n" );
 
@@ -254,7 +254,7 @@ static void WriteComma( WriteContext * context )
 //
 static void BeginGroup( WriteContext * context, char delimiter )
 {
-    if( context->options & DK_JSON_PRETTY )
+    if( context->options & DKJSONWritePretty )
     {
         DKSPrintf( context->stream, "%c\n", delimiter );
 
@@ -278,7 +278,7 @@ static void BeginGroup( WriteContext * context, char delimiter )
 //
 static void EndGroup( WriteContext * context, char delimiter )
 {
-    if( context->options & DK_JSON_PRETTY )
+    if( context->options & DKJSONWritePretty )
     {
         DKSPrintf( context->stream, "\n" );
 

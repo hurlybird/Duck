@@ -122,10 +122,45 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
+
+
+// Performance Tests =====================================================================
 const int PERFORMANCE_ITERATIONS = 2;
 const int PERFORMANCE_N = 1000000;
 
-- (void) testNSDictionaryPerformance
+
+- (void) testNSDictionaryReadPerformance
+{
+#if !DEBUG
+    NSString * path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
+    NSString * file = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    NSArray * words = [file componentsSeparatedByString:@"\n"];
+    int count = (int)[words count];
+
+    NSMutableDictionary * dict = [NSMutableDictionary dictionary];
+    
+    for( NSString * word in words )
+        [dict setObject:word forKey:word];
+    
+    srand( 0 );
+    
+    [self measureBlock:^{
+
+        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
+        {
+            for( int i = 0; i < PERFORMANCE_N; i++ )
+            {
+                int x = rand() % count;
+                NSString * word = [words objectAtIndex:x];
+                [dict objectForKey:word];
+            }
+        }
+    }];
+#endif
+}
+
+
+- (void) testNSDictionaryWritePerformance
 {
 #if !DEBUG
     NSString * path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
@@ -153,23 +188,73 @@ const int PERFORMANCE_N = 1000000;
 }
 
 
-- (void) testDKHashTablePerformance
+
+- (void) testDKHashTableReadPerformance
 {
 #if !DEBUG
-    [self testDictionaryClassPerformance:DKMutableHashTableClass()];
+    [self testDictionaryClassReadPerformance:DKMutableHashTableClass()];
 #endif
 }
 
 
-- (void) testDKBinaryTreePerformance
+- (void) testDKBinaryTreeReadPerformance
 {
 #if !DEBUG
-    //[self testDictionaryClassPerformance:DKMutableBinaryTreeClass()];
+    //[self testDictionaryClassReadPerformance:DKMutableBinaryTreeClass()];
+#endif
+}
+
+- (void) testDKHashTableWritePerformance
+{
+#if !DEBUG
+    [self testDictionaryClassWritePerformance:DKMutableHashTableClass()];
 #endif
 }
 
 
-- (void) testDictionaryClassPerformance:(DKClassRef)dictionaryClass
+- (void) testDKBinaryTreeWritePerformance
+{
+#if !DEBUG
+    //[self testDictionaryClassWritePerformance:DKMutableBinaryTreeClass()];
+#endif
+}
+
+
+- (void) testDictionaryClassReadPerformance:(DKClassRef)dictionaryClass
+{
+    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
+    DKStringRef path = DKStringWithCString( [_path UTF8String] );
+    DKStringRef file = DKStringWithContentsOfFile( path );
+    DKArrayRef words = (DKArrayRef)DKStringCreateListBySeparatingStrings( file, DKSTR( "\n" ) );
+    int count = (int)DKArrayGetCount( words );
+    
+    DKMutableDictionaryRef dict = DKAutorelease( DKNew( dictionaryClass ) );
+    
+    for( int i = 0; i < count; i++ )
+    {
+        DKStringRef word = DKArrayGetObjectAtIndex( words, i );
+        DKDictionarySetObject( dict, word, word );
+    }
+    
+    srand( 0 );
+    
+    [self measureBlock:^{
+
+        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
+        {
+            for( int i = 0; i < PERFORMANCE_N; i++ )
+            {
+                int x = rand() % count;
+                DKStringRef word = DKArrayGetObjectAtIndex( words, x );
+                DKDictionaryGetObject( dict, word );
+            }
+        }
+    }];
+
+    DKRelease( words );
+}
+
+- (void) testDictionaryClassWritePerformance:(DKClassRef)dictionaryClass
 {
     NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
     DKStringRef path = DKStringWithCString( [_path UTF8String] );
