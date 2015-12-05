@@ -49,7 +49,7 @@ DKObjectRef DKRetain( DKObjectRef _self )
         if( (rc & DKRefCountDisabledBit) == 0 )
         {
             rc = DKAtomicIncrement32( &obj->refcount );
-            DKAssert( (rc & DKRefCountErrorBit) == 0 );
+            DKAssert( (rc & DKRefCountOverflowBit) == 0 );
         }
     }
 
@@ -73,7 +73,7 @@ void DKRelease( DKObjectRef _self )
             if( (rc & DKRefCountMetadataBit) == 0 )
             {
                 rc = DKAtomicDecrement32( &obj->refcount );
-                DKAssert( (rc & DKRefCountErrorBit) == 0 );
+                DKAssert( (rc & DKRefCountOverflowBit) == 0 );
 
                 if( (rc & DKRefCountMask) == 0 )
                 {
@@ -89,7 +89,7 @@ void DKRelease( DKObjectRef _self )
                 DKSpinLockLock( &metadata->weakLock );
                 
                 rc = DKAtomicDecrement32( &obj->refcount );
-                DKAssert( (rc & DKRefCountErrorBit) == 0 );
+                DKAssert( (rc & DKRefCountOverflowBit) == 0 );
 
                 if( (rc & DKRefCountMask) == 0 )
                     metadata->weakTarget = NULL;

@@ -106,7 +106,7 @@ typedef struct
 #define DKRangeMake( loc, len )     (const DKRange){ loc, len }
 #define DKRangeEnd( range )         (((range).location) + ((range).length))
 
-// False if the range is outside 0..len OR is not the empty sequence at len + 1
+// True if range is inside 0..len OR is the empty sequence at len+1
 #define DKRangeInsideOrEnd( range, len )    (((range).location >= 0) && ((range).length >= 0) && (DKRangeEnd(range) <= len))
 
 
@@ -219,7 +219,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
     {                                                                                   \
         if( !(x) )                                                                      \
         {                                                                               \
-            _DKFatalError( "%s: Failed Requirement( %s )\n", __func__, #x );            \
+            _DKFatalError( "%s: Failed Runtime Requirement( %s )\n", __func__, #x );    \
         }                                                                               \
     } while( 0 )
 
@@ -230,7 +230,7 @@ int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noretur
     {                                                                                   \
         if( !(x) )                                                                      \
         {                                                                               \
-            _DKError( "%s: Failed Check( %s )\n", __func__, #x );                       \
+            _DKError( "%s: Failed Runtime Check( %s )\n", __func__, #x );               \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )

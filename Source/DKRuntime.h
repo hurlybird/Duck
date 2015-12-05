@@ -65,10 +65,19 @@ typedef struct
 // Flags that get stored in the 'refcount' field
 enum
 {
-    DKRefCountErrorBit =    0x10000000,
+    // Used for reference count overflow checks
+    DKRefCountOverflowBit = 0x10000000,
+    
+    // Reference counting is disabled for the object
     DKRefCountDisabledBit = 0x20000000,
+    
+    // The object has an associated metadata entry
     DKRefCountMetadataBit = 0x40000000,
     
+    // Reserved for future use
+    DKRefCountReservedBit = 0x80000000,
+    
+    // The bits containing the actual reference count
     DKRefCountMask =        0x0fffffff
 };
 

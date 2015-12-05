@@ -1612,6 +1612,9 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
     }
 
     // Get the length and hash code of the string
+    if( str == NULL )
+        str = "";
+
     DKIndex length = strlen( str );
     DKHashCode hashCode = dk_strhash( str );
 
