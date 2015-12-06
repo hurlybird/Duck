@@ -201,9 +201,8 @@ static void ResizeAndRehash( DKGenericHashTable * hashTable )
 
 
 ///
-//  DKGenericHashTableFind()
+//  Find()
 //
-#if 1
 static void * Find( DKGenericHashTable * hashTable, const void * _row, DKRowStatus * outStatus )
 {
     DKHashCode hash = hashTable->callbacks.rowHash( _row );
@@ -260,70 +259,7 @@ static void * Find( DKGenericHashTable * hashTable, const void * _row, DKRowStat
     DKAssert( 0 );
     return NULL;
 }
-#else
 
-static void * Find( DKGenericHashTable * hashTable, const void * _row, DKRowStatus * outStatus )
-{
-    DKHashCode hash = hashTable->callbacks.rowHash( _row );
-
-    size_t n = hashTable->rowCount;
-    size_t h1 = hash % hashTable->rowCount;
-    
-    if( h1 <= 1 )
-        h1 = 2;
-    
-    else if( h1 >= (n - 1) )
-        h1 = 3;
-    
-    size_t h2 = 1;
-    
-    void * firstDeletedRow = NULL;
-    
-    for( size_t i = 0; i < n; ++i )
-    {
-        size_t index = (h1 + h2) % n;
-        void * row = hashTable->rows + (index * hashTable->rowSize);
-
-        DKRowStatus status = hashTable->callbacks.rowStatus( row );
-        
-        // If the row is empty we've come to the end of the probe, so either return the
-        // empty row or recycle the first deleted row we found
-        if( status == DKRowStatusEmpty )
-        {
-            if( firstDeletedRow )
-            {
-                *outStatus = DKRowStatusDeleted;
-                return firstDeletedRow;
-            }
-            
-            *outStatus = DKRowStatusEmpty;
-            return row;
-        }
-        
-        // If this is the row we're looking for, return it
-        else if( status == DKRowStatusActive )
-        {
-            if( hashTable->callbacks.rowEqual( row, _row ) )
-            {
-                *outStatus = DKRowStatusActive;
-                return row;
-            }
-        }
-        
-        // Remember the first deleted row we find
-        else if( firstDeletedRow == NULL )
-        {
-            firstDeletedRow = row;
-        }
-
-        // Exponential probing
-        h2 = (h2 * h1) % n;
-    }
-        
-    DKAssert( 0 );
-    return NULL;
-}
-#endif
 
 ///
 //  DKGenericHashTableInit()

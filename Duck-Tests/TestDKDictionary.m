@@ -125,7 +125,6 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 
 // Performance Tests =====================================================================
-const int PERFORMANCE_ITERATIONS = 2;
 const int PERFORMANCE_N = 1000000;
 
 
@@ -146,14 +145,11 @@ const int PERFORMANCE_N = 1000000;
     
     [self measureBlock:^{
 
-        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
+        for( int i = 0; i < PERFORMANCE_N; i++ )
         {
-            for( int i = 0; i < PERFORMANCE_N; i++ )
-            {
-                int x = rand() % count;
-                NSString * word = [words objectAtIndex:x];
-                [dict objectForKey:word];
-            }
+            int x = rand() % count;
+            NSString * word = [words objectAtIndex:x];
+            [dict objectForKey:word];
         }
     }];
 #endif
@@ -172,16 +168,13 @@ const int PERFORMANCE_N = 1000000;
     
     [self measureBlock:^{
 
-        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
-        {
-            NSMutableDictionary * dict = [NSMutableDictionary dictionary];
+        NSMutableDictionary * dict = [NSMutableDictionary dictionary];
 
-            for( int i = 0; i < PERFORMANCE_N; i++ )
-            {
-                int x = rand() % count;
-                NSString * word = [words objectAtIndex:x];
-                [dict setObject:word forKey:word];
-            }
+        for( int i = 0; i < PERFORMANCE_N; i++ )
+        {
+            int x = rand() % count;
+            NSString * word = [words objectAtIndex:x];
+            [dict setObject:word forKey:word];
         }
     }];
 #endif
@@ -240,14 +233,11 @@ const int PERFORMANCE_N = 1000000;
     
     [self measureBlock:^{
 
-        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
+        for( int i = 0; i < PERFORMANCE_N; i++ )
         {
-            for( int i = 0; i < PERFORMANCE_N; i++ )
-            {
-                int x = rand() % count;
-                DKStringRef word = DKArrayGetObjectAtIndex( words, x );
-                DKDictionaryGetObject( dict, word );
-            }
+            int x = rand() % count;
+            DKStringRef word = DKArrayGetObjectAtIndex( words, x );
+            DKDictionaryGetObject( dict, word );
         }
     }];
 
@@ -266,19 +256,16 @@ const int PERFORMANCE_N = 1000000;
     
     [self measureBlock:^{
 
-        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
+        DKMutableDictionaryRef dict = DKNew( dictionaryClass );
+
+        for( int i = 0; i < PERFORMANCE_N; i++ )
         {
-            DKMutableDictionaryRef dict = DKNew( dictionaryClass );
-
-            for( int i = 0; i < PERFORMANCE_N; i++ )
-            {
-                int x = rand() % count;
-                DKStringRef word = DKArrayGetObjectAtIndex( words, x );
-                DKDictionarySetObject( dict, word, word );
-            }
-
-            DKRelease( dict );
+            int x = rand() % count;
+            DKStringRef word = DKArrayGetObjectAtIndex( words, x );
+            DKDictionarySetObject( dict, word, word );
         }
+
+        DKRelease( dict );
     }];
 
     DKRelease( words );
