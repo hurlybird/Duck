@@ -45,30 +45,27 @@ typedef enum
     // 2 - Locking
     DKStaticCache_Locking =         2,
     
-    // 3 - Collections
+    // 3-4 - Collections
     DKStaticCache_Collection =      3,
-    DKStaticCache_KeyedCollection = 3,
+    DKStaticCache_KeyedCollection = 4,
     
-    // 4 - Containers
-    DKStaticCache_List =            4,
-    DKStaticCache_Dictionary =      4,
-    DKStaticCache_Set =             4,
+    // 5-7 - Containers
+    DKStaticCache_List =            5,
+    DKStaticCache_Dictionary =      6,
+    DKStaticCache_Set =             7,
     
-    // 5 - Reserved
-    // 6 - Reserved
+    // 8-10 - I/O and static selectors used by root classes
+    DKStaticCache_Stream =          8,
+    DKStaticCache_Description =     9,
+    DKStaticCache_Egg =             10,
     
-    // 7 - I/O and static selectors used by root classes
-    DKStaticCache_Stream =          7,
-    DKStaticCache_Description =     7,
-    DKStaticCache_Egg =             7,
-    
-    // 8-15 - Static cache lines reserved for user interfaces
+    // 11-15 - Reserved
     
     // Size of the static cache
     DKStaticCacheSize =             16,
     
     // Size of the dynamic cache
-    DKDynamicCacheSize =            32
+    DKDynamicCacheSize =            16
     
 } DKCacheUsage;
 

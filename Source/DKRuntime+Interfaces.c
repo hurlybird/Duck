@@ -202,6 +202,10 @@ DKInterface * DKInterfaceTableFind( DKClassRef _class, struct DKInterfaceTable *
     // We shoudn't need to acquire the spin lock while reading and writing to the cache
     // since the worst that can happen is doing an extra lookup after reading a stale
     // cache line.
+    
+    // The extra NULL check could be skipped by using a sentinal interface object instead
+    // of NULL for empty cache lines, however doing so -might- result in worse CPU cache
+    // behaviour by touching the sentinel's memory location.
 
     // Check the cached interface
     DKInterface * interface = interfaceTable->cache[cacheline];
@@ -344,6 +348,10 @@ static DKInterfaceRef DKGetInterfaceNotFound( DKClassRef _class, DKSEL sel )
 
 DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
 {
+    // The NULL checks on the arguments are skipped here (and in the related functions
+    // below) to eliminate branching in the interface lookup. Also, interface calls are
+    // typically done inside a wrapper function that already does a NULL check of its own.
+
     DKAssert( (_self != NULL) && (sel != NULL) );
 
     const DKObject * obj = _self;
@@ -388,15 +396,10 @@ bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface
     
     DKInterfaceRef interface = DKInterfaceTableFind( cls, &cls->instanceInterfaces, sel, DKQueryInterfaceNotFound );
 
-    if( interface )
-    {
-        if( _interface )
-            *_interface = interface;
-        
-        return true;
-    }
+    if( _interface )
+        *_interface = interface;
     
-    return false;
+    return interface != NULL;
 }
 
 
@@ -410,15 +413,10 @@ bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * _inte
     
     DKInterfaceRef interface = DKInterfaceTableFind( _class, &_class->classInterfaces, sel, DKQueryInterfaceNotFound );
 
-    if( interface )
-    {
-        if( _interface )
-            *_interface = interface;
-        
-        return true;
-    }
+    if( _interface )
+        *_interface = interface;
     
-    return false;
+    return interface != NULL;
 }
 
 
@@ -470,6 +468,11 @@ static DKInterfaceRef DKGetMsgHandlerNotFound( DKClassRef _class, DKSEL sel )
 
 DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
 {
+    // Method calls (unlike interface calls) are often done from the DKMsgSend macro which
+    // doesn't do a NULL check on _self.
+
+    DKAssert( sel != NULL );
+
     if( _self )
     {
         const DKObject * obj = _self;
@@ -487,6 +490,8 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
 //
 DKMsgHandlerRef DKGetClassMsgHandler( DKClassRef _class, DKSEL sel )
 {
+    DKAssert( sel != NULL );
+
     if( _class )
     {
         DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
