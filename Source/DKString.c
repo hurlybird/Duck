@@ -1038,6 +1038,31 @@ void DKStringSetString( DKMutableStringRef _self, DKStringRef str )
 
 
 ///
+//  DKStringSetCString()
+//
+void DKStringSetCString( DKMutableStringRef _self, const char * cstr )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
+
+        DKRange range = DKRangeMake( 0, _self->byteArray.length );
+        
+        if( cstr )
+        {
+            size_t length = strlen( cstr );
+            ReplaceBytes( _self, range, cstr, length );
+        }
+        
+        else
+        {
+            ReplaceBytes( _self, range, NULL, 0 );
+        }
+    }
+}
+
+
+///
 //  DKStringAppendString()
 //
 void DKStringAppendString( DKMutableStringRef _self, DKStringRef str )

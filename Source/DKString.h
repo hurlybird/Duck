@@ -89,6 +89,7 @@ DKStringRef DKStringCreateByCombiningStrings( DKListRef list, DKStringRef separa
 
 // Modifying mutable strings
 void        DKStringSetString( DKMutableStringRef _self, DKStringRef str );
+void        DKStringSetCString( DKMutableStringRef _self, const char * cstr );
 
 void        DKStringAppendString( DKMutableStringRef _self, DKStringRef str );
 void        DKStringAppendFormat( DKMutableStringRef _self, const char * format, ... );
