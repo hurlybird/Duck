@@ -36,15 +36,23 @@
 #include "DKConfig.h"
 
 #if DK_PLATFORM_APPLE
-#include <pthread.h>
 #include <libkern/OSAtomic.h>
+#endif
 
-#elif DK_PLATFORM_ANDROID
+#if DK_PLATFORM_ANDROID
 // Do stuff here...
+#endif
 
-#elif DK_PLATFORM_LINUX
+#if DK_PLATFORM_LINUX
 // Do stuff here...
+#endif
 
+#if DK_PLATFORM_BSD
+#include <sys/stat.h>
+#endif
+
+#if DK_PLATFORM_POSIX
+#include <pthread.h>
 #endif
 
 
@@ -419,14 +427,7 @@ typedef OSSpinLock DKSpinLock;
 #define DKSpinLockLock( s )         OSSpinLockLock( s )
 #define DKSpinLockUnlock( s )       OSSpinLockUnlock( s )
 
-#elif DK_PLATFORM_ANDROID
-typedef spinlock_t DKSpinLock;
-
-#define DKSpinLockInit              SPIN_LOCK_UNLOCKED
-#define DKSpinLockLock( s )         spin_lock( s )
-#define DKSpinLockUnlock( s )       spin_unlock( s )
-
-#elif DK_PLATFORM_LINUX
+#else
 typedef spinlock_t DKSpinLock;
 
 #define DKSpinLockInit              SPIN_LOCK_UNLOCKED
@@ -448,17 +449,7 @@ typedef spinlock_t DKSpinLock;
 #define DKAtomicCmpAndSwap32( val, old, new )   OSAtomicCompareAndSwap32Barrier( old, new, val )
 #define DKAtomicCmpAndSwapPtr( val, old, new )  OSAtomicCompareAndSwapPtrBarrier( old, new, val )
 
-#elif DK_PLATFORM_ANDROID
-#define DKAtomicAdd32( ptr, x )                 __sync_add_and_fetch( ptr, x )
-#define DKAtomicSub32( ptr, x )                 __sync_sub_and_fetch( ptr, x )
-#define DKAtomicAnd32( ptr, x )                 __sync_and_and_fetch( ptr, x )
-#define DKAtomicOr32( ptr, x )                  __sync_or_and_fetch( ptr, x )
-#define DKAtomicIncrement32( ptr )              __sync_add_and_fetch( ptr, 1 )
-#define DKAtomicDecrement32( ptr )              __sync_sub_and_fetch( ptr, 1 )
-#define DKAtomicCmpAndSwap32( val, old, new )   __sync_bool_compare_and_swap( val, old, new )
-#define DKAtomicCmpAndSwapPtr( val, old, new )  __sync_bool_compare_and_swap( val, old, new )
-
-#elif DK_PLATFORM_LINUX
+#else
 #define DKAtomicAdd32( ptr, x )                 __sync_add_and_fetch( ptr, x )
 #define DKAtomicSub32( ptr, x )                 __sync_sub_and_fetch( ptr, x )
 #define DKAtomicAnd32( ptr, x )                 __sync_and_and_fetch( ptr, x )
@@ -479,10 +470,7 @@ typedef spinlock_t DKSpinLock;
 #define DKSwapInt32( x )                        OSSwapInt32( x )
 #define DKSwapInt64( x )                        OSSwapInt64( x )
 
-#elif DK_PLATFORM_ANDROID
-// Do stuff here
-
-#elif DK_PLATFORM_LINUX
+#else
 // Do stuff here
 
 #endif

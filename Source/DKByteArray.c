@@ -158,6 +158,7 @@ void DKByteArraySetLength( DKByteArray * array, DKIndex length )
 {
     DKByteArrayReserve( array, length );
     array->length = length;
+    SetNullTerminator( array );
 }
 
 

@@ -37,16 +37,18 @@ typedef struct DKData * DKMutableDataRef;
 DKClassRef  DKDataClass( void );
 DKClassRef  DKMutableDataClass( void );
 
-#define     DKEmptyData()                       DKAutorelease( DKNew( DKDataClass() ) )
-#define     DKMutableData()                     DKAutorelease( DKNew( DKMutableDataClass() ) )
+#define     DKEmptyData()                           DKAutorelease( DKNew( DKDataClass() ) )
+#define     DKMutableData()                         DKAutorelease( DKNew( DKMutableDataClass() ) )
 
-#define     DKDataWithBytes( bytes, length )    DKAutorelease( DKDataInitWithBytes( DKAlloc( DKDataClass() ), bytes, length ) )
+#define     DKDataWithBytes( bytes, length )        DKAutorelease( DKDataInitWithBytes( DKAlloc( DKDataClass() ), bytes, length ) )
+#define     DKDataWithContentsOfFile( filename )    DKAutorelease( DKDataInitWithContentsOfFile( DKAlloc( DKDataClass() ), filename ) )
 
 #define     DKNewMutableData()                  DKNew( DKMutableDataClass() )
 
 DKDataRef   DKDataInitWithBytes( DKDataRef _self, const void * bytes, DKIndex length );
 DKDataRef   DKDataInitWithBytesNoCopy( DKDataRef _self, const void * bytes, DKIndex length );
 DKDataRef   DKDataInitWithLength( DKDataRef _self, DKIndex length );
+DKDataRef   DKDataInitWithContentsOfFile( DKDataRef _self, DKStringRef filename );
 DKMutableDataRef DKDataInitWithCapacity( DKMutableDataRef _self, DKIndex capacity );
 
 DKDataRef DKDataMakeImmutable( DKMutableDataRef _self );

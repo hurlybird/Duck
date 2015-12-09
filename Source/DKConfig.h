@@ -95,6 +95,10 @@
 #define DK_PLATFORM_APPLE       1
 #endif
 
+#ifndef DK_PLATFORM_BSD
+#define DK_PLATFORM_BSD         1
+#endif
+
 #ifndef DK_PLATFORM_LINUX
 #define DK_PLATFORM_LINUX       0
 #endif
@@ -106,6 +110,7 @@
 #ifndef DK_PLATFORM_POSIX
 #define DK_PLATFORM_POSIX       1
 #endif
+
 
 
 

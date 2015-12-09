@@ -31,6 +31,7 @@
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKEgg.h"
+#include "DKFile.h"
 
 
 struct DKData
@@ -226,6 +227,39 @@ DKDataRef DKDataInitWithLength( DKDataRef _self, DKIndex length )
     {
         DKAssertKindOfClass( _self, DKDataClass() );
         DKByteArrayAppendBytes( (DKByteArray *)&_self->byteArray, NULL, length );
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKDataInitWithContentsOfFile()
+//
+DKDataRef DKDataInitWithContentsOfFile( DKDataRef _self, DKStringRef filename )
+{
+    _self = DKInit( _self );
+
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKDataClass() );
+        
+        DKFileRef file = DKFileOpen( filename, "r" );
+        
+        if( file )
+        {
+            DKIndex length = DKFileGetLength( file );
+        
+            if( length > 0 )
+            {
+                DKByteArraySetLength( &_self->byteArray, length );
+
+                void * buffer = DKByteArrayGetBytePtr( &_self->byteArray, 0 );
+                DKFileRead( file, buffer, 1, length );
+            }
+
+            DKFileClose( file );
+        }
     }
     
     return _self;

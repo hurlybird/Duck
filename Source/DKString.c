@@ -517,10 +517,7 @@ DKObjectRef DKStringInitWithContentsOfFile( DKStringRef _self, DKStringRef filen
         
         if( file )
         {
-            // Note: on Windows this won't get the correct length for text mode files
-            DKFileSeek( file, 0, SEEK_END );
-            DKIndex length = DKFileTell( file );
-            DKFileSeek( file, 0, SEEK_SET );
+            DKIndex length = DKFileGetLength( file );
         
             if( length > 0 )
             {

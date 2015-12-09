@@ -157,6 +157,37 @@ DKIndex DKFileTell( DKFileRef _self )
 
 
 ///
+//  DKFileGetLength()
+//
+DKIndex DKFileGetLength( DKFileRef _self )
+{
+    DKIndex length = 0;
+
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKFileClass() );
+
+        if( _self->file )
+        {
+#if DK_PLATFORM_BSD
+            int fd = fileno( _self->file );
+            struct stat fileStats;
+            fstat( fd, &fileStats );
+            length = fileStats.st_size;
+#else
+            DKIndex cursor = ftell( _self->file );
+            fseek( _self->file, 0, SEEK_END );
+            length = ftell( _self->file );
+            fseek( _self->file, cursor, SEEK_SET );
+#endif
+        }
+    }
+
+    return length;
+}
+
+
+///
 //  DKFileRead()
 //
 DKIndex DKFileRead( DKFileRef _self, void * buffer, DKIndex size, DKIndex count )
