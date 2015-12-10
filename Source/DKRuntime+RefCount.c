@@ -108,6 +108,73 @@ void DKRelease( DKObjectRef _self )
 }
 
 
+///
+//  DKTryRelease()
+//
+bool DKTryRelease( DKObjectRef _self )
+{
+    bool result = false;
+
+    if( _self )
+    {
+        DKObject * obj = _self;
+
+        int32_t rc = obj->refcount;
+
+        if( (rc & DKRefCountDisabledBit) == 0 )
+        {
+            if( (rc & DKRefCountMetadataBit) == 0 )
+            {
+                if( (rc & DKRefCountMask) == 1 )
+                {
+                    rc = DKAtomicDecrement32( &obj->refcount );
+                    DKAssert( (rc & DKRefCountOverflowBit) == 0 );
+
+                    if( (rc & DKRefCountMask) == 0 )
+                    {
+                        DKFinalize( _self );
+                        DKDealloc( _self );
+                    }
+
+                    result = true;
+                }
+            }
+            
+            else
+            {
+                DKMetadataRef metadata = DKMetadataFindOrInsert( obj );
+                
+                DKSpinLockLock( &metadata->weakLock );
+                
+                rc = obj->refcount; // Fetch again while locked
+                
+                if( (rc & DKRefCountMask) == 1 )
+                {
+                    rc = DKAtomicDecrement32( &obj->refcount );
+                    DKAssert( (rc & DKRefCountOverflowBit) == 0 );
+
+                    if( (rc & DKRefCountMask) == 0 )
+                        metadata->weakTarget = NULL;
+                    
+                    result = true;
+                }
+
+                DKSpinLockUnlock( &metadata->weakLock );
+                
+                if( (rc & DKRefCountMask) == 0 )
+                {
+                    DKMetadataRemove( metadata );
+                    DKFinalize( _self );
+                    DKDealloc( _self );
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+
 
 
 // Weak References =======================================================================
