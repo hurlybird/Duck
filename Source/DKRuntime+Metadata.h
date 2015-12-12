@@ -40,11 +40,11 @@ struct DKMetadata
     DKObjectRef     owner;
     
     // Weak referencing
-    DKSpinLock      weakLock;
     DKObjectRef     weakTarget;
+    DKSpinLock      weakLock;
     
     // Thread Synchronization
-    pthread_mutex_t mutex;
+    DKSpinLock      spinLock;
 };
 
 typedef struct DKMetadata * DKMetadataRef;
@@ -55,7 +55,6 @@ void DKMetadataTableInit( void );
 DKMetadataRef DKMetadataFindOrInsert( DKObject * obj );
 void DKMetadataRemove( DKMetadataRef metadata );
 
-void DKMetadataFinalize( DKObjectRef _self );
 
 #endif // DK_RUNTIME_PRIVATE
 

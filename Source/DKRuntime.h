@@ -177,7 +177,6 @@ void        DKFinalize( DKObjectRef _self );
 
 // Simple object synchronization
 void        DKLockObject( DKObjectRef _self );
-bool        DKTryLockObject( DKObjectRef _self );
 void        DKUnlockObject( DKObjectRef _self );
 
 

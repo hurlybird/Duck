@@ -181,29 +181,13 @@ static DKObjectRef DKMetadataInitWithOwner( DKObjectRef _self, DKObjectRef owner
 
         metadata->owner = owner;
         
-        metadata->weakLock = DKSpinLockInit;
         metadata->weakTarget = owner;
+        metadata->weakLock = DKSpinLockInit;
         
-        pthread_mutexattr_t attr;
-        pthread_mutexattr_init( &attr );
-        pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_RECURSIVE );
-        pthread_mutex_init( &metadata->mutex, &attr );
-        pthread_mutexattr_destroy( &attr );
-        
+        metadata->spinLock = DKSpinLockInit;
     }
     
     return _self;
-}
-
-
-///
-//  DKMetadataFinalize()
-//
-void DKMetadataFinalize( DKObjectRef _self )
-{
-    struct DKMetadata * metadata = _self;
-    
-    pthread_mutex_destroy( &metadata->mutex );
 }
 
 

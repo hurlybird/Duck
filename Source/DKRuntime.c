@@ -261,11 +261,6 @@ static struct DKLockingInterface DKDefaultLocking_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Locking_StaticObject ),
     DKLockObject,
-    DKTryLockObject,
-    DKLockObject,
-    DKTryLockObject,
-    DKLockObject,
-    DKTryLockObject,
     DKUnlockObject
 };
 
@@ -427,7 +422,7 @@ void DKRuntimeInit( void )
         InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct _DKSEL),    DKPreventSubclassing, NULL, DKSelectorFinalize );
         InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),      0, NULL, DKInterfaceFinalize );
         InitRootClass( &__DKMsgHandlerClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),     DKPreventSubclassing, NULL, NULL );
-        InitRootClass( &__DKMetadataClass__,   NULL,                  sizeof(struct DKMetadata),DKPreventSubclassing, NULL, DKMetadataFinalize );
+        InitRootClass( &__DKMetadataClass__,   NULL,                  sizeof(struct DKMetadata),DKPreventSubclassing, NULL, NULL );
         InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObject),         0, NULL, NULL );
         
         // Install custom comparison for selectors, interfaces and message handlers
@@ -703,23 +698,8 @@ void DKLockObject( DKObjectRef _self )
     if( _self )
     {
         DKMetadataRef metadata = DKMetadataFindOrInsert( _self );
-        pthread_mutex_lock( &metadata->mutex );
+        DKSpinLockLock( &metadata->spinLock );
     }
-}
-
-
-///
-//  DKTryLockObject()
-//
-bool DKTryLockObject( DKObjectRef _self )
-{
-    if( _self )
-    {
-        DKMetadataRef metadata = DKMetadataFindOrInsert( _self );
-        return pthread_mutex_trylock( &metadata->mutex ) == 0;
-    }
-    
-    return true;
 }
 
 
@@ -731,7 +711,7 @@ void DKUnlockObject( DKObjectRef _self )
     if( _self )
     {
         DKMetadataRef metadata = DKMetadataFindOrInsert( _self );
-        pthread_mutex_unlock( &metadata->mutex );
+        DKSpinLockUnlock( &metadata->spinLock );
     }
 }
 

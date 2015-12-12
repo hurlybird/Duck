@@ -34,7 +34,6 @@ DKDeclareInterfaceSelector( Locking );
 
 
 typedef void (*DKLockMethod)( DKObjectRef _self );
-typedef bool (*DKTryLockMethod)( DKObjectRef _self );
 typedef void (*DKUnlockMethod)( DKObjectRef _self );
 
 
@@ -43,14 +42,6 @@ struct DKLockingInterface
     const DKInterface _interface;
 
     DKLockMethod    lock;
-    DKTryLockMethod tryLock;
-    
-    DKLockMethod    readLock;
-    DKTryLockMethod tryReadLock;
-
-    DKLockMethod    writeLock;
-    DKTryLockMethod tryWriteLock;
-
     DKUnlockMethod  unlock;
 };
 
@@ -63,14 +54,6 @@ DKInterfaceRef DKDefaultLocking( void );
 
 
 void DKLock( DKObjectRef _self );
-bool DKTryLock( DKObjectRef _self );
-
-void DKReadLock( DKObjectRef _self );
-bool DKTryReadLock( DKObjectRef _self );
-
-void DKWriteLock( DKObjectRef _self );
-bool DKTryWriteLock( DKObjectRef _self );
-
 void DKUnlock( DKObjectRef _self );
 
 
