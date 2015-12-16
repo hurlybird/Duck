@@ -50,68 +50,6 @@ static void DKClassFinalize( DKObjectRef _self );
 
 
 
-// Thread Context ========================================================================
-static pthread_key_t DKThreadContextKey;
-static struct DKThreadContext * DKMainThreadContext = NULL;
-
-
-///
-//  DKFreeThreadContext()
-//
-static void DKFreeThreadContext( void * context )
-{
-    struct DKThreadContext * threadContext = context;
-    
-    DKRelease( threadContext->threadObject );
-    
-    DKRequire( threadContext->arpStack.top == -1 );
-    
-    for( int i = 0; i < DK_AUTORELEASE_POOL_STACK_SIZE; i++ )
-        DKGenericArrayFinalize( &threadContext->arpStack.arp[i] );
-    
-    dk_free( threadContext );
-
-    pthread_setspecific( DKThreadContextKey, NULL );
-}
-
-
-///
-//  DKGetCurrentThreadContext()
-//
-struct DKThreadContext * DKGetCurrentThreadContext( void )
-{
-    struct DKThreadContext * threadContext = pthread_getspecific( DKThreadContextKey );
-
-    if( !threadContext )
-    {
-        // Create a new stack
-        threadContext = dk_malloc( sizeof(struct DKThreadContext) );
-        memset( threadContext, 0, sizeof(struct DKThreadContext) );
-        
-        // Initialize the autorelease pool stack
-        threadContext->arpStack.top = -1;
-
-        for( int i = 0; i < DK_AUTORELEASE_POOL_STACK_SIZE; i++ )
-            DKGenericArrayInit( &threadContext->arpStack.arp[i], sizeof(DKObjectRef) );
-        
-        // Save the stack to the current thread
-        pthread_setspecific( DKThreadContextKey, threadContext );
-    }
-
-    return threadContext;
-}
-
-
-///
-//  DKGetMainThreadContext()
-//
-struct DKThreadContext * DKGetMainThreadContext( void )
-{
-    return DKMainThreadContext;
-}
-
-
-
 
 // Root Classes ==========================================================================
 static struct DKClass __DKRootClass__;
@@ -413,8 +351,7 @@ void DKRuntimeInit( void )
         _DKRuntimeIsInitialized = true;
 
         // Initialize the main thread context
-        pthread_key_create( &DKThreadContextKey, DKFreeThreadContext );
-        DKMainThreadContext = DKGetCurrentThreadContext();
+        DKMainThreadContextInit();
 
         // Initialize the root classes
         InitRootClass( &__DKRootClass__,       NULL,                  sizeof(struct DKClass),   DKPreventSubclassing | DKAbstractBaseClass | DKDisableReferenceCounting, NULL, DKClassFinalize );

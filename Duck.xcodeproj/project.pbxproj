@@ -690,9 +690,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		028F1A881B0DCA85006FDFDF /* Duck-OSX */ = {
+		028F1A881B0DCA85006FDFDF /* Duck-MacOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 028F1A9C1B0DCA86006FDFDF /* Build configuration list for PBXNativeTarget "Duck-OSX" */;
+			buildConfigurationList = 028F1A9C1B0DCA86006FDFDF /* Build configuration list for PBXNativeTarget "Duck-MacOS" */;
 			buildPhases = (
 				028F1A841B0DCA85006FDFDF /* Sources */,
 				028F1A851B0DCA85006FDFDF /* Frameworks */,
@@ -703,7 +703,7 @@
 			);
 			dependencies = (
 			);
-			name = "Duck-OSX";
+			name = "Duck-MacOS";
 			productName = Duck;
 			productReference = 028F1A891B0DCA85006FDFDF /* Duck.framework */;
 			productType = "com.apple.product-type.framework";
@@ -776,7 +776,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				028F1A881B0DCA85006FDFDF /* Duck-OSX */,
+				028F1A881B0DCA85006FDFDF /* Duck-MacOS */,
 				028F1AFF1B0E6B6C006FDFDF /* Duck-iOS */,
 				028F1A921B0DCA85006FDFDF /* Duck-Tests */,
 			);
@@ -922,7 +922,7 @@
 /* Begin PBXTargetDependency section */
 		028F1A961B0DCA86006FDFDF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 028F1A881B0DCA85006FDFDF /* Duck-OSX */;
+			target = 028F1A881B0DCA85006FDFDF /* Duck-MacOS */;
 			targetProxy = 028F1A951B0DCA86006FDFDF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1246,7 +1246,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		028F1A9C1B0DCA86006FDFDF /* Build configuration list for PBXNativeTarget "Duck-OSX" */ = {
+		028F1A9C1B0DCA86006FDFDF /* Build configuration list for PBXNativeTarget "Duck-MacOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				028F1A9D1B0DCA86006FDFDF /* Debug */,

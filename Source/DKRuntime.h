@@ -264,23 +264,6 @@ struct DKClass
 };
 
 
-// DKThreadContext -----------------------------------------------------------------------
-struct DKThreadContext
-{
-    DKObjectRef threadObject;
-
-    struct
-    {
-        DKIndex top;
-        DKGenericArray arp[DK_AUTORELEASE_POOL_STACK_SIZE];
-        
-    } arpStack;
-};
-
-struct DKThreadContext * DKGetCurrentThreadContext( void );
-struct DKThreadContext * DKGetMainThreadContext( void );
-
-
 
 #endif // DK_RUNTIME_PRIVATE
 

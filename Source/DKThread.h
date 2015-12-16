@@ -31,6 +31,7 @@
 #include "DKDictionary.h"
 
 
+// DKThread ==============================================================================
 typedef struct DKThread * DKThreadRef;
 
 typedef void (*DKThreadProc)( DKObjectRef object );
@@ -70,6 +71,46 @@ DKThreadState DKThreadGetState( DKThreadRef _self );
 DKMutableDictionaryRef DKThreadGetDictionary( DKThreadRef _self );
 bool DKThreadIsMainThread( DKThreadRef _self );
 
+
+
+
+// DKThreadContext =======================================================================
+typedef struct DKThreadContext * DKThreadContextRef;
+
+DKThreadContextRef DKAllocThreadContext( void );
+void DKFreeThreadContext( DKThreadContextRef threadContext );
+
+void DKSetCurrentThreadContext( DKThreadContextRef threadContext );
+DKThreadContextRef DKGetCurrentThreadContext( void );
+
+DKThreadContextRef DKGetMainThreadContext( void );
+
+
+
+
+// Private ===============================================================================
+#if DK_RUNTIME_PRIVATE
+
+struct DKThreadContext
+{
+    DKObjectRef threadObject;
+
+    uint32_t options;
+
+    struct
+    {
+        DKGenericArray objects;
+        DKIndex top;
+        DKIndex count[DK_AUTORELEASE_POOL_STACK_SIZE];
+        
+    } arp;
+};
+
+void DKThreadContextInit( struct DKThreadContext * threadContext, uint32_t options );
+void DKMainThreadContextInit( void );
+
+
+#endif // DK_RUNTIME_PRIVATE
 
 
 

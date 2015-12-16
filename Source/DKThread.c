@@ -30,6 +30,135 @@
 #include "DKString.h"
 
 
+
+
+// DKThreadContext =======================================================================
+enum
+{
+    DKThreadContextAllocated = (1 << 0)
+};
+
+static struct DKThreadContext DKMainThreadContext;
+static pthread_key_t DKThreadContextKey;
+static bool DKThreadContextInitialized = false;
+
+
+///
+//  DKThreadContextInit()
+//
+void DKThreadContextInit( DKThreadContextRef threadContext, uint32_t options )
+{
+    threadContext->threadObject = NULL;
+    
+    threadContext->options = options;
+    
+    // Initialize the autorelease pool stack
+    DKGenericArrayInit( &threadContext->arp.objects, sizeof(DKObjectRef) );
+    
+    threadContext->arp.top = -1;
+
+    for( int i = 0; i < DK_AUTORELEASE_POOL_STACK_SIZE; i++ )
+        threadContext->arp.count[i] = 0;
+}
+
+
+///
+//  DKAllocThreadContext()
+//
+DKThreadContextRef DKAllocThreadContext( void )
+{
+    DKThreadContextRef threadContext = dk_malloc( sizeof(struct DKThreadContext) );
+    
+    DKThreadContextInit( threadContext, DKThreadContextAllocated );
+    
+    return threadContext;
+}
+
+
+///
+//  DKFreeThreadContext()
+//
+void DKFreeThreadContext( DKThreadContextRef threadContext )
+{
+    if( threadContext )
+    {
+        DKRelease( threadContext->threadObject );
+        
+        DKRequire( threadContext->arp.top == -1 );
+        
+        DKGenericArrayFinalize( &threadContext->arp.objects );
+
+        if( threadContext->options & DKThreadContextAllocated )
+            dk_free( threadContext );
+    }
+}
+
+
+///
+//  DKThreadContextDestructor()
+//
+static void DKThreadContextDestructor( void * context )
+{
+    DKFreeThreadContext( context );
+    pthread_setspecific( DKThreadContextKey, NULL );
+}
+
+
+///
+//  DKSetCurrentThreadContext()
+//
+void DKSetCurrentThreadContext( DKThreadContextRef threadContext )
+{
+    DKAssert( DKThreadContextInitialized );
+    
+    pthread_setspecific( DKThreadContextKey, threadContext );
+}
+
+
+///
+//  DKGetCurrentThreadContext()
+//
+DKThreadContextRef DKGetCurrentThreadContext( void )
+{
+    DKAssert( DKThreadContextInitialized );
+
+    DKThreadContextRef threadContext = pthread_getspecific( DKThreadContextKey );
+    DKAssert( threadContext != NULL );
+    
+    return threadContext;
+}
+
+
+///
+//  DKMainThreadContextInit()
+//
+void DKMainThreadContextInit( void )
+{
+    DKRequire( !DKThreadContextInitialized );
+    
+    DKThreadContextInitialized = true;
+
+    pthread_key_create( &DKThreadContextKey, DKThreadContextDestructor );
+
+    DKThreadContextInit( &DKMainThreadContext, 0 );
+    DKSetCurrentThreadContext( &DKMainThreadContext );
+}
+
+
+///
+//  DKGetMainThreadContext()
+//
+DKThreadContextRef DKGetMainThreadContext( void )
+{
+    DKAssert( DKThreadContextInitialized );
+
+    return &DKMainThreadContext;
+}
+
+
+
+
+// DKThread ==============================================================================
 struct DKThread
 {
     DKObject _obj;
@@ -114,7 +243,8 @@ DKThreadRef DKThreadGetMainThread( void )
     struct DKThreadContext * threadContext = DKGetMainThreadContext();
     
     // The main thread object should have been created by DKRuntimeInit.
-    DKAssert( threadContext->threadObject );
+    DKRequire( threadContext != NULL );
+    DKRequire( threadContext->threadObject != NULL );
     
     return threadContext->threadObject;
 }
@@ -155,10 +285,14 @@ DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc threadProc, DKObjectRe
 //
 static void * DKThreadExec( void * _thread )
 {
-    struct DKThread * thread = _thread;
+    DKThreadRef thread = _thread;
     
-    struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
-    threadContext->threadObject = thread;
+    struct DKThreadContext threadContext;
+    
+    DKThreadContextInit( &threadContext, 0 );
+    threadContext.threadObject = thread; // Retained in DKThreadStart
+    
+    DKSetCurrentThreadContext( &threadContext );
     
     DKSpinLockLock( &thread->lock );
     thread->state = DKThreadRunning;
@@ -169,6 +303,8 @@ static void * DKThreadExec( void * _thread )
     DKSpinLockLock( &thread->lock );
     thread->state = DKThreadFinished;
     DKSpinLockUnlock( &thread->lock );
+    
+    DKSetCurrentThreadContext( NULL );
     
     return NULL;
 }
@@ -320,6 +456,8 @@ bool DKThreadIsMainThread( DKThreadRef _self )
 
     return _self == DKGetMainThreadContext()->threadObject;
 }
+
+
 
 
 
