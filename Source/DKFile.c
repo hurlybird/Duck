@@ -97,7 +97,6 @@ bool DKFileExists( DKStringRef filename )
 DKFileRef DKFileOpen( DKStringRef filename, const char * mode )
 {
     const char * fname = DKStringGetCStringPtr( filename );
-    
     FILE * file = fopen( fname, mode );
     
     if( file )
@@ -107,13 +106,12 @@ DKFileRef DKFileOpen( DKStringRef filename, const char * mode )
         if( _self )
         {
             _self->file = file;
+            
+            return _self;
         }
         
-        else
-        {
-            DKAssert( 0 );
-            fclose( file );
-        }
+        DKAssert( 0 );
+        fclose( file );
     }
     
     return NULL;
