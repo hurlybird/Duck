@@ -76,22 +76,44 @@ static void DKFileFinalize( DKObjectRef _untyped_self )
 
 
 ///
+//  DKFileExists()
+//
+bool DKFileExists( DKStringRef filename )
+{
+#if DK_PLATFORM_BSD
+    const char * fname = DKStringGetCStringPtr( filename );
+
+    struct stat fileStats;
+    return stat( fname, &fileStats ) == 0;
+#else
+    DKAssert( 0 );
+#endif
+}
+
+
+///
 //  DKFileOpen()
 //
 DKFileRef DKFileOpen( DKStringRef filename, const char * mode )
 {
-    struct DKFile * file = DKNew( DKFileClass() );
+    const char * fname = DKStringGetCStringPtr( filename );
+    
+    FILE * file = fopen( fname, mode );
     
     if( file )
     {
-        const char * fname = DKStringGetCStringPtr( filename );
+        DKFileRef _self = DKNew( DKFileClass() );
+    
+        if( _self )
+        {
+            _self->file = file;
+        }
         
-        file->file = fopen( fname, mode );
-        
-        if( file->file )
-            return file;
-        
-        DKRelease( file );
+        else
+        {
+            DKAssert( 0 );
+            fclose( file );
+        }
     }
     
     return NULL;

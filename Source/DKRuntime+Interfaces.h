@@ -56,10 +56,11 @@ typedef enum
     
     // 8-10 - I/O and static selectors used by root classes
     DKStaticCache_Stream =          8,
-    DKStaticCache_Description =     9,
-    DKStaticCache_Egg =             10,
+    DKStaticCache_Conversion =      9,
+    DKStaticCache_Description =     10,
+    DKStaticCache_Egg =             11,
     
-    // 11-15 - Reserved
+    // 12-15 - Reserved
     
     // Size of the static cache
     DKStaticCacheSize =             16,

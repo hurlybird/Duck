@@ -83,16 +83,23 @@ const void* DKNumberGetValuePtr( DKNumberRef _self );
 
 #define     DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
 
+bool        DKNumberGetBool( DKNumberRef _self );
+int32_t     DKNumberGetInt32( DKNumberRef _self );
+int64_t     DKNumberGetInt64( DKNumberRef _self );
+float       DKNumberGetFloat( DKNumberRef _self );
+double      DKNumberGetDouble( DKNumberRef _self );
+
+#define     DKNumberGetString( _self )    DKNumberGetDescription( _self )
 #define     DKNumberGetInt8( _self )      (*((int8_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetInt16( _self )     (*((int16_t *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetInt32( _self )     (*((int32_t *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetInt64( _self )     (*((int64_t *)DKNumberGetValuePtr( _self )))
+//#define     DKNumberGetInt32( _self )     (*((int32_t *)DKNumberGetValuePtr( _self )))
+//#define     DKNumberGetInt64( _self )     (*((int64_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetUInt8( _self )     (*((uint8_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetUInt16( _self )    (*((uint16_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetUInt32( _self )    (*((uint32_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetUInt64( _self )    (*((uint64_t *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetFloat( _self )     (*((float *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetDouble( _self )    (*((double *)DKNumberGetValuePtr( _self )))
+//#define     DKNumberGetFloat( _self )     (*((float *)DKNumberGetValuePtr( _self )))
+//#define     DKNumberGetDouble( _self )    (*((double *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetUUID( _self )      (*((DKUUID *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetDate( _self )      (*((DKDateTime *)DKNumberGetValuePtr( _self )))
 

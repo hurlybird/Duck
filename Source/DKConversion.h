@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKConversion.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,68 +24,52 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-//! Project version number for Duck.
-//FOUNDATION_EXPORT double DuckVersionNumber;
-
-//! Project version string for Duck.
-//FOUNDATION_EXPORT const unsigned char DuckVersionString[];
-
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKGenericHashTable.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#ifndef _DK_CONVERSION_H_
+#define _DK_CONVERSION_H_
 
 #include "DKRuntime.h"
-#include "DKThread.h"
-
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKLocking.h"
-#include "DKStream.h"
-#include "DKConversion.h"
-
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKBoolean.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
-
-#include "DKFile.h"
-#include "DKEgg.h"
-#include "DKJSON.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
 
 
-#ifdef __cplusplus
-}
-#endif
+DKDeclareInterfaceSelector( Conversion );
 
 
-#endif
+typedef DKStringRef (*DKGetStringMethod)( DKObjectRef _self );
+typedef bool        (*DKGetBoolMethod)( DKObjectRef _self );
+typedef int32_t     (*DKGetInt32Method)( DKObjectRef _self );
+typedef int64_t     (*DKGetInt64Method)( DKObjectRef _self );
+typedef float       (*DKGetFloatMethod)( DKObjectRef _self );
+typedef double      (*DKGetDoubleMethod)( DKObjectRef _self );
+
+
+struct DKConversionInterface
+{
+    const DKInterface _interface;
+    
+    DKGetStringMethod   getString;
+    DKGetBoolMethod     getBool;
+    DKGetInt32Method    getInt32;
+    DKGetInt64Method    getInt64;
+    DKGetFloatMethod    getFloat;
+    DKGetDoubleMethod   getDouble;
+};
+
+typedef const struct DKConversionInterface * DKConversionInterfaceRef;
+
+
+DKStringRef DKGetString( DKObjectRef _self );
+bool        DKGetBool( DKObjectRef _self );
+int32_t     DKGetInt32( DKObjectRef _self );
+int64_t     DKGetInt64( DKObjectRef _self );
+float       DKGetFloat( DKObjectRef _self );
+double      DKGetDouble( DKObjectRef _self );
+
+
+#define DKGetInt( _self )       DKGetInt32( _self )
+#define DKGetLongLong( _self )  DKGetInt64( _self )
+
+
+
+#endif // _DK_CONVERSION_H_
+
+
+

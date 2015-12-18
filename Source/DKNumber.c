@@ -31,6 +31,7 @@
 #include "DKAllocation.h"
 #include "DKComparison.h"
 #include "DKDescription.h"
+#include "DKConversion.h"
 #include "DKEgg.h"
 
 
@@ -284,6 +285,18 @@ DKThreadSafeClassInit( DKNumberClass )
     
     DKInstallInterface( cls, egg );
     DKRelease( egg );
+
+    // Conversion
+    struct DKConversionInterface * conv = DKNewInterface( DKSelector(Conversion), sizeof(struct DKConversionInterface) );
+    conv->getString = (DKGetStringMethod)DKNumberGetDescription;
+    conv->getBool = (DKGetBoolMethod)DKNumberGetBool;
+    conv->getInt32 = (DKGetInt32Method)DKNumberGetInt32;
+    conv->getInt64 = (DKGetInt64Method)DKNumberGetInt64;
+    conv->getFloat = (DKGetFloatMethod)DKNumberGetFloat;
+    conv->getDouble = (DKGetDoubleMethod)DKNumberGetDouble;
+    
+    DKInstallInterface( cls, conv );
+    DKRelease( conv );
 
     return cls;
 }
@@ -696,6 +709,109 @@ size_t DKNumberConvert( const void * src, DKEncoding srcEncoding, void * dst, DK
 }
 
 
+///
+//  DKNumberGetBool()
+//
+bool DKNumberGetBool( DKNumberRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        
+        int32_t value;
+        
+        if( DKNumberConvert( &_self->value, encoding, &value, DKNumberInt32 ) == 1 )
+            return value != 0;
+    }
+    
+    return false;
+}
+
+
+///
+//  DKNumberGetInt32()
+//
+int32_t DKNumberGetInt32( DKNumberRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        
+        int32_t value;
+        
+        if( DKNumberConvert( &_self->value, encoding, &value, DKNumberInt32 ) == 1 )
+            return value;
+    }
+    
+    return 0;
+}
+
+
+///
+//  DKNumberGetInt64()
+//
+int64_t DKNumberGetInt64( DKNumberRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        
+        int64_t value;
+        
+        if( DKNumberConvert( &_self->value, encoding, &value, DKNumberInt64 ) == 1 )
+            return value;
+    }
+    
+    return 0;
+}
+
+
+///
+//  DKNumberGetFloat()
+//
+float DKNumberGetFloat( DKNumberRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        
+        float value;
+        
+        if( DKNumberConvert( &_self->value, encoding, &value, DKNumberFloat ) == 1 )
+            return value;
+    }
+    
+    return 0.0f;
+}
+
+
+///
+//  DKNumberGetDouble()
+//
+double DKNumberGetDouble( DKNumberRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        
+        double value;
+        
+        if( DKNumberConvert( &_self->value, encoding, &value, DKNumberDouble ) == 1 )
+            return value;
+    }
+    
+    return 0.0;
+}
 
 
 

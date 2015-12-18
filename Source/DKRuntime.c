@@ -37,6 +37,7 @@
 #include "DKEgg.h"
 #include "DKAllocation.h"
 #include "DKComparison.h"
+#include "DKConversion.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
 #include "DKLocking.h"
@@ -135,6 +136,7 @@ DKStaticSelectorInit( Description );
 DKStaticSelectorInit( Locking );
 DKStaticSelectorInit( Stream );
 DKStaticSelectorInit( Egg );
+DKStaticSelectorInit( Conversion );
 
 
 // DefaultAllocation ---------------------------------------------------------------------
@@ -385,6 +387,7 @@ void DKRuntimeInit( void )
         SetStaticSelectorName( &DKSelector_Allocation_StaticObject, DKSTR( "Allocation" ) );
         SetStaticSelectorName( &DKSelector_Comparison_StaticObject, DKSTR( "Comparison" ) );
         SetStaticSelectorName( &DKSelector_Copying_StaticObject, DKSTR( "Copying" ) );
+        SetStaticSelectorName( &DKSelector_Conversion_StaticObject, DKSTR( "Conversion" ) );
         SetStaticSelectorName( &DKSelector_Description_StaticObject, DKSTR( "Description" ) );
         SetStaticSelectorName( &DKSelector_Stream_StaticObject, DKSTR( "Stream" ) );
         SetStaticSelectorName( &DKSelector_Egg_StaticObject, DKSTR( "Egg" ) );

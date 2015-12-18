@@ -110,7 +110,7 @@ DKIndex     DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKInde
 DKIndex     DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex size, DKIndex count );
 
 // Paths
-int         DKStringIsAbsolutePath( DKStringRef _self );
+bool        DKStringIsAbsolutePath( DKStringRef _self );
 DKStringRef DKStringCopyLastPathComponent( DKStringRef _self );
 DKStringRef DKStringCopyPathExtension( DKStringRef _self );
 void        DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComponent );
@@ -127,6 +127,14 @@ DKStringRef DKStringByRemovingURLPercentEscapes( DKStringRef _self );
 
 DKDictionaryRef DKStringSplitQueryParameters( DKStringRef _self );
 DKStringRef DKStringCombineQueryParameters( DKDictionaryRef queryParameters );
+
+// Conversions
+bool        DKStringGetBool( DKStringRef _self );
+int32_t     DKStringGetInt32( DKStringRef _self );
+int64_t     DKStringGetInt64( DKStringRef _self );
+float       DKStringGetFloat( DKStringRef _self );
+double      DKStringGetDouble( DKStringRef _self );
+
 
 
 #endif // _DK_DATA_H_

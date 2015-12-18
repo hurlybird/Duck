@@ -38,6 +38,7 @@
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
+#include "DKConversion.h"
 #include "DKFile.h"
 
 #include "icu/unicode/utf8.h"
@@ -142,6 +143,19 @@ DKThreadSafeClassInit( DKStringClass )
     
     DKInstallInterface( cls, egg );
     DKRelease( egg );
+
+    // Conversion
+    struct DKConversionInterface * conv = DKNewInterface( DKSelector(Conversion), sizeof(struct DKConversionInterface) );
+    conv->getString = (DKGetStringMethod)DKGetSelf;
+    conv->getBool = (DKGetBoolMethod)DKStringGetBool;
+    conv->getInt32 = (DKGetInt32Method)DKStringGetInt32;
+    conv->getInt64 = (DKGetInt64Method)DKStringGetInt64;
+    conv->getFloat = (DKGetFloatMethod)DKStringGetFloat;
+    conv->getDouble = (DKGetDoubleMethod)DKStringGetDouble;
+    
+    DKInstallInterface( cls, conv );
+    DKRelease( conv );
+    
 
     return cls;
 }
@@ -1135,7 +1149,7 @@ void DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKString
 ///
 //  DKStringReplaceOccurrencesOfString()
 //
-void INTERNAL_DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement )
+static void INTERNAL_DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement )
 {
     DKRange range = DKStringGetRangeOfString( _self, pattern, 0 );
     DKIndex length = DKStringGetLength( replacement );
@@ -1216,7 +1230,7 @@ void DKStringDeleteSubstring( DKMutableStringRef _self, DKRange range )
 ///
 //  DKStringIsAbsolutePath()
 //
-int DKStringIsAbsolutePath( DKStringRef _self )
+bool DKStringIsAbsolutePath( DKStringRef _self )
 {
     if( _self )
     {
@@ -1225,7 +1239,7 @@ int DKStringIsAbsolutePath( DKStringRef _self )
         return (_self->byteArray.length > 0) && (_self->byteArray.bytes[0] == DKPathComponentSeparator);
     }
     
-    return 0;
+    return false;
 }
 
 ///
@@ -1758,6 +1772,121 @@ DKIndex DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex si
     }
     
     return 0;
+}
+
+
+///
+//  DKStringGetBool()
+//
+bool DKStringGetBool( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        
+        if( _self->byteArray.length > 0 )
+        {
+            // Note: this uses the same logic as the getBool method of NSString
+
+            int c = _self->byteArray.bytes[0];
+
+            if( isdigit( c ) && (c != '0') )
+                return true;
+            
+            if( (c == 't') || (c == 'T') || (c == 'y') || (c == 'Y') )
+                return true;
+        }
+    }
+    
+    return false;
+}
+
+
+///
+//  DKStringGetInt32()
+//
+int32_t DKStringGetInt32( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        if( _self->byteArray.length > 0 )
+        {
+            int32_t value;
+            
+            if( sscanf( (const char *)_self->byteArray.bytes, "%d", &value ) == 1 )
+                return value;
+        }
+    }
+    
+    return 0;
+}
+
+
+///
+//  DKStringGetInt64()
+//
+int64_t DKStringGetInt64( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        if( _self->byteArray.length > 0 )
+        {
+            int64_t value;
+            
+            if( sscanf( (const char *)_self->byteArray.bytes, "%lld", &value ) == 1 )
+                return value;
+        }
+    }
+    
+    return 0;
+}
+
+
+///
+//  DKStringGetFloat()
+//
+float DKStringGetFloat( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        if( _self->byteArray.length > 0 )
+        {
+            float value;
+            
+            if( sscanf( (const char *)_self->byteArray.bytes, "%f", &value ) == 1 )
+                return value;
+        }
+    }
+    
+    return 0.0f;
+}
+
+
+///
+//  DKStringGetDouble()
+//
+double DKStringGetDouble( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        if( _self->byteArray.length > 0 )
+        {
+            double value;
+            
+            if( sscanf( (const char *)_self->byteArray.bytes, "%lf", &value ) == 1 )
+                return value;
+        }
+    }
+    
+    return 0.0;
 }
 
 

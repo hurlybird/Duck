@@ -34,6 +34,9 @@ typedef struct DKFile * DKFileRef;
 
 DKClassRef  DKFileClass( void );
 
+// Returns true if the file exists
+bool        DKFileExists( DKStringRef filename );
+
 // Create and open a new file
 DKFileRef   DKFileOpen( DKStringRef filename, const char * mode );
 
