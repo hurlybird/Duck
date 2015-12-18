@@ -188,14 +188,14 @@ DKThreadSafeClassInit( DKThreadClass )
 ///
 //  DKThreadInitialize()
 //
-static DKObjectRef DKThreadInitialize( DKObjectRef _self )
+static DKObjectRef DKThreadInitialize( DKObjectRef _untyped_self )
 {
+    DKThreadRef _self = _untyped_self;
+    
     if( _self )
     {
-        struct DKThread * thread = _self;
-        
-        thread->state = DKThreadCreated;
-        thread->lock = DKSpinLockInit;
+        _self->state = DKThreadCreated;
+        _self->lock = DKSpinLockInit;
     }
     
     return _self;
@@ -205,14 +205,14 @@ static DKObjectRef DKThreadInitialize( DKObjectRef _self )
 ///
 //  DKThreadFinalize()
 //
-static void DKThreadFinalize( DKObjectRef _self )
+static void DKThreadFinalize( DKObjectRef _untyped_self )
 {
-    struct DKThread * thread = _self;
+    DKThreadRef _self = _untyped_self;
     
-    DKAssert( (thread->state != DKThreadRunning) && (thread->state != DKThreadCancelled) );
+    DKAssert( (_self->state != DKThreadRunning) && (_self->state != DKThreadCancelled) );
     
-    DKRelease( thread->param );
-    DKRelease( thread->dictionary );
+    DKRelease( _self->param );
+    DKRelease( _self->dictionary );
 }
 
 
@@ -264,16 +264,14 @@ void DKDetachNewThread( DKThreadProc threadProc, DKObjectRef threadParam )
 ///
 //  DKThreadInit()
 //
-DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc threadProc, DKObjectRef threadParam )
+DKObjectRef DKThreadInit( DKObjectRef _untyped_self, DKThreadProc threadProc, DKObjectRef threadParam )
 {
-    _self = DKInit( _self );
+    DKThreadRef _self = DKInit( _untyped_self );
     
     if( _self )
     {
-        struct DKThread * thread = _self;
-        
-        thread->proc = threadProc;
-        thread->param = DKRetain( threadParam );
+        _self->proc = threadProc;
+        _self->param = DKRetain( threadParam );
     }
     
     return _self;

@@ -121,12 +121,12 @@ static DKObjectRef DKPredicateInitialize( DKObjectRef _self )
 ///
 //  DKPredicateFinalize()
 //
-static void DKPredicateFinalize( DKObjectRef _self )
+static void DKPredicateFinalize( DKObjectRef _untyped_self )
 {
-    DKPredicateRef predicate = _self;
+    DKPredicateRef _self = _untyped_self;
 
-    DKRelease( predicate->a );
-    DKRelease( predicate->b );
+    DKRelease( _self->a );
+    DKRelease( _self->b );
 }
 
 
@@ -163,30 +163,30 @@ static void DKPredicateAddToEgg( DKPredicateRef _self, DKEggArchiverRef egg )
 ///
 //  DKPredicateGetDescription()
 //
-static DKStringRef DKPredicateGetDescription( DKObjectRef _self )
+static DKStringRef DKPredicateGetDescription( DKObjectRef _untyped_self )
 {
-    DKPredicateRef predicate = _self;
+    DKPredicateRef _self = _untyped_self;
 
-    if( (predicate->op == DKPredicateFALSE) || (predicate->op == DKPredicateTRUE) )
-        return DKStringFromPredicateOp( predicate->op );
+    if( (_self->op == DKPredicateFALSE) || (_self->op == DKPredicateTRUE) )
+        return DKStringFromPredicateOp( _self->op );
 
     DKMutableStringRef desc = DKMutableString();
 
-    DKObjectRef a = predicate->a ? predicate->a : DKSTR( "*" );
-    DKObjectRef b = predicate->b ? predicate->b : DKSTR( "*" );
+    DKObjectRef a = _self->a ? _self->a : DKSTR( "*" );
+    DKObjectRef b = _self->b ? _self->b : DKSTR( "*" );
 
-    if( (predicate->op == DKPredicateNOT) ||
-        ((predicate->op == DKPredicateAND) && (predicate->b == NULL)) ||
-        ((predicate->op == DKPredicateOR) && (predicate->b == NULL)) )
+    if( (_self->op == DKPredicateNOT) ||
+        ((_self->op == DKPredicateAND) && (_self->b == NULL)) ||
+        ((_self->op == DKPredicateOR) && (_self->b == NULL)) )
     {
     
-        DKSPrintf( desc, "%@ %@", DKStringFromPredicateOp( predicate->op ), a );
+        DKSPrintf( desc, "%@ %@", DKStringFromPredicateOp( _self->op ), a );
         return desc;
     }
     
     else
     {
-        DKSPrintf( desc, "%@ %@ %@", a, DKStringFromPredicateOp( predicate->op ), b );
+        DKSPrintf( desc, "%@ %@ %@", a, DKStringFromPredicateOp( _self->op ), b );
         return desc;
     }
 }
@@ -195,15 +195,15 @@ static DKStringRef DKPredicateGetDescription( DKObjectRef _self )
 ///
 //  DKPredicateCreate()
 //
-DKObjectRef DKPredicateInit( DKObjectRef _self, DKPredicateOp op, DKObjectRef a, DKObjectRef b )
+DKObjectRef DKPredicateInit( DKObjectRef _untyped_self, DKPredicateOp op, DKObjectRef a, DKObjectRef b )
 {
-    struct DKPredicate * predicate = _self;
+    DKPredicateRef _self = _untyped_self;
 
-    if( predicate )
+    if( _self )
     {
-        predicate->op = op;
-        predicate->a = DKCopy( a );
-        predicate->b = DKCopy( b );
+        _self->op = op;
+        _self->a = DKCopy( a );
+        _self->b = DKCopy( b );
     }
     
     return _self;

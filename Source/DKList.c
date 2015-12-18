@@ -55,9 +55,9 @@ DKClassRef DKListClass( void )
     return DKArrayClass();
 }
 
-void DKSetDefaultListClass( DKClassRef _self )
+void DKSetDefaultListClass( DKClassRef cls )
 {
-    DefaultListClass = _self;
+    DefaultListClass = cls;
 }
 
 
@@ -74,9 +74,9 @@ DKClassRef DKMutableListClass( void )
     return DKMutableArrayClass();
 }
 
-void DKSetDefaultMutableListClass( DKClassRef _self )
+void DKSetDefaultMutableListClass( DKClassRef cls )
 {
-    DefaultMutableListClass = _self;
+    DefaultMutableListClass = cls;
 }
 
 

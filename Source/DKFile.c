@@ -63,14 +63,14 @@ DKThreadSafeClassInit( DKFileClass )
 ///
 //  DKFileFinalize()
 //
-static void DKFileFinalize( DKObjectRef _self )
+static void DKFileFinalize( DKObjectRef _untyped_self )
 {
-    struct DKFile * file = _self;
+    DKFileRef _self = _untyped_self;
     
-    if( file->file )
+    if( _self->file )
     {
-        fclose( file->file );
-        file->file = NULL;
+        fclose( _self->file );
+        _self->file = NULL;
     }
 }
 

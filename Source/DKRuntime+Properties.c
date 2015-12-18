@@ -51,13 +51,13 @@ DKThreadSafeSelectorInit( Property );
 ///
 //  DKPropertyFinalize()
 //
-static void DKPropertyFinalize( DKObjectRef _self )
+static void DKPropertyFinalize( DKObjectRef _untyped_self )
 {
-    struct DKProperty * property = _self;
+    DKPropertyRef _self = _untyped_self;
     
-    DKRelease( property->name );
-    DKRelease( property->semantic );
-    DKRelease( property->predicate );
+    DKRelease( _self->name );
+    DKRelease( _self->semantic );
+    DKRelease( _self->predicate );
 }
 
 

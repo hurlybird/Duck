@@ -173,18 +173,18 @@ void DKMetadataRemove( DKMetadataRef metadata )
 ///
 //  DKMetadataInit()
 //
-static DKObjectRef DKMetadataInitWithOwner( DKObjectRef _self, DKObjectRef owner )
+static DKObjectRef DKMetadataInitWithOwner( DKObjectRef _untyped_self, DKObjectRef owner )
 {
+    DKMetadataRef _self = _untyped_self;
+
     if( _self )
     {
-        struct DKMetadata * metadata = _self;
-
-        metadata->owner = owner;
+        _self->owner = owner;
         
-        metadata->weakTarget = owner;
-        metadata->weakLock = DKSpinLockInit;
+        _self->weakTarget = owner;
+        _self->weakLock = DKSpinLockInit;
         
-        metadata->spinLock = DKSpinLockInit;
+        _self->spinLock = DKSpinLockInit;
     }
     
     return _self;

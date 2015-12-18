@@ -334,14 +334,12 @@ static int InsertObject( DKObjectRef object, void * context )
 ///
 //  DKHashTableInitialize()
 //
-static DKObjectRef DKHashTableInitialize( DKObjectRef _self )
+static DKObjectRef DKHashTableInitialize( DKObjectRef _untyped_self )
 {
-    _self = DKSuperInit( _self, DKObjectClass() );
+    DKHashTableRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
 
     if( _self )
     {
-        struct DKHashTable * hashTable = _self;
-
         DKGenericHashTableCallbacks callbacks =
         {
             RowStatus,
@@ -352,7 +350,7 @@ static DKObjectRef DKHashTableInitialize( DKObjectRef _self )
             RowDelete
         };
 
-        DKGenericHashTableInit( &hashTable->table, sizeof(struct DKHashTableRow), &callbacks );
+        DKGenericHashTableInit( &_self->table, sizeof(struct DKHashTableRow), &callbacks );
     }
     
     return _self;
@@ -362,10 +360,11 @@ static DKObjectRef DKHashTableInitialize( DKObjectRef _self )
 ///
 //  DKHashTableFinalize()
 //
-static void DKHashTableFinalize( DKObjectRef _self )
+static void DKHashTableFinalize( DKObjectRef _untyped_self )
 {
-    struct DKHashTable * hashTable = _self;
-    DKGenericHashTableFinalize( &hashTable->table );
+    DKHashTableRef _self = _untyped_self;
+    
+    DKGenericHashTableFinalize( &_self->table );
 }
 
 

@@ -132,24 +132,24 @@ DKThreadSafeClassInit( DKEggUnarchiverClass )
 ///
 //  DKEggUnarchiverFinalize()
 //
-static void DKEggUnarchiverFinalize( DKObjectRef _self )
+static void DKEggUnarchiverFinalize( DKObjectRef _untyped_self )
 {
-    struct DKEggUnarchiver * egg = _self;
+    DKEggUnarchiverRef _self = _untyped_self;
 
-    DKAssert( DKGenericArrayGetLength( &egg->stack ) == 1 );
+    DKAssert( DKGenericArrayGetLength( &_self->stack ) == 1 );
 
-    DKIndex unarchivedObjectCount = DKGenericArrayGetLength( &egg->unarchivedObjects );
+    DKIndex unarchivedObjectCount = DKGenericArrayGetLength( &_self->unarchivedObjects );
     
     for( DKIndex i = 0; i < unarchivedObjectCount; ++i )
     {
-        DKObjectRef object = DKGenericArrayGetElementAtIndex( &egg->unarchivedObjects, i, DKObjectRef );
+        DKObjectRef object = DKGenericArrayGetElementAtIndex( &_self->unarchivedObjects, i, DKObjectRef );
         DKRelease( object );
     }
     
-    DKGenericArrayFinalize( &egg->unarchivedObjects );
-    DKGenericArrayFinalize( &egg->stack );
+    DKGenericArrayFinalize( &_self->unarchivedObjects );
+    DKGenericArrayFinalize( &_self->stack );
     
-    DKByteArrayFinalize( &egg->buffer );
+    DKByteArrayFinalize( &_self->buffer );
 }
 
 
@@ -753,15 +753,13 @@ DKThreadSafeClassInit( DKEggArchiverClass )
 ///
 //  DKEggArchiverInit()
 //
-static DKObjectRef DKEggArchiverInit( DKObjectRef _self )
+static DKObjectRef DKEggArchiverInit( DKObjectRef _untyped_self )
 {
-    _self = DKSuperInit( _self, DKObjectClass() );
+    DKEggArchiverRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
 
     if( _self )
     {
-        DKEggArchiverRef egg = _self;
-    
-        egg->byteOrder = DKByteOrderNative;
+        _self->byteOrder = DKByteOrderNative;
         
         DKGenericHashTableCallbacks callbacks =
         {
@@ -773,11 +771,11 @@ static DKObjectRef DKEggArchiverInit( DKObjectRef _self )
             VisitedObjectsRowDelete
         };
 
-        DKGenericArrayInit( &egg->stack, sizeof(DKIndex) );
-        DKGenericArrayInit( &egg->archivedObjects, sizeof(struct ArchivedObject) );
-        DKGenericHashTableInit( &egg->visitedObjects, sizeof(struct VisitedObjectsRow), &callbacks );
-        DKGenericHashTableInit( &egg->symbolTable, sizeof(struct VisitedObjectsRow), &callbacks );
-        DKByteArrayInit( &egg->data );
+        DKGenericArrayInit( &_self->stack, sizeof(DKIndex) );
+        DKGenericArrayInit( &_self->archivedObjects, sizeof(struct ArchivedObject) );
+        DKGenericHashTableInit( &_self->visitedObjects, sizeof(struct VisitedObjectsRow), &callbacks );
+        DKGenericHashTableInit( &_self->symbolTable, sizeof(struct VisitedObjectsRow), &callbacks );
+        DKByteArrayInit( &_self->data );
 
         // Push an anonymous root object
         struct ArchivedObject rootObject;
@@ -785,9 +783,9 @@ static DKObjectRef DKEggArchiverInit( DKObjectRef _self )
         rootObject.className = 0;
         DKGenericArrayInit( &rootObject.attributes, sizeof(DKEggAttribute) );
         
-        DKGenericArrayAppendElements( &egg->archivedObjects, &rootObject, 1 );
+        DKGenericArrayAppendElements( &_self->archivedObjects, &rootObject, 1 );
 
-        DKGenericArrayPush( &egg->stack, &(DKIndex){ 0 } );
+        DKGenericArrayPush( &_self->stack, &(DKIndex){ 0 } );
     }
 
     return _self;
@@ -797,27 +795,27 @@ static DKObjectRef DKEggArchiverInit( DKObjectRef _self )
 ///
 //  DKEggArchiverFinalize()
 //
-static void DKEggArchiverFinalize( DKObjectRef _self )
+static void DKEggArchiverFinalize( DKObjectRef _untyped_self )
 {
-    DKEggArchiverRef egg = _self;
+    DKEggArchiverRef _self = _untyped_self;
     
-    DKAssert( DKGenericArrayGetLength( &egg->stack ) == 1 );
+    DKAssert( DKGenericArrayGetLength( &_self->stack ) == 1 );
     
-    DKIndex archivedObjectCount = DKGenericArrayGetLength( &egg->archivedObjects );
+    DKIndex archivedObjectCount = DKGenericArrayGetLength( &_self->archivedObjects );
     
     for( DKIndex i = 0; i < archivedObjectCount; ++i )
     {
-        struct ArchivedObject * archivedObject = DKGenericArrayGetPointerToElementAtIndex( &egg->archivedObjects, i );
+        struct ArchivedObject * archivedObject = DKGenericArrayGetPointerToElementAtIndex( &_self->archivedObjects, i );
 
         DKRelease( archivedObject->object );
         DKGenericArrayFinalize( &archivedObject->attributes );
     }
     
-    DKGenericArrayFinalize( &egg->stack );
-    DKGenericArrayFinalize( &egg->archivedObjects );
-    DKGenericHashTableFinalize( &egg->visitedObjects );
-    DKGenericHashTableFinalize( &egg->symbolTable );
-    DKByteArrayFinalize( &egg->data );
+    DKGenericArrayFinalize( &_self->stack );
+    DKGenericArrayFinalize( &_self->archivedObjects );
+    DKGenericHashTableFinalize( &_self->visitedObjects );
+    DKGenericHashTableFinalize( &_self->symbolTable );
+    DKByteArrayFinalize( &_self->data );
 }
 
 

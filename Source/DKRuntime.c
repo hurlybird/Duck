@@ -444,31 +444,31 @@ DKClassRef DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSiz
 ///
 //  DKClassFinalize()
 //
-static void DKClassFinalize( DKObjectRef _self )
+static void DKClassFinalize( DKObjectRef _untyped_self )
 {
-    struct DKClass * cls = _self;
+    DKClassRef _self = _untyped_self;
     
-    DKAssert( cls->_obj.isa == &__DKClassClass__ );
+    DKAssert( _self->_obj.isa == &__DKClassClass__ );
 
-    DKNameDatabaseRemoveClass( cls );
+    DKNameDatabaseRemoveClass( _self );
 
-    DKPrintf( "Finalizing class %@\n", cls->name );
+    DKPrintf( "Finalizing class %@\n", _self->name );
     
     // Note: The finalizer chain is still running at this point so make sure to set
     // the members to NULL to avoid accessing dangling pointers.
     
-    DKRelease( cls->name );
-    cls->name = NULL;
+    DKRelease( _self->name );
+    _self->name = NULL;
     
-    DKRelease( cls->superclass );
-    cls->superclass = NULL;
+    DKRelease( _self->superclass );
+    _self->superclass = NULL;
 
-    DKInterfaceTableFinalize( &cls->classInterfaces );
-    DKInterfaceTableFinalize( &cls->instanceInterfaces );
+    DKInterfaceTableFinalize( &_self->classInterfaces );
+    DKInterfaceTableFinalize( &_self->instanceInterfaces );
     
     // Release properties
-    DKRelease( cls->properties );
-    cls->properties = NULL;
+    DKRelease( _self->properties );
+    _self->properties = NULL;
 }
 
 

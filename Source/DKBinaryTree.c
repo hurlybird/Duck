@@ -582,27 +582,25 @@ static int InsertObject( DKObjectRef object, void * context )
 ///
 //  DKBinaryTreeInitialize()
 //
-static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _self )
+static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _untyped_self )
 {
-    _self = DKSuperInit( _self, DKObjectClass() );
+    DKBinaryTreeRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
 
     if( _self )
     {
-        struct DKBinaryTree * tree = _self;
-        
-        DKNodePoolInit( &tree->nodePool, sizeof(struct DKBinaryTreeNode), 0 );
+        DKNodePoolInit( &_self->nodePool, sizeof(struct DKBinaryTreeNode), 0 );
 
-        tree->null_node.left = &tree->null_node;
-        tree->null_node.right = &tree->null_node;
-        tree->null_node.level = 0;
+        _self->null_node.left = &_self->null_node;
+        _self->null_node.right = &_self->null_node;
+        _self->null_node.level = 0;
         
-        tree->null_node.key = NULL;
-        tree->null_node.object = NULL;
+        _self->null_node.key = NULL;
+        _self->null_node.object = NULL;
         
-        tree->root = &tree->null_node;
-        tree->count = 0;
+        _self->root = &_self->null_node;
+        _self->count = 0;
         
-        tree->keyCompare = DKCompare;
+        _self->keyCompare = DKCompare;
     }
     
     return _self;
@@ -612,13 +610,13 @@ static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _self )
 ///
 //  DKBinaryTreeFinalize()
 //
-static void DKBinaryTreeFinalize( DKObjectRef _self )
+static void DKBinaryTreeFinalize( DKObjectRef _untyped_self )
 {
-    struct DKBinaryTree * tree = _self;
+    DKBinaryTreeRef _self = _untyped_self;
 
-    INTERNAL_DKBinaryTreeRemoveAllObjects( tree );
+    INTERNAL_DKBinaryTreeRemoveAllObjects( _self );
     
-    DKNodePoolFinalize( &tree->nodePool );
+    DKNodePoolFinalize( &_self->nodePool );
 }
 
 
@@ -941,8 +939,7 @@ int DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKKeyedApplierFunction c
     {
         DKAssertKindOfClass( _self, DKBinaryTreeClass() );
 
-        const struct DKBinaryTree * tree = _self;
-        return DKBinaryTreeTraverseInOrderInternal( tree, tree->root, callback, context );
+        return DKBinaryTreeTraverseInOrderInternal( _self, _self->root, callback, context );
     }
     
     return 0;

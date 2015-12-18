@@ -485,22 +485,20 @@ static void InsertObject( struct DKLinkedList * list, DKIndex index, DKObjectRef
 ///
 //  DKLinkedListInitialize()
 //
-static DKObjectRef DKLinkedListInitialize( DKObjectRef _self )
+static DKObjectRef DKLinkedListInitialize( DKObjectRef _untyped_self )
 {
-    _self = DKSuperInit( _self, DKObjectClass() );
+    DKLinkedListRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
 
     if( _self )
     {
-        struct DKLinkedList * list = _self;
-        
-        DKNodePoolInit( &list->nodePool, sizeof(struct DKLinkedListNode), 0 );
+        DKNodePoolInit( &_self->nodePool, sizeof(struct DKLinkedListNode), 0 );
 
-        list->first = NULL;
-        list->last = NULL;
-        list->count = 0;
+        _self->first = NULL;
+        _self->last = NULL;
+        _self->count = 0;
         
-        list->cursor.node = NULL;
-        list->cursor.index = 0;
+        _self->cursor.node = NULL;
+        _self->cursor.index = 0;
     }
     
     return _self;
@@ -510,13 +508,13 @@ static DKObjectRef DKLinkedListInitialize( DKObjectRef _self )
 ///
 //  DKLinkedListFinalize()
 //
-static void DKLinkedListFinalize( DKObjectRef _self )
+static void DKLinkedListFinalize( DKObjectRef _untyped_self )
 {
-    struct DKLinkedList * list = _self;
+    DKLinkedListRef _self = _untyped_self;
 
-    RemoveRange( list, DKRangeMake( 0, list->count ) );
+    RemoveRange( _self, DKRangeMake( 0, _self->count ) );
     
-    DKNodePoolFinalize( &list->nodePool );
+    DKNodePoolFinalize( &_self->nodePool );
 }
 
 

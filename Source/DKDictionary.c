@@ -54,9 +54,9 @@ DKClassRef DKDictionaryClass( void )
     return DKHashTableClass();
 }
 
-void DKSetDefaultDictionaryClass( DKClassRef _self )
+void DKSetDefaultDictionaryClass( DKClassRef cls )
 {
-    DefaultDictionaryClass = _self;
+    DefaultDictionaryClass = cls;
 }
 
 
@@ -73,9 +73,9 @@ DKClassRef DKMutableDictionaryClass( void )
     return DKMutableHashTableClass();
 }
 
-void DKSetDefaultMutableDictionaryClass( DKClassRef _self )
+void DKSetDefaultMutableDictionaryClass( DKClassRef cls )
 {
-    DefaultMutableDictionaryClass = _self;
+    DefaultMutableDictionaryClass = cls;
 }
 
 

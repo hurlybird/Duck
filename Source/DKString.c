@@ -899,11 +899,9 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
     {
         DKAssertKindOfClass( _self, DKStringClass() );
 
-        const struct DKString * string = _self;
-
-        if( string->byteArray.length > 0 )
+        if( _self->byteArray.length > 0 )
         {
-            const char * s = (const char *)string->byteArray.bytes;
+            const char * s = (const char *)_self->byteArray.bytes;
         
             if( startLoc > 0 )
             {
@@ -912,7 +910,7 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
                 if( s == NULL )
                 {
                     DKError( "%s: Index %ld is outside 0,%ld\n", __func__,
-                        startLoc, dk_ustrlen( (const char *)string->byteArray.bytes ) );
+                        startLoc, dk_ustrlen( (const char *)_self->byteArray.bytes ) );
                 }
             }
             

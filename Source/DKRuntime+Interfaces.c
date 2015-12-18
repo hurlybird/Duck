@@ -268,13 +268,13 @@ DKSEL DKAllocSelector( DKStringRef name )
 ///
 //  DKSelectorFinalize()
 //
-void DKSelectorFinalize( DKObjectRef _self )
+void DKSelectorFinalize( DKObjectRef _untyped_self )
 {
-    DKSEL sel = _self;
+    DKSEL _self = _untyped_self;
 
-    DKNameDatabaseRemoveSelector( sel );
+    DKNameDatabaseRemoveSelector( _self );
 
-    DKRelease( sel->name );
+    DKRelease( _self->name );
 }
 
 
@@ -312,10 +312,10 @@ DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize )
 ///
 //  DKInterfaceFinalize()
 //
-void DKInterfaceFinalize( DKObjectRef _self )
+void DKInterfaceFinalize( DKObjectRef _untyped_self )
 {
-    DKInterface * interface = _self;
-    DKRelease( interface->sel );
+    DKInterface * _self = _untyped_self;
+    DKRelease( _self->sel );
 }
 
 

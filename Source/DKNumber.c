@@ -459,8 +459,7 @@ DKEncoding DKNumberGetEncoding( DKNumberRef _self )
     {
         DKAssertKindOfClass( _self, DKNumberClass() );
         
-        const struct DKNumber * number = _self;
-        return DKGetObjectTag( number );
+        return DKGetObjectTag( _self );
     }
     
     return 0;
@@ -514,8 +513,7 @@ const void * DKNumberGetValuePtr( DKNumberRef _self )
     {
         DKAssertKindOfClass( _self, DKNumberClass() );
         
-        const struct DKNumber * number = _self;
-        return &number->value;
+        return &_self->value;
     }
     
     return &zero;
@@ -633,7 +631,6 @@ DKStringRef DKNumberGetDescription( DKNumberRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKNumberClass() );
-        const struct DKNumber * number = _self;
         
         DKMutableStringRef desc = DKMutableString();
 
@@ -642,9 +639,9 @@ DKStringRef DKNumberGetDescription( DKNumberRef _self )
         size_t count = DKEncodingGetCount( encoding );
         
         #define PRINT( fmt, field )                                         \
-            DKSPrintf( desc, fmt, number->value._ ## field[0] );            \
+            DKSPrintf( desc, fmt, _self->value._ ## field[0] );             \
             for( unsigned int i = 1; i < count; ++i )                       \
-                DKSPrintf( desc, " " fmt, number->value._ ## field[i] )
+                DKSPrintf( desc, " " fmt, _self->value._ ## field[i] )
         
         switch( type )
         {

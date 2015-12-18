@@ -157,15 +157,14 @@ static void SetCursor( const struct DKData * data, DKIndex cursor )
 ///
 //  DKDataInitialize()
 //
-DKObjectRef DKDataInitialize( DKObjectRef _self )
+DKObjectRef DKDataInitialize( DKObjectRef _untyped_self )
 {
-    _self = DKSuperInit( _self, DKObjectClass() );
+    DKDataRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
 
     if( _self )
     {
-        struct DKData * data = _self;
-        DKByteArrayInit( &data->byteArray );
-        data->cursor = 0;
+        DKByteArrayInit( &_self->byteArray );
+        _self->cursor = 0;
     }
     
     return _self;
@@ -175,10 +174,10 @@ DKObjectRef DKDataInitialize( DKObjectRef _self )
 ///
 //  DKDataFinalize()
 //
-static void DKDataFinalize( DKObjectRef _self )
+static void DKDataFinalize( DKObjectRef _untyped_self )
 {
-    struct DKData * data = _self;
-    DKByteArrayFinalize( &data->byteArray );
+    DKDataRef _self = _untyped_self;
+    DKByteArrayFinalize( &_self->byteArray );
 }
 
 

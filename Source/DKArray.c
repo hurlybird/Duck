@@ -210,14 +210,13 @@ DKThreadSafeClassInit( DKMutableArrayClass )
 ///
 //  DKArrayInitialize()
 //
-static DKObjectRef DKArrayInitialize( DKObjectRef _self )
+static DKObjectRef DKArrayInitialize( DKObjectRef _untyped_self )
 {
-    _self = DKSuperInit( _self, DKObjectClass() );
+    DKArrayRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
 
     if( _self )
     {
-        struct DKArray * array = _self;
-        DKGenericArrayInit( &array->ptrArray, sizeof(DKObjectRef) );
+        DKGenericArrayInit( &_self->ptrArray, sizeof(DKObjectRef) );
     }
     
     return _self;
@@ -227,22 +226,22 @@ static DKObjectRef DKArrayInitialize( DKObjectRef _self )
 ///
 //  DKArrayFinalize()
 //
-static void DKArrayFinalize( DKObjectRef _self )
+static void DKArrayFinalize( DKObjectRef _untyped_self )
 {
-    struct DKArray * array = _self;
+    DKArrayRef _self = _untyped_self;
 
-    if( !DKGenericArrayHasExternalStorage( &array->ptrArray ) )
+    if( !DKGenericArrayHasExternalStorage( &_self->ptrArray ) )
     {
-        DKIndex count = DKGenericArrayGetLength( &array->ptrArray );
+        DKIndex count = DKGenericArrayGetLength( &_self->ptrArray );
 
         for( DKIndex i = 0; i < count; ++i )
         {
-            DKObjectRef elem = DKGenericArrayGetElementAtIndex( &array->ptrArray, i, DKObjectRef );
+            DKObjectRef elem = DKGenericArrayGetElementAtIndex( &_self->ptrArray, i, DKObjectRef );
             DKRelease( elem );
         }
     }
     
-    DKGenericArrayFinalize( &array->ptrArray );
+    DKGenericArrayFinalize( &_self->ptrArray );
 }
 
 
