@@ -218,7 +218,7 @@ const int PERFORMANCE_N = 1000000;
     NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
     DKStringRef path = DKStringWithCString( [_path UTF8String] );
     DKStringRef file = DKStringWithContentsOfFile( path );
-    DKArrayRef words = (DKArrayRef)DKStringCreateListBySeparatingStrings( file, DKSTR( "\n" ) );
+    DKArrayRef words = (DKArrayRef)DKStringSplit( file, DKSTR( "\n" ) );
     int count = (int)DKArrayGetCount( words );
     
     DKMutableDictionaryRef dict = DKAutorelease( DKNew( dictionaryClass ) );
@@ -249,7 +249,7 @@ const int PERFORMANCE_N = 1000000;
     NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
     DKStringRef path = DKStringWithCString( [_path UTF8String] );
     DKStringRef file = DKStringWithContentsOfFile( path );
-    DKArrayRef words = (DKArrayRef)DKStringCreateListBySeparatingStrings( file, DKSTR( "\n" ) );
+    DKArrayRef words = (DKArrayRef)DKStringSplit( file, DKSTR( "\n" ) );
     int count = (int)DKArrayGetCount( words );
     
     srand( 0 );

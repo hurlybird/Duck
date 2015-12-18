@@ -108,10 +108,10 @@ static int RaiseException( const char * format, va_list arg_ptr )
 {
     DKStringRef str = DKSTR( "She sells sea shells by the sea shore" );
     
-    DKListRef list = DKStringCreateListBySeparatingStrings( str, DKSTR( " " ) );
+    DKListRef list = DKStringSplit( str, DKSTR( " " ) );
     XCTAssert( DKListGetCount( list ) == 8 );
     
-    DKStringRef cat = DKStringCreateByCombiningStrings( list, DKSTR( " " ) );
+    DKStringRef cat = DKStringCombine( list, DKSTR( " " ) );
     XCTAssert( DKStringEqual( str, cat ) );
     
     DKRelease( list );

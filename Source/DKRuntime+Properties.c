@@ -431,7 +431,7 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
 {
     if( root )
     {
-        DKListRef keys = DKStringCreateListBySeparatingStrings( path, DKSTR( "." ) );
+        DKListRef keys = DKStringSplit( path, DKSTR( "." ) );
         DKIndex count = DKListGetCount( keys );
         
         if( count == 0 )

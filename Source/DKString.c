@@ -30,7 +30,9 @@
 #include "DKStream.h"
 #include "DKGenericHashTable.h"
 #include "DKList.h"
+#include "DKDictionary.h"
 #include "DKArray.h"
+#include "DKHashTable.h"
 #include "DKEgg.h"
 #include "DKAllocation.h"
 #include "DKComparison.h"
@@ -933,9 +935,9 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
 
 
 ///
-//  DKStringCreateListBySeparatingStrings()
+//  DKStringSplit()
 //
-DKListRef DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef separator )
+DKListRef DKStringSplit( DKStringRef _self, DKStringRef separator )
 {
     DKMutableArrayRef array = DKNew( DKMutableArrayClass() );
 
@@ -974,9 +976,9 @@ DKListRef DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef 
 
 
 ///
-//  DKStringCreateByCombiningStrings()
+//  DKStringCombine()
 //
-DKStringRef DKStringCreateByCombiningStrings( DKListRef list, DKStringRef separator )
+DKStringRef DKStringCombine( DKListRef list, DKStringRef separator )
 {
     DKMutableStringRef combinedString = DKNewMutableString();
 
@@ -1133,20 +1135,65 @@ void DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKString
 ///
 //  DKStringReplaceOccurrencesOfString()
 //
+void INTERNAL_DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement )
+{
+    DKRange range = DKStringGetRangeOfString( _self, pattern, 0 );
+    DKIndex length = DKStringGetLength( replacement );
+    
+    while( range.location != DKNotFound )
+    {
+        DKStringReplaceSubstring( _self, range, replacement );
+        range = DKStringGetRangeOfString( _self, pattern, range.location + length );
+    }
+}
+
 void DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement )
 {
     if( _self )
     {
+        INTERNAL_DKStringReplaceOccurrencesOfString( _self, pattern, replacement );
+    }
+}
+
+
+///
+//  DKStringEscape()
+//
+static int DKStringEscapeCallback( DKObjectRef key, DKObjectRef object, void * context )
+{
+    DKMutableStringRef str = context;
+    INTERNAL_DKStringReplaceOccurrencesOfString( str, key, object );
+    
+    return 0;
+}
+
+void DKStringEscape( DKMutableStringRef _self, DKDictionaryRef patterns )
+{
+    if( _self )
+    {
         DKCheckKindOfClass( _self, DKMutableStringClass() );
-        
-        DKRange range = DKStringGetRangeOfString( _self, pattern, 0 );
-        DKIndex length = DKStringGetLength( replacement );
-        
-        while( range.location != DKNotFound )
-        {
-            DKStringReplaceSubstring( _self, range, replacement );
-            range = DKStringGetRangeOfString( _self, pattern, range.location + length );
-        }
+        DKForeachKeyAndObject( patterns, DKStringEscapeCallback, _self );
+    }
+}
+
+
+///
+//  DKStringRemovePercentEscapes()
+//
+static int DKStringUnescapeCallback( DKObjectRef key, DKObjectRef object, void * context )
+{
+    DKMutableStringRef str = context;
+    INTERNAL_DKStringReplaceOccurrencesOfString( str, object, key );
+    
+    return 0;
+}
+
+void DKStringUnescape( DKMutableStringRef _self, DKDictionaryRef patterns )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
+        DKForeachKeyAndObject( patterns, DKStringUnescapeCallback, _self );
     }
 }
 
@@ -1448,6 +1495,171 @@ void DKStringStandardizePath( DKMutableStringRef _self )
         
         ReplaceBytes( _self, range, NULL, 0 );
     }
+}
+
+
+///
+//  DKStringURLPercentEscapePatterns()
+//
+DKThreadSafeSharedObjectInit( DKStringURLPercentEscapePatterns, DKDictionaryRef )
+{
+    return DKDictionaryInitWithKeysAndObjects( DKAlloc( DKHashTableClass() ),
+        DKSTR( " " ), DKSTR( "%20" ),
+        DKSTR( "#" ), DKSTR( "%23" ),
+        DKSTR( "$" ), DKSTR( "%24" ),
+        DKSTR( "%" ), DKSTR( "%25" ),
+        DKSTR( "&" ), DKSTR( "%26" ),
+        DKSTR( "@" ), DKSTR( "%40" ),
+        DKSTR( "`" ), DKSTR( "%60" ),
+        DKSTR( "/" ), DKSTR( "%2F" ),
+        DKSTR( ":" ), DKSTR( "%3A" ),
+        DKSTR( ";" ), DKSTR( "%3B" ),
+        DKSTR( "<" ), DKSTR( "%3C" ),
+        DKSTR( "=" ), DKSTR( "%3D" ),
+        DKSTR( ">" ), DKSTR( "%3E" ),
+        DKSTR( "?" ), DKSTR( "%3F" ),
+        DKSTR( "[" ), DKSTR( "%5B" ),
+        DKSTR( "\\" ),DKSTR( "%5C" ),
+        DKSTR( "]" ), DKSTR( "%5D" ),
+        DKSTR( "^" ), DKSTR( "%5E" ),
+        DKSTR( "{" ), DKSTR( "%7B" ),
+        DKSTR( "|" ), DKSTR( "%7C" ),
+        DKSTR( "}" ), DKSTR( "%7D" ),
+        DKSTR( "~" ), DKSTR( "%7E" ),
+        DKSTR( "“" ), DKSTR( "%22" ),
+        DKSTR( "‘" ), DKSTR( "%27" ),
+        DKSTR( "+" ), DKSTR( "%2B" ),
+        DKSTR( "," ), DKSTR( "%2C" ),
+        NULL );
+}
+
+
+///
+//  DKStringByAddingPercentEscapes()
+//
+DKStringRef DKStringByAddingURLPercentEscapes( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        
+        DKMutableStringRef copy = DKStringMutableCopy( _self );
+        DKStringEscape( copy, DKStringURLPercentEscapePatterns() );
+        DKStringMakeImmutable( copy );
+        
+        return DKAutorelease( copy );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringByRemovingPercentEscapes()
+//
+DKStringRef DKStringByRemovingURLPercentEscapes( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        DKMutableStringRef copy = DKStringMutableCopy( _self );
+        DKStringUnescape( copy, DKStringURLPercentEscapePatterns() );
+        DKStringMakeImmutable( copy );
+        
+        return DKAutorelease( copy );
+    }
+
+    return NULL;
+}
+
+
+///
+//  DKStringSplitQueryParameters()
+//
+static int DKStringSplitQueryParametersCallback( DKObjectRef object, void * context )
+{
+    DKMutableDictionaryRef queryParameters = context;
+    
+    DKListRef keyValuePair = DKStringSplit( object, DKSTR( "=" ) );
+    DKIndex count = DKListGetCount( keyValuePair );
+    DKAssert( count > 0 );
+
+    DKStringRef escapedKey = DKListGetObjectAtIndex( keyValuePair, 0 );
+    DKStringRef key = DKStringByRemovingURLPercentEscapes( escapedKey );
+    DKStringRef value = NULL;
+    
+    if( count > 1 )
+    {
+        DKStringRef escapedValue = DKListGetObjectAtIndex( keyValuePair, 1 );
+        value = DKStringByRemovingURLPercentEscapes( escapedValue );
+    }
+
+    DKDictionarySetObject( queryParameters, key, value );
+    
+    return 0;
+}
+
+DKDictionaryRef DKStringSplitQueryParameters( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        
+        if( _self->byteArray.length > 0 )
+        {
+            DKMutableDictionaryRef queryParameters = DKNewMutableDictionary();
+        
+            DKListRef keyValuePairs = DKStringSplit( _self, DKSTR( "&" ) );
+            DKForeachObject( keyValuePairs, DKStringSplitQueryParametersCallback, queryParameters );
+            
+            return DKAutorelease( queryParameters );
+        }
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringCombineQueryParameters()
+//
+static int DKStringCombineQueryParametersCallback( DKObjectRef key, DKObjectRef object, void * context )
+{
+    DKMutableStringRef str = context;
+
+    DKStringRef escapedKey = DKStringByAddingURLPercentEscapes( key );
+    
+    if( object )
+    {
+        DKStringRef escapedValue = DKStringByAddingURLPercentEscapes( object );
+        const char * format = (str->byteArray.length > 0) ? "&%s=%s" : "%s=%s";
+        
+        DKSPrintf( str, format, (const char *)escapedKey->byteArray.bytes, (const char *)escapedValue->byteArray.bytes );
+    }
+    
+    else
+    {
+        const char * format = (str->byteArray.length > 0) ? "&%s" : "%s";
+        DKSPrintf( str, format, (const char *)escapedKey->byteArray.bytes );
+    }
+    
+    return 0;
+}
+
+DKStringRef DKStringCombineQueryParameters( DKDictionaryRef queryParameters )
+{
+    if( queryParameters )
+    {
+        DKMutableStringRef str = DKNewMutableString();
+        
+        DKStringMakeImmutable( str );
+        DKForeachKeyAndObject( queryParameters, DKStringCombineQueryParametersCallback, str );
+        
+        return DKAutorelease( str );
+    }
+
+    return DKSTR( "" );
 }
 
 

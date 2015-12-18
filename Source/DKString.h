@@ -84,8 +84,8 @@ DKStringRef DKStringCopySubstringToIndex( DKStringRef _self, DKIndex index );
 DKRange     DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex startLoc );
 
 // Separating and concatenating strings
-DKListRef   DKStringCreateListBySeparatingStrings( DKStringRef _self, DKStringRef separator );
-DKStringRef DKStringCreateByCombiningStrings( DKListRef list, DKStringRef separator );
+DKListRef   DKStringSplit( DKStringRef _self, DKStringRef separator );
+DKStringRef DKStringCombine( DKListRef list, DKStringRef separator );
 
 // Modifying mutable strings
 void        DKStringSetString( DKMutableStringRef _self, DKStringRef str );
@@ -97,6 +97,9 @@ void        DKStringAppendCString( DKMutableStringRef _self, const char * cstr )
 
 void        DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKStringRef str );
 void        DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement );
+
+void        DKStringEscape( DKMutableStringRef _self, DKDictionaryRef patterns );
+void        DKStringUnescape( DKMutableStringRef _self, DKDictionaryRef patterns );
 
 void        DKStringDeleteSubstring( DKMutableStringRef _self, DKRange range );
 
@@ -115,6 +118,15 @@ void        DKStringRemoveLastPathComponent( DKMutableStringRef _self );
 void        DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extension );
 void        DKStringRemovePathExtension( DKMutableStringRef _self );
 void        DKStringStandardizePath( DKMutableStringRef _self );
+
+// URLs
+DKDictionaryRef DKStringURLPercentEscapePatterns( void );
+
+DKStringRef DKStringByAddingURLPercentEscapes( DKStringRef _self );
+DKStringRef DKStringByRemovingURLPercentEscapes( DKStringRef _self );
+
+DKDictionaryRef DKStringSplitQueryParameters( DKStringRef _self );
+DKStringRef DKStringCombineQueryParameters( DKDictionaryRef queryParameters );
 
 
 #endif // _DK_DATA_H_

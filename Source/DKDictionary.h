@@ -34,7 +34,7 @@
 DKDeclareInterfaceSelector( Dictionary );
 
 
-typedef struct DKDictionary * DKDictionaryRef;
+// typedef struct DKDictionary * DKDictionaryRef; -- Declared in DKPlatform.h
 typedef struct DKDictionary * DKMutableDictionaryRef;
 
 
