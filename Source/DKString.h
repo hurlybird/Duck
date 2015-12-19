@@ -67,6 +67,7 @@ DKHashCode  DKStringHash( DKStringRef _self );
 bool        DKStringEqualToString( DKStringRef _self, DKStringRef other );
 int         DKStringCompareString( DKStringRef _self, DKStringRef other );
 
+bool        DKStringIsEmptyString( DKStringRef _self );
 bool        DKStringHasPrefix( DKStringRef _self, DKStringRef other );
 bool        DKStringHasSuffix( DKStringRef _self, DKStringRef other );
 bool        DKStringHasSubstring( DKStringRef _self, DKStringRef other );
@@ -111,8 +112,9 @@ DKIndex     DKStringWrite( DKMutableStringRef _self, const void * buffer, DKInde
 
 // Paths
 bool        DKStringIsAbsolutePath( DKStringRef _self );
-DKStringRef DKStringCopyLastPathComponent( DKStringRef _self );
-DKStringRef DKStringCopyPathExtension( DKStringRef _self );
+bool        DKStringHasPathExtension( DKStringRef _self, DKStringRef extension );
+DKStringRef DKStringGetLastPathComponent( DKStringRef _self );
+DKStringRef DKStringGetPathExtension( DKStringRef _self );
 void        DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComponent );
 void        DKStringRemoveLastPathComponent( DKMutableStringRef _self );
 void        DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extension );

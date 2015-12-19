@@ -711,6 +711,22 @@ DKHashCode DKStringHash( DKStringRef _self )
 
 
 ///
+//  DKStringIsEmptyString()
+//
+bool DKStringIsEmptyString( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        
+        return _self->byteArray.length == 0;
+    }
+    
+    return true;
+}
+
+
+///
 //  DKStringHasPrefix()
 //
 bool DKStringHasPrefix( DKStringRef _self, DKStringRef other )
@@ -1243,9 +1259,9 @@ bool DKStringIsAbsolutePath( DKStringRef _self )
 }
 
 ///
-//  DKStringCopyLastPathComponent()
+//  DKStringGetLastPathComponent()
 //
-DKStringRef DKStringCopyLastPathComponent( DKStringRef _self )
+DKStringRef DKStringGetLastPathComponent( DKStringRef _self )
 {
     if( _self )
     {
@@ -1297,7 +1313,7 @@ DKStringRef DKStringCopyLastPathComponent( DKStringRef _self )
             return copying->copy( _self );
         }
         
-        return CopySubstring( path, DKRangeMake( start, end - start ) );
+        return DKAutorelease( CopySubstring( path, DKRangeMake( start, end - start ) ) );
     }
     
     return NULL;
@@ -1305,9 +1321,43 @@ DKStringRef DKStringCopyLastPathComponent( DKStringRef _self )
 
 
 ///
-//  DKStringCopyPathExtension()
+//  DKStringHasPathExtension()
 //
-DKStringRef DKStringCopyPathExtension( DKStringRef _self )
+bool DKStringHasPathExtension( DKStringRef _self, DKStringRef extension )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        DKAssertKindOfClass( extension, DKStringClass() );
+        
+        const char * path = (const char *)_self->byteArray.bytes;
+        const char * ext = dk_ustrrchr( path, DKPathExtensionSeparator );
+        
+        // No extension
+        if( ext == NULL )
+            return extension->byteArray.length == 0;
+        
+        const char * lastSlash = dk_ustrrchr( path, DKPathComponentSeparator );
+        
+        // No extension in last path component
+        if( lastSlash && (ext < lastSlash) )
+            return extension->byteArray.length == 0;
+        
+        // Step over the '.'
+        DKChar32 ch;
+        ext += dk_ustrscan( ext, &ch );
+        
+        return strcmp( ext, (const char *)extension->byteArray.bytes ) == 0;
+    }
+    
+    return false;
+}
+
+
+///
+//  DKStringGetPathExtension()
+//
+DKStringRef DKStringGetPathExtension( DKStringRef _self )
 {
     if( _self )
     {
@@ -1330,7 +1380,7 @@ DKStringRef DKStringCopyPathExtension( DKStringRef _self )
         range.location = ext - path + 1;
         range.length = _self->byteArray.length - range.location;
         
-        return CopySubstring( path, range );
+        return DKAutorelease( CopySubstring( path, range ) );
     }
     
     return NULL;

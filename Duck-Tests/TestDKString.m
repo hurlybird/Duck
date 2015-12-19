@@ -177,7 +177,7 @@ struct PathAppendTestCase
     DKStringRef result;
 };
 
-- (void) testDKStringCopyLastPathComponent
+- (void) testDKStringGetLastPathComponent
 {
     struct PathTestCase tests[] =
     {
@@ -195,9 +195,8 @@ struct PathAppendTestCase
     {
         struct PathTestCase * test = &tests[i];
         
-        DKStringRef result = DKStringCopyLastPathComponent( test->path );
+        DKStringRef result = DKStringGetLastPathComponent( test->path );
         XCTAssert( DKStringEqual( result, test->result ) );
-        DKRelease( result );
     }
 }
 
@@ -290,7 +289,50 @@ struct PathAppendTestCase
     }
 }
 
-- (void) testDKStringCopyPathExtension
+- (void) testDKStringHasPathExtension
+{
+    struct PathTestCase trueTests[] =
+    {
+        { DKSTR( "file.ext" ),          DKSTR( "ext" ) },
+        { DKSTR( "file.foo.ext" ),      DKSTR( "ext" ) },
+        { DKSTR( "path.foo/file.ext" ), DKSTR( "ext" ) },
+        { DKSTR( "path.foo/file" ),     DKSTR( "" ) },
+        { DKSTR( "path.foo/" ),         DKSTR( "" ) },
+        { DKSTR( "/" ),                 DKSTR( "" ) },
+        { DKSTR( "" ),                  DKSTR( "" ) },
+        { NULL, NULL }
+    };
+
+    struct PathTestCase falseTests[] =
+    {
+        { DKSTR( "file.ext" ),          DKSTR( "ext2" ) },
+        { DKSTR( "file.foo.ext" ),      DKSTR( "ext2" ) },
+        { DKSTR( "path.foo/file.ext" ), DKSTR( "ext2" ) },
+        { DKSTR( "path.foo/file" ),     DKSTR( "ext" ) },
+        { DKSTR( "path.foo/" ),         DKSTR( "ext" ) },
+        { DKSTR( "/" ),                 DKSTR( "ext" ) },
+        { DKSTR( "" ),                  DKSTR( "ext" ) },
+        { NULL, NULL }
+    };
+    
+    for( int i = 0; trueTests[i].path != NULL; i++ )
+    {
+        struct PathTestCase * test = &trueTests[i];
+        
+        bool result = DKStringHasPathExtension( test->path, test->result );
+        XCTAssert( result == true );
+    }
+
+    for( int i = 0; falseTests[i].path != NULL; i++ )
+    {
+        struct PathTestCase * test = &falseTests[i];
+        
+        bool result = DKStringHasPathExtension( test->path, test->result );
+        XCTAssert( result == false );
+    }
+}
+
+- (void) testDKStringGetPathExtension
 {
     struct PathTestCase tests[] =
     {
@@ -308,9 +350,8 @@ struct PathAppendTestCase
     {
         struct PathTestCase * test = &tests[i];
         
-        DKStringRef result = DKStringCopyPathExtension( test->path );
+        DKStringRef result = DKStringGetPathExtension( test->path );
         XCTAssert( DKStringEqual( result, test->result ) );
-        DKRelease( result );
     }
 }
 
