@@ -665,7 +665,6 @@ size_t DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue
             {
                 DKObjectRef number = propertyInterface->getProperty( _self, name );
                 result = UnpackNumber( number, dstValue, dstEncoding );
-                DKRelease( number );
                 
                 if( result != 0 )
                     return result;
@@ -684,7 +683,6 @@ size_t DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue
             {
                 DKObjectRef number = DKReadPropertyObject( _self, property );
                 result = UnpackNumber( number, dstValue, dstEncoding );
-                DKRelease( number );
                 
                 if( result != 0 )
                     return result;
@@ -824,7 +822,6 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef sem
             {
                 DKObjectRef structure = propertyInterface->getProperty( _self, name );
                 result = UnpackStructure( structure, semantic, dstValue, dstSize );
-                DKRelease( structure );
                 
                 if( result != 0 )
                     return result;
@@ -845,7 +842,6 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef sem
             {
                 DKObjectRef structure = DKReadPropertyObject( _self, property );
                 result = UnpackStructure( structure, semantic, dstValue, dstSize );
-                DKRelease( structure );
                 
                 if( result != 0 )
                     return result;
