@@ -193,7 +193,7 @@ DKIndex DKFileGetLength( DKFileRef _self )
             int fd = fileno( _self->file );
             struct stat fileStats;
             fstat( fd, &fileStats );
-            length = fileStats.st_size;
+            length = (DKIndex)fileStats.st_size;
 #else
             DKIndex cursor = ftell( _self->file );
             fseek( _self->file, 0, SEEK_END );
