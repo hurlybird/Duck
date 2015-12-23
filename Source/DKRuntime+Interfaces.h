@@ -141,6 +141,9 @@ typedef void * DKInterfaceRef;
 // Create a new interface object.
 DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize );
 
+// Create a new interface object initialized with the values in the given class
+DKInterfaceRef DKNewInheritedInterface( DKSEL sel, size_t structSize, DKClassRef superClass );
+
 // Install an interface on a class.
 //
 // *** WARNING ***

@@ -310,6 +310,32 @@ DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize )
 
 
 ///
+//  DKNewInheritedInterface()
+//
+DKInterfaceRef DKNewInheritedInterface( DKSEL sel, size_t structSize, DKClassRef superClass )
+{
+    DKInterface * interface = DKNewInterface( sel, structSize );
+    
+    if( interface )
+    {
+        DKInterface * inheritedInterface;
+        
+        if( DKQueryInterface( superClass, sel, (DKInterfaceRef *)&inheritedInterface ) )
+        {
+            void ** methods = (void **)(interface + 1);
+            void ** inheritedMethods = (void **)(inheritedInterface + 1);
+            size_t methodCount = (structSize - sizeof(DKInterface)) / sizeof(void *);
+
+            for( size_t i = 0; i < methodCount; i++ )
+                methods[i] = inheritedMethods[i];
+        }
+    }
+    
+    return interface;
+}
+
+
+///
 //  DKInterfaceFinalize()
 //
 void DKInterfaceFinalize( DKObjectRef _untyped_self )
