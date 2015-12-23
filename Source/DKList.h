@@ -112,6 +112,7 @@ DKObjectRef DKListInitSetWithCollection( DKListRef _self, DKObjectRef srcCollect
 DKIndex     DKListGetCount( DKListRef _self );
 DKIndex     DKListGetCountOfObject( DKListRef _self, DKObjectRef object );
 
+#define     DKListGetIndexOfObject( list, obj )     DKListGetFirstIndexOfObject( list, obj )
 DKIndex     DKListGetFirstIndexOfObject( DKListRef _self, DKObjectRef object );
 DKIndex     DKListGetFirstIndexOfObjectInRange( DKListRef _self, DKObjectRef object, DKRange range );
 
