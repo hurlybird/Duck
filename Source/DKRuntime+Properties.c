@@ -72,16 +72,35 @@ static void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRe
 {
     DKAssert( _class && property && name );
     
-    struct DKClass * cls = (struct DKClass *)_class;
+    DKSpinLockLock( &_class->propertiesLock );
     
-    DKSpinLockLock( &cls->propertiesLock );
+    if( _class->properties == NULL )
+        _class->properties = DKNewMutableHashTable();
     
-    if( cls->properties == NULL )
-        cls->properties = DKNewMutableHashTable();
+    DKHashTableInsertObject( _class->properties, name, property, DKInsertAlways );
     
-    DKHashTableInsertObject( cls->properties, name, property, DKInsertAlways );
+    DKSpinLockUnlock( &_class->propertiesLock );
+}
+
+
+///
+//  DKCopyPropertiesTable()
+//
+DKMutableHashTableRef DKCopyPropertiesTable( DKClassRef _class )
+{
+    DKMutableHashTableRef copy = NULL;
+
+    if( _class )
+    {
+        DKSpinLockLock( &_class->propertiesLock );
+        
+        if( _class->properties )
+            copy = DKCopy( _class->properties );
+        
+        DKSpinLockUnlock( &_class->propertiesLock );
+    }
     
-    DKSpinLockUnlock( &cls->propertiesLock );
+    return copy;
 }
 
 
@@ -330,6 +349,13 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
 {
     void * value = (uint8_t *)_self + property->offset;
     
+    // Custom setter
+    if( property->setter )
+    {
+        property->setter( _self, property, object );
+        return;
+    }
+    
     // Object types
     if( property->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
     {
@@ -386,6 +412,12 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
 static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef property )
 {
     void * value = (uint8_t *)_self + property->offset;
+    
+    // Custom getter
+    if( property->getter )
+    {
+        return property->getter( _self, property );
+    }
     
     // Object types
     if( property->encoding == DKEncode( DKEncodingTypeObject, 1 ) )

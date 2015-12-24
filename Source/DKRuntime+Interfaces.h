@@ -128,6 +128,7 @@ typedef struct _DKInterface
 {
     const DKObject  _obj;
     DKSEL           sel;
+    size_t          methodCount;
     // void *       methods[?];
     
 } DKInterface;
@@ -138,11 +139,18 @@ typedef void * DKInterfaceRef;
 #define DKDeclareInterfaceSelector( name )                                              \
     DKSEL DKSelector_ ## name( void )
 
+// Get the interface method count from the structure size
+#define DKInterfaceCountMethods( structSize )    (((structSize) - sizeof(DKInterface)) / sizeof(void *))
+
+// Get the interface method table
+#define DKInterfaceGetMethodTable( interface )   (void **)(((void *)(interface)) + sizeof(DKInterface))
+
 // Create a new interface object.
 DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize );
 
-// Create a new interface object initialized with the values in the given class
-DKInterfaceRef DKNewInheritedInterface( DKSEL sel, size_t structSize, DKClassRef superClass );
+// Inherit undefined methods from another class. This is automatically done for the
+// superclass of '_class' when installing the interface.
+void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class );
 
 // Install an interface on a class.
 //

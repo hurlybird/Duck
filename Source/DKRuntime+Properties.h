@@ -162,6 +162,17 @@ double      DKGetFloatProperty( DKObjectRef _self, DKStringRef name );
 
 
 
+// Private ===============================================================================
+#if DK_RUNTIME_PRIVATE
+
+#include "DKHashTable.h"
+
+DKMutableHashTableRef DKCopyPropertiesTable( DKClassRef _class );
+
+
+#endif // DK_RUNTIME_PRIVATE
+
+
 #endif // _DK_PROPERTY_H_
 
 

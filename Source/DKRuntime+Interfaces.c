@@ -296,10 +296,10 @@ DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize )
         interface->sel = DKRetain( sel );
     
         // Init all the function pointers
-        void ** methods = (void **)(interface + 1);
-        size_t methodCount = extraBytes / sizeof(void *);
+        interface->methodCount = DKInterfaceCountMethods( structSize );
+        void ** methods = DKInterfaceGetMethodTable( interface );
         
-        for( size_t i = 0; i < methodCount; i++ )
+        for( size_t i = 0; i < interface->methodCount; i++ )
             methods[i] = DKUninitializedMethodError;
     
         return interface;
@@ -310,28 +310,43 @@ DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize )
 
 
 ///
-//  DKNewInheritedInterface()
+//  DKInterfaceInheritMethods()
 //
-DKInterfaceRef DKNewInheritedInterface( DKSEL sel, size_t structSize, DKClassRef superClass )
+static DKInterfaceRef DKSourceInterfaceNotFound( DKClassRef _class, DKSEL sel )
 {
-    DKInterface * interface = DKNewInterface( sel, structSize );
-    
-    if( interface )
-    {
-        DKInterface * inheritedInterface;
-        
-        if( DKQueryInterface( superClass, sel, (DKInterfaceRef *)&inheritedInterface ) )
-        {
-            void ** methods = (void **)(interface + 1);
-            void ** inheritedMethods = (void **)(inheritedInterface + 1);
-            size_t methodCount = (structSize - sizeof(DKInterface)) / sizeof(void *);
+    return NULL;
+}
 
-            for( size_t i = 0; i < methodCount; i++ )
-                methods[i] = inheritedMethods[i];
+void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class )
+{
+    DKAssert( interface && _class );
+    
+    DKInterface * dstInterface = interface;
+    const DKInterface * srcInterface = DKInterfaceTableFind( _class, &_class->instanceInterfaces, dstInterface->sel, DKSourceInterfaceNotFound );
+
+    if( srcInterface )
+    {
+        DKRequire( dstInterface->methodCount == srcInterface->methodCount );
+        
+        void ** dstMethods = DKInterfaceGetMethodTable( dstInterface );
+        void ** srcMethods = DKInterfaceGetMethodTable( srcInterface );
+        
+        for( size_t i = 0; i < dstInterface->methodCount; i++ )
+        {
+            if( (dstMethods == NULL) || (dstMethods[i] == DKUninitializedMethodError) )
+                dstMethods[i] = srcMethods[i];
         }
     }
-    
-    return interface;
+}
+
+
+///
+//  DKInstallInterface()
+//
+void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
+{
+    DKInterfaceInheritMethods( _interface, _class->superclass );
+    DKInterfaceTableInsert( _class, &_class->instanceInterfaces, _interface );
 }
 
 
@@ -342,15 +357,6 @@ void DKInterfaceFinalize( DKObjectRef _untyped_self )
 {
     DKInterface * _self = _untyped_self;
     DKRelease( _self->sel );
-}
-
-
-///
-//  DKInstallInterface()
-//
-void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
-{
-    DKInterfaceTableInsert( _class, &_class->instanceInterfaces, _interface );
 }
 
 

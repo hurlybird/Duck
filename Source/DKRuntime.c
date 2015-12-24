@@ -122,10 +122,11 @@ DKClassRef DKObjectClass( void )
     }
 
 
-#define DKStaticInterfaceObject( sel )                                                  \
+#define DKStaticInterfaceObject( sel, type )                                            \
     {                                                                                   \
         DKInitStaticObjectHeader( &__DKInterfaceClass__ ),                              \
-        sel                                                                             \
+        sel,                                                                            \
+        DKInterfaceCountMethods( sizeof(type) )                                         \
     }
 
 
@@ -142,7 +143,7 @@ DKStaticSelectorInit( Conversion );
 // DefaultAllocation ---------------------------------------------------------------------
 static struct DKAllocationInterface DKDefaultAllocation_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject, struct DKAllocationInterface ),
     DKAllocObject,
     DKDeallocObject,
 };
@@ -156,7 +157,7 @@ DKInterfaceRef DKDefaultAllocation( void )
 // DefaultComparison ---------------------------------------------------------------------
 static struct DKComparisonInterface DKDefaultComparison_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject, struct DKComparisonInterface ),
     DKPointerEqual,
     DKPointerCompare,
     DKPointerHash
@@ -171,7 +172,7 @@ DKInterfaceRef DKDefaultComparison( void )
 // DefaultCopying ------------------------------------------------------------------------
 static struct DKCopyingInterface DKDefaultCopying_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Copying_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Copying_StaticObject, struct DKCopyingInterface ),
     DKRetain,
     (DKMutableCopyMethod)DKRetain
 };
@@ -185,7 +186,7 @@ DKInterfaceRef DKDefaultCopying( void )
 // DefaultDescription --------------------------------------------------------------------
 static struct DKDescriptionInterface DKDefaultDescription_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Description_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Description_StaticObject, struct DKDescriptionInterface ),
     DKDefaultGetDescription,
     DKDefaultGetSizeInBytes
 };
@@ -199,7 +200,7 @@ DKInterfaceRef DKDefaultDescription( void )
 // DefaultLocking ------------------------------------------------------------------------
 static struct DKLockingInterface DKDefaultLocking_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Locking_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Locking_StaticObject, struct DKLockingInterface ),
     DKLockObject,
     DKUnlockObject
 };
@@ -213,7 +214,7 @@ DKInterfaceRef DKDefaultLocking( void )
 // Selector Comparison -------------------------------------------------------------------
 static struct DKComparisonInterface DKSelectorComparison_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject, struct DKComparisonInterface ),
     DKPointerEqual,
     DKPointerCompare,
     DKPointerHash
@@ -243,7 +244,7 @@ static DKHashCode DKInterfaceHash( DKInterface * a )
 
 static struct DKComparisonInterface DKInterfaceComparison_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
+    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject, struct DKComparisonInterface ),
     (DKEqualityMethod)DKInterfaceEqual,
     (DKCompareMethod)DKInterfaceCompare,
     (DKHashMethod)DKInterfaceHash
@@ -436,6 +437,7 @@ DKClassRef DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSiz
     DKInterfaceTableInit( &cls->instanceInterfaces, superclass ? &superclass->instanceInterfaces : NULL );
     
     cls->propertiesLock = DKSpinLockInit;
+    cls->properties = DKCopyPropertiesTable( superclass );
     
     // Insert the class into the name database
     DKNameDatabaseInsertClass( cls );
