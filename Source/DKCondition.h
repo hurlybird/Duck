@@ -41,8 +41,8 @@ DKClassRef DKConditionClass( void );
 
 
 void DKConditionWait( DKConditionRef _self, DKMutexRef mutex );
-void DKCondtionSignal( DKConditionRef _self );
-void DKCondtionSignalAll( DKConditionRef _self );
+void DKConditionSignal( DKConditionRef _self );
+void DKConditionSignalAll( DKConditionRef _self );
 
 
 

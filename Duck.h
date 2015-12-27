@@ -51,6 +51,9 @@ extern "C"
 
 #include "DKRuntime.h"
 #include "DKThread.h"
+#include "DKMutex.h"
+#include "DKCondition.h"
+#include "DKReadWriteLock.h"
 
 #include "DKAllocation.h"
 #include "DKComparison.h"

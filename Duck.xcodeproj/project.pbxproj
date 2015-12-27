@@ -180,15 +180,15 @@
 		028F1B651B0E6F89006FDFDF /* TestDKJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 028F1B641B0E6F89006FDFDF /* TestDKJSON.m */; };
 		02C3078C1C304F8A0077DC56 /* DKMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C3078A1C304F8A0077DC56 /* DKMutex.c */; };
 		02C3078D1C304F8A0077DC56 /* DKMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C3078A1C304F8A0077DC56 /* DKMutex.c */; };
-		02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C3078B1C304F8A0077DC56 /* DKMutex.h */; };
+		02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C3078B1C304F8A0077DC56 /* DKMutex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02C3078F1C304F8A0077DC56 /* DKMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C3078B1C304F8A0077DC56 /* DKMutex.h */; };
 		02C307921C3053A00077DC56 /* DKCondition.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307901C3053A00077DC56 /* DKCondition.c */; };
 		02C307931C3053A00077DC56 /* DKCondition.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307901C3053A00077DC56 /* DKCondition.c */; };
-		02C307941C3053A00077DC56 /* DKCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307911C3053A00077DC56 /* DKCondition.h */; };
+		02C307941C3053A00077DC56 /* DKCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307911C3053A00077DC56 /* DKCondition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02C307951C3053A00077DC56 /* DKCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307911C3053A00077DC56 /* DKCondition.h */; };
 		02C307981C3056270077DC56 /* DKReadWriteLock.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307961C3056270077DC56 /* DKReadWriteLock.c */; };
 		02C307991C3056270077DC56 /* DKReadWriteLock.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307961C3056270077DC56 /* DKReadWriteLock.c */; };
-		02C3079A1C3056270077DC56 /* DKReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307971C3056270077DC56 /* DKReadWriteLock.h */; };
+		02C3079A1C3056270077DC56 /* DKReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307971C3056270077DC56 /* DKReadWriteLock.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02C3079B1C3056270077DC56 /* DKReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307971C3056270077DC56 /* DKReadWriteLock.h */; };
 /* End PBXBuildFile section */
 
@@ -638,7 +638,6 @@
 				028F1AA61B0DCBBB006FDFDF /* DKRuntime+Interfaces.h in Headers */,
 				028F1AA71B0DCBBB006FDFDF /* DKRuntime+Properties.h in Headers */,
 				028F1AA81B0DCBBB006FDFDF /* DKRuntime+RefCount.h in Headers */,
-				02C3079A1C3056270077DC56 /* DKReadWriteLock.h in Headers */,
 				028F1AA91B0DCBBB006FDFDF /* DKRuntime+Reflection.h in Headers */,
 				0206AE091B1235490095C52F /* DKRuntime+Metadata.h in Headers */,
 				028F1AAA1B0DCBBB006FDFDF /* DKAllocation.h in Headers */,
@@ -669,10 +668,11 @@
 				028F1AC31B0DCBBB006FDFDF /* DKFile.h in Headers */,
 				028F1AC41B0DCBBB006FDFDF /* DKJSON.h in Headers */,
 				028F1AC51B0DCBBB006FDFDF /* DKPredicate.h in Headers */,
-				02C307941C3053A00077DC56 /* DKCondition.h in Headers */,
 				028F1AC61B0DCBBB006FDFDF /* DKThread.h in Headers */,
-				028F1AC71B0DCBBB006FDFDF /* DKUnicode.h in Headers */,
+				02C3079A1C3056270077DC56 /* DKReadWriteLock.h in Headers */,
+				02C307941C3053A00077DC56 /* DKCondition.h in Headers */,
 				02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */,
+				028F1AC71B0DCBBB006FDFDF /* DKUnicode.h in Headers */,
 				025D78031C245CB7005C56A4 /* DKConversion.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
