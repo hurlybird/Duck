@@ -467,10 +467,7 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
         DKIndex count = DKListGetCount( keys );
         
         if( count == 0 )
-        {
-            DKRelease( keys );
             return false;
-        }
         
         DKObjectRef currTarget = root;
         DKStringRef currKey = DKListGetObjectAtIndex( keys, 0 );
@@ -483,8 +480,6 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
 
         *target = currTarget; // Already retained
         *key = DKAutorelease( DKRetain( currKey ) );
-        
-        DKRelease( keys );
         
         return true;
     }

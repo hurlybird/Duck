@@ -34,7 +34,7 @@
 // DKRuntime =============================================================================
 
 // Initialize the library
-void DKRuntimeInit( void );
+void DKRuntimeInit( bool enableZombieObjects );
 bool DKRuntimeIsInitialized( void );
 
 
@@ -60,6 +60,14 @@ typedef struct
     #endif
     
 } DKObject;
+
+
+typedef struct
+{
+    DKObject _obj;
+    DKClassRef wasa;
+    
+} DKZombie;
 
 
 // Flags that get stored in the 'refcount' field
@@ -111,6 +119,7 @@ DKClassRef DKInterfaceClass( void );
 DKClassRef DKMsgHandlerClass( void );
 DKClassRef DKMetadataClass( void );
 DKClassRef DKObjectClass( void );
+DKClassRef DKZombieClass( void );
 
 
 

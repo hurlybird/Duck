@@ -113,9 +113,6 @@ static int RaiseException( const char * format, va_list arg_ptr )
     
     DKStringRef cat = DKStringCombine( list, DKSTR( " " ) );
     XCTAssert( DKStringEqual( str, cat ) );
-    
-    DKRelease( list );
-    DKRelease( cat );
 }
 
 - (void) testDKStringPrefixAndSuffix

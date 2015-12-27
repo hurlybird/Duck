@@ -240,8 +240,6 @@ const int PERFORMANCE_N = 1000000;
             DKDictionaryGetObject( dict, word );
         }
     }];
-
-    DKRelease( words );
 }
 
 - (void) testDictionaryClassWritePerformance:(DKClassRef)dictionaryClass
@@ -267,8 +265,6 @@ const int PERFORMANCE_N = 1000000;
 
         DKRelease( dict );
     }];
-
-    DKRelease( words );
 }
 
 @end

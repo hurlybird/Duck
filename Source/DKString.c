@@ -969,13 +969,13 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
 //
 DKListRef DKStringSplit( DKStringRef _self, DKStringRef separator )
 {
-    DKMutableArrayRef array = DKNew( DKMutableArrayClass() );
-
     if( _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
         DKAssertKindOfClass( separator, DKStringClass() );
-        
+
+        DKMutableArrayRef array = DKMutableArray();
+
         const char * str = (const char *)_self->byteArray.bytes;
         const char * sep = (const char *)separator->byteArray.bytes;
         size_t len = strlen( sep );
@@ -999,9 +999,11 @@ DKListRef DKStringSplit( DKStringRef _self, DKStringRef separator )
             DKArrayAppendCArray( array, (DKObjectRef *)&copy, 1 );
             DKRelease( copy );
         }
+
+        return (DKListRef)array;
     }
     
-    return (DKListRef)array;
+    return NULL;
 }
 
 
@@ -1010,7 +1012,7 @@ DKListRef DKStringSplit( DKStringRef _self, DKStringRef separator )
 //
 DKStringRef DKStringCombine( DKListRef list, DKStringRef separator )
 {
-    DKMutableStringRef combinedString = DKNewMutableString();
+    DKMutableStringRef combinedString = DKMutableString();
 
     if( list )
     {
@@ -1672,12 +1674,12 @@ DKDictionaryRef DKStringSplitQueryParameters( DKStringRef _self )
         
         if( _self->byteArray.length > 0 )
         {
-            DKMutableDictionaryRef queryParameters = DKNewMutableDictionary();
+            DKMutableDictionaryRef queryParameters = DKMutableDictionary();
         
             DKListRef keyValuePairs = DKStringSplit( _self, DKSTR( "&" ) );
             DKForeachObject( keyValuePairs, DKStringSplitQueryParametersCallback, queryParameters );
             
-            return DKAutorelease( queryParameters );
+            return queryParameters;
         }
     }
     
@@ -1715,12 +1717,12 @@ DKStringRef DKStringCombineQueryParameters( DKDictionaryRef queryParameters )
 {
     if( queryParameters )
     {
-        DKMutableStringRef str = DKNewMutableString();
+        DKMutableStringRef str = DKMutableString();
         
-        DKStringMakeImmutable( str );
         DKForeachKeyAndObject( queryParameters, DKStringCombineQueryParametersCallback, str );
+        DKStringMakeImmutable( str );
         
-        return DKAutorelease( str );
+        return str;
     }
 
     return DKSTR( "" );

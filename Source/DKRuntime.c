@@ -60,6 +60,7 @@ static struct DKClass __DKInterfaceClass__;
 static struct DKClass __DKMsgHandlerClass__;
 static struct DKClass __DKMetadataClass__;
 static struct DKClass __DKObjectClass__;
+static struct DKClass __DKZombieClass__;
 
 
 DKClassRef DKRootClass( void )
@@ -102,6 +103,12 @@ DKClassRef DKObjectClass( void )
 {
     DKRequire( DKRuntimeIsInitialized() );
     return &__DKObjectClass__;
+}
+
+DKClassRef DKZombieClass( void )
+{
+    DKRequire( DKRuntimeIsInitialized() );
+    return &__DKZombieClass__;
 }
 
 
@@ -260,6 +267,7 @@ static DKInterfaceRef DKInterfaceComparison( void )
 
 // Runtime Init ==========================================================================
 static bool _DKRuntimeIsInitialized = false;
+static bool _DKRuntimeEnableZombieObjects = false;
 
 
 ///
@@ -347,11 +355,12 @@ static void SetStaticSelectorName( struct _DKSEL * sel, DKStringRef name )
 ///
 //  DKRuntimeInit()
 //
-void DKRuntimeInit( void )
+void DKRuntimeInit( bool enableZombieObjects )
 {
     if( !_DKRuntimeIsInitialized )
     {
         _DKRuntimeIsInitialized = true;
+        _DKRuntimeEnableZombieObjects = enableZombieObjects;
 
         // Initialize the main thread context
         DKMainThreadContextInit();
@@ -364,6 +373,7 @@ void DKRuntimeInit( void )
         InitRootClass( &__DKMsgHandlerClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),     DKPreventSubclassing, NULL, NULL );
         InitRootClass( &__DKMetadataClass__,   NULL,                  sizeof(struct DKMetadata),DKPreventSubclassing, NULL, NULL );
         InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObject),         0, NULL, NULL );
+        InitRootClass( &__DKZombieClass__,     NULL,                  sizeof(DKObject),         0, NULL, NULL );
         
         // Install custom comparison for selectors, interfaces and message handlers
         InstallRootClassInstanceInterface( &__DKSelectorClass__, DKSelectorComparison() );
@@ -384,6 +394,7 @@ void DKRuntimeInit( void )
         SetRootClassName( &__DKMsgHandlerClass__, DKSTR( "DKMsgHandler" ) );
         SetRootClassName( &__DKObjectClass__, DKSTR( "DKObject" ) );
         SetRootClassName( &__DKMetadataClass__, DKSTR( "DKMetadata" ) );
+        SetRootClassName( &__DKZombieClass__, DKSTR( "DKZombie" ) );
 
         SetStaticSelectorName( &DKSelector_Allocation_StaticObject, DKSTR( "Allocation" ) );
         SetStaticSelectorName( &DKSelector_Comparison_StaticObject, DKSTR( "Comparison" ) );
@@ -535,10 +546,28 @@ void DKDeallocObject( DKObjectRef _self )
     DKAssert( ((obj->refcount & DKRefCountMask) == 0) || ((obj->refcount & DKRefCountDisabledBit) != 0) );
 
     // Deallocate
-    dk_free( obj );
-    
-    // Finally release the class object
-    DKRelease( cls );
+    if( _DKRuntimeEnableZombieObjects )
+    {
+        obj->isa = DKZombieClass();
+        obj->refcount = 0;
+
+        if( cls->structSize >= sizeof(DKZombie) )
+        {
+            DKZombie * zombie = _self;
+            zombie->wasa = cls;
+        }
+        
+        else
+        {
+            DKRelease( cls );
+        }
+    }
+
+    else
+    {
+        dk_free( obj );
+        DKRelease( cls );
+    }
 }
 
 

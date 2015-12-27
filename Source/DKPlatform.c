@@ -25,6 +25,7 @@
 *****************************************************************************************/
 
 #include <assert.h>
+#include <execinfo.h>
 
 #include "DKPlatform.h"
 #include "DKString.h"
@@ -210,7 +211,23 @@ void * dk_malloc( size_t size )
     
     else
         ptr = malloc( size );
-    
+
+#if DK_MALLOC_TRACE
+    fprintf( stderr, "0x%lx = dk_malloc( %lu ):\n", (uintptr_t)ptr, size );
+
+    void * callstack[128];
+    int frameCount = backtrace( callstack, 128 );
+    char ** frameStrings = backtrace_symbols( callstack, frameCount );
+
+    if( frameStrings != NULL )
+    {
+        for( int i = 1; i < frameCount; i++ )
+            fprintf( stderr, "    %s\n", frameStrings[i] );
+
+        free( frameStrings );
+    }
+#endif
+
     return ptr;
 }
 

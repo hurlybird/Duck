@@ -58,6 +58,11 @@
 #define DK_RUNTIME_INTEGRITY_CHECKS 0
 #endif
 
+// Enable malloc tracing
+#ifndef DK_MALLOC_TRACE
+#define DK_MALLOC_TRACE 0
+#endif
+
 
 
 
@@ -82,6 +87,10 @@
 
 #ifndef DK_RUNTIME_INTEGRITY_CHECKS
 #define DK_RUNTIME_INTEGRITY_CHECKS 0
+#endif
+
+#ifndef DK_MALLOC_TRACE
+#define DK_MALLOC_TRACE 0
 #endif
 
 #endif // DEBUG
