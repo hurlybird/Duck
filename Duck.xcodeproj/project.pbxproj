@@ -178,6 +178,18 @@
 		028F1B621B0E6BFC006FDFDF /* DKUnicode.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2E19D85669002E876C /* DKUnicode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1B631B0E6C0F006FDFDF /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
 		028F1B651B0E6F89006FDFDF /* TestDKJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 028F1B641B0E6F89006FDFDF /* TestDKJSON.m */; };
+		02C3078C1C304F8A0077DC56 /* DKMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C3078A1C304F8A0077DC56 /* DKMutex.c */; };
+		02C3078D1C304F8A0077DC56 /* DKMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C3078A1C304F8A0077DC56 /* DKMutex.c */; };
+		02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C3078B1C304F8A0077DC56 /* DKMutex.h */; };
+		02C3078F1C304F8A0077DC56 /* DKMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C3078B1C304F8A0077DC56 /* DKMutex.h */; };
+		02C307921C3053A00077DC56 /* DKCondition.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307901C3053A00077DC56 /* DKCondition.c */; };
+		02C307931C3053A00077DC56 /* DKCondition.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307901C3053A00077DC56 /* DKCondition.c */; };
+		02C307941C3053A00077DC56 /* DKCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307911C3053A00077DC56 /* DKCondition.h */; };
+		02C307951C3053A00077DC56 /* DKCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307911C3053A00077DC56 /* DKCondition.h */; };
+		02C307981C3056270077DC56 /* DKReadWriteLock.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307961C3056270077DC56 /* DKReadWriteLock.c */; };
+		02C307991C3056270077DC56 /* DKReadWriteLock.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307961C3056270077DC56 /* DKReadWriteLock.c */; };
+		02C3079A1C3056270077DC56 /* DKReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307971C3056270077DC56 /* DKReadWriteLock.h */; };
+		02C3079B1C3056270077DC56 /* DKReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307971C3056270077DC56 /* DKReadWriteLock.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -292,6 +304,12 @@
 		02A54D271B08C4D600D00EEE /* dictionary.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 0; path = dictionary.txt; sourceTree = "<group>"; };
 		02AFC05D18F172A0006B70B9 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGenericHashTable.c; sourceTree = "<group>"; };
+		02C3078A1C304F8A0077DC56 /* DKMutex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKMutex.c; sourceTree = "<group>"; };
+		02C3078B1C304F8A0077DC56 /* DKMutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKMutex.h; sourceTree = "<group>"; };
+		02C307901C3053A00077DC56 /* DKCondition.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKCondition.c; sourceTree = "<group>"; };
+		02C307911C3053A00077DC56 /* DKCondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKCondition.h; sourceTree = "<group>"; };
+		02C307961C3056270077DC56 /* DKReadWriteLock.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKReadWriteLock.c; sourceTree = "<group>"; };
+		02C307971C3056270077DC56 /* DKReadWriteLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKReadWriteLock.h; sourceTree = "<group>"; };
 		02C8914618F1690F0097B6BC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+RefCount.c"; sourceTree = "<group>"; };
 		02D051CB19DDF32000827660 /* DKRuntime+RefCount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+RefCount.h"; sourceTree = "<group>"; };
@@ -492,6 +510,8 @@
 		0269BF4F19D85F01002E876C /* Other */ = {
 			isa = PBXGroup;
 			children = (
+				02C307911C3053A00077DC56 /* DKCondition.h */,
+				02C307901C3053A00077DC56 /* DKCondition.c */,
 				0269BF1C19D85669002E876C /* DKEgg.h */,
 				02624EBF190366C50023B3EE /* DKEgg.c */,
 				0269BF1D19D85669002E876C /* DKEncoding.h */,
@@ -500,8 +520,12 @@
 				025C0F4E18EFED96000344C0 /* DKFile.c */,
 				02A25AFC1AC3D1B600D97B11 /* DKJSON.h */,
 				02A25AFB1AC3D1B600D97B11 /* DKJSON.c */,
+				02C3078B1C304F8A0077DC56 /* DKMutex.h */,
+				02C3078A1C304F8A0077DC56 /* DKMutex.c */,
 				0269BF2719D85669002E876C /* DKPredicate.h */,
 				028F5CE619CF59B900CF4D47 /* DKPredicate.c */,
+				02C307971C3056270077DC56 /* DKReadWriteLock.h */,
+				02C307961C3056270077DC56 /* DKReadWriteLock.c */,
 				021E0E1619E1A5B200ECD817 /* DKThread.h */,
 				021E0E1519E1A5B200ECD817 /* DKThread.c */,
 				0269BF2E19D85669002E876C /* DKUnicode.h */,
@@ -614,6 +638,7 @@
 				028F1AA61B0DCBBB006FDFDF /* DKRuntime+Interfaces.h in Headers */,
 				028F1AA71B0DCBBB006FDFDF /* DKRuntime+Properties.h in Headers */,
 				028F1AA81B0DCBBB006FDFDF /* DKRuntime+RefCount.h in Headers */,
+				02C3079A1C3056270077DC56 /* DKReadWriteLock.h in Headers */,
 				028F1AA91B0DCBBB006FDFDF /* DKRuntime+Reflection.h in Headers */,
 				0206AE091B1235490095C52F /* DKRuntime+Metadata.h in Headers */,
 				028F1AAA1B0DCBBB006FDFDF /* DKAllocation.h in Headers */,
@@ -644,8 +669,10 @@
 				028F1AC31B0DCBBB006FDFDF /* DKFile.h in Headers */,
 				028F1AC41B0DCBBB006FDFDF /* DKJSON.h in Headers */,
 				028F1AC51B0DCBBB006FDFDF /* DKPredicate.h in Headers */,
+				02C307941C3053A00077DC56 /* DKCondition.h in Headers */,
 				028F1AC61B0DCBBB006FDFDF /* DKThread.h in Headers */,
 				028F1AC71B0DCBBB006FDFDF /* DKUnicode.h in Headers */,
+				02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */,
 				025D78031C245CB7005C56A4 /* DKConversion.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -661,6 +688,7 @@
 				028F1B411B0E6BFB006FDFDF /* DKRuntime+Interfaces.h in Headers */,
 				028F1B421B0E6BFB006FDFDF /* DKRuntime+Properties.h in Headers */,
 				028F1B431B0E6BFB006FDFDF /* DKRuntime+RefCount.h in Headers */,
+				02C3079B1C3056270077DC56 /* DKReadWriteLock.h in Headers */,
 				028F1B441B0E6BFB006FDFDF /* DKRuntime+Reflection.h in Headers */,
 				0206AE0A1B1235490095C52F /* DKRuntime+Metadata.h in Headers */,
 				028F1B451B0E6BFB006FDFDF /* DKAllocation.h in Headers */,
@@ -691,8 +719,10 @@
 				028F1B5E1B0E6BFC006FDFDF /* DKFile.h in Headers */,
 				028F1B5F1B0E6BFC006FDFDF /* DKJSON.h in Headers */,
 				028F1B601B0E6BFC006FDFDF /* DKPredicate.h in Headers */,
+				02C307951C3053A00077DC56 /* DKCondition.h in Headers */,
 				028F1B611B0E6BFC006FDFDF /* DKThread.h in Headers */,
 				021283231C244F9A00B7C3A7 /* DKConversion.h in Headers */,
+				02C3078F1C304F8A0077DC56 /* DKMutex.h in Headers */,
 				028F1B621B0E6BFC006FDFDF /* DKUnicode.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -829,6 +859,7 @@
 				028F1ACA1B0DCC05006FDFDF /* DKRuntime+Interfaces.c in Sources */,
 				028F1ACB1B0DCC05006FDFDF /* DKRuntime+Properties.c in Sources */,
 				028F1ACC1B0DCC05006FDFDF /* DKRuntime+RefCount.c in Sources */,
+				02C307921C3053A00077DC56 /* DKCondition.c in Sources */,
 				028F1ACD1B0DCC05006FDFDF /* DKRuntime+Reflection.c in Sources */,
 				028F1ACE1B0DCC05006FDFDF /* DKAllocation.c in Sources */,
 				028F1ACF1B0DCC05006FDFDF /* DKComparison.c in Sources */,
@@ -852,11 +883,13 @@
 				028F1AE11B0DCC05006FDFDF /* DKByteArray.c in Sources */,
 				028F1AE21B0DCC05006FDFDF /* DKGenericArray.c in Sources */,
 				028F1AE31B0DCC05006FDFDF /* DKGenericHashTable.c in Sources */,
+				02C3078C1C304F8A0077DC56 /* DKMutex.c in Sources */,
 				028F1AE41B0DCC05006FDFDF /* DKNodePool.c in Sources */,
 				028F1AE51B0DCC05006FDFDF /* DKEgg.c in Sources */,
 				0206AE071B1235490095C52F /* DKRuntime+Metadata.c in Sources */,
 				028F1AE61B0DCC05006FDFDF /* DKEncoding.c in Sources */,
 				028F1AE71B0DCC05006FDFDF /* DKFile.c in Sources */,
+				02C307981C3056270077DC56 /* DKReadWriteLock.c in Sources */,
 				028F1AE81B0DCC05006FDFDF /* DKJSON.c in Sources */,
 				028F1AE91B0DCC05006FDFDF /* DKPredicate.c in Sources */,
 				028F1AEA1B0DCC05006FDFDF /* DKThread.c in Sources */,
@@ -893,6 +926,7 @@
 				028F1B1B1B0E6BC9006FDFDF /* DKRuntime+Interfaces.c in Sources */,
 				028F1B1C1B0E6BC9006FDFDF /* DKRuntime+Properties.c in Sources */,
 				028F1B1D1B0E6BC9006FDFDF /* DKRuntime+RefCount.c in Sources */,
+				02C307931C3053A00077DC56 /* DKCondition.c in Sources */,
 				028F1B1E1B0E6BC9006FDFDF /* DKRuntime+Reflection.c in Sources */,
 				028F1B1F1B0E6BC9006FDFDF /* DKAllocation.c in Sources */,
 				028F1B201B0E6BC9006FDFDF /* DKComparison.c in Sources */,
@@ -916,11 +950,13 @@
 				028F1B321B0E6BC9006FDFDF /* DKByteArray.c in Sources */,
 				028F1B331B0E6BC9006FDFDF /* DKGenericArray.c in Sources */,
 				028F1B341B0E6BC9006FDFDF /* DKGenericHashTable.c in Sources */,
+				02C3078D1C304F8A0077DC56 /* DKMutex.c in Sources */,
 				028F1B351B0E6BC9006FDFDF /* DKNodePool.c in Sources */,
 				028F1B361B0E6BC9006FDFDF /* DKEgg.c in Sources */,
 				0206AE081B1235490095C52F /* DKRuntime+Metadata.c in Sources */,
 				028F1B371B0E6BCA006FDFDF /* DKEncoding.c in Sources */,
 				028F1B381B0E6BCA006FDFDF /* DKFile.c in Sources */,
+				02C307991C3056270077DC56 /* DKReadWriteLock.c in Sources */,
 				028F1B391B0E6BCA006FDFDF /* DKJSON.c in Sources */,
 				028F1B3A1B0E6BCA006FDFDF /* DKPredicate.c in Sources */,
 				028F1B3B1B0E6BCA006FDFDF /* DKThread.c in Sources */,
