@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  Duck.h
+  DKThreadPool.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,72 +24,28 @@
 
 *****************************************************************************************/
 
-#ifndef _DUCK_LIBRARY_H_
-#define _DUCK_LIBRARY_H_
-
-//! Project version number for Duck.
-//FOUNDATION_EXPORT double DuckVersionNumber;
-
-//! Project version string for Duck.
-//FOUNDATION_EXPORT const unsigned char DuckVersionString[];
-
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
-
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKGenericHashTable.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#ifndef _DK_THREAD_POOL_H_
+#define _DK_THREAD_POOL_H_
 
 #include "DKRuntime.h"
 #include "DKThread.h"
-#include "DKThreadPool.h"
-#include "DKMutex.h"
-#include "DKCondition.h"
-#include "DKReadWriteLock.h"
-
-#include "DKAllocation.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKLocking.h"
-#include "DKStream.h"
-#include "DKConversion.h"
-
-#include "DKData.h"
-#include "DKString.h"
-#include "DKNumber.h"
-#include "DKBoolean.h"
-#include "DKStruct.h"
-#include "DKPredicate.h"
-
-#include "DKFile.h"
-#include "DKEgg.h"
-#include "DKJSON.h"
-
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKLinkedList.h"
-#include "DKArray.h"
-
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
 
 
-#ifdef __cplusplus
-}
-#endif
+typedef struct DKThreadPool * DKThreadPoolRef;
 
 
-#endif
+DKClassRef DKThreadPoolClass( void );
+
+#define DKNewThreadPool()   DKNew( DKThreadPoolClass() )
+
+
+int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
+void DKThreadPoolStop( DKThreadPoolRef _self );
+
+void DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context );
+void DKThreadPoolAddObjectTask( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
+
+void DKThreadPoolRemoveAllTasks( DKThreadPoolRef _self );
+
+
+#endif // _DK_THREAD_POOL_H_

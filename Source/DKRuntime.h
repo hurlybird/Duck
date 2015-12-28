@@ -33,8 +33,13 @@
 
 // DKRuntime =============================================================================
 
+enum
+{
+    DKRuntimeOptionEnableZombieObjects = (1 << 0)
+};
+
 // Initialize the library
-void DKRuntimeInit( bool enableZombieObjects );
+void DKRuntimeInit( int options );
 bool DKRuntimeIsInitialized( void );
 
 

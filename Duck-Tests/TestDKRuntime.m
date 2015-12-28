@@ -49,7 +49,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 {
     [super setUp];
 
-    DKRuntimeInit();
+    DKRuntimeInit( 0 );
     DKSetErrorCallback( RaiseException );
     DKPushAutoreleasePool();
 }
@@ -116,9 +116,9 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-static void LinearReleaseThread( DKObjectRef param )
+static void LinearReleaseThread( DKObjectRef target, DKObjectRef param )
 {
-    DKMutableListRef list = param;
+    DKMutableListRef list = target;
 
     DKIndex count = DKListGetCount( list );
     
@@ -128,9 +128,9 @@ static void LinearReleaseThread( DKObjectRef param )
     }
 }
 
-static void RandomReleaseThread( DKObjectRef param )
+static void RandomReleaseThread( DKObjectRef target, DKObjectRef param )
 {
-    DKMutableListRef list = param;
+    DKMutableListRef list = target;
 
     DKIndex count = DKListGetCount( list );
     
@@ -141,9 +141,9 @@ static void RandomReleaseThread( DKObjectRef param )
     }
 }
 
-static void ResolveWeakThread( DKObjectRef param )
+static void ResolveWeakThread( DKObjectRef target, DKObjectRef param )
 {
-    DKMutableListRef list = param;
+    DKMutableListRef list = target;
 
     DKIndex count;
 
@@ -179,8 +179,8 @@ static void ResolveWeakThread( DKObjectRef param )
         DKRelease( s );
     }
 
-    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass() ), LinearReleaseThread, array1 );
-    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass() ), RandomReleaseThread, array2 );
+    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass() ), array1, LinearReleaseThread, NULL );
+    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass() ), array2, RandomReleaseThread, NULL );
 
     DKThreadStart( thread1 );
     DKThreadStart( thread2 );
@@ -215,8 +215,8 @@ static void ResolveWeakThread( DKObjectRef param )
         DKRelease( w );
     }
 
-    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass() ), RandomReleaseThread, array1 );
-    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass() ), ResolveWeakThread, array2 );
+    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass() ), array1, RandomReleaseThread, NULL );
+    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass() ), array2, ResolveWeakThread, NULL );
 
     DKThreadStart( thread1 );
     DKThreadStart( thread2 );

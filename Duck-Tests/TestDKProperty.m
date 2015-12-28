@@ -42,7 +42,7 @@ struct TestObject
 {
     [super setUp];
 
-    DKRuntimeInit();
+    DKRuntimeInit( 0 );
     DKSetErrorCallback( RaiseException );
     DKSetWarningCallback( RaiseException );
     DKPushAutoreleasePool();

@@ -355,12 +355,12 @@ static void SetStaticSelectorName( struct _DKSEL * sel, DKStringRef name )
 ///
 //  DKRuntimeInit()
 //
-void DKRuntimeInit( bool enableZombieObjects )
+void DKRuntimeInit( int options )
 {
     if( !_DKRuntimeIsInitialized )
     {
         _DKRuntimeIsInitialized = true;
-        _DKRuntimeEnableZombieObjects = enableZombieObjects;
+        _DKRuntimeEnableZombieObjects = (options & DKRuntimeOptionEnableZombieObjects) != 0;
 
         // Initialize the main thread context
         DKMainThreadContextInit();

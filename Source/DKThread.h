@@ -34,11 +34,12 @@
 // DKThread ==============================================================================
 typedef struct DKThread * DKThreadRef;
 
-typedef void (*DKThreadProc)( DKObjectRef object );
+typedef void (*DKThreadProc)( void * context );
+typedef void (*DKThreadMethod)( DKObjectRef _self, DKObjectRef param );
 
 typedef enum
 {
-    DKThreadCreated,
+    DKThreadCreated = 0,
     DKThreadStarted,
     DKThreadRunning,
     DKThreadCancelled,
@@ -56,9 +57,11 @@ DKThreadRef DKThreadGetCurrentThread( void );
 DKThreadRef DKThreadGetMainThread( void );
 
 
-void DKDetachNewThread( DKThreadProc threadProc, DKObjectRef threadParam );
+void DKDetachNewThread( DKThreadProc proc, void * context );
+void DKDetachNewThreadToTarget( DKObjectRef target, DKThreadMethod method, DKObjectRef param );
 
-DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc threadProc, DKObjectRef threadParam );
+DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc proc, void * context );
+DKObjectRef DKThreadInitWithTarget( DKObjectRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
 
 void DKThreadStart( DKThreadRef _self );
 void DKThreadJoin( DKThreadRef _self );
@@ -93,7 +96,7 @@ DKThreadContextRef DKGetMainThreadContext( void );
 
 struct DKThreadContext
 {
-    DKObjectRef threadObject;
+    DKThreadRef threadObject;
 
     uint32_t options;
 
@@ -106,7 +109,8 @@ struct DKThreadContext
     } arp;
 };
 
-void DKThreadContextInit( struct DKThreadContext * threadContext, uint32_t options );
+void DKThreadContextInit( DKThreadContextRef threadContext, uint32_t options );
+void DKThreadContextFinalize( DKThreadContextRef threadContext );
 void DKMainThreadContextInit( void );
 
 
