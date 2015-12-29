@@ -143,6 +143,18 @@ int DKFileClose( DKFileRef _self )
 
 
 ///
+//  DKFileGetStreamPtr()
+//
+FILE * DKFileGetStreamPtr( DKFileRef _self )
+{
+    if( _self )
+        return _self->file;
+    
+    return NULL;
+}
+
+
+///
 //  DKFileSeek()
 //
 int DKFileSeek( DKFileRef _self, DKIndex offset, int origin )

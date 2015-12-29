@@ -43,6 +43,8 @@ DKFileRef   DKFileOpen( DKStringRef filename, const char * mode );
 // Close the file and release the object reference
 int         DKFileClose( DKFileRef _self );
 
+FILE *      DKFileGetStreamPtr( DKFileRef _self );
+
 int         DKFileSeek( DKFileRef _self, DKIndex offset, int origin );
 DKIndex     DKFileTell( DKFileRef _self );
 DKIndex     DKFileGetLength( DKFileRef _self );
