@@ -49,6 +49,7 @@ enum
 // Custom Getter/Setter
 typedef void (*DKPropertySetter)( DKObjectRef _self, DKPropertyRef property, DKObjectRef object );
 typedef DKObjectRef (*DKPropertyGetter)( DKObjectRef _self, DKPropertyRef property );
+typedef void (*DKPropertyObserver)( DKObjectRef _self, DKPropertyRef property );
 
 
 // The property definition object (visible for use by custom getters/setters)
@@ -67,6 +68,8 @@ struct DKProperty
 
     DKPropertySetter setter;
     DKPropertyGetter getter;
+    DKPropertyObserver willRead;
+    DKPropertyObserver didWrite;
 };
 
 // typedef const struct DKProperty * DKPropertyRef; -- Defined in DKPlatform.h
@@ -104,7 +107,9 @@ void DKInstallObjectProperty( DKClassRef _class,
     size_t offset,
     DKPredicateRef predicate,
     DKPropertySetter setter,
-    DKPropertyGetter getter );
+    DKPropertyGetter getter,
+    DKPropertyObserver willRead,
+    DKPropertyObserver didWrite );
 
 void DKInstallNumberProperty( DKClassRef _class,
     DKStringRef name,
@@ -113,7 +118,9 @@ void DKInstallNumberProperty( DKClassRef _class,
     DKEncoding encoding,
     DKStringRef semantic,
     DKPropertySetter setter,
-    DKPropertyGetter getter );
+    DKPropertyGetter getter,
+    DKPropertyObserver willRead,
+    DKPropertyObserver didWrite );
 
 void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
@@ -122,7 +129,9 @@ void DKInstallStructProperty( DKClassRef _class,
     size_t size,
     DKStringRef semantic,
     DKPropertySetter setter,
-    DKPropertyGetter getter );
+    DKPropertyGetter getter,
+    DKPropertyObserver willRead,
+    DKPropertyObserver didWrite );
 
 // Retrieve installed properties
 DKListRef   DKGetAllPropertyDefinitions( DKObjectRef _self );

@@ -179,8 +179,8 @@ static void ResolveWeakThread( DKObjectRef target, DKObjectRef param )
         DKRelease( s );
     }
 
-    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass() ), array1, LinearReleaseThread, NULL );
-    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass() ), array2, RandomReleaseThread, NULL );
+    DKThreadRef thread1 = DKThreadInitWithTarget( DKAlloc( DKThreadClass() ), array1, LinearReleaseThread, NULL );
+    DKThreadRef thread2 = DKThreadInitWithTarget( DKAlloc( DKThreadClass() ), array2, RandomReleaseThread, NULL );
 
     DKThreadStart( thread1 );
     DKThreadStart( thread2 );
@@ -215,8 +215,8 @@ static void ResolveWeakThread( DKObjectRef target, DKObjectRef param )
         DKRelease( w );
     }
 
-    DKThreadRef thread1 = DKThreadInit( DKAlloc( DKThreadClass() ), array1, RandomReleaseThread, NULL );
-    DKThreadRef thread2 = DKThreadInit( DKAlloc( DKThreadClass() ), array2, ResolveWeakThread, NULL );
+    DKThreadRef thread1 = DKThreadInitWithTarget( DKAlloc( DKThreadClass() ), array1, RandomReleaseThread, NULL );
+    DKThreadRef thread2 = DKThreadInitWithTarget( DKAlloc( DKThreadClass() ), array2, ResolveWeakThread, NULL );
 
     DKThreadStart( thread1 );
     DKThreadStart( thread2 );

@@ -113,7 +113,9 @@ void DKInstallObjectProperty( DKClassRef _class,
     size_t offset,
     DKPredicateRef predicate,
     DKPropertySetter setter,
-    DKPropertyGetter getter )
+    DKPropertyGetter getter,
+    DKPropertyObserver willRead,
+    DKPropertyObserver didWrite )
 {
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
@@ -127,6 +129,8 @@ void DKInstallObjectProperty( DKClassRef _class,
     
     property->setter = setter;
     property->getter = getter;
+    property->willRead = willRead;
+    property->didWrite = didWrite;
     
     DKInstallProperty( _class, name, property );
     DKRelease( property );
@@ -143,7 +147,9 @@ void DKInstallNumberProperty( DKClassRef _class,
     DKEncoding encoding,
     DKStringRef semantic,
     DKPropertySetter setter,
-    DKPropertyGetter getter )
+    DKPropertyGetter getter,
+    DKPropertyObserver willRead,
+    DKPropertyObserver didWrite )
 {
     DKAssert( DKEncodingIsNumber( encoding ) );
     
@@ -159,6 +165,8 @@ void DKInstallNumberProperty( DKClassRef _class,
     
     property->setter = setter;
     property->getter = getter;
+    property->willRead = willRead;
+    property->didWrite = didWrite;
     
     DKInstallProperty( _class, name, property );
     DKRelease( property );
@@ -175,7 +183,9 @@ void DKInstallStructProperty( DKClassRef _class,
     size_t size,
     DKStringRef semantic,
     DKPropertySetter setter,
-    DKPropertyGetter getter )
+    DKPropertyGetter getter,
+    DKPropertyObserver willRead,
+    DKPropertyObserver didWrite )
 {
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
@@ -189,6 +199,8 @@ void DKInstallStructProperty( DKClassRef _class,
 
     property->setter = setter;
     property->getter = getter;
+    property->willRead = willRead;
+    property->didWrite = didWrite;
     
     DKInstallProperty( _class, name, property );
     DKRelease( property );
@@ -343,6 +355,26 @@ static void FailedSemanticRequirement( DKObjectRef _self, DKPropertyRef property
 // Get/Set Properties ====================================================================
 
 ///
+//  DKWillReadProperty()
+//
+static void DKWillReadProperty( DKObjectRef _self, DKPropertyRef property )
+{
+    if( property->willRead )
+        property->willRead( _self, property );
+}
+
+
+///
+//  DKDidWriteProperty()
+//
+static void DKDidWriteProperty( DKObjectRef _self, DKPropertyRef property )
+{
+    if( property->didWrite )
+        property->didWrite( _self, property );
+}
+
+
+///
 //  DKWritePropertyObject()
 //
 static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
@@ -353,6 +385,7 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     if( property->setter )
     {
         property->setter( _self, property, object );
+        DKDidWriteProperty( _self, property );
         return;
     }
     
@@ -384,6 +417,7 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
             *ref = object;
         }
         
+        DKDidWriteProperty( _self, property );
         return;
     }
     
@@ -391,14 +425,20 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     if( DKIsKindOfClass( object, DKNumberClass() ) )
     {
         if( DKNumberCastValue( object, value, property->encoding ) )
+        {
+            DKDidWriteProperty( _self, property );
             return;
+        }
     }
     
     // Automatic conversion of structure types
     if( DKIsKindOfClass( object, DKStructClass() ) )
     {
         if( DKStructGetValue( object, property->semantic, value, DKEncodingGetSize( property->encoding ) ) )
+        {
+            DKDidWriteProperty( _self, property );
             return;
+        }
     }
 
     DKWarning( "DKProperty: No available conversion for property '%s' from %s.\n",
@@ -412,6 +452,8 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
 static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef property )
 {
     void * value = (uint8_t *)_self + property->offset;
+
+    DKWillReadProperty( _self, property );
     
     // Custom getter
     if( property->getter )
@@ -431,7 +473,7 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
         else
         {
             DKObjectRef * ref = value;
-            return *ref;
+            return DKAutorelease( DKRetain( *ref ) );
         }
     }
     
@@ -630,7 +672,10 @@ void DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcV
             void * dstValue = (uint8_t *)_self + property->offset;
             
             if( DKNumberConvert( srcValue, srcEncoding, dstValue, property->encoding ) )
+            {
+                DKDidWriteProperty( _self, property );
                 return;
+            }
         }
         
         DKWarning( "DKProperty: No available conversion for property '%s' from %s[%d].\n",
@@ -717,6 +762,8 @@ size_t DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue
             
             else
             {
+                DKWillReadProperty( _self, property );
+
                 void * srcValue = (uint8_t *)_self + property->offset;
 
                 if( (result = DKNumberConvert( srcValue, property->encoding, dstValue, dstEncoding )) != 0 )
@@ -789,6 +836,8 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef seman
         {
             void * dstValue = (uint8_t *)_self + property->offset;
             memcpy( dstValue, srcValue, srcSize );
+            
+            DKDidWriteProperty( _self, property );
             return;
         }
         
@@ -876,8 +925,11 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef sem
 
             if( property->encoding == DKEncode( DKEncodingTypeBinaryData, dstSize ) )
             {
+                DKWillReadProperty( _self, property );
+
                 const void * srcValue = (uint8_t *)_self + property->offset;
                 memcpy( dstValue, srcValue, dstSize );
+                
                 return dstSize;
             }
         }
