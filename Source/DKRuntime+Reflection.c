@@ -322,14 +322,14 @@ DKStringRef DKStringFromClass( DKClassRef _class )
 ///
 //  DKClassFromString()
 //
-DKClassRef DKClassFromString( DKStringRef name )
+DKClassRef DKClassFromString( DKStringRef className )
 {
     DKClassRef cls = NULL;
     
-    if( name )
+    if( className )
     {
         struct NameDatabaseEntry _key;
-        _key.name = name;
+        _key.name = className;
         
         struct NameDatabaseEntry * key = &_key;
 
@@ -344,6 +344,24 @@ DKClassRef DKClassFromString( DKStringRef name )
     }
     
     return cls;
+}
+
+
+///
+//  DKClassFromCString()
+//
+DKClassRef DKClassFromCString( const char * className )
+{
+    if( className )
+    {
+        DKStringRef _className = DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass() ), className );
+        DKClassRef _class = DKClassFromString( _className );
+        DKRelease( _className );
+        
+        return _class;
+    }
+    
+    return NULL;
 }
 
 

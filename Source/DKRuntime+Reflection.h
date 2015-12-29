@@ -51,6 +51,7 @@ bool        DKIsSubclass( DKClassRef _class, DKClassRef otherClass );
 
 // Convert between classes and strings
 DKClassRef  DKClassFromString( DKStringRef className );
+DKClassRef  DKClassFromCString( const char * className );
 DKStringRef DKStringFromClass( DKClassRef _class );
 
 // Convert between selectors and strings
