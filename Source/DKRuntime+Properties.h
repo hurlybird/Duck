@@ -162,6 +162,9 @@ size_t      DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRe
 size_t      DKGetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStringRef semantic, void * dstValue, size_t dstSize );
 
 // Get/Set wrappers for basic types
+void        DKSetBoolProperty( DKObjectRef _self, DKStringRef name, bool x );
+bool        DKGetBoolProperty( DKObjectRef _self, DKStringRef name );
+
 void        DKSetIntegerProperty( DKObjectRef _self, DKStringRef name, int64_t x );
 int64_t     DKGetIntegerProperty( DKObjectRef _self, DKStringRef name );
 

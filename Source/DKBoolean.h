@@ -39,6 +39,8 @@ DKClassRef   DKBooleanClass( void );
 DKBooleanRef DKTrue( void );
 DKBooleanRef DKFalse( void );
 
+#define      DKBooleanGetValue( b )     (((b) == DKTrue()) ? true : false)
+
 DKStringRef  DKBooleanGetDescription( DKBooleanRef _self );
 
 

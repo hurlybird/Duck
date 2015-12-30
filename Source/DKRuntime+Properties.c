@@ -27,10 +27,12 @@
 #define DK_RUNTIME_PRIVATE 1
 
 #include "DKRuntime+Properties.h"
+#include "DKBoolean.h"
 #include "DKString.h"
 #include "DKNumber.h"
 #include "DKStruct.h"
 #include "DKCopying.h"
+#include "DKConversion.h"
 #include "DKDescription.h"
 
 
@@ -421,7 +423,7 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
         return;
     }
     
-    // Automatic conversion of numerical types
+    // Automatic conversion of numerical types (including booleans)
     if( DKIsKindOfClass( object, DKNumberClass() ) )
     {
         if( DKNumberCastValue( object, value, property->encoding ) )
@@ -954,6 +956,40 @@ size_t DKGetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStr
         return DKGetStructProperty( target, key, semantic, dstValue, dstSize );
 
     return 0;
+}
+
+
+///
+//  DKSetBoolProperty()
+//
+void DKSetBoolProperty( DKObjectRef _self, DKStringRef name, bool x )
+{
+    DKSetProperty( _self, name, DKBoolean( x ) );
+}
+
+
+///
+//  DKGetBoolProperty()
+//
+bool DKGetBoolProperty( DKObjectRef _self, DKStringRef name )
+{
+    DKObjectRef x = DKGetProperty( _self, name );
+
+    if( x )
+    {
+        if( x == DKFalse() )
+            return false;
+        
+        if( x == DKTrue() )
+            return true;
+        
+        DKConversionInterfaceRef conversion;
+        
+        if( DKQueryInterface( x, DKSelector(Conversion), (DKInterfaceRef *)&conversion) )
+            return conversion->getBool( x );
+    }
+    
+    return false;
 }
 
 
