@@ -37,6 +37,7 @@
 
 #if DK_PLATFORM_APPLE
 #include <libkern/OSAtomic.h>
+#include <libkern/OSByteOrder.h>
 #endif
 
 #if DK_PLATFORM_ANDROID

@@ -15,9 +15,15 @@ The Duck source is distributed under the MIT License. Any packages under the
 
 * Classes, interfaces, properties and messages.
 * Thread-safe reference counting and zeroing weak references.
-* String class with basic UTF-8 support.
+* String class with practical UTF-8 support.
 * Container classes for lists, dictionaries and sets.
 * Object graph serialization.
+
+
+## Development Status
+
+Duck is nearly ready for a 1.0 release. The main changes to the API involve filling
+in gaps and tweaking to match expected/intuitive use in a real project.
 
 
 ## Porting
@@ -48,7 +54,7 @@ Here's a snippet of code that shows what using Duck Objects looks like.
 int main( int argc, const char * argv[] )
 {
     // Initialize the library
-    DKRuntimeInit();
+    DKRuntimeInit( 0 );
     
     // Create an autorelease pool
     DKPushAutoreleasePool();
@@ -119,7 +125,16 @@ structure.
 Duck classes can also define properties to provide an abstract mechanism to
 access instance data. The runtime handles most property get/set behaviour
 automatically (including translating between object and base types), but it's
-also possible to use custom getter/setter methods.
+also possible to use custom getter/setter/observer methods.
+
+### Reference Counting
+
+All Duck objects are reference counted with the usual retain, release and
+autorelease facilities.
+
+DKWeakRef stores a weak reference to an object. The DKResolveWeak() function
+resolves a weak reference into a strong reference, or returns NULL if the
+target object has been deallocated.
 
 ### Built-In Container Classes
 
@@ -139,6 +154,7 @@ Duck also defines some common interfaces:
 * *DKDictionary* is the key-value interface to *DKHashTable* and *DKBinaryTree*.
 * *DKSet* has methods for set operations on *DKHashTable* and *DKBinaryTree*.
 * *DKCopying* has methods for creating mutable and immutable copies of objects.
+* *DKConversion* provides methods to convert between strings and numbers.
 * *DKStream* provides stream-style access to *DKData*, *DKString*, and *DKFile*.
 
 ### Other Useful Stuff
@@ -153,14 +169,16 @@ Duck also defines some common interfaces:
 
 Some possible/probable areas for further work:
 
-Classes for useful system-level stuff like run loops, notifications, URLs, etc.
+Classes for useful system-level stuff like notifications, URLs, HTTP, etc.
 
-A time/date class, or formatting functions that work with DKNumber.
+A proper time/date class, or formatting functions that work with DKNumber.
 
 More unicode support. DKString currently supports enough UTF-8 for basic string
 functions, but more powerful string comparison and locale support would be nice.
 The main question is how much of the ICU package to include before it makes
 sense to just like against the whole library.
+
+An XML parser, or a wrapper around a lightweight third party one.
 
 
 
