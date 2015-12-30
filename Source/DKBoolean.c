@@ -39,7 +39,7 @@
 struct DKBoolean
 {
     DKObject _obj;
-    uint8_t value;
+    uint8_t value; // This matches the layout of DKNumber
 };
 
 static struct DKBoolean DKBooleanTrue =
@@ -126,8 +126,8 @@ DKBooleanRef DKTrue( void )
 {
     if( DKBooleanTrue._obj.isa == NULL )
     {
-        DKBooleanTrue._obj.isa = DKBooleanClass();
         DKSetObjectTag( &DKBooleanTrue, DKNumberUInt8 );
+        DKBooleanTrue._obj.isa = DKBooleanClass();
     }
     
     return &DKBooleanTrue;
@@ -141,8 +141,8 @@ DKBooleanRef DKFalse( void )
 {
     if( DKBooleanFalse._obj.isa == NULL )
     {
-        DKBooleanFalse._obj.isa = DKBooleanClass();
         DKSetObjectTag( &DKBooleanFalse, DKNumberUInt8 );
+        DKBooleanFalse._obj.isa = DKBooleanClass();
     }
 
     return &DKBooleanFalse;

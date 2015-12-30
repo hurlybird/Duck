@@ -226,7 +226,7 @@ static CmpFunction GetCmpFunction( DKEncoding xtype, DKEncoding ytype )
 struct DKNumber
 {
     DKObject _obj;
-    DKNumberValue value;
+    DKNumberValue value; // DKBoolean relies on this layout
 };
 
 
