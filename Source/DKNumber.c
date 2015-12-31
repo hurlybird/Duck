@@ -71,6 +71,10 @@ typedef void (*CastFunction)( const DKNumberValue * restrict x, DKNumberValue * 
             y->_ ## ytype[i] = (ytype)x->_ ## xtype[i];                                 \
     }
 
+static void UndefinedCastFunction( const DKNumberValue * restrict x, DKNumberValue * restrict y, size_t count )
+{
+    DKFatalError( "DKNumber: Undefined cast function.\n" );
+}
 
 
 
@@ -136,26 +140,64 @@ DefineFunctionSetForType( double );
     {                                                                                   \
         CastFuncName( xtype, int8_t ),                                                  \
         CastFuncName( xtype, int16_t ),                                                 \
+        UndefinedCastFunction,                                                          \
         CastFuncName( xtype, int32_t ),                                                 \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
         CastFuncName( xtype, int64_t ),                                                 \
         CastFuncName( xtype, uint8_t ),                                                 \
         CastFuncName( xtype, uint16_t ),                                                \
+        UndefinedCastFunction,                                                          \
         CastFuncName( xtype, uint32_t ),                                                \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
         CastFuncName( xtype, uint64_t ),                                                \
         CastFuncName( xtype, float ),                                                   \
         CastFuncName( xtype, double ),                                                  \
+    }
+
+#define UndefineCastFunctionTableRow                                                    \
+    {                                                                                   \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction,                                                          \
+        UndefinedCastFunction                                                           \
     }
 
 static CastFunction CastFunctionTable[DKMaxNumberTypes][DKMaxNumberTypes] =
 {
     CastFunctionTableRow( int8_t ),
     CastFunctionTableRow( int16_t ),
+    UndefineCastFunctionTableRow,
     CastFunctionTableRow( int32_t ),
+    UndefineCastFunctionTableRow,
+    UndefineCastFunctionTableRow,
+    UndefineCastFunctionTableRow,
     CastFunctionTableRow( int64_t ),
 
     CastFunctionTableRow( uint8_t ),
     CastFunctionTableRow( uint16_t ),
+    UndefineCastFunctionTableRow,
     CastFunctionTableRow( uint32_t ),
+    UndefineCastFunctionTableRow,
+    UndefineCastFunctionTableRow,
+    UndefineCastFunctionTableRow,
     CastFunctionTableRow( uint64_t ),
 
     CastFunctionTableRow( float ),

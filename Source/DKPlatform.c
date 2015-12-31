@@ -139,6 +139,8 @@ int _DKError( const char * format, ... )
     int result = _DKPrintfInternal( ErrorCallback, "%s", DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
+
+    assert( 0 );
     
     return result;
 }
@@ -160,6 +162,9 @@ int _DKFatalError( const char * format, ... )
     int result = _DKPrintfInternal( FatalErrorCallback, "%s", DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
+
+    assert( 0 );
+    abort();
     
     return result;
 }
