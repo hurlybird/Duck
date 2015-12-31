@@ -39,8 +39,8 @@ static const struct EncodingTypeInfo TypeInfo[DKMaxEncodingTypes] =
 {
     { "void",       0                   },
     
-    { "class",     sizeof(void *)       },
-    { "selector",  sizeof(void *)       },
+    { "class",      sizeof(void *)      },
+    { "selector",   sizeof(void *)      },
 
     { "object",     sizeof(void *)      },
     { "key:object", 2*sizeof(void *)    },
@@ -48,14 +48,24 @@ static const struct EncodingTypeInfo TypeInfo[DKMaxEncodingTypes] =
     { "text",       1                   },
     { "binary",     1                   },
 
+    { "reserved",   0                   },
+
     { "int8_t",     sizeof(int8_t)      },
     { "int16_t",    sizeof(int16_t)     },
+    { "invalid",    0                   },
     { "int32_t",    sizeof(int32_t)     },
+    { "invalid",    0                   },
+    { "invalid",    0                   },
+    { "invalid",    0                   },
     { "int64_t",    sizeof(int64_t)     },
 
     { "uint8_t",    sizeof(uint8_t)     },
     { "uint16_t",   sizeof(uint16_t)    },
+    { "invalid",    0                   },
     { "uint32_t",   sizeof(uint32_t)    },
+    { "invalid",    0                   },
+    { "invalid",    0                   },
+    { "invalid",    0                   },
     { "uint64_t",   sizeof(uint64_t)    },
 
     { "float",      sizeof(float)       },

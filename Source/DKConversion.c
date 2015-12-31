@@ -7,6 +7,7 @@
 //
 
 #include "DKConversion.h"
+#include "DKBoolean.h"
 
 
 // The description selector is initialized by DKRuntimeInit() so that constant strings can
@@ -36,6 +37,12 @@ bool DKGetBool( DKObjectRef _self )
 {
     if( _self )
     {
+        if( _self == DKTrue() )
+            return true;
+        
+        if( _self == DKFalse() )
+            return false;
+    
         DKConversionInterfaceRef conversion = DKGetInterface( _self, DKSelector(Conversion) );
         return conversion->getBool( _self );
     }

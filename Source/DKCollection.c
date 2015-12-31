@@ -134,17 +134,7 @@ int DKForeachKey( DKObjectRef _self, DKApplierFunction callback, void * context 
     if( _self )
     {
         DKKeyedCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(KeyedCollection) );
-        
-        if( collection->foreachKey )
-        {
-            return collection->foreachKey( _self, callback, context );
-        }
-        
-        else
-        {
-            DKFatalError( "DKForeachKey: '%s' is not a keyed collection.\n",
-                DKStringGetCStringPtr( DKGetClassName( _self ) ) );
-        }
+        return collection->foreachKey( _self, callback, context );
     }
     
     return 0;
@@ -159,17 +149,7 @@ int DKForeachKeyAndObject( DKObjectRef _self, DKKeyedApplierFunction callback, v
     if( _self )
     {
         DKKeyedCollectionInterfaceRef collection = DKGetInterface( _self, DKSelector(KeyedCollection) );
-        
-        if( collection->foreachKeyAndObject )
-        {
-            return collection->foreachKeyAndObject( _self, callback, context );
-        }
-        
-        else
-        {
-            DKFatalError( "DKForeachKeyAndObject: '%s' is not a keyed collection.\n",
-                DKStringGetCStringPtr( DKGetClassName( _self ) ) );
-        }
+        return collection->foreachKeyAndObject( _self, callback, context );
     }
     
     return 0;

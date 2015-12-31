@@ -397,8 +397,7 @@ static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
         
         if( !DKQueryInterface( object, DKSelector(Egg), (DKInterfaceRef *)&eggInterface ) )
         {
-            DKError( "DKEggUnarchiver: %s does not implement .egg file archiving.\n",
-                DKStringGetCStringPtr( DKGetClassName( cls ) ) );
+            DKError( "DKEggUnarchiver: %@ does not implement .egg file archiving.\n", DKGetClassName( cls ) );
             
             DKRelease( object );
             
@@ -1046,8 +1045,7 @@ static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object )
     
     if( !DKQueryInterface( object, DKSelector(Egg), (DKInterfaceRef *)&eggInterface ) )
     {
-        DKError( "DKEggArchiver: %s does not implement .egg file archiving.\n",
-            DKStringGetCStringPtr( DKGetClassName( object ) ) );
+        DKError( "DKEggArchiver: %@ does not implement .egg file archiving.\n", DKGetClassName( object ) );
         
         return -1;
     }

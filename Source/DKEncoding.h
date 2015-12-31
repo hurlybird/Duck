@@ -34,7 +34,7 @@
 
 typedef enum
 {
-    DKEncodingNull = 0,
+    DKEncodingNull =        0,
 
     // Special Types
     DKEncodingTypeClass,
@@ -48,17 +48,38 @@ typedef enum
     DKEncodingTypeTextData,
     DKEncodingTypeBinaryData,
 
-    // Number Types
-    DKEncodingTypeInt8,
+    // Reserved
+    __DKEncodingTypeReserved,
+
+    // Integers
+    DKEncodingTypeInt8 =    8,
     DKEncodingTypeInt16,
+    
+    __DKEncodingTypeInvalid3ByteInt,
+    
     DKEncodingTypeInt32,
+
+    __DKEncodingTypeInvalid5ByteInt,
+    __DKEncodingTypeInvalid6ByteInt,
+    __DKEncodingTypeInvalid7ByteInt,
+
     DKEncodingTypeInt64,
     
+    // Unsigned Integers
     DKEncodingTypeUInt8,
     DKEncodingTypeUInt16,
+
+    __DKEncodingTypeInvalid3ByteUInt,
+
     DKEncodingTypeUInt32,
+
+    __DKEncodingTypeInvalid5ByteUInt,
+    __DKEncodingTypeInvalid6ByteUInt,
+    _vDKEncodingTypeInvalid7ByteUInt,
+
     DKEncodingTypeUInt64,
     
+    // Floats
     DKEncodingTypeFloat,
     DKEncodingTypeDouble,
     
@@ -74,6 +95,8 @@ typedef uint32_t DKEncoding;
 #define DKEncode( type, count )         (((type) << 24) | (count))
 #define DKEncodingGetType( encoding )   ((encoding) >> 24)
 #define DKEncodingGetCount( encoding )  ((encoding) & 0x00ffffff)
+
+#define DKEncodingTypeInt( baseType )   DKEncode( (DKEncodingTypeInt8 + sizeof(baseType) - 1), 1 )
 
 
 size_t DKEncodingGetSize( DKEncoding encoding );

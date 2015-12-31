@@ -114,8 +114,8 @@ void DKInstallObjectProperty( DKClassRef _class,
     int32_t attributes,
     size_t offset,
     DKPredicateRef predicate,
-    DKPropertySetter setter,
     DKPropertyGetter getter,
+    DKPropertySetter setter,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite )
 {
@@ -129,8 +129,8 @@ void DKInstallObjectProperty( DKClassRef _class,
     
     property->predicate = DKCopy( predicate );
     
-    property->setter = setter;
     property->getter = getter;
+    property->setter = setter;
     property->willRead = willRead;
     property->didWrite = didWrite;
     
@@ -148,8 +148,8 @@ void DKInstallNumberProperty( DKClassRef _class,
     size_t offset,
     DKEncoding encoding,
     DKStringRef semantic,
-    DKPropertySetter setter,
     DKPropertyGetter getter,
+    DKPropertySetter setter,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite )
 {
@@ -165,8 +165,8 @@ void DKInstallNumberProperty( DKClassRef _class,
 
     property->semantic = DKCopy( semantic );
     
-    property->setter = setter;
     property->getter = getter;
+    property->setter = setter;
     property->willRead = willRead;
     property->didWrite = didWrite;
     
@@ -184,8 +184,8 @@ void DKInstallStructProperty( DKClassRef _class,
     size_t offset,
     size_t size,
     DKStringRef semantic,
-    DKPropertySetter setter,
     DKPropertyGetter getter,
+    DKPropertySetter setter,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite )
 {
@@ -199,8 +199,8 @@ void DKInstallStructProperty( DKClassRef _class,
 
     property->semantic = DKCopy( semantic );
 
-    property->setter = setter;
     property->getter = getter;
+    property->setter = setter;
     property->willRead = willRead;
     property->didWrite = didWrite;
     
@@ -268,8 +268,7 @@ DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
 //
 static void PropertyNotDefined( DKObjectRef _self, DKStringRef name )
 {
-    DKWarning( "DKProperty: Property '%s' is not defined for class '%s'.\n",
-        DKStringGetCStringPtr( name ), DKStringGetCStringPtr( DKGetClassName( _self ) ) );
+    DKWarning( "DKProperty: Property '%@' is not defined for class '%@'.\n", name, DKGetClassName( _self ) );
 }
 
 #define CheckPropertyIsDefined( obj, property, name, ... )                              \
@@ -288,8 +287,7 @@ static void PropertyNotDefined( DKObjectRef _self, DKStringRef name )
 //
 static void PropertyNotReadWrite( DKObjectRef _self, DKPropertyRef property )
 {
-    DKWarning( "DKProperty: Property '%s' is not read-write.\n",
-        DKStringGetCStringPtr( property->name ) );
+    DKWarning( "DKProperty: Property '%@' is not read-write.\n", property->name );
 }
 
 #define CheckPropertyIsReadWrite( obj, property, ... )                                  \
@@ -309,10 +307,8 @@ static void PropertyNotReadWrite( DKObjectRef _self, DKPropertyRef property )
 //
 static void FailedPredicateRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
 {
-    DKWarning( "DKProperty: '%s' does not meet the requirements ('%s') for property '%s'.\n",
-        DKStringGetCStringPtr( DKGetClassName( object ) ),
-        DKStringGetCStringPtr( DKGetDescription( property->predicate ) ),
-        DKStringGetCStringPtr( property->name ) );
+    DKWarning( "DKProperty: '%@' does not meet the requirements ('%@') for property '%@'.\n",
+        DKGetClassName( object ), DKGetDescription( property->predicate ), property->name );
 }
 
 #define CheckPredicateRequirement( obj, property, object, ... )                         \
@@ -333,10 +329,8 @@ static void FailedPredicateRequirement( DKObjectRef _self, DKPropertyRef propert
 //
 static void FailedSemanticRequirement( DKObjectRef _self, DKPropertyRef property, DKStringRef semantic )
 {
-    DKWarning( "DKProperty: '%s' does not meet the semantic requirement ('%s') for property '%s'.\n",
-        DKStringGetCStringPtr( semantic ),
-        DKStringGetCStringPtr( property->semantic ),
-        DKStringGetCStringPtr( property->name ) );
+    DKWarning( "DKProperty: '%@' does not meet the semantic requirement ('%@') for property '%s'.\n",
+        semantic, property->semantic, property->name );
 }
 
 #define CheckSemanticRequirement( obj, property, semantic, ... )                        \
@@ -443,8 +437,7 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
         }
     }
 
-    DKWarning( "DKProperty: No available conversion for property '%s' from %s.\n",
-        DKStringGetCStringPtr( property->name ), DKStringGetCStringPtr( DKGetClassName( object ) ) );
+    DKWarning( "DKProperty: No available conversion for property '%@' from %@.\n", property->name, DKGetClassName( object ) );
 }
 
 
@@ -493,8 +486,7 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
         return DKAutorelease( structure );
     }
 
-    DKWarning( "DKProperty: No available conversion for property '%s' to object.\n",
-        DKStringGetCStringPtr( property->name ) );
+    DKWarning( "DKProperty: No available conversion for property '%@' to object.\n", property->name );
     
     return NULL;
 }
@@ -680,8 +672,8 @@ void DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcV
             }
         }
         
-        DKWarning( "DKProperty: No available conversion for property '%s' from %s[%d].\n",
-            DKStringGetCStringPtr( name ), DKEncodingGetTypeName( srcEncoding ), DKEncodingGetCount( srcEncoding ) );
+        DKWarning( "DKProperty: No available conversion for property '%@' from %s[%d].\n",
+            name, DKEncodingGetTypeName( srcEncoding ), DKEncodingGetCount( srcEncoding ) );
     }
 }
 
@@ -773,8 +765,8 @@ size_t DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue
             }
         }
 
-        DKWarning( "DKProperty: No available conversion for property '%s' to %s[%d].\n",
-            DKStringGetCStringPtr( name ), DKEncodingGetTypeName( dstEncoding ), DKEncodingGetCount( dstEncoding ) );
+        DKWarning( "DKProperty: No available conversion for property '%@' to %s[%d].\n",
+            name, DKEncodingGetTypeName( dstEncoding ), DKEncodingGetCount( dstEncoding ) );
     }
     
     return 0;
@@ -843,8 +835,7 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef seman
             return;
         }
         
-        DKWarning( "DKProperty: No available conversion for property '%s' from structure (%s).\n",
-            DKStringGetCStringPtr( name ), DKStringGetCStringPtr( semantic ) );
+        DKWarning( "DKProperty: No available conversion for property '%@' from structure (%@).\n", name, semantic );
     }
 }
 
@@ -936,8 +927,7 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef sem
             }
         }
         
-        DKWarning( "DKProperty: No available conversion for property '%s' to structure (%s).\n",
-            DKStringGetCStringPtr( name ), DKStringGetCStringPtr( semantic ) );
+        DKWarning( "DKProperty: No available conversion for property '%@' to structure (%@).\n", name, semantic );
     }
     
     return 0;

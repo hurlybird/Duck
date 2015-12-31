@@ -332,9 +332,7 @@ size_t DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, 
             
             else
             {
-                DKWarning( "DKStructGetValue: Semantic mismatch '%s' != '%s'.\n",
-                    DKStringGetCStringPtr( _self->semantic ),
-                    DKStringGetCStringPtr( semantic ) );
+                DKWarning( "DKStructGetValue: Semantic mismatch '%@' != '%@'.\n", _self->semantic, semantic );
             }
         }
         

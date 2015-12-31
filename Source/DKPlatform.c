@@ -60,17 +60,17 @@ void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_
 
 
 ///
-//  DKPrintf()
+//  _DKPrintfInternal()
 //
-static int _DKPrintfInternal( const char * format, ... )
+static int _DKPrintfInternal( int (*callback)( const char *, va_list ), const char * format, ... )
 {
     int result = 0;
 
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
-    if( PrintfCallback )
-        result = PrintfCallback( format, arg_ptr );
+    if( callback )
+        result = callback( format, arg_ptr );
     
     else
         result = vprintf( format, arg_ptr );
@@ -80,6 +80,10 @@ static int _DKPrintfInternal( const char * format, ... )
     return result;
 }
 
+
+///
+//  DKPrintf()
+//
 int _DKPrintf( const char * format, ... )
 {
     va_list arg_ptr;
@@ -90,7 +94,7 @@ int _DKPrintf( const char * format, ... )
 
     va_end( arg_ptr );
     
-    int result = _DKPrintfInternal( "%s", DKStringGetCStringPtr( tmp ) );
+    int result = _DKPrintfInternal( PrintfCallback, "%s", DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
     
@@ -103,18 +107,17 @@ int _DKPrintf( const char * format, ... )
 //
 int _DKWarning( const char * format, ... )
 {
-    int result = 0;
-
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
-    if( WarningCallback )
-        result = WarningCallback( format, arg_ptr );
-    
-    else
-        result = vprintf( format, arg_ptr );
-    
+    DKMutableStringRef tmp = DKNewMutableString();
+    DKVSPrintf( tmp, format, arg_ptr );
+
     va_end( arg_ptr );
+    
+    int result = _DKPrintfInternal( WarningCallback, "%s", DKStringGetCStringPtr( tmp ) );
+
+    DKRelease( tmp );
     
     return result;
 }
@@ -128,20 +131,16 @@ int _DKError( const char * format, ... )
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
-    if( ErrorCallback )
-    {
-        ErrorCallback( format, arg_ptr );
-    }
-    
-    else
-    {
-        vfprintf( stderr, format, arg_ptr );
-        assert( 0 );
-    }
+    DKMutableStringRef tmp = DKNewMutableString();
+    DKVSPrintf( tmp, format, arg_ptr );
 
     va_end( arg_ptr );
+    
+    int result = _DKPrintfInternal( ErrorCallback, "%s", DKStringGetCStringPtr( tmp ) );
 
-    return 0;
+    DKRelease( tmp );
+    
+    return result;
 }
 
 
@@ -153,21 +152,16 @@ int _DKFatalError( const char * format, ... )
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
-    if( FatalErrorCallback )
-    {
-        FatalErrorCallback( format, arg_ptr );
-    }
-    
-    else
-    {
-        vfprintf( stderr, format, arg_ptr );
-        assert( 0 );
-        abort();
-    }
-    
+    DKMutableStringRef tmp = DKNewMutableString();
+    DKVSPrintf( tmp, format, arg_ptr );
+
     va_end( arg_ptr );
     
-    return 0;
+    int result = _DKPrintfInternal( FatalErrorCallback, "%s", DKStringGetCStringPtr( tmp ) );
+
+    DKRelease( tmp );
+    
+    return result;
 }
 
 

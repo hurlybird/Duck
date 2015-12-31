@@ -47,8 +47,8 @@ enum
 
 
 // Custom Getter/Setter
-typedef void (*DKPropertySetter)( DKObjectRef _self, DKPropertyRef property, DKObjectRef object );
 typedef DKObjectRef (*DKPropertyGetter)( DKObjectRef _self, DKPropertyRef property );
+typedef void (*DKPropertySetter)( DKObjectRef _self, DKPropertyRef property, DKObjectRef object );
 typedef void (*DKPropertyObserver)( DKObjectRef _self, DKPropertyRef property );
 
 
@@ -66,8 +66,8 @@ struct DKProperty
     DKStringRef     semantic;
     DKPredicateRef  predicate;
 
-    DKPropertySetter setter;
     DKPropertyGetter getter;
+    DKPropertySetter setter;
     DKPropertyObserver willRead;
     DKPropertyObserver didWrite;
 };
@@ -106,8 +106,8 @@ void DKInstallObjectProperty( DKClassRef _class,
     int32_t attributes,
     size_t offset,
     DKPredicateRef predicate,
-    DKPropertySetter setter,
     DKPropertyGetter getter,
+    DKPropertySetter setter,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite );
 
@@ -117,8 +117,8 @@ void DKInstallNumberProperty( DKClassRef _class,
     size_t offset,
     DKEncoding encoding,
     DKStringRef semantic,
-    DKPropertySetter setter,
     DKPropertyGetter getter,
+    DKPropertySetter setter,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite );
 
@@ -128,8 +128,8 @@ void DKInstallStructProperty( DKClassRef _class,
     size_t offset,
     size_t size,
     DKStringRef semantic,
-    DKPropertySetter setter,
     DKPropertyGetter getter,
+    DKPropertySetter setter,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite );
 

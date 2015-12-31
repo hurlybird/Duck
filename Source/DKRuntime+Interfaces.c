@@ -374,7 +374,7 @@ void DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interface )
 //
 static DKInterfaceRef DKGetInterfaceNotFound( DKClassRef _class, DKSEL sel )
 {
-    DKFatalError( "DKRuntime: Interface '%s' not found on object '%s'\n", sel->name, _class->name );
+    DKFatalError( "DKRuntime: Interface '%@' not found on object '%@'\n", sel->name, _class->name );
     return NULL;
 }
 
@@ -398,7 +398,7 @@ DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
 //
 static DKInterfaceRef DKGetClassInterfaceNotFound( DKClassRef _class, DKSEL sel )
 {
-    DKFatalError( "DKRuntime: Class interface '%s' not found on object '%s'\n", sel->name, _class->name );
+    DKFatalError( "DKRuntime: Class interface '%@' not found on object '%@'\n", sel->name, _class->name );
     return NULL;
 }
 

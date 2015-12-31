@@ -428,7 +428,7 @@ DKClassRef DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSiz
 {
     if( superclass && ((superclass->options & DKPreventSubclassing) != 0) )
     {
-        DKFatalError( "DKNewClass: Class '%s' does not allow subclasses.\n", DKStringGetCStringPtr( superclass->name ) );
+        DKFatalError( "DKNewClass: Class '%@' does not allow subclasses.\n", superclass->name );
         return NULL;
     }
     
@@ -511,7 +511,7 @@ DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
     
     if( (cls->options & DKAbstractBaseClass) != 0 )
     {
-        DKFatalError( "DKAllocObject: Class '%s' is an abstract base class.\n", DKStringGetCStringPtr( cls->name ) );
+        DKFatalError( "DKAllocObject: Class '%@' is an abstract base class.\n", cls->name );
         return NULL;
     }
     
