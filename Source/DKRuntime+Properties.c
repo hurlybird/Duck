@@ -119,6 +119,9 @@ void DKInstallObjectProperty( DKClassRef _class,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite )
 {
+    DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
+    DKAssert( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
+
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
     property->name = DKCopy( name );
@@ -154,6 +157,8 @@ void DKInstallNumberProperty( DKClassRef _class,
     DKPropertyObserver didWrite )
 {
     DKAssert( DKEncodingIsNumber( encoding ) );
+    DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
+    DKAssert( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
     
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
@@ -189,6 +194,9 @@ void DKInstallStructProperty( DKClassRef _class,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite )
 {
+    DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
+    DKAssert( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
+
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
     property->name = DKCopy( name );
