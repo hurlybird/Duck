@@ -144,8 +144,11 @@ void        DKSetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObje
 
 // Get an object property. If the property is stored as a number type or structure, the
 // value will be automatically packaged in a DKNumber or DKStruct.
-DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name );
-DKObjectRef DKGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path );
+DKObjectRef DKTryGetProperty( DKObjectRef _self, DKStringRef name, bool warnIfNotFound );
+DKObjectRef DKTryGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, bool warnIfNotFound );
+
+#define DKGetProperty( _self, name )            DKTryGetProperty( _self, name, true )
+#define DKGetPropertyForKeyPath( _self, path )  DKTryGetPropertyForKeyPath( _self, path, true )
 
 // Get/Set a numerical property, with automatic conversion to/from storage as a DKNumber object.
 void        DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKEncoding srcEncoding );

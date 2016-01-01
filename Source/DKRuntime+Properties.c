@@ -577,7 +577,7 @@ void DKSetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef o
 ///
 //  DKGetProperty()
 //
-DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name )
+DKObjectRef DKTryGetProperty( DKObjectRef _self, DKStringRef name, bool warnIfNotFound )
 {
     if( _self )
     {
@@ -591,7 +591,9 @@ DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name )
             if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
                 return propertyInterface->getProperty( _self, name );
             
-            PropertyNotDefined( _self, name );
+            if( warnIfNotFound )
+                PropertyNotDefined( _self, name );
+            
             return NULL;
         }
         
@@ -610,13 +612,13 @@ DKObjectRef DKGetProperty( DKObjectRef _self, DKStringRef name )
 ///
 //  DKGetPropertyForKeyPath()
 //
-DKObjectRef DKGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path )
+DKObjectRef DKTryGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, bool warnIfNotFound )
 {
     DKObjectRef target;
     DKStringRef key;
     
     if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
-        return DKGetProperty( target, key );
+        return DKTryGetProperty( target, key, warnIfNotFound );
 
     return NULL;
 }
