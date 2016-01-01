@@ -183,13 +183,21 @@ static DKObjectRef DKMetadataInitWithOwner( DKObjectRef _untyped_self, DKObjectR
         
         _self->weakTarget = owner;
         _self->weakLock = DKSpinLockInit;
-        
-        _self->spinLock = DKSpinLockInit;
     }
     
     return _self;
 }
 
+
+///
+//  DKMetadataFinalize()
+//
+void DKMetadataFinalize( DKObjectRef _untyped_self )
+{
+    DKMetadataRef _self = _untyped_self;
+
+    DKRelease( _self->mutex );
+}
 
 
 

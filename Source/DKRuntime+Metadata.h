@@ -44,7 +44,7 @@ struct DKMetadata
     DKSpinLock      weakLock;
     
     // Thread Synchronization
-    DKSpinLock      spinLock;
+    DKObjectRef     mutex;
 };
 
 typedef struct DKMetadata * DKMetadataRef;
@@ -54,7 +54,7 @@ void DKMetadataTableInit( void );
 
 DKMetadataRef DKMetadataFindOrInsert( DKObject * obj );
 void DKMetadataRemove( DKMetadataRef metadata );
-
+void DKMetadataFinalize( DKObjectRef _self );
 
 #endif // DK_RUNTIME_PRIVATE
 

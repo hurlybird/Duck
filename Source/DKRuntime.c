@@ -42,6 +42,7 @@
 #include "DKDescription.h"
 #include "DKLocking.h"
 #include "DKThread.h"
+#include "DKMutex.h"
 
 
 
@@ -371,7 +372,7 @@ void DKRuntimeInit( int options )
         InitRootClass( &__DKSelectorClass__,   NULL,                  sizeof(struct _DKSEL),    DKPreventSubclassing, NULL, DKSelectorFinalize );
         InitRootClass( &__DKInterfaceClass__,  NULL,                  sizeof(DKInterface),      0, NULL, DKInterfaceFinalize );
         InitRootClass( &__DKMsgHandlerClass__, &__DKInterfaceClass__, sizeof(DKMsgHandler),     DKPreventSubclassing, NULL, NULL );
-        InitRootClass( &__DKMetadataClass__,   NULL,                  sizeof(struct DKMetadata),DKPreventSubclassing, NULL, NULL );
+        InitRootClass( &__DKMetadataClass__,   NULL,                  sizeof(struct DKMetadata),DKPreventSubclassing, NULL, DKMetadataFinalize );
         InitRootClass( &__DKObjectClass__,     NULL,                  sizeof(DKObject),         0, NULL, NULL );
         InitRootClass( &__DKZombieClass__,     NULL,                  sizeof(DKObject),         0, NULL, NULL );
         
@@ -669,7 +670,16 @@ void DKLockObject( DKObjectRef _self )
     if( _self )
     {
         DKMetadataRef metadata = DKMetadataFindOrInsert( _self );
-        DKSpinLockLock( &metadata->spinLock );
+        
+        if( metadata->mutex == NULL )
+        {
+            DKMutexRef mutex = DKNewMutex();
+            
+            if( !DKAtomicCmpAndSwapPtr( &metadata->mutex, NULL, mutex ) )
+                DKRelease( mutex );
+        }
+        
+        DKMutexLock( metadata->mutex );
     }
 }
 
@@ -682,7 +692,7 @@ void DKUnlockObject( DKObjectRef _self )
     if( _self )
     {
         DKMetadataRef metadata = DKMetadataFindOrInsert( _self );
-        DKSpinLockUnlock( &metadata->spinLock );
+        DKMutexUnlock( metadata->mutex );
     }
 }
 
