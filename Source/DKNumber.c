@@ -98,6 +98,11 @@ typedef int (*CmpFunction)( const DKNumberValue * x, const DKNumberValue * y, si
         return 0;                                                                       \
     }
 
+static int UndefinedCmpFunction( const DKNumberValue * x, const DKNumberValue * y, size_t count )
+{
+    DKFatalError( "DKNumber: Undefined compare function.\n" );
+    return 0;
+}
 
 
 
@@ -223,26 +228,64 @@ static CastFunction GetCastFunction( DKEncoding xtype, DKEncoding ytype )
     {                                                                                   \
         CmpFuncName( xtype, int8_t ),                                                   \
         CmpFuncName( xtype, int16_t ),                                                  \
+        UndefinedCmpFunction,                                                           \
         CmpFuncName( xtype, int32_t ),                                                  \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
         CmpFuncName( xtype, int64_t ),                                                  \
         CmpFuncName( xtype, uint8_t ),                                                  \
         CmpFuncName( xtype, uint16_t ),                                                 \
+        UndefinedCmpFunction,                                                           \
         CmpFuncName( xtype, uint32_t ),                                                 \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
         CmpFuncName( xtype, uint64_t ),                                                 \
         CmpFuncName( xtype, float ),                                                    \
         CmpFuncName( xtype, double ),                                                   \
+    }
+
+#define UndefinedCmpFunctionTableRow                                                    \
+    {                                                                                   \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction,                                                           \
+        UndefinedCmpFunction                                                            \
     }
 
 static CmpFunction CmpFunctionTable[DKMaxNumberTypes][DKMaxNumberTypes] =
 {
     CmpFunctionTableRow( int8_t ),
     CmpFunctionTableRow( int16_t ),
+    UndefinedCmpFunctionTableRow,
     CmpFunctionTableRow( int32_t ),
+    UndefinedCmpFunctionTableRow,
+    UndefinedCmpFunctionTableRow,
+    UndefinedCmpFunctionTableRow,
     CmpFunctionTableRow( int64_t ),
 
     CmpFunctionTableRow( uint8_t ),
     CmpFunctionTableRow( uint16_t ),
+    UndefinedCmpFunctionTableRow,
     CmpFunctionTableRow( uint32_t ),
+    UndefinedCmpFunctionTableRow,
+    UndefinedCmpFunctionTableRow,
+    UndefinedCmpFunctionTableRow,
     CmpFunctionTableRow( uint64_t ),
 
     CmpFunctionTableRow( float ),
