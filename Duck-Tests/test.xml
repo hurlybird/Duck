@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Graphic version="2.0" viewHeight="400" viewWidth="550" ATE:version="1.0.0" flm:version="1.0.0" d:id="1" d:using="" xmlns="http://ns.adobe.com/fxg/2008" xmlns:ATE="http://ns.adobe.com/ate/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:flm="http://ns.adobe.com/flame/2008">
+  <Library/>
+  <Group blendMode="normal" d:type="layer" d:userLabel="Selected Items">
+    <Group flm:isDrawingObject="true">
+      <Path data="M186.7 188.1 246.7 188.1Q255 188.1 260.85 193.95 266.7 199.8 266.7 208.1L266.7 268.1Q266.7 276.4 260.85 282.25 255 288.1 246.7 288.1L186.7 288.1Q178.4 288.1 172.55 282.25 166.7 276.4 166.7 268.1L166.7 208.1Q166.7 199.8 172.55 193.95 178.4 188.1
+ 186.7 188.1Z">
+        <fill>
+          <SolidColor color="#6ECE3D"/>
+        </fill>
+      </Path>
+      <Path data="M186.7 188.1 246.7 188.1Q255 188.1 260.85 193.95 266.7 199.8 266.7 208.1L266.7 268.1Q266.7 276.4 260.85 282.25 255 288.1 246.7 288.1L186.7 288.1Q178.4 288.1 172.55 282.25 166.7 276.4 166.7 268.1L166.7 208.1Q166.7 199.8 172.55 193.95 178.4 188.1
+ 186.7 188.1Z">
+        <stroke>
+          <SolidColorStroke weight="4" caps="none" joints="miter" miterLimit="10" color="#241F20"/>
+        </stroke>
+      </Path>
+    </Group>
+  </Group>
+  <Private>
+      <xfl:PrivateElement d:ref="#1" xmlns:xfl="http://ns.adobe.com/xfl/2008/">
+        <xfl:publishSettings xfl:source=""/>
+        <xfl:mobileSettings xfl:source=""/>
+        <xfl:as3ExportItems/>
+      </xfl:PrivateElement>
+    </Private>
+  </Graphic>

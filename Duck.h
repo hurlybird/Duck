@@ -74,6 +74,7 @@ extern "C"
 #include "DKFile.h"
 #include "DKEgg.h"
 #include "DKJSON.h"
+#include "DKXML.h"
 
 #include "DKCollection.h"
 #include "DKList.h"

@@ -18,8 +18,13 @@
 		021808781C3A323200989024 /* COPYING in Resources */ = {isa = PBXBuildFile; fileRef = 021808741C3A323200989024 /* COPYING */; };
 		021808791C3A323200989024 /* yxml.c in Sources */ = {isa = PBXBuildFile; fileRef = 021808751C3A323200989024 /* yxml.c */; };
 		0218087A1C3A323200989024 /* yxml.c in Sources */ = {isa = PBXBuildFile; fileRef = 021808751C3A323200989024 /* yxml.c */; };
-		0218087B1C3A323200989024 /* yxml.h in Headers */ = {isa = PBXBuildFile; fileRef = 021808761C3A323200989024 /* yxml.h */; };
-		0218087C1C3A323200989024 /* yxml.h in Headers */ = {isa = PBXBuildFile; fileRef = 021808761C3A323200989024 /* yxml.h */; };
+		02393EBC1C3EFE15009E8731 /* DKXML.c in Sources */ = {isa = PBXBuildFile; fileRef = 02393EBA1C3EFE15009E8731 /* DKXML.c */; };
+		02393EBD1C3EFE15009E8731 /* DKXML.h in Headers */ = {isa = PBXBuildFile; fileRef = 02393EBB1C3EFE15009E8731 /* DKXML.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		02393EBF1C3F16BB009E8731 /* test.xml in Resources */ = {isa = PBXBuildFile; fileRef = 02393EBE1C3F16BB009E8731 /* test.xml */; };
+		02393EC11C3F16F6009E8731 /* TestDKXML.m in Sources */ = {isa = PBXBuildFile; fileRef = 02393EC01C3F16F6009E8731 /* TestDKXML.m */; };
+		02393EC31C3F1999009E8731 /* DKXML.h in Headers */ = {isa = PBXBuildFile; fileRef = 02393EBB1C3EFE15009E8731 /* DKXML.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		02393EC41C3F19F0009E8731 /* yxml.h in Headers */ = {isa = PBXBuildFile; fileRef = 021808761C3A323200989024 /* yxml.h */; };
+		02393EC51C3F19FE009E8731 /* yxml.h in Headers */ = {isa = PBXBuildFile; fileRef = 021808761C3A323200989024 /* yxml.h */; };
 		025D78031C245CB7005C56A4 /* DKConversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0212831F1C244F9A00B7C3A7 /* DKConversion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		026FBD181C309B5F00C96822 /* DKThreadPool.c in Sources */ = {isa = PBXBuildFile; fileRef = 026FBD161C309B5F00C96822 /* DKThreadPool.c */; };
 		026FBD191C309B5F00C96822 /* DKThreadPool.c in Sources */ = {isa = PBXBuildFile; fileRef = 026FBD161C309B5F00C96822 /* DKThreadPool.c */; };
@@ -248,6 +253,10 @@
 		021EC2DB18F07BA9004148AD /* uversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uversion.h; sourceTree = "<group>"; };
 		021EC2EF18F0CDB1004148AD /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		023098FD19D53E7F00C3DB59 /* TestDKPredicate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKPredicate.m; sourceTree = "<group>"; };
+		02393EBA1C3EFE15009E8731 /* DKXML.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKXML.c; sourceTree = "<group>"; };
+		02393EBB1C3EFE15009E8731 /* DKXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKXML.h; sourceTree = "<group>"; };
+		02393EBE1C3F16BB009E8731 /* test.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = test.xml; sourceTree = "<group>"; };
+		02393EC01C3F16F6009E8731 /* TestDKXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKXML.m; sourceTree = "<group>"; };
 		023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+Reflection.c"; sourceTree = "<group>"; };
 		023A719E19DADCE20088CDD9 /* DKRuntime+Reflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+Reflection.h"; sourceTree = "<group>"; };
 		023B128019E0C25800B2D683 /* DKLocking.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKLocking.c; sourceTree = "<group>"; };
@@ -558,6 +567,8 @@
 				026FBD161C309B5F00C96822 /* DKThreadPool.c */,
 				0269BF2E19D85669002E876C /* DKUnicode.h */,
 				025C0F5A18EFED97000344C0 /* DKUnicode.c */,
+				02393EBB1C3EFE15009E8731 /* DKXML.h */,
+				02393EBA1C3EFE15009E8731 /* DKXML.c */,
 			);
 			name = Other;
 			sourceTree = "<group>";
@@ -582,6 +593,7 @@
 		028F1A971B0DCA86006FDFDF /* Duck-Tests */ = {
 			isa = PBXGroup;
 			children = (
+				02393EBE1C3F16BB009E8731 /* test.xml */,
 				02A54D271B08C4D600D00EEE /* dictionary.txt */,
 				0208A643190576130041677A /* TestDKEgg.m */,
 				025C0F9618EFEE5D000344C0 /* TestDKData.m */,
@@ -594,6 +606,7 @@
 				025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */,
 				02083F9818F1EDBE00EEBBAC /* TestDKSet.m */,
 				025C0F9B18EFEE5D000344C0 /* TestDKString.m */,
+				02393EC01C3F16F6009E8731 /* TestDKXML.m */,
 				028F1A981B0DCA86006FDFDF /* Supporting Files */,
 			);
 			path = "Duck-Tests";
@@ -699,11 +712,12 @@
 				028F1AC61B0DCBBB006FDFDF /* DKThread.h in Headers */,
 				02C3079A1C3056270077DC56 /* DKReadWriteLock.h in Headers */,
 				02C307941C3053A00077DC56 /* DKCondition.h in Headers */,
-				0218087B1C3A323200989024 /* yxml.h in Headers */,
 				02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */,
 				028F1AC71B0DCBBB006FDFDF /* DKUnicode.h in Headers */,
+				02393EBD1C3EFE15009E8731 /* DKXML.h in Headers */,
 				026FBD1A1C309B5F00C96822 /* DKThreadPool.h in Headers */,
 				025D78031C245CB7005C56A4 /* DKConversion.h in Headers */,
+				02393EC41C3F19F0009E8731 /* yxml.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -751,11 +765,12 @@
 				02C3079B1C3056270077DC56 /* DKReadWriteLock.h in Headers */,
 				026FBD1B1C309B5F00C96822 /* DKThreadPool.h in Headers */,
 				02C307951C3053A00077DC56 /* DKCondition.h in Headers */,
-				0218087C1C3A323200989024 /* yxml.h in Headers */,
 				02C3078F1C304F8A0077DC56 /* DKMutex.h in Headers */,
 				028F1B611B0E6BFC006FDFDF /* DKThread.h in Headers */,
 				021283231C244F9A00B7C3A7 /* DKConversion.h in Headers */,
 				028F1B621B0E6BFC006FDFDF /* DKUnicode.h in Headers */,
+				02393EC31C3F1999009E8731 /* DKXML.h in Headers */,
+				02393EC51C3F19FE009E8731 /* yxml.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -870,6 +885,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				028F1AFA1B0E63A5006FDFDF /* dictionary.txt in Resources */,
+				02393EBF1C3F16BB009E8731 /* test.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -927,6 +943,7 @@
 				028F1AE71B0DCC05006FDFDF /* DKFile.c in Sources */,
 				02C307981C3056270077DC56 /* DKReadWriteLock.c in Sources */,
 				028F1AE81B0DCC05006FDFDF /* DKJSON.c in Sources */,
+				02393EBC1C3EFE15009E8731 /* DKXML.c in Sources */,
 				028F1AE91B0DCC05006FDFDF /* DKPredicate.c in Sources */,
 				028F1AEA1B0DCC05006FDFDF /* DKThread.c in Sources */,
 				028F1AEB1B0DCC05006FDFDF /* DKUnicode.c in Sources */,
@@ -945,6 +962,7 @@
 				028F1AF31B0E639C006FDFDF /* TestDKList.m in Sources */,
 				028F1AF41B0E639C006FDFDF /* TestDKNumber.m in Sources */,
 				028F1AF51B0E639C006FDFDF /* TestDKPredicate.m in Sources */,
+				02393EC11C3F16F6009E8731 /* TestDKXML.m in Sources */,
 				028F1AF61B0E639D006FDFDF /* TestDKProperty.m in Sources */,
 				028F1AF71B0E639D006FDFDF /* TestDKRuntime.m in Sources */,
 				028F1B651B0E6F89006FDFDF /* TestDKJSON.m in Sources */,
