@@ -53,6 +53,9 @@ size_t dk_ustrlen( const char * str );
 // Returns a pointer to the start of the unicode character at index 'idx'
 const char * dk_ustridx( const char * str, size_t idx );
 
+// Returns a pointer to the start of the unicode character at reverse index 'idx'
+const char * dk_ustrridx( const char * str, size_t idx );
+
 // Scans one character from 'str' into 'ch' and returns the number of bytes read
 size_t dk_ustrscan( const char * str, DKChar32 * ch );
 

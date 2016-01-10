@@ -205,6 +205,26 @@ const char * dk_ustridx( const char * str, size_t idx )
 
 
 ///
+//  dk_ustrrchr()
+//
+const char * dk_ustrridx( const char * str, size_t idx )
+{
+    int32_t i = (int32_t)strlen( str );
+    DKChar32 c;
+    
+    for( size_t j = 0; i > 0; j++ )
+    {
+        U8_PREV( str, 0, i, c );
+
+        if( j >= idx )
+            return &str[i];
+    }
+    
+    return NULL;
+}
+
+
+///
 //  dk_ustrscan()
 //
 size_t dk_ustrscan( const char * str, DKChar32 * ch )

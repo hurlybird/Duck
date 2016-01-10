@@ -345,6 +345,42 @@ DKIndex DKListGetObjectsInRange( DKListRef _self, DKRange range, DKObjectRef obj
 
 
 ///
+//  DKListGetFirstObject()
+//
+DKObjectRef DKListGetFirstObject( DKListRef _self )
+{
+    if( _self )
+    {
+        DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
+        
+        if( list->getCount( _self ) > 0 )
+            return list->getObjectAtIndex( _self, 0 );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKListGetLastObject()
+//
+DKObjectRef DKListGetLastObject( DKListRef _self )
+{
+    if( _self )
+    {
+        DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
+        
+        DKIndex count = list->getCount( _self );
+        
+        if( count  > 0 )
+            return list->getObjectAtIndex( _self, count - 1 );
+    }
+    
+    return NULL;
+}
+
+
+///
 //  DKListAppendObject()
 //
 void DKListAppendObject( DKMutableListRef _self, DKObjectRef object )
@@ -511,6 +547,44 @@ void DKListRemoveAllObjects( DKMutableListRef _self )
         DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
         DKRange remove = DKRangeMake( 0, list->getCount( _self ) );
         list->replaceRangeWithCArray( _self, remove, NULL, 0 );
+    }
+}
+
+
+///
+//  DKListRemoveFirstObject()
+//
+void DKListRemoveFirstObject( DKMutableListRef _self )
+{
+    if( _self )
+    {
+        DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
+        
+        if( list->getCount( _self ) > 0 )
+        {
+            DKRange remove = DKRangeMake( 0, 1 );
+            list->replaceRangeWithCArray( _self, remove, NULL, 0 );
+        }
+    }
+}
+
+
+///
+//  DKListRemoveLastObject()
+//
+void DKListRemoveLastObject( DKMutableListRef _self )
+{
+    if( _self )
+    {
+        DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
+        
+        DKIndex count = list->getCount( _self );
+        
+        if( count > 0 )
+        {
+            DKRange remove = DKRangeMake( count - 1, 1 );
+            list->replaceRangeWithCArray( _self, remove, NULL, 0 );
+        }
     }
 }
 

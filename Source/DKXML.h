@@ -14,16 +14,7 @@
 
 
 
-typedef struct DKXMLDocument * DKXMLDocumentRef;
 typedef struct DKXMLElement * DKXMLElementRef;
-
-
-DKClassRef DKXMLDocumentClass( void );
-
-DKStringRef DKXMLDocumentGetXMLEncoding( DKXMLDocumentRef _self );
-DKStringRef DKXMLDocumentGetDocType( DKXMLDocumentRef _self );
-DKXMLElementRef DKXMLDocumentGetRootElement( DKXMLDocumentRef _self );
-
 
 
 DKClassRef DKXMLElementClass( void );
@@ -31,10 +22,11 @@ DKClassRef DKXMLElementClass( void );
 DKStringRef DKXMLElementGetName( DKXMLElementRef _self );
 DKDictionaryRef DKXMLElementGetAttributes( DKXMLElementRef _self );
 DKListRef DKXMLElementGetElements( DKXMLElementRef _self );
+DKStringRef DKXMLElementGetDescription( DKXMLElementRef _self );
 
 
 
-DKXMLDocumentRef DKXMLParse( DKStringRef xml, int options );
+DKXMLElementRef DKXMLParse( DKStringRef xml, int options );
 
 
 

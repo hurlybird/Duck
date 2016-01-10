@@ -122,6 +122,9 @@ DKIndex     DKListGetLastIndexOfObjectInRange( DKListRef _self, DKObjectRef obje
 DKObjectRef DKListGetObjectAtIndex( DKListRef _self, DKIndex index );
 DKIndex     DKListGetObjectsInRange( DKListRef _self, DKRange range, DKObjectRef objects[] );
 
+DKObjectRef DKListGetFirstObject( DKListRef _self );
+DKObjectRef DKListGetLastObject( DKListRef _self );
+
 void        DKListAppendObject( DKMutableListRef _self, DKObjectRef object );
 void        DKListAppendCArray( DKMutableListRef _self, DKObjectRef objects[], DKIndex count );
 void        DKListAppendCollection( DKMutableListRef _self, DKObjectRef srcCollection );
@@ -140,6 +143,9 @@ void        DKListRemoveObject( DKMutableListRef _self, DKObjectRef object );
 void        DKListRemoveObjectAtIndex( DKMutableListRef _self, DKIndex index );
 void        DKListRemoveObjectsInRange( DKMutableListRef _self, DKRange range );
 void        DKListRemoveAllObjects( DKMutableListRef _self );
+
+void        DKListRemoveFirstObject( DKMutableListRef _self );
+void        DKListRemoveLastObject( DKMutableListRef _self );
 
 bool        DKListEqual( DKListRef _self, DKListRef other );
 int         DKListCompare( DKListRef _self, DKListRef other );

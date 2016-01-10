@@ -42,9 +42,11 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKStringRef path = DKStringWithCString( [_path UTF8String] );
     DKStringRef file = DKStringWithContentsOfFile( path );
     
-    DKXMLDocumentRef xml = DKXMLParse( file, 0 );
+    DKXMLElementRef xml;
     
-    DKPrintf( "%@\n", xml );
+    XCTAssertNoThrow( xml = DKXMLParse( file, 0 ) );
+    
+    //DKPrintf( "%@", xml );
 }
 
 
