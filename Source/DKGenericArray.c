@@ -136,6 +136,16 @@ static void * ResizeArray( void * ptr, DKIndex elementSize, DKIndex oldLength, D
 
 
 ///
+//  DKGenericArraySetLength()
+//
+void DKGenericArraySetLength( DKGenericArray * array, DKIndex length )
+{
+    DKGenericArrayReserve( array, length );
+    array->length = length;
+}
+
+
+///
 //  DKGenericArrayReplaceElements()
 //
 void DKGenericArrayReplaceElements( DKGenericArray * array, DKRange range, const void * elements, DKIndex length )

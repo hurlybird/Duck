@@ -50,6 +50,7 @@ void DKGenericArrayFinalize( DKGenericArray * array );
 void DKGenericArrayReserve( DKGenericArray * array, DKIndex length );
 
 #define DKGenericArrayGetLength( array ) ((array)->length)
+void DKGenericArraySetLength( DKGenericArray * array, DKIndex length );
 
 void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex index );
 
