@@ -157,7 +157,7 @@ DKThreadSafeClassInit( DKMutableArrayClass )
     
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
-    copying->copy = (DKCopyMethod)DKArrayMutableCopy;
+    copying->copy = (DKCopyMethod)DKArrayCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKArrayMutableCopy;
     
     DKInstallInterface( cls, copying );

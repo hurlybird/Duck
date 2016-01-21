@@ -177,7 +177,7 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
-    copying->copy = (DKCopyMethod)DKHashTableMutableCopy;
+    copying->copy = (DKCopyMethod)DKHashTableCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKHashTableMutableCopy;
     
     DKInstallInterface( cls, copying );

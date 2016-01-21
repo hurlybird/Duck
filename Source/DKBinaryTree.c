@@ -185,7 +185,7 @@ DKThreadSafeClassInit( DKMutableBinaryTreeClass )
     
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
-    copying->copy = (DKCopyMethod)DKBinaryTreeMutableCopy;
+    copying->copy = (DKCopyMethod)DKBinaryTreeCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKBinaryTreeMutableCopy;
     
     DKInstallInterface( cls, copying );

@@ -183,7 +183,7 @@ DKThreadSafeClassInit( DKMutableStringClass )
     
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
-    copying->copy = (DKCopyMethod)DKStringMutableCopy;
+    copying->copy = (DKCopyMethod)DKStringCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKStringMutableCopy;
     
     DKInstallInterface( cls, copying );
