@@ -522,7 +522,7 @@ void * DKDataGetMutableBytePtr( DKMutableDataRef _self, DKIndex index )
         DKCheckKindOfClass( _self, DKMutableDataClass(), NULL );
         DKCheckIndex( index, _self->byteArray.length, NULL );
         
-        return _self->byteArray.bytes;
+        return &_self->byteArray.bytes[index];
     }
     
     return NULL;

@@ -41,6 +41,7 @@ DKClassRef  DKMutableDataClass( void );
 #define     DKMutableData()                         DKAutorelease( DKNew( DKMutableDataClass() ) )
 
 #define     DKDataWithBytes( bytes, length )        DKAutorelease( DKDataInitWithBytes( DKAlloc( DKDataClass() ), bytes, length ) )
+#define     DKDataWithBytesNoCopy( bytes, length )  DKAutorelease( DKDataInitWithBytesNoCopy( DKAlloc( DKDataClass() ), bytes, length ) )
 #define     DKDataWithContentsOfFile( filename )    DKAutorelease( DKDataInitWithContentsOfFile( DKAlloc( DKDataClass() ), filename ) )
 
 #define     DKNewMutableData()                  DKNew( DKMutableDataClass() )
