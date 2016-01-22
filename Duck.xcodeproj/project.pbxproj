@@ -26,6 +26,7 @@
 		02393EC41C3F19F0009E8731 /* yxml.h in Headers */ = {isa = PBXBuildFile; fileRef = 021808761C3A323200989024 /* yxml.h */; };
 		02393EC51C3F19FE009E8731 /* yxml.h in Headers */ = {isa = PBXBuildFile; fileRef = 021808761C3A323200989024 /* yxml.h */; };
 		025D78031C245CB7005C56A4 /* DKConversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0212831F1C244F9A00B7C3A7 /* DKConversion.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		026911C81C51E72A00432EAC /* DKXML.c in Sources */ = {isa = PBXBuildFile; fileRef = 02393EBA1C3EFE15009E8731 /* DKXML.c */; };
 		026FBD181C309B5F00C96822 /* DKThreadPool.c in Sources */ = {isa = PBXBuildFile; fileRef = 026FBD161C309B5F00C96822 /* DKThreadPool.c */; };
 		026FBD191C309B5F00C96822 /* DKThreadPool.c in Sources */ = {isa = PBXBuildFile; fileRef = 026FBD161C309B5F00C96822 /* DKThreadPool.c */; };
 		026FBD1A1C309B5F00C96822 /* DKThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 026FBD171C309B5F00C96822 /* DKThreadPool.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1014,6 +1015,7 @@
 				028F1B381B0E6BCA006FDFDF /* DKFile.c in Sources */,
 				02C307991C3056270077DC56 /* DKReadWriteLock.c in Sources */,
 				028F1B391B0E6BCA006FDFDF /* DKJSON.c in Sources */,
+				026911C81C51E72A00432EAC /* DKXML.c in Sources */,
 				028F1B3A1B0E6BCA006FDFDF /* DKPredicate.c in Sources */,
 				028F1B3B1B0E6BCA006FDFDF /* DKThread.c in Sources */,
 				028F1B3C1B0E6BCA006FDFDF /* DKUnicode.c in Sources */,
