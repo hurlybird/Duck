@@ -441,6 +441,9 @@ static bool EvaluateKEYIN( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 //
 static bool EvaluateISA( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
+    if( a == NULL )
+        return true;
+
     if( DKIsKindOfClass( b, DKClassClass() ) )
         return DKIsKindOfClass( a, b );
     
