@@ -62,7 +62,7 @@ void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_
 ///
 //  _DKPrintfInternal()
 //
-static int _DKPrintfInternal( int (*callback)( const char *, va_list ), const char * format, ... )
+static int _DKPrintfInternal( int (*callback)( const char *, va_list ), FILE * file, const char * format, ... )
 {
     int result = 0;
 
@@ -73,7 +73,7 @@ static int _DKPrintfInternal( int (*callback)( const char *, va_list ), const ch
         result = callback( format, arg_ptr );
     
     else
-        result = vprintf( format, arg_ptr );
+        result = vfprintf( file, format, arg_ptr );
 
     va_end( arg_ptr );
     
@@ -94,7 +94,7 @@ int _DKPrintf( const char * format, ... )
 
     va_end( arg_ptr );
     
-    int result = _DKPrintfInternal( PrintfCallback, "%s", DKStringGetCStringPtr( tmp ) );
+    int result = _DKPrintfInternal( PrintfCallback, stdout, "%s", DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
     
@@ -105,7 +105,7 @@ int _DKPrintf( const char * format, ... )
 ///
 //  DKWarning()
 //
-int _DKWarning( const char * format, ... )
+void _DKWarning( const char * format, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, format );
@@ -115,18 +115,16 @@ int _DKWarning( const char * format, ... )
 
     va_end( arg_ptr );
     
-    int result = _DKPrintfInternal( WarningCallback, "%s", DKStringGetCStringPtr( tmp ) );
+    _DKPrintfInternal( WarningCallback, stdout, "%s", DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
-    
-    return result;
 }
 
 
 ///
 //  DKError()
 //
-int _DKError( const char * format, ... )
+void _DKError( const char * format, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, format );
@@ -136,20 +134,18 @@ int _DKError( const char * format, ... )
 
     va_end( arg_ptr );
     
-    int result = _DKPrintfInternal( ErrorCallback, "%s", DKStringGetCStringPtr( tmp ) );
+    _DKPrintfInternal( ErrorCallback, stderr, "%s", DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
 
     assert( 0 );
-    
-    return result;
 }
 
 
 ///
 //  DKFatalError()
 //
-int _DKFatalError( const char * format, ... )
+void _DKFatalError( const char * format, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, format );
@@ -159,14 +155,12 @@ int _DKFatalError( const char * format, ... )
 
     va_end( arg_ptr );
     
-    int result = _DKPrintfInternal( FatalErrorCallback, "%s", DKStringGetCStringPtr( tmp ) );
+    _DKPrintfInternal( FatalErrorCallback, stderr, "%s", DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
 
     assert( 0 );
     abort();
-    
-    return result;
 }
 
 

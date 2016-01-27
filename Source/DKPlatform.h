@@ -199,7 +199,7 @@ int    _DKPrintf( const char * format, ... );
 
 // Print a warning. This is ignored in non-debug builds unless DK_RUNTIME_WARNINGS is
 // defined.
-int    _DKWarning( const char * format, ... );
+void   _DKWarning( const char * format, ... );
 
 #if DK_RUNTIME_WARNINGS
 #define DKWarning( ... )    _DKWarning( __VA_ARGS__ )
@@ -210,14 +210,14 @@ int    _DKWarning( const char * format, ... );
 
 // Print a error. In a debug build execution is halted with assert(0). In a non-debug
 // build the program will continue running.
-int    _DKError( const char * format, ... );
+void   _DKError( const char * format, ... );
 
 #define DKError( ... )      _DKError( __VA_ARGS__ )
 
 
 // Print a error. In a debug build execution is halted with assert(0). In a non-debug
 // build the program is halted with abort().
-int    _DKFatalError( const char * format, ... ) __attribute__((analyzer_noreturn));
+void   _DKFatalError( const char * format, ... ) __attribute__((analyzer_noreturn));
 
 #define DKFatalError( ... ) _DKFatalError( __VA_ARGS__ )
 
