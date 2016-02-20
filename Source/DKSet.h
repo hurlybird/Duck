@@ -98,8 +98,9 @@ DKIndex     DKSetGetCount( DKSetRef _self );
 DKObjectRef DKSetGetMember( DKSetRef _self, DKObjectRef object );
 int         DKSetContainsObject( DKSetRef _self, DKObjectRef object );
 
-void        DKSetAddObject( DKMutableSetRef _self, DKObjectRef object );
+DKListRef   DKSetGetAllObjects( DKDictionaryRef _self );
 
+void        DKSetAddObject( DKMutableSetRef _self, DKObjectRef object );
 void        DKSetRemoveObject( DKMutableSetRef _self, DKObjectRef object );
 void        DKSetRemoveAllObjects( DKMutableSetRef _self );
 

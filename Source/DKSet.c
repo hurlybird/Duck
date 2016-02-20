@@ -171,6 +171,25 @@ int DKSetContainsObject( DKSetRef _self, DKObjectRef object )
 
 
 ///
+//  DKSetGetAllObjects()
+//
+static int DKSetGetAllObjectsCallback( DKObjectRef key, DKObjectRef object, void * context )
+{
+    DKListAppendObject( context, object );
+    return 0;
+}
+
+DKListRef DKSetGetAllObjects( DKDictionaryRef _self )
+{
+    DKMutableListRef list = DKNew( DKMutableArrayClass() );
+    
+    DKForeachKeyAndObject( _self, DKSetGetAllObjectsCallback, list );
+    
+    return DKAutorelease( list );
+}
+
+
+///
 //  DKDSetAddObject()
 //
 void DKSetAddObject( DKMutableSetRef _self, DKObjectRef object )

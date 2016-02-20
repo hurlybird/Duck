@@ -531,8 +531,21 @@ void DKListRemoveObjectAtIndex( DKMutableListRef _self, DKIndex index )
     if( _self )
     {
         DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
-        DKRange remove = DKRangeMake( index, 1 );
-        list->replaceRangeWithCArray( _self, remove, NULL, 0 );
+        DKRange range = DKRangeMake( index, 1 );
+        list->replaceRangeWithCArray( _self, range, NULL, 0 );
+    }
+}
+
+
+///
+//  DKListRemoveObjectsInRange()
+//
+void DKListRemoveObjectsInRange( DKMutableListRef _self, DKRange range )
+{
+    if( _self )
+    {
+        DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
+        list->replaceRangeWithCArray( _self, range, NULL, 0 );
     }
 }
 
@@ -545,8 +558,8 @@ void DKListRemoveAllObjects( DKMutableListRef _self )
     if( _self )
     {
         DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
-        DKRange remove = DKRangeMake( 0, list->getCount( _self ) );
-        list->replaceRangeWithCArray( _self, remove, NULL, 0 );
+        DKRange range = DKRangeMake( 0, list->getCount( _self ) );
+        list->replaceRangeWithCArray( _self, range, NULL, 0 );
     }
 }
 
