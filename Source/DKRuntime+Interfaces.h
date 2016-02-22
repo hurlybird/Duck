@@ -245,6 +245,8 @@ bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * msg
     ((DKMsgHandler_ ## msg)DKGetMsgHandler( _self, DKSelector(msg) )->func)( _self, DKSelector(msg) , ## __VA_ARGS__ )
 
 
+#define DKMsgSendf( ftype, _self, sel, ... ) \
+    ((ftype)(DKGetMsgHandler( _self, sel )->func))( _self, sel , ## __VA_ARGS__ );
 
 
 
