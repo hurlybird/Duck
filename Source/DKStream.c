@@ -116,14 +116,14 @@ DKIndex DKSPrintf( DKStreamRef _self, const char * format, ... )
 //
 static size_t WriteNumber( DKStreamRef _self, DKStreamInterfaceRef stream, const char * format, size_t formatLength, va_list arg_ptr )
 {
-    char fmt[32];
-    char num[32];
+    char fmt[8];
+    char num[120];
 
     DKAssert( formatLength < (sizeof(fmt) -1) );
     strncpy( fmt, format, formatLength );
     fmt[formatLength] = '\0';
     
-    size_t n = vsprintf( num, fmt, arg_ptr );
+    size_t n = vsnprintf( num, sizeof(num), fmt, arg_ptr );
     
     if( n > 0 )
         stream->write( _self, num, 1, n );

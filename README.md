@@ -163,6 +163,7 @@ Duck also defines some common interfaces:
 * *DKPredicate* - evaluation of logical predicates.
 * *DKEgg* - object graph serialization.
 * *DKJSON* - JSON serialization functions.
+* *DKXML* - XML Parsing
 * Low-level utilites for generic arrays, hash tables and node/block pools.
 
 ## Future Development
@@ -177,8 +178,6 @@ More unicode support. DKString currently supports enough UTF-8 for basic string
 functions, but more powerful string comparison and locale support would be nice.
 The main question is how much of the ICU package to include before it makes
 sense to just like against the whole library.
-
-An XML parser, or a wrapper around a lightweight third party one.
 
 
 
