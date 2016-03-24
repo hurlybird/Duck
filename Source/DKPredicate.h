@@ -38,8 +38,8 @@ typedef enum
 
     // Logic
     DKPredicateNOT,     // !A
-    DKPredicateAND,     // A && B, AND( a, b, ... )
-    DKPredicateOR,      // A || B, OR( a, b, ... )
+    DKPredicateAND,     // A && B
+    DKPredicateOR,      // A || B
     DKPredicateIS,      // A == B
     DKPredicateISNT,    // A != B
     
@@ -53,18 +53,25 @@ typedef enum
     DKPredicateGT,
     DKPredicateGTE,
 
+    DKPredicateALL,     // OR( a, b, ... )
+    DKPredicateANY,     // AND( a, b, ... )
+    DKPredicateNONE,    // NOT( OR( a, b, ... ) )
+
     // Is a member of collection, or substring of string
     DKPredicateIN,
+    DKPredicateCONTAINS,
     
     // Is a key in a keyed collection
     DKPredicateKEYIN,
+    DKPredicateCONTAINSKEY,
     
     // Is kind of class, or implements an interface
     DKPredicateISA,
     
     // String comparison
-    DKPredicateHASPREFIX,
-    DKPredicateHASSUFFIX,
+    DKPredicateLIKE,
+    DKPredicateBEGINSWITH,
+    DKPredicateENDSWITH,
     
     // Set comprison
     //DKPredicateISSUBSET,
@@ -83,7 +90,11 @@ DKClassRef DKPredicateClass( void );
 #define DKPredicate( op, a, b )     DKAutorelease( DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, b ) )
 #define DKNewPredicate( op, a, b )  DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, b )
 
+#define DKPredicateWithFormat( fmt, ... )     DKAutorelease( DKPredicateInitWithFormat( DKAlloc( DKPredicateClass() ), fmt, __VA_ARGS__ ) )
+#define DKNewPredicateWithFormat( fmt, ... )  DKPredicateInit( DKAlloc( DKPredicateClass() ), fmt, __VA_ARGS__ )
+
 DKObjectRef DKPredicateInit( DKObjectRef _self, DKPredicateOp op, DKObjectRef a, DKObjectRef b );
+DKObjectRef DKPredicateInitWithFormat( DKObjectRef _self, DKStringRef fmt, ... );
 
 bool DKPredicateEvaluate( DKPredicateRef _self );
 bool DKPredicateEvaluateWithObject( DKPredicateRef _self, DKObjectRef subst );

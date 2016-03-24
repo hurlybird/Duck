@@ -230,6 +230,30 @@ void        DKUnlockObject( DKObjectRef _self );
     static type accessor ## _Create( void )
 
 
+// Static accessor version of the previous macro
+#define DKThreadSafeStaticObjectInit( accessor, type )                                  \
+    static type accessor ## _SharedObject = NULL;                                       \
+    static DKSpinLock accessor ## _SharedObjectLock = DKSpinLockInit;                   \
+    static type accessor ## _Create( void );                                            \
+                                                                                        \
+    static type accessor( void )                                                        \
+    {                                                                                   \
+        if( accessor ## _SharedObject != NULL )                                         \
+            return accessor ## _SharedObject;                                           \
+                                                                                        \
+        DKSpinLockLock( &accessor ## _SharedObjectLock );                               \
+                                                                                        \
+        if( accessor ## _SharedObject == NULL )                                         \
+            accessor ## _SharedObject = accessor ## _Create();                          \
+                                                                                        \
+        DKSpinLockUnlock( &accessor ## _SharedObjectLock );                             \
+                                                                                        \
+        return accessor ## _SharedObject;                                               \
+    }                                                                                   \
+                                                                                        \
+    static type accessor ## _Create( void )
+
+
 // Thread-safe initialization of shared class objects.
 #define DKThreadSafeClassInit( accessor )                                               \
     DKThreadSafeSharedObjectInit( accessor, DKClassRef )

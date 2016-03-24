@@ -26,11 +26,13 @@
 
 #include "DKPredicate.h"
 #include "DKString.h"
+#include "DKDictionary.h"
 #include "DKStream.h"
 #include "DKNumber.h"
 #include "DKCollection.h"
 #include "DKEgg.h"
 #include "DKComparison.h"
+#include "DKConversion.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
 
@@ -39,34 +41,37 @@
 struct DKPredicate
 {
     DKObject _obj;
+    
     DKPredicateOp op;
-    DKObjectRef a;
-    DKObjectRef b;
+    
+    DKObjectRef obj_a;
+    DKStringRef key_a;
+    
+    DKObjectRef obj_b;
+    DKStringRef key_b;
 };
 
 typedef bool (*PredicateOpFunction)( DKObjectRef a, DKObjectRef b, DKObjectRef subst );
 
-struct PredicateOpInfo
+typedef struct
 {
     DKPredicateOp op;
     DKStringRef name;
     PredicateOpFunction func;
-};
-
-static struct PredicateOpInfo PredicateOpInfoTable[DKMaxPredicateOp];
-static bool PredicateOpTableInitialized = false;
-
+    
+} PredicateOpInfo;
 
 static DKObjectRef  DKPredicateInitialize( DKObjectRef _self );
 static void         DKPredicateFinalize( DKObjectRef _self );
+
+static void         DKPredicateParse( DKPredicateRef _self, const char * fmt, va_list args );
 
 static DKObjectRef  DKPredicateInitWithEgg( DKPredicateRef _self, DKEggUnarchiverRef egg );
 static void         DKPredicateAddToEgg( DKPredicateRef _self, DKEggArchiverRef egg );
 
 static DKStringRef  DKPredicateGetDescription( DKObjectRef _self );
 
-static const struct PredicateOpInfo * GetPredicateOpInfo( DKPredicateOp op );
-static void         InitPredicateOpInfoTable( void );
+static const PredicateOpInfo * GetPredicateOpInfo( DKPredicateOp op );
 
 static bool         DKEvaluateInternal( DKObjectRef obj, DKObjectRef subst );
 
@@ -125,8 +130,11 @@ static void DKPredicateFinalize( DKObjectRef _untyped_self )
 {
     DKPredicateRef _self = _untyped_self;
 
-    DKRelease( _self->a );
-    DKRelease( _self->b );
+    DKRelease( _self->obj_a );
+    DKRelease( _self->key_a );
+    
+    DKRelease( _self->obj_b );
+    DKRelease( _self->key_b );
 }
 
 
@@ -138,9 +146,11 @@ static DKObjectRef DKPredicateInitWithEgg( DKPredicateRef _self, DKEggUnarchiver
     DKStringRef op = DKEggGetObject( egg, DKSTR( "op" ) );
     _self->op = DKPredicateOpFromString( op );
 
-    _self->a = DKRetain( DKEggGetObject( egg, DKSTR( "a" ) ) );
+    _self->obj_a = DKRetain( DKEggGetObject( egg, DKSTR( "obj_a" ) ) );
+    _self->key_a = DKRetain( DKEggGetObject( egg, DKSTR( "key_a" ) ) );
 
-    _self->b = DKRetain( DKEggGetObject( egg, DKSTR( "b" ) ) );
+    _self->obj_b = DKRetain( DKEggGetObject( egg, DKSTR( "obj_b" ) ) );
+    _self->key_b = DKRetain( DKEggGetObject( egg, DKSTR( "key_b" ) ) );
 
     return _self;
 }
@@ -154,9 +164,11 @@ static void DKPredicateAddToEgg( DKPredicateRef _self, DKEggArchiverRef egg )
     DKStringRef op = DKStringFromPredicateOp( _self->op );
     DKEggAddObject( egg, DKSTR( "op" ), op );
 
-    DKEggAddObject( egg, DKSTR( "a" ), _self->a );
+    DKEggAddObject( egg, DKSTR( "obj_a" ), _self->obj_a );
+    DKEggAddObject( egg, DKSTR( "key_a" ), _self->key_a );
 
-    DKEggAddObject( egg, DKSTR( "b" ), _self->b );
+    DKEggAddObject( egg, DKSTR( "obj_b" ), _self->obj_b );
+    DKEggAddObject( egg, DKSTR( "key_b" ), _self->key_b );
 }
 
 
@@ -172,21 +184,44 @@ static DKStringRef DKPredicateGetDescription( DKObjectRef _untyped_self )
 
     DKMutableStringRef desc = DKMutableString();
 
-    DKObjectRef a = _self->a ? _self->a : DKSTR( "*" );
-    DKObjectRef b = _self->b ? _self->b : DKSTR( "*" );
+    DKObjectRef obj_a = _self->obj_a ? _self->obj_a : DKSTR( "*" );
+    DKObjectRef obj_b = _self->obj_b ? _self->obj_b : DKSTR( "*" );
 
     if( (_self->op == DKPredicateNOT) ||
-        ((_self->op == DKPredicateAND) && (_self->b == NULL)) ||
-        ((_self->op == DKPredicateOR) && (_self->b == NULL)) )
+        (_self->op == DKPredicateALL) ||
+        (_self->op == DKPredicateANY) ||
+        (_self->op == DKPredicateNONE) )
     {
     
-        DKSPrintf( desc, "%@ %@", DKStringFromPredicateOp( _self->op ), a );
+        if( _self->key_a )
+            DKSPrintf( desc, "%@ %@.%@", DKStringFromPredicateOp( _self->op ), obj_a, _self->key_a );
+        
+        else
+            DKSPrintf( desc, "%@ %@", DKStringFromPredicateOp( _self->op ), obj_a );
+        
         return desc;
     }
     
     else
     {
-        DKSPrintf( desc, "%@ %@ %@", a, DKStringFromPredicateOp( _self->op ), b );
+        if( _self->key_a )
+        {
+            if( _self->key_b )
+                DKSPrintf( desc, "%@.%@ %@ %@.%@", obj_a, _self->key_a, DKStringFromPredicateOp( _self->op ), obj_b, _self->key_b );
+            
+            else
+                DKSPrintf( desc, "%@.%@ %@ %@", obj_a, _self->key_a, DKStringFromPredicateOp( _self->op ), obj_b );
+        }
+        
+        else
+        {
+            if( _self->key_b )
+                DKSPrintf( desc, "%@ %@ %@.%@", obj_a, DKStringFromPredicateOp( _self->op ), obj_b, _self->key_b );
+            
+            else
+                DKSPrintf( desc, "%@ %@ %@", obj_a, DKStringFromPredicateOp( _self->op ), obj_b );
+        }
+        
         return desc;
     }
 }
@@ -202,11 +237,43 @@ DKObjectRef DKPredicateInit( DKObjectRef _untyped_self, DKPredicateOp op, DKObje
     if( _self )
     {
         _self->op = op;
-        _self->a = DKCopy( a );
-        _self->b = DKCopy( b );
+        _self->obj_a = DKCopy( a );
+        _self->obj_b = DKCopy( b );
     }
     
     return _self;
+}
+
+
+///
+//  DKPredicateInitWithFormat()
+//
+DKObjectRef DKPredicateInitWithFormat( DKObjectRef _untyped_self, DKStringRef fmt, ... )
+{
+    DKPredicateRef _self = _untyped_self;
+
+    if( _self )
+    {
+        va_list arg_ptr;
+        va_start( arg_ptr, fmt );
+        
+        DKPredicateParse( _self, DKStringGetCStringPtr( fmt ), arg_ptr );
+        
+        va_end( arg_ptr );
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKPredicateParse()
+//
+static void DKPredicateParse( DKPredicateRef _self, const char * fmt, va_list args )
+{
+    DKAssert( 0 );
+    
+    // Do stuff here
 }
 
 
@@ -219,9 +286,18 @@ bool DKPredicateEvaluate( DKPredicateRef _self )
     {
         DKAssertKindOfClass( _self, DKPredicateClass() );
 
-        const struct PredicateOpInfo * info = GetPredicateOpInfo( _self->op );
+        const PredicateOpInfo * info = GetPredicateOpInfo( _self->op );
         
-        return info->func( _self->a, _self->b, NULL );
+        DKObjectRef a = _self->obj_a;
+        DKObjectRef b = _self->obj_b;
+
+        if( _self->key_a )
+            a = DKGetPropertyForKeyPath( a, _self->key_a );
+        
+        if( _self->key_b )
+            b = DKGetPropertyForKeyPath( b, _self->key_a );
+        
+        return info->func( a, b, NULL );
     }
 
     return false;
@@ -237,10 +313,16 @@ bool DKPredicateEvaluateWithObject( DKPredicateRef _self, DKObjectRef subst )
     {
         DKAssertKindOfClass( _self, DKPredicateClass() );
 
-        const struct PredicateOpInfo * info = GetPredicateOpInfo( _self->op );
+        const PredicateOpInfo * info = GetPredicateOpInfo( _self->op );
 
-        DKObjectRef a = _self->a ? _self->a : subst;
-        DKObjectRef b = _self->b ? _self->b : subst;
+        DKObjectRef a = _self->obj_a ? _self->obj_a : subst;
+        DKObjectRef b = _self->obj_b ? _self->obj_b : subst;
+
+        if( _self->key_a )
+            a = DKGetPropertyForKeyPath( a, _self->key_a );
+        
+        if( _self->key_b )
+            b = DKGetPropertyForKeyPath( b, _self->key_a );
 
         return info->func( a, b, subst );
     }
@@ -283,24 +365,8 @@ static bool EvaluateNOT( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 ///
 //  EvaluateAND()
 //
-static int EvaluateANDCallback( DKObjectRef obj, void * context )
-{
-    if( DKEvaluateInternal( obj, context ) )
-        return 0;
-
-    return 1;
-}
-
 static bool EvaluateAND( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
-    DKCollectionInterfaceRef collectionInterface;
-    
-    if( (b == NULL) && DKQueryInterface( a, DKSelector(Collection), (DKInterfaceRef *)&collectionInterface ) )
-    {
-        int result = collectionInterface->foreachObject( a, EvaluateANDCallback, subst );
-        return result == 0;
-    }
-
     return DKEvaluateInternal( a, subst ) && DKEvaluateInternal( b, subst );
 }
 
@@ -308,24 +374,8 @@ static bool EvaluateAND( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 ///
 //  EvaluateOR()
 //
-static int EvaluateORCallback( DKObjectRef obj, void * context )
-{
-    if( DKEvaluateInternal( obj, context ) )
-        return 1;
-    
-    return 0;
-}
-
 static bool EvaluateOR( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
-    DKCollectionInterfaceRef collectionInterface;
-    
-    if( (b == NULL) && DKQueryInterface( a, DKSelector(Collection), (DKInterfaceRef *)&collectionInterface ) )
-    {
-        int result = collectionInterface->foreachObject( a, EvaluateORCallback, subst );
-        return result != 0;
-    }
-
     return DKEvaluateInternal( a, subst ) || DKEvaluateInternal( b, subst );
 }
 
@@ -416,6 +466,65 @@ static bool EvaluateGTE( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 
 
 ///
+//  EvaluateALL()
+//
+static int EvaluateALLCallback( DKObjectRef obj, void * context )
+{
+    if( DKEvaluateInternal( obj, context ) )
+        return 0;
+
+    return 1;
+}
+
+static bool EvaluateALL( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
+{
+    DKCollectionInterfaceRef collectionInterface;
+    
+    if( DKQueryInterface( a, DKSelector(Collection), (DKInterfaceRef *)&collectionInterface ) )
+    {
+        int result = collectionInterface->foreachObject( a, EvaluateALLCallback, subst );
+        return result == 0;
+    }
+
+    return false;
+}
+
+
+///
+//  EvaluateANY()
+//
+static int EvaluateANYCallback( DKObjectRef obj, void * context )
+{
+    if( DKEvaluateInternal( obj, context ) )
+        return 1;
+    
+    return 0;
+}
+
+static bool EvaluateANY( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
+{
+    DKCollectionInterfaceRef collectionInterface;
+    
+    if( DKQueryInterface( a, DKSelector(Collection), (DKInterfaceRef *)&collectionInterface ) )
+    {
+        int result = collectionInterface->foreachObject( a, EvaluateANYCallback, subst );
+        return result != 0;
+    }
+
+    return false;
+}
+
+
+///
+//  EvaluateNONE()
+//
+static bool EvaluateNONE( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
+{
+    return !EvaluateANY( a, b, subst );
+}
+
+
+///
 //  EvaluateIN()
 //
 static bool EvaluateIN( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
@@ -428,11 +537,32 @@ static bool EvaluateIN( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 
 
 ///
+//  EvaluateCONTAINS()
+//
+static bool EvaluateCONTAINS( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
+{
+    if( DKIsKindOfClass( b, DKStringClass() ) )
+        return DKStringHasSubstring( a, b );
+
+    return DKContainsObject( a, b );
+}
+
+
+///
 //  EvaluateKEYIN()
 //
 static bool EvaluateKEYIN( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
     return DKContainsKey( b, a );
+}
+
+
+///
+//  EvaluateCONTAINSKEY()
+//
+static bool EvaluateCONTAINSKEY( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
+{
+    return DKContainsKey( a, b );
 }
 
 
@@ -455,18 +585,27 @@ static bool EvaluateISA( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 
 
 ///
-//  EvaluateHASPREFIX()
+//  EvaluateLIKE()
 //
-static bool EvaluateHASPREFIX( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
+static bool EvaluateLIKE( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
+{
+    return DKStringEqualToString( a, b );
+}
+
+
+///
+//  EvaluateBEGINSWITH()
+//
+static bool EvaluateBEGINSWITH( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
     return DKStringHasPrefix( a, b );
 }
 
 
 ///
-//  EvaluateHASSUFFIX()
+//  EvaluateENDSWITH()
 //
-static bool EvaluateHASSUFFIX( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
+static bool EvaluateENDSWITH( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
     return DKStringHasSuffix( a, b );
 }
@@ -476,72 +615,132 @@ static bool EvaluateHASSUFFIX( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 
 // Predicate Info Table ==================================================================
 
-///
-//  GetPredicateOpInfo()
-//
-static const struct PredicateOpInfo * GetPredicateOpInfo( DKPredicateOp op )
+DKThreadSafeStaticObjectInit( PredicateOpInfoTable, PredicateOpInfo * )
 {
-    DKAssert( (op >= 0) && (op < DKMaxPredicateOp) );
-
-    InitPredicateOpInfoTable();
+    PredicateOpInfo * table = malloc( sizeof(PredicateOpInfo) * DKMaxPredicateOp );
     
-    return &PredicateOpInfoTable[op];
+    #define InitTableRow( value )               \
+    {                                           \
+        int op = DKPredicate ## value;          \
+        table[op].op = op;                      \
+        table[op].name = DKSTR( #value );       \
+        table[op].func = Evaluate ## value;     \
+    }
+    
+    // Constants
+    InitTableRow( FALSE );
+    InitTableRow( TRUE );
+
+    // Logic
+    InitTableRow( NOT );
+    InitTableRow( AND );
+    InitTableRow( OR );
+    InitTableRow( IS );
+    InitTableRow( ISNT );
+    
+    // DKEqual( A, B )
+    InitTableRow( EQ );
+    InitTableRow( NEQ );
+    
+    // DKCompare( A, B )
+    InitTableRow( LT );
+    InitTableRow( LTE );
+    InitTableRow( GT );
+    InitTableRow( GTE );
+
+    // Aggregate logic
+    InitTableRow( ALL );
+    InitTableRow( ANY );
+    InitTableRow( NONE );
+
+    // Is a member of collection, or substring of string
+    InitTableRow( IN );
+    InitTableRow( CONTAINS );
+    
+    // Is a key in a keyed collection
+    InitTableRow( KEYIN );
+    InitTableRow( CONTAINSKEY );
+
+    // Is kind of class, or implements an interface
+    InitTableRow( ISA );
+    
+    // String comparison
+    InitTableRow( LIKE );
+    InitTableRow( BEGINSWITH );
+    InitTableRow( ENDSWITH );
+    
+    #undef InitTableRow
+    
+    return table;
+}
+
+
+DKThreadSafeStaticObjectInit( PredicateOpLookupTable, DKDictionaryRef )
+{
+    DKMutableDictionaryRef dict = DKNewMutableDictionary();
+    
+    PredicateOpInfo * table = PredicateOpInfoTable();
+
+    for( int i = 0; i < DKMaxPredicateOp; i++ )
+    {
+        DKNumberRef op = DKNewNumberWithInt32( table[i].op );
+        DKDictionaryAddObject( dict, table[i].name, op );
+        DKRelease( op );
+    }
+    
+    // Aliases for common operators
+    DKNumberRef eq = DKNewNumberWithInt32( DKPredicateEQ );
+    DKDictionaryAddObject( dict, DKSTR( "=" ), eq );
+    DKDictionaryAddObject( dict, DKSTR( "==" ), eq );
+    DKRelease( eq );
+
+    DKNumberRef neq = DKNewNumberWithInt32( DKPredicateEQ );
+    DKDictionaryAddObject( dict, DKSTR( "!=" ), neq );
+    DKDictionaryAddObject( dict, DKSTR( "<>" ), neq );
+    DKRelease( neq );
+
+    DKNumberRef gt = DKNewNumberWithInt32( DKPredicateEQ );
+    DKDictionaryAddObject( dict, DKSTR( ">" ), gt );
+    DKRelease( gt );
+
+    DKNumberRef lt = DKNewNumberWithInt32( DKPredicateEQ );
+    DKDictionaryAddObject( dict, DKSTR( "<" ), lt );
+    DKRelease( lt );
+
+    DKNumberRef gte = DKNewNumberWithInt32( DKPredicateEQ );
+    DKDictionaryAddObject( dict, DKSTR( ">=" ), gte );
+    DKRelease( gte );
+
+    DKNumberRef lte = DKNewNumberWithInt32( DKPredicateEQ );
+    DKDictionaryAddObject( dict, DKSTR( "<=" ), lte );
+    DKRelease( lte );
+
+    DKNumberRef and = DKNewNumberWithInt32( DKPredicateEQ );
+    DKDictionaryAddObject( dict, DKSTR( "&&" ), and );
+    DKRelease( and );
+
+    DKNumberRef or = DKNewNumberWithInt32( DKPredicateEQ );
+    DKDictionaryAddObject( dict, DKSTR( "||" ), or );
+    DKRelease( or );
+
+    DKNumberRef not = DKNewNumberWithInt32( DKPredicateEQ );
+    DKDictionaryAddObject( dict, DKSTR( "!" ), not );
+    DKRelease( not );
+    
+    return dict;
 }
 
 
 ///
-//  InitPredicateOpInfoTable
+//  GetPredicateOpInfo()
 //
-static void InitPredicateOpInfoTable( void )
+static const PredicateOpInfo * GetPredicateOpInfo( DKPredicateOp op )
 {
-    if( !PredicateOpTableInitialized )
-    {
-        #define InitTableRow( value )                           \
-        {                                                       \
-            int op = DKPredicate ## value;                      \
-            PredicateOpInfoTable[op].op = op;                   \
-            PredicateOpInfoTable[op].name = DKSTR( #value );    \
-            PredicateOpInfoTable[op].func = Evaluate ## value;  \
-        }
-        
-        // Constants
-        InitTableRow( FALSE );
-        InitTableRow( TRUE );
+    DKAssert( (op >= 0) && (op < DKMaxPredicateOp) );
 
-        // Logic
-        InitTableRow( NOT );
-        InitTableRow( AND );
-        InitTableRow( OR );
-        InitTableRow( IS );
-        InitTableRow( ISNT );
-        
-        // DKEqual( A, B )
-        InitTableRow( EQ );
-        InitTableRow( NEQ );
-        
-        // DKCompare( A, B )
-        InitTableRow( LT );
-        InitTableRow( LTE );
-        InitTableRow( GT );
-        InitTableRow( GTE );
-
-        // Is a member of collection, or substring of string
-        InitTableRow( IN );
-        
-        // Is a key in a keyed collection
-        InitTableRow( KEYIN );
-
-        // Is kind of class, or implements an interface
-        InitTableRow( ISA );
-        
-        // Contains a String prefix/suffix
-        InitTableRow( HASPREFIX );
-        InitTableRow( HASSUFFIX );
-        
-        #undef InitTableRow
+    PredicateOpInfo * table = PredicateOpInfoTable();
     
-        PredicateOpTableInitialized = true;
-    };
+    return &table[op];
 }
 
 
@@ -552,7 +751,7 @@ DKStringRef DKStringFromPredicateOp( DKPredicateOp op )
 {
     DKAssert( (op >= 0) && (op < DKMaxPredicateOp) );
 
-    const struct PredicateOpInfo * info = GetPredicateOpInfo( op );
+    const PredicateOpInfo * info = GetPredicateOpInfo( op );
     return info->name;
 }
 
@@ -562,15 +761,8 @@ DKStringRef DKStringFromPredicateOp( DKPredicateOp op )
 //
 DKPredicateOp DKPredicateOpFromString( DKStringRef str )
 {
-    InitPredicateOpInfoTable();
-
-    for( int i = 0; i < DKMaxPredicateOp; i++ )
-    {
-        if( DKStringEqualToString( PredicateOpInfoTable[i].name, str ) )
-            return PredicateOpInfoTable[i].op;
-    }
-    
-    return DKPredicateFALSE;
+    DKNumberRef op = DKDictionaryGetObject( PredicateOpLookupTable(), str );
+    return (DKPredicateOp)DKNumberGetInt32( op );
 }
 
 
@@ -584,45 +776,7 @@ static bool DKEvaluateInternal( DKObjectRef obj, DKObjectRef subst )
         return DKPredicateEvaluateWithObject( obj, subst );
     }
     
-    if( DKIsKindOfClass( obj, DKNumberClass() ) )
-    {
-        DKEncoding encoding = DKNumberGetEncoding( obj );
-        
-        if( DKEncodingGetCount( encoding ) == 1 )
-        {
-            if( DKEncodingIsInteger( encoding ) )
-            {
-                int64_t val;
-                DKNumberCastValue( obj, &val, DKNumberInt64 );
-                
-                return val != 0;
-            }
-            
-            if( DKEncodingIsReal( encoding ) )
-            {
-                double val;
-                DKNumberCastValue( obj, &val, DKNumberDouble );
-                
-                return val != 0.0;
-            }
-        }
-    }
-    
-    if( DKIsKindOfClass( obj, DKStringClass() ) )
-    {
-        const char * cstr = DKStringGetCStringPtr( obj );
-        
-        if( strcmp( cstr, "1" ) == 0 )
-            return true;
-           
-        if( strcasecmp( cstr, "true" ) == 0 )
-            return true;
-
-        if( strcasecmp( cstr, "yes" ) == 0 )
-            return true;
-    }
-
-    return false;
+    return DKGetBool( obj );
 }
 
 

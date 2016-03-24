@@ -73,16 +73,16 @@ static int RaiseException( const char * format, va_list arg_ptr )
     test = DKPredicate( DKPredicateAND, yep, yep );
     XCTAssert( DKEvaluate( test ) == true );
     
-    test = DKPredicate( DKPredicateAND, nope_nope, NULL );
+    test = DKPredicate( DKPredicateALL, nope_nope, NULL );
     XCTAssert( DKEvaluate( test ) == false );
 
-    test = DKPredicate( DKPredicateAND, nope_yep, NULL );
+    test = DKPredicate( DKPredicateALL, nope_yep, NULL );
     XCTAssert( DKEvaluate( test ) == false );
 
-    test = DKPredicate( DKPredicateAND, yep_nope, NULL );
+    test = DKPredicate( DKPredicateALL, yep_nope, NULL );
     XCTAssert( DKEvaluate( test ) == false );
 
-    test = DKPredicate( DKPredicateAND, yep_yep, NULL );
+    test = DKPredicate( DKPredicateALL, yep_yep, NULL );
     XCTAssert( DKEvaluate( test ) == true );
 
     // Or
@@ -98,17 +98,31 @@ static int RaiseException( const char * format, va_list arg_ptr )
     test = DKPredicate( DKPredicateOR, yep, yep );
     XCTAssert( DKEvaluate( test ) == true );
 
-    test = DKPredicate( DKPredicateOR, nope_nope, NULL );
+    // Any
+    test = DKPredicate( DKPredicateANY, nope_nope, NULL );
     XCTAssert( DKEvaluate( test ) == false );
 
-    test = DKPredicate( DKPredicateOR, nope_yep, NULL );
+    test = DKPredicate( DKPredicateANY, nope_yep, NULL );
     XCTAssert( DKEvaluate( test ) == true );
 
-    test = DKPredicate( DKPredicateOR, yep_nope, NULL );
+    test = DKPredicate( DKPredicateANY, yep_nope, NULL );
     XCTAssert( DKEvaluate( test ) == true );
 
-    test = DKPredicate( DKPredicateOR, yep_yep, NULL );
+    test = DKPredicate( DKPredicateANY, yep_yep, NULL );
     XCTAssert( DKEvaluate( test ) == true );
+
+    // None
+    test = DKPredicate( DKPredicateNONE, nope_nope, NULL );
+    XCTAssert( DKEvaluate( test ) == true );
+
+    test = DKPredicate( DKPredicateNONE, nope_yep, NULL );
+    XCTAssert( DKEvaluate( test ) == false );
+
+    test = DKPredicate( DKPredicateNONE, yep_nope, NULL );
+    XCTAssert( DKEvaluate( test ) == false );
+
+    test = DKPredicate( DKPredicateNONE, yep_yep, NULL );
+    XCTAssert( DKEvaluate( test ) == false );
 
     // Eq
     test = DKPredicate( DKPredicateEQ, yep, yep );
