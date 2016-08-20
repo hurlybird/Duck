@@ -64,8 +64,6 @@ typedef struct
 static DKObjectRef  DKPredicateInitialize( DKObjectRef _self );
 static void         DKPredicateFinalize( DKObjectRef _self );
 
-static void         DKPredicateParse( DKPredicateRef _self, const char * fmt, va_list args );
-
 static DKObjectRef  DKPredicateInitWithEgg( DKPredicateRef _self, DKEggUnarchiverRef egg );
 static void         DKPredicateAddToEgg( DKPredicateRef _self, DKEggArchiverRef egg );
 
@@ -179,9 +177,6 @@ static DKStringRef DKPredicateGetDescription( DKObjectRef _untyped_self )
 {
     DKPredicateRef _self = _untyped_self;
 
-    if( (_self->op == DKPredicateFALSE) || (_self->op == DKPredicateTRUE) )
-        return DKStringFromPredicateOp( _self->op );
-
     DKMutableStringRef desc = DKMutableString();
 
     DKObjectRef obj_a = _self->obj_a ? _self->obj_a : DKSTR( "*" );
@@ -230,15 +225,19 @@ static DKStringRef DKPredicateGetDescription( DKObjectRef _untyped_self )
 ///
 //  DKPredicateCreate()
 //
-DKObjectRef DKPredicateInit( DKObjectRef _untyped_self, DKPredicateOp op, DKObjectRef a, DKObjectRef b )
+DKObjectRef DKPredicateInit( DKObjectRef _untyped_self, DKPredicateOp op, DKObjectRef obj_a, DKStringRef key_a, DKObjectRef obj_b, DKStringRef key_b )
 {
     DKPredicateRef _self = _untyped_self;
 
     if( _self )
     {
         _self->op = op;
-        _self->obj_a = DKCopy( a );
-        _self->obj_b = DKCopy( b );
+
+        _self->obj_a = DKCopy( obj_a );
+        _self->key_a = DKCopy( key_a );
+        
+        _self->obj_b = DKCopy( obj_b );
+        _self->key_b = DKCopy( key_b );
     }
     
     return _self;
@@ -248,8 +247,13 @@ DKObjectRef DKPredicateInit( DKObjectRef _untyped_self, DKPredicateOp op, DKObje
 ///
 //  DKPredicateInitWithFormat()
 //
+
 DKObjectRef DKPredicateInitWithFormat( DKObjectRef _untyped_self, DKStringRef fmt, ... )
 {
+    DKFatalError( "DKPredicateInitWithFormat: Not Implemented" );
+    return NULL;
+
+/*
     DKPredicateRef _self = _untyped_self;
 
     if( _self )
@@ -257,24 +261,21 @@ DKObjectRef DKPredicateInitWithFormat( DKObjectRef _untyped_self, DKStringRef fm
         va_list arg_ptr;
         va_start( arg_ptr, fmt );
         
-        DKPredicateParse( _self, DKStringGetCStringPtr( fmt ), arg_ptr );
+        int error = DKPredicateParse( _self, DKStringGetCStringPtr( fmt ), arg_ptr );
         
         va_end( arg_ptr );
+        
+        if( error )
+        {
+            DKRelease( _self );
+            return NULL;
+        }
     }
     
     return _self;
+*/
 }
 
-
-///
-//  DKPredicateParse()
-//
-static void DKPredicateParse( DKPredicateRef _self, const char * fmt, va_list args )
-{
-    DKAssert( 0 );
-    
-    // Do stuff here
-}
 
 
 ///
@@ -336,18 +337,9 @@ bool DKPredicateEvaluateWithObject( DKPredicateRef _self, DKObjectRef subst )
 // Predicate Functions ===================================================================
 
 ///
-//  EvaluateTRUE()
+//  EvaluateUnspecified()
 //
-static bool EvaluateTRUE( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
-{
-    return true;
-}
-
-
-///
-//  EvaluateFALSE()
-//
-static bool EvaluateFALSE( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
+static bool EvaluateUnspecified( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 {
     return false;
 }
@@ -627,10 +619,9 @@ DKThreadSafeStaticObjectInit( PredicateOpInfoTable, PredicateOpInfo * )
         table[op].func = Evaluate ## value;     \
     }
     
-    // Constants
-    InitTableRow( FALSE );
-    InitTableRow( TRUE );
-
+    // Unspecified
+    InitTableRow( Unspecified );
+    
     // Logic
     InitTableRow( NOT );
     InitTableRow( AND );
@@ -694,36 +685,36 @@ DKThreadSafeStaticObjectInit( PredicateOpLookupTable, DKDictionaryRef )
     DKDictionaryAddObject( dict, DKSTR( "==" ), eq );
     DKRelease( eq );
 
-    DKNumberRef neq = DKNewNumberWithInt32( DKPredicateEQ );
+    DKNumberRef neq = DKNewNumberWithInt32( DKPredicateNEQ );
     DKDictionaryAddObject( dict, DKSTR( "!=" ), neq );
     DKDictionaryAddObject( dict, DKSTR( "<>" ), neq );
     DKRelease( neq );
 
-    DKNumberRef gt = DKNewNumberWithInt32( DKPredicateEQ );
+    DKNumberRef gt = DKNewNumberWithInt32( DKPredicateGT );
     DKDictionaryAddObject( dict, DKSTR( ">" ), gt );
     DKRelease( gt );
 
-    DKNumberRef lt = DKNewNumberWithInt32( DKPredicateEQ );
+    DKNumberRef lt = DKNewNumberWithInt32( DKPredicateLT );
     DKDictionaryAddObject( dict, DKSTR( "<" ), lt );
     DKRelease( lt );
 
-    DKNumberRef gte = DKNewNumberWithInt32( DKPredicateEQ );
+    DKNumberRef gte = DKNewNumberWithInt32( DKPredicateGTE );
     DKDictionaryAddObject( dict, DKSTR( ">=" ), gte );
     DKRelease( gte );
 
-    DKNumberRef lte = DKNewNumberWithInt32( DKPredicateEQ );
+    DKNumberRef lte = DKNewNumberWithInt32( DKPredicateLTE );
     DKDictionaryAddObject( dict, DKSTR( "<=" ), lte );
     DKRelease( lte );
 
-    DKNumberRef and = DKNewNumberWithInt32( DKPredicateEQ );
+    DKNumberRef and = DKNewNumberWithInt32( DKPredicateAND );
     DKDictionaryAddObject( dict, DKSTR( "&&" ), and );
     DKRelease( and );
 
-    DKNumberRef or = DKNewNumberWithInt32( DKPredicateEQ );
+    DKNumberRef or = DKNewNumberWithInt32( DKPredicateOR );
     DKDictionaryAddObject( dict, DKSTR( "||" ), or );
     DKRelease( or );
 
-    DKNumberRef not = DKNewNumberWithInt32( DKPredicateEQ );
+    DKNumberRef not = DKNewNumberWithInt32( DKPredicateNOT );
     DKDictionaryAddObject( dict, DKSTR( "!" ), not );
     DKRelease( not );
     

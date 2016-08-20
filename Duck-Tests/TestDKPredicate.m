@@ -46,12 +46,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKListRef yep_nope = DKListWithObjects( yep, nope, NULL );
     DKListRef yep_yep = DKListWithObjects( yep, yep, NULL );
 
-    // True/False
-    DKPredicateRef test = DKPredicate( DKPredicateTRUE, NULL, NULL );
-    XCTAssert( DKEvaluate( test ) == true );
-    
-    test = DKPredicate( DKPredicateFALSE, NULL, NULL );
-    XCTAssert( DKEvaluate( test ) == false );
+    DKPredicateRef test;
 
     // Not
     test = DKPredicate( DKPredicateNOT, nope, NULL );

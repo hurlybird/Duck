@@ -32,9 +32,7 @@
 
 typedef enum
 {
-    // Constants
-    DKPredicateFALSE,
-    DKPredicateTRUE,
+    DKPredicateUnspecified = 0,
 
     // Logic
     DKPredicateNOT,     // !A
@@ -87,13 +85,13 @@ typedef enum
 
 DKClassRef DKPredicateClass( void );
 
-#define DKPredicate( op, a, b )     DKAutorelease( DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, b ) )
-#define DKNewPredicate( op, a, b )  DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, b )
+#define DKPredicate( op, a, b )                 DKAutorelease( DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, NULL, b, NULL ) )
+#define DKNewPredicate( op, a, b )              DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, NULL, b, NULL )
 
-#define DKPredicateWithFormat( fmt, ... )     DKAutorelease( DKPredicateInitWithFormat( DKAlloc( DKPredicateClass() ), fmt, __VA_ARGS__ ) )
-#define DKNewPredicateWithFormat( fmt, ... )  DKPredicateInit( DKAlloc( DKPredicateClass() ), fmt, __VA_ARGS__ )
+#define DKPredicateWithFormat( fmt, ... )       DKAutorelease( DKPredicateInitWithFormat( DKAlloc( DKPredicateClass() ), fmt, __VA_ARGS__ ) )
+#define DKNewPredicateWithFormat( fmt, ... )    DKPredicateInit( DKAlloc( DKPredicateClass() ), fmt, __VA_ARGS__ )
 
-DKObjectRef DKPredicateInit( DKObjectRef _self, DKPredicateOp op, DKObjectRef a, DKObjectRef b );
+DKObjectRef DKPredicateInit( DKObjectRef _self, DKPredicateOp op, DKObjectRef obj_a, DKStringRef key_a, DKObjectRef b, DKStringRef key_b );
 DKObjectRef DKPredicateInitWithFormat( DKObjectRef _self, DKStringRef fmt, ... );
 
 bool DKPredicateEvaluate( DKPredicateRef _self );
