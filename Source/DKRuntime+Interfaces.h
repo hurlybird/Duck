@@ -192,6 +192,10 @@ typedef struct DKMsgHandler * DKMsgHandlerRef;
     DKSEL DKSelector_ ## name( void );                                                  \
     typedef intptr_t (*DKMsgHandler_ ## name)( DKObjectRef, DKSEL , ## __VA_ARGS__ )
 
+// Selector for dynamic message handling. If defined for a class, the dynamic message
+// handler is returned whenever a matching message hander cannot be located.
+DKDeclareMessageSelector( DKDynamicMsgHandler );
+
 // A generic message handler that does nothing. Returned by DKGetMsgHandler() when a
 // matching message handler cannot be located.
 DKMsgHandlerRef DKMsgHandlerNotFound( void );
