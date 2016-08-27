@@ -1952,7 +1952,7 @@ static DKSpinLock DKConstantStringTableLock = DKSpinLockInit;
 static DKRowStatus DKConstantStringTableRowStatus( const void * _row )
 {
     struct DKString * const * row = _row;
-    return (DKRowStatus)DK_HASHTABLE_ROW_STATUS( *row );
+    return (DKRowStatus)(*row);
 }
 
 static DKHashCode DKConstantStringTableRowHash( const void * _row )
@@ -1972,7 +1972,7 @@ static bool DKConstantStringTableRowEqual( const void * _row1, const void * _row
 static void DKConstantStringTableRowInit( void * _row )
 {
     struct DKString ** row = _row;
-    *row = DK_HASHTABLE_EMPTY_KEY;
+    *row = DKRowStatusEmpty;
 }
 
 static void DKConstantStringTableRowUpdate( void * _row, const void * _src )
@@ -1985,7 +1985,7 @@ static void DKConstantStringTableRowUpdate( void * _row, const void * _src )
 static void DKConstantStringTableRowDelete( void * _row )
 {
     struct DKString ** row = _row;
-    *row = DK_HASHTABLE_DELETED_KEY;
+    *row = DKRowStatusDeleted;
 }
 
 

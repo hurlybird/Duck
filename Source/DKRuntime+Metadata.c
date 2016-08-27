@@ -44,7 +44,7 @@ static DKGenericHashTable MetadataTable;
 static DKRowStatus MetadataTableRowStatus( const void * _row )
 {
     const DKMetadataRef * row = _row;
-    return (DKRowStatus)DK_HASHTABLE_ROW_STATUS( *row );
+    return (DKRowStatus)(*row);
 }
 
 static DKHashCode MetadataTableRowHash( const void * _row )
@@ -63,7 +63,7 @@ static bool MetadataTableRowEqual( const void * _row1, const void * _row2 )
 static void MetadataTableRowInit( void * _row )
 {
     DKMetadataRef * row = _row;
-    (*row) = DK_HASHTABLE_EMPTY_KEY;
+    (*row) = DKRowStatusEmpty;
 }
 
 static void MetadataTableRowUpdate( void * _row, const void * _src )
@@ -76,7 +76,7 @@ static void MetadataTableRowUpdate( void * _row, const void * _src )
 static void MetadataTableRowDelete( void * _row )
 {
     DKMetadataRef * row = _row;
-    (*row) = DK_HASHTABLE_DELETED_KEY;
+    (*row) = DKRowStatusDeleted;
 }
 
 
@@ -95,7 +95,7 @@ void DKMetadataTableInit( void )
         MetadataTableRowDelete
     };
     
-    DKGenericHashTableInit( &MetadataTable, sizeof(DKWeakRef), &callbacks );
+    DKGenericHashTableInit( &MetadataTable, sizeof(DKMetadataRef), &callbacks );
 }
 
 

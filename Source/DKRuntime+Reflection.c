@@ -50,7 +50,7 @@ static DKSpinLock SelectorNameDatabaseSpinLock = DKSpinLockInit;
 static DKRowStatus NameDatabaseRowStatus( const void * _row )
 {
     struct NameDatabaseEntry * const * row = _row;
-    return (DKRowStatus)DK_HASHTABLE_ROW_STATUS( *row );
+    return (DKRowStatus)(*row);
 }
 
 static DKHashCode NameDatabaseRowHash( const void * _row )
@@ -70,7 +70,7 @@ static bool NameDatabaseRowEqual( const void * _row1, const void * _row2 )
 static void NameDatabaseRowInit( void * _row )
 {
     struct NameDatabaseEntry ** row = _row;
-    *row = DK_HASHTABLE_EMPTY_KEY;
+    *row = DKRowStatusEmpty;
 }
 
 static void NameDatabaseRowUpdate( void * _row, const void * _src )
@@ -83,7 +83,7 @@ static void NameDatabaseRowUpdate( void * _row, const void * _src )
 static void NameDatabaseRowDelete( void * _row )
 {
     struct NameDatabaseEntry ** row = _row;
-    *row = DK_HASHTABLE_DELETED_KEY;
+    *row = DKRowStatusDeleted;
 }
 
 

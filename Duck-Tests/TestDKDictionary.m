@@ -61,6 +61,20 @@ static int RaiseException( const char * format, va_list arg_ptr )
     values.length = N;
     
     DKMutableDictionaryRef dict = DKNew( dictionaryClass );
+
+    for( int i = 0; i < N; i++ )
+    {
+        DKStringRef key = DKStringWithFormat( "Key%d", i );
+        DKStringRef value = DKStringWithFormat( "Value%d", i );
+        
+        DKGenericArrayGetElementAtIndex( &keys, i, DKStringRef ) = key;
+        DKGenericArrayGetElementAtIndex( &values, i, DKStringRef ) = value;
+
+        DKDictionarySetObject( dict, key, value );
+        DKDictionaryRemoveObject( dict, key );
+
+        XCTAssert( DKDictionaryGetCount( dict ) == 0 );
+    }
     
     for( int i = 0; i < N; i++ )
     {

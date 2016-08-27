@@ -78,7 +78,7 @@ DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
 static DKRowStatus InterfaceTableRowStatus( const void * _row )
 {
     DKInterface * const * row = _row;
-    return (DKRowStatus)DK_HASHTABLE_ROW_STATUS( *row );
+    return (DKRowStatus)(*row);
 }
 
 static DKHashCode InterfaceTableRowHash( const void * _row )
@@ -98,7 +98,7 @@ static bool InterfaceTableRowEqual( const void * _row1, const void * _row2 )
 static void InterfaceTableRowInit( void * _row )
 {
     DKInterface ** row = _row;
-    *row = DK_HASHTABLE_EMPTY_KEY;
+    *row = DKRowStatusEmpty;
 }
 
 static void InterfaceTableRowUpdate( void * _row, const void * _src )
@@ -108,7 +108,7 @@ static void InterfaceTableRowUpdate( void * _row, const void * _src )
     
     DKRetain( *src );
     
-    if( DK_HASHTABLE_IS_POINTER( *row ) )
+    if( !DKRowIsSentinel( *row ) )
         DKRelease( *row );
         
     *row = *src;
@@ -119,7 +119,7 @@ static void InterfaceTableRowDelete( void * _row )
     DKInterface ** row = _row;
     
     DKRelease( *row );
-    *row = DK_HASHTABLE_DELETED_KEY;
+    *row = DKRowStatusDeleted;
 }
 
 static void InterfaceTableForeachRowCallback( const void * _row, void * context )

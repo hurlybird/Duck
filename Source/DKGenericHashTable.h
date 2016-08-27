@@ -30,22 +30,26 @@
 #include "DKPlatform.h"
 
 
-typedef enum
-{
-    // Don't change these values; they allow storing the row status in a tagged pointer
-    DKRowStatusActive =     0,
-    DKRowStatusEmpty =      1,
-    DKRowStatusDeleted =    2
+// Sentinels and related macros
 
-} DKRowStatus;
+// NOTE: A row is considered active if it is not empty and not deleted. The 'rowStatus'
+// callback may therefore return DKRowStatusAcive or any other non-empty/non-deleted
+// pointer value for active rows.
+
+typedef void * DKRowStatus;
+
+extern void * DKRowStatusActive;
+extern void * DKRowStatusEmpty;
+extern void * DKRowStatusDeleted;
 
 
-// Sentinels and macros for tagged pointer. These are safe when the stored pointers are
-// at least 4-byte aligned (which should be true for objects).
-#define DK_HASHTABLE_EMPTY_KEY           (void *)DKRowStatusEmpty
-#define DK_HASHTABLE_DELETED_KEY         (void *)DKRowStatusDeleted
-#define DK_HASHTABLE_ROW_STATUS(x)       ((intptr_t)(x) & 0x3)
-#define DK_HASHTABLE_IS_POINTER(x)       (((intptr_t)(x) & 0x3) == 0)
+#define DKRowIsActive(x)        (((x) != DKRowStatusEmpty) && ((x) != DKRowStatusDeleted))
+#define DKRowIsEmpty(x)         ((x) == DKRowStatusEmpty)
+#define DKRowIsDeleted(x)       ((x) == DKRowStatusDeleted)
+
+#define DKRowIsSentinel(x)      (((x) == DKRowStatusEmpty) || ((x) == DKRowStatusDeleted))
+#define DKRowStatusString(x)    (const char *)(((x) == DKRowStatusEmpty) ? DKRowStatusEmpty : (((x) == DKRowStatusDeleted) ? DKRowStatusDeleted : DKRowStatusActive))
+
 
 
 typedef struct
@@ -65,6 +69,7 @@ typedef struct
     uint8_t * rows;
     
     DKIndex activeCount;    // number of active rows in the table
+    DKIndex deletedCount;   // number of deleted rows in the table
     
     size_t rowSize;         // row size in bytes
     size_t rowCount;        // total number of rows in the table

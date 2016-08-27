@@ -687,7 +687,7 @@ struct VisitedObjectsRow
 static DKRowStatus VisitedObjectsRowStatus( const void * _row )
 {
     const struct VisitedObjectsRow * row = _row;
-    return DK_HASHTABLE_ROW_STATUS( row->object );
+    return (DKRowStatus)(row->object);
 }
 
 static DKHashCode VisitedObjectsRowHash( const void * _row )
@@ -708,7 +708,7 @@ static void VisitedObjectsRowInit( void * _row )
 {
     struct VisitedObjectsRow * row = _row;
     
-    row->object = DK_HASHTABLE_EMPTY_KEY;
+    row->object = DKRowStatusEmpty;
     row->index = 0;
 }
 
@@ -725,7 +725,7 @@ static void VisitedObjectsRowDelete( void * _row )
 {
     struct VisitedObjectsRow * row = _row;
 
-    row->object = DK_HASHTABLE_DELETED_KEY;
+    row->object = DKRowStatusDeleted;
 }
 
 

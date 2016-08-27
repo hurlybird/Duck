@@ -27,6 +27,10 @@
 #include "DKGenericHashTable.h"
 
 
+void * DKRowStatusActive =  "DKRowStatusActive";
+void * DKRowStatusEmpty =   "DKRowStatusEmpty";
+void * DKRowStatusDeleted = "DKRowStatusDeleted";
+
 
 struct HashTableSize
 {
@@ -162,18 +166,23 @@ static struct HashTableSize NextHashTableSize( size_t rowCount )
 //
 static void ResizeAndRehash( DKGenericHashTable * hashTable )
 {
-    if( hashTable->activeCount < hashTable->maxActive )
+    if( (hashTable->activeCount + hashTable->deletedCount) < hashTable->maxActive )
         return;
     
     uint8_t * oldRows = hashTable->rows;
     DKIndex oldRowCount = hashTable->rowCount;
-    
-    struct HashTableSize newSize = NextHashTableSize( hashTable->rowCount );
-    
-    hashTable->rowCount = newSize.rowCount;
-    hashTable->maxActive = newSize.maxActive;
+
+    // Only resize the table if its more than half full
+    if( (hashTable->rowCount == 0) || (hashTable->activeCount > hashTable->deletedCount) )
+    {
+        struct HashTableSize newSize = NextHashTableSize( hashTable->rowCount );
+        
+        hashTable->rowCount = newSize.rowCount;
+        hashTable->maxActive = newSize.maxActive;
+    }
 
     hashTable->activeCount = 0;
+    hashTable->deletedCount = 0;
     hashTable->rows = dk_malloc( hashTable->rowSize * hashTable->rowCount );
     
     for( DKIndex i = 0; i < hashTable->rowCount; ++i )
@@ -187,8 +196,9 @@ static void ResizeAndRehash( DKGenericHashTable * hashTable )
         for( DKIndex i = 0; i < oldRowCount; ++i )
         {
             void * row = oldRows + (hashTable->rowSize * i);
+            DKRowStatus status = hashTable->callbacks.rowStatus( row );
             
-            if( hashTable->callbacks.rowStatus( row ) == DKRowStatusActive )
+            if( DKRowIsActive( status ) )
             {
                 DKGenericHashTableInsert( hashTable, row, DKInsertAlways );
                 hashTable->callbacks.rowDelete( row );
@@ -211,12 +221,16 @@ static void * Find( DKGenericHashTable * hashTable, const void * _row, DKRowStat
     size_t x = hash % hashTable->rowCount;
     
     void * firstDeletedRow = NULL;
+
+    //printf( "Find: hash=%lu count=%ld active=%ld\n", hash, hashTable->rowCount, hashTable->activeCount );
     
     while( 1 )
     {
         void * row = hashTable->rows + (x * hashTable->rowSize);
 
         DKRowStatus status = hashTable->callbacks.rowStatus( row );
+
+        //printf( "   i=%ld x=%ld status=%s\n", i, x, DK_HASHTABLE_ROW_STATUS_STR( status ) );
         
         // If the row is empty we've come to the end of the probe, so either return the
         // empty row or recycle the first deleted row we found
@@ -233,7 +247,7 @@ static void * Find( DKGenericHashTable * hashTable, const void * _row, DKRowStat
         }
         
         // If this is the row we're looking for, return it
-        else if( status == DKRowStatusActive )
+        else if( status != DKRowStatusDeleted )
         {
             if( hashTable->callbacks.rowEqual( row, _row ) )
             {
@@ -254,6 +268,9 @@ static void * Find( DKGenericHashTable * hashTable, const void * _row, DKRowStat
         
         if( x >= hashTable->rowCount )
             x -= hashTable->rowCount;
+
+        // The probe has failed if we hit this
+        DKAssert( x < hashTable->rowCount );
     }
         
     DKAssert( 0 );
@@ -269,6 +286,7 @@ void DKGenericHashTableInit( DKGenericHashTable * hashTable, size_t rowSize, con
     hashTable->rows = NULL;
     
     hashTable->activeCount = 0;
+    hashTable->deletedCount = 0;
 
     hashTable->rowSize = rowSize;
     hashTable->rowCount = 0;
@@ -286,10 +304,9 @@ void DKGenericHashTableFinalize( DKGenericHashTable * hashTable )
     for( DKIndex i = 0; i < hashTable->rowCount; ++i )
     {
         void * row = hashTable->rows + (hashTable->rowSize * i);
-
         DKRowStatus status = hashTable->callbacks.rowStatus( row );
 
-        if( status == DKRowStatusActive )
+        if( DKRowIsActive( status ) )
             hashTable->callbacks.rowDelete( row );
     }
     
@@ -307,7 +324,7 @@ const void * DKGenericHashTableFind( DKGenericHashTable * hashTable, const void 
         DKRowStatus status;
         void * row = Find( hashTable, entry, &status );
         
-        if( status == DKRowStatusActive )
+        if( DKRowIsActive( status ) )
             return row;
     }
     
@@ -327,7 +344,7 @@ bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entr
     DKRowStatus status;
     void * row = Find( hashTable, entry, &status );
 
-    if( status == DKRowStatusActive )
+    if( DKRowIsActive( status ) )
     {
         if( policy == DKInsertIfNotFound )
             return false;
@@ -339,6 +356,9 @@ bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entr
     {
         if( policy == DKInsertIfFound )
             return false;
+        
+        if( DKRowIsDeleted( status ) )
+            hashTable->deletedCount--;
         
         hashTable->callbacks.rowUpdate( row, entry );
 
@@ -361,10 +381,11 @@ void DKGenericHashTableRemove( DKGenericHashTable * hashTable, const void * entr
         DKRowStatus status;
         void * row = Find( hashTable, entry, &status );
 
-        if( status == DKRowStatusActive )
+        if( DKRowIsActive( status ) )
         {
             hashTable->callbacks.rowDelete( row );
             hashTable->activeCount--;
+            hashTable->deletedCount++;
         }
     }
 }
@@ -381,13 +402,14 @@ void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable )
 
         DKRowStatus status = hashTable->callbacks.rowStatus( row );
 
-        if( status == DKRowStatusActive )
+        if( DKRowIsActive( status ) )
             hashTable->callbacks.rowDelete( row );
         
         hashTable->callbacks.rowInit( row );
     }
     
     hashTable->activeCount = 0;
+    hashTable->deletedCount = 0;
 }
 
 
@@ -402,7 +424,7 @@ void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHash
 
         DKRowStatus status = hashTable->callbacks.rowStatus( row );
 
-        if( status == DKRowStatusActive )
+        if( DKRowIsActive( status ) )
             callback( row, context );
     }
 }
