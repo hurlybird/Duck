@@ -174,7 +174,11 @@ bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * inter
 
 
 // DKMsgHandler ==========================================================================
+
+// Common Message Handler Prototypes
 typedef intptr_t (*DKMsgFunction)( DKObjectRef _self, DKSEL sel );
+typedef intptr_t (*DKMsgFunction1)( DKObjectRef _self, DKSEL sel, DKObjectRef obj );
+typedef intptr_t (*DKMsgFunction2)( DKObjectRef _self, DKSEL sel, DKObjectRef obj1, DKObjectRef obj2 );
 
 typedef struct DKMsgHandler
 {
