@@ -470,6 +470,7 @@ void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func )
     DKAssert( msgHandler != NULL );
 
     msgHandler->sel = DKRetain( sel );
+    msgHandler->methodCount = 1;
     msgHandler->func = func;
     
     DKInterfaceTableInsert( _class, &_class->instanceInterfaces, msgHandler );
@@ -487,6 +488,7 @@ void DKInstallClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func 
     DKAssert( msgHandler != NULL );
 
     msgHandler->sel = DKRetain( sel );
+    msgHandler->methodCount = 1;
     msgHandler->func = func;
     
     DKInterfaceTableInsert( _class, &_class->classInterfaces, msgHandler );

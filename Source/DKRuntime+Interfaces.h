@@ -184,6 +184,7 @@ typedef struct DKMsgHandler
 {
     const DKObject  _obj;
     DKSEL           sel;
+    size_t          methodCount;
     DKMsgFunction   func;
     
 } DKMsgHandler;
