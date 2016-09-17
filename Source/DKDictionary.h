@@ -76,10 +76,14 @@ void        DKSetDefaultMutableDictionaryClass( DKClassRef _class );
 #define     DKEmptyDictionary()         DKAutorelease( DKNew( DKDictionaryClass() ) )
 #define     DKMutableDictionary()       DKAutorelease( DKNew( DKMutableDictionaryClass() ) )
 
+#define     DKNewEmptyDictionary()      DKNew( DKDictionaryClass() )
+#define     DKNewMutableDictionary()    DKNew( DKMutableDictionaryClass() )
+
 #define     DKDictionaryWithKeysAndObjects( firstKey, ... )     DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__ ) )
 #define     DKDictionaryWithDictionary( srcDictionary )         DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary ) )
 
-#define     DKNewMutableDictionary()    DKNew( DKMutableDictionaryClass() )
+#define     DKNewDictionaryWithKeysAndObjects( firstKey, ... )  DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__ )
+#define     DKNewDictionaryWithDictionary( srcDictionary )      DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary )
 
 DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, ... );
 DKObjectRef DKDictionaryInitWithDictionary( DKDictionaryRef _self, DKDictionaryRef srcDictionary );

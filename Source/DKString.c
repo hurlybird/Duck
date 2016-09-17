@@ -464,6 +464,15 @@ void * DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr )
 
 
 ///
+//  DKStringInitWithBytes()
+//
+DKObjectRef DKStringInitWithBytes( DKStringRef _self, const void * bytes, DKIndex length )
+{
+    return InitString( _self, bytes, length );
+}
+
+
+///
 //  DKStringInitWithFormat()
 //
 void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )

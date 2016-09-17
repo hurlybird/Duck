@@ -44,6 +44,7 @@ DKClassRef  DKMutableStringClass( void );
 #define     DKStringWithString( str )               DKAutorelease( DKStringInitWithString( DKAlloc( DKStringClass() ), str ) )
 #define     DKStringWithCString( cstr )             DKAutorelease( DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr ) )
 #define     DKStringWithCStringNoCopy( cstr )       DKAutorelease( DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass() ), cstr ) )
+#define     DKStringWithBytes( bytes, length )      DKAutorelease( DKStringInitWithBytes( DKAlloc( DKStringClass() ), bytes, length ) )
 #define     DKStringWithFormat( fmt, ... )          DKAutorelease( DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ ) )
 #define     DKStringWithContentsOfFile( filename )  DKAutorelease( DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename ) )
 
@@ -52,12 +53,14 @@ DKClassRef  DKMutableStringClass( void );
 #define     DKNewStringWithString( str )                DKStringInitWithString( DKAlloc( DKStringClass() ), str )
 #define     DKNewStringWithCString( cstr )              DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr )
 #define     DKNewStringWithCStringNoCopy( cstr )        DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass() ), cstr )
+#define     DKNewStringWithBytes( bytes, length )       DKStringInitWithBytes( DKAlloc( DKStringClass() ), bytes, length )
 #define     DKNewStringWithFormat( fmt, ... )           DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ )
 #define     DKNewStringWithContentsOfFile( filename )   DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename )
 
 DKObjectRef DKStringInitWithString( DKStringRef _self, DKStringRef other );
 DKObjectRef DKStringInitWithCString( DKStringRef _self, const char * cstr );
 DKObjectRef DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr );
+DKObjectRef DKStringInitWithBytes( DKStringRef _self, const void * bytes, DKIndex length );
 DKObjectRef DKStringInitWithFormat( DKStringRef _self, const char * format, ... );
 DKObjectRef DKStringInitWithContentsOfFile( DKStringRef _self, DKStringRef filename );
 
