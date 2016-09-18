@@ -75,7 +75,7 @@ typedef enum
 
     __DKEncodingTypeInvalid5ByteUInt,
     __DKEncodingTypeInvalid6ByteUInt,
-    _vDKEncodingTypeInvalid7ByteUInt,
+    __DKEncodingTypeInvalid7ByteUInt,
 
     DKEncodingTypeUInt64,
     
