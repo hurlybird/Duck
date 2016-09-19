@@ -60,7 +60,7 @@ DKObjectRef DKRetain( DKObjectRef _self )
 ///
 //  DKRelease()
 //
-void DKRelease( DKObjectRef _self )
+DKObjectRef DKRelease( DKObjectRef _self )
 {
     if( _self )
     {
@@ -105,6 +105,8 @@ void DKRelease( DKObjectRef _self )
             }
         }
     }
+    
+    return NULL;
 }
 
 

@@ -29,7 +29,7 @@
 
 
 DKObjectRef DKRetain( DKObjectRef _self );
-void        DKRelease( DKObjectRef _self );
+DKObjectRef DKRelease( DKObjectRef _self ); // Always returns NULL
 
 // If a call to DKRelease would free the object, do so and return true. Otherwise return
 // false. (This is mainly useful for implementing object caches.)
