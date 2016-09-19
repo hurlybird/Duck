@@ -39,7 +39,7 @@
 struct DKBoolean
 {
     DKObject _obj;
-    uint8_t value; // This matches the layout of DKNumber
+    bool value; // This matches the layout of DKNumber
 };
 
 static struct DKBoolean DKBooleanTrue =
@@ -126,7 +126,7 @@ DKBooleanRef DKTrue( void )
 {
     if( DKBooleanTrue._obj.isa == NULL )
     {
-        DKSetObjectTag( &DKBooleanTrue, DKNumberUInt8 );
+        DKSetObjectTag( &DKBooleanTrue, DKNumberBoolean );
         DKBooleanTrue._obj.isa = DKBooleanClass();
     }
     
@@ -141,7 +141,7 @@ DKBooleanRef DKFalse( void )
 {
     if( DKBooleanFalse._obj.isa == NULL )
     {
-        DKSetObjectTag( &DKBooleanFalse, DKNumberUInt8 );
+        DKSetObjectTag( &DKBooleanFalse, DKNumberBoolean );
         DKBooleanFalse._obj.isa = DKBooleanClass();
     }
 
@@ -154,7 +154,7 @@ DKBooleanRef DKFalse( void )
 //
 static DKObjectRef DKBooleanInitWithEgg( DKBooleanRef _self, DKEggUnarchiverRef egg )
 {
-    DKAssert( DKEggGetEncoding( egg, DKSTR( "value" ) ) == DKNumberUInt8 );
+    DKAssert( DKEggGetEncoding( egg, DKSTR( "value" ) ) == DKNumberBoolean );
 
     uint8_t value;
     DKEggGetNumberData( egg, DKSTR( "value" ), &value );
@@ -168,7 +168,7 @@ static DKObjectRef DKBooleanInitWithEgg( DKBooleanRef _self, DKEggUnarchiverRef 
 //
 static void DKBooleanAddToEgg( DKBooleanRef _self, DKEggArchiverRef egg )
 {
-    DKEggAddNumberData( egg, DKSTR( "value" ), DKNumberUInt8, &_self->value );
+    DKEggAddNumberData( egg, DKSTR( "value" ), DKNumberBoolean, &_self->value );
 }
 
 
