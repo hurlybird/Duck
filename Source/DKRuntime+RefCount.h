@@ -31,9 +31,9 @@
 DKObjectRef DKRetain( DKObjectRef _self );
 DKObjectRef DKRelease( DKObjectRef _self ); // Always returns NULL
 
-// If a call to DKRelease would free the object, do so and return true. Otherwise return
-// false. (This is mainly useful for implementing object caches.)
-bool        DKTryRelease( DKObjectRef _self );
+// If a call to DKRelease would free the object, do so and return NULL. Otherwise return
+// the object unchanged. (This is mainly useful for implementing object caches.)
+DKObjectRef DKTryRelease( DKObjectRef _self );
 
 // Get a weak reference to an object. The weak reference itself must be released when the
 // caller is finished with it.

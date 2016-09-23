@@ -329,12 +329,17 @@ DKObjectRef DKJSONParse( DKStringRef json, int options )
     
     DKObjectRef obj = NULL;
     
+    DKPushAutoreleasePool();
+    
     if( ParseObject( &context, &obj ) )
     {
-        DKRelease( obj );
-    
+        DKPopAutoreleasePool();
         return NULL;
     }
+    
+    DKRetain( obj );
+    
+    DKPopAutoreleasePool();
 
     return DKAutorelease( obj );
 }
@@ -366,7 +371,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     // Array
     else if( ch == '[' )
     {
-        *obj = DKNewMutableList();
+        *obj = DKMutableList();
     
         while( true )
         {
@@ -381,8 +386,6 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
 
             // Add it to the list
             DKListAppendObject( *obj, value );
-            
-            DKRelease( value );
             value = NULL;
             
             // Parse a comma
@@ -406,7 +409,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     // Object
     else if( ch == '{' )
     {
-        *obj = DKNewMutableDictionary();
+        *obj = DKMutableDictionary();
     
         while( true )
         {
@@ -437,11 +440,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
             
             // Add it to the dictionary
             DKDictionarySetObject( *obj, key, value );
-
-            DKRelease( key );
             key = NULL;
-
-            DKRelease( value );
             value = NULL;
             
             // Parse a comma
@@ -470,7 +469,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
             double x;
             sscanf( token.str, "%lf", &x );
             
-            *obj = DKNewNumberWithDouble( x );
+            *obj = DKNumberWithDouble( x );
             return 0;
         }
         
@@ -479,7 +478,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
             int64_t x;
             sscanf( token.str, "%lld", &x );
             
-            *obj = DKNewNumberWithInt64( x );
+            *obj = DKNumberWithInt64( x );
             return 0;
         }
     }
@@ -505,10 +504,6 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
         return 0;
     }
     
-    DKRelease( *obj );
-    DKRelease( key );
-    DKRelease( value );
-
     *obj = NULL;
     return -1;
 }
@@ -548,8 +543,13 @@ static Token ScanToken( ParseContext * context, DKStringRef * stringValue )
     // Scan to the end of a string
     if( ch == '"' )
     {
-        DKAssert( stringValue != NULL );
-        *stringValue = DKNewMutableString();
+        DKStringRef tokenString = NULL;
+        
+        if( stringValue != NULL )
+        {
+            tokenString = DKMutableString();
+            *stringValue = tokenString;
+        }
     
         while( true )
         {
@@ -569,35 +569,35 @@ static Token ScanToken( ParseContext * context, DKStringRef * stringValue )
                 switch( ch )
                 {
                 case '\\':
-                    DKStringAppendCString( *stringValue, "\\" );
+                    DKStringAppendCString( tokenString, "\\" );
                     break;
                     
                 case '"':
-                    DKStringAppendCString( *stringValue, "\"" );
+                    DKStringAppendCString( tokenString, "\"" );
                     break;
                     
                 case 'b':
-                    DKStringAppendCString( *stringValue, "\b" );
+                    DKStringAppendCString( tokenString, "\b" );
                     break;
                     
                 case 'f':
-                    DKStringAppendCString( *stringValue, "\f" );
+                    DKStringAppendCString( tokenString, "\f" );
                     break;
                     
                 case 'n':
-                    DKStringAppendCString( *stringValue, "\n" );
+                    DKStringAppendCString( tokenString, "\n" );
                     break;
                     
                 case 'r':
-                    DKStringAppendCString( *stringValue, "\r" );
+                    DKStringAppendCString( tokenString, "\r" );
                     break;
                     
                 case 't':
-                    DKStringAppendCString( *stringValue, "\t" );
+                    DKStringAppendCString( tokenString, "\t" );
                     break;
                     
                 case '/':
-                    DKStringAppendCString( *stringValue, "/" );
+                    DKStringAppendCString( tokenString, "/" );
                     break;
                         
                 case 'u':
@@ -621,7 +621,7 @@ static Token ScanToken( ParseContext * context, DKStringRef * stringValue )
             
             else
             {
-                DKStringWrite( *stringValue, token.str + token.length, 1, n );
+                DKStringWrite( tokenString, token.str + token.length, 1, n );
             }
 
             token.length += n;

@@ -113,9 +113,9 @@ DKObjectRef DKRelease( DKObjectRef _self )
 ///
 //  DKTryRelease()
 //
-bool DKTryRelease( DKObjectRef _self )
+DKObjectRef DKTryRelease( DKObjectRef _self )
 {
-    bool result = false;
+    DKObjectRef result = _self;
 
     if( _self )
     {
@@ -129,16 +129,15 @@ bool DKTryRelease( DKObjectRef _self )
             {
                 if( (rc & DKRefCountMask) == 1 )
                 {
-                    rc = DKAtomicDecrement32( &obj->refcount );
-                    DKAssert( (rc & DKRefCountOverflowBit) == 0 );
-
-                    if( (rc & DKRefCountMask) == 0 )
+                    int32_t rc_zero = rc & ~DKRefCountMask;
+                    
+                    if( DKAtomicCmpAndSwap32( &obj->refcount, rc, rc_zero ) )
                     {
                         DKFinalize( _self );
                         DKDealloc( _self );
-                    }
 
-                    result = true;
+                        result = NULL;
+                    }
                 }
             }
             
@@ -152,18 +151,18 @@ bool DKTryRelease( DKObjectRef _self )
                 
                 if( (rc & DKRefCountMask) == 1 )
                 {
-                    rc = DKAtomicDecrement32( &obj->refcount );
-                    DKAssert( (rc & DKRefCountOverflowBit) == 0 );
-
-                    if( (rc & DKRefCountMask) == 0 )
-                        metadata->weakTarget = NULL;
+                    int32_t rc_zero = rc & ~DKRefCountMask;
                     
-                    result = true;
+                    if( DKAtomicCmpAndSwap32( &obj->refcount, rc, rc_zero ) )
+                    {
+                        metadata->weakTarget = NULL;
+                        result = NULL;
+                    }
                 }
 
                 DKSpinLockUnlock( &metadata->weakLock );
                 
-                if( (rc & DKRefCountMask) == 0 )
+                if( result == NULL )
                 {
                     DKMetadataRemove( metadata );
                     DKFinalize( _self );
