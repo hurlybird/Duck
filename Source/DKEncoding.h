@@ -98,6 +98,11 @@ typedef uint32_t DKEncoding;
 
 #define DKEncodingTypeInt( baseType )   DKEncode( (DKEncodingTypeInt8 + sizeof(baseType) - 1), 1 )
 
+#define DKEncodingTypeIsInt( baseType )         ((baseType >= DKEncodingTypeInt8) && (baseType <= DKEncodingTypeUInt64))
+#define DKEncodingTypeIsSignedInt( baseType )   ((baseType >= DKEncodingTypeInt8) && (baseType <= DKEncodingTypeInt64))
+#define DKEncodingTypeIsUnsignedInt( baseType ) ((baseType >= DKEncodingTypeUInt8) && (baseType <= DKEncodingTypeUInt64))
+#define DKEncodingTypeIsFloat( baseType )       ((baseType >= DKEncodingTypeFloat) && (baseType <= DKEncodingTypeDouble))
+
 
 size_t DKEncodingGetSize( DKEncoding encoding );
 size_t DKEncodingGetTypeSize( DKEncoding encoding );
