@@ -5,12 +5,14 @@
   },
   "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
     "26A120C1395E814B7784BB1C21E3985B1A6364F9" : 0,
-    "C44D7E57ACED9015617E8584E484EE47E2D567BC" : 0
+    "C44D7E57ACED9015617E8584E484EE47E2D567BC" : 0,
+    "D49BE7F2ECF0D9F073761687FEE9B01A1A9DB17F" : 9223372036854775807
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "85DC072C-BAE7-4AE2-BFDC-DAA497453D39",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
     "26A120C1395E814B7784BB1C21E3985B1A6364F9" : "..",
-    "C44D7E57ACED9015617E8584E484EE47E2D567BC" : "Duck\/"
+    "C44D7E57ACED9015617E8584E484EE47E2D567BC" : "Duck\/",
+    "D49BE7F2ECF0D9F073761687FEE9B01A1A9DB17F" : "..\/..\/.."
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "Duck",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
@@ -25,6 +27,11 @@
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/hurlybird\/Duck.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "C44D7E57ACED9015617E8584E484EE47E2D567BC"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/hurlybird\/DungeonLand.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "D49BE7F2ECF0D9F073761687FEE9B01A1A9DB17F"
     }
   ]
 }

@@ -61,10 +61,10 @@ struct TestObject
 
     DKPredicateRef predicate = DKPredicate( DKPredicateISA, NULL, DKStringClass() );
 
-    DKInstallObjectProperty( testClass, DKSTR( "name" ), 0, offsetof(struct TestObject, name), predicate, NULL, NULL, NULL, NULL );
-    DKInstallNumberProperty( testClass, DKSTR( "x" ), 0, offsetof(struct TestObject, x), DKNumberInt32, NULL, NULL, NULL, NULL, NULL );
-    DKInstallNumberProperty( testClass, DKSTR( "y" ), 0, offsetof(struct TestObject, y), DKNumberDouble, NULL, NULL, NULL, NULL, NULL );
-    DKInstallStructProperty( testClass, DKSTR( "z" ), 0, offsetof(struct TestObject, z), sizeof(Pair), DKSemantic(Pair), NULL, NULL, NULL, NULL );
+    DKInstallObjectProperty( testClass, DKSTR( "name" ), DKSemantic(DKString), 0, offsetof(struct TestObject, name), predicate, NULL, NULL, NULL, NULL );
+    DKInstallNumberProperty( testClass, DKSTR( "x" ), DKSemantic(int32_t), 0, offsetof(struct TestObject, x), DKNumberInt32, NULL, NULL, NULL, NULL );
+    DKInstallNumberProperty( testClass, DKSTR( "y" ), DKSemantic(double), 0, offsetof(struct TestObject, y), DKNumberDouble, NULL, NULL, NULL, NULL );
+    DKInstallStructProperty( testClass, DKSTR( "z" ), DKSemantic(Pair), 0, offsetof(struct TestObject, z), sizeof(Pair), NULL, NULL, NULL, NULL );
 
     return testClass;
 }

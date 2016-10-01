@@ -70,7 +70,7 @@ static void DKPropertyFinalize( DKObjectRef _untyped_self )
 ///
 //  DKInstallProperty()
 //
-static void DKInstallProperty( DKClassRef _class, DKStringRef name, DKPropertyRef property )
+static void DKInstallProperty( DKClassRef _class, DKStringRef name, struct DKProperty * property )
 {
     DKAssert( _class && property && name );
     
@@ -111,6 +111,7 @@ DKMutableHashTableRef DKCopyPropertiesTable( DKClassRef _class )
 //
 void DKInstallObjectProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     DKPredicateRef predicate,
@@ -125,6 +126,7 @@ void DKInstallObjectProperty( DKClassRef _class,
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
     property->name = DKCopy( name );
+    property->semantic = DKCopy( semantic );
     
     property->attributes = attributes;
     property->offset = offset;
@@ -147,10 +149,10 @@ void DKInstallObjectProperty( DKClassRef _class,
 //
 void DKInstallNumberProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     DKEncoding encoding,
-    DKStringRef semantic,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
@@ -163,13 +165,12 @@ void DKInstallNumberProperty( DKClassRef _class,
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
     property->name = DKCopy( name );
+    property->semantic = DKCopy( semantic );
     
     property->attributes = attributes;
     property->offset = offset;
     property->encoding = encoding;
 
-    property->semantic = DKCopy( semantic );
-    
     property->getter = getter;
     property->setter = setter;
     property->willRead = willRead;
@@ -185,10 +186,10 @@ void DKInstallNumberProperty( DKClassRef _class,
 //
 void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     size_t size,
-    DKStringRef semantic,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
@@ -200,12 +201,11 @@ void DKInstallStructProperty( DKClassRef _class,
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
     property->name = DKCopy( name );
-    
+    property->semantic = DKCopy( semantic );
+
     property->attributes = attributes;
     property->offset = offset;
     property->encoding = DKEncode( DKEncodingTypeBinaryData, (uint32_t)size );
-
-    property->semantic = DKCopy( semantic );
 
     property->getter = getter;
     property->setter = setter;

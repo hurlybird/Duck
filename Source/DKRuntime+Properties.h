@@ -42,7 +42,10 @@ enum
     DKPropertyWeak =            (1 << 1),
     
     // The property is stored as a copy (via DKCopy)
-    DKPropertyCopy =            (1 << 2)
+    DKPropertyCopy =            (1 << 2),
+    
+    // The property should not be archived or serialized
+    DKPropertyTransient =      (1 << 3)
 };
 
 
@@ -58,12 +61,12 @@ struct DKProperty
     const DKObject  _obj;
     
     DKStringRef     name;
+    DKStringRef     semantic;
     
     DKEncoding      encoding;
     int32_t         attributes;
     size_t          offset;
     
-    DKStringRef     semantic;
     DKPredicateRef  predicate;
 
     DKPropertyGetter getter;
@@ -103,6 +106,7 @@ typedef const struct DKPropertyInterface * DKPropertyInterfaceRef;
 
 void DKInstallObjectProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     DKPredicateRef predicate,
@@ -113,10 +117,10 @@ void DKInstallObjectProperty( DKClassRef _class,
 
 void DKInstallNumberProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     DKEncoding encoding,
-    DKStringRef semantic,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
@@ -124,10 +128,10 @@ void DKInstallNumberProperty( DKClassRef _class,
 
 void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
+    DKStringRef semantic,
     int32_t attributes,
     size_t offset,
     size_t size,
-    DKStringRef semantic,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
