@@ -46,7 +46,7 @@ typedef enum
     DKThreadFinished,
 
     // The thread was not created by DKThread
-    DKThreadUnknown
+    DKThreadStateUnknown
 
 } DKThreadState;
 

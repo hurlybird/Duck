@@ -241,7 +241,7 @@ DKThreadRef DKThreadGetCurrentThread( void )
     if( !threadContext->threadObject )
     {
         threadContext->threadObject = DKNew( DKThreadClass() );
-        threadContext->threadObject->state = DKThreadUnknown;
+        threadContext->threadObject->state = DKThreadStateUnknown;
         threadContext->threadObject->threadId = pthread_self();
     }
     
