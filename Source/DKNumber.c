@@ -722,9 +722,9 @@ DKHashCode DKNumberHash( DKNumberRef _self )
 
 
 ///
-//  DKNumberGetDescription()
+//  DKNumberFormatString()
 //
-DKStringRef DKNumberGetDescription( DKNumberRef _self )
+DKStringRef DKNumberFormatString( DKNumberRef _self, const char * seperator )
 {
     if( _self )
     {
@@ -739,7 +739,7 @@ DKStringRef DKNumberGetDescription( DKNumberRef _self )
         #define PRINT( fmt, field )                                         \
             DKSPrintf( desc, fmt, _self->value._ ## field[0] );             \
             for( unsigned int i = 1; i < count; ++i )                       \
-                DKSPrintf( desc, " " fmt, _self->value._ ## field[i] )
+                DKSPrintf( desc, "%s" fmt, seperator, _self->value._ ## field[i] )
         
         switch( type )
         {
@@ -767,6 +767,15 @@ DKStringRef DKNumberGetDescription( DKNumberRef _self )
     }
     
     return NULL;
+}
+
+
+///
+//  DKNumberGetDescription()
+//
+DKStringRef DKNumberGetDescription( DKNumberRef _self )
+{
+    return DKNumberFormatString( _self, " " );
 }
 
 

@@ -10,7 +10,7 @@
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "85DC072C-BAE7-4AE2-BFDC-DAA497453D39",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
     "26A120C1395E814B7784BB1C21E3985B1A6364F9" : "..",
-    "C44D7E57ACED9015617E8584E484EE47E2D567BC" : "Duck"
+    "C44D7E57ACED9015617E8584E484EE47E2D567BC" : "Duck\/"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "Duck",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,

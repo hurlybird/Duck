@@ -89,7 +89,7 @@ int64_t     DKNumberGetInt64( DKNumberRef _self );
 float       DKNumberGetFloat( DKNumberRef _self );
 double      DKNumberGetDouble( DKNumberRef _self );
 
-#define     DKNumberGetString( _self )    DKNumberGetDescription( _self )
+#define     DKNumberGetString( _self )    DKNumberFormatString( _self, " " )
 #define     DKNumberGetInt8( _self )      (*((int8_t *)DKNumberGetValuePtr( _self )))
 #define     DKNumberGetInt16( _self )     (*((int16_t *)DKNumberGetValuePtr( _self )))
 //#define     DKNumberGetInt32( _self )     (*((int32_t *)DKNumberGetValuePtr( _self )))
@@ -107,6 +107,7 @@ bool        DKNumberEqual( DKNumberRef a, DKNumberRef b );
 int         DKNumberCompare( DKNumberRef a, DKNumberRef b );
 DKHashCode  DKNumberHash( DKNumberRef _self );
 
+DKStringRef DKNumberFormatString( DKNumberRef _self, const char * seperator );
 DKStringRef DKNumberGetDescription( DKNumberRef _self );
 
 // Utility function for converting number types

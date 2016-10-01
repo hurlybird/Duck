@@ -33,7 +33,8 @@
 
 enum
 {
-    DKJSONWritePretty =     (1 << 0)
+    DKJSONWritePretty =             (1 << 0),
+    DKJSONVectorSyntaxExtension =   (1 << 1)
 };
 
 

@@ -56,10 +56,48 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     // Convert it to JSON
     DKMutableStringRef json = DKMutableString();
-    DKJSONWrite( json, document, DKJSONWritePretty );
-    
+    DKJSONWrite( json, document, 0 );
+
     // Parse the JSON
     DKObjectRef parsedDocument = DKJSONParse( json, 0 );
+
+    XCTAssert( DKEqual( document, parsedDocument ) );
+
+    //DKPrintf( "Orignal Document:\n%@\n\n", document );
+    //DKPrintf( "JSON:\n%@\n\n", json );
+    //DKPrintf( "Parsed Document:\n%@\n\n", parsedDocument );
+}
+
+- (void) testJSONExtendedSyntax
+{
+    // Create a document
+    int64_t v[3] = { 1, 2, 3 };
+    double w[3] = { 1.0, 2.0, 3.0 };
+    
+    DKMutableDictionaryRef document = DKDictionaryWithKeysAndObjects(
+        DKSTR( "Dick" ), DKSTR( "\"boy\"" ),
+        DKSTR( "Jane" ), DKSTR( "girl" ),
+        DKSTR( "Spot" ), DKSTR( "dog" ),
+        DKSTR( "List" ), DKListWithObjects(
+            DKNumberWithInt32( 1 ),
+            DKNumberWithInt32( 2 ),
+            DKNumberWithDouble( 3.5 ),
+            DKNumber( v, DKEncode( DKEncodingTypeInt64, 3 ) ),
+            DKNumber( w, DKEncode( DKEncodingTypeDouble, 3 ) ),
+            NULL ),
+        DKSTR( "Date" ), DKNumberWithDate( NULL ),
+        DKSTR( "Yup" ), DKTrue(),
+        DKSTR( "Nope" ), DKFalse(),
+        DKSTR( "Null" ), NULL,
+        NULL );
+
+    // Convert it to JSON
+    DKMutableStringRef json = DKMutableString();
+    DKJSONWrite( json, document, DKJSONWritePretty | DKJSONVectorSyntaxExtension );
+    
+    
+    // Parse the JSON
+    DKObjectRef parsedDocument = DKJSONParse( json, DKJSONVectorSyntaxExtension );
 
     XCTAssert( DKEqual( document, parsedDocument ) );
 

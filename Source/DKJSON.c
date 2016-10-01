@@ -34,6 +34,8 @@
 #include "DKCopying.h"
 #include "DKEncoding.h"
 #include "DKUnicode.h"
+#include "DKGenericArray.h"
+
 
 
 // Writer ================================================================================
@@ -106,6 +108,11 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
         if( DKEncodingGetCount( encoding ) == 1 )
         {
             DKSPrintf( context->stream, "%@", obj );
+        }
+        
+        else if( context->options & DKJSONVectorSyntaxExtension )
+        {
+            DKSPrintf( context->stream, "#[%@]", DKNumberFormatString( obj, ", " ) );
         }
         
         else
@@ -313,7 +320,7 @@ typedef struct
 
 static int ParseObject( ParseContext * context, DKObjectRef * obj );
 
-static Token ScanToken( ParseContext * context, DKStringRef * stringValue );
+static Token ScanToken( ParseContext * context, DKObjectRef * obj );
 static DKEncodingType ParseNumberType( Token token );
 
 
@@ -345,8 +352,8 @@ DKObjectRef DKJSONParse( DKStringRef json, int options )
 //
 static int ParseObject( ParseContext * context, DKObjectRef * obj )
 {
-    DKStringRef stringValue = NULL;
-    Token token = ScanToken( context, &stringValue );
+    DKObjectRef objToken = NULL;
+    Token token = ScanToken( context, &objToken );
     
     if( token.length == 0 )
         return -1;
@@ -356,10 +363,10 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     DKObjectRef value = NULL;
     int result;
 
-    // String
-    if( stringValue != NULL )
+    // Object (i.e. string, vector, boolean)
+    if( objToken != NULL )
     {
-        *obj = stringValue;
+        *obj = objToken;
         return 0;
     }
 
@@ -484,14 +491,14 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
         }
     }
     
-    // True
+    // True (should be handled by ScanToken)
     else if( strncmp( token.str, "true", 4 ) == 0 )
     {
         *obj = DKTrue();
         return 0;
     }
 
-    // False
+    // False (should be handled by ScanToken)
     else if( strncmp( token.str, "false", 5 ) == 0 )
     {
         *obj = DKFalse();
@@ -515,9 +522,210 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
 
 
 ///
+//  ScanStringToken()
+//
+static Token ScanStringToken( Token token, ParseContext * context, DKObjectRef * obj )
+{
+    DKChar32 ch;
+    DKStringRef buffer = NULL;
+    
+    if( obj != NULL )
+    {
+        buffer = DKNewMutableString();
+        *obj = buffer;
+    }
+
+    while( true )
+    {
+        size_t n = dk_ustrscan( token.str + token.length, &ch );
+        
+        if( n == 0 )
+        {
+            context->cursor = token.str + token.length;
+            return token;
+        }
+        
+        if( ch == '\\' )
+        {
+            token.length += n;
+            n = dk_ustrscan( token.str + token.length, &ch );
+            
+            switch( ch )
+            {
+            case '\\':
+                DKStringAppendCString( buffer, "\\" );
+                break;
+                
+            case '"':
+                DKStringAppendCString( buffer, "\"" );
+                break;
+                
+            case 'b':
+                DKStringAppendCString( buffer, "\b" );
+                break;
+                
+            case 'f':
+                DKStringAppendCString( buffer, "\f" );
+                break;
+                
+            case 'n':
+                DKStringAppendCString( buffer, "\n" );
+                break;
+                
+            case 'r':
+                DKStringAppendCString( buffer, "\r" );
+                break;
+                
+            case 't':
+                DKStringAppendCString( buffer, "\t" );
+                break;
+                
+            case '/':
+                DKStringAppendCString( buffer, "/" );
+                break;
+                    
+            case 'u':
+                DKWarning( "DKJSON: Escaped unicode characters (\\uXXXX) are not supported.\n" );
+                token.length += 4;
+                break;
+                
+            default:
+                DKWarning( "DKJSON: Invalid control character: %c (%d)\n", ch, ch );
+                break;
+            }
+        }
+
+        else if( ch == '"' )
+        {
+            token.length += n;
+            
+            context->cursor = token.str + token.length;
+            return token;
+        }
+        
+        else
+        {
+            DKStringWrite( buffer, token.str + token.length, 1, n );
+        }
+
+        token.length += n;
+    }
+}
+
+
+///
+//  ScanVectorToken()
+//
+static Token ScanVectorToken( Token token, ParseContext * context, DKObjectRef * obj )
+{
+    DKChar32 ch;
+    size_t n = dk_ustrscan( token.str + token.length, &ch );
+    
+    if( ch == '[' )
+    {
+        token.length += n;
+        context->cursor = token.str + token.length;
+        
+        DKGenericArray buffer;
+        DKGenericArrayInit( &buffer, sizeof(int64_t) );
+        DKGenericArrayReserve( &buffer, 32 );
+        
+        DKEncodingType numberType = DKEncodingTypeInt64;
+        
+        while( true )
+        {
+            Token numberToken = ScanToken( context, NULL );
+            ch = *numberToken.str;
+
+            if( (ch == '-') || isdigit( ch ) )
+            {
+                if( numberType == DKEncodingTypeDouble )
+                {
+                    double x;
+                    sscanf( numberToken.str, "%lf", &x );
+                    
+                    DKGenericArrayAppendElements( &buffer, &x, 1 );
+                }
+                
+                else if( ParseNumberType( numberToken ) == DKEncodingTypeDouble )
+                {
+                    // Convert previously read integers to doubles
+                    if( numberType != DKEncodingTypeDouble )
+                    {
+                        numberType = DKEncodingTypeDouble;
+                    
+                        size_t len = DKGenericArrayGetLength( &buffer );
+                        
+                        if( len > 0 )
+                        {
+                            int64_t * src = DKGenericArrayGetPointerToElementAtIndex( &buffer, 0 );
+                            double * dst = DKGenericArrayGetPointerToElementAtIndex( &buffer, 0 );
+                            
+                            for( size_t i = 0; i < len; ++i )
+                                dst[i] = (double)src[i];
+                        }
+                    }
+                
+                    double x;
+                    sscanf( numberToken.str, "%lf", &x );
+                    
+                    DKGenericArrayAppendElements( &buffer, &x, 1 );
+                }
+                
+                else
+                {
+                    int64_t x;
+                    sscanf( numberToken.str, "%lld", &x );
+                    
+                    DKGenericArrayAppendElements( &buffer, &x, 1 );
+                }
+            }
+            
+            else
+            {
+                break;
+            }
+            
+            numberToken = ScanToken( context, NULL );
+            ch = *numberToken.str;
+            
+            if( ch == ',' )
+            {
+                // Continue parsing
+            }
+            
+            else if( ch == ']' )
+            {
+                if( obj )
+                {
+                    void * value = DKGenericArrayGetPointerToElementAtIndex( &buffer, 0 );
+                    int count = (int)DKGenericArrayGetLength( &buffer );
+                    
+                    *obj = DKNewNumber( value, DKEncode( numberType, count ) );
+                }
+                
+                break;
+            }
+            
+            else
+            {
+                break;
+            }
+        }
+        
+        DKGenericArrayFinalize( &buffer );
+    }
+
+    token.length = context->cursor - token.str;
+    
+    return token;
+}
+
+
+///
 //  ScanToken()
 //
-static Token ScanToken( ParseContext * context, DKStringRef * stringValue )
+static Token ScanToken( ParseContext * context, DKObjectRef * obj )
 {
     Token token;
     token.str = context->cursor;
@@ -525,7 +733,7 @@ static Token ScanToken( ParseContext * context, DKStringRef * stringValue )
 
     DKChar32 ch;
 
-    // Skip whitespace
+    // Scan first character and skip whitespace
     while( true )
     {
         size_t n = dk_ustrscan( token.str, &ch );
@@ -548,99 +756,35 @@ static Token ScanToken( ParseContext * context, DKStringRef * stringValue )
     // Scan to the end of a string
     if( ch == '"' )
     {
-        DKStringRef buffer = NULL;
-        
-        if( stringValue != NULL )
-        {
-            buffer = DKNewMutableString();
-            *stringValue = buffer;
-        }
+        return ScanStringToken( token, context, obj );
+    }
     
-        while( true )
-        {
-            size_t n = dk_ustrscan( token.str + token.length, &ch );
-            
-            if( n == 0 )
-            {
-                context->cursor = token.str + token.length;
-                return token;
-            }
-            
-            if( ch == '\\' )
-            {
-                token.length += n;
-                n = dk_ustrscan( token.str + token.length, &ch );
-                
-                switch( ch )
-                {
-                case '\\':
-                    DKStringAppendCString( buffer, "\\" );
-                    break;
-                    
-                case '"':
-                    DKStringAppendCString( buffer, "\"" );
-                    break;
-                    
-                case 'b':
-                    DKStringAppendCString( buffer, "\b" );
-                    break;
-                    
-                case 'f':
-                    DKStringAppendCString( buffer, "\f" );
-                    break;
-                    
-                case 'n':
-                    DKStringAppendCString( buffer, "\n" );
-                    break;
-                    
-                case 'r':
-                    DKStringAppendCString( buffer, "\r" );
-                    break;
-                    
-                case 't':
-                    DKStringAppendCString( buffer, "\t" );
-                    break;
-                    
-                case '/':
-                    DKStringAppendCString( buffer, "/" );
-                    break;
-                        
-                case 'u':
-                    DKWarning( "DKJSON: Escaped unicode characters (\\uXXXX) are not supported.\n" );
-                    token.length += 4;
-                    break;
-                    
-                default:
-                    DKWarning( "DKJSON: Invalid control character: %c (%d)\n", ch, ch );
-                    break;
-                }
-            }
-
-            else if( ch == '"' )
-            {
-                token.length += n;
-                
-                context->cursor = token.str + token.length;
-                return token;
-            }
-            
-            else
-            {
-                DKStringWrite( buffer, token.str + token.length, 1, n );
-            }
-
-            token.length += n;
-        }
+    // Scan to the end of a vector
+    else if( (ch == '#') && (context->options & DKJSONVectorSyntaxExtension) )
+    {
+        return ScanVectorToken( token, context, obj );
     }
     
     // Scan to the end of other tokens
     else
     {
+        // Special characters
+        static const char * tokens = ",:[]{}";
+
+        // Check for a single-character token
+        if( strchr( tokens, *token.str ) )
+        {
+            context->cursor = token.str + token.length;
+            return token;
+        }
+
         while( true )
         {
+            // Scan the next character
             size_t n = dk_ustrscan( token.str + token.length, &ch );
             
-            if( (n == 0) || (ch == ',') || isspace( ch ) )
+            // End of the token? (EOF, space or special character)
+            if( (n == 0) || isspace( ch ) || strchr( tokens, ch ) )
             {
                 context->cursor = token.str + token.length;
                 return token;
@@ -650,6 +794,21 @@ static Token ScanToken( ParseContext * context, DKStringRef * stringValue )
         }
     }
 }
+
+#if 0 // Test scanning
+static Token ScanToken( ParseContext * context, DKObjectRef * obj )
+{
+    Token token = _ScanToken( context, obj );
+    
+    char tmp[128];
+    strncpy( tmp, token.str, token.length );
+    tmp[token.length] = '\0';
+    
+    printf( "ScanToken: %s\n", tmp );
+    
+    return token;
+}
+#endif
 
 
 ///
