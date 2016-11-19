@@ -38,6 +38,7 @@
 #if DK_PLATFORM_APPLE
 #include <libkern/OSAtomic.h>
 #include <libkern/OSByteOrder.h>
+#include <os/lock.h>
 #endif
 
 #if DK_PLATFORM_ANDROID
@@ -423,11 +424,17 @@ void   dk_free( void * ptr );
 
 // Spin Locks ============================================================================
 #if DK_PLATFORM_APPLE
-typedef OSSpinLock DKSpinLock;
+typedef os_unfair_lock DKSpinLock;
 
-#define DKSpinLockInit              OS_SPINLOCK_INIT
-#define DKSpinLockLock( s )         OSSpinLockLock( s )
-#define DKSpinLockUnlock( s )       OSSpinLockUnlock( s )
+#define DKSpinLockInit              OS_UNFAIR_LOCK_INIT
+#define DKSpinLockLock( s )         os_unfair_lock_lock( s )
+#define DKSpinLockUnlock( s )       os_unfair_lock_unlock( s )
+
+//typedef OSSpinLock DKSpinLock;
+
+//#define DKSpinLockInit              OS_SPINLOCK_INIT
+//#define DKSpinLockLock( s )         OSSpinLockLock( s )
+//#define DKSpinLockUnlock( s )       OSSpinLockUnlock( s )
 
 #else
 typedef spinlock_t DKSpinLock;
