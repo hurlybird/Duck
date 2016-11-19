@@ -225,6 +225,55 @@ DKObjectRef DKResolveWeak( DKWeakRef weakref )
 // Autorelease Pools =====================================================================
 #define DK_AUTORELEASE_POOL_RESERVE 128
 
+///
+//  DKDrainAutoreleasePool()
+//
+static void INTERNAL_DKDrainAutoreleasePool( struct DKThreadContext * threadContext )
+{
+    // Loop over this to handle the (unusual) case where an object is autoreleased within
+    // the release call to another object.
+    while( 1 )
+    {
+        DKIndex count = DKGenericArrayGetLength( &threadContext->arp.objects );
+        DKRange range;
+        
+        if( threadContext->arp.top == -1 )
+        {
+            range.location = 0;
+            range.length = count;
+        }
+        
+        else
+        {
+            range.location = threadContext->arp.count[threadContext->arp.top];
+            range.length = count - range.location;
+        }
+
+        if( range.length > 0 )
+        {
+            DKObjectRef * objects = DKGenericArrayGetPointerToElementAtIndex( &threadContext->arp.objects, range.location );
+
+            for( DKIndex i = 0; i < range.length; ++i )
+                DKRelease( objects[i] );
+            
+            DKGenericArrayReplaceElements( &threadContext->arp.objects, range, NULL, 0 );
+        }
+        
+        else
+        {
+            break;
+        }
+    }
+}
+
+void DKDrainAutoreleasePool( void )
+{
+    struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
+    DKRequire( (threadContext->arp.top >= -1) && (threadContext->arp.top < (DK_AUTORELEASE_POOL_STACK_SIZE - 1)) );
+
+    INTERNAL_DKDrainAutoreleasePool( threadContext );
+}
+
 
 ///
 //  DKPushAutoreleasePool()
@@ -262,31 +311,8 @@ void DKPopAutoreleasePool( void )
     DKRequire( (threadContext->arp.top >= 0) && (threadContext->arp.top < DK_AUTORELEASE_POOL_STACK_SIZE) );
 
     threadContext->arp.top--;
-    
-    DKIndex count = DKGenericArrayGetLength( &threadContext->arp.objects );
-    DKRange range;
-    
-    if( threadContext->arp.top == -1 )
-    {
-        range.location = 0;
-        range.length = count;
-    }
-    
-    else
-    {
-        range.location = threadContext->arp.count[threadContext->arp.top];
-        range.length = count - range.location;
-    }
 
-    if( range.length > 0 )
-    {
-        DKObjectRef * objects = DKGenericArrayGetPointerToElementAtIndex( &threadContext->arp.objects, range.location );
-
-        for( DKIndex i = 0; i < range.length; ++i )
-            DKRelease( objects[i] );
-        
-        DKGenericArrayReplaceElements( &threadContext->arp.objects, range, NULL, 0 );
-    }
+    INTERNAL_DKDrainAutoreleasePool( threadContext );
 }
 
 
@@ -302,7 +328,6 @@ DKObjectRef DKAutorelease( DKObjectRef _self )
         if( (obj->refcount & DKRefCountDisabledBit) == 0 )
         {
             struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
-            DKRequire( (threadContext->arp.top >= 0) && (threadContext->arp.top < DK_AUTORELEASE_POOL_STACK_SIZE) );
 
             DKGenericArrayAppendElements( &threadContext->arp.objects, &_self, 1 );
         }

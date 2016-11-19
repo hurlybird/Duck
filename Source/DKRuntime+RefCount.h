@@ -44,6 +44,9 @@ DKWeakRef   DKRetainWeak( DKObjectRef _self );
 // deallocated.
 DKObjectRef DKResolveWeak( DKWeakRef weakref );
 
+// Drain the current autorelease pool
+void        DKDrainAutoreleasePool( void );
+
 // Push/Pop the current autorelease pool
 void        DKPushAutoreleasePool( void );
 void        DKPopAutoreleasePool( void );
