@@ -30,14 +30,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 
 #include "DKConfig.h"
 
 #if DK_PLATFORM_APPLE
-#include <libkern/OSAtomic.h>
-#include <libkern/OSByteOrder.h>
 #include <os/lock.h>
 #endif
 
@@ -448,17 +447,6 @@ typedef spinlock_t DKSpinLock;
 
 
 // Atomic Operations =====================================================================
-#if DK_PLATFORM_APPLE
-#define DKAtomicAdd32( ptr, x )                 OSAtomicAdd32Barrier( x, ptr )
-#define DKAtomicSub32( ptr, x )                 OSAtomicSub32Barrier( x, ptr )
-#define DKAtomicAnd32( ptr, x )                 OSAtomicAnd32Barrier( x, ptr )
-#define DKAtomicOr32( ptr, x )                  OSAtomicOr32Barrier( x, ptr )
-#define DKAtomicIncrement32( ptr )              OSAtomicIncrement32Barrier( ptr )
-#define DKAtomicDecrement32( ptr )              OSAtomicDecrement32Barrier( ptr )
-#define DKAtomicCmpAndSwap32( val, old, new )   OSAtomicCompareAndSwap32Barrier( old, new, val )
-#define DKAtomicCmpAndSwapPtr( val, old, new )  OSAtomicCompareAndSwapPtrBarrier( old, new, val )
-
-#else
 #define DKAtomicAdd32( ptr, x )                 __sync_add_and_fetch( ptr, x )
 #define DKAtomicSub32( ptr, x )                 __sync_sub_and_fetch( ptr, x )
 #define DKAtomicAnd32( ptr, x )                 __sync_and_and_fetch( ptr, x )
@@ -468,20 +456,40 @@ typedef spinlock_t DKSpinLock;
 #define DKAtomicCmpAndSwap32( val, old, new )   __sync_bool_compare_and_swap( val, old, new )
 #define DKAtomicCmpAndSwapPtr( val, old, new )  __sync_bool_compare_and_swap( val, old, new )
 
-#endif
-
 
 
 
 // Byte Order Operations =================================================================
-#if DK_PLATFORM_APPLE
-#define DKSwapInt16( x )                        OSSwapInt16( x )
-#define DKSwapInt32( x )                        OSSwapInt32( x )
-#define DKSwapInt64( x )                        OSSwapInt64( x )
+#define DKSwapInt16( x )                        __builtin_bswap16( x )
+#define DKSwapInt32( x )                        __builtin_bswap32( x )
+#define DKSwapInt64( x )                        __builtin_bswap64( x )
 
-#else
-// Do stuff here
+#if 0
+static inline uint16_t DKSwapInt16( uint16_t x )
+{
+    uint16_t byte0 = x << 8;
+    uint16_t byte1 = x >> 8;
 
+    return byte0 | byte1;
+}
+
+static inline uint32_t DKSwapInt32( uint32_t x )
+{
+    uint32_t byte0 = x << 24;
+    uint32_t byte1 = (x << 8) & 0x00ff0000;
+    uint32_t byte2 = (x >> 8) & 0x0000ff00;
+    uint32_t byte3 = x >> 24;
+    
+    return byte0 | byte1 | byte2 | byte3;
+}
+
+static inline int64_t DKSwapInt64( int64_t x )
+{
+    uint64_t word0 = DKSwapInt32( (uint32_t)x )
+    uint64_t word1 = DKSwapInt32( (uint32_t)(x >> 32) );
+    
+    return word0 | word1;
+}
 #endif
 
 static inline float DKSwapFloat( float x )
