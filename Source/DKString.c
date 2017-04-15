@@ -436,6 +436,9 @@ void * DKStringInitWithString( DKStringRef _self, DKStringRef other )
 //
 void * DKStringInitWithCString( DKStringRef _self, const char * cstr )
 {
+    if( !cstr )
+        cstr = "";
+
     size_t length = strlen( cstr );
     return InitString( _self, cstr, length );
 }
@@ -446,6 +449,9 @@ void * DKStringInitWithCString( DKStringRef _self, const char * cstr )
 //
 void * DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr )
 {
+    if( !cstr )
+        cstr = "";
+
     DKIndex length = strlen( cstr );
 
     if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString) )
