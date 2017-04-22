@@ -206,6 +206,11 @@
 		02C307991C3056270077DC56 /* DKReadWriteLock.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307961C3056270077DC56 /* DKReadWriteLock.c */; };
 		02C3079A1C3056270077DC56 /* DKReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307971C3056270077DC56 /* DKReadWriteLock.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02C3079B1C3056270077DC56 /* DKReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C307971C3056270077DC56 /* DKReadWriteLock.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		02DBA54B1EAAFE3D0086A6EE /* DKEnum.c in Sources */ = {isa = PBXBuildFile; fileRef = 02DBA5491EAAFE3D0086A6EE /* DKEnum.c */; };
+		02DBA54C1EAAFE3D0086A6EE /* DKEnum.c in Sources */ = {isa = PBXBuildFile; fileRef = 02DBA5491EAAFE3D0086A6EE /* DKEnum.c */; };
+		02DBA54D1EAAFE3D0086A6EE /* DKEnum.h in Headers */ = {isa = PBXBuildFile; fileRef = 02DBA54A1EAAFE3D0086A6EE /* DKEnum.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		02DBA54E1EAAFE3D0086A6EE /* DKEnum.h in Headers */ = {isa = PBXBuildFile; fileRef = 02DBA54A1EAAFE3D0086A6EE /* DKEnum.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		02DBA5501EAB0E700086A6EE /* TestDKEnum.m in Sources */ = {isa = PBXBuildFile; fileRef = 02DBA54F1EAB0E700086A6EE /* TestDKEnum.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -348,6 +353,9 @@
 		02D051E019DE39D700827660 /* DKDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKDescription.h; sourceTree = "<group>"; };
 		02D5F50B19DBE79F00D2F52A /* DKRuntime+Interfaces.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+Interfaces.c"; sourceTree = "<group>"; };
 		02D5F50C19DBE79F00D2F52A /* DKRuntime+Interfaces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+Interfaces.h"; sourceTree = "<group>"; };
+		02DBA5491EAAFE3D0086A6EE /* DKEnum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnum.c; sourceTree = "<group>"; };
+		02DBA54A1EAAFE3D0086A6EE /* DKEnum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKEnum.h; sourceTree = "<group>"; };
+		02DBA54F1EAB0E700086A6EE /* TestDKEnum.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKEnum.m; sourceTree = "<group>"; };
 		02DE16DE195E7ACB007D241D /* DKEncoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEncoding.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -552,6 +560,8 @@
 				02624EBF190366C50023B3EE /* DKEgg.c */,
 				0269BF1D19D85669002E876C /* DKEncoding.h */,
 				02DE16DE195E7ACB007D241D /* DKEncoding.c */,
+				02DBA54A1EAAFE3D0086A6EE /* DKEnum.h */,
+				02DBA5491EAAFE3D0086A6EE /* DKEnum.c */,
 				0269BF1E19D85669002E876C /* DKFile.h */,
 				025C0F4E18EFED96000344C0 /* DKFile.c */,
 				02A25AFC1AC3D1B600D97B11 /* DKJSON.h */,
@@ -599,6 +609,7 @@
 				0208A643190576130041677A /* TestDKEgg.m */,
 				025C0F9618EFEE5D000344C0 /* TestDKData.m */,
 				025C0F9718EFEE5D000344C0 /* TestDKDictionary.m */,
+				02DBA54F1EAB0E700086A6EE /* TestDKEnum.m */,
 				028F1B641B0E6F89006FDFDF /* TestDKJSON.m */,
 				025C0F9818EFEE5D000344C0 /* TestDKList.m */,
 				025C0F9918EFEE5D000344C0 /* TestDKNumber.m */,
@@ -687,6 +698,7 @@
 				028F1AAC1B0DCBBB006FDFDF /* DKCopying.h in Headers */,
 				028F1AAD1B0DCBBB006FDFDF /* DKDescription.h in Headers */,
 				028F1AAE1B0DCBBB006FDFDF /* DKLocking.h in Headers */,
+				02DBA54D1EAAFE3D0086A6EE /* DKEnum.h in Headers */,
 				028F1AAF1B0DCBBB006FDFDF /* DKStream.h in Headers */,
 				028F1AB01B0DCBBB006FDFDF /* DKArray.h in Headers */,
 				028F1AB11B0DCBBB006FDFDF /* DKBinaryTree.h in Headers */,
@@ -740,6 +752,7 @@
 				028F1B471B0E6BFB006FDFDF /* DKCopying.h in Headers */,
 				028F1B481B0E6BFB006FDFDF /* DKDescription.h in Headers */,
 				028F1B491B0E6BFB006FDFDF /* DKLocking.h in Headers */,
+				02DBA54E1EAAFE3D0086A6EE /* DKEnum.h in Headers */,
 				028F1B4A1B0E6BFB006FDFDF /* DKStream.h in Headers */,
 				028F1B4B1B0E6BFB006FDFDF /* DKArray.h in Headers */,
 				028F1B4C1B0E6BFB006FDFDF /* DKBinaryTree.h in Headers */,
@@ -950,6 +963,7 @@
 				028F1AEB1B0DCC05006FDFDF /* DKUnicode.c in Sources */,
 				028F1AEC1B0DCC05006FDFDF /* utf_impl.c in Sources */,
 				021283201C244F9A00B7C3A7 /* DKConversion.c in Sources */,
+				02DBA54B1EAAFE3D0086A6EE /* DKEnum.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -962,6 +976,7 @@
 				028F1AF21B0E639C006FDFDF /* TestDKDictionary.m in Sources */,
 				028F1AF31B0E639C006FDFDF /* TestDKList.m in Sources */,
 				028F1AF41B0E639C006FDFDF /* TestDKNumber.m in Sources */,
+				02DBA5501EAB0E700086A6EE /* TestDKEnum.m in Sources */,
 				028F1AF51B0E639C006FDFDF /* TestDKPredicate.m in Sources */,
 				02393EC11C3F16F6009E8731 /* TestDKXML.m in Sources */,
 				028F1AF61B0E639D006FDFDF /* TestDKProperty.m in Sources */,
@@ -1021,6 +1036,7 @@
 				028F1B3C1B0E6BCA006FDFDF /* DKUnicode.c in Sources */,
 				028F1B631B0E6C0F006FDFDF /* utf_impl.c in Sources */,
 				021283211C244F9A00B7C3A7 /* DKConversion.c in Sources */,
+				02DBA54C1EAAFE3D0086A6EE /* DKEnum.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

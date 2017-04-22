@@ -265,7 +265,7 @@ static void RowUpdate( void * _row, const void * _src )
     
     if( (row->key == NULL) || DKRowIsSentinel( row->key ) )
     {
-        row->key = DKCopy( src->key );
+        row->key = DKRetain( src->key );
     }
 
     if( row->object != src->object )
@@ -711,10 +711,12 @@ static void INTERNAL_DKHashTableInsertObject( DKMutableHashTableRef _self, DKObj
     DKRequire( key != NULL );
 
     struct DKHashTableRow row;
-    row.key = key;
+    row.key = DKCopy( key );
     row.object = object;
 
     DKGenericHashTableInsert( &_self->table, &row, policy );
+    
+    DKRelease( row.key );
 }
 
 
