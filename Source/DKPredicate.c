@@ -609,7 +609,8 @@ static bool EvaluateENDSWITH( DKObjectRef a, DKObjectRef b, DKObjectRef subst )
 
 DKThreadSafeStaticObjectInit( PredicateOpInfoTable, PredicateOpInfo * )
 {
-    PredicateOpInfo * table = malloc( sizeof(PredicateOpInfo) * DKMaxPredicateOp );
+    PredicateOpInfo * table = dk_malloc( sizeof(PredicateOpInfo) * DKMaxPredicateOp );
+    memset( table, 0, sizeof(PredicateOpInfo) * DKMaxPredicateOp );
     
     #define InitTableRow( value )               \
     {                                           \
