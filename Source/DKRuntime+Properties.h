@@ -29,6 +29,7 @@
 
 #include "DKEncoding.h"
 #include "DKNumber.h"
+#include "DKEnum.h"
 #include "DKPredicate.h"
 
 
@@ -68,6 +69,7 @@ struct DKProperty
     size_t          offset;
     
     DKPredicateRef  predicate;
+    DKEnumRef       enumType;
 
     DKPropertyGetter getter;
     DKPropertySetter setter;
@@ -137,14 +139,29 @@ void DKInstallStructProperty( DKClassRef _class,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite );
 
+void DKInstallEnumProperty( DKClassRef _class,
+    DKStringRef name,
+    DKStringRef semantic,
+    int32_t attributes,
+    size_t offset,
+    DKEncoding encoding,
+    DKEnumRef enumType,
+    DKPropertyGetter getter,
+    DKPropertySetter setter,
+    DKPropertyObserver willRead,
+    DKPropertyObserver didWrite );
+
 // Retrieve installed properties
 DKListRef   DKGetAllPropertyDefinitions( DKObjectRef _self );
 DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
 
 // Set an object property. DKNumbers and DKStructs will be automatically unpacked if the
 // property is stored as a number type or structure.
-void        DKSetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object );
-void        DKSetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object );
+void        DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound );
+void        DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object, bool warnIfNotFound );
+
+#define DKSetProperty( _self, name, object )            DKTrySetProperty( _self, name, object, true )
+#define DKSetPropertyForKeyPath( _self, path, object )  DKTrySetPropertyForKeyPath( _self, path, object, true )
 
 // Get an object property. If the property is stored as a number type or structure, the
 // value will be automatically packaged in a DKNumber or DKStruct.
@@ -178,6 +195,8 @@ int64_t     DKGetIntegerProperty( DKObjectRef _self, DKStringRef name );
 void        DKSetFloatProperty( DKObjectRef _self, DKStringRef name, double x );
 double      DKGetFloatProperty( DKObjectRef _self, DKStringRef name );
 
+void        DKSetEnumProperty( DKObjectRef _self, DKStringRef name, int x );
+int         DKGetEnumProperty( DKObjectRef _self, DKStringRef name );
 
 
 

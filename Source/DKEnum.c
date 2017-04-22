@@ -34,7 +34,7 @@
 struct DKEnumEntry
 {
     DKObjectRef str;
-    int32_t value;
+    int value;
 };
 
 struct DKEnum
@@ -175,7 +175,7 @@ DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _untyped_self, ... )
         {
             struct DKEnumEntry row;
             row.str = __DKStringGetConstantString( str, true );
-            row.value = va_arg( arg_ptr, int32_t );
+            row.value = va_arg( arg_ptr, int );
     
             DKGenericHashTableInsert( &_self->table, &row, DKInsertAlways );
             
@@ -210,7 +210,7 @@ int32_t DKEnumFromString( DKEnumRef _self, DKStringRef str )
 ///
 //  DKStringFromEnum()
 //
-DKStringRef DKStringFromEnum( DKEnumRef _self, int32_t value )
+DKStringRef DKStringFromEnum( DKEnumRef _self, int value )
 {
     if( _self )
     {

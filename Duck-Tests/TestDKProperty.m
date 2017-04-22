@@ -21,6 +21,14 @@ typedef struct
     
 } Pair;
 
+typedef enum
+{
+    One = 1,
+    Two,
+    Three
+
+} Enum;
+
 struct TestObject
 {
     const DKObject _obj;
@@ -29,7 +37,15 @@ struct TestObject
     int32_t x;
     double y;
     Pair z;
+    Enum e;
 };
+
+DKEnumRef EnumType( void );
+
+DKDefineEnum( EnumType,
+    "One", One,
+    "Two", Two,
+    "Three", Three )
 
 
 @interface TestDKProperty : XCTestCase
@@ -65,6 +81,7 @@ struct TestObject
     DKInstallNumberProperty( testClass, DKSTR( "x" ), DKSemantic(int32_t), 0, offsetof(struct TestObject, x), DKNumberInt32, NULL, NULL, NULL, NULL );
     DKInstallNumberProperty( testClass, DKSTR( "y" ), DKSemantic(double), 0, offsetof(struct TestObject, y), DKNumberDouble, NULL, NULL, NULL, NULL );
     DKInstallStructProperty( testClass, DKSTR( "z" ), DKSemantic(Pair), 0, offsetof(struct TestObject, z), sizeof(Pair), NULL, NULL, NULL, NULL );
+    DKInstallEnumProperty( testClass, DKSTR( "e" ), DKSemantic(Enum), 0, offsetof(struct TestObject, e), DKEncodingTypeInt(Enum), EnumType(), NULL, NULL, NULL, NULL );
 
     return testClass;
 }
@@ -112,7 +129,6 @@ struct TestObject
     DKRelease( testClass );
 }
 
-
 - (void) testStructProperty
 {
     DKClassRef testClass = [self createTestClass];
@@ -154,6 +170,33 @@ struct TestObject
     DKRelease( testClass );
 }
 
+- (void) testEnumProperty
+{
+    DKClassRef testClass = [self createTestClass];
+
+    struct TestObject * testObject = DKNew( testClass );
+    
+    // Get/SetEnum
+    DKSetEnumProperty( testObject, DKSTR( "e" ), One );
+    XCTAssert( testObject->e == One );
+    XCTAssert( DKStringEqualToString( DKGetProperty( testObject, DKSTR( "e" ) ), DKSTR( "One" ) ) );
+    
+    // Get/Set enum from string
+    DKSetProperty( testObject, DKSTR( "e" ), DKSTR( "Two" ) );
+    XCTAssert( testObject->e == Two );
+    XCTAssert( DKStringEqualToString( DKGetProperty( testObject, DKSTR( "e" ) ), DKSTR( "Two" ) ) );
+
+    DKSetProperty( testObject, DKSTR( "e" ), DKSTR( "Three" ) );
+    XCTAssert( testObject->e == Three );
+    XCTAssert( DKStringEqualToString( DKGetProperty( testObject, DKSTR( "e" ) ), DKSTR( "Three" ) ) );
+
+    DKSetProperty( testObject, DKSTR( "e" ), DKSTR( "Four" ) );
+    XCTAssert( testObject->e == 0 );
+    XCTAssert( DKGetProperty( testObject, DKSTR( "e" ) ) == NULL );
+    
+    DKRelease( testObject );
+    DKRelease( testClass );
+}
 
 - (void) testPropertyKeyPaths
 {

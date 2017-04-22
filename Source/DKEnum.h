@@ -30,13 +30,11 @@
 #include "DKRuntime.h"
 
 
-typedef struct DKEnum * DKEnumRef;
-
+// typedef struct DKEnum * DKEnumRef; -- Declared in DKPlatform.h
 
 DKClassRef DKEnumClass( void );
 
 DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _self, ... );
-
 
 #define DKDefineEnum( accessor, ... )                                                   \
     DKThreadSafeSharedObjectInit( accessor, DKEnumRef )                                 \
@@ -46,9 +44,8 @@ DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _self, ... );
             NULL );                                                                     \
     }
 
-
-int32_t DKEnumFromString( DKEnumRef _self, DKStringRef str );
-DKStringRef DKStringFromEnum( DKEnumRef _self, int32_t value );
+int DKEnumFromString( DKEnumRef _self, DKStringRef str );
+DKStringRef DKStringFromEnum( DKEnumRef _self, int value );
 
 
 

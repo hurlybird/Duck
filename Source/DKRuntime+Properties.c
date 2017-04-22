@@ -218,6 +218,45 @@ void DKInstallStructProperty( DKClassRef _class,
 
 
 ///
+//  DKInstallEnumProperty()
+//
+void DKInstallEnumProperty( DKClassRef _class,
+    DKStringRef name,
+    DKStringRef semantic,
+    int32_t attributes,
+    size_t offset,
+    DKEncoding encoding,
+    DKEnumRef enumType,
+    DKPropertyGetter getter,
+    DKPropertySetter setter,
+    DKPropertyObserver willRead,
+    DKPropertyObserver didWrite )
+{
+    DKAssert( DKEncodingIsNumber( encoding ) );
+    DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
+    DKAssert( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
+    
+    struct DKProperty * property = DKNew( DKPropertyClass() );
+    
+    property->name = DKCopy( name );
+    property->semantic = DKCopy( semantic );
+    
+    property->attributes = attributes;
+    property->offset = offset;
+    property->encoding = encoding;
+    property->enumType = DKRetain( enumType );
+
+    property->getter = getter;
+    property->setter = setter;
+    property->willRead = willRead;
+    property->didWrite = didWrite;
+    
+    DKInstallProperty( _class, name, property );
+    DKRelease( property );
+}
+
+
+///
 //  DKGetAllPropertyDefinitions()
 //
 DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self )
@@ -425,6 +464,21 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
         return;
     }
     
+    // Automatic conversion of enum types from strings
+    if( property->enumType )
+    {
+        if( DKIsKindOfClass( object, DKStringClass() ) )
+        {
+            int enumValue = DKEnumFromString( property->enumType, object );
+
+            if( DKNumberConvert( &enumValue, DKEncodingTypeInt(int), value, property->encoding ) )
+            {
+                DKDidWriteProperty( _self, property );
+                return;
+            }
+        }
+    }
+    
     // Automatic conversion of numerical types (including booleans)
     if( DKIsKindOfClass( object, DKNumberClass() ) )
     {
@@ -480,6 +534,15 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
         }
     }
     
+    // Automatic conversion of enum types to strings
+    if( property->enumType )
+    {
+        int enumValue;
+        
+        if( DKNumberConvert( value, property->encoding, &enumValue, DKEncodingTypeInt(int) ) )
+            return DKStringFromEnum( property->enumType, enumValue );
+    }
+    
     // Automatic conversion of numerical types
     if( DKEncodingIsNumber( property->encoding ) )
     {
@@ -533,9 +596,9 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
 
 
 ///
-//  DKSetProperty()
+//  DKTrySetProperty()
 //
-void DKSetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object )
+void DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound )
 {
     if( _self )
     {
@@ -552,17 +615,15 @@ void DKSetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object )
                 return;
             }
             
-            PropertyNotDefined( _self, name );
+            if( warnIfNotFound )
+            {
+                PropertyNotDefined( _self, name );
+            }
+            
             return;
         }
         
         CheckPropertyIsReadWrite( _self, property );
-        
-        if( property->setter )
-        {
-            property->setter( _self, property, object );
-            return;
-        }
         
         DKWritePropertyObject( _self, property, object );
     }
@@ -570,15 +631,15 @@ void DKSetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object )
 
 
 ///
-//  DKSetPropertyForKeyPath()
+//  DKTrySetPropertyForKeyPath()
 //
-void DKSetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object )
+void DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object, bool warnIfNotFound )
 {
     DKObjectRef target;
     DKStringRef key;
     
     if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
-        DKSetProperty( target, key, object );
+        DKTrySetProperty( target, key, object, warnIfNotFound );
 }
 
 
@@ -603,11 +664,6 @@ DKObjectRef DKTryGetProperty( DKObjectRef _self, DKStringRef name, bool warnIfNo
                 PropertyNotDefined( _self, name );
             
             return NULL;
-        }
-        
-        if( property->getter )
-        {
-            return property->getter( _self, property );
         }
         
         return DKReadPropertyObject( _self, property );
@@ -1034,6 +1090,29 @@ double DKGetFloatProperty( DKObjectRef _self, DKStringRef name )
     double x;
     
     if( DKGetNumberProperty( _self, name, &x, DKNumberDouble ) )
+        return x;
+    
+    return 0;
+}
+
+
+///
+//  DKSetEnumProperty()
+//
+void DKSetEnumProperty( DKObjectRef _self, DKStringRef name, int x )
+{
+    DKSetNumberProperty( _self, name, &x, DKEncodingTypeInt(int) );
+}
+
+
+///
+//  DKGetEnumProperty()
+//
+int DKGetEnumProperty( DKObjectRef _self, DKStringRef name )
+{
+    int x;
+    
+    if( DKGetNumberProperty( _self, name, &x, DKEncodingTypeInt(int) ) )
         return x;
     
     return 0;

@@ -67,12 +67,14 @@ typedef void * DKWeakRef;
 
 
 // Forward declarations of common object types
-typedef struct DKClass * DKClassRef;
-typedef const struct DKProperty * DKPropertyRef;
-typedef struct DKString * DKStringRef;
-typedef struct DKPredicate * DKPredicateRef;
-typedef struct DKList * DKListRef;
-typedef struct DKDictionary * DKDictionaryRef;
+typedef struct DKClass *            DKClassRef;
+typedef const struct DKProperty *   DKPropertyRef;
+typedef struct DKString *           DKStringRef;
+typedef struct DKNumber *           DKNumberRef;
+typedef struct DKEnum *             DKEnumRef;
+typedef struct DKPredicate *        DKPredicateRef;
+typedef struct DKList *             DKListRef;
+typedef struct DKDictionary *       DKDictionaryRef;
 
 
 // Define a constant string with a compile-time constant C string.
