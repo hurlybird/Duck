@@ -199,6 +199,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
         if( _self->header->byteOrder != DKByteOrderNative )
         {
             // *** DO STUFF HERE ***
+            DKRequire( 0 );
         }
 
         DKIndex archiveLength = _self->header->data.index + _self->header->data.length;
@@ -279,7 +280,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
         if( _self->header->byteOrder != DKByteOrderNative )
         {
             // *** DO STUFF HERE ***
-            DKAssert( 0 );
+            DKRequire( 0 );
         }
 
         if( DKDataGetLength( data ) < (_self->header->data.index + _self->header->data.length) )

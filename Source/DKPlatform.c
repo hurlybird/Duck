@@ -25,7 +25,6 @@
 *****************************************************************************************/
 
 #include <assert.h>
-#include <execinfo.h>
 
 #include "DKPlatform.h"
 #include "DKString.h"
@@ -248,9 +247,7 @@ void dk_free( void * ptr )
 ///
 //  dk_uuid_generate()
 //
-#if DK_PLATFORM_POSIX
-#include <uuid/uuid.h>
-
+#if DK_PLATFORM_DARWIN
 DKUUID dk_uuid_generate( void )
 {
     DKAssert( sizeof(DKUUID) == sizeof(uuid_t) );
@@ -262,6 +259,72 @@ DKUUID dk_uuid_generate( void )
     
     return uuid;
 }
+
+#elif DK_PLATFORM_ANDROID_NDK
+
+static const uint8_t ascii_to_hex[128] =
+{
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //   0 - 15
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //  16 - 31
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //  32 - 47
+    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  0,  0,  0,  0,  0,  0, //  48 - 63
+
+    0, 10, 11, 12, 13, 14, 15,  0,  0,  0,  0,  0,  0,  0,  0,  0, //  64 - 79
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //  80 - 95
+    0, 10, 11, 12, 13, 14, 15,  0,  0,  0,  0,  0,  0,  0,  0,  0, //  96 - 111
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 112 - 127
+};
+
+static uint8_t dk_uuid_readbyte( const char * ascii )
+{
+    uint8_t n0 = ascii_to_hex[ascii[0] & 0x7F];
+    uint8_t n1 = ascii_to_hex[ascii[1] & 0x7F];
+    return (n0 << 4) | n1;
+}
+
+DKUUID dk_uuid_generate( void )
+{
+    DKUUID uuid;
+    char buffer[40];
+    
+    FILE * stream = fopen( "/proc/sys/kernel/random/uuid", "r" );
+
+    int n = fread( buffer, 1, 36, stream );
+    buffer[36] = '\0';
+
+    fclose( stream );
+    
+    if( n == 36 )
+    {
+        buffer[36] = '\0';
+        
+        // 'buffer' should contain a UUID string: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+        
+        uuid.bytes[0] = dk_uuid_readbyte( &buffer[0] );
+        uuid.bytes[1] = dk_uuid_readbyte( &buffer[2] );
+        uuid.bytes[2] = dk_uuid_readbyte( &buffer[4] );
+        uuid.bytes[3] = dk_uuid_readbyte( &buffer[6] );
+
+        uuid.bytes[4] = dk_uuid_readbyte( &buffer[9] );
+        uuid.bytes[5] = dk_uuid_readbyte( &buffer[11] );
+        
+        uuid.bytes[6] = dk_uuid_readbyte( &buffer[14] );
+        uuid.bytes[7] = dk_uuid_readbyte( &buffer[16] );
+
+        uuid.bytes[8] = dk_uuid_readbyte( &buffer[19] );
+        uuid.bytes[9] = dk_uuid_readbyte( &buffer[21] );
+
+        uuid.bytes[10] = dk_uuid_readbyte( &buffer[24] );
+        uuid.bytes[11] = dk_uuid_readbyte( &buffer[26] );
+        uuid.bytes[12] = dk_uuid_readbyte( &buffer[28] );
+        uuid.bytes[13] = dk_uuid_readbyte( &buffer[30] );
+        uuid.bytes[14] = dk_uuid_readbyte( &buffer[32] );
+        uuid.bytes[15] = dk_uuid_readbyte( &buffer[34] );
+    }
+    
+    return uuid;
+}
+
 #endif
 
 
@@ -329,8 +392,6 @@ uint64_t dk_memhash64( const void * buffer, size_t buffer_size )
 //  dk_datetime()
 //
 #if DK_PLATFORM_POSIX
-#include <sys/time.h>
-
 DKDateTime dk_datetime( void )
 {
     struct timeval t;

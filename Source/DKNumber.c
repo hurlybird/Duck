@@ -746,12 +746,12 @@ DKStringRef DKNumberFormatString( DKNumberRef _self, const char * seperator )
         case DKEncodingTypeInt8:   PRINT( "%d", int8_t ); break;
         case DKEncodingTypeInt16:  PRINT( "%d", int16_t ); break;
         case DKEncodingTypeInt32:  PRINT( "%d", int32_t ); break;
-        case DKEncodingTypeInt64:  PRINT( "%lld", int64_t ); break;
+        case DKEncodingTypeInt64:  PRINT( "%" PRId64, int64_t ); break;
         
         case DKEncodingTypeUInt8:  PRINT( "%u", uint8_t ); break;
         case DKEncodingTypeUInt16: PRINT( "%u", uint16_t ); break;
         case DKEncodingTypeUInt32: PRINT( "%u", uint32_t ); break;
-        case DKEncodingTypeUInt64: PRINT( "%llu", uint64_t ); break;
+        case DKEncodingTypeUInt64: PRINT( "%" PRIu64, uint64_t ); break;
         
         case DKEncodingTypeFloat:  PRINT( "%f", float ); break;
         case DKEncodingTypeDouble: PRINT( "%lf", double ); break;

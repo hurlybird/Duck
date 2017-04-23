@@ -80,7 +80,7 @@ static void DKFileFinalize( DKObjectRef _untyped_self )
 //
 bool DKFileExists( DKStringRef filename )
 {
-#if DK_PLATFORM_BSD
+#if DK_PLATFORM_POSIX
     const char * fname = DKStringGetCStringPtr( filename );
 
     struct stat fileStats;
@@ -201,7 +201,7 @@ DKIndex DKFileGetLength( DKFileRef _self )
 
         if( _self->file )
         {
-#if DK_PLATFORM_BSD
+#if DK_PLATFORM_POSIX
             int fd = fileno( _self->file );
             struct stat fileStats;
             fstat( fd, &fileStats );

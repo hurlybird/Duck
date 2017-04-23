@@ -100,24 +100,36 @@
 
 // Platform ==============================================================================
 
-#ifndef DK_PLATFORM_APPLE
-#define DK_PLATFORM_APPLE       1
-#endif
+// #define DK_PLATFORM_DARWIN
+// #define DK_PLATFORM_POSIX
+// #define DK_PLATFORM_BSD
+// #define DK_PLATFORM_LINUX
+// #define DK_PLATFORM_CLANG
+// #define DK_PLATFORM_GCC
+// #define DK_PLATFORM_ANDROID_NDK
 
-#ifndef DK_PLATFORM_BSD
-#define DK_PLATFORM_BSD         1
-#endif
 
-#ifndef DK_PLATFORM_LINUX
-#define DK_PLATFORM_LINUX       0
-#endif
+// Apple MacOS and iOS
+#if DK_PLATFORM_APPLE
+#define DK_PLATFORM_DARWIN          1
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_BSD             1
+#define DK_PLATFORM_CLANG           1
 
-#ifndef DK_PLATFORM_ANDROID
-#define DK_PLATFORM_ANDROID     0
-#endif
 
-#ifndef DK_PLATFORM_POSIX
-#define DK_PLATFORM_POSIX       1
+// Android
+#elif DK_PLATFORM_ANDROID
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_ANDROID_NDK     1
+#define DK_PLATFORM_GCC             1
+
+
+// Default (Apple)
+#else
+#define DK_PLATFORM_DARWIN          1
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_BSD             1
+#define DK_PLATFORM_CLANG           1
 #endif
 
 

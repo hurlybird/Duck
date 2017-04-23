@@ -33,27 +33,29 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "DKConfig.h"
 
-#if DK_PLATFORM_APPLE
+#if DK_PLATFORM_DARWIN
 #include <os/lock.h>
-#endif
-
-#if DK_PLATFORM_ANDROID
-// Do stuff here...
-#endif
-
-#if DK_PLATFORM_LINUX
-// Do stuff here...
-#endif
-
-#if DK_PLATFORM_BSD
-#include <sys/stat.h>
+#include <uuid/uuid.h>
 #endif
 
 #if DK_PLATFORM_POSIX
 #include <pthread.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#endif
+
+#if DK_PLATFORM_BSD
+#endif
+
+#if DK_PLATFORM_LINUX
+#include <linux/spinlock.h>
+#endif
+
+#if DK_PLATFORM_ANDROID_NDK
 #endif
 
 
@@ -423,32 +425,9 @@ void   dk_free( void * ptr );
 
 
 
-// Spin Locks ============================================================================
-#if DK_PLATFORM_APPLE
-typedef os_unfair_lock DKSpinLock;
-
-#define DKSpinLockInit              OS_UNFAIR_LOCK_INIT
-#define DKSpinLockLock( s )         os_unfair_lock_lock( s )
-#define DKSpinLockUnlock( s )       os_unfair_lock_unlock( s )
-
-//typedef OSSpinLock DKSpinLock;
-
-//#define DKSpinLockInit              OS_SPINLOCK_INIT
-//#define DKSpinLockLock( s )         OSSpinLockLock( s )
-//#define DKSpinLockUnlock( s )       OSSpinLockUnlock( s )
-
-#else
-typedef spinlock_t DKSpinLock;
-
-#define DKSpinLockInit              SPIN_LOCK_UNLOCKED
-#define DKSpinLockLock( s )         spin_lock( s )
-#define DKSpinLockUnlock( s )       spin_unlock( s )
-
-#endif
-
-
-
 // Atomic Operations =====================================================================
+#if DK_PLATFORM_CLANG || DK_PLATFORM_GCC
+
 #define DKAtomicAdd32( ptr, x )                 __sync_add_and_fetch( ptr, x )
 #define DKAtomicSub32( ptr, x )                 __sync_sub_and_fetch( ptr, x )
 #define DKAtomicAnd32( ptr, x )                 __sync_and_and_fetch( ptr, x )
@@ -457,16 +436,66 @@ typedef spinlock_t DKSpinLock;
 #define DKAtomicDecrement32( ptr )              __sync_sub_and_fetch( ptr, 1 )
 #define DKAtomicCmpAndSwap32( val, old, new )   __sync_bool_compare_and_swap( val, old, new )
 #define DKAtomicCmpAndSwapPtr( val, old, new )  __sync_bool_compare_and_swap( val, old, new )
+#define DKMemoryBarrier()                       __sync_synchronize()
 
+#endif
+
+
+
+// Spin Locks ============================================================================
+#if DK_PLATFORM_DARWIN
+typedef os_unfair_lock DKSpinLock;
+
+#define DKSpinLockInit              OS_UNFAIR_LOCK_INIT
+#define DKSpinLockLock( s )         os_unfair_lock_lock( s )
+#define DKSpinLockUnlock( s )       os_unfair_lock_unlock( s )
+
+#elif DK_PLATFORM_LINUX
+typedef spinlock_t DKSpinLock;
+
+#define DKSpinLockInit              SPIN_LOCK_UNLOCKED
+#define DKSpinLockLock( s )         spin_lock( s )
+#define DKSpinLockUnlock( s )       spin_unlock( s )
+
+#else
+typedef struct
+{
+	uint32_t lock;
+} DKSpinLock;
+
+#define DKSpinLockInit              ((DKSpinLock){0})
+
+inline static void DKSpinLockLock( DKSpinLock * spinlock )
+{
+    volatile uint32_t * lock = &spinlock->lock;
+
+	while( 1 )
+	{
+        if( DKAtomicCmpAndSwap32( lock, 0, 1 ) )
+            return;
+	}
+}
+
+inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
+{
+    volatile uint32_t * lock = &spinlock->lock;
+    
+    DKMemoryBarrier();
+    *lock = 0;
+}
+#endif
 
 
 
 // Byte Order Operations =================================================================
+#if DK_PLATFORM_CLANG || DK_PLATFORM_GCC
+
 #define DKSwapInt16( x )                        __builtin_bswap16( x )
 #define DKSwapInt32( x )                        __builtin_bswap32( x )
 #define DKSwapInt64( x )                        __builtin_bswap64( x )
 
-#if 0
+#else
+
 static inline uint16_t DKSwapInt16( uint16_t x )
 {
     uint16_t byte0 = x << 8;
@@ -492,6 +521,7 @@ static inline int64_t DKSwapInt64( int64_t x )
     
     return word0 | word1;
 }
+
 #endif
 
 static inline float DKSwapFloat( float x )

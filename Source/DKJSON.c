@@ -484,7 +484,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
         else
         {
             int64_t x;
-            sscanf( token.str, "%lld", &x );
+            sscanf( token.str, "%" PRId64, &x );
             
             *obj = DKNewNumberWithInt64( x );
             return 0;
@@ -675,7 +675,7 @@ static Token ScanVectorToken( Token token, ParseContext * context, DKObjectRef *
                 else
                 {
                     int64_t x;
-                    sscanf( numberToken.str, "%lld", &x );
+                    sscanf( numberToken.str, "%" PRId64, &x );
                     
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }

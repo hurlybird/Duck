@@ -108,7 +108,7 @@ static void GenerateSizes( int64_t (*nextSize)( int64_t x ) )
 
     for( int64_t i = 11; i <= max; )
     {
-        printf( "    { %lld, %lld },\n", i, i / 2 );
+        printf( "    { %" PRId64 ", %" PRId64 " },\n", i, i / 2 );
         i = nextSize( i * 2 );
 
         // Round up the table size to multiples of N allocated bytes for better memory

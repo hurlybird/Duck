@@ -1904,7 +1904,7 @@ int64_t DKStringGetInt64( DKStringRef _self )
         {
             int64_t value;
             
-            if( sscanf( (const char *)_self->byteArray.bytes, "%lld", &value ) == 1 )
+            if( sscanf( (const char *)_self->byteArray.bytes, "%" PRId64, &value ) == 1 )
                 return value;
         }
     }

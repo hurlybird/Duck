@@ -43,7 +43,8 @@ builddir = path.join( builddir, str( platform ), architecture )
 # Gather source file locations
 sourcedirs = [
 	'Source', 
-	path.join( 'ThirdParty', 'icu' )
+	path.join( 'ThirdParty', 'icu' ),
+	path.join( 'ThirdParty', 'yxml' )
 ]
 
 headerdirs = [
