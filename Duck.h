@@ -39,6 +39,7 @@ extern "C"
 {
 #endif
 
+#define DK_EXCLUDE_NONMODULAR_HEADERS
 
 #include "DKConfig.h"
 #include "DKPlatform.h"

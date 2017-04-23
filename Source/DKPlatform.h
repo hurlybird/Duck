@@ -33,9 +33,15 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+
+// Some system headers (i.e. inttypes.h) can cause errors when exposed by the framework.
+#ifndef DK_EXCLUDE_NONMODULAR_HEADERS
 #include <inttypes.h>
+#endif
+
 
 #include "DKConfig.h"
+
 
 #if DK_PLATFORM_DARWIN
 #include <os/lock.h>
