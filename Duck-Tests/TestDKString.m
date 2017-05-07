@@ -75,6 +75,9 @@ static int RaiseException( const char * format, va_list arg_ptr )
     
     DKStringReplaceOccurrencesOfString( mutableString, DKSTR( "lazy dog." ), DKSTR( "cliff." ) );
     XCTAssert( DKStringEqual( mutableString, DKSTR( "The slow brown fox leapt over a cliff." ) ) );
+
+    DKStringRef trimmedString = DKStringByTrimmingWhitespace( DKSTR( " \t\nhello \t\n" ) );
+    XCTAssert( DKStringEqual( trimmedString, DKSTR( "hello" ) ) );
     
     DKRelease( mutableString );
 }

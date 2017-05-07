@@ -97,6 +97,9 @@ DKRange     DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKInde
 DKListRef   DKStringSplit( DKStringRef _self, DKStringRef separator );
 DKStringRef DKStringCombine( DKListRef list, DKStringRef separator );
 
+// Trimming
+DKStringRef DKStringByTrimmingWhitespace( DKStringRef _self );
+
 // Modifying mutable strings
 void        DKStringSetString( DKMutableStringRef _self, DKStringRef str );
 void        DKStringSetCString( DKMutableStringRef _self, const char * cstr );
@@ -138,6 +141,8 @@ DKStringRef DKStringByRemovingURLPercentEscapes( DKStringRef _self );
 
 DKDictionaryRef DKStringSplitQueryParameters( DKStringRef _self );
 DKStringRef DKStringCombineQueryParameters( DKDictionaryRef queryParameters );
+
+DKDictionaryRef DKStringSplitCSSStyles( DKStringRef _self );
 
 // Conversions
 bool        DKStringGetBool( DKStringRef _self );

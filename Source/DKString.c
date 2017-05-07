@@ -1055,6 +1055,60 @@ DKStringRef DKStringCombine( DKListRef list, DKStringRef separator )
 
 
 ///
+//  DKStringByTrimmingWhitespace()
+//
+DKStringRef DKStringByTrimmingWhitespace( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        const char * str = (const char *)_self->byteArray.bytes;
+        DKIndex len = 0;
+
+        DKRange byteRange = DKRangeMake( 0, 0 );
+        
+        while( *str )
+        {
+            DKChar32 ch;
+            size_t bytes = dk_ustrscan( str, &ch );
+
+            str += bytes;
+            
+            if( !isspace( ch ) )
+            {
+                len = bytes;
+                byteRange.length = bytes;
+                break;
+            }
+            
+            byteRange.location += bytes;
+        }
+        
+        
+        while( *str )
+        {
+            DKChar32 ch;
+            size_t bytes = dk_ustrscan( str, &ch );
+
+            str += bytes;
+            len += bytes;
+            
+            if( !isspace( ch ) )
+                byteRange.length = len;
+        }
+        
+        if( byteRange.length != _self->byteArray.length )
+        {
+            return CopySubstring( (const char *)_self->byteArray.bytes, byteRange );
+        }
+    }
+
+    return _self;
+}
+
+
+///
 //  DKStringSetString()
 //
 void DKStringSetString( DKMutableStringRef _self, DKStringRef str )
@@ -1741,6 +1795,48 @@ DKStringRef DKStringCombineQueryParameters( DKDictionaryRef queryParameters )
     }
 
     return DKSTR( "" );
+}
+
+
+///
+//  DKStringSplitCSSStyles()
+//
+static int DKStringSplitCSSStylesCallback( DKObjectRef object, void * context )
+{
+    DKMutableDictionaryRef styles = context;
+    
+    DKListRef keyValuePair = DKStringSplit( object, DKSTR( ":" ) );
+    DKIndex count = DKListGetCount( keyValuePair );
+
+    if( count == 2 )
+    {
+        DKStringRef key = DKStringByTrimmingWhitespace( DKListGetObjectAtIndex( keyValuePair, 0 ) );
+        DKStringRef value = DKStringByTrimmingWhitespace( DKListGetObjectAtIndex( keyValuePair, 1 ) );
+
+        DKDictionarySetObject( styles, key, value );
+    }
+    
+    return 0;
+}
+
+DKDictionaryRef DKStringSplitCSSStyles( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        
+        if( _self->byteArray.length > 0 )
+        {
+            DKMutableDictionaryRef styles = DKMutableDictionary();
+        
+            DKListRef keyValuePairs = DKStringSplit( _self, DKSTR( ";" ) );
+            DKForeachObject( keyValuePairs, DKStringSplitCSSStylesCallback, styles );
+            
+            return styles;
+        }
+    }
+    
+    return NULL;
 }
 
 
