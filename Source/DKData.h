@@ -69,6 +69,7 @@ void        DKDataIncreaseLength( DKMutableDataRef _self, DKIndex length );
 
 const void * DKDataGetBytePtr( DKDataRef _self, DKIndex index );
 const void * DKDataGetByteRange( DKDataRef _self, DKRange range );
+const void * DKDataGetByteEnd( DKDataRef _self );
 
 void *      DKDataGetMutableBytePtr( DKMutableDataRef _self, DKIndex index );
 void *      DKDataGetMutableByteRange( DKMutableDataRef _self, DKRange range );

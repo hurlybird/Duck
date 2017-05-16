@@ -513,6 +513,22 @@ const void * DKDataGetByteRange( DKDataRef _self, DKRange range )
 
 
 ///
+//  DKDataGetByteEnd()
+//
+const void * DKDataGetByteEnd( DKDataRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKDataClass() );
+        
+        return &_self->byteArray.bytes[_self->byteArray.length];
+    }
+    
+    return NULL;
+}
+
+
+///
 //  DKDataGetMutableBytePtr()
 //
 void * DKDataGetMutableBytePtr( DKMutableDataRef _self, DKIndex index )
