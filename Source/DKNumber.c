@@ -753,8 +753,8 @@ DKStringRef DKNumberFormatString( DKNumberRef _self, const char * seperator )
         case DKEncodingTypeUInt32: PRINT( "%u", uint32_t ); break;
         case DKEncodingTypeUInt64: PRINT( "%" PRIu64, uint64_t ); break;
         
-        case DKEncodingTypeFloat:  PRINT( "%f", float ); break;
-        case DKEncodingTypeDouble: PRINT( "%lf", double ); break;
+        case DKEncodingTypeFloat:  PRINT( "%g", float ); break;
+        case DKEncodingTypeDouble: PRINT( "%lg", double ); break;
         
         default:
             DKAssert( 0 );

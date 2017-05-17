@@ -60,7 +60,10 @@ typedef const struct DKEggInterface * DKEggInterfaceRef;
 // DKEggUnarchiver =======================================================================
 DKClassRef DKEggUnarchiverClass( void );
 
+#define DKEggUnarchiverWithStream( stream )      DKAutorelease( DKEggUnarchiverInitWithStream( DKAlloc( DKEggUnarchiverClass() ), stream ) )
 #define DKNewEggUnarchiverWithStream( stream )   DKEggUnarchiverInitWithStream( DKAlloc( DKEggUnarchiverClass() ), stream )
+
+#define DKEggUnarchiverWithData( data )          DKAutorelease( DKEggUnarchiverInitWithData( DKAlloc( DKEggUnarchiverClass() ), data ) )
 #define DKNewEggUnarchiverWithData( data )       DKEggUnarchiverInitWithData( DKAlloc( DKEggUnarchiverClass() ), data )
 
 DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKObjectRef stream );
@@ -86,6 +89,7 @@ size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * num
 // DKEggArchiver =========================================================================
 DKClassRef DKEggArchiverClass( void );
 
+#define DKEggArchiver()     DKAutorelease( DKNew( DKEggArchiverClass() ) )
 #define DKNewEggArchiver()  DKNew( DKEggArchiverClass() )
 
 void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKObjectRef stream );
