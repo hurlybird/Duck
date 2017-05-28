@@ -64,10 +64,13 @@ void        DKLinkedListReplaceRangeWithCArray( DKMutableLinkedListRef _self, DK
 void        DKLinkedListReplaceRangeWithCollection( DKMutableLinkedListRef _self, DKRange range, DKObjectRef srcCollection );
 
 void        DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp );
+void        DKLinkedListReverse( DKMutableLinkedListRef _self );
 void        DKLinkedListShuffle( DKMutableLinkedListRef _self );
 
 int         DKLinkedListApplyFunction( DKLinkedListRef _self, DKApplierFunction callback, void * context );
 
+bool        DKLinkedListInsertObjectWithPriority( DKMutableLinkedListRef _self, DKObjectRef object, double priority, DKInsertPolicy policy );
+double      DKLinkedListGetPriorityOfObjectAtIndex( DKLinkedListRef _self, DKIndex index );
 
 
 #endif // _DK_LINKED_LIST_H_

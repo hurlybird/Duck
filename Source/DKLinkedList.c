@@ -40,6 +40,13 @@ struct DKLinkedListNode
     struct DKLinkedListNode * prev;
     struct DKLinkedListNode * next;
     DKObjectRef object;
+    double priority;
+};
+
+struct DKLinkedListCursor
+{
+    struct DKLinkedListNode * node;
+    DKIndex index;
 };
 
 struct DKLinkedList
@@ -52,12 +59,7 @@ struct DKLinkedList
     struct DKLinkedListNode * last;
     DKIndex count;
 
-    struct
-    {
-        struct DKLinkedListNode * node;
-        DKIndex index;
-        
-    } cursor;
+    struct DKLinkedListCursor cursor;
 };
 
 static DKObjectRef DKLinkedListInitialize( DKObjectRef _self );
@@ -134,6 +136,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     list->replaceRangeWithCArray = (void *)DKImmutableObjectAccessError;
     list->replaceRangeWithCollection = (void *)DKImmutableObjectAccessError;
     list->sort = (void *)DKImmutableObjectAccessError;
+    list->reverse = (void *)DKImmutableObjectAccessError;
     list->shuffle = (void *)DKImmutableObjectAccessError;
 
     DKInstallInterface( cls, list );
@@ -197,7 +200,8 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     list->replaceRangeWithCArray = (DKListReplaceRangeWithCArrayMethod)INTERNAL_DKLinkedListReplaceRangeWithCArray;
     list->replaceRangeWithCollection = (DKListReplaceRangeWithCollectionMethod)INTERNAL_DKLinkedListReplaceRangeWithCollection;
     list->sort = (DKListSortMethod)DKLinkedListSort;
-    list->shuffle = (DKListShuffleMethod)DKLinkedListShuffle;
+    list->reverse = (DKListReorderMethod)DKLinkedListReverse;
+    list->shuffle = (DKListReorderMethod)DKLinkedListShuffle;
 
     DKInstallInterface( cls, list );
     DKRelease( list );
@@ -285,6 +289,7 @@ static struct DKLinkedListNode * AllocNode( struct DKLinkedList * list, DKObject
     node->next = NULL;
     
     node->object = DKRetain( object );
+    node->priority = 0;
     
     list->count++;
     
@@ -839,17 +844,57 @@ void DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp )
     {
         DKCheckKindOfClass( _self, DKMutableLinkedListClass() );
 
-        // This is absurd, yet probably not much slower than doing all the pointer
-        // gymnastics needed for sorting the list nodes.
-        DKGenericArray array;
-        DKGenericArrayInit( &array, sizeof(DKObjectRef) );
-        DKGenericArrayReserve( &array, _self->count );
-        ListToArray( &array, _self );
+        if( _self->count > 1 )
+        {
+            // This is absurd, yet probably not much slower than doing all the pointer
+            // gymnastics needed for sorting the list nodes.
+            DKGenericArray array;
+            DKGenericArrayInit( &array, sizeof(DKObjectRef) );
+            DKGenericArrayReserve( &array, _self->count );
+            ListToArray( &array, _self );
 
-        DKGenericArraySort( &array, cmp );
+            DKGenericArraySort( &array, cmp );
 
-        ArrayToList( _self, &array );
-        DKGenericArrayFinalize( &array );
+            ArrayToList( _self, &array );
+            DKGenericArrayFinalize( &array );
+            
+            _self->cursor.node = _self->first;
+            _self->cursor.index = 0;
+        }
+    }
+}
+
+
+///
+//  DKLinkedListReverse()
+//
+void DKLinkedListReverse( DKMutableLinkedListRef _self )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableLinkedListClass() );
+        
+        struct DKLinkedListNode * first = _self->last;
+        struct DKLinkedListNode * last = _self->first;
+        struct DKLinkedListNode * prev = NULL;
+        struct DKLinkedListNode * curr = first;
+        
+        while( curr )
+        {
+            struct DKLinkedListNode * next = curr->prev;
+            
+            curr->prev = prev;
+            curr->next = next;
+            
+            prev = curr;
+            curr = next;
+        }
+        
+        _self->first = first;
+        _self->last = last;
+        
+        _self->cursor.node = _self->first;
+        _self->cursor.index = 0;
     }
 }
 
@@ -863,17 +908,23 @@ void DKLinkedListShuffle( DKMutableLinkedListRef _self )
     {
         DKCheckKindOfClass( _self, DKMutableLinkedListClass() );
         
-        // This is absurd, yet probably not much slower than doing all the pointer
-        // gymnastics needed for shuffling the list nodes.
-        DKGenericArray array;
-        DKGenericArrayInit( &array, sizeof(DKObjectRef) );
-        DKGenericArrayReserve( &array, _self->count );
-        ListToArray( &array, _self );
+        if( _self->count > 1 )
+        {
+            // This is absurd, yet probably not much slower than doing all the pointer
+            // gymnastics needed for shuffling the list nodes.
+            DKGenericArray array;
+            DKGenericArrayInit( &array, sizeof(DKObjectRef) );
+            DKGenericArrayReserve( &array, _self->count );
+            ListToArray( &array, _self );
 
-        DKGenericArrayShuffle( &array );
+            DKGenericArrayShuffle( &array );
 
-        ArrayToList( _self, &array );
-        DKGenericArrayFinalize( &array );
+            ArrayToList( _self, &array );
+            DKGenericArrayFinalize( &array );
+
+            _self->cursor.node = _self->first;
+            _self->cursor.index = 0;
+        }
     }
 }
 
@@ -902,5 +953,84 @@ int DKLinkedListApplyFunction( DKLinkedListRef _self, DKApplierFunction callback
 }
 
 
+///
+//  DKLinkedListInsertObjectWithPriority()
+//
+bool DKLinkedListInsertObjectWithPriority( DKMutableLinkedListRef _self, DKObjectRef object, double priority, DKInsertPolicy policy )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableLinkedListClass(), false );
+
+        struct DKLinkedListCursor cursor = { _self->first, 0 };
+        struct DKLinkedListCursor insertAt = { _self->last, _self->count };
+        struct DKLinkedListCursor removeAt = { NULL, DKNotFound };
+
+        while( cursor.node )
+        {
+            if( cursor.node->object == object )
+            {
+                // Early out if we're adding and the object already exists
+                if( policy == DKInsertIfNotFound )
+                    return false;
+
+                DKAssert( removeAt.node == NULL );
+                removeAt = cursor;
+            }
+            
+            if( (insertAt.index == _self->count) && (priority > cursor.node->priority) )
+            {
+                insertAt = cursor;
+            }
+            
+            cursor.node = cursor.node->next;
+            cursor.index++;
+        }
+        
+        // Early out if we're replacing and the object doesn't exist
+        if( (policy == DKInsertIfFound) && (removeAt.node == NULL) )
+            return false;
+
+        // Insert the new node
+        _self->cursor = insertAt;
+        InsertObject( _self, _self->cursor.index, object );
+        
+        // Save the inserted node's priority
+        _self->cursor.node->priority = priority;
+
+        // Remove the existing node
+        if( removeAt.node )
+        {
+            if( removeAt.index >= insertAt.index )
+                removeAt.index++;
+            
+            _self->cursor = removeAt;
+            RemoveRange( _self, DKRangeMake( _self->cursor.index, 1 ) );
+        }
+        
+        return true;
+    }
+    
+    return false;
+}
+
+
+///
+//  DKLinkedListGetPriorityOfObjectAtIndex()
+//
+double DKLinkedListGetPriorityOfObjectAtIndex( DKLinkedListRef _self, DKIndex index )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKLinkedListClass(), 0 );
+        DKCheckIndex( index, _self->count, 0 );
+
+        struct DKLinkedListNode * node = MoveCursor( _self, index );
+
+        return node->priority;
+    }
+    
+    return 0;
+}
 
 

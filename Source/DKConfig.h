@@ -136,8 +136,16 @@
 
 
 // Settings ==============================================================================
-#define DK_AUTORELEASE_POOL_STACK_SIZE  8
 
+// Max nested autorelease pools
+#ifndef DK_AUTORELEASE_POOL_STACK_SIZE
+#define DK_AUTORELEASE_POOL_STACK_SIZE  8
+#endif
+
+// Remove extra trailing zeroes from %f and %lf float formats in DKPrintf
+#ifndef DK_PRETTY_PRINT_FLOATS
+#define DK_PRETTY_PRINT_FLOATS  1
+#endif
 
 
 #endif // _DK_CONFIG_H_

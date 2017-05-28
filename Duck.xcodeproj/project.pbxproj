@@ -31,6 +31,10 @@
 		026FBD191C309B5F00C96822 /* DKThreadPool.c in Sources */ = {isa = PBXBuildFile; fileRef = 026FBD161C309B5F00C96822 /* DKThreadPool.c */; };
 		026FBD1A1C309B5F00C96822 /* DKThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 026FBD171C309B5F00C96822 /* DKThreadPool.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		026FBD1B1C309B5F00C96822 /* DKThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 026FBD171C309B5F00C96822 /* DKThreadPool.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		028D61CA1ED9F55B00E7BC72 /* DKGraph.c in Sources */ = {isa = PBXBuildFile; fileRef = 028D61C81ED9F55B00E7BC72 /* DKGraph.c */; };
+		028D61CB1ED9F55B00E7BC72 /* DKGraph.c in Sources */ = {isa = PBXBuildFile; fileRef = 028D61C81ED9F55B00E7BC72 /* DKGraph.c */; };
+		028D61CC1ED9F55B00E7BC72 /* DKGraph.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D61C91ED9F55B00E7BC72 /* DKGraph.h */; };
+		028D61CD1ED9F55B00E7BC72 /* DKGraph.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D61C91ED9F55B00E7BC72 /* DKGraph.h */; };
 		028F1A941B0DCA86006FDFDF /* Duck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 028F1A891B0DCA85006FDFDF /* Duck.framework */; };
 		028F1AA21B0DCBBB006FDFDF /* Duck.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF4A19D856BC002E876C /* Duck.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1AA31B0DCBBB006FDFDF /* DKConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF1919D85669002E876C /* DKConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -321,6 +325,8 @@
 		0269BF4A19D856BC002E876C /* Duck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Duck.h; sourceTree = "<group>"; };
 		026FBD161C309B5F00C96822 /* DKThreadPool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKThreadPool.c; sourceTree = "<group>"; };
 		026FBD171C309B5F00C96822 /* DKThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKThreadPool.h; sourceTree = "<group>"; };
+		028D61C81ED9F55B00E7BC72 /* DKGraph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGraph.c; sourceTree = "<group>"; };
+		028D61C91ED9F55B00E7BC72 /* DKGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKGraph.h; sourceTree = "<group>"; };
 		028F1A891B0DCA85006FDFDF /* Duck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Duck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		028F1A8C1B0DCA85006FDFDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = "Duck-MacOS/Info.plist"; sourceTree = "<group>"; };
 		028F1A931B0DCA85006FDFDF /* Duck-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Duck-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -509,6 +515,8 @@
 				025C0F4D18EFED96000344C0 /* DKDictionary.c */,
 				0269BF2119D85669002E876C /* DKHashTable.h */,
 				025C0F4F18EFED96000344C0 /* DKHashTable.c */,
+				028D61C91ED9F55B00E7BC72 /* DKGraph.h */,
+				028D61C81ED9F55B00E7BC72 /* DKGraph.c */,
 				0269BF2219D85669002E876C /* DKLinkedList.h */,
 				025C0F5018EFED96000344C0 /* DKLinkedList.c */,
 				0269BF2319D85669002E876C /* DKList.h */,
@@ -712,6 +720,7 @@
 				028F1AB91B0DCBBB006FDFDF /* DKData.h in Headers */,
 				028F1ABA1B0DCBBB006FDFDF /* DKNumber.h in Headers */,
 				028F1ABB1B0DCBBB006FDFDF /* DKString.h in Headers */,
+				028D61CC1ED9F55B00E7BC72 /* DKGraph.h in Headers */,
 				028F1ABC1B0DCBBB006FDFDF /* DKStruct.h in Headers */,
 				028F1ABD1B0DCBBB006FDFDF /* DKByteArray.h in Headers */,
 				028F1ABE1B0DCBBB006FDFDF /* DKGenericArray.h in Headers */,
@@ -766,6 +775,7 @@
 				028F1B541B0E6BFB006FDFDF /* DKData.h in Headers */,
 				028F1B551B0E6BFB006FDFDF /* DKNumber.h in Headers */,
 				028F1B561B0E6BFB006FDFDF /* DKString.h in Headers */,
+				028D61CD1ED9F55B00E7BC72 /* DKGraph.h in Headers */,
 				028F1B571B0E6BFC006FDFDF /* DKStruct.h in Headers */,
 				028F1B581B0E6BFC006FDFDF /* DKByteArray.h in Headers */,
 				028F1B591B0E6BFC006FDFDF /* DKGenericArray.h in Headers */,
@@ -936,6 +946,7 @@
 				028F1AD61B0DCC05006FDFDF /* DKCollection.c in Sources */,
 				028F1AD71B0DCC05006FDFDF /* DKDictionary.c in Sources */,
 				028F1AD81B0DCC05006FDFDF /* DKHashTable.c in Sources */,
+				028D61CA1ED9F55B00E7BC72 /* DKGraph.c in Sources */,
 				028F1AD91B0DCC05006FDFDF /* DKLinkedList.c in Sources */,
 				028F1ADA1B0DCC05006FDFDF /* DKList.c in Sources */,
 				028F1ADB1B0DCC05006FDFDF /* DKSet.c in Sources */,
@@ -1009,6 +1020,7 @@
 				028F1B271B0E6BC9006FDFDF /* DKCollection.c in Sources */,
 				028F1B281B0E6BC9006FDFDF /* DKDictionary.c in Sources */,
 				028F1B291B0E6BC9006FDFDF /* DKHashTable.c in Sources */,
+				028D61CB1ED9F55B00E7BC72 /* DKGraph.c in Sources */,
 				028F1B2A1B0E6BC9006FDFDF /* DKLinkedList.c in Sources */,
 				028F1B2B1B0E6BC9006FDFDF /* DKList.c in Sources */,
 				028F1B2C1B0E6BC9006FDFDF /* DKSet.c in Sources */,

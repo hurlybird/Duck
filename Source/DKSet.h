@@ -96,7 +96,7 @@ DKObjectRef DKSetInitWithCollection( DKSetRef _self, DKObjectRef srcCollection )
 
 DKIndex     DKSetGetCount( DKSetRef _self );
 DKObjectRef DKSetGetMember( DKSetRef _self, DKObjectRef object );
-int         DKSetContainsObject( DKSetRef _self, DKObjectRef object );
+bool        DKSetContainsObject( DKSetRef _self, DKObjectRef object );
 
 DKListRef   DKSetGetAllObjects( DKDictionaryRef _self );
 

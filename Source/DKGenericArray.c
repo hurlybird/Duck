@@ -338,6 +338,7 @@ void DKGenericArrayReverse( DKGenericArray * array )
         
     case 8:
         Reverse64( array );
+        break;
         
     default:
         Reverse( array );

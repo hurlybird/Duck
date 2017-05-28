@@ -28,8 +28,8 @@ in gaps and tweaking to match expected/intuitive use in a real project.
 
 ## Porting
 
-Duck is written in XCode and includes targets for Mac OS and iOS. It should
-compile anywhere with a C99 compliant compiler. A few types and functions,
+Duck is mainly written in XCode and includes framework targets for Mac OS and iOS. It
+should compile anywhere with a C99 compliant compiler. A few types and functions,
 particularly those related to atomic operations, will likely need to be redefined
 on non-Apple or non-POSIX systems.
 
@@ -41,7 +41,11 @@ about some of the C99 code that Duck uses--namely explicit casts from void and
 inline struct initialization. The main workaround for these issues is to add extra
 casts where needed and avoid any convenience macros that aren't C++ friendly.
 
+A sample CMakeLists.h file is included for building with Android Studio.
+
 A basic SConstruct file is included for building with scons.
+
+See *DKConfig.h* for build configuration options.
 
 
 ## Quick Start
@@ -56,9 +60,6 @@ int main( int argc, const char * argv[] )
     // Initialize the library
     DKRuntimeInit( 0 );
     
-    // Create an autorelease pool
-    DKPushAutoreleasePool();
-
     // Create a mutable list
     DKMutableListRef list = DKMutableList();
     
@@ -77,8 +78,8 @@ int main( int argc, const char * argv[] )
     // Print the list to stdout
     DKPrintf( "%@\n", list );
     
-    // Free the autorelease pool (and all the temporary objects we allocated)
-    DKPopAutoreleasePool();
+    // Release the temporary objects in the autorelease pool
+    DKDrainAutoreleasePool();
 
     return 0;
 }
@@ -138,7 +139,7 @@ target object has been deallocated.
 
 ### Built-In Container Classes
 
-Duck provides several built-in container classes:
+Duck provides several built-in container and data classes:
 
 * *DKString* for UTF-8 strings.
 * *DKData* for binary data.
@@ -146,13 +147,14 @@ Duck provides several built-in container classes:
 * *DKStruct* for storing arbitrary C structs.
 * *DKArray* and *DKLinkedList* for ordered sequences.
 * *DKHashTable* and *DKBinaryTree* for key-value storage.
+* *DKGraph* for directed and undirected graphs
 
 Duck also defines some common interfaces:
 
 * *DKCollection* contains foreach style iteration methods for containers.
 * *DKList* is an abstract interface for *DKArray* and *DKLinkedList*.
 * *DKDictionary* is the key-value interface to *DKHashTable* and *DKBinaryTree*.
-* *DKSet* has methods for set operations on *DKHashTable* and *DKBinaryTree*.
+* *DKSet* has methods for set operations on *DKHashTable*, *DKBinaryTree* and *DKArray*.
 * *DKCopying* has methods for creating mutable and immutable copies of objects.
 * *DKConversion* provides methods to convert between strings and numbers.
 * *DKStream* provides stream-style access to *DKData*, *DKString*, and *DKFile*.
@@ -177,7 +179,7 @@ A proper time/date class, or formatting functions that work with DKNumber.
 More unicode support. DKString currently supports enough UTF-8 for basic string
 functions, but more powerful string comparison and locale support would be nice.
 The main question is how much of the ICU package to include before it makes
-sense to just like against the whole library.
+sense to just link against the whole library.
 
 
 

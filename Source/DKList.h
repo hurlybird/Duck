@@ -51,7 +51,7 @@ typedef void        (*DKListReplaceRangeWithCArrayMethod)( DKMutableListRef _sel
 typedef void        (*DKListReplaceRangeWithCollectionMethod)( DKMutableListRef _self, DKRange range, DKListRef srcList );
 
 typedef void        (*DKListSortMethod)( DKMutableListRef _self, DKCompareFunction cmp );
-typedef void        (*DKListShuffleMethod)( DKMutableListRef _self );
+typedef void        (*DKListReorderMethod)( DKMutableListRef _self );
 
 struct DKListInterface
 {
@@ -75,7 +75,8 @@ struct DKListInterface
     DKListReplaceRangeWithCollectionMethod  replaceRangeWithCollection;
     
     DKListSortMethod                        sort;
-    DKListShuffleMethod                     shuffle;
+    DKListReorderMethod                     reverse;
+    DKListReorderMethod                     shuffle;
 };
 
 typedef const struct DKListInterface * DKListInterfaceRef;
@@ -151,6 +152,7 @@ bool        DKListEqual( DKListRef _self, DKListRef other );
 int         DKListCompare( DKListRef _self, DKListRef other );
 
 void        DKListSort( DKMutableListRef _self, DKCompareFunction cmp );
+void        DKListReverse( DKMutableListRef _self );
 void        DKListShuffle( DKMutableListRef _self );
 
 

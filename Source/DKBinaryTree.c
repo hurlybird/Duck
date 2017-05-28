@@ -947,6 +947,27 @@ int DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKKeyedApplierFunction c
 
 
 ///
+//  DKBinaryTreeGetFirstObject()
+//
+DKObjectRef DKBinaryTreeGetFirstObject( DKBinaryTreeRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKBinaryTreeClass() );
+        
+        struct DKBinaryTreeNode * node = _self->root;
+        
+        while( node->left )
+            node = node->left;
+        
+        return node->object;
+    }
+    
+    return NULL;
+}
+
+
+///
 //  DKBinaryTreeSetObject()
 //
 static void INTERNAL_DKBinaryTreeSetObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object )

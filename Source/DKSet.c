@@ -164,7 +164,7 @@ DKObjectRef DKSetGetMember( DKSetRef _self, DKObjectRef object )
 ///
 //  DKSetContainsObject()
 //
-int DKSetContainsObject( DKSetRef _self, DKObjectRef object )
+bool DKSetContainsObject( DKSetRef _self, DKObjectRef object )
 {
     return DKSetGetMember( _self, object ) != NULL;
 }

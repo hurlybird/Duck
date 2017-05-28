@@ -115,6 +115,7 @@ DKThreadSafeClassInit( DKArrayClass )
     list->replaceRangeWithCArray = (void *)DKImmutableObjectAccessError;
     list->replaceRangeWithCollection = (void *)DKImmutableObjectAccessError;
     list->sort = (void *)DKImmutableObjectAccessError;
+    list->reverse = (void *)DKImmutableObjectAccessError;
     list->shuffle = (void *)DKImmutableObjectAccessError;
 
     DKInstallInterface( cls, list );
@@ -178,7 +179,8 @@ DKThreadSafeClassInit( DKMutableArrayClass )
     list->replaceRangeWithCArray = (DKListReplaceRangeWithCArrayMethod)INTERNAL_DKArrayReplaceRangeWithCArray;
     list->replaceRangeWithCollection = (DKListReplaceRangeWithCollectionMethod)INTERNAL_DKArrayReplaceRangeWithCollection;
     list->sort = (DKListSortMethod)DKArraySort;
-    list->shuffle = (DKListShuffleMethod)DKArrayShuffle;
+    list->reverse = (DKListReorderMethod)DKArrayReverse;
+    list->shuffle = (DKListReorderMethod)DKArrayShuffle;
 
     DKInstallInterface( cls, list );
     DKRelease( list );
@@ -583,6 +585,19 @@ void DKArraySort( DKMutableArrayRef _self, DKCompareFunction cmp )
     {
         DKCheckKindOfClass( _self, DKMutableArrayClass() );
         DKGenericArraySort( &_self->ptrArray, cmp );
+    }
+}
+
+
+///
+//  DKArrayReverse()
+//
+void DKArrayReverse( DKMutableArrayRef _self )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableArrayClass() );
+        DKGenericArrayReverse( &_self->ptrArray );
     }
 }
 

@@ -694,6 +694,19 @@ void DKListSort( DKMutableListRef _self, DKCompareFunction cmp )
 
 
 ///
+//  DKListReverse()
+//
+void DKListReverse( DKMutableListRef _self )
+{
+    if( _self )
+    {
+        DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
+        list->reverse( _self );
+    }
+}
+
+
+///
 //  DKListShuffle()
 //
 void DKListShuffle( DKMutableListRef _self )

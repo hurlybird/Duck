@@ -42,6 +42,7 @@ DKClassRef  DKMutableBinaryTreeClass( void );
 
 #define     DKNewMutableBinaryTree()    DKNew( DKMutableBinaryTreeClass() )
 
+#define DKBinaryTreeWithCompareFunction( keyCompare )   DKAutorelease( DKNewBinaryTreeWithCompareFunction( keyCompare ) )
 DKMutableBinaryTreeRef DKNewBinaryTreeWithCompareFunction( DKCompareFunction keyCompare );
 
 DKObjectRef DKBinaryTreeInitDictionaryWithVAKeysAndObjects( DKBinaryTreeRef _self, va_list keysAndObjects );
@@ -62,6 +63,7 @@ int         DKBinaryTreeApplyFunctionToKeys( DKBinaryTreeRef _self, DKApplierFun
 int         DKBinaryTreeApplyFunctionToObjects( DKBinaryTreeRef _self, DKApplierFunction callback, void * context );
 
 int         DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKKeyedApplierFunction callback, void * context );
+DKObjectRef DKBinaryTreeGetFirstObject( DKBinaryTreeRef _self );
 
 void        DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 void        DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef _self, DKObjectRef key );

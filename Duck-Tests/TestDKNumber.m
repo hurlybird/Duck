@@ -71,16 +71,44 @@ typedef struct
     XCTAssert( DKNumberGetFloat( n ) == 100.0f );
     
     desc = DKNumberGetDescription( n );
-    XCTAssert( DKStringEqual( desc, DKSTR( "100.000000" ) ) );
+    XCTAssert( DKStringEqual( desc, DKSTR( "100.0" ) ) );
+
+
+    n = DKNumberWithFloat( 100.5f );
+    XCTAssert( DKNumberGetFloat( n ) == 100.5f );
+    
+    desc = DKNumberGetDescription( n );
+    XCTAssert( DKStringEqual( desc, DKSTR( "100.5" ) ) );
+
+
+    n = DKNumberWithFloat( 100.0625f );
+    XCTAssert( DKNumberGetFloat( n ) == 100.0625f );
+    
+    desc = DKNumberGetDescription( n );
+    XCTAssert( DKStringEqual( desc, DKSTR( "100.0625" ) ) );
 
 
     n = DKNumberWithDouble( 100 );
     XCTAssert( DKNumberGetDouble( n ) == 100.0 );
     
     desc = DKNumberGetDescription( n );
-    XCTAssert( DKStringEqual( desc, DKSTR( "100.000000" ) ) );
+    XCTAssert( DKStringEqual( desc, DKSTR( "100.0" ) ) );
     
     
+    n = DKNumberWithDouble( 100.5 );
+    XCTAssert( DKNumberGetDouble( n ) == 100.5 );
+    
+    desc = DKNumberGetDescription( n );
+    XCTAssert( DKStringEqual( desc, DKSTR( "100.5" ) ) );
+
+
+    n = DKNumberWithDouble( 100.0625 );
+    XCTAssert( DKNumberGetDouble( n ) == 100.0625 );
+    
+    desc = DKNumberGetDescription( n );
+    XCTAssert( DKStringEqual( desc, DKSTR( "100.0625" ) ) );
+
+
     const Vector3 v = { 1, 2, 3 };
     n = DKNumber( &v, DKEncode( DKEncodingTypeFloat, 3 ) );
     
@@ -88,7 +116,7 @@ typedef struct
     XCTAssert( (v.x == w.x) && (v.y == w.y) && (v.z == w.z) );
     
     desc = DKNumberGetDescription( n );
-    XCTAssert( DKStringEqual( desc, DKSTR( "1.000000 2.000000 3.000000" ) ) );
+    XCTAssert( DKStringEqual( desc, DKSTR( "1.0 2.0 3.0" ) ) );
 }
 
 @end

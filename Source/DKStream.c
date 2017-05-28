@@ -114,6 +114,35 @@ DKIndex DKSPrintf( DKStreamRef _self, const char * format, ... )
 ///
 //  DKVSPrintf()
 //
+static bool IsUnformattedFloat( const char * format, size_t len )
+{
+    if( format[len - 1] == 'f' )
+    {
+        if( (len == 2) || ((len == 3) && (format[len - 2] == 'l')) )
+            return true;
+    }
+    
+    return false;
+}
+
+static size_t TrimZeroes( char * num, size_t len )
+{
+    char * dp = strchr( num, '.' );
+    
+    if( dp )
+    {
+        size_t stop = (dp - num) + 1;
+        
+        for( size_t i = len - 1; (i > stop) && (num[i] == '0'); --i )
+        {
+            num[i] = '\0';
+            len--;
+        }
+    }
+    
+    return len;
+}
+
 static size_t WriteNumber( DKStreamRef _self, DKStreamInterfaceRef stream, const char * format, size_t formatLength, va_list arg_ptr )
 {
     char fmt[8];
@@ -126,7 +155,14 @@ static size_t WriteNumber( DKStreamRef _self, DKStreamInterfaceRef stream, const
     size_t n = vsnprintf( num, sizeof(num), fmt, arg_ptr );
     
     if( n > 0 )
+    {
+        #if DK_PRETTY_PRINT_FLOATS
+        if( IsUnformattedFloat( format, formatLength ) )
+            n = TrimZeroes( num, n );
+        #endif
+    
         stream->write( _self, num, 1, n );
+    }
     
     return n;
 }

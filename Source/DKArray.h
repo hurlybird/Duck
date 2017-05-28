@@ -65,6 +65,7 @@ void        DKArrayReplaceRangeWithCArray( DKMutableArrayRef _self, DKRange rang
 void        DKArrayReplaceRangeWithCollection( DKMutableArrayRef _self, DKRange range, DKObjectRef collection );
 
 void        DKArraySort( DKMutableArrayRef _self, DKCompareFunction cmp );
+void        DKArrayReverse( DKMutableArrayRef _self );
 void        DKArrayShuffle( DKMutableArrayRef _self );
 
 int         DKArrayApplyFunction( DKArrayRef _self, DKApplierFunction callback, void * context );
