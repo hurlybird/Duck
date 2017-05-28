@@ -83,11 +83,11 @@ extern "C"
 #include "DKDictionary.h"
 #include "DKSet.h"
 
-#include "DKLinkedList.h"
 #include "DKArray.h"
-
+#include "DKLinkedList.h"
 #include "DKBinaryTree.h"
 #include "DKHashTable.h"
+#include "DKGraph.h"
 
 
 #ifdef __cplusplus

@@ -57,6 +57,9 @@ typedef double (*DKGraphCostFunction)( DKObjectRef a, DKObjectRef b, void * cont
 
 DKClassRef  DKGraphClass( void );
 
+#define DKGraph()       DKAutorelease( DKNew( DKGraphClass() ) )
+#define DKNewGraph()    DKNew( DKGraphClass() )
+
 void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
 void DKGraphRemoveEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
 void DKGraphRemoveAllEdges( DKGraphRef _self );

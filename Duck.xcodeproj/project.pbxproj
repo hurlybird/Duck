@@ -33,8 +33,8 @@
 		026FBD1B1C309B5F00C96822 /* DKThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 026FBD171C309B5F00C96822 /* DKThreadPool.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028D61CA1ED9F55B00E7BC72 /* DKGraph.c in Sources */ = {isa = PBXBuildFile; fileRef = 028D61C81ED9F55B00E7BC72 /* DKGraph.c */; };
 		028D61CB1ED9F55B00E7BC72 /* DKGraph.c in Sources */ = {isa = PBXBuildFile; fileRef = 028D61C81ED9F55B00E7BC72 /* DKGraph.c */; };
-		028D61CC1ED9F55B00E7BC72 /* DKGraph.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D61C91ED9F55B00E7BC72 /* DKGraph.h */; };
-		028D61CD1ED9F55B00E7BC72 /* DKGraph.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D61C91ED9F55B00E7BC72 /* DKGraph.h */; };
+		028D61CC1ED9F55B00E7BC72 /* DKGraph.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D61C91ED9F55B00E7BC72 /* DKGraph.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		028D61CD1ED9F55B00E7BC72 /* DKGraph.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D61C91ED9F55B00E7BC72 /* DKGraph.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1A941B0DCA86006FDFDF /* Duck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 028F1A891B0DCA85006FDFDF /* Duck.framework */; };
 		028F1AA21B0DCBBB006FDFDF /* Duck.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF4A19D856BC002E876C /* Duck.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1AA31B0DCBBB006FDFDF /* DKConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF1919D85669002E876C /* DKConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
