@@ -411,8 +411,17 @@ static void RemoveRange( struct DKLinkedList * list, DKRange range )
     
     if( list->cursor.node == NULL )
     {
-        list->cursor.node = list->last;
-        list->cursor.index = list->count;
+        if( list->count > 0 )
+        {
+            list->cursor.node = list->last;
+            list->cursor.index = list->count - 1;
+        }
+        
+        else
+        {
+            list->cursor.node = list->first;
+            list->cursor.index = 0;
+        }
     }
 
     CheckListIntegrity( list );
