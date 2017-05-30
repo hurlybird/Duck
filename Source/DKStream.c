@@ -282,6 +282,32 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
 }
 
 
+///
+//  DKGetc()
+//
+int DKGetc( DKStreamRef _self )
+{
+    char ch;
+    
+    if( DKRead( _self, &ch, 1, 1 ) == 1 )
+        return ch;
+    
+    return EOF;
+}
+
+
+///
+//  DKPutc()
+//
+int DKPutc( int ch, DKStreamRef _self )
+{
+    char _ch = (char)ch;
+
+    if( DKWrite( _self, &_ch, 1, 1 ) == 1 )
+        return ch;
+    
+    return EOF;
+}
 
 
 

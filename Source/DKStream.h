@@ -71,6 +71,8 @@ DKIndex DKSPrintf( DKStreamRef _self, const char * format, ... );
 
 DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr );
 
+int     DKGetc( DKStreamRef _self );
+int     DKPutc( int ch, DKStreamRef _self );
 
 
 #endif // _DK_STREAM_H_
