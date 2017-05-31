@@ -84,6 +84,7 @@ DKThreadContextRef DKAllocThreadContext( void );
 void DKFreeThreadContext( DKThreadContextRef threadContext );
 
 void DKSetCurrentThreadContext( DKThreadContextRef threadContext );
+bool DKCurrentThreadContextIsSet( void );
 DKThreadContextRef DKGetCurrentThreadContext( void );
 
 DKThreadContextRef DKGetMainThreadContext( void );

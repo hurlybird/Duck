@@ -38,7 +38,7 @@ DKThreadSafeFastSelectorInit( List );
 
 struct DKList
 {
-    const DKObject * _obj;
+    const DKObject _obj;
 };
 
 

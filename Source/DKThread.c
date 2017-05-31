@@ -125,6 +125,19 @@ void DKSetCurrentThreadContext( DKThreadContextRef threadContext )
 
 
 ///
+//  DKCurrentThreadContextIsSet()
+//
+bool DKCurrentThreadContextIsSet( void )
+{
+    DKAssert( DKThreadContextInitialized );
+
+    DKThreadContextRef threadContext = pthread_getspecific( DKThreadContextKey );
+    
+    return threadContext != NULL;
+}
+
+
+///
 //  DKGetCurrentThreadContext()
 //
 DKThreadContextRef DKGetCurrentThreadContext( void )
