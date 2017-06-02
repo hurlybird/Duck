@@ -114,15 +114,55 @@ DKIndex DKSPrintf( DKStreamRef _self, const char * format, ... )
 ///
 //  DKVSPrintf()
 //
-static bool IsUnformattedFloat( const char * format, size_t len )
+static size_t IntegerSize( const char * format, size_t len )
 {
-    if( format[len - 1] == 'f' )
+    if( len <= 2 )
+        return sizeof(int);
+
+    int m1 = format[len - 2];
+    int m2 = format[len - 3];
+
+    // l
+    if( m1 == 'l' )
     {
-        if( (len == 2) || ((len == 3) && (format[len - 2] == 'l')) )
-            return true;
+        if( m2 == 'l' )
+            return sizeof(long long);
+        
+        return sizeof(long);
     }
     
-    return false;
+    if( m1 == 'h' )
+    {
+        if( m2 == 'h' )
+            return sizeof(char);
+        
+        return sizeof(short);
+    }
+    
+    if( m1 == 'j' )
+        return sizeof(intmax_t);
+    
+    if( m1 == 'z' )
+        return sizeof(size_t);
+    
+    if( m1 == 't' )
+        return sizeof(ptrdiff_t);
+    
+    return sizeof(int);
+}
+
+static size_t FloatSize( const char * format, size_t len )
+{
+    int modifier = format[len - 2];
+    return (modifier == 'L') ? sizeof(long double) : sizeof(double);
+}
+
+static bool IsUnformattedFloat( const char * format, size_t len )
+{
+    int formatter = format[len - 1];
+    int modifier = format[len - 2];
+
+    return (formatter == 'f') && ((len == 2) || ((len == 3) && (modifier == 'l')));
 }
 
 static size_t TrimZeroes( char * num, size_t len )
@@ -143,28 +183,56 @@ static size_t TrimZeroes( char * num, size_t len )
     return len;
 }
 
-static size_t WriteNumber( DKStreamRef _self, DKStreamInterfaceRef stream, const char * format, size_t formatLength, va_list arg_ptr )
+static void CopyFormat( char * dst, const char * src, size_t len, size_t max_len )
 {
-    char fmt[8];
-    char num[120];
+    DKAssert( len < max_len );
+    strncpy( dst, src, len );
+    dst[len] = '\0';
+}
 
-    DKAssert( formatLength < (sizeof(fmt) -1) );
-    strncpy( fmt, format, formatLength );
-    fmt[formatLength] = '\0';
-    
-    size_t n = vsnprintf( num, sizeof(num), fmt, arg_ptr );
-    
-    if( n > 0 )
+static void WriteCounter( const char * format, size_t len, size_t count, void * counter )
+{
+    int modifer = format[len - 2];
+
+    if( len == 2 )
     {
-        #if DK_PRETTY_PRINT_FLOATS
-        if( IsUnformattedFloat( format, formatLength ) )
-            n = TrimZeroes( num, n );
-        #endif
-    
-        stream->write( _self, num, 1, n );
+        // %n
+        *((int *)counter) = (int)count;
     }
     
-    return n;
+    else if( len == 3 )
+    {
+        // %ln
+        if( modifer == 'l' )
+            *((long *)counter) = (long)count;
+        
+        // %hn
+        else if( modifer == 'h' )
+            *((short *)counter) = (short)count;
+        
+        // %jn
+        else if( modifer == 'j' )
+            *((intmax_t *)counter) = (intmax_t)count;
+        
+        // %zn
+        else if( modifer == 'z' )
+            *((size_t *)counter) = count;
+        
+        // %tn
+        else if( modifer == 't' )
+            *((ptrdiff_t *)counter) = (ptrdiff_t)count;
+    }
+    
+    if( len == 4 )
+    {
+        // %lln
+        if( modifer == 'l' )
+            *((long long *)counter) = (long long)count;
+        
+        // %hhn
+        else if( modifer == 'h' )
+            *((char *)counter) = (char)count;
+    }
 }
 
 DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
@@ -179,14 +247,20 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
     const char * seq_start = format;
     size_t seq_count = 0;
 
-    DKObjectRef object;
-    DKStringRef desc;
-    const char * cstr;
-    int * counter;
-
     const char * cursor = format;
     DKChar32 ch;
     size_t n;
+
+    DKObjectRef object;
+    DKStringRef desc;
+    const char * cstr;
+    size_t cstr_len;
+
+    size_t num_size;
+
+    char tmp_format[8];
+    char tmp[120];
+    size_t tmp_len;
     
     while( (n = dk_ustrscan( cursor, &ch )) != 0 )
     {
@@ -211,7 +285,10 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
         %i	signed integers
         %e	scientific notation, with a lowercase "e"
         %E	scientific notation, with a uppercase "E"
+        %a	scientific notation, hexadecimal exponent notation
+        %A	scientific notation, hexadecimal exponent notation
         %f	floating point
+        %F  floating point
         %g	use %e or %f, whichever is shorter
         %G	use %E or %f, whichever is shorter
         %o	octal
@@ -220,14 +297,12 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
         %x	unsigned hexadecimal, with lowercase letters
         %X	unsigned hexadecimal, with uppercase letters
         %p	a pointer
-        %n	the argument shall be a pointer to an integer
-            into which is placed the number of characters
-            written so far
+        %n	a pointer to a counter for the number of characters written so far
         %%	a '%' sign
         */
         
         // Find the format token
-        size_t tok = strcspn( cursor + 1, "cdieEfgGosuxXpn@%" ) + 1;
+        size_t tok = strcspn( cursor + 1, "@%csdioxXufFeEaAgGnp" ) + 1;
         
         seq_start = cursor + tok + 1;
         seq_count = 0;
@@ -242,29 +317,108 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
             seq_count = 1;
             break;
             
-        // %s
+        // %s - C string
         case 's':
             cstr = va_arg( arg_ptr, const char * );
             write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
             break;
         
-        // %@
+        // %@ - Object
         case '@':
             object = va_arg( arg_ptr, DKObjectRef );
             desc = DKGetDescription( object );
             cstr = DKStringGetCStringPtr( desc );
-            write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
+            cstr_len = DKStringGetByteLength( desc );
+            write_count += stream->write( _self, cstr, 1, cstr_len );
+            break;
+        
+        // Integer
+        case 'd':
+        case 'i':
+        case 'u':
+        case 'o':
+        case 'x':
+        case 'X':
+            CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+            num_size = IntegerSize( cursor, tok + 1 );
+            switch( num_size )
+            {
+            case sizeof(int8_t):
+            case sizeof(int16_t):
+                // char and short types are promoted to int
+                tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int ) );
+                break;
+
+            case sizeof(int32_t):
+                tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int32_t ) );
+                break;
+                
+            case sizeof(int64_t):
+                tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int64_t ) );
+                break;
+                
+            default:
+                DKAssert( 0 );
+                tmp_len = 0;
+                break;
+            };
+            
+            if( tmp_len > 0 )
+                stream->write( _self, tmp, 1, tmp_len );
+
+            write_count += tmp_len;
+            break;
+            
+        // Float
+        case 'f':
+        case 'F':
+        case 'g':
+        case 'G':
+        case 'e':
+        case 'E':
+            CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+            num_size = FloatSize( cursor, tok + 1 );
+            
+            if( num_size == sizeof(double) )
+            {
+                tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, double ) );
+            }
+
+            else if( num_size == sizeof(long double) )
+            {
+                tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, long double ) );
+            }
+                
+            else
+            {
+                DKAssert( 0 );
+                tmp_len = 0;
+            }
+            
+            if( tmp_len > 0 )
+            {
+                #if DK_PRETTY_PRINT_FLOATS
+                if( IsUnformattedFloat( tmp_format, tok + 1 ) )
+                    tmp_len = TrimZeroes( tmp, tmp_len );
+                #endif
+                
+                stream->write( _self, tmp, 1, tmp_len );
+            }
+
+            write_count += tmp_len;
             break;
         
         // %n
         case 'n':
-            counter = va_arg( arg_ptr, int * );
-            *counter = (int)write_count;
+            CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+            WriteCounter( tmp_format, tok + 1, write_count, va_arg( arg_ptr, void * ) );
             break;
+        
+        
         
         // All numeric types
         default:
-            write_count += WriteNumber( _self, stream, cursor, tok + 1, arg_ptr );
+            DKAssert( 0 );
             break;
         }
         
