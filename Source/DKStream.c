@@ -331,6 +331,12 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
             cstr_len = DKStringGetByteLength( desc );
             write_count += stream->write( _self, cstr, 1, cstr_len );
             break;
+            
+        // Character
+        case 'c':
+            if( DKPutc( va_arg( arg_ptr, int ), _self ) == ch )
+                write_count++;
+            break;
         
         // Integer
         case 'd':
