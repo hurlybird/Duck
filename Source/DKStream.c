@@ -338,6 +338,12 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
                 write_count++;
             break;
         
+        // Pointer
+        case 'p':
+            CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+            write_count += sprintf( tmp, tmp_format, va_arg( arg_ptr, void * ) );
+            break;
+        
         // Integer
         case 'd':
         case 'i':
