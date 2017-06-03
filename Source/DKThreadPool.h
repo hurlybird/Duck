@@ -33,11 +33,15 @@
 
 typedef struct DKThreadPool * DKThreadPoolRef;
 
+typedef void (*DKThreadPoolCallback)( DKThreadPoolRef threadPool, void * context );
+
 
 DKClassRef DKThreadPoolClass( void );
 
 #define DKNewThreadPool()   DKNew( DKThreadPoolClass() )
 
+void DKThreadPoolOnThreadStart( DKThreadPoolRef _self, DKThreadPoolCallback onThreadStart, void * context );
+void DKThreadPoolOnThreadStop( DKThreadPoolRef _self, DKThreadPoolCallback onThreadStop, void * context );
 
 int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
 void DKThreadPoolStop( DKThreadPoolRef _self );
