@@ -45,6 +45,7 @@ void DKThreadPoolOnThreadStop( DKThreadPoolRef _self, DKThreadPoolCallback onThr
 
 int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
 void DKThreadPoolStop( DKThreadPoolRef _self );
+int DKThreadPoolIsBusy( DKThreadPoolRef _self );
 
 void DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context );
 void DKThreadPoolAddObjectTask( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );

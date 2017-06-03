@@ -61,6 +61,8 @@ struct DKThreadPool
     
     DKThreadPoolCallback onThreadStop;
     void * onThreadStopContext;
+    
+    int pendingTasks;
 };
 
 
@@ -146,6 +148,8 @@ static struct DKThreadPoolTask * DKThreadPoolAllocTask( DKThreadPoolRef _self, D
     memset( task, 0, sizeof(struct DKThreadPoolTask) );
     task->proc = proc;
     task->context = context;
+
+    _self->pendingTasks++;
     
     return task;
 }
@@ -162,6 +166,8 @@ static struct DKThreadPoolTask * DKThreadPoolAllocObjectTask( DKThreadPoolRef _s
     task->target = DKRetain( target );
     task->method = method;
     task->param = DKRetain( param );
+
+    _self->pendingTasks++;
     
     return task;
 }
@@ -182,6 +188,10 @@ static void DKThreadPoolFreeTasks( DKThreadPoolRef _self, struct DKThreadPoolTas
         DKNodePoolFree( &_self->nodePool, task );
         
         task = next;
+        
+        _self->pendingTasks--;
+        
+        DKAssert( _self->pendingTasks >= 0 );
     }
 }
 
@@ -331,6 +341,26 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
 
         DKMutexUnlock( _self->controlMutex );
     }
+}
+
+
+///
+//  DKThreadPoolIsBusy()
+//
+int DKThreadPoolIsBusy( DKThreadPoolRef _self )
+{
+    int busy = 0;
+
+    if( _self )
+    {
+        DKMutexLock( _self->queueMutex );
+
+        busy = _self->pendingTasks;
+
+        DKMutexUnlock( _self->queueMutex );
+    }
+    
+    return busy;
 }
 
 
