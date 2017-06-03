@@ -41,7 +41,7 @@ about some of the C99 code that Duck uses--namely explicit casts from void and
 inline struct initialization. The main workaround for these issues is to add extra
 casts where needed and avoid any convenience macros that aren't C++ friendly.
 
-A sample CMakeLists.h file is included for building with Android Studio.
+See the CMakeLists.h file is included for building with Android Studio.
 
 A basic SConstruct file is included for building with scons.
 

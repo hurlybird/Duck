@@ -1,10 +1,10 @@
+# Duck Object Library - Android Buiid
 
-# Sample Android Build with CMake
+# Copy the following into your project's CMake file replacing
+# 'PATH_TO_DUCK_LIBRARY' with the appropriate value.
 
-# Copy the following into your project's CMake file and replace
-# 'PATH_TO_DUCK_LIBRARY' below with the appropriate value.
-
-set( DUCK_PATH "PATH_TO_DUCK_LIBRARY" )
+# set( DUCK_PATH "PATH_TO_DUCK_LIBRARY" )
+# include( "${DUCK_PATH}"/Duck/CMakeLists.txt"
 
 file( GLOB DuckSources "${DUCK_PATH}/Duck/Source/*.c" )
 file( GLOB DuckICU "${DUCK_PATH}/Duck/ThirdParty/icu/*.c" )
