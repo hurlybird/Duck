@@ -90,18 +90,18 @@ float       DKNumberGetFloat( DKNumberRef _self );
 double      DKNumberGetDouble( DKNumberRef _self );
 
 #define     DKNumberGetString( _self )    DKNumberFormatString( _self, " " )
-#define     DKNumberGetInt8( _self )      (*((int8_t *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetInt16( _self )     (*((int16_t *)DKNumberGetValuePtr( _self )))
-//#define     DKNumberGetInt32( _self )     (*((int32_t *)DKNumberGetValuePtr( _self )))
-//#define     DKNumberGetInt64( _self )     (*((int64_t *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetUInt8( _self )     (*((uint8_t *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetUInt16( _self )    (*((uint16_t *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetUInt32( _self )    (*((uint32_t *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetUInt64( _self )    (*((uint64_t *)DKNumberGetValuePtr( _self )))
-//#define     DKNumberGetFloat( _self )     (*((float *)DKNumberGetValuePtr( _self )))
-//#define     DKNumberGetDouble( _self )    (*((double *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetUUID( _self )      (*((DKUUID *)DKNumberGetValuePtr( _self )))
-#define     DKNumberGetDate( _self )      (*((DKDateTime *)DKNumberGetValuePtr( _self )))
+#define     DKNumberGetInt8( _self )      ((_self) ? *((int8_t *)DKNumberGetValuePtr( _self )) : 0)
+#define     DKNumberGetInt16( _self )     ((_self) ? *((int16_t *)DKNumberGetValuePtr( _self )) : 0)
+//#define   DKNumberGetInt32( _self )     ((_self) ? *((int32_t *)DKNumberGetValuePtr( _self )) : 0)
+//#define   DKNumberGetInt64( _self )     ((_self) ? *((int64_t *)DKNumberGetValuePtr( _self )) : 0)
+#define     DKNumberGetUInt8( _self )     ((_self) ? *((uint8_t *)DKNumberGetValuePtr( _self )) : 0)
+#define     DKNumberGetUInt16( _self )    ((_self) ? *((uint16_t *)DKNumberGetValuePtr( _self )) : 0)
+#define     DKNumberGetUInt32( _self )    ((_self) ? *((uint32_t *)DKNumberGetValuePtr( _self )) : 0)
+#define     DKNumberGetUInt64( _self )    ((_self) ? *((uint64_t *)DKNumberGetValuePtr( _self )) : 0)
+//#define   DKNumberGetFloat( _self )     ((_self) ? *((float *)DKNumberGetValuePtr( _self )) : 0)
+//#define   DKNumberGetDouble( _self )    ((_self) ? *((double *)DKNumberGetValuePtr( _self )) : 0)
+#define     DKNumberGetUUID( _self )      ((_self) ? *((DKUUID *)DKNumberGetValuePtr( _self )) : DKUUIDZero)
+#define     DKNumberGetDate( _self )      ((_self) ? *((DKDateTime *)DKNumberGetValuePtr( _self )) : 0)
 
 bool        DKNumberEqual( DKNumberRef a, DKNumberRef b );
 int         DKNumberCompare( DKNumberRef a, DKNumberRef b );

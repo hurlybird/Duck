@@ -180,6 +180,7 @@ typedef struct
 
 } DKUUID;
 
+#define DKUUIDZero  (DKUUID){ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 
 
