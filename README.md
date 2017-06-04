@@ -14,10 +14,10 @@ The Duck source is distributed under the MIT License. Any packages under the
 ## Major Features
 
 * Classes, interfaces, properties and messages.
-* Thread-safe reference counting and zeroing weak references.
+* Thread-safe reference counting, autorelease pools, and zeroing weak references.
 * String class with practical UTF-8 support.
 * Container classes for lists, dictionaries and sets.
-* Object graph serialization.
+* I/O classes for handling JSON, XML and object graphs.
 
 
 ## Development Status
@@ -154,7 +154,7 @@ Duck also defines some common interfaces:
 * *DKCollection* contains foreach style iteration methods for containers.
 * *DKList* is an abstract interface for *DKArray* and *DKLinkedList*.
 * *DKDictionary* is the key-value interface to *DKHashTable* and *DKBinaryTree*.
-* *DKSet* has methods for set operations on *DKHashTable*, *DKBinaryTree* and *DKArray*.
+* *DKSet* has methods for set operations on container types.
 * *DKCopying* has methods for creating mutable and immutable copies of objects.
 * *DKConversion* provides methods to convert between strings and numbers.
 * *DKStream* provides stream-style access to *DKData*, *DKString*, and *DKFile*.
@@ -164,6 +164,7 @@ Duck also defines some common interfaces:
 * *DKThread* and friends - wrapper classes for pthreads and thread synchronization.
 * *DKPredicate* - evaluation of logical predicates.
 * *DKEgg* - object graph serialization.
+* *DKShell* - binary/text data aggregates.
 * *DKJSON* - JSON serialization functions.
 * *DKXML* - XML Parsing
 * Low-level utilites for generic arrays, hash tables and node/block pools.
@@ -172,15 +173,21 @@ Duck also defines some common interfaces:
 
 Some possible/probable areas for further work:
 
-Classes for useful system-level stuff like notifications, URLs, HTTP, etc.
+Networking and HTTP utilities would be nice, but an argument could be made that you
+should really use system provided ones for security. Something like NSURL would be a
+good first step.
 
-A proper time/date class, or formatting functions that work with DKNumber.
+A proper time/date class, or formatting functions that work with DKNumber. Heck,
+improved (or any) locale support would be good.
+
+Improved hash table performance. The current implementation uses quadratic hashing,
+which is reasonably fast, but wastes memory (load must be < 0.5), and is only about
+half the speed of NSDictionary.
 
 More unicode support. DKString currently supports enough UTF-8 for basic string
 functions, but more powerful string comparison and locale support would be nice.
 The main question is how much of the ICU package to include before it makes
 sense to just link against the whole library.
-
 
 
 

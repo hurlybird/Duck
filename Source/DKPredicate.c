@@ -117,7 +117,7 @@ DKThreadSafeClassInit( DKPredicateClass )
 //
 static DKObjectRef DKPredicateInitialize( DKObjectRef _self )
 {
-    return _self;
+    return DKSuperInit( _self, DKObjectClass() );
 }
 
 
