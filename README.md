@@ -1,3 +1,4 @@
+![](Duck.png)
 # The Duck Object Library
 
 Duck is an object system and library for "duck-typed" programming in C. It takes
