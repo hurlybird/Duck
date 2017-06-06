@@ -37,6 +37,7 @@
 struct DKArray
 {
     DKObject _obj;
+    
     DKGenericArray ptrArray;
 };
 
@@ -242,7 +243,7 @@ static void DKArrayFinalize( DKObjectRef _untyped_self )
             DKRelease( elem );
         }
     }
-    
+
     DKGenericArrayFinalize( &_self->ptrArray );
 }
 
@@ -326,10 +327,10 @@ DKObjectRef DKArrayInitWithCArrayNoCopy( DKArrayRef _self, DKObjectRef objects[]
 //
 static int DKArrayInitWithEggCallback( DKObjectRef object, void * context )
 {
-    struct DKArray * array = context;
+    DKArrayRef _self = context;
 
     DKRetain( object );
-    DKGenericArrayAppendElements( &array->ptrArray, &object, 1 );
+    DKGenericArrayAppendElements( &_self->ptrArray, &object, 1 );
     
     return 0;
 }
@@ -417,7 +418,7 @@ static DKObjectRef INTERNAL_DKArrayGetObjectAtIndex( DKArrayRef _self, DKIndex i
 {
     DKCheckIndex( index, _self->ptrArray.length, 0 );
     
-    return DKGenericArrayGetElementAtIndex( (DKGenericArray *)&_self->ptrArray, index, DKObjectRef );
+    return DKGenericArrayGetElementAtIndex( &_self->ptrArray, index, DKObjectRef );
 }
 
 
@@ -439,8 +440,10 @@ static DKIndex INTERNAL_DKArrayGetObjectsInRange( DKArrayRef _self, DKRange rang
 {
     DKCheckRange( range, _self->ptrArray.length, 0 );
 
-    const DKObjectRef * src = DKGenericArrayGetPointerToElementAtIndex( (DKGenericArray *)&_self->ptrArray, range.location );
-    memcpy( objects, src, sizeof(DKObjectRef) * range.length );
+    for( DKIndex i = 0; i < range.length; ++i )
+    {
+        objects[i] = DKGenericArrayGetElementAtIndex( &_self->ptrArray, range.location + i, DKObjectRef );
+    }
     
     return range.length;
 }
@@ -497,22 +500,38 @@ void DKArrayReplaceRangeWithCArray( DKMutableArrayRef _self, DKRange range, DKOb
 static void INTERNAL_DKArrayReplaceRangeWithCArray( DKMutableArrayRef _self, DKRange range, DKObjectRef objects[], DKIndex count )
 {
     DKCheckRange( range, _self->ptrArray.length );
-    
-    // Retain the incoming objects
-    for( DKIndex i = 0; i < count; ++i )
+
+    // Manually replace the overlapping portion of the ranges and only use the generic
+    // array to handle the actual insert/delete that could change the array geometry.
+    DKIndex overlap = range.length <= count ? range.length : count;
+
+    for( DKIndex i = 0; i < overlap; ++i )
     {
+        DKObjectRef * dst = DKGenericArrayGetPointerToElementAtIndex( &_self->ptrArray, range.location + i );
+    
         DKRetain( objects[i] );
+        DKRelease( *dst );
+        *dst = objects[i];
     }
-    
-    // Release the objects we're replacing
-    for( DKIndex i = 0; i < range.length; ++i )
+
+    if( range.length < count )
     {
-        DKObjectRef obj = DKGenericArrayGetElementAtIndex( &_self->ptrArray, range.location + i, DKObjectRef );
-        DKRelease( obj );
+        for( DKIndex i = overlap; i < count; ++i )
+            DKRetain( objects[i] );
+        
+        DKGenericArrayReplaceElements( &_self->ptrArray, DKRangeMake( range.location + overlap, 0 ), objects + overlap, count - overlap );
     }
-    
-    // Copy the objects into the array
-    DKGenericArrayReplaceElements( &_self->ptrArray, range, objects, count );
+
+    else if( range.length > count )
+    {
+        for( DKIndex i = overlap; i < range.length; ++i )
+        {
+            DKObjectRef * dst = DKGenericArrayGetPointerToElementAtIndex( &_self->ptrArray, range.location + i );
+            DKRelease( *dst );
+        }
+        
+        DKGenericArrayReplaceElements( &_self->ptrArray, DKRangeMake( range.location + overlap, range.length - overlap ), NULL, 0 );
+    }
 }
 
 
@@ -537,7 +556,7 @@ struct ReplaceRangeWithCollectionContext
 static int ReplaceRangeWithCollectionCallback( DKObjectRef object, void * context )
 {
     struct ReplaceRangeWithCollectionContext * ctx = context;
-    
+
     DKGenericArrayGetElementAtIndex( &ctx->array->ptrArray, ctx->index, DKObjectRef ) = DKRetain( object );
     ctx->index++;
     
@@ -551,8 +570,9 @@ static void INTERNAL_DKArrayReplaceRangeWithCollection( struct DKArray * array, 
         DKCheckRange( range, array->ptrArray.length );
 
         DKCollectionInterfaceRef collection = DKGetInterface( srcCollection, DKSelector(Collection) );
-        
-        // Release the objects we're replacing
+
+        // Release the objects we're replacing. This is safe because they -should- be
+        // be retained by the collection they're coming from
         for( DKIndex i = 0; i < range.length; ++i )
         {
             DKObjectRef obj = DKGenericArrayGetElementAtIndex( &array->ptrArray, range.location + i, DKObjectRef );
@@ -561,7 +581,6 @@ static void INTERNAL_DKArrayReplaceRangeWithCollection( struct DKArray * array, 
 
         // Resize our array
         DKIndex srcCount = collection->getCount( srcCollection );
-
         DKGenericArrayReplaceElements( &array->ptrArray, range, NULL, srcCount );
         
         // Copy the collection into our array
@@ -626,7 +645,7 @@ int DKArrayApplyFunction( DKArrayRef _self, DKApplierFunction callback, void * c
 
         for( DKIndex i = 0; i < _self->ptrArray.length; ++i )
         {
-            DKObjectRef obj = DKGenericArrayGetElementAtIndex( (DKGenericArray *)&_self->ptrArray, i, DKObjectRef );
+            DKObjectRef obj = DKGenericArrayGetElementAtIndex( &_self->ptrArray, i, DKObjectRef );
         
             int result = callback( obj, context );
             

@@ -137,7 +137,7 @@ static void * ResizeArray( void * ptr, DKIndex oldLength, DKIndex requestedLengt
         return ptr;
     }
     
-    DKIndex newLength = 2 * oldLength;
+    DKIndex newLength = oldLength + (oldLength >> 2); // 1.5x growth
     
     if( newLength < requestedLength )
         newLength = requestedLength;

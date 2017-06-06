@@ -27,7 +27,7 @@
 #include "DKGenericArray.h"
 
 
-#define MIN_PTR_ARRAY_SIZE              32
+#define MIN_ELEMENT_ARRAY_SIZE          32
 #define HAS_ALLOCATED_STORAGE( array )  (((array)->elements != NULL) && ((array)->maxLength > 0))
 #define HAS_EXTERNAL_STORAGE( array )   ((array)->maxLength < 0)
 
@@ -82,8 +82,8 @@ void DKGenericArrayReserve( DKGenericArray * array, DKIndex length )
     
     if( array->maxLength < length )
     {
-        if( length < MIN_PTR_ARRAY_SIZE )
-            length = MIN_PTR_ARRAY_SIZE;
+        if( length < MIN_ELEMENT_ARRAY_SIZE )
+            length = MIN_ELEMENT_ARRAY_SIZE;
     
         uint8_t * elements = dk_malloc( length * array->elementSize );
         
@@ -121,13 +121,13 @@ static void * ResizeArray( void * ptr, DKIndex elementSize, DKIndex oldLength, D
         return ptr;
     }
     
-    DKIndex newLength = 2 * oldLength;
+    DKIndex newLength = oldLength + (oldLength >> 2); // 1.5x growth
     
     if( newLength < requestedLength )
         newLength = requestedLength;
     
-    if( newLength < MIN_PTR_ARRAY_SIZE )
-        newLength = MIN_PTR_ARRAY_SIZE;
+    if( newLength < MIN_ELEMENT_ARRAY_SIZE )
+        newLength = MIN_ELEMENT_ARRAY_SIZE;
     
     *allocatedLength = newLength;
     

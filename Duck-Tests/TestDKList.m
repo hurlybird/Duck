@@ -165,7 +165,29 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-#define PERFORMANCE_N   100000
+#define PERFORMANCE_SIZE        5000
+#define PERFORMANCE_ITERATIONS  100000
+#define PERFORMANCE_QUEUE_SIZE  10000
+
+
+// NSArray ===============================================================================
+- (void) fillNSArray:(NSMutableArray *)array count:(int)count
+{
+    for( int i = 0; i < count; i++ )
+        [array addObject:[NSString stringWithFormat:@"%d", i]];
+}
+
+- (void) testNSArrayFill
+{
+#if !DEBUG
+    NSMutableArray * array = [NSMutableArray array];
+
+    [self measureBlock:^()
+    {
+        [self fillNSArray:array count:PERFORMANCE_SIZE];
+    }];
+#endif
+}
 
 - (void) testNSArrayPerformanceRandomAccess
 {
@@ -173,15 +195,16 @@ static int RaiseException( const char * format, va_list arg_ptr )
     NSMutableArray * array = [NSMutableArray array];
     srand( 0 );
 
-    [self measureBlock:^{
-    
-        for( int i = 0; i < PERFORMANCE_N; i++ )
-            [array addObject:[NSString stringWithFormat:@"%d", i]];
-        
-        for( int i = 0; i < PERFORMANCE_N; i++ )
+    [self fillNSArray:array count:PERFORMANCE_SIZE];
+
+    [self measureBlock:^()
+    {
+        int n = (int)array.count;
+
+        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
         {
-            int index1 = rand() % PERFORMANCE_N;
-            int index2 = rand() % PERFORMANCE_N;
+            int index1 = rand() % n;
+            int index2 = rand() % n;
         
             NSString * value1 = [array objectAtIndex:index1];
             NSString * value2 = [array objectAtIndex:index2];
@@ -193,18 +216,56 @@ static int RaiseException( const char * format, va_list arg_ptr )
 #endif
 }
 
+- (void) testNSArrayPerformanceRandomInsertionAndRemoval
+{
+#if !DEBUG
+    NSMutableArray * array = [NSMutableArray array];
+    srand( 0 );
+
+    [self fillNSArray:array count:PERFORMANCE_SIZE];
+
+    [self measureBlock:^()
+    {
+        int n = (int)array.count;
+    
+        for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
+        {
+            int index1 = rand() % n;
+            NSString * value = [array objectAtIndex:index1];
+            [array removeObjectAtIndex:index1];
+
+            int index2 = rand() % (n-1);
+            [array insertObject:value atIndex:index2];
+        }
+    }];
+#endif
+}
+
 - (void) testNSArrayPerformanceQueueAccess
 {
 #if !DEBUG
     NSMutableArray * array = [NSMutableArray array];
 
+    [self fillNSArray:array count:PERFORMANCE_QUEUE_SIZE];
+
     [self measureBlock:^()
     {
-        for( int i = 0; i < PERFORMANCE_N; i++ )
-            [array addObject:[NSString stringWithFormat:@"%d", i]];
-        
         while( array.count > 0 )
             [array removeObjectAtIndex:0];
+    }];
+#endif
+}
+
+
+// DKArray ===============================================================================
+- (void) testDKArrayFill
+{
+#if !DEBUG
+    DKObjectRef list = DKNewMutableArray();
+    
+    [self measureBlock:^()
+    {
+        [self fillList:list count:PERFORMANCE_SIZE];
     }];
 #endif
 }
@@ -215,6 +276,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKObjectRef list = DKNewMutableArray();
     srand( 0 );
     
+    [self fillList:list count:PERFORMANCE_SIZE];
+    
     [self measureBlock:^()
     {
         [self testListClassRandomAccess:list];
@@ -224,11 +287,29 @@ static int RaiseException( const char * format, va_list arg_ptr )
 #endif
 }
 
+- (void) testDKArrayPerformanceRandomInsertionAndRemoval
+{
+#if !DEBUG
+    DKObjectRef list = DKNewMutableArray();
+    srand( 0 );
+
+    [self fillList:list count:PERFORMANCE_SIZE];
+    
+    [self measureBlock:^()
+    {
+        [self testListClassRandomInsertionAndRemoval:list];
+    }];
+
+    DKRelease( list );
+#endif
+}
 
 - (void) testDKArrayPerformanceQueueAccess
 {
 #if !DEBUG
     DKObjectRef list = DKNewMutableArray();
+
+    [self fillList:list count:PERFORMANCE_QUEUE_SIZE];
 
     [self measureBlock:^()
     {
@@ -240,18 +321,50 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
+// DKLinkedList ==========================================================================
+- (void) testDKLinkedListFill
+{
+#if !DEBUG
+    DKObjectRef list = DKNewMutableLinkedList();
+    
+    [self measureBlock:^()
+    {
+        [self fillList:list count:PERFORMANCE_SIZE];
+    }];
+#endif
+}
+
 - (void) testDKLinkedListPerformanceRandomAccess
 {
 #if !DEBUG
-    //DKObjectRef list = DKNewMutableLinkedList();
-    //srand( 0 );
+    DKObjectRef list = DKNewMutableLinkedList();
+    srand( 0 );
 
-    //[self measureBlock:^()
-    //{
-    //    [self testListClassRandomAccess:list];
-    //}];
+    [self fillList:list count:PERFORMANCE_SIZE];
 
-    //DKRelease( list );
+    [self measureBlock:^()
+    {
+        [self testListClassRandomAccess:list];
+    }];
+
+    DKRelease( list );
+#endif
+}
+
+- (void) testDKLinkedListPerformanceRandomInsertionAndRemoval
+{
+#if !DEBUG
+    DKObjectRef list = DKNewMutableLinkedList();
+    srand( 0 );
+
+    [self fillList:list count:PERFORMANCE_SIZE];
+
+    [self measureBlock:^()
+    {
+        [self testListClassRandomInsertionAndRemoval:list];
+    }];
+
+    DKRelease( list );
 #endif
 }
 
@@ -260,6 +373,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
 #if !DEBUG
     DKObjectRef list = DKNewMutableLinkedList();
     
+    [self fillList:list count:PERFORMANCE_QUEUE_SIZE];
+    
     [self measureBlock:^()
     {
         [self testListClassQueueAccess:list];
@@ -270,19 +385,25 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-- (void) testListClassRandomAccess:(DKMutableListRef)list
+// DKList Internals ======================================================================
+- (void) fillList:(DKMutableListRef)list count:(int)count
 {
-    for( int i = 0; i < PERFORMANCE_N; i++ )
+    for( int i = 0; i < count; i++ )
     {
         DKStringRef s = DKStringInitWithFormat( DKAlloc( DKStringClass() ), "%d", i );
         DKListAppendObject( list, s );
         DKRelease( s );
     }
+}
+
+- (void) testListClassRandomAccess:(DKMutableListRef)list
+{
+    int n = (int)DKListGetCount( list );
     
-    for( int i = 0; i < PERFORMANCE_N; i++ )
+    for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
     {
-        int index1 = rand() % PERFORMANCE_N;
-        int index2 = rand() % PERFORMANCE_N;
+        int index1 = rand() % n;
+        int index2 = rand() % n;
     
         DKStringRef value1 = DKRetain( DKListGetObjectAtIndex( list, index1 ) );
         DKStringRef value2 = DKRetain( DKListGetObjectAtIndex( list, index2 ) );
@@ -295,16 +416,25 @@ static int RaiseException( const char * format, va_list arg_ptr )
     }
 }
 
+- (void) testListClassRandomInsertionAndRemoval:(DKMutableListRef)list
+{
+    int n = (int)DKListGetCount( list );
+
+    for( int i = 0; i < PERFORMANCE_ITERATIONS; i++ )
+    {
+        int index1 = rand() % n;
+        DKStringRef value = DKRetain( DKListGetObjectAtIndex( list, index1 ) );
+        DKListRemoveObjectAtIndex( list, index1 );
+        
+        int index2 = rand() % (n-1);
+        DKListInsertObjectAtIndex( list, value, index2 );
+        
+        DKRelease( value );
+    }
+}
 
 - (void) testListClassQueueAccess:(DKMutableListRef)list
 {
-    for( int i = 0; i < PERFORMANCE_N; i++ )
-    {
-        DKStringRef s = DKStringInitWithFormat( DKAlloc( DKStringClass() ), "%d", i );
-        DKListAppendObject( list, s );
-        DKRelease( s );
-    }
-    
     while( DKListGetCount( list ) )
     {
         DKListRemoveFirstObject( list );
