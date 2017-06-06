@@ -22,8 +22,12 @@ The Duck source is distributed under the MIT License. Any packages under the
 
 ## Development Status
 
-Duck is nearly ready for a 1.0 release. The main changes to the API involve filling
-in gaps and tweaking to match expected/intuitive use in a real project.
+The library is almost ready to be considered version 1.0. The majority of the changes
+happening right now involve filling in gaps and tweaking to match expected/intuitive
+use in real use cases.
+
+That being said, the code should be considered ***experimental*** until its undergone
+more exhaustive testing in real-world use--particularly regarding thread safety.
 
 
 ## Porting
