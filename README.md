@@ -98,12 +98,16 @@ Classes in Duck are similar to classes in any object-oriented system, except
 they are defined entirely at run time. In fact, you can create and destroy class
 objects just like any other object.
 
+*See [DKRuntime.h](Source/DKRuntime.h)*
+
 ### Interfaces
 
 Duck interfaces are a cross between COM interfaces and Objective-C methods. As
 in COM, a Duck interface is a table of function pointers that provide access to
 an object's methods in a polymorphic way. Like Objective-C methods, interfaces
 are bound to class objects and identified by Selectors.
+
+*See [DKRuntime+Interfaces.h](Source/DKRuntime+Interfaces.h)*
 
 ### Messages
 
@@ -125,12 +129,16 @@ Message handlers are a useful way of adding one-off methods for target-action
 paradigms, events, notifications, etc., without having to define a new interface
 structure.
 
+*See [DKRuntime+Interfaces.h](Source/DKRuntime+Interfaces.h)*
+
 ### Properties
 
 Duck classes can also define properties to provide an abstract mechanism to
 access instance data. The runtime handles most property get/set behaviour
 automatically (including translating between object and base types), but it's
 also possible to use custom getter/setter/observer methods.
+
+*See [DKRuntime+Properties.h](Source/DKRuntime+Properties.h)*
 
 ### Reference Counting
 
@@ -141,36 +149,38 @@ DKWeakRef stores a weak reference to an object. The DKResolveWeak() function
 resolves a weak reference into a strong reference, or returns NULL if the
 target object has been deallocated.
 
+*See [DKRuntime+RefCount.h](Source/DKRuntime+RefCount.h)*
+
 ### Built-In Container Classes
 
 Duck provides several built-in container and data classes:
 
-* *DKString* for UTF-8 strings.
-* *DKData* for binary data.
-* *DKNumber* for integer and floating-point scalars and vectors.
-* *DKStruct* for storing arbitrary C structs.
-* *DKArray* and *DKLinkedList* for ordered sequences.
-* *DKHashTable* and *DKBinaryTree* for key-value storage.
-* *DKGraph* for directed and undirected graphs
+* *[DKString](Source/DKString.h)* for UTF-8 strings.
+* *[DKData](Source/DKData.h)* for binary data.
+* *[DKNumber](Source/DKNumber.h)* for integer and floating-point scalars and vectors.
+* *[DKStruct](Source/DKStruct.h)* for storing arbitrary C structs.
+* *[DKArray](Source/DKArray.h)* and *[DKLinkedList](Source/DKLinkedList.h)* for ordered sequences.
+* *[DKHashTable](Source/DKHashTable.h)* and *[DKBinaryTree](Source/DKBinaryTree.h)* for key-value storage.
+* *[DKGraph](Source/DKGraph.h)* for directed and undirected graphs
 
 Duck also defines some common interfaces:
 
-* *DKCollection* contains foreach style iteration methods for containers.
-* *DKList* is an abstract interface for *DKArray* and *DKLinkedList*.
-* *DKDictionary* is the key-value interface to *DKHashTable* and *DKBinaryTree*.
-* *DKSet* has methods for set operations on container types.
-* *DKCopying* has methods for creating mutable and immutable copies of objects.
-* *DKConversion* provides methods to convert between strings and numbers.
-* *DKStream* provides stream-style access to *DKData*, *DKString*, and *DKFile*.
+* *[DKCollection](Source/DKCollection.h)* contains foreach style iteration methods for containers.
+* *[DKList](Source/DKList.h)* is an abstract interface for *DKArray* and *DKLinkedList*.
+* *[DKDictionary](Source/DKDictionary.h)* is the key-value interface to *DKHashTable* and *DKBinaryTree*.
+* *[DKSet](Source/DKSet.h)* has methods for set operations on container types.
+* *[DKCopying](Source/DKCopying.h)* has methods for creating mutable and immutable copies of objects.
+* *[DKConversion](Source/DKConversion.h)* provides methods to convert between strings and numbers.
+* *[DKStream](Source/DKStream.h)* provides stream-style access to *DKData*, *DKString*, and *DKFile*.
 
 ### Other Useful Stuff
 
-* *DKThread* and friends - wrapper classes for pthreads and thread synchronization.
-* *DKPredicate* - evaluation of logical predicates.
-* *DKEgg* - object graph serialization.
-* *DKShell* - binary/text data aggregates.
-* *DKJSON* - JSON serialization functions.
-* *DKXML* - XML Parsing
+* *[DKThread](Source/DKThread.h)* and friends - wrapper classes for pthreads and thread synchronization.
+* *[DKPredicate](Source/DKPredicate.h)* - evaluation of logical predicates.
+* *[DKEgg](Source/DKEgg.h)* - object graph serialization.
+* *[DKShell](Source/DKShell.h)* - binary/text data aggregates.
+* *[DKJSON](Source/DKJSON.h)* - JSON serialization functions.
+* *[DKXML](Source/DKXML.h)* - XML Parsing
 * Low-level utilites for generic arrays, hash tables and node/block pools.
 
 ## Future Development
@@ -184,9 +194,15 @@ good first step.
 A proper time/date class, or formatting functions that work with DKNumber. Heck,
 improved (or any) locale support would be good.
 
+A string syntax for predicates similar to NSPredicate. The main question is whether
+to use a prefix notation (easy implementation) or infix notation (more readable).
+
 Improved hash table performance. The current implementation uses quadratic hashing,
 which is reasonably fast, but wastes memory (load must be < 0.5), and is only about
 half the speed of NSDictionary.
+
+Regular expression support is certainly a nice-to-have. They'd likely be implemented
+as DKString wrappers around a third-party regex library.
 
 More unicode support. DKString currently supports enough UTF-8 for basic string
 functions, but more powerful string comparison and locale support would be nice.
