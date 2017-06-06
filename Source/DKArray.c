@@ -239,7 +239,7 @@ static void DKArrayFinalize( DKObjectRef _untyped_self )
 
         for( DKIndex i = 0; i < count; ++i )
         {
-            DKObjectRef elem = DKGenericArrayGetElementAtIndex( &_self->ptrArray, i, DKObjectRef );
+            DKObjectRef elem = DKGenericArrayElementAtIndex( &_self->ptrArray, i, DKObjectRef );
             DKRelease( elem );
         }
     }
@@ -418,7 +418,7 @@ static DKObjectRef INTERNAL_DKArrayGetObjectAtIndex( DKArrayRef _self, DKIndex i
 {
     DKCheckIndex( index, _self->ptrArray.length, 0 );
     
-    return DKGenericArrayGetElementAtIndex( &_self->ptrArray, index, DKObjectRef );
+    return DKGenericArrayElementAtIndex( &_self->ptrArray, index, DKObjectRef );
 }
 
 
@@ -442,7 +442,7 @@ static DKIndex INTERNAL_DKArrayGetObjectsInRange( DKArrayRef _self, DKRange rang
 
     for( DKIndex i = 0; i < range.length; ++i )
     {
-        objects[i] = DKGenericArrayGetElementAtIndex( &_self->ptrArray, range.location + i, DKObjectRef );
+        objects[i] = DKGenericArrayElementAtIndex( &_self->ptrArray, range.location + i, DKObjectRef );
     }
     
     return range.length;
@@ -557,7 +557,7 @@ static int ReplaceRangeWithCollectionCallback( DKObjectRef object, void * contex
 {
     struct ReplaceRangeWithCollectionContext * ctx = context;
 
-    DKGenericArrayGetElementAtIndex( &ctx->array->ptrArray, ctx->index, DKObjectRef ) = DKRetain( object );
+    DKGenericArrayElementAtIndex( &ctx->array->ptrArray, ctx->index, DKObjectRef ) = DKRetain( object );
     ctx->index++;
     
     return 0;
@@ -575,7 +575,7 @@ static void INTERNAL_DKArrayReplaceRangeWithCollection( struct DKArray * array, 
         // be retained by the collection they're coming from
         for( DKIndex i = 0; i < range.length; ++i )
         {
-            DKObjectRef obj = DKGenericArrayGetElementAtIndex( &array->ptrArray, range.location + i, DKObjectRef );
+            DKObjectRef obj = DKGenericArrayElementAtIndex( &array->ptrArray, range.location + i, DKObjectRef );
             DKRelease( obj );
         }
 
@@ -645,7 +645,7 @@ int DKArrayApplyFunction( DKArrayRef _self, DKApplierFunction callback, void * c
 
         for( DKIndex i = 0; i < _self->ptrArray.length; ++i )
         {
-            DKObjectRef obj = DKGenericArrayGetElementAtIndex( &_self->ptrArray, i, DKObjectRef );
+            DKObjectRef obj = DKGenericArrayElementAtIndex( &_self->ptrArray, i, DKObjectRef );
         
             int result = callback( obj, context );
             

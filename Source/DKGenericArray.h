@@ -29,6 +29,18 @@
 
 #include "DKPlatform.h"
 
+// DKGenericArray DOES NOT guarantee that its elements are stored in a contiguous C array,
+// though in the current implementation that happens to be true. Change this definition
+// if that changes to highlight code that relies on this behaviour.
+#define DKGenericArrayHasContiguousElements 1
+
+// Possible performance improvements:
+//
+// - Keep some empty space at the beginning of the memory buffer for faster insert/remove
+//   at the start of the array.
+//
+// - Use a ringbuffer for storage to both improve insert/remove at the start of the array
+//   and make full use of the current size before reallocating.
 
 typedef struct
 {
@@ -54,10 +66,10 @@ void DKGenericArraySetLength( DKGenericArray * array, DKIndex length );
 
 void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex index );
 
-#define DKGenericArrayGetElementAtIndex( array, index, type )                           \
+#define DKGenericArrayElementAtIndex( array, index, type )                              \
     *((type *)DKGenericArrayGetPointerToElementAtIndex( (array), (index) ))
 
-#define DKGenericArrayGetLastElement( array, type )                                     \
+#define DKGenericArrayLastElement( array, type )                                        \
     *((type *)DKGenericArrayGetPointerToElementAtIndex( (array), DKGenericArrayGetLength( array ) - 1 ))
 
 void DKGenericArrayReplaceElements( DKGenericArray * array, DKRange range, const void * elements, DKIndex length );

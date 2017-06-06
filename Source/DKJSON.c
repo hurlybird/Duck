@@ -658,11 +658,12 @@ static Token ScanVectorToken( Token token, ParseContext * context, DKObjectRef *
                         
                         if( len > 0 )
                         {
-                            int64_t * src = DKGenericArrayGetPointerToElementAtIndex( &buffer, 0 );
-                            double * dst = DKGenericArrayGetPointerToElementAtIndex( &buffer, 0 );
-                            
                             for( size_t i = 0; i < len; ++i )
+                            {
+                                int64_t * src = DKGenericArrayGetPointerToElementAtIndex( &buffer, i );
+                                double * dst = DKGenericArrayGetPointerToElementAtIndex( &buffer, i );
                                 dst[i] = (double)src[i];
+                            }
                         }
                     }
                 

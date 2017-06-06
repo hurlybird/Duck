@@ -829,7 +829,7 @@ static void ListToArray( DKGenericArray * array, struct DKLinkedList * list )
     
     for( DKIndex i = 0; i < list->count; ++i )
     {
-        DKGenericArrayGetElementAtIndex( array, i, DKObjectRef ) = node->object;
+        DKGenericArrayElementAtIndex( array, i, DKObjectRef ) = node->object;
         node = node->next;
     }
     
@@ -842,7 +842,7 @@ static void ArrayToList( struct DKLinkedList * list, DKGenericArray * array )
     
     for( DKIndex i = 0; i < list->count; ++i )
     {
-        node->object = DKGenericArrayGetElementAtIndex( array, i, DKObjectRef );
+        node->object = DKGenericArrayElementAtIndex( array, i, DKObjectRef );
         node = node->next;
     }
 }

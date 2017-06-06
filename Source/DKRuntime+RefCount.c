@@ -251,6 +251,10 @@ static void INTERNAL_DKDrainAutoreleasePool( struct DKThreadContext * threadCont
 
         if( range.length > 0 )
         {
+            #if !DKGenericArrayHasContiguousElements
+            #error DKAutoreleasePool relies on contiguous elements in DKGenericArray
+            #endif
+            
             DKObjectRef * objects = DKGenericArrayGetPointerToElementAtIndex( &threadContext->arp.objects, range.location );
 
             for( DKIndex i = 0; i < range.length; ++i )

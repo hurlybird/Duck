@@ -67,8 +67,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
         DKStringRef key = DKStringWithFormat( "Key%d", i );
         DKStringRef value = DKStringWithFormat( "Value%d", i );
         
-        DKGenericArrayGetElementAtIndex( &keys, i, DKStringRef ) = key;
-        DKGenericArrayGetElementAtIndex( &values, i, DKStringRef ) = value;
+        DKGenericArrayElementAtIndex( &keys, i, DKStringRef ) = key;
+        DKGenericArrayElementAtIndex( &values, i, DKStringRef ) = value;
 
         DKDictionarySetObject( dict, key, value );
         DKDictionaryRemoveObject( dict, key );
@@ -81,8 +81,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
         DKStringRef key = DKStringWithFormat( "Key%d", i );
         DKStringRef value = DKStringWithFormat( "Value%d", i );
         
-        DKGenericArrayGetElementAtIndex( &keys, i, DKStringRef ) = key;
-        DKGenericArrayGetElementAtIndex( &values, i, DKStringRef ) = value;
+        DKGenericArrayElementAtIndex( &keys, i, DKStringRef ) = key;
+        DKGenericArrayElementAtIndex( &values, i, DKStringRef ) = value;
 
         DKDictionarySetObject( dict, key, value );
 
@@ -94,8 +94,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef key = DKGenericArrayGetElementAtIndex( &keys, i, DKObjectRef );
-        DKStringRef value = DKGenericArrayGetElementAtIndex( &values, i, DKObjectRef );
+        DKStringRef key = DKGenericArrayElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef value = DKGenericArrayElementAtIndex( &values, i, DKObjectRef );
         XCTAssert( DKDictionaryGetObject( dict, key ) == value );
     }
     
@@ -103,7 +103,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef key = DKGenericArrayGetElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef key = DKGenericArrayElementAtIndex( &keys, i, DKObjectRef );
         DKDictionaryRemoveObject( dict, key );
         XCTAssert( DKDictionaryGetCount( dict ) == N - (i + 1) );
     }
@@ -112,8 +112,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef key = DKGenericArrayGetElementAtIndex( &keys, i, DKObjectRef );
-        DKStringRef value = DKGenericArrayGetElementAtIndex( &values, i, DKObjectRef );
+        DKStringRef key = DKGenericArrayElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef value = DKGenericArrayElementAtIndex( &values, i, DKObjectRef );
         DKDictionarySetObject( dict, key, value );
     }
 
@@ -121,8 +121,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     for( int i = 0; i < N; i++ )
     {
-        DKStringRef key = DKGenericArrayGetElementAtIndex( &keys, i, DKObjectRef );
-        DKStringRef value = DKGenericArrayGetElementAtIndex( &values, i, DKObjectRef );
+        DKStringRef key = DKGenericArrayElementAtIndex( &keys, i, DKObjectRef );
+        DKStringRef value = DKGenericArrayElementAtIndex( &values, i, DKObjectRef );
         XCTAssert( DKDictionaryGetObject( dict, key ) == value );
     }
         

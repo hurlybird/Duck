@@ -142,7 +142,7 @@ static void DKEggUnarchiverFinalize( DKObjectRef _untyped_self )
     
     for( DKIndex i = 0; i < unarchivedObjectCount; ++i )
     {
-        DKObjectRef object = DKGenericArrayGetElementAtIndex( &_self->unarchivedObjects, i, DKObjectRef );
+        DKObjectRef object = DKGenericArrayElementAtIndex( &_self->unarchivedObjects, i, DKObjectRef );
         DKRelease( object );
     }
     
@@ -317,7 +317,7 @@ static const DKEggAttribute * GetAttribute( DKEggUnarchiverRef _self, DKStringRe
 {
     uint32_t hashkey = dk_strhash32( DKStringGetCStringPtr( key ) );
     
-    DKIndex index = DKGenericArrayGetLastElement( &_self->stack, DKIndex );
+    DKIndex index = DKGenericArrayLastElement( &_self->stack, DKIndex );
     const DKEggObject * object = &_self->objectTable[index];
     
     for( uint32_t i = 0; i < object->attributes.length; ++i )
@@ -378,7 +378,7 @@ static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
     DKAssert( index > 0 );
     DKCheckIndex( index, _self->header->objectTable.length, NULL );
     
-    DKObjectRef object = DKGenericArrayGetElementAtIndex( &_self->unarchivedObjects, index, DKObjectRef );
+    DKObjectRef object = DKGenericArrayElementAtIndex( &_self->unarchivedObjects, index, DKObjectRef );
     
     if( object == NULL )
     {
@@ -1089,7 +1089,7 @@ static void AddAttribute( DKEggArchiverRef _self, DKStringRef key, DKEncoding en
 {
     DKAssert( value <= 0xffffffff );
 
-    DKIndex index = DKGenericArrayGetLastElement( &_self->stack, DKIndex );
+    DKIndex index = DKGenericArrayLastElement( &_self->stack, DKIndex );
     struct ArchivedObject * archivedObject = DKGenericArrayGetPointerToElementAtIndex( &_self->archivedObjects, index );
     
     DKEggAttribute attribute;

@@ -29,6 +29,8 @@
 
 #include "DKPlatform.h"
 
+// DKByteArray MUST guarantee that its storage is a contiguous C array of bytes (DKData
+// and DKString rely on this behaviour).
 
 // Note: DKByteArray internally stores four '\0' bytes (i.e. a UTF32 NULL) at data[length]
 // to make storing strings safer. The NULLs aren't included in the length or maxLength of
