@@ -41,7 +41,7 @@
 
 // Egg File ==============================================================================
 
-#define DKEggBinaryPrefix    "binegg\n" // 8 bytes including the '\0'
+#define DKEggBinaryPrefix    "@egg--\n" // 8 bytes including the '\0'
 #define DKEggVersion         1
 
 
@@ -64,7 +64,7 @@ typedef struct
     uint8_t version;
     uint8_t encodingVersion;
     uint8_t byteOrder;
-    uint8_t pad;
+    uint8_t rootless;
 
     DKEggRange objectTable;
     DKEggRange attributeTable;
@@ -123,7 +123,8 @@ static void DKEggUnarchiverFinalize( DKObjectRef _self );
 //
 DKThreadSafeClassInit( DKEggUnarchiverClass )
 {
-    DKClassRef cls = DKNewClass( DKSTR( "DKEggUnarchiver" ), DKObjectClass(), sizeof(struct DKEggUnarchiver), 0, NULL, DKEggUnarchiverFinalize );
+    DKClassRef cls = DKNewClass( DKSTR( "DKEggUnarchiver" ), DKObjectClass(), sizeof(struct DKEggUnarchiver),
+        DKPreventSubclassing | DKNoImplicitInitializer, NULL, DKEggUnarchiverFinalize );
 
     return cls;
 }
@@ -135,8 +136,6 @@ DKThreadSafeClassInit( DKEggUnarchiverClass )
 static void DKEggUnarchiverFinalize( DKObjectRef _untyped_self )
 {
     DKEggUnarchiverRef _self = _untyped_self;
-
-    DKAssert( DKGenericArrayGetLength( &_self->stack ) == 1 );
 
     DKIndex unarchivedObjectCount = DKGenericArrayGetLength( &_self->unarchivedObjects );
     
@@ -150,6 +149,52 @@ static void DKEggUnarchiverFinalize( DKObjectRef _untyped_self )
     DKGenericArrayFinalize( &_self->stack );
     
     DKByteArrayFinalize( &_self->buffer );
+}
+
+
+///
+//  SwizzleEggHeader()
+//
+static void SwizzleEggHeader( DKEggHeader * header )
+{
+    header->objectTable.index = DKSwapInt32( header->objectTable.index );
+    header->objectTable.length = DKSwapInt32( header->objectTable.length );
+
+    header->attributeTable.index = DKSwapInt32( header->attributeTable.index );
+    header->attributeTable.length = DKSwapInt32( header->attributeTable.length );
+
+    header->data.index = DKSwapInt32( header->data.index );
+    header->data.length = DKSwapInt32( header->data.length );
+}
+
+
+///
+//  SwizzleEggObjects()
+//
+static void SwizzleEggObjects( DKEggObject * objects, uint32_t count )
+{
+    for( uint32_t i = 0; i < count; ++i )
+    {
+        DKEggObject * obj = &objects[i];
+        obj->className = DKSwapInt32( obj->className );
+        obj->attributes.index = DKSwapInt32( obj->attributes.index );
+        obj->attributes.length = DKSwapInt32( obj->attributes.length );
+    }
+}
+
+
+///
+//  SwizzleEggAttributes()
+//
+static void SwizzleEggAttributes( DKEggAttribute * attributes, uint32_t count )
+{
+    for( uint32_t i = 0; i < count; ++i )
+    {
+        DKEggAttribute * attr = &attributes[i];
+        attr->hashkey = DKSwapInt32( attr->hashkey );
+        attr->encoding = DKSwapInt32( attr->encoding );
+        attr->value = DKSwapInt32( attr->value );
+    }
 }
 
 
@@ -198,8 +243,10 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
         
         if( _self->header->byteOrder != DKByteOrderNative )
         {
-            // *** DO STUFF HERE ***
-            DKRequire( 0 );
+            DKWarning( "DKEggUnarchiver: Reading an archive with a non-native byte order is untested.\n" );
+        
+            // Note: This is safe since we've copied the header into our own buffer
+            SwizzleEggHeader( (DKEggHeader *)_self->header );
         }
 
         DKIndex archiveLength = _self->header->data.index + _self->header->data.length;
@@ -216,7 +263,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
             return NULL;
         }
         
-        // Set the data pointers
+        // Set the data pointers and update the header pointer since memory may have shifted
         _self->header = DKByteArrayGetBytePtr( &_self->buffer, 0 );
         _self->objectTable = DKByteArrayGetBytePtr( &_self->buffer, sizeof(DKEggHeader) );
         _self->attributeTable = DKByteArrayGetBytePtr( &_self->buffer, sizeof(DKEggHeader) +
@@ -225,11 +272,21 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
             (_self->header->objectTable.length * sizeof(DKEggObject)) +
             (_self->header->attributeTable.length * sizeof(DKEggAttribute)) );
 
+        if( _self->header->byteOrder != DKByteOrderNative )
+        {
+            // Note: This is safe since we've copied the tables into our own buffer
+            SwizzleEggObjects( (DKEggObject *)_self->objectTable, _self->header->objectTable.length );
+            SwizzleEggAttributes( (DKEggAttribute *)_self->attributeTable, _self->header->attributeTable.length );
+        }
+
         // Setup the unarchived object table
         DKGenericArrayAppendElements( &_self->unarchivedObjects, NULL, _self->header->objectTable.length );
 
-        // Push the root object
-        DKGenericArrayPush( &_self->stack, &(DKIndex){ 0 } );
+        // For rootless archives push the anonymous root object
+        if( _self->header->rootless )
+        {
+            DKGenericArrayPush( &_self->stack, &(DKIndex){ 0 } );
+        }
     }
     
     return _self;
@@ -279,8 +336,29 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
         
         if( _self->header->byteOrder != DKByteOrderNative )
         {
-            // *** DO STUFF HERE ***
-            DKRequire( 0 );
+            // Copy the header, object table and attribute table into our buffer
+            uint32_t objectTableLength = DKSwapInt32( _self->header->objectTable.length );
+            uint32_t attributeTableLength = DKSwapInt32( _self->header->attributeTable.length );
+
+            size_t bytelength = sizeof(DKEggHeader) +
+                (sizeof(DKEggObject) * objectTableLength) +
+                (sizeof(DKEggAttribute) * attributeTableLength);
+
+            if( DKDataGetLength( data ) < bytelength )
+            {
+                // *** ERROR ***
+                
+                DKRelease( _self );
+                return NULL;
+            }
+
+            DKByteArrayAppendBytes( &_self->buffer, DKDataGetBytePtr( data, 0 ), bytelength );
+            
+            // Update the header pointer to the copied version
+            _self->header = DKByteArrayGetBytePtr( &_self->buffer, 0 );
+            
+            // Swizzle the copied header
+            SwizzleEggHeader( (DKEggHeader *)_self->header );
         }
 
         if( DKDataGetLength( data ) < (_self->header->data.index + _self->header->data.length) )
@@ -292,9 +370,23 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
         }
         
         // Set the other data pointers
-        _self->objectTable = DKDataGetBytePtr( data, sizeof(DKEggHeader) );
-        _self->attributeTable = DKDataGetBytePtr( data, sizeof(DKEggHeader) +
-            (_self->header->objectTable.length * sizeof(DKEggObject)) );
+        if( _self->header->byteOrder != DKByteOrderNative )
+        {
+            _self->objectTable = DKByteArrayGetBytePtr( &_self->buffer, sizeof(DKEggHeader) );
+            _self->attributeTable = DKByteArrayGetBytePtr( &_self->buffer, sizeof(DKEggHeader) +
+                (_self->header->objectTable.length * sizeof(DKEggObject)) );
+
+            SwizzleEggObjects( (DKEggObject *)_self->objectTable, _self->header->objectTable.length );
+            SwizzleEggAttributes( (DKEggAttribute *)_self->attributeTable, _self->header->attributeTable.length );
+        }
+        
+        else
+        {
+            _self->objectTable = DKDataGetBytePtr( data, sizeof(DKEggHeader) );
+            _self->attributeTable = DKDataGetBytePtr( data, sizeof(DKEggHeader) +
+                (_self->header->objectTable.length * sizeof(DKEggObject)) );
+        }
+
         _self->data = DKDataGetBytePtr( data, sizeof(DKEggHeader) +
             (_self->header->objectTable.length * sizeof(DKEggObject)) +
             (_self->header->attributeTable.length * sizeof(DKEggAttribute)) );
@@ -302,8 +394,11 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
         // Setup the unarchived object table
         DKGenericArrayAppendElements( &_self->unarchivedObjects, NULL, _self->header->objectTable.length );
 
-        // Push the root object
-        DKGenericArrayPush( &_self->stack, &(DKIndex){ 0 } );
+        // For rootless archives push the anonymous root object
+        if( _self->header->rootless )
+        {
+            DKGenericArrayPush( &_self->stack, &(DKIndex){ 0 } );
+        }
     }
     
     return _self;
@@ -375,7 +470,7 @@ static DKSEL GetSelector( DKEggUnarchiverRef _self, uint32_t offset )
 //
 static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
 {
-    DKAssert( index > 0 );
+    DKAssert( index >= 0 );
     DKCheckIndex( index, _self->header->objectTable.length, NULL );
     
     DKObjectRef object = DKGenericArrayElementAtIndex( &_self->unarchivedObjects, index, DKObjectRef );
@@ -418,6 +513,15 @@ static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
     }
     
     return object;
+}
+
+
+///
+//  DKEggGetRootObject()
+//
+DKObjectRef DKEggGetRootObject( DKEggUnarchiverRef _self )
+{
+    return GetObject( _self, 0 );
 }
 
 
@@ -483,7 +587,12 @@ void DKEggGetCollection( DKEggUnarchiverRef _self, DKStringRef key, DKApplierFun
             
                 for( uint32_t i = 0; i < count; ++i )
                 {
-                    DKObjectRef object = (indexes[i] > 0) ? GetObject( _self, indexes[i] ) : NULL;
+                    uint32_t index = indexes[i];
+                    
+                    if( _self->header->byteOrder != DKByteOrderNative )
+                        index = DKSwapInt32( index );
+                
+                    DKObjectRef object = (indexes[i] > 0) ? GetObject( _self, index ) : NULL;
                     callback( object, context );
                 }
             }
@@ -509,11 +618,20 @@ void DKEggGetKeyedCollection( DKEggUnarchiverRef _self, DKStringRef key, DKKeyed
         
             for( uint32_t i = 0; i < count; ++i )
             {
-                DKObjectRef key = GetObject( _self, indexes[i].key );
+                uint32_t k = indexes[i].key;
+                uint32_t v = indexes[i].value;
+                
+                if( _self->header->byteOrder != DKByteOrderNative )
+                {
+                    k = DKSwapInt32( k );
+                    v = DKSwapInt32( v );
+                }
+            
+                DKObjectRef key = GetObject( _self, k );
                 
                 if( key )
                 {
-                    DKObjectRef object = indexes[i].value ? GetObject( _self, indexes[i].value ) : NULL;
+                    DKObjectRef object = v ? GetObject( _self, v ) : NULL;
                     callback( key, object, context );
                 }
             }
@@ -660,6 +778,7 @@ struct DKEggArchiver
     const DKObject _obj;
     
     DKByteOrder byteOrder;
+    bool rootless;
     
     DKGenericArray stack;
     DKGenericArray archivedObjects;
@@ -737,6 +856,7 @@ static void VisitedObjectsRowDelete( void * _row )
 static DKObjectRef DKEggArchiverInit( DKObjectRef _self );
 static void DKEggArchiverFinalize( DKObjectRef _self );
 
+static DKIndex AddSymbol( DKEggArchiverRef _self, DKStringRef symbol );
 static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object );
 
 ///
@@ -744,7 +864,8 @@ static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object );
 //
 DKThreadSafeClassInit( DKEggArchiverClass )
 {
-    DKClassRef cls = DKNewClass( DKSTR( "DKEggArchiver" ), DKObjectClass(), sizeof(struct DKEggArchiver), 0, DKEggArchiverInit, DKEggArchiverFinalize );
+    DKClassRef cls = DKNewClass( DKSTR( "DKEggArchiver" ), DKObjectClass(), sizeof(struct DKEggArchiver),
+        DKPreventSubclassing, DKEggArchiverInit, DKEggArchiverFinalize );
 
     return cls;
 }
@@ -753,7 +874,16 @@ DKThreadSafeClassInit( DKEggArchiverClass )
 ///
 //  DKEggArchiverInit()
 //
-static DKObjectRef DKEggArchiverInit( DKObjectRef _untyped_self )
+static DKObjectRef DKEggArchiverInit( DKObjectRef _self )
+{
+    return DKEggArchiverInitWithObject( _self, NULL );
+}
+
+
+///
+//  DKEggArchiverInitWithObject()
+//
+DKObjectRef DKEggArchiverInitWithObject( DKObjectRef _untyped_self, DKObjectRef object )
 {
     DKEggArchiverRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
 
@@ -777,15 +907,28 @@ static DKObjectRef DKEggArchiverInit( DKObjectRef _untyped_self )
         DKGenericHashTableInit( &_self->symbolTable, sizeof(struct VisitedObjectsRow), &callbacks );
         DKByteArrayInit( &_self->data );
 
-        // Push an anonymous root object
-        struct ArchivedObject rootObject;
-        rootObject.object = NULL;
-        rootObject.className = 0;
-        DKGenericArrayInit( &rootObject.attributes, sizeof(DKEggAttribute) );
+        // Rooted archive, add the root object
+        if( object )
+        {
+            _self->rootless = false;
+            
+            AddObject( _self, object );
+        }
         
-        DKGenericArrayAppendElements( &_self->archivedObjects, &rootObject, 1 );
+        // Rootless archive, push an anonymous root dictionary
+        else
+        {
+            _self->rootless = true;
 
-        DKGenericArrayPush( &_self->stack, &(DKIndex){ 0 } );
+            struct ArchivedObject rootObject;
+            rootObject.object = NULL;
+            rootObject.className = (uint32_t)AddSymbol( _self, DKSTR( "DKDictionary" ) );
+            DKGenericArrayInit( &rootObject.attributes, sizeof(DKEggAttribute) );
+            
+            DKGenericArrayAppendElements( &_self->archivedObjects, &rootObject, 1 );
+
+            DKGenericArrayPush( &_self->stack, &(DKIndex){ 0 } );
+        }
     }
 
     return _self;
@@ -798,8 +941,6 @@ static DKObjectRef DKEggArchiverInit( DKObjectRef _untyped_self )
 static void DKEggArchiverFinalize( DKObjectRef _untyped_self )
 {
     DKEggArchiverRef _self = _untyped_self;
-    
-    DKAssert( DKGenericArrayGetLength( &_self->stack ) == 1 );
     
     DKIndex archivedObjectCount = DKGenericArrayGetLength( &_self->archivedObjects );
     
@@ -830,6 +971,7 @@ static void BuildHeader( DKEggArchiverRef _self, DKEggHeader * header )
     header->version = DKEggVersion;
     header->encodingVersion = DKEncodingVersion;
     header->byteOrder = _self->byteOrder;
+    header->rootless = _self->rootless;
     
     header->objectTable.index = sizeof(DKEggHeader);
     header->objectTable.length = (uint32_t)DKGenericArrayGetLength( &_self->archivedObjects );
@@ -1334,4 +1476,35 @@ void DKEggAddNumberData( DKEggArchiverRef _self, DKStringRef key, DKEncoding enc
 
 
 
+
+// DKEggSerializer =======================================================================
+
+static DKObjectRef SerializeEggObject( DKObjectRef object, void * context )
+{
+    DKEggArchiverRef archiver = DKNewEggArchiverWithObject( object );
+    
+    DKDataRef data = DKEggArchiverCopyData( archiver );
+    
+    DKRelease( archiver );
+    
+    return DKAutorelease( data );
+}
+
+
+static DKObjectRef DeserializeEggObject( DKObjectRef data, void * context )
+{
+    DKEggUnarchiverRef unarchiver = DKNewEggUnarchiverWithData( data );
+    
+    DKObjectRef object = DKRetain( DKEggGetRootObject( unarchiver ) );
+    
+    DKRelease( unarchiver );
+    
+    return DKAutorelease( object );
+}
+
+
+DKThreadSafeSharedObjectInit( DKEggSerializer, DKModifierRef )
+{
+    return DKNewModifier( DKSTR( "egg" ), SerializeEggObject, DeserializeEggObject, NULL );
+}
 

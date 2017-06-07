@@ -388,6 +388,8 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
         case 'G':
         case 'e':
         case 'E':
+        case 'a':
+        case 'A':
             CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
             num_size = FloatSize( cursor, tok + 1 );
             

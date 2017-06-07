@@ -86,6 +86,7 @@ typedef struct
         DKSTR( "Null" ), NULL,
         NULL );
 
+    // Rootless archiver
     DKEggArchiverRef archiver = DKNew( DKEggArchiverClass() );
     DKEggAddObject( archiver, DKSTR( "string" ), s1 );
     DKEggAddObject( archiver, DKSTR( "number" ), n1 );
@@ -98,7 +99,6 @@ typedef struct
     DKEggAddObject( archiver, DKSTR( "document" ), doc1 );
     
     DKDataRef archivedData = DKEggArchiverCopyData( archiver );
-    
     DKEggUnarchiverRef unarchiver = DKNewEggUnarchiverWithData( archivedData );
 
     DKStringRef s2 = DKEggGetObject( unarchiver, DKSTR( "string" ) );
@@ -131,6 +131,31 @@ typedef struct
     DKRelease( archiver );
     DKRelease( unarchiver );
     DKRelease( archivedData );
+    
+    // Rooted archiver
+    DKDictionaryRef root = DKDictionaryWithKeysAndObjects(
+        DKSTR( "string" ), s1,
+        DKSTR( "number" ), n1,
+        DKSTR( "date" ), d1,
+        DKSTR( "struct" ), x1,
+        DKSTR( "array" ), a1,
+        DKSTR( "linked-list" ), l1,
+        DKSTR( "hash-table" ), h1,
+        DKSTR( "binary-tree" ), b1,
+        DKSTR( "document" ), doc1,
+        NULL );
+    
+    archiver = DKNewEggArchiverWithObject( root );
+    archivedData = DKEggArchiverCopyData( archiver );
+    unarchiver = DKNewEggUnarchiverWithData( archivedData );
+
+    DKDictionaryRef unarchivedRoot = DKEggGetRootObject( unarchiver );
+    XCTAssert( DKEqual( root, unarchivedRoot ) );
+
+    DKRelease( archiver );
+    DKRelease( unarchiver );
+    DKRelease( archivedData );
+    
 }
 
 @end

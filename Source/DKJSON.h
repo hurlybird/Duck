@@ -29,6 +29,7 @@
 
 #include "DKRuntime.h"
 #include "DKStream.h"
+#include "DKModifier.h"
 
 
 enum
@@ -41,6 +42,10 @@ enum
 int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options );
 
 DKObjectRef DKJSONParse( DKStringRef json, int options );
+
+
+// Modifer for converting JSON <-> DKString
+DKModifierRef DKJSONSerializer( void );
 
 
 

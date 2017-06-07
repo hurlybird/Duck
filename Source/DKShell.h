@@ -32,4 +32,30 @@
 
 
 
+/*
+
+Shell directives:
+    Always start with '@'
+    Always occupy a single line
+    Parameters are KEY=VALUE pairs separated by spaces
+    Parameters may be in any order
+    Parameter keys must be lowercase
+    Parameter values may be:
+        Numbers
+        Percent encoded strings
+        One or more tokens separated by '+'
+
+File header
+@shell version=# keyed=yes|no byte-order=le:be
+ 
+Text segment header. The encoding field is pedantic -- DKString only supports UTF-8.
+@text length=BYTES encoding=UTF8 [id="NAME"] [decode=MODIFIER[+MODIFIER2[+MODIFIER3[...]]]]
+
+Binary segment header
+@binary length=BYTES [id="NAME"] [decode=MODIFIER[+MODIFIER2[+MODIFIER3[...]]]]
+
+*/
+
+
+
 #endif // _DK_SHELL_H_

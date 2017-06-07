@@ -132,11 +132,12 @@ typedef struct
 
 
 // Callback Types
-typedef bool (*DKEqualityFunction)( DKObjectRef a, DKObjectRef b );
-typedef int  (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
-typedef DKHashCode (*DKHashFunction)( DKObjectRef a );
-typedef int  (*DKApplierFunction)( DKObjectRef object, void * context );
-typedef int  (*DKKeyedApplierFunction)( DKObjectRef key, DKObjectRef object, void * context );
+typedef bool        (*DKEqualityFunction)( DKObjectRef a, DKObjectRef b );
+typedef int         (*DKCompareFunction)( DKObjectRef a, DKObjectRef b );
+typedef DKHashCode  (*DKHashFunction)( DKObjectRef a );
+typedef int         (*DKApplierFunction)( DKObjectRef object, void * context );
+typedef int         (*DKKeyedApplierFunction)( DKObjectRef key, DKObjectRef object, void * context );
+typedef DKObjectRef (*DKModifierFunction)( DKObjectRef object, void * context );
 
 
 // Path Constants

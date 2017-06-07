@@ -32,6 +32,7 @@
 #include "DKCollection.h"
 #include "DKNumber.h"
 #include "DKStream.h"
+#include "DKModifier.h"
 
 
 typedef struct DKEggUnarchiver * DKEggUnarchiverRef;
@@ -69,6 +70,8 @@ DKClassRef DKEggUnarchiverClass( void );
 DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKObjectRef stream );
 DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKDataRef data );
 
+DKObjectRef DKEggGetRootObject( DKEggUnarchiverRef _self );
+
 DKEncoding DKEggGetEncoding( DKEggUnarchiverRef _self, DKStringRef key );
 
 DKObjectRef DKEggGetObject( DKEggUnarchiverRef _self, DKStringRef key );
@@ -89,8 +92,13 @@ size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * num
 // DKEggArchiver =========================================================================
 DKClassRef DKEggArchiverClass( void );
 
-#define DKEggArchiver()     DKAutorelease( DKNew( DKEggArchiverClass() ) )
-#define DKNewEggArchiver()  DKNew( DKEggArchiverClass() )
+#define DKEggArchiver()                     DKAutorelease( DKEggArchiverInitWithObject( DKAlloc( DKEggArchiverClass() ), NULL ) )
+#define DKNewEggArchiver()                  DKEggArchiverInitWithObject( DKAlloc( DKEggArchiverClass() ), NULL )
+
+#define DKEggArchiverWithObject( obj )      DKAutorelease( DKEggArchiverInitWithObject( DKAlloc( DKEggArchiverClass() ), obj ) )
+#define DKNewEggArchiverWithObject( obj )   DKEggArchiverInitWithObject( DKAlloc( DKEggArchiverClass() ), obj )
+
+DKObjectRef DKEggArchiverInitWithObject( DKObjectRef _self, DKObjectRef object );
 
 void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKObjectRef stream );
 DKDataRef DKEggArchiverCopyData( DKEggArchiverRef _self );
@@ -102,6 +110,15 @@ void DKEggAddKeyedCollection( DKEggArchiverRef _self, DKStringRef key, DKObjectR
 void DKEggAddTextData( DKEggArchiverRef _self, DKStringRef key, const char * text, size_t length );
 void DKEggAddBinaryData( DKEggArchiverRef _self, DKStringRef key, const void * bytes, size_t length );
 void DKEggAddNumberData( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, const void * number );
+
+
+
+
+// DKEggSerializer =======================================================================
+
+// Modifier for converting object <-> egg
+
+DKModifierRef DKEggSerializer( void );
 
 
 #endif // _DK_EGG_H_
