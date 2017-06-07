@@ -143,7 +143,10 @@ enum
     DKPreventSubclassing =          (1 << 2),
     
     // Instances of the class are considered immutable
-    DKImmutableInstances =          (1 << 3)
+    DKImmutableInstances =          (1 << 3),
+    
+    // Raise an error if the implicit initializer is called via DKInit() or DKSuperInit()
+    DKNoImplicitInitializer =       (1 << 4)
 };
 
 typedef DKObjectRef (*DKInitMethod)( DKObjectRef _self );

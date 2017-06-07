@@ -616,7 +616,15 @@ DKObjectRef DKInit( DKObjectRef _self )
         for( DKClassRef cls = obj->isa; cls != NULL; cls = cls->superclass )
         {
             if( cls->init )
+            {
                 return cls->init( _self );
+            }
+            
+            if( cls->options & DKNoImplicitInitializer )
+            {
+                DKFatalError( "DKInit: Class '%@' has no implicit initializer.\n", cls->name );
+                return NULL;
+            }
         }
     }
     
@@ -636,7 +644,15 @@ DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass )
         for( DKClassRef cls = superclass; cls != NULL; cls = cls->superclass )
         {
             if( cls->init )
+            {
                 return cls->init( _self );
+            }
+
+            if( cls->options & DKNoImplicitInitializer )
+            {
+                DKFatalError( "DKSuperInit: Class '%@' has no implicit initializer.\n", cls->name );
+                return NULL;
+            }
         }
     }
     
