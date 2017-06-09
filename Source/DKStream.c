@@ -451,6 +451,29 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
 
 
 ///
+//  DKGets()
+//
+DKStringRef DKGets( DKStreamRef _self )
+{
+    DKStreamInterfaceRef stream = DKGetInterface( _self, DKSelector(Stream) );
+    
+    DKMutableStringRef s = DKMutableString();
+    
+    char ch[2] = { '\0', '\0' };
+    
+    while( stream->read( _self, ch, 1, 1 ) == 1 )
+    {
+        if( ch[0] == '\n' )
+            break;
+        
+        DKStringAppendCString( s, ch );
+    }
+    
+    return s;
+}
+
+
+///
 //  DKGetc()
 //
 int DKGetc( DKStreamRef _self )

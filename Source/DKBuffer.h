@@ -1,8 +1,8 @@
 /*****************************************************************************************
 
-  DKJSON.h
+  DKBuffer.h
 
-  Copyright (c) 2014 Derek W. Nylen
+  Copyright (c) 2017 Derek W. Nylen
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -24,27 +24,44 @@
 
 *****************************************************************************************/
 
-#ifndef _DK_JSON_H_
-#define _DK_JSON_H_
+#ifndef _DK_BUFFER_H_
+#define _DK_BUFFER_H_
 
 #include "DKRuntime.h"
-#include "DKStream.h"
 
 
-enum
+DKDeclareInterfaceSelector( Buffer );
+
+
+typedef DKIndex      (*DKBufferGetLengthMethod)( DKObjectRef _self );
+typedef const void * (*DKBufferGetBytePtrMethod)( DKObjectRef _self, DKIndex index );
+
+typedef void         (*DKBufferSetLengthMethod)( DKObjectRef _self, DKIndex length );
+typedef void *       (*DKBufferGetMutableBytePtrMethod)( DKObjectRef _self, DKIndex index );
+
+
+struct DKBufferInterface
 {
-    DKJSONWritePretty =             (1 << 0),
-    DKJSONVectorSyntaxExtension =   (1 << 1)
+    const DKInterface _interface;
+    
+    DKBufferGetLengthMethod         getLength;
+    DKBufferGetBytePtrMethod        getBytePtr;
+
+    DKBufferSetLengthMethod         setLength;
+    DKBufferGetMutableBytePtrMethod getMutableBytePtr;
 };
 
-
-int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options );
-
-DKObjectRef DKJSONParse( DKStringRef json, int options );
+typedef const struct DKBufferInterface * DKBufferInterfaceRef;
 
 
+// Wrappers
+DKIndex         DKBufferGetLength( DKObjectRef _self );
+const void *    DKBufferGetBytePtr( DKObjectRef _self, DKIndex index );
+
+void            DKBufferSetLength( DKObjectRef _self, DKIndex length );
+void *          DKBufferGetMutableBytePtr( DKObjectRef _self, DKIndex index );
 
 
-#endif // _DK_JSON_H_
 
+#endif // _DK_BUFFER_H_
 

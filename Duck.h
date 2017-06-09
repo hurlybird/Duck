@@ -58,6 +58,7 @@ extern "C"
 #include "DKReadWriteLock.h"
 
 #include "DKAllocation.h"
+#include "DKBuffer.h"
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKDescription.h"
@@ -74,7 +75,6 @@ extern "C"
 
 #include "DKEncoding.h"
 #include "DKEnum.h"
-#include "DKModifier.h"
 #include "DKPredicate.h"
 
 #include "DKFile.h"

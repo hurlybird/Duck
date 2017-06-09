@@ -1,8 +1,8 @@
 /*****************************************************************************************
 
-  DKJSON.h
+  DKBuffer.c
 
-  Copyright (c) 2014 Derek W. Nylen
+  Copyright (c) 2017 Derek W. Nylen
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -24,27 +24,51 @@
 
 *****************************************************************************************/
 
-#ifndef _DK_JSON_H_
-#define _DK_JSON_H_
-
-#include "DKRuntime.h"
-#include "DKStream.h"
+#include "DKBuffer.h"
 
 
-enum
+// The stream selector is initialized by DKRuntimeInit() so that constant strings can be
+// used during initialization.
+//DKThreadSafeSelectorInit( Buffer );
+
+
+///
+//  DKBufferGetLength()
+//
+DKIndex DKBufferGetLength( DKObjectRef _self )
 {
-    DKJSONWritePretty =             (1 << 0),
-    DKJSONVectorSyntaxExtension =   (1 << 1)
-};
+    DKBufferInterfaceRef interface = DKGetInterface( _self, DKSelector(Buffer) );
+    return interface->getLength( _self );
+}
 
 
-int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options );
+///
+//  DKBufferGetBytePtr()
+//
+const void * DKBufferGetBytePtr( DKObjectRef _self, DKIndex index )
+{
+    DKBufferInterfaceRef interface = DKGetInterface( _self, DKSelector(Buffer) );
+    return interface->getBytePtr( _self, index );
+}
 
-DKObjectRef DKJSONParse( DKStringRef json, int options );
+
+///
+//  DKBufferSetLength()
+//
+void DKBufferSetLength( DKObjectRef _self, DKIndex length )
+{
+    DKBufferInterfaceRef interface = DKGetInterface( _self, DKSelector(Buffer) );
+    interface->setLength( _self, length );
+}
 
 
-
-
-#endif // _DK_JSON_H_
+///
+//  DKBufferGetMutableBytePtr()
+//
+void * DKBufferGetMutableBytePtr( DKObjectRef _self, DKIndex index )
+{
+    DKBufferInterfaceRef interface = DKGetInterface( _self, DKSelector(Buffer) );
+    return interface->getMutableBytePtr( _self, index );
+}
 
 

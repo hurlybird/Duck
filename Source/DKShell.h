@@ -28,34 +28,78 @@
 #define _DK_SHELL_H_
 
 #include "DKRuntime.h"
-#include "DKData.h"
-
+#include "DKStream.h"
 
 
 /*
 
-Shell directives:
-    Always start with '@'
-    Always occupy a single line
-    Parameters are KEY=VALUE pairs separated by spaces
-    Parameters may be in any order
-    Parameter keys must be lowercase
-    Parameter values may be:
-        Numbers
-        Percent encoded strings
-        One or more tokens separated by '+'
+The Shell format is a lightweight wrapper for multipart files based loosely on MIME. The
+key difference from MIME is the Content-Length header that replaces the boundary field
+of the Content-Type.
 
-File header
-@shell version=# keyed=yes|no byte-order=le:be
- 
-Text segment header. The encoding field is pedantic -- DKString only supports UTF-8.
-@text length=BYTES encoding=UTF8 [id="NAME"] [decode=MODIFIER[+MODIFIER2[+MODIFIER3[...]]]]
+Shell files may be concatenated together -- the result is a valid shell file.
 
-Binary segment header
-@binary length=BYTES [id="NAME"] [decode=MODIFIER[+MODIFIER2[+MODIFIER3[...]]]]
+
+Shell Header Format:
+
+SHELL-Version: 1.0
+Content-Type: CONTENT_TYPE
+Content-Length: BYTES
+(newline)
+User supplied UTF-8 annotation string. '\r' and '\n' characters are not allowed.
+(newline)
+
+The annotation line is optional. If the annotation is omitted, the header ends on the
+SECOND blank line (i.e. the annotation line is excluded entirely).
+
+
+Content Types:
+
+Unless an automatic decoding option is specified, binary types are returned as DKData and
+text types are returned as DKStrings. If the Content-Type header is omitted or unrecognized,
+the content is assumed to be binary is returned as DKData.
+
+binary
+binary/egg  -- DKEgg serialized data
+binary/?    -- User defined binary data
+
+text        -- UTF-8 text
+text/json   -- JSON
+text/xml    -- XML
+text/?      -- User defined text data
 
 */
 
 
+#define DKShellContentTypeBinary    DKSTR( "binary" )
+#define DKShellContentTypeEgg       DKSTR( "binary/egg" )
+
+#define DKShellContentTypeText      DKSTR( "text" )
+#define DKShellContentTypeJSON      DKSTR( "text/json" )
+#define DKShellContentTypeXML       DKSTR( "text/xml" )
+
+
+enum
+{
+    // Read Options
+    DKShellDecodeEGG =      (1 << 0),   // Unarchive binary/egg content and return the root object
+    DKShellDecodeJSON =     (1 << 1),   // Parse text/json content and return the root object
+    DKShellDecodeXML =      (1 << 2),   // Parse text/xml content and return a DKXMLElement
+
+    // Write Options
+    DKShellEncodeEGG =      (1 << 0),   // Archive binary/egg content before writing
+    DKShellEncodeJSON =     (1 << 1),   // Convert text/json content to a string before writing
+};
+
+
+
+// Returns the number of objects read (i.e. 1) on success
+int DKShellRead( DKStreamRef stream, int options, DKObjectRef * object, DKStringRef * contentType, DKStringRef * annotation );
+
+// Returns the number of objects written (i.e. 1) on success
+int DKShellWrite( DKStreamRef stream, int options, DKObjectRef object, DKStringRef contentType, DKStringRef annotation );
+
 
 #endif // _DK_SHELL_H_
+
+

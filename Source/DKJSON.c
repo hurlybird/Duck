@@ -843,30 +843,3 @@ static DKEncodingType ParseNumberType( Token token )
 
 
 
-
-// DKJSONSerializer ======================================================================
-
-static DKObjectRef SerializeJSONObject( DKObjectRef object, void * context )
-{
-    DKMutableStringRef json = DKMutableString();
-    
-    DKJSONWrite( json, object, DKJSONVectorSyntaxExtension );
-    
-    return json;
-}
-
-
-static DKObjectRef DeserializeJSONObject( DKObjectRef json, void * context )
-{
-    return DKJSONParse( json, DKJSONVectorSyntaxExtension );
-}
-
-
-DKThreadSafeSharedObjectInit( DKJSONSerializer, DKModifierRef )
-{
-    return DKNewModifier( DKSTR( "json" ), SerializeJSONObject, DeserializeJSONObject, NULL );
-}
-
-
-
-

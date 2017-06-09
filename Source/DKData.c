@@ -28,6 +28,7 @@
 #include "DKByteArray.h"
 #include "DKStream.h"
 #include "DKString.h"
+#include "DKBuffer.h"
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKEgg.h"
@@ -77,6 +78,16 @@ DKThreadSafeClassInit( DKDataClass )
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
+    // Buffer
+    struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer), sizeof(struct DKBufferInterface) );
+    buffer->getLength = (DKBufferGetLengthMethod)DKDataGetLength;
+    buffer->getBytePtr = (DKBufferGetBytePtrMethod)DKDataGetBytePtr;
+    buffer->setLength = (void *)DKImmutableObjectAccessError;
+    buffer->getMutableBytePtr = (void *)DKImmutableObjectAccessError;
+    
+    DKInstallInterface( cls, buffer );
+    DKRelease( buffer );
+
     // Stream
     struct DKStreamInterface * stream =DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKDataSeek;
@@ -114,6 +125,16 @@ DKThreadSafeClassInit( DKMutableDataClass )
     DKInstallInterface( cls, copying );
     DKRelease( copying );
     
+    // Buffer
+    struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer), sizeof(struct DKBufferInterface) );
+    buffer->getLength = (DKBufferGetLengthMethod)DKDataGetLength;
+    buffer->getBytePtr = (DKBufferGetBytePtrMethod)DKDataGetBytePtr;
+    buffer->setLength = (DKBufferSetLengthMethod)DKDataSetLength;
+    buffer->getMutableBytePtr = (DKBufferGetMutableBytePtrMethod)DKDataGetMutableBytePtr;
+    
+    DKInstallInterface( cls, buffer );
+    DKRelease( buffer );
+
     // Stream
     struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKDataSeek;

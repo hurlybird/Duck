@@ -27,6 +27,7 @@
 #include "DKString.h"
 #include "DKUnicode.h"
 #include "DKByteArray.h"
+#include "DKBuffer.h"
 #include "DKStream.h"
 #include "DKGenericHashTable.h"
 #include "DKList.h"
@@ -126,6 +127,16 @@ DKThreadSafeClassInit( DKStringClass )
     DKInstallInterface( cls, description );
     DKRelease( description );
     
+    // Buffer
+    struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer), sizeof(struct DKBufferInterface) );
+    buffer->getLength = (DKBufferGetLengthMethod)DKStringGetByteLength;
+    buffer->getBytePtr = (DKBufferGetBytePtrMethod)DKStringGetBytePtr;
+    buffer->setLength = (void *)DKImmutableObjectAccessError;
+    buffer->getMutableBytePtr = (void *)DKImmutableObjectAccessError;
+    
+    DKInstallInterface( cls, buffer );
+    DKRelease( buffer );
+
     // Stream
     struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKStringSeek;
@@ -197,6 +208,16 @@ DKThreadSafeClassInit( DKMutableStringClass )
     DKInstallInterface( cls, description );
     DKRelease( description );
     
+    // Buffer
+    struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer), sizeof(struct DKBufferInterface) );
+    buffer->getLength = (DKBufferGetLengthMethod)DKStringGetByteLength;
+    buffer->getBytePtr = (DKBufferGetBytePtrMethod)DKStringGetBytePtr;
+    buffer->setLength = (DKBufferSetLengthMethod)DKStringSetByteLength;
+    buffer->getMutableBytePtr = (DKBufferGetMutableBytePtrMethod)DKStringGetMutableBytePtr;
+    
+    DKInstallInterface( cls, buffer );
+    DKRelease( buffer );
+
     // Stream
     struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
     stream->seek = (DKStreamSeekMethod)DKStringSeek;
@@ -812,6 +833,31 @@ DKIndex DKStringGetByteLength( DKStringRef _self )
 
 
 ///
+//  DKStringSetByteLength()
+//
+void DKStringSetByteLength( DKMutableStringRef _self, DKIndex length )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
+
+        if( length > _self->byteArray.length )
+        {
+            DKRange range = DKRangeMake( _self->byteArray.length, 0 );
+            DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, length - _self->byteArray.length );
+        }
+        
+        else if( length < _self->byteArray.length )
+        {
+            DKRange range = DKRangeMake( length, _self->byteArray.length - length );
+            DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, 0 );
+        }
+    }
+}
+
+
+///
+///
 //  DKStringGetCStringPtr()
 //
 const char * DKStringGetCStringPtr( DKStringRef _self )
@@ -825,6 +871,40 @@ const char * DKStringGetCStringPtr( DKStringRef _self )
     }
     
     return "";
+}
+
+
+///
+//  DKStringGetBytePtr()
+//
+const void * DKStringGetBytePtr( DKStringRef _self, DKIndex index )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        DKCheckIndex( index, _self->byteArray.length, NULL );
+        
+        return &_self->byteArray.bytes[index];
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringGetMutableBytePtr()
+//
+void * DKStringGetMutableBytePtr( DKMutableStringRef _self, DKIndex index )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass(), NULL );
+        DKCheckIndex( index, _self->byteArray.length, NULL );
+        
+        return &_self->byteArray.bytes[index];
+    }
+    
+    return NULL;
 }
 
 

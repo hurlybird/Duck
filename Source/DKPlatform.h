@@ -84,6 +84,7 @@ typedef struct DKEnum *             DKEnumRef;
 typedef struct DKPredicate *        DKPredicateRef;
 typedef struct DKList *             DKListRef;
 typedef struct DKDictionary *       DKDictionaryRef;
+typedef struct DKSet *              DKSetRef;
 
 
 // Define a constant string with a compile-time constant C string.

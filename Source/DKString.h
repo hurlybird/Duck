@@ -83,8 +83,12 @@ bool        DKStringHasSubstring( DKStringRef _self, DKStringRef other );
 
 DKIndex     DKStringGetLength( DKStringRef _self );
 DKIndex     DKStringGetByteLength( DKStringRef _self );
+void        DKStringSetByteLength( DKMutableStringRef _self, DKIndex length );
 
 const char * DKStringGetCStringPtr( DKStringRef _self );
+
+const void * DKStringGetBytePtr( DKStringRef _self, DKIndex index );
+void *      DKStringGetMutableBytePtr( DKStringRef _self, DKIndex index );
 
 // Substrings
 DKStringRef DKStringCopySubstring( DKStringRef _self, DKRange range );

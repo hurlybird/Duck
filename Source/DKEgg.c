@@ -41,8 +41,13 @@
 
 // Egg File ==============================================================================
 
-#define DKEggBinaryPrefix    "@egg--\n" // 8 bytes including the '\0'
-#define DKEggVersion         1
+// The file prefix is a newline + null (\n\0) terminated string. The version number is
+// included only for readability -- it is not functional. To maintain compatibility,
+// future versions may change the content, but not the size of the prefix.
+
+#define DKEggPrefix         "EGG-Version: 1\n\0"
+#define DKEggPrefixSize     16
+#define DKEggVersion        1
 
 
 // EggHeader
@@ -59,7 +64,7 @@ typedef struct
 
 typedef struct
 {
-    char prefix[8];
+    char prefix[DKEggPrefixSize];
     
     uint8_t version;
     uint8_t encodingVersion;
@@ -222,9 +227,17 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
             return NULL;
         }
 
-        // Check the header
         _self->header = DKByteArrayGetBytePtr( &_self->buffer, 0 );
 
+        // Check the header
+        if( memcmp( _self->header->prefix, DKEggPrefix, DKEggPrefixSize ) != 0 )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+        
         if( _self->header->version != DKEggVersion )
         {
             // *** ERROR ***
@@ -318,6 +331,14 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
         _self->header = DKDataGetBytePtr( data, 0 );
         
         // Check the header
+        if( memcmp( _self->header->prefix, DKEggPrefix, DKEggPrefixSize ) != 0 )
+        {
+            // *** ERROR ***
+            
+            DKRelease( _self );
+            return NULL;
+        }
+        
         if( _self->header->version != DKEggVersion )
         {
             // *** ERROR ***
@@ -967,7 +988,7 @@ static void BuildHeader( DKEggArchiverRef _self, DKEggHeader * header )
 {
     memset( header, 0, sizeof(DKEggHeader) );
     
-    strncpy( header->prefix, DKEggBinaryPrefix, 8 );
+    memcpy( header->prefix, DKEggPrefix, DKEggPrefixSize );
     header->version = DKEggVersion;
     header->encodingVersion = DKEncodingVersion;
     header->byteOrder = _self->byteOrder;
@@ -1474,37 +1495,4 @@ void DKEggAddNumberData( DKEggArchiverRef _self, DKStringRef key, DKEncoding enc
     AddAttribute( _self, key, encoding, offset );
 }
 
-
-
-
-// DKEggSerializer =======================================================================
-
-static DKObjectRef SerializeEggObject( DKObjectRef object, void * context )
-{
-    DKEggArchiverRef archiver = DKNewEggArchiverWithObject( object );
-    
-    DKDataRef data = DKEggArchiverCopyData( archiver );
-    
-    DKRelease( archiver );
-    
-    return DKAutorelease( data );
-}
-
-
-static DKObjectRef DeserializeEggObject( DKObjectRef data, void * context )
-{
-    DKEggUnarchiverRef unarchiver = DKNewEggUnarchiverWithData( data );
-    
-    DKObjectRef object = DKRetain( DKEggGetRootObject( unarchiver ) );
-    
-    DKRelease( unarchiver );
-    
-    return DKAutorelease( object );
-}
-
-
-DKThreadSafeSharedObjectInit( DKEggSerializer, DKModifierRef )
-{
-    return DKNewModifier( DKSTR( "egg" ), SerializeEggObject, DeserializeEggObject, NULL );
-}
 

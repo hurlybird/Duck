@@ -32,7 +32,6 @@
 #include "DKCollection.h"
 #include "DKNumber.h"
 #include "DKStream.h"
-#include "DKModifier.h"
 
 
 typedef struct DKEggUnarchiver * DKEggUnarchiverRef;
@@ -111,14 +110,6 @@ void DKEggAddTextData( DKEggArchiverRef _self, DKStringRef key, const char * tex
 void DKEggAddBinaryData( DKEggArchiverRef _self, DKStringRef key, const void * bytes, size_t length );
 void DKEggAddNumberData( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, const void * number );
 
-
-
-
-// DKEggSerializer =======================================================================
-
-// Modifier for converting object <-> egg
-
-DKModifierRef DKEggSerializer( void );
 
 
 #endif // _DK_EGG_H_

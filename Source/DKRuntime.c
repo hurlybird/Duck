@@ -33,6 +33,7 @@
 #include "DKString.h"
 #include "DKHashTable.h"
 #include "DKArray.h"
+#include "DKBuffer.h"
 #include "DKStream.h"
 #include "DKEgg.h"
 #include "DKAllocation.h"
@@ -143,6 +144,7 @@ DKStaticSelectorInit( Comparison );
 DKStaticSelectorInit( Copying );
 DKStaticSelectorInit( Description );
 DKStaticSelectorInit( Locking );
+DKStaticSelectorInit( Buffer );
 DKStaticSelectorInit( Stream );
 DKStaticSelectorInit( Egg );
 DKStaticSelectorInit( Conversion );
@@ -402,6 +404,7 @@ void DKRuntimeInit( int options )
         SetStaticSelectorName( &DKSelector_Copying_StaticObject, DKSTR( "Copying" ) );
         SetStaticSelectorName( &DKSelector_Conversion_StaticObject, DKSTR( "Conversion" ) );
         SetStaticSelectorName( &DKSelector_Description_StaticObject, DKSTR( "Description" ) );
+        SetStaticSelectorName( &DKSelector_Buffer_StaticObject, DKSTR( "Buffer" ) );
         SetStaticSelectorName( &DKSelector_Stream_StaticObject, DKSTR( "Stream" ) );
         SetStaticSelectorName( &DKSelector_Egg_StaticObject, DKSTR( "Egg" ) );
         

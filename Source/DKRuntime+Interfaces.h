@@ -54,13 +54,16 @@ typedef enum
     DKStaticCache_Dictionary =      6,
     DKStaticCache_Set =             7,
     
-    // 8-10 - I/O and static selectors used by root classes
-    DKStaticCache_Stream =          8,
-    DKStaticCache_Conversion =      9,
-    DKStaticCache_Description =     10,
-    DKStaticCache_Egg =             11,
+    // 8-12 - I/O and static selectors used by root classes. These don't really need to
+    // use the static cache and may be relocated if/when dynamic cache lines are assigned
+    // in a different way.
+    DKStaticCache_Buffer =          8,
+    DKStaticCache_Stream =          9,
+    DKStaticCache_Conversion =      10,
+    DKStaticCache_Description =     11,
+    DKStaticCache_Egg =             12,
     
-    // 12-15 - Reserved
+    // 13-15 - Reserved
     
     // Size of the static cache
     DKStaticCacheSize =             16,
