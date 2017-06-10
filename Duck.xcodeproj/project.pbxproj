@@ -210,6 +210,7 @@
 		028F1B621B0E6BFC006FDFDF /* DKUnicode.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2E19D85669002E876C /* DKUnicode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1B631B0E6C0F006FDFDF /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
 		028F1B651B0E6F89006FDFDF /* TestDKJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 028F1B641B0E6F89006FDFDF /* TestDKJSON.m */; };
+		02A33EAB1EEB8E6D005BC38D /* TestDKShell.m in Sources */ = {isa = PBXBuildFile; fileRef = 02A33EAA1EEB8E6D005BC38D /* TestDKShell.m */; };
 		02C3078C1C304F8A0077DC56 /* DKMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C3078A1C304F8A0077DC56 /* DKMutex.c */; };
 		02C3078D1C304F8A0077DC56 /* DKMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C3078A1C304F8A0077DC56 /* DKMutex.c */; };
 		02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C3078B1C304F8A0077DC56 /* DKMutex.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -355,6 +356,7 @@
 		028F5CE619CF59B900CF4D47 /* DKPredicate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKPredicate.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		02A25AFB1AC3D1B600D97B11 /* DKJSON.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKJSON.c; sourceTree = "<group>"; };
 		02A25AFC1AC3D1B600D97B11 /* DKJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKJSON.h; sourceTree = "<group>"; };
+		02A33EAA1EEB8E6D005BC38D /* TestDKShell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKShell.m; sourceTree = "<group>"; };
 		02A54D271B08C4D600D00EEE /* dictionary.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 0; path = dictionary.txt; sourceTree = "<group>"; };
 		02AFC05D18F172A0006B70B9 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGenericHashTable.c; sourceTree = "<group>"; };
@@ -637,6 +639,7 @@
 				023098FD19D53E7F00C3DB59 /* TestDKPredicate.m */,
 				02083FA218F3C49E00EEBBAC /* TestDKProperty.m */,
 				025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */,
+				02A33EAA1EEB8E6D005BC38D /* TestDKShell.m */,
 				02083F9818F1EDBE00EEBBAC /* TestDKSet.m */,
 				025C0F9B18EFEE5D000344C0 /* TestDKString.m */,
 				02393EC01C3F16F6009E8731 /* TestDKXML.m */,
@@ -1024,6 +1027,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				028F1AF01B0E639C006FDFDF /* TestDKEgg.m in Sources */,
+				02A33EAB1EEB8E6D005BC38D /* TestDKShell.m in Sources */,
 				028F1AF11B0E639C006FDFDF /* TestDKData.m in Sources */,
 				028F1AF21B0E639C006FDFDF /* TestDKDictionary.m in Sources */,
 				028F1AF31B0E639C006FDFDF /* TestDKList.m in Sources */,

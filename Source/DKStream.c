@@ -334,7 +334,7 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
             
         // Character
         case 'c':
-            if( DKPutc( va_arg( arg_ptr, int ), _self ) == ch )
+            if( DKPutc( _self, va_arg( arg_ptr, int ) ) == ch )
                 write_count++;
             break;
         
@@ -474,6 +474,23 @@ DKStringRef DKGets( DKStreamRef _self )
 
 
 ///
+//  DKPuts()
+//
+int DKPuts( DKStreamRef _self, DKStringRef s )
+{
+    DKStreamInterfaceRef stream = DKGetInterface( _self, DKSelector(Stream) );
+
+    const char * cstr = DKStringGetCStringPtr( s );
+    size_t bytes = DKStringGetByteLength( s );
+    
+    if( stream->write( _self, cstr, 1, bytes ) == bytes )
+        return 0;
+    
+    return EOF;
+}
+
+
+///
 //  DKGetc()
 //
 int DKGetc( DKStreamRef _self )
@@ -490,7 +507,7 @@ int DKGetc( DKStreamRef _self )
 ///
 //  DKPutc()
 //
-int DKPutc( int ch, DKStreamRef _self )
+int DKPutc( DKStreamRef _self, int ch )
 {
     char _ch = (char)ch;
 

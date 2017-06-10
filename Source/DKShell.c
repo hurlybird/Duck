@@ -117,7 +117,7 @@ static const char * GetHeaderValue( const char * s, int skip )
 ///
 //  DKShellRead()
 //
-int DKShellRead( DKStreamRef stream, int options, DKObjectRef * outObject, DKStringRef * outContentType, DKStringRef * outAnnotation )
+int DKShellRead( DKStreamRef stream, DKObjectRef * outObject, DKStringRef * outContentType, DKStringRef * outAnnotation, int options )
 {
     *outObject = NULL;
     *outContentType = NULL;
@@ -159,7 +159,7 @@ int DKShellRead( DKStreamRef stream, int options, DKObjectRef * outObject, DKStr
         
         else if( !strncmp( headerString, "Content-Length:", 15 ) )
         {
-            const char * value = GetHeaderValue( headerString, 13 );
+            const char * value = GetHeaderValue( headerString, 15 );
             contentLength = strtoul( value, NULL, 10 );
         }
     }
@@ -192,7 +192,7 @@ int DKShellRead( DKStreamRef stream, int options, DKObjectRef * outObject, DKStr
     
     DKBufferSetLength( object, contentLength );
 
-    char * bufferPtr = DKDataGetMutableBytePtr( object, 0 );
+    char * bufferPtr = DKBufferGetMutableBytePtr( object, 0 );
 
     if( DKRead( stream, bufferPtr, 1, contentLength ) != contentLength )
     {
@@ -201,7 +201,7 @@ int DKShellRead( DKStreamRef stream, int options, DKObjectRef * outObject, DKStr
     }
     
     // EGG Decoding
-    if( (options & DKShellDecodeEGG) && DKStringEqualToString( *outContentType, DKShellContentTypeEgg ) )
+    if( (options & DKShellDecodeEgg) && DKStringEqualToString( *outContentType, DKShellContentTypeEgg ) )
         object = DecodeEgg( object );
     
     // JSON Decoding
@@ -221,7 +221,7 @@ int DKShellRead( DKStreamRef stream, int options, DKObjectRef * outObject, DKStr
 ///
 //  DKShellWrite()
 //
-int DKShellWrite( DKStreamRef stream, int options, DKObjectRef object, DKStringRef contentType, DKStringRef annotation )
+int DKShellWrite( DKStreamRef stream, DKObjectRef object, DKStringRef contentType, DKStringRef annotation, int options )
 {
     DKObjectRef encodedObject = object;
 
@@ -235,7 +235,7 @@ int DKShellWrite( DKStreamRef stream, int options, DKObjectRef object, DKStringR
     }
 
     // EGG Encoding
-    if( (options & DKShellEncodeEGG) && DKStringEqualToString( contentType, DKShellContentTypeEgg ) )
+    if( (options & DKShellEncodeEgg) && DKStringEqualToString( contentType, DKShellContentTypeEgg ) )
         encodedObject = EncodeEgg( object );
     
     // JSON Encoding
@@ -255,13 +255,13 @@ int DKShellWrite( DKStreamRef stream, int options, DKObjectRef object, DKStringR
     DKSPrintf( stream, "%s\n", DKShellHeaderString );
     DKSPrintf( stream, "Content-Type: %s\n", DKStringGetCStringPtr( contentType ) );
     DKSPrintf( stream, "Content-Length: %zu\n", contentLength );
-    DKPutc( '\n', stream );
+    DKPutc( stream, '\n' );
     
     // Write the annotation
     if( *annotationString )
     {
         DKSPrintf( stream, "%s\n", annotationString );
-        DKPutc( '\n', stream );
+        DKPutc( stream, '\n' );
     }
     
     // Write the data

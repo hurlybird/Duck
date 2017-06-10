@@ -36,13 +36,6 @@ DKDeclareInterfaceSelector( Stream );
 typedef DKObjectRef DKStreamRef;
 
 
-enum
-{
-    DKSeekSet = SEEK_SET,
-    DKSeekCur = SEEK_CUR,
-    DKSeekEnd = SEEK_END
-};
-
 typedef int     (*DKStreamSeekMethod)( DKObjectRef _self, DKIndex offset, int origin );
 typedef DKIndex (*DKStreamTellMethod)( DKObjectRef _self );
 typedef DKIndex (*DKStreamReadMethod)( DKObjectRef _self, void * data, DKIndex size, DKIndex count );
@@ -61,19 +54,52 @@ struct DKStreamInterface
 typedef const struct DKStreamInterface * DKStreamInterfaceRef;
 
 
+// Sets the current stream position.
+//
+// For DKData and binary DKFile streams, the new position is 'offset' bytes from the
+// beginning of the stream if origin is SEEK_SET, from the current position if origin is
+// SEEK_CUR, or from the end of the stream if origin is SEEK_END.
+//
+// For DKString and text DKFile streams the only supported values for 'offset' are zero or
+// a value returned by an earlier call to DKTell() on the same stream (which only works
+// when 'origin' is SEEK_SET).
+//
 int DKSeek( DKStreamRef _self, DKIndex offset, int origin );
+
+// Returns the current stream position.
+//
+// For DKData and binary DKFile streams the position is the offset in bytes from the
+// beginning of the stream.
+//
+// For DKString and text DKFile streams the returned value is only useful for a future
+// call to DKSeek() (and only works with SEEK_SET).
+//
 DKIndex DKTell( DKStreamRef _self );
 
+// Read up to 'count' items into a buffer. Returns the number of items read (which may
+// be less than 'count' on partial reads or negative if an error occurs.
 DKIndex DKRead( DKStreamRef _self, void * data, DKIndex size, DKIndex count );
+
+// Write up to 'count' items from a buffer. Returns the number of items written (which may
+// be less than 'count' on partial writes or negative if an error occurs.
 DKIndex DKWrite( DKStreamRef _self, const void * data, DKIndex size, DKIndex count );
 
+// Write a formatted string to a buffer.
 DKIndex DKSPrintf( DKStreamRef _self, const char * format, ... );
-
 DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr );
 
+// Read characters from a stream until a newline character is found or end-of-file occurs.
+// The newline character is discarded but not stored in the returned string.
 DKStringRef DKGets( DKStreamRef _self );
+
+// Write a string to the stream. Returns EOF on failure or a non-negative value on success.
+int         DKPuts( DKStreamRef _self, DKStringRef s );
+
+// Read a character from the stream. Returns EOF on failure.
 int         DKGetc( DKStreamRef _self );
-int         DKPutc( int ch, DKStreamRef _self );
+
+// Write a character to the stream. Returns EOF on failure or the character written on success.
+int         DKPutc( DKStreamRef _self, int ch );
 
 
 #endif // _DK_STREAM_H_

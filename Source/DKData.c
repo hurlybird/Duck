@@ -666,10 +666,10 @@ int DKDataSeek( DKDataRef _self, DKIndex offset, int origin )
 
         DKIndex cursor = _self->cursor;
         
-        if( origin == DKSeekSet )
+        if( origin == SEEK_SET )
             cursor = offset;
         
-        else if( origin == DKSeekCur )
+        else if( origin == SEEK_CUR )
             cursor += offset;
         
         else

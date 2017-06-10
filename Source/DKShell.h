@@ -82,22 +82,22 @@ text/?      -- User defined text data
 enum
 {
     // Read Options
-    DKShellDecodeEGG =      (1 << 0),   // Unarchive binary/egg content and return the root object
+    DKShellDecodeEgg =      (1 << 0),   // Unarchive binary/egg content and return the root object
     DKShellDecodeJSON =     (1 << 1),   // Parse text/json content and return the root object
     DKShellDecodeXML =      (1 << 2),   // Parse text/xml content and return a DKXMLElement
 
     // Write Options
-    DKShellEncodeEGG =      (1 << 0),   // Archive binary/egg content before writing
+    DKShellEncodeEgg =      (1 << 0),   // Archive binary/egg content before writing
     DKShellEncodeJSON =     (1 << 1),   // Convert text/json content to a string before writing
 };
 
 
 
 // Returns the number of objects read (i.e. 1) on success
-int DKShellRead( DKStreamRef stream, int options, DKObjectRef * object, DKStringRef * contentType, DKStringRef * annotation );
+int DKShellRead( DKStreamRef stream, DKObjectRef * object, DKStringRef * contentType, DKStringRef * annotation, int options );
 
 // Returns the number of objects written (i.e. 1) on success
-int DKShellWrite( DKStreamRef stream, int options, DKObjectRef object, DKStringRef contentType, DKStringRef annotation );
+int DKShellWrite( DKStreamRef stream, DKObjectRef object, DKStringRef contentType, DKStringRef annotation, int options );
 
 
 #endif // _DK_SHELL_H_
