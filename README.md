@@ -8,9 +8,9 @@ those is inconvenient.
 
 ## License
 
-The Duck source is distributed under the [MIT License](LICENSE). The packages
-under the 'ThirdParty' directory are distributed according to their respective
-licenses, but are similarly unrestrictive.
+The Duck source is free software distributed under the [MIT License](LICENSE).
+The packages in the 'ThirdParty' directory are distributed according to their
+respective licenses, but are similarly unrestrictive.
 
 
 ## Major Features
@@ -33,17 +33,17 @@ undergone more exhaustive testing in real-world use--particularly regarding
 thread safety.
 
 
-## Porting
+## Building
 
 Duck is mainly written in XCode and includes framework targets for Mac OS and
 iOS. It should compile anywhere with a C99 compliant compiler. A few types and
-functions, particularly those related to atomic operations, will likely need to
-be redefined on non-Apple or non-POSIX systems.
+functions--system calls, atomic operations, thread support, etc--will likely
+need to be ported for non-Apple or non-POSIX systems.
 
 (Eventually Duck should transition to C11 once compiler and OS support for that
 specification is better.)
 
-While Duck objects can be used by C++ code, C++ compilers will no doubt complain
+While Duck objects can be used in C++ code, C++ compilers will no doubt complain
 about some of the C99 code that Duck uses--namely explicit casts from void and
 inline struct initialization. The main workaround for these issues is to add
 extra casts where needed and avoid any convenience macros that aren't C++
