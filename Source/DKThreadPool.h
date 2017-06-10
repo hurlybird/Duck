@@ -40,8 +40,10 @@ DKClassRef DKThreadPoolClass( void );
 
 #define DKNewThreadPool()   DKNew( DKThreadPoolClass() )
 
-void DKThreadPoolOnThreadStart( DKThreadPoolRef _self, DKThreadPoolCallback onThreadStart, void * context );
-void DKThreadPoolOnThreadStop( DKThreadPoolRef _self, DKThreadPoolCallback onThreadStop, void * context );
+void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
+    DKThreadPoolCallback onThreadStart,
+    DKThreadPoolCallback onThreadStop,
+    void * context );
 
 int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
 void DKThreadPoolStop( DKThreadPoolRef _self );

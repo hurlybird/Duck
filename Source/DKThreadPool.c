@@ -57,10 +57,8 @@ struct DKThreadPool
     DKConditionRef queueCondition;
     
     DKThreadPoolCallback onThreadStart;
-    void * onThreadStartContext;
-    
     DKThreadPoolCallback onThreadStop;
-    void * onThreadStopContext;
+    void * onThreadStartStopContext;
     
     int pendingTasks;
 };
@@ -121,20 +119,14 @@ static void DKThreadPoolFinalize( DKObjectRef _untyped_self )
 ///
 //  DKThreadPoolSetCallbacks()
 //
-void DKThreadPoolOnThreadStart( DKThreadPoolRef _self, DKThreadPoolCallback onThreadStart, void * context )
+void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
+    DKThreadPoolCallback onThreadStart,
+    DKThreadPoolCallback onThreadStop,
+    void * context )
 {
     _self->onThreadStart = onThreadStart;
-    _self->onThreadStartContext = context;
-}
-
-
-///
-//  DKThreadPoolOnThreadStop()
-//
-void DKThreadPoolOnThreadStop( DKThreadPoolRef _self, DKThreadPoolCallback onThreadStop, void * context )
-{
     _self->onThreadStop = onThreadStop;
-    _self->onThreadStopContext = context;
+    _self->onThreadStartStopContext = context;
 }
 
 
@@ -230,7 +222,7 @@ static void DKThreadPoolExec( void * _untyped_self )
 
     if( _self->onThreadStart )
     {
-        _self->onThreadStart( _self, _self->onThreadStartContext );
+        _self->onThreadStart( _self, _self->onThreadStartStopContext );
     }
 
     DKMutexLock( _self->queueMutex );
@@ -270,7 +262,7 @@ static void DKThreadPoolExec( void * _untyped_self )
 
     if( _self->onThreadStop )
     {
-        _self->onThreadStop( _self, _self->onThreadStopContext );
+        _self->onThreadStop( _self, _self->onThreadStartStopContext );
     }
 }
 
