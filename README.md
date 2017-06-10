@@ -1,5 +1,4 @@
-![](Duck.png)
-# The Duck Object Library
+# ![The Duck Object Library](DuckLogo.png)
 
 Duck is an object system and library for "duck-typed" programming in C. It takes
 many cues from Objective-C, CoreFoundation and COM, yet is small and readable
@@ -150,9 +149,9 @@ target object has been deallocated.
 
 *See [DKRuntime+RefCount.h](Source/DKRuntime+RefCount.h)*
 
-### Built-In Container Classes
+### Built-In Classes
 
-Duck provides several built-in container and data classes:
+The library provides several built-in container and data classes:
 
 * *[DKString](Source/DKString.h)* for UTF-8 strings.
 * *[DKData](Source/DKData.h)* for binary data.
@@ -162,7 +161,7 @@ Duck provides several built-in container and data classes:
 * *[DKHashTable](Source/DKHashTable.h)* and *[DKBinaryTree](Source/DKBinaryTree.h)* for key-value storage.
 * *[DKGraph](Source/DKGraph.h)* for directed and undirected graphs
 
-Duck also defines some common interfaces:
+Some common interfaces:
 
 * *[DKCollection](Source/DKCollection.h)* contains foreach style iteration methods for containers.
 * *[DKList](Source/DKList.h)* is an abstract interface for *DKArray* and *DKLinkedList*.
@@ -172,41 +171,15 @@ Duck also defines some common interfaces:
 * *[DKConversion](Source/DKConversion.h)* provides methods to convert between strings and numbers.
 * *[DKStream](Source/DKStream.h)* provides stream-style access to *DKData*, *DKString*, and *DKFile*.
 
-### Other Useful Stuff
+And other useful stuff:
 
 * *[DKThread](Source/DKThread.h)* and friends - wrapper classes for pthreads and thread synchronization.
-* *[DKPredicate](Source/DKPredicate.h)* - evaluation of logical predicates.
+* *[DKPredicate](Source/DKPredicate.h)* - logical predicates.
 * *[DKEgg](Source/DKEgg.h)* - object graph serialization.
 * *[DKShell](Source/DKShell.h)* - multipart binary/text aggregates.
 * *[DKJSON](Source/DKJSON.h)* - JSON serialization functions.
-* *[DKXML](Source/DKXML.h)* - XML Parsing
-* Low-level utilites for generic arrays, hash tables and node/block pools.
+* *[DKXML](Source/DKXML.h)* - XML parsing.
 
-## Future Development
-
-Some possible/probable areas for further work:
-
-Networking and HTTP utilities would be nice, but an argument could be made that you
-should really use system provided ones for security. Something like NSURL would be a
-good first step.
-
-A proper time/date class, or formatting functions that work with DKNumber. Heck,
-improved (or any) locale support would be good.
-
-A string syntax for predicates similar to NSPredicate. The main question is whether
-to use a prefix notation (easy implementation) or infix notation (more readable).
-
-Improved hash table performance. The current implementation uses quadratic hashing,
-which is reasonably fast, but wastes memory (load must be < 0.5), and is only about
-half the speed of NSDictionary.
-
-Regular expression support is certainly a nice-to-have. It'd likely be implemented
-as DKString wrappers around a third-party regex library.
-
-More unicode support. DKString currently supports enough UTF-8 for basic string
-functions, but more powerful string comparison and locale support would be nice.
-The main question is how much of the ICU package to include before it makes
-sense to just link against the whole library.
 
 
 
