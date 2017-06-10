@@ -50,8 +50,6 @@ See the CMakeLists.h file is included for building with Android Studio.
 
 A basic SConstruct file is included for building with scons.
 
-See *DKConfig.h* for build configuration options.
-
 
 ## Quick Start
 
@@ -179,7 +177,7 @@ Duck also defines some common interfaces:
 * *[DKThread](Source/DKThread.h)* and friends - wrapper classes for pthreads and thread synchronization.
 * *[DKPredicate](Source/DKPredicate.h)* - evaluation of logical predicates.
 * *[DKEgg](Source/DKEgg.h)* - object graph serialization.
-* *[DKShell](Source/DKShell.h)* - binary/text data aggregates.
+* *[DKShell](Source/DKShell.h)* - multipart binary/text aggregates.
 * *[DKJSON](Source/DKJSON.h)* - JSON serialization functions.
 * *[DKXML](Source/DKXML.h)* - XML Parsing
 * Low-level utilites for generic arrays, hash tables and node/block pools.
@@ -202,7 +200,7 @@ Improved hash table performance. The current implementation uses quadratic hashi
 which is reasonably fast, but wastes memory (load must be < 0.5), and is only about
 half the speed of NSDictionary.
 
-Regular expression support is certainly a nice-to-have. They'd likely be implemented
+Regular expression support is certainly a nice-to-have. It'd likely be implemented
 as DKString wrappers around a third-party regex library.
 
 More unicode support. DKString currently supports enough UTF-8 for basic string
