@@ -8,9 +8,9 @@ those is inconvenient.
 
 ## License
 
-The Duck source is distributed under the [MIT License](LICENSE). Any packages
+The Duck source is distributed under the [MIT License](LICENSE). The packages
 under the 'ThirdParty' directory are distributed according to their respective
-licenses.
+licenses, but are similarly unrestrictive.
 
 
 ## Major Features
