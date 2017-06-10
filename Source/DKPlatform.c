@@ -261,7 +261,6 @@ DKUUID dk_uuid_generate( void )
 }
 
 #elif DK_PLATFORM_ANDROID_NDK
-
 static const uint8_t ascii_to_hex[128] =
 {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //   0 - 15
@@ -324,6 +323,10 @@ DKUUID dk_uuid_generate( void )
     
     return uuid;
 }
+
+#else
+
+#error dk_uuid_generate() is not defined for the current platform
 
 #endif
 
@@ -401,6 +404,11 @@ DKDateTime dk_datetime( void )
     
     return ((DKDateTime)t.tv_sec) - DKAbsoluteTimeSince1970 + (((DKDateTime)t.tv_usec) * 1.0e-6);
 }
+
+#else
+
+#error dk_datetime() is not defined for the current platform
+
 #endif
 
 

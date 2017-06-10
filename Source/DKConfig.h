@@ -100,36 +100,39 @@
 
 // Platform ==============================================================================
 
-// #define DK_PLATFORM_DARWIN
-// #define DK_PLATFORM_POSIX
-// #define DK_PLATFORM_BSD
-// #define DK_PLATFORM_LINUX
-// #define DK_PLATFORM_CLANG
-// #define DK_PLATFORM_GCC
-// #define DK_PLATFORM_ANDROID_NDK
+// #define DK_PLATFORM_DARWIN           -- Darwin (MacOS) system calls available
+// #define DK_PLATFORM_POSIX            -- POSIX available
+// #define DK_PLATFORM_BSD              -- BSD system calls available
+// #define DK_PLATFORM_LINUX            -- Linux system calls available
+// #define DK_PLATFORM_ANDROID_NDK      -- Android NDK available
+// #define DK_PLATFORM_GCC_INTRINSICS   -- Use GCC __sync* and __builtin_bswap* intrinsics
 
 
 // Apple MacOS and iOS
 #if DK_PLATFORM_APPLE
 #define DK_PLATFORM_DARWIN          1
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_BSD             1
-#define DK_PLATFORM_CLANG           1
+#define DK_PLATFORM_GCC_INTRINSICS  1 // Clang supports GCC-style sync and swap intrinsics
+
+
+// Linux
+#elif DK_PLATFORM_LINUX
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
 
 
 // Android
 #elif DK_PLATFORM_ANDROID
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_ANDROID_NDK     1
-#define DK_PLATFORM_GCC             1
+#define DK_PLATFORM_GCC_INTRINSICS  1
 
 
 // Default (Apple)
 #else
 #define DK_PLATFORM_DARWIN          1
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_BSD             1
-#define DK_PLATFORM_CLANG           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
 #endif
 
 
@@ -142,7 +145,7 @@
 #define DK_AUTORELEASE_POOL_STACK_SIZE  8
 #endif
 
-// Remove extra trailing zeroes from %f and %lf float formats in DKPrintf
+// Remove extra trailing zeroes from %f and %lf float formats in DKSPrintf
 #ifndef DK_PRETTY_PRINT_FLOATS
 #define DK_PRETTY_PRINT_FLOATS  1
 #endif

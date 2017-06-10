@@ -56,6 +56,7 @@
 #endif
 
 #if DK_PLATFORM_BSD
+#error Include BSD System Headers
 #endif
 
 #if DK_PLATFORM_LINUX
@@ -436,7 +437,7 @@ void   dk_free( void * ptr );
 
 
 // Atomic Operations =====================================================================
-#if DK_PLATFORM_CLANG || DK_PLATFORM_GCC
+#if DK_PLATFORM_GCC_INTRINSICS
 
 #define DKAtomicAdd32( ptr, x )                 __sync_add_and_fetch( ptr, x )
 #define DKAtomicSub32( ptr, x )                 __sync_sub_and_fetch( ptr, x )
@@ -498,7 +499,7 @@ inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
 
 
 // Byte Order Operations =================================================================
-#if DK_PLATFORM_CLANG || DK_PLATFORM_GCC
+#if DK_PLATFORM_GCC_INTRINSICS
 
 #define DKSwapInt16( x )                        __builtin_bswap16( x )
 #define DKSwapInt32( x )                        __builtin_bswap32( x )
