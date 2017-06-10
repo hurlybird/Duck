@@ -1,3 +1,5 @@
+// © 2016 and later: Unicode, Inc. and others.
+// License & terms of use: http://www.unicode.org/copyright.html
 /*
 ******************************************************************************
 *
@@ -6,7 +8,7 @@
 *
 ******************************************************************************
 *   file name:  utf_impl.c
-*   encoding:   US-ASCII
+*   encoding:   UTF-8
 *   tab size:   8 (not used)
 *   indentation:4
 *
@@ -29,6 +31,15 @@
 #include "uassert.h"
 
 /*
+ * Table of the number of utf8 trail bytes, indexed by the lead byte.
+ * Used by the deprecated macro UTF8_COUNT_TRAIL_BYTES, defined in utf_old.h
+ *
+ * The current macro, U8_COUNT_TRAIL_BYTES, does _not_ use this table.
+ *
+ * Note that this table cannot be removed, even if UTF8_COUNT_TRAIL_BYTES were
+ * changed to no longer use it. References to the table from expansions of UTF8_COUNT_TRAIL_BYTES
+ * may exist in old client code that must continue to run with newer icu library versions.
+ *
  * This table could be replaced on many machines by
  * a few lines of assembler code using an
  * "index of first 0-bit from msb" instruction and
@@ -144,6 +155,7 @@ utf8_nextCharSafeBody(const uint8_t *s, int32_t *pi, int32_t length, UChar32 c, 
             c=(c<<6)|trail;
             /* c>=0x110 would result in code point>0x10ffff, outside Unicode */
             if(c>=0x110 || trail>0x3f) { break; }
+            U_FALLTHROUGH;
         case 2:
             trail=s[i++]-0x80;
             c=(c<<6)|trail;
@@ -152,6 +164,7 @@ utf8_nextCharSafeBody(const uint8_t *s, int32_t *pi, int32_t length, UChar32 c, 
              * before the last (c<<6), a surrogate is c=360..37f
              */
             if(((c&0xffe0)==0x360 && strict!=-2) || trail>0x3f) { break; }
+            U_FALLTHROUGH;
         case 1:
             trail=s[i++]-0x80;
             c=(c<<6)|trail;

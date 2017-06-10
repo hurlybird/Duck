@@ -18,6 +18,7 @@
 		021808781C3A323200989024 /* COPYING in Resources */ = {isa = PBXBuildFile; fileRef = 021808741C3A323200989024 /* COPYING */; };
 		021808791C3A323200989024 /* yxml.c in Sources */ = {isa = PBXBuildFile; fileRef = 021808751C3A323200989024 /* yxml.c */; };
 		0218087A1C3A323200989024 /* yxml.c in Sources */ = {isa = PBXBuildFile; fileRef = 021808751C3A323200989024 /* yxml.c */; };
+		0226411A1EEC177F006AF20B /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 022641191EEC177F006AF20B /* LICENSE */; };
 		02393EBC1C3EFE15009E8731 /* DKXML.c in Sources */ = {isa = PBXBuildFile; fileRef = 02393EBA1C3EFE15009E8731 /* DKXML.c */; };
 		02393EBD1C3EFE15009E8731 /* DKXML.h in Headers */ = {isa = PBXBuildFile; fileRef = 02393EBB1C3EFE15009E8731 /* DKXML.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02393EBF1C3F16BB009E8731 /* test.xml in Resources */ = {isa = PBXBuildFile; fileRef = 02393EBE1C3F16BB009E8731 /* test.xml */; };
@@ -275,6 +276,7 @@
 		021EC2DA18F07BA9004148AD /* uvernum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uvernum.h; sourceTree = "<group>"; };
 		021EC2DB18F07BA9004148AD /* uversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uversion.h; sourceTree = "<group>"; };
 		021EC2EF18F0CDB1004148AD /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		022641191EEC177F006AF20B /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		023098FD19D53E7F00C3DB59 /* TestDKPredicate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKPredicate.m; sourceTree = "<group>"; };
 		02393EBA1C3EFE15009E8731 /* DKXML.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKXML.c; sourceTree = "<group>"; };
 		02393EBB1C3EFE15009E8731 /* DKXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKXML.h; sourceTree = "<group>"; };
@@ -308,7 +310,6 @@
 		025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKRuntime.m; sourceTree = "<group>"; };
 		025C0F9B18EFEE5D000344C0 /* TestDKString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKString.m; sourceTree = "<group>"; };
 		02624EBF190366C50023B3EE /* DKEgg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEgg.c; sourceTree = "<group>"; };
-		0263C4A918EFD957005E0ED5 /* license.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = license.html; sourceTree = "<group>"; };
 		0269BF1519D85669002E876C /* DKArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DKArray.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		0269BF1619D85669002E876C /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DKBinaryTree.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		0269BF1719D85669002E876C /* DKByteArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKByteArray.h; sourceTree = "<group>"; };
@@ -496,7 +497,7 @@
 		0263C4A818EFD957005E0ED5 /* icu */ = {
 			isa = PBXGroup;
 			children = (
-				0263C4A918EFD957005E0ED5 /* license.html */,
+				022641191EEC177F006AF20B /* LICENSE */,
 				021EC2CD18F07BA9004148AD /* uassert.h */,
 				021EC2CE18F07BA9004148AD /* unicode */,
 				021EC2B718F0774B004148AD /* utf_impl.c */,
@@ -941,6 +942,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0226411A1EEC177F006AF20B /* LICENSE in Resources */,
 				021808771C3A323200989024 /* COPYING in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
