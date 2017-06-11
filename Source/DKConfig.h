@@ -100,7 +100,7 @@
 
 // Platform ==============================================================================
 
-// #define DK_PLATFORM_DARWIN           -- Darwin (MacOS) system calls available
+// #define DK_PLATFORM_APPLE            -- Apple (Darwin) system calls available
 // #define DK_PLATFORM_POSIX            -- POSIX available
 // #define DK_PLATFORM_BSD              -- BSD system calls available
 // #define DK_PLATFORM_LINUX            -- Linux system calls available
@@ -110,7 +110,6 @@
 
 // Apple MacOS and iOS
 #if DK_PLATFORM_APPLE
-#define DK_PLATFORM_DARWIN          1
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_GCC_INTRINSICS  1 // Clang supports GCC-style sync and swap intrinsics
 
@@ -130,7 +129,7 @@
 
 // Default (Apple)
 #else
-#define DK_PLATFORM_DARWIN          1
+#define DK_PLATFORM_APPLE           1
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_GCC_INTRINSICS  1
 #endif

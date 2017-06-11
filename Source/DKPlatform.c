@@ -247,7 +247,7 @@ void dk_free( void * ptr )
 ///
 //  dk_uuid_generate()
 //
-#if DK_PLATFORM_DARWIN
+#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX
 DKUUID dk_uuid_generate( void )
 {
     DKAssert( sizeof(DKUUID) == sizeof(uuid_t) );

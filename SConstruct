@@ -14,6 +14,12 @@ debug = int( ARGUMENTS.get( 'debug', 1 ) )
 ccflags = []
 ccflags += ['-arch', architecture]
 
+if platform == 'darwin':
+	ccflags += '-DDK_PLATFORM_APPLE=1'
+
+elif platform == 'linux':
+	ccflags += '-DDK_PLATFORM_LINUX=1'
+
 if debug:
 	ccflags += ['-DDEBUG=1']
 	

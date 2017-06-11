@@ -44,7 +44,7 @@
 #include "DKConfig.h"
 
 
-#if DK_PLATFORM_DARWIN
+#if DK_PLATFORM_APPLE
 #include <os/lock.h>
 #include <uuid/uuid.h>
 #endif
@@ -61,6 +61,7 @@
 
 #if DK_PLATFORM_LINUX
 #include <linux/spinlock.h>
+#include <uuid/uuid.h>
 #endif
 
 #if DK_PLATFORM_ANDROID_NDK
@@ -454,7 +455,7 @@ void   dk_free( void * ptr );
 
 
 // Spin Locks ============================================================================
-#if DK_PLATFORM_DARWIN
+#if DK_PLATFORM_APPLE
 typedef os_unfair_lock DKSpinLock;
 
 #define DKSpinLockInit              OS_UNFAIR_LOCK_INIT
