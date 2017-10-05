@@ -184,7 +184,7 @@ int DKShellRead( DKStreamRef stream, DKObjectRef * outObject, DKStringRef * outC
     
     DKObjectRef object;
     
-    if( strncmp( contentType, "text", 4 ) == 0 )
+    if( contentType && (strncmp( contentType, "text", 4 ) == 0) )
         object = DKMutableString();
 
     else // if( strncmp( contentType, "binary", 6 ) == 0 )
