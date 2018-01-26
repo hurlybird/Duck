@@ -57,7 +57,7 @@ Content Types:
 
 Unless an automatic decoding option is specified, binary types are returned as DKData and
 text types are returned as DKStrings. If the Content-Type header is omitted or unrecognized,
-the content is assumed to be binary is returned as DKData.
+the content is assumed to be binary and is returned as DKData.
 
 binary
 binary/egg  -- DKEgg serialized data

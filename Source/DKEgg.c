@@ -45,8 +45,8 @@
 // included only for readability -- it is not functional. To maintain compatibility,
 // future versions may change the content, but not the size of the prefix.
 
-#define DKEggPrefix         "EGG-Version: 1\n\0"
-#define DKEggPrefixSize     16
+#define DKEggPrefix         "EGG-Version: 1.0\n"
+#define DKEggPrefixSize     32
 #define DKEggVersion        1
 
 
@@ -331,7 +331,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
         _self->header = DKDataGetBytePtr( data, 0 );
         
         // Check the header
-        if( memcmp( _self->header->prefix, DKEggPrefix, DKEggPrefixSize ) != 0 )
+        if( strcmp( _self->header->prefix, DKEggPrefix ) != 0 )
         {
             // *** ERROR ***
             
@@ -988,7 +988,7 @@ static void BuildHeader( DKEggArchiverRef _self, DKEggHeader * header )
 {
     memset( header, 0, sizeof(DKEggHeader) );
     
-    memcpy( header->prefix, DKEggPrefix, DKEggPrefixSize );
+    strcpy( header->prefix, DKEggPrefix );
     header->version = DKEggVersion;
     header->encodingVersion = DKEncodingVersion;
     header->byteOrder = _self->byteOrder;
