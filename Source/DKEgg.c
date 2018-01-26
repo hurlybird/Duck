@@ -45,8 +45,8 @@
 // included only for readability -- it is not functional. To maintain compatibility,
 // future versions may change the content, but not the size of the prefix.
 
-#define DKEggPrefix         "EGG-Version: 1.0\n"
-#define DKEggPrefixSize     32
+#define DKEggPrefix         "EGG-Version: 1.0\n\0" // 18 bytes
+#define DKEggPrefixSize     20
 #define DKEggVersion        1
 
 
