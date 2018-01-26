@@ -230,7 +230,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
         _self->header = DKByteArrayGetBytePtr( &_self->buffer, 0 );
 
         // Check the header
-        if( memcmp( _self->header->prefix, DKEggPrefix, DKEggPrefixSize ) != 0 )
+        if( strcmp( _self->header->prefix, DKEggPrefix ) != 0 )
         {
             // *** ERROR ***
             
