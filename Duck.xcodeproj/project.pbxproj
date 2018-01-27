@@ -14,11 +14,8 @@
 		021283201C244F9A00B7C3A7 /* DKConversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 0212831E1C244F9A00B7C3A7 /* DKConversion.c */; };
 		021283211C244F9A00B7C3A7 /* DKConversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 0212831E1C244F9A00B7C3A7 /* DKConversion.c */; };
 		021283231C244F9A00B7C3A7 /* DKConversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0212831F1C244F9A00B7C3A7 /* DKConversion.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		021808771C3A323200989024 /* COPYING in Resources */ = {isa = PBXBuildFile; fileRef = 021808741C3A323200989024 /* COPYING */; };
-		021808781C3A323200989024 /* COPYING in Resources */ = {isa = PBXBuildFile; fileRef = 021808741C3A323200989024 /* COPYING */; };
 		021808791C3A323200989024 /* yxml.c in Sources */ = {isa = PBXBuildFile; fileRef = 021808751C3A323200989024 /* yxml.c */; };
 		0218087A1C3A323200989024 /* yxml.c in Sources */ = {isa = PBXBuildFile; fileRef = 021808751C3A323200989024 /* yxml.c */; };
-		0226411A1EEC177F006AF20B /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 022641191EEC177F006AF20B /* LICENSE */; };
 		02393EBC1C3EFE15009E8731 /* DKXML.c in Sources */ = {isa = PBXBuildFile; fileRef = 02393EBA1C3EFE15009E8731 /* DKXML.c */; };
 		02393EBD1C3EFE15009E8731 /* DKXML.h in Headers */ = {isa = PBXBuildFile; fileRef = 02393EBB1C3EFE15009E8731 /* DKXML.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02393EBF1C3F16BB009E8731 /* test.xml in Resources */ = {isa = PBXBuildFile; fileRef = 02393EBE1C3F16BB009E8731 /* test.xml */; };
@@ -348,7 +345,7 @@
 		028D61C81ED9F55B00E7BC72 /* DKGraph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGraph.c; sourceTree = "<group>"; };
 		028D61C91ED9F55B00E7BC72 /* DKGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKGraph.h; sourceTree = "<group>"; };
 		028F1A891B0DCA85006FDFDF /* Duck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Duck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		028F1A8C1B0DCA85006FDFDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = "Duck-MacOS/Info.plist"; sourceTree = "<group>"; };
+		028F1A8C1B0DCA85006FDFDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		028F1A931B0DCA85006FDFDF /* Duck-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Duck-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		028F1A991B0DCA86006FDFDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		028F1B001B0E6B6C006FDFDF /* Duck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Duck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -622,7 +619,6 @@
 				028F1A8C1B0DCA85006FDFDF /* Info.plist */,
 			);
 			name = "Supporting Files";
-			path = "../Duck-OSX";
 			sourceTree = "<group>";
 		};
 		028F1A971B0DCA86006FDFDF /* Duck-Tests */ = {
@@ -942,8 +938,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0226411A1EEC177F006AF20B /* LICENSE in Resources */,
-				021808771C3A323200989024 /* COPYING in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -960,7 +954,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				021808781C3A323200989024 /* COPYING in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

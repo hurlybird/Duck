@@ -86,6 +86,8 @@ enum
     DKShellDecodeJSON =     (1 << 1),   // Parse text/json content and return the root object
     DKShellDecodeXML =      (1 << 2),   // Parse text/xml content and return a DKXMLElement
 
+    DKShellDecodeAuto =     (DKShellDecodeEgg | DKShellDecodeJSON | DKShellDecodeXML),
+
     // Write Options
     DKShellEncodeEgg =      (1 << 0),   // Archive binary/egg content before writing
     DKShellEncodeJSON =     (1 << 1),   // Convert text/json content to a string before writing

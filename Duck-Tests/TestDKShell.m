@@ -71,7 +71,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     DKObjectRef readDocument1;
     DKStringRef readContentType1, readAnnotation1;
-    XCTAssert( DKShellRead( shell, &readDocument1, &readContentType1, &readAnnotation1, DKShellDecodeEgg | DKShellDecodeJSON ) == 1 );
+    XCTAssert( DKShellRead( shell, &readDocument1, &readContentType1, &readAnnotation1, DKShellDecodeAuto ) == 1 );
 
     XCTAssert( DKEqual( readDocument1, document ) );
     XCTAssert( DKStringEqualToString( readContentType1, DKShellContentTypeJSON ) );
@@ -80,7 +80,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     DKObjectRef readDocument2;
     DKStringRef readContentType2, readAnnotation2;
-    DKShellRead( shell, &readDocument2, &readContentType2, &readAnnotation2, DKShellDecodeEgg | DKShellDecodeJSON );
+    XCTAssert( DKShellRead( shell, &readDocument2, &readContentType2, &readAnnotation2, DKShellDecodeAuto ) == 1);
 
     XCTAssert( DKEqual( readDocument2, document ) );
     XCTAssert( DKStringEqualToString( readContentType2, DKShellContentTypeEgg ) );
