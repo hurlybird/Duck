@@ -28,8 +28,10 @@
 #include "DKData.h"
 #include "DKStream.h"
 #include "DKString.h"
-#include "DKList.h"
+#include "DKDictionary.h"
 #include "DKBuffer.h"
+#include "DKCopying.h"
+#include "DKLocking.h"
 
 #include "DKEgg.h"
 #include "DKJSON.h"
@@ -38,11 +40,136 @@
 
 #define DKShellHeaderString    "SHELL-Version 1.0"
 
+static DKObjectRef EncodeEgg( DKObjectRef object, DKObjectRef context );
+static DKObjectRef DecodeEgg( DKObjectRef data, DKObjectRef context );
+
+static DKObjectRef EncodeJSON( DKObjectRef object, DKObjectRef context );
+static DKObjectRef DecodeJSON( DKObjectRef json, DKObjectRef context );
+
+static DKObjectRef EncodeXML( DKObjectRef object, DKObjectRef context );
+static DKObjectRef DecodeXML( DKObjectRef xml, DKObjectRef context );
+
+
+// DKShellEncoder ========================================================================
+
+struct DKShellEncoder
+{
+    DKObject _obj;
+    
+    DKStringRef contentType;
+    DKShellEncodeFunction encode;
+    DKShellEncodeFunction decode;
+    DKObjectRef context;
+};
+
+typedef struct DKShellEncoder * DKShellEncoderRef;
+
+static DKObjectRef DKShellEncoderInit( DKObjectRef _untyped_self, DKStringRef contentType, DKShellEncodeFunction encoder, DKShellEncodeFunction decoder, DKObjectRef context );
+static void DKShellEncoderFinalize( DKObjectRef _untyped_self );
+
+
+DKThreadSafeStaticClassInit( DKShellEncoderClass )
+{
+    DKClassRef cls = DKNewClass( DKSTR( "DKShellEncoder" ), DKObjectClass(), sizeof(struct DKShellEncoder), 0, NULL, DKShellEncoderFinalize );
+    
+    return cls;
+}
+
+
+DKThreadSafeStaticObjectInit( DKShellEncoders, DKMutableDictionaryRef )
+{
+    DKMutableDictionaryRef encoders = DKNewMutableDictionary();
+    
+    // Register built-in types
+    DKShellEncoderRef eggEncoder = DKShellEncoderInit( DKAlloc( DKShellEncoderClass() ), DKShellContentTypeEgg, EncodeEgg, DecodeEgg, NULL );
+    DKDictionarySetObject( encoders, DKShellContentTypeEgg, eggEncoder );
+    DKRelease( eggEncoder );
+
+    DKShellEncoderRef jsonEncoder = DKShellEncoderInit( DKAlloc( DKShellEncoderClass() ), DKShellContentTypeJSON, EncodeJSON, DecodeJSON, NULL );
+    DKDictionarySetObject( encoders, DKShellContentTypeJSON, jsonEncoder );
+    DKRelease( jsonEncoder );
+
+    DKShellEncoderRef xmlEncoder = DKShellEncoderInit( DKAlloc( DKShellEncoderClass() ), DKShellContentTypeXML, EncodeXML, DecodeXML, NULL );
+    DKDictionarySetObject( encoders, DKShellContentTypeXML, xmlEncoder );
+    DKRelease( xmlEncoder );
+
+    return encoders;
+}
+
+
+
+///
+//  DKShellEncoderInit()
+//
+static DKObjectRef DKShellEncoderInit( DKObjectRef _untyped_self, DKStringRef contentType, DKShellEncodeFunction encoder, DKShellEncodeFunction decoder, DKObjectRef context )
+{
+    DKShellEncoderRef _self = _untyped_self;
+    
+    if( _self )
+    {
+        _self->contentType = DKCopy( contentType );
+        _self->encode = encoder;
+        _self->decode = decoder;
+        _self->context = DKRetain( context );
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKShellEncoderFinalize()
+//
+static void DKShellEncoderFinalize( DKObjectRef _untyped_self )
+{
+    DKShellEncoderRef _self = _untyped_self;
+    
+    DKRelease( _self->contentType );
+    DKRelease( _self->context );
+}
+
+
+///
+//  DKShellRegisterContentType()
+//
+void DKShellRegisterContentType( DKStringRef contentType, DKShellEncodeFunction encode, DKShellEncodeFunction decode, DKObjectRef context )
+{
+    DKShellEncoderRef encoder = DKShellEncoderInit( DKAlloc( DKShellEncoderClass() ), contentType, encode, decode, context );
+    
+    DKMutableDictionaryRef encoders = DKShellEncoders();
+
+    DKLock( encoders );
+    DKDictionarySetObject( encoders, contentType, encoder );
+    DKUnlock( encoders );
+    
+    DKRelease( encoder );
+}
+
+
+///
+//  DKShellGetEncoderForContentType()
+//
+static DKShellEncoderRef DKShellGetEncoderForContentType( DKStringRef contentType )
+{
+    DKShellEncoderRef shellEncoder = NULL;
+
+    DKMutableDictionaryRef shellEncoders = DKShellEncoders();
+
+    DKLock( shellEncoders );
+    shellEncoder = DKRetain( DKDictionaryGetObject( shellEncoders, contentType ) );
+    DKUnlock( shellEncoders );
+    
+    return DKAutorelease( shellEncoder );
+}
+
+
+
+// Built-In Encoders =====================================================================
 
 ///
 //  EncodeEgg()
 //
-static DKObjectRef EncodeEgg( DKObjectRef object )
+static DKObjectRef EncodeEgg( DKObjectRef object, DKObjectRef context )
 {
     DKEggArchiverRef archiver = DKNewEggArchiverWithObject( object );
     
@@ -57,7 +184,7 @@ static DKObjectRef EncodeEgg( DKObjectRef object )
 ///
 //  DecodeEgg()
 //
-static DKObjectRef DecodeEgg( DKObjectRef data )
+static DKObjectRef DecodeEgg( DKObjectRef data, DKObjectRef context )
 {
     DKEggUnarchiverRef unarchiver = DKNewEggUnarchiverWithData( data );
     
@@ -72,7 +199,7 @@ static DKObjectRef DecodeEgg( DKObjectRef data )
 ///
 //  EncodeJSON()
 //
-static DKObjectRef EncodeJSON( DKObjectRef object )
+static DKObjectRef EncodeJSON( DKObjectRef object, DKObjectRef context )
 {
     DKMutableStringRef json = DKMutableString();
     
@@ -85,20 +212,33 @@ static DKObjectRef EncodeJSON( DKObjectRef object )
 ///
 //  DecodeJSON()
 //
-static DKObjectRef DecodeJSON( DKObjectRef json )
+static DKObjectRef DecodeJSON( DKObjectRef json, DKObjectRef context )
 {
     return DKJSONParse( json, DKJSONVectorSyntaxExtension );
 }
 
 
 ///
+//  EncodeXML()
+//
+static DKObjectRef EncodeXML( DKObjectRef object, DKObjectRef context )
+{
+    return object;
+}
+
+
+///
 //  DecodeXML()
 //
-static DKObjectRef DecodeXML( DKObjectRef xml )
+static DKObjectRef DecodeXML( DKObjectRef xml, DKObjectRef context )
 {
     return DKXMLParse( xml, 0 );
 }
 
+
+
+
+// Read/Write ============================================================================
 
 ///
 //  GetHeaderValue()
@@ -200,17 +340,14 @@ int DKShellRead( DKStreamRef stream, DKObjectRef * outObject, DKStringRef * outC
         return 0;
     }
     
-    // EGG Decoding
-    if( (options & DKShellDecodeEgg) && DKStringEqualToString( *outContentType, DKShellContentTypeEgg ) )
-        object = DecodeEgg( object );
-    
-    // JSON Decoding
-    else if( (options & DKShellEncodeJSON) && DKStringEqualToString( *outContentType, DKShellContentTypeJSON ) )
-        object = DecodeJSON( object );
-
-    // XML Decoding
-    else if( (options & DKShellEncodeJSON) && DKStringEqualToString( *outContentType, DKShellContentTypeXML ) )
-        object = DecodeXML( object );
+    // Decode the data
+    if( (options & DKShellNoAutoEncoding) == 0 )
+    {
+        DKShellEncoderRef encoder = DKShellGetEncoderForContentType( *outContentType );
+        
+        if( encoder )
+            object = encoder->decode( object, encoder->context );
+    }
 
     *outObject = object;
 
@@ -234,13 +371,14 @@ int DKShellWrite( DKStreamRef stream, DKObjectRef object, DKStringRef contentTyp
         return 0;
     }
 
-    // EGG Encoding
-    if( (options & DKShellEncodeEgg) && DKStringEqualToString( contentType, DKShellContentTypeEgg ) )
-        encodedObject = EncodeEgg( object );
-    
-    // JSON Encoding
-    else if( (options & DKShellEncodeJSON) && DKStringEqualToString( contentType, DKShellContentTypeJSON ) )
-        encodedObject = EncodeJSON( object );
+    // Decode the data
+    if( (options & DKShellNoAutoEncoding) == 0 )
+    {
+        DKShellEncoderRef encoder = DKShellGetEncoderForContentType( contentType );
+        
+        if( encoder )
+            encodedObject = encoder->encode( encodedObject, encoder->context );
+    }
 
     // Make sure we can write the data
     if( !DKQueryInterface( encodedObject, DKSelector(Buffer), NULL ) )

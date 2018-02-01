@@ -261,6 +261,9 @@ void        DKUnlockObject( DKObjectRef _self );
 #define DKThreadSafeClassInit( accessor )                                               \
     DKThreadSafeSharedObjectInit( accessor, DKClassRef )
 
+#define DKThreadSafeStaticClassInit( accessor )                                         \
+    DKThreadSafeStaticObjectInit( accessor, DKClassRef )
+
 
 
 

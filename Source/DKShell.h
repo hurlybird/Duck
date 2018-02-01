@@ -55,9 +55,9 @@ SECOND blank line (i.e. the annotation line is excluded entirely).
 
 Content Types:
 
-Unless an automatic decoding option is specified, binary types are returned as DKData and
-text types are returned as DKStrings. If the Content-Type header is omitted or unrecognized,
-the content is assumed to be binary and is returned as DKData.
+Binary types are returned as DKData and text types are returned as DKStrings unless a
+registered content-type encoder changes the data type. If the Content-Type header is
+omitted or unrecognized, the content is assumed to be binary and is returned as DKData.
 
 binary
 binary/egg  -- DKEgg serialized data
@@ -65,7 +65,7 @@ binary/?    -- User defined binary data
 
 text        -- UTF-8 text
 text/json   -- JSON
-text/xml    -- XML
+text/xml    -- XML (*** DECODE ONLY ***)
 text/?      -- User defined text data
 
 */
@@ -81,19 +81,14 @@ text/?      -- User defined text data
 
 enum
 {
-    // Read Options
-    DKShellDecodeEgg =      (1 << 0),   // Unarchive binary/egg content and return the root object
-    DKShellDecodeJSON =     (1 << 1),   // Parse text/json content and return the root object
-    DKShellDecodeXML =      (1 << 2),   // Parse text/xml content and return a DKXMLElement
-
-    DKShellDecodeAuto =     (DKShellDecodeEgg | DKShellDecodeJSON | DKShellDecodeXML),
-
-    // Write Options
-    DKShellEncodeEgg =      (1 << 0),   // Archive binary/egg content before writing
-    DKShellEncodeJSON =     (1 << 1),   // Convert text/json content to a string before writing
+    DKShellNoAutoEncoding =     (1 << 0),   // Skip content-type encoding and read/write raw data
 };
 
 
+typedef DKObjectRef (*DKShellEncodeFunction)( DKObjectRef object, DKObjectRef context );
+
+// Register encode/decode callbacks for a contentType
+void DKShellRegisterContentType( DKStringRef contentType, DKShellEncodeFunction encode, DKShellEncodeFunction decode, DKObjectRef context );
 
 // Returns the number of objects read (i.e. 1) on success
 int DKShellRead( DKStreamRef stream, DKObjectRef * object, DKStringRef * contentType, DKStringRef * annotation, int options );

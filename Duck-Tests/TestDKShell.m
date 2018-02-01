@@ -58,8 +58,8 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     DKMutableDataRef shell = DKMutableData();
     
-    DKShellWrite( shell, document, DKShellContentTypeJSON, annotation1, DKShellEncodeJSON );
-    XCTAssert( DKShellWrite( shell, document, DKShellContentTypeEgg, annotation2, DKShellEncodeEgg ) == 1);
+    DKShellWrite( shell, document, DKShellContentTypeJSON, annotation1, 0 );
+    XCTAssert( DKShellWrite( shell, document, DKShellContentTypeEgg, annotation2, 0 ) == 1);
     
     XCTAssertThrows( DKShellWrite( shell, document, DKShellContentTypeText, DKSTR( "Not text" ), 0 ) );
     XCTAssertThrows( DKShellWrite( shell, document, DKShellContentTypeBinary, DKSTR( "Not data" ), 0 ) );
@@ -71,7 +71,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     DKObjectRef readDocument1;
     DKStringRef readContentType1, readAnnotation1;
-    XCTAssert( DKShellRead( shell, &readDocument1, &readContentType1, &readAnnotation1, DKShellDecodeAuto ) == 1 );
+    XCTAssert( DKShellRead( shell, &readDocument1, &readContentType1, &readAnnotation1, 0 ) == 1 );
 
     XCTAssert( DKEqual( readDocument1, document ) );
     XCTAssert( DKStringEqualToString( readContentType1, DKShellContentTypeJSON ) );
@@ -80,7 +80,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     DKObjectRef readDocument2;
     DKStringRef readContentType2, readAnnotation2;
-    XCTAssert( DKShellRead( shell, &readDocument2, &readContentType2, &readAnnotation2, DKShellDecodeAuto ) == 1);
+    XCTAssert( DKShellRead( shell, &readDocument2, &readContentType2, &readAnnotation2, 0 ) == 1);
 
     XCTAssert( DKEqual( readDocument2, document ) );
     XCTAssert( DKStringEqualToString( readContentType2, DKShellContentTypeEgg ) );
