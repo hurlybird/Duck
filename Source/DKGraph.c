@@ -247,20 +247,32 @@ static void DKGraphFinalize( DKObjectRef _untyped_self )
 static DKGraphEdgeRef FindEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool insertIfNotFound )
 {
     DKMutableListRef edges = DKDictionaryGetObject( _self->graph, from );
-    DKIndex edgeCount = DKListGetCount( edges );
     
-    for( DKIndex i = 0; i < edgeCount; i++ )
+    if( edges )
     {
-        DKGraphEdgeRef edge = DKListGetObjectAtIndex( edges, i );
+        DKIndex edgeCount = DKListGetCount( edges );
         
-        if( DKGraphEdgeGetSecondVertex( edge ) == to )
-            return edge;
+        for( DKIndex i = 0; i < edgeCount; i++ )
+        {
+            DKGraphEdgeRef edge = DKListGetObjectAtIndex( edges, i );
+            
+            if( DKGraphEdgeGetSecondVertex( edge ) == to )
+                return edge;
+        }
     }
     
     if( insertIfNotFound )
     {
+        if( !edges )
+        {
+            edges = DKNewMutableList();
+            DKDictionarySetObject( _self->graph, from, edges );
+            DKRelease( edges );
+        }
+    
         DKGraphEdgeRef edge = DKNewDirectedGraphEdge( from, to );
         DKListAppendObject( edges, edge );
+        DKRelease( edge );
         
         return edge;
     }
