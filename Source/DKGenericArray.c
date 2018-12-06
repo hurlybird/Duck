@@ -263,19 +263,20 @@ void DKGenericArraySort( DKGenericArray * array, int (*cmp)(const void *, const 
 ///
 //  DKGenericArraySortObjects()
 //
-static void BubbleSort( DKObjectRef * array, DKIndex lo, DKIndex hi, DKCompareFunction cmp )
+static void InsertionSort( DKObjectRef * array, DKIndex count, DKCompareFunction cmp )
 {
-    for( ; lo < hi; --hi )
+    for( DKIndex i = 1; i < count; ++i )
     {
-        for( DKIndex i = lo; i < hi; ++i )
+        DKObjectRef x = array[i];
+        DKIndex j = i - 1;
+        
+        while( (j >= 0) && (cmp( array[j], x ) < 0) )
         {
-            if( cmp( array[i], array[i+1] ) < 0 )
-            {
-                DKObjectRef swap = array[i];
-                array[i] = array[i+1];
-                array[i+1] = swap;
-            }
+            array[j+1] = array[j];
+            --j;
         }
+        
+        array[j+1] = x;
     }
 }
 
@@ -334,9 +335,9 @@ static DKIndex QuickSortPartition( DKObjectRef * array, DKIndex lo, DKIndex hi, 
 
 static void QuickSort( DKObjectRef * array, DKIndex lo, DKIndex hi, DKCompareFunction cmp )
 {
-    if( (hi - lo) < 8 )
+    if( (hi - lo) < 10 )
     {
-        BubbleSort( array, lo, hi, cmp );
+        InsertionSort( &array[lo], hi - lo + 1, cmp );
         return;
     }
  
