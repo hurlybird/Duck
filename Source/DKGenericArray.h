@@ -75,7 +75,9 @@ void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex
 void DKGenericArrayReplaceElements( DKGenericArray * array, DKRange range, const void * elements, DKIndex length );
 void DKGenericArrayAppendElements( DKGenericArray * array, const void * elements, DKIndex length );
 
-void DKGenericArraySort( DKGenericArray * array, DKCompareFunction cmp );
+void DKGenericArraySort( DKGenericArray * array, int (*cmp)(const void *, const void *) );
+void DKGenericArraySortObjects( DKGenericArray * array, DKCompareFunction cmp );
+
 void DKGenericArrayReverse( DKGenericArray * array );
 void DKGenericArrayShuffle( DKGenericArray * array );
 

@@ -160,6 +160,25 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     DKListRemoveAllObjects( list );
 
+    // Sort
+    for( int i = 0; i < 100; i++ )
+    {
+        int x = rand();
+        DKListAppendObject( list, DKNumberWithInt32( x ) );
+    }
+    
+    DKListSort( list, DKCompare );
+
+    for( int i = 0; i < 99; i++ )
+    {
+        DKObjectRef a = DKListGetObjectAtIndex( list, i );
+        DKObjectRef b = DKListGetObjectAtIndex( list, i + 1 );
+        
+        XCTAssert( DKCompare( a, b ) >= 0 );
+    }
+
+    DKListRemoveAllObjects( list );
+
     // Cleanup
     DKRelease( list );
 }

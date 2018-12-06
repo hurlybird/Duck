@@ -603,7 +603,7 @@ void DKArraySort( DKMutableArrayRef _self, DKCompareFunction cmp )
     if( _self )
     {
         DKCheckKindOfClass( _self, DKMutableArrayClass() );
-        DKGenericArraySort( &_self->ptrArray, cmp );
+        DKGenericArraySortObjects( &_self->ptrArray, cmp );
     }
 }
 

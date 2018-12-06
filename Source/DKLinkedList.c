@@ -859,10 +859,10 @@ void DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp )
             // gymnastics needed for sorting the list nodes.
             DKGenericArray array;
             DKGenericArrayInit( &array, sizeof(DKObjectRef) );
-            DKGenericArrayReserve( &array, _self->count );
+            DKGenericArraySetLength( &array, _self->count );
             ListToArray( &array, _self );
 
-            DKGenericArraySort( &array, cmp );
+            DKGenericArraySortObjects( &array, cmp );
 
             ArrayToList( _self, &array );
             DKGenericArrayFinalize( &array );

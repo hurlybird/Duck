@@ -254,9 +254,107 @@ void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex
 ///
 //  DKGenericArraySort()
 //
-void DKGenericArraySort( DKGenericArray * array, DKCompareFunction cmp )
+void DKGenericArraySort( DKGenericArray * array, int (*cmp)(const void *, const void *) )
 {
-    qsort( array->elements, array->length, array->elementSize, (void *)cmp );
+    qsort( array->elements, array->length, array->elementSize, cmp );
+}
+
+
+///
+//  DKGenericArraySortObjects()
+//
+static void BubbleSort( DKObjectRef * array, DKIndex lo, DKIndex hi, DKCompareFunction cmp )
+{
+    for( ; lo < hi; --hi )
+    {
+        for( DKIndex i = lo; i < hi; ++i )
+        {
+            if( cmp( array[i], array[i+1] ) < 0 )
+            {
+                DKObjectRef swap = array[i];
+                array[i] = array[i+1];
+                array[i+1] = swap;
+            }
+        }
+    }
+}
+
+static DKObjectRef QuickSortPivot( DKObjectRef * array, DKIndex lo, DKIndex hi, DKCompareFunction cmp )
+{
+    DKIndex mid = lo + (hi - lo) / 2;
+    DKObjectRef swap;
+
+    if( cmp( array[mid], array[lo] ) < 0 )
+    {
+        swap = array[lo];
+        array[lo] = array[mid];
+        array[mid] = swap;
+    }
+    
+    if( cmp( array[hi], array[lo] ) < 0 )
+    {
+        swap = array[lo];
+        array[lo] = array[hi];
+        array[hi] = swap;
+    }
+
+    if( cmp( array[mid], array[hi] ) < 0 )
+    {
+        swap = array[mid];
+        array[mid] = array[hi];
+        array[hi] = swap;
+    }
+
+    return array[hi];
+}
+
+static DKIndex QuickSortPartition( DKObjectRef * array, DKIndex lo, DKIndex hi, DKCompareFunction cmp )
+{
+    DKObjectRef pivot = QuickSortPivot( array, lo, hi, cmp );
+    DKIndex i = lo - 1;
+    DKIndex j = hi + 1;
+    DKObjectRef swap;
+
+    while( true )
+    {
+        while( cmp( array[++i], pivot ) > 0 )
+            ;
+        
+        while( cmp( array[--j], pivot ) < 0 )
+            ;
+        
+        if( i >= j )
+            return j;
+        
+        swap = array[i];
+        array[i] = array[j];
+        array[j] = swap;
+    }
+}
+
+static void QuickSort( DKObjectRef * array, DKIndex lo, DKIndex hi, DKCompareFunction cmp )
+{
+    if( (hi - lo) < 8 )
+    {
+        BubbleSort( array, lo, hi, cmp );
+        return;
+    }
+ 
+    if( lo < hi )
+    {
+        DKIndex p = QuickSortPartition( array, lo, hi, cmp );
+        
+        QuickSort( array, lo, p, cmp );
+        QuickSort( array, p + 1, hi, cmp );
+    }
+}
+
+
+
+void DKGenericArraySortObjects( DKGenericArray * array, DKCompareFunction cmp )
+{
+    DKAssert( array->elementSize == sizeof(DKObjectRef) );
+    QuickSort( (DKObjectRef *)array->elements, 0, array->length - 1, cmp );
 }
 
 
