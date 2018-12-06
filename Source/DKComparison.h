@@ -63,6 +63,7 @@ DKHashCode  DKPointerHash( DKObjectRef _self );
 // Wrappers for the comparison interface
 bool        DKEqual( DKObjectRef a, DKObjectRef b );
 int         DKCompare( DKObjectRef a, DKObjectRef b );
+int         DKReverseCompare( DKObjectRef a, DKObjectRef b );
 DKHashCode  DKHash( DKObjectRef _self );
 
 

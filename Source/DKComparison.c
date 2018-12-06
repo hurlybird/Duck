@@ -106,6 +106,15 @@ int DKCompare( DKObjectRef a, DKObjectRef b )
 
 
 ///
+//  DKReverseCompare()
+//
+int DKReverseCompare( DKObjectRef a, DKObjectRef b )
+{
+    return -DKCompare( a, b );
+}
+
+
+///
 //  DKHash()
 //
 DKHashCode DKHash( DKObjectRef _self )
