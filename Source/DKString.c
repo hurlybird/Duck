@@ -1211,6 +1211,8 @@ void DKStringSetString( DKMutableStringRef _self, DKStringRef str )
         {
             ReplaceBytes( _self, range, NULL, 0 );
         }
+
+        SetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -1236,6 +1238,25 @@ void DKStringSetCString( DKMutableStringRef _self, const char * cstr )
         {
             ReplaceBytes( _self, range, NULL, 0 );
         }
+
+        SetCursor( _self, _self->byteArray.length );
+    }
+}
+
+
+///
+//  DKStringSetBytes()
+//
+void DKStringSetBytes( DKMutableStringRef _self, const void * bytes, DKIndex length )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
+
+        DKRange range = DKRangeMake( 0, _self->byteArray.length );
+        ReplaceBytes( _self, range, bytes, length );
+
+        SetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -1291,6 +1312,23 @@ void DKStringAppendCString( DKMutableStringRef _self, const char * cstr )
         size_t length = strlen( cstr );
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
         ReplaceBytes( _self, range, cstr, length );
+        
+        SetCursor( _self, _self->byteArray.length );
+    }
+}
+
+
+///
+//  DKStringAppendBytes()
+//
+void DKStringAppendBytes( DKMutableStringRef _self, const void * bytes, DKIndex length )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
+
+        DKRange range = DKRangeMake( _self->byteArray.length, 0 );
+        ReplaceBytes( _self, range, bytes, length );
         
         SetCursor( _self, _self->byteArray.length );
     }

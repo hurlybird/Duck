@@ -107,10 +107,12 @@ DKStringRef DKStringByTrimmingWhitespace( DKStringRef _self );
 // Modifying mutable strings
 void        DKStringSetString( DKMutableStringRef _self, DKStringRef str );
 void        DKStringSetCString( DKMutableStringRef _self, const char * cstr );
+void        DKStringSetBytes( DKMutableStringRef _self, const void * bytes, DKIndex length );
 
 void        DKStringAppendString( DKMutableStringRef _self, DKStringRef str );
 void        DKStringAppendFormat( DKMutableStringRef _self, const char * format, ... );
 void        DKStringAppendCString( DKMutableStringRef _self, const char * cstr );
+void        DKStringAppendBytes( DKMutableStringRef _self, const void * bytes, DKIndex length );
 
 void        DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKStringRef str );
 void        DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement );
