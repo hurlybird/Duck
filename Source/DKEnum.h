@@ -44,8 +44,11 @@ DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _self, ... );
             NULL );                                                                     \
     }
 
-int DKEnumFromString( DKEnumRef _self, DKStringRef str );
-DKStringRef DKStringFromEnum( DKEnumRef _self, int value );
+#define DKEnumFromString( _self, str )  (int)DKEnumFromString64( (_self), (str) )
+#define DKStringFromEnum( _self, val )  DKStringFromEnum64( (_self), (val) )
+
+int64_t DKEnumFromString64( DKEnumRef _self, DKStringRef str );
+DKStringRef DKStringFromEnum64( DKEnumRef _self, int64_t value );
 
 
 
