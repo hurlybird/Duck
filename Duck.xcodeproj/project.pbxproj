@@ -11,6 +11,106 @@
 		0206AE081B1235490095C52F /* DKRuntime+Metadata.c in Sources */ = {isa = PBXBuildFile; fileRef = 0206AE051B1235490095C52F /* DKRuntime+Metadata.c */; };
 		0206AE091B1235490095C52F /* DKRuntime+Metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 0206AE061B1235490095C52F /* DKRuntime+Metadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0206AE0A1B1235490095C52F /* DKRuntime+Metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 0206AE061B1235490095C52F /* DKRuntime+Metadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0210AB8D220647F90076278D /* DKPlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5418EFED97000344C0 /* DKPlatform.c */; };
+		0210AB8F220647F90076278D /* DKRuntime.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5718EFED97000344C0 /* DKRuntime.c */; };
+		0210AB91220647F90076278D /* DKRuntime+Interfaces.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D5F50B19DBE79F00D2F52A /* DKRuntime+Interfaces.c */; };
+		0210AB93220647F90076278D /* DKRuntime+Properties.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA018F3BC2200EEBBAC /* DKRuntime+Properties.c */; };
+		0210AB95220647F90076278D /* DKRuntime+RefCount.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */; };
+		0210AB97220647F90076278D /* DKRuntime+Reflection.c in Sources */ = {isa = PBXBuildFile; fileRef = 023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */; };
+		0210AB99220647F90076278D /* DKRuntime+Metadata.c in Sources */ = {isa = PBXBuildFile; fileRef = 0206AE051B1235490095C52F /* DKRuntime+Metadata.c */; };
+		0210AB9B220647F90076278D /* DKAllocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051D519DE32CB00827660 /* DKAllocation.c */; };
+		0210AB9D220647F90076278D /* DKBuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 026AF4C11EE92A9F0033ED30 /* DKBuffer.c */; };
+		0210AB9F220647F90076278D /* DKComparison.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051CF19DE2FA300827660 /* DKComparison.c */; };
+		0210ABA1220647F90076278D /* DKConversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 0212831E1C244F9A00B7C3A7 /* DKConversion.c */; };
+		0210ABA3220647F90076278D /* DKCopying.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051DA19DE345100827660 /* DKCopying.c */; };
+		0210ABA5220647F90076278D /* DKDescription.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051DF19DE39D700827660 /* DKDescription.c */; };
+		0210ABA7220647F90076278D /* DKLocking.c in Sources */ = {isa = PBXBuildFile; fileRef = 023B128019E0C25800B2D683 /* DKLocking.c */; };
+		0210ABA9220647F90076278D /* DKStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5818EFED97000344C0 /* DKStream.c */; };
+		0210ABAB220647F90076278D /* DKArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4818EFED96000344C0 /* DKArray.c */; };
+		0210ABAD220647F90076278D /* DKBinaryTree.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4918EFED96000344C0 /* DKBinaryTree.c */; };
+		0210ABAF220647F90076278D /* DKCollection.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9B18F2615E00EEBBAC /* DKCollection.c */; };
+		0210ABB1220647F90076278D /* DKDictionary.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4D18EFED96000344C0 /* DKDictionary.c */; };
+		0210ABB3220647F90076278D /* DKHashTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4F18EFED96000344C0 /* DKHashTable.c */; };
+		0210ABB5220647F90076278D /* DKGraph.c in Sources */ = {isa = PBXBuildFile; fileRef = 028D61C81ED9F55B00E7BC72 /* DKGraph.c */; };
+		0210ABB7220647F90076278D /* DKLinkedList.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5018EFED96000344C0 /* DKLinkedList.c */; };
+		0210ABB9220647F90076278D /* DKList.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5118EFED96000344C0 /* DKList.c */; };
+		0210ABBB220647F90076278D /* DKSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9618F1E4EF00EEBBAC /* DKSet.c */; };
+		0210ABBD220647F90076278D /* DKBoolean.c in Sources */ = {isa = PBXBuildFile; fileRef = 020482A81AC6972B00936FA1 /* DKBoolean.c */; };
+		0210ABBF220647F90076278D /* DKData.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4C18EFED96000344C0 /* DKData.c */; };
+		0210ABC1220647F90076278D /* DKNumber.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5318EFED96000344C0 /* DKNumber.c */; };
+		0210ABC3220647F90076278D /* DKPair.c in Sources */ = {isa = PBXBuildFile; fileRef = 02803EA31EE4B6E50070D925 /* DKPair.c */; };
+		0210ABC5220647F90076278D /* DKString.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5918EFED97000344C0 /* DKString.c */; };
+		0210ABC7220647F90076278D /* DKStruct.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA518F4A86700EEBBAC /* DKStruct.c */; };
+		0210ABC9220647F90076278D /* DKByteArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4A18EFED96000344C0 /* DKByteArray.c */; };
+		0210ABCB220647F90076278D /* DKGenericArray.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5618EFED97000344C0 /* DKGenericArray.c */; };
+		0210ABCD220647F90076278D /* DKGenericHashTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */; };
+		0210ABCF220647F90076278D /* DKNodePool.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5218EFED96000344C0 /* DKNodePool.c */; };
+		0210ABD1220647F90076278D /* DKThread.c in Sources */ = {isa = PBXBuildFile; fileRef = 021E0E1519E1A5B200ECD817 /* DKThread.c */; };
+		0210ABD3220647F90076278D /* DKThreadPool.c in Sources */ = {isa = PBXBuildFile; fileRef = 026FBD161C309B5F00C96822 /* DKThreadPool.c */; };
+		0210ABD5220647F90076278D /* DKMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C3078A1C304F8A0077DC56 /* DKMutex.c */; };
+		0210ABD7220647F90076278D /* DKCondition.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307901C3053A00077DC56 /* DKCondition.c */; };
+		0210ABD9220647F90076278D /* DKReadWriteLock.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C307961C3056270077DC56 /* DKReadWriteLock.c */; };
+		0210ABDB220647F90076278D /* DKEgg.c in Sources */ = {isa = PBXBuildFile; fileRef = 02624EBF190366C50023B3EE /* DKEgg.c */; };
+		0210ABDD220647F90076278D /* DKEncoding.c in Sources */ = {isa = PBXBuildFile; fileRef = 02DE16DE195E7ACB007D241D /* DKEncoding.c */; };
+		0210ABDF220647F90076278D /* DKEnum.c in Sources */ = {isa = PBXBuildFile; fileRef = 02DBA5491EAAFE3D0086A6EE /* DKEnum.c */; };
+		0210ABE1220647F90076278D /* DKFile.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F4E18EFED96000344C0 /* DKFile.c */; };
+		0210ABE3220647F90076278D /* DKJSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 02A25AFB1AC3D1B600D97B11 /* DKJSON.c */; };
+		0210ABE5220647F90076278D /* DKPredicate.c in Sources */ = {isa = PBXBuildFile; fileRef = 028F5CE619CF59B900CF4D47 /* DKPredicate.c */; };
+		0210ABE7220647F90076278D /* DKShell.c in Sources */ = {isa = PBXBuildFile; fileRef = 02803E9D1EE4AC220070D925 /* DKShell.c */; };
+		0210ABE9220647F90076278D /* DKUnicode.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5A18EFED97000344C0 /* DKUnicode.c */; };
+		0210ABEB220647F90076278D /* DKXML.c in Sources */ = {isa = PBXBuildFile; fileRef = 02393EBA1C3EFE15009E8731 /* DKXML.c */; };
+		0210ABED220647F90076278D /* yxml.c in Sources */ = {isa = PBXBuildFile; fileRef = 021808751C3A323200989024 /* yxml.c */; };
+		0210ABFE220647FA0076278D /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
+		0210AC1722064EAD0076278D /* Duck.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF4A19D856BC002E876C /* Duck.h */; };
+		0210AC1822064EAD0076278D /* DKConfig.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1919D85669002E876C /* DKConfig.h */; };
+		0210AC1922064EAD0076278D /* DKPlatform.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2619D85669002E876C /* DKPlatform.h */; };
+		0210AC1A22064EAD0076278D /* DKRuntime.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2919D85669002E876C /* DKRuntime.h */; };
+		0210AC1B22064EAD0076278D /* DKRuntime+Interfaces.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02D5F50C19DBE79F00D2F52A /* DKRuntime+Interfaces.h */; };
+		0210AC1C22064EAD0076278D /* DKRuntime+Properties.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2819D85669002E876C /* DKRuntime+Properties.h */; };
+		0210AC1D22064EAD0076278D /* DKRuntime+RefCount.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02D051CB19DDF32000827660 /* DKRuntime+RefCount.h */; };
+		0210AC1E22064EAD0076278D /* DKRuntime+Reflection.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 023A719E19DADCE20088CDD9 /* DKRuntime+Reflection.h */; };
+		0210AC1F22064EAD0076278D /* DKRuntime+Metadata.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0206AE061B1235490095C52F /* DKRuntime+Metadata.h */; };
+		0210AC2022064EAD0076278D /* DKAllocation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02D051D619DE32CB00827660 /* DKAllocation.h */; };
+		0210AC2122064EAD0076278D /* DKBuffer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 026AF4C21EE92A9F0033ED30 /* DKBuffer.h */; };
+		0210AC2222064EAD0076278D /* DKComparison.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02D051D019DE2FA300827660 /* DKComparison.h */; };
+		0210AC2322064EAD0076278D /* DKConversion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0212831F1C244F9A00B7C3A7 /* DKConversion.h */; };
+		0210AC2422064EAD0076278D /* DKCopying.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02D051DB19DE345100827660 /* DKCopying.h */; };
+		0210AC2522064EAD0076278D /* DKDescription.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02D051E019DE39D700827660 /* DKDescription.h */; };
+		0210AC2622064EAD0076278D /* DKLocking.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 023B128119E0C25800B2D683 /* DKLocking.h */; };
+		0210AC2722064EAD0076278D /* DKStream.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2B19D85669002E876C /* DKStream.h */; };
+		0210AC2822064EAD0076278D /* DKArray.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1519D85669002E876C /* DKArray.h */; };
+		0210AC2922064EAD0076278D /* DKBinaryTree.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1619D85669002E876C /* DKBinaryTree.h */; };
+		0210AC2A22064EAD0076278D /* DKCollection.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1819D85669002E876C /* DKCollection.h */; };
+		0210AC2B22064EAD0076278D /* DKDictionary.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1B19D85669002E876C /* DKDictionary.h */; };
+		0210AC2C22064EAD0076278D /* DKHashTable.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2119D85669002E876C /* DKHashTable.h */; };
+		0210AC2D22064EAD0076278D /* DKGraph.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 028D61C91ED9F55B00E7BC72 /* DKGraph.h */; };
+		0210AC2E22064EAD0076278D /* DKLinkedList.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2219D85669002E876C /* DKLinkedList.h */; };
+		0210AC2F22064EAD0076278D /* DKList.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2319D85669002E876C /* DKList.h */; };
+		0210AC3022064EAD0076278D /* DKSet.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2A19D85669002E876C /* DKSet.h */; };
+		0210AC3122064EAD0076278D /* DKBoolean.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 020482A91AC6972B00936FA1 /* DKBoolean.h */; };
+		0210AC3222064EAD0076278D /* DKData.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1A19D85669002E876C /* DKData.h */; };
+		0210AC3322064EAD0076278D /* DKNumber.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2519D85669002E876C /* DKNumber.h */; };
+		0210AC3422064EAD0076278D /* DKPair.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02803EA41EE4B6E50070D925 /* DKPair.h */; };
+		0210AC3522064EAD0076278D /* DKString.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2C19D85669002E876C /* DKString.h */; };
+		0210AC3622064EAD0076278D /* DKStruct.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2D19D85669002E876C /* DKStruct.h */; };
+		0210AC3722064EAD0076278D /* DKByteArray.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1719D85669002E876C /* DKByteArray.h */; };
+		0210AC3822064EAD0076278D /* DKGenericArray.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1F19D85669002E876C /* DKGenericArray.h */; };
+		0210AC3922064EAD0076278D /* DKGenericHashTable.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2019D85669002E876C /* DKGenericHashTable.h */; };
+		0210AC3A22064EAD0076278D /* DKNodePool.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2419D85669002E876C /* DKNodePool.h */; };
+		0210AC3B22064EAD0076278D /* DKThread.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 021E0E1619E1A5B200ECD817 /* DKThread.h */; };
+		0210AC3C22064EAD0076278D /* DKThreadPool.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 026FBD171C309B5F00C96822 /* DKThreadPool.h */; };
+		0210AC3D22064EAD0076278D /* DKMutex.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02C3078B1C304F8A0077DC56 /* DKMutex.h */; };
+		0210AC3E22064EAD0076278D /* DKCondition.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02C307911C3053A00077DC56 /* DKCondition.h */; };
+		0210AC3F22064EAD0076278D /* DKReadWriteLock.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02C307971C3056270077DC56 /* DKReadWriteLock.h */; };
+		0210AC4022064EAD0076278D /* DKEgg.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1C19D85669002E876C /* DKEgg.h */; };
+		0210AC4122064EAD0076278D /* DKEncoding.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1D19D85669002E876C /* DKEncoding.h */; };
+		0210AC4222064EAD0076278D /* DKEnum.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02DBA54A1EAAFE3D0086A6EE /* DKEnum.h */; };
+		0210AC4322064EAD0076278D /* DKFile.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF1E19D85669002E876C /* DKFile.h */; };
+		0210AC4422064EAD0076278D /* DKJSON.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02A25AFC1AC3D1B600D97B11 /* DKJSON.h */; };
+		0210AC4522064EAD0076278D /* DKPredicate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2719D85669002E876C /* DKPredicate.h */; };
+		0210AC4622064EAD0076278D /* DKShell.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02803E9E1EE4AC220070D925 /* DKShell.h */; };
+		0210AC4722064EAD0076278D /* DKUnicode.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0269BF2E19D85669002E876C /* DKUnicode.h */; };
+		0210AC4822064EAD0076278D /* DKXML.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 02393EBB1C3EFE15009E8731 /* DKXML.h */; };
 		021283201C244F9A00B7C3A7 /* DKConversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 0212831E1C244F9A00B7C3A7 /* DKConversion.c */; };
 		021283211C244F9A00B7C3A7 /* DKConversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 0212831E1C244F9A00B7C3A7 /* DKConversion.c */; };
 		021283231C244F9A00B7C3A7 /* DKConversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0212831F1C244F9A00B7C3A7 /* DKConversion.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -238,6 +338,68 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		0210AC1622064E640076278D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = include/Duck;
+			dstSubfolderSpec = 16;
+			files = (
+				0210AC1722064EAD0076278D /* Duck.h in CopyFiles */,
+				0210AC1822064EAD0076278D /* DKConfig.h in CopyFiles */,
+				0210AC1922064EAD0076278D /* DKPlatform.h in CopyFiles */,
+				0210AC1A22064EAD0076278D /* DKRuntime.h in CopyFiles */,
+				0210AC1B22064EAD0076278D /* DKRuntime+Interfaces.h in CopyFiles */,
+				0210AC1C22064EAD0076278D /* DKRuntime+Properties.h in CopyFiles */,
+				0210AC1D22064EAD0076278D /* DKRuntime+RefCount.h in CopyFiles */,
+				0210AC1E22064EAD0076278D /* DKRuntime+Reflection.h in CopyFiles */,
+				0210AC1F22064EAD0076278D /* DKRuntime+Metadata.h in CopyFiles */,
+				0210AC2022064EAD0076278D /* DKAllocation.h in CopyFiles */,
+				0210AC2122064EAD0076278D /* DKBuffer.h in CopyFiles */,
+				0210AC2222064EAD0076278D /* DKComparison.h in CopyFiles */,
+				0210AC2322064EAD0076278D /* DKConversion.h in CopyFiles */,
+				0210AC2422064EAD0076278D /* DKCopying.h in CopyFiles */,
+				0210AC2522064EAD0076278D /* DKDescription.h in CopyFiles */,
+				0210AC2622064EAD0076278D /* DKLocking.h in CopyFiles */,
+				0210AC2722064EAD0076278D /* DKStream.h in CopyFiles */,
+				0210AC2822064EAD0076278D /* DKArray.h in CopyFiles */,
+				0210AC2922064EAD0076278D /* DKBinaryTree.h in CopyFiles */,
+				0210AC2A22064EAD0076278D /* DKCollection.h in CopyFiles */,
+				0210AC2B22064EAD0076278D /* DKDictionary.h in CopyFiles */,
+				0210AC2C22064EAD0076278D /* DKHashTable.h in CopyFiles */,
+				0210AC2D22064EAD0076278D /* DKGraph.h in CopyFiles */,
+				0210AC2E22064EAD0076278D /* DKLinkedList.h in CopyFiles */,
+				0210AC2F22064EAD0076278D /* DKList.h in CopyFiles */,
+				0210AC3022064EAD0076278D /* DKSet.h in CopyFiles */,
+				0210AC3122064EAD0076278D /* DKBoolean.h in CopyFiles */,
+				0210AC3222064EAD0076278D /* DKData.h in CopyFiles */,
+				0210AC3322064EAD0076278D /* DKNumber.h in CopyFiles */,
+				0210AC3422064EAD0076278D /* DKPair.h in CopyFiles */,
+				0210AC3522064EAD0076278D /* DKString.h in CopyFiles */,
+				0210AC3622064EAD0076278D /* DKStruct.h in CopyFiles */,
+				0210AC3722064EAD0076278D /* DKByteArray.h in CopyFiles */,
+				0210AC3822064EAD0076278D /* DKGenericArray.h in CopyFiles */,
+				0210AC3922064EAD0076278D /* DKGenericHashTable.h in CopyFiles */,
+				0210AC3A22064EAD0076278D /* DKNodePool.h in CopyFiles */,
+				0210AC3B22064EAD0076278D /* DKThread.h in CopyFiles */,
+				0210AC3C22064EAD0076278D /* DKThreadPool.h in CopyFiles */,
+				0210AC3D22064EAD0076278D /* DKMutex.h in CopyFiles */,
+				0210AC3E22064EAD0076278D /* DKCondition.h in CopyFiles */,
+				0210AC3F22064EAD0076278D /* DKReadWriteLock.h in CopyFiles */,
+				0210AC4022064EAD0076278D /* DKEgg.h in CopyFiles */,
+				0210AC4122064EAD0076278D /* DKEncoding.h in CopyFiles */,
+				0210AC4222064EAD0076278D /* DKEnum.h in CopyFiles */,
+				0210AC4322064EAD0076278D /* DKFile.h in CopyFiles */,
+				0210AC4422064EAD0076278D /* DKJSON.h in CopyFiles */,
+				0210AC4522064EAD0076278D /* DKPredicate.h in CopyFiles */,
+				0210AC4622064EAD0076278D /* DKShell.h in CopyFiles */,
+				0210AC4722064EAD0076278D /* DKUnicode.h in CopyFiles */,
+				0210AC4822064EAD0076278D /* DKXML.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		020482A81AC6972B00936FA1 /* DKBoolean.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKBoolean.c; sourceTree = "<group>"; };
 		020482A91AC6972B00936FA1 /* DKBoolean.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBoolean.h; sourceTree = "<group>"; };
@@ -250,6 +412,7 @@
 		02083FA218F3C49E00EEBBAC /* TestDKProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKProperty.m; sourceTree = "<group>"; };
 		02083FA518F4A86700EEBBAC /* DKStruct.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKStruct.c; sourceTree = "<group>"; };
 		0208A643190576130041677A /* TestDKEgg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKEgg.m; sourceTree = "<group>"; };
+		0210AB7F220647970076278D /* libduck.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libduck.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		0212831E1C244F9A00B7C3A7 /* DKConversion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKConversion.c; sourceTree = "<group>"; };
 		0212831F1C244F9A00B7C3A7 /* DKConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKConversion.h; sourceTree = "<group>"; };
 		021808741C3A323200989024 /* COPYING */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COPYING; sourceTree = "<group>"; };
@@ -384,6 +547,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0210AB7D220647970076278D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		028F1A851B0DCA85006FDFDF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -461,6 +631,7 @@
 				028F1A891B0DCA85006FDFDF /* Duck.framework */,
 				028F1A931B0DCA85006FDFDF /* Duck-Tests.xctest */,
 				028F1B001B0E6B6C006FDFDF /* Duck.framework */,
+				0210AB7F220647970076278D /* libduck.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -720,6 +891,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		0210AB7B220647970076278D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		028F1A861B0DCA85006FDFDF /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -839,6 +1017,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		0210AB7E220647970076278D /* libduck */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0210AB87220647980076278D /* Build configuration list for PBXNativeTarget "libduck" */;
+			buildPhases = (
+				0210AB7B220647970076278D /* Headers */,
+				0210AB7C220647970076278D /* Sources */,
+				0210AB7D220647970076278D /* Frameworks */,
+				0210AC1622064E640076278D /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libduck;
+			productName = libduck;
+			productReference = 0210AB7F220647970076278D /* libduck.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		028F1A881B0DCA85006FDFDF /* Duck-MacOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 028F1A9C1B0DCA86006FDFDF /* Build configuration list for PBXNativeTarget "Duck-MacOS" */;
@@ -902,6 +1098,11 @@
 				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "Derek W. Nylen";
 				TargetAttributes = {
+					0210AB7E220647970076278D = {
+						CreatedOnToolsVersion = 10.1;
+						DevelopmentTeam = D45B9CGB68;
+						ProvisioningStyle = Automatic;
+					};
 					028F1A881B0DCA85006FDFDF = {
 						CreatedOnToolsVersion = 6.3.1;
 					};
@@ -929,6 +1130,7 @@
 				028F1A881B0DCA85006FDFDF /* Duck-MacOS */,
 				028F1AFF1B0E6B6C006FDFDF /* Duck-iOS */,
 				028F1A921B0DCA85006FDFDF /* Duck-Tests */,
+				0210AB7E220647970076278D /* libduck */,
 			);
 		};
 /* End PBXProject section */
@@ -960,6 +1162,63 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0210AB7C220647970076278D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0210AB8D220647F90076278D /* DKPlatform.c in Sources */,
+				0210AB8F220647F90076278D /* DKRuntime.c in Sources */,
+				0210AB91220647F90076278D /* DKRuntime+Interfaces.c in Sources */,
+				0210AB93220647F90076278D /* DKRuntime+Properties.c in Sources */,
+				0210AB95220647F90076278D /* DKRuntime+RefCount.c in Sources */,
+				0210AB97220647F90076278D /* DKRuntime+Reflection.c in Sources */,
+				0210AB99220647F90076278D /* DKRuntime+Metadata.c in Sources */,
+				0210AB9B220647F90076278D /* DKAllocation.c in Sources */,
+				0210AB9D220647F90076278D /* DKBuffer.c in Sources */,
+				0210AB9F220647F90076278D /* DKComparison.c in Sources */,
+				0210ABA1220647F90076278D /* DKConversion.c in Sources */,
+				0210ABA3220647F90076278D /* DKCopying.c in Sources */,
+				0210ABA5220647F90076278D /* DKDescription.c in Sources */,
+				0210ABA7220647F90076278D /* DKLocking.c in Sources */,
+				0210ABA9220647F90076278D /* DKStream.c in Sources */,
+				0210ABAB220647F90076278D /* DKArray.c in Sources */,
+				0210ABAD220647F90076278D /* DKBinaryTree.c in Sources */,
+				0210ABAF220647F90076278D /* DKCollection.c in Sources */,
+				0210ABB1220647F90076278D /* DKDictionary.c in Sources */,
+				0210ABB3220647F90076278D /* DKHashTable.c in Sources */,
+				0210ABB5220647F90076278D /* DKGraph.c in Sources */,
+				0210ABB7220647F90076278D /* DKLinkedList.c in Sources */,
+				0210ABB9220647F90076278D /* DKList.c in Sources */,
+				0210ABBB220647F90076278D /* DKSet.c in Sources */,
+				0210ABBD220647F90076278D /* DKBoolean.c in Sources */,
+				0210ABBF220647F90076278D /* DKData.c in Sources */,
+				0210ABC1220647F90076278D /* DKNumber.c in Sources */,
+				0210ABC3220647F90076278D /* DKPair.c in Sources */,
+				0210ABC5220647F90076278D /* DKString.c in Sources */,
+				0210ABC7220647F90076278D /* DKStruct.c in Sources */,
+				0210ABC9220647F90076278D /* DKByteArray.c in Sources */,
+				0210ABCB220647F90076278D /* DKGenericArray.c in Sources */,
+				0210ABCD220647F90076278D /* DKGenericHashTable.c in Sources */,
+				0210ABCF220647F90076278D /* DKNodePool.c in Sources */,
+				0210ABD1220647F90076278D /* DKThread.c in Sources */,
+				0210ABD3220647F90076278D /* DKThreadPool.c in Sources */,
+				0210ABD5220647F90076278D /* DKMutex.c in Sources */,
+				0210ABD7220647F90076278D /* DKCondition.c in Sources */,
+				0210ABD9220647F90076278D /* DKReadWriteLock.c in Sources */,
+				0210ABDB220647F90076278D /* DKEgg.c in Sources */,
+				0210ABDD220647F90076278D /* DKEncoding.c in Sources */,
+				0210ABDF220647F90076278D /* DKEnum.c in Sources */,
+				0210ABE1220647F90076278D /* DKFile.c in Sources */,
+				0210ABE3220647F90076278D /* DKJSON.c in Sources */,
+				0210ABE5220647F90076278D /* DKPredicate.c in Sources */,
+				0210ABE7220647F90076278D /* DKShell.c in Sources */,
+				0210ABE9220647F90076278D /* DKUnicode.c in Sources */,
+				0210ABEB220647F90076278D /* DKXML.c in Sources */,
+				0210ABED220647F90076278D /* yxml.c in Sources */,
+				0210ABFE220647FA0076278D /* utf_impl.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		028F1A841B0DCA85006FDFDF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1106,6 +1365,67 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		0210AB85220647970076278D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = D45B9CGB68;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = duck;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		0210AB86220647970076278D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = D45B9CGB68;
+				ENABLE_NS_ASSERTIONS = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = duck;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 		024EE3E4148E0B21008FDADC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1466,6 +1786,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0210AB87220647980076278D /* Build configuration list for PBXNativeTarget "libduck" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0210AB85220647970076278D /* Debug */,
+				0210AB86220647970076278D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		024EE3DC148E0B21008FDADC /* Build configuration list for PBXProject "Duck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
