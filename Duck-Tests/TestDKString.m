@@ -376,7 +376,7 @@ struct PathAppendTestCase
     }
 }
 
-- (void) testDKStringRemovePathExtension
+- (void) testDKStringDeletePathExtension
 {
     struct PathTestCase tests[] =
     {
@@ -395,7 +395,7 @@ struct PathAppendTestCase
         struct PathTestCase * test = &tests[i];
         
         DKMutableStringRef result = DKStringMutableCopy( test->path );
-        DKStringRemovePathExtension( result );
+        DKStringDeletePathExtension( result );
         XCTAssert( DKStringEqual( result, test->result ) );
         DKRelease( result );
     }

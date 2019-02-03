@@ -131,12 +131,20 @@ DKIndex     DKStringWrite( DKMutableStringRef _self, const void * buffer, DKInde
 // Paths
 bool        DKStringIsAbsolutePath( DKStringRef _self );
 bool        DKStringHasPathExtension( DKStringRef _self, DKStringRef extension );
+
 DKStringRef DKStringGetLastPathComponent( DKStringRef _self );
 DKStringRef DKStringGetPathExtension( DKStringRef _self );
+
+DKStringRef DKStringByAppendingPathComponent( DKStringRef _self, DKStringRef pathComponent );
+DKStringRef DKStringByAppendingPathExtension( DKStringRef _self, DKStringRef pathExtension );
+DKStringRef DKStringByDeletingLastPathComponent( DKStringRef _self );
+DKStringRef DKStringByDeletingPathExtension( DKStringRef _self );
+
 void        DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComponent );
-void        DKStringRemoveLastPathComponent( DKMutableStringRef _self );
+void        DKStringDeleteLastPathComponent( DKMutableStringRef _self );
 void        DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extension );
-void        DKStringRemovePathExtension( DKMutableStringRef _self );
+void        DKStringDeletePathExtension( DKMutableStringRef _self );
+
 void        DKStringStandardizePath( DKMutableStringRef _self );
 
 // URLs

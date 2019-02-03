@@ -30,6 +30,7 @@
 #include "DKString.h"
 #include "DKBuffer.h"
 #include "DKComparison.h"
+#include "DKDescription.h"
 #include "DKCopying.h"
 #include "DKEgg.h"
 #include "DKFile.h"
@@ -78,6 +79,14 @@ DKThreadSafeClassInit( DKDataClass )
     DKInstallInterface( cls, copying );
     DKRelease( copying );
 
+    // Description
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    description->getDescription = (DKGetDescriptionMethod)DKDataGetDescription;
+    description->getSizeInBytes = (DKGetSizeInBytesMethod)DKDataGetLength;
+    
+    DKInstallInterface( cls, description );
+    DKRelease( description );
+    
     // Buffer
     struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer), sizeof(struct DKBufferInterface) );
     buffer->getLength = (DKBufferGetLengthMethod)DKDataGetLength;
@@ -339,6 +348,20 @@ DKDataRef DKDataMakeImmutable( DKMutableDataRef _self )
     }
     
     return _self;
+}
+
+
+///
+//  DKDataGetDescription()
+//
+DKStringRef DKDataGetDescription( DKDataRef _self )
+{
+    if( _self )
+    {
+        return DKStringWithFormat( "%@ (%" PRId64 " bytes)", DKGetClassName( _self ), _self->byteArray.length );
+    }
+    
+    return NULL;
 }
 
 

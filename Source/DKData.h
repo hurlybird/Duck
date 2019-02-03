@@ -44,7 +44,9 @@ DKClassRef  DKMutableDataClass( void );
 #define     DKDataWithBytesNoCopy( bytes, length )  DKAutorelease( DKDataInitWithBytesNoCopy( DKAlloc( DKDataClass() ), bytes, length ) )
 #define     DKDataWithContentsOfFile( filename )    DKAutorelease( DKDataInitWithContentsOfFile( DKAlloc( DKDataClass() ), filename ) )
 
-#define     DKNewMutableData()                  DKNew( DKMutableDataClass() )
+#define     DKNewMutableData()                      DKNew( DKMutableDataClass() )
+
+#define     DKMutableDataWithCapacity( length )     DKAutorelease( DKDataInitWithCapacity( DKAlloc( DKMutableDataClass() ), length ) )
 
 DKDataRef   DKDataInitWithBytes( DKDataRef _self, const void * bytes, DKIndex length );
 DKDataRef   DKDataInitWithBytesNoCopy( DKDataRef _self, const void * bytes, DKIndex length );
@@ -56,6 +58,8 @@ DKDataRef DKDataMakeImmutable( DKMutableDataRef _self );
 
 DKDataRef   DKDataCopy( DKDataRef _self );
 DKMutableDataRef DKDataMutableCopy( DKDataRef _self );
+
+DKStringRef DKDataGetDescription( DKDataRef _self );
 
 bool        DKDataEqual( DKDataRef _self, DKObjectRef other );
 int         DKDataCompare( DKDataRef _self, DKObjectRef other );

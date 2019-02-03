@@ -122,7 +122,7 @@ DKThreadSafeClassInit( DKStringClass )
     // Description
     struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
     description->getDescription = (DKGetDescriptionMethod)DKGetSelf;
-    description->getSizeInBytes = DKDefaultGetSizeInBytes;
+    description->getSizeInBytes = (DKGetSizeInBytesMethod)DKStringGetByteLength;
     
     DKInstallInterface( cls, description );
     DKRelease( description );
@@ -1577,6 +1577,70 @@ DKStringRef DKStringGetPathExtension( DKStringRef _self )
 
 
 ///
+//  DKStringByAppendingPathComponent()
+//
+DKStringRef DKStringByAppendingPathComponent( DKStringRef _self, DKStringRef pathComponent )
+{
+    if( _self )
+    {
+        DKMutableStringRef copy = DKStringMutableCopy( _self );
+        DKStringAppendPathComponent( copy, pathComponent );
+        return DKStringMakeImmutable( copy );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringByAppendingPathExtension()
+//
+DKStringRef DKStringByAppendingPathExtension( DKStringRef _self, DKStringRef extension )
+{
+    if( _self )
+    {
+        DKMutableStringRef copy = DKStringMutableCopy( _self );
+        DKStringAppendPathExtension( copy, extension );
+        return DKStringMakeImmutable( copy );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringByDeletingLastPathComponent()
+//
+DKStringRef DKStringByDeletingLastPathComponent( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKMutableStringRef copy = DKStringMutableCopy( _self );
+        DKStringDeleteLastPathComponent( copy );
+        return DKStringMakeImmutable( copy );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringByDeletingPathExtension()
+//
+DKStringRef DKStringByDeletingPathExtension( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKMutableStringRef copy = DKStringMutableCopy( _self );
+        DKStringDeletePathExtension( copy );
+        return DKStringMakeImmutable( copy );
+    }
+    
+    return NULL;
+}
+
+
+///
 //  DKStringAppendPathComponent()
 //
 void DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComponent )
@@ -1600,9 +1664,9 @@ void DKStringAppendPathComponent( DKMutableStringRef _self, DKStringRef pathComp
 
 
 ///
-//  DKStringRemoveLastPathComponent()
+//  DKStringDeleteLastPathComponent()
 //
-void DKStringRemoveLastPathComponent( DKMutableStringRef _self )
+void DKStringDeleteLastPathComponent( DKMutableStringRef _self )
 {
     if( _self )
     {
@@ -1675,9 +1739,9 @@ void DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extensio
 
 
 ///
-//  DKStringRemovePathExtension()
+//  DKStringDeletePathExtension()
 //
-void DKStringRemovePathExtension( DKMutableStringRef _self )
+void DKStringDeletePathExtension( DKMutableStringRef _self )
 {
     if( _self )
     {
