@@ -46,6 +46,7 @@ DKClassRef  DKMutableDataClass( void );
 
 #define     DKNewMutableData()                      DKNew( DKMutableDataClass() )
 
+#define     DKMutableDataWithBytes( bytes, length ) DKAutorelease( DKDataInitWithBytes( DKAlloc( DKMutableDataClass() ), bytes, length ) )
 #define     DKMutableDataWithCapacity( length )     DKAutorelease( DKDataInitWithCapacity( DKAlloc( DKMutableDataClass() ), length ) )
 
 DKDataRef   DKDataInitWithBytes( DKDataRef _self, const void * bytes, DKIndex length );
@@ -81,6 +82,8 @@ void *      DKDataGetMutableByteRange( DKMutableDataRef _self, DKRange range );
 #define     DKDataGetMutableElementPtr( data, type, index ) DKDataGetMutableBytePtr( data, ((index) * sizeof(type)) )
 
 DKIndex     DKDataGetBytes( DKDataRef _self, DKRange range, void * buffer );
+
+void        DKDataAppendData( DKMutableDataRef _self, DKDataRef data );
 
 void        DKDataReplaceBytes( DKMutableDataRef _self, DKRange range, const void * bytes, DKIndex length );
 void        DKDataAppendBytes( DKMutableDataRef _self, const void * bytes, DKIndex length );

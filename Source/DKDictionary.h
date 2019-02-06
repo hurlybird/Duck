@@ -79,11 +79,14 @@ void        DKSetDefaultMutableDictionaryClass( DKClassRef _class );
 #define     DKNewEmptyDictionary()      DKNew( DKDictionaryClass() )
 #define     DKNewMutableDictionary()    DKNew( DKMutableDictionaryClass() )
 
-#define     DKDictionaryWithKeysAndObjects( firstKey, ... )     DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__ ) )
-#define     DKDictionaryWithDictionary( srcDictionary )         DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary ) )
+#define     DKDictionaryWithKeysAndObjects( firstKey, ... )         DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__, NULL ) )
+#define     DKDictionaryWithDictionary( srcDictionary )             DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary ) )
 
-#define     DKNewDictionaryWithKeysAndObjects( firstKey, ... )  DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__ )
-#define     DKNewDictionaryWithDictionary( srcDictionary )      DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary )
+#define     DKNewDictionaryWithKeysAndObjects( firstKey, ... )      DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__, NULL )
+#define     DKNewDictionaryWithDictionary( srcDictionary )          DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary )
+
+#define     DKMutableDictionaryWithKeysAndObjects( firstKey, ... )  DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKMutableDictionaryClass() ), firstKey, __VA_ARGS__, NULL ) )
+#define     DKMutableDictionaryWithDictionary( srcDictionary )      DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKMutableDictionaryClass() ), srcDictionary ) )
 
 DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, ... );
 DKObjectRef DKDictionaryInitWithDictionary( DKDictionaryRef _self, DKDictionaryRef srcDictionary );

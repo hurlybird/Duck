@@ -634,6 +634,22 @@ DKIndex DKDataGetBytes( DKDataRef _self, DKRange range, void * buffer )
 
 
 ///
+//  DKDataAppendData()
+//
+void DKDataAppendData( DKMutableDataRef _self, DKDataRef data )
+{
+    if( _self && data )
+    {
+        DKCheckKindOfClass( _self, DKMutableDataClass() );
+        DKCheckKindOfClass( data, DKDataClass() );
+
+        DKRange range = DKRangeMake( _self->byteArray.length, 0 );
+        DKByteArrayReplaceBytes( &_self->byteArray, range, data->byteArray.bytes, data->byteArray.length );
+    }
+}
+
+
+///
 //  DKDataAppendBytes()
 //
 void DKDataAppendBytes( DKMutableDataRef _self, const void * bytes, DKIndex length )
