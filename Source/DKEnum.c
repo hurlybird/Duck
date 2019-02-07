@@ -175,7 +175,7 @@ DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _untyped_self, ... )
         {
             struct DKEnumEntry row;
             row.str = __DKStringGetConstantString( str, true );
-            row.value = va_arg( arg_ptr, int );
+            row.value = va_arg( arg_ptr, int64_t );
     
             DKGenericHashTableInsert( &_self->table, &row, DKInsertAlways );
             
