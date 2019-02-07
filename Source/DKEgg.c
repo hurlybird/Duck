@@ -217,7 +217,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
         DKByteArrayInit( &_self->buffer );
 
         // Read the header into the buffer
-        DKByteArrayReserve( &_self->buffer, sizeof(DKEggHeader) );
+        DKByteArraySetLength( &_self->buffer, sizeof(DKEggHeader) );
         
         if( DKRead( stream, DKByteArrayGetBytePtr( &_self->buffer, 0 ), sizeof(DKEggHeader), 1 ) != 1 )
         {
@@ -266,7 +266,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
         DKIndex remainingLength = archiveLength - sizeof(DKEggHeader);
         
         // Read the rest of the archive into the buffer
-        DKByteArrayReserve( &_self->buffer, archiveLength );
+        DKByteArraySetLength( &_self->buffer, archiveLength );
         
         if( DKRead( stream, DKByteArrayGetBytePtr( &_self->buffer, sizeof(DKEggHeader) ), 1, remainingLength ) != remainingLength )
         {
