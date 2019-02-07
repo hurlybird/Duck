@@ -342,7 +342,7 @@
 		0210AC1622064E640076278D /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = include/Duck;
+			dstPath = Duck;
 			dstSubfolderSpec = 16;
 			files = (
 				0210AC1722064EAD0076278D /* Duck.h in CopyFiles */,
