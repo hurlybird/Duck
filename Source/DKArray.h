@@ -58,6 +58,7 @@ DKIndex     DKArrayGetCount( DKArrayRef _self );
 DKObjectRef DKArrayGetObjectAtIndex( DKArrayRef _self, DKIndex index );
 DKIndex     DKArrayGetObjectsInRange( DKArrayRef _self, DKRange range, DKObjectRef objects[] );
 
+void        DKArrayAppendObject( DKMutableArrayRef _self, DKObjectRef object );
 void        DKArrayAppendCArray( DKMutableArrayRef _self, DKObjectRef objects[], DKIndex count );
 void        DKArrayAppendCollection( DKMutableArrayRef _self, DKObjectRef srcCollection );
 
