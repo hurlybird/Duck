@@ -175,6 +175,38 @@ DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _untyped_self, ... )
         {
             struct DKEnumEntry row;
             row.str = __DKStringGetConstantString( str, true );
+            row.value = va_arg( arg_ptr, int );
+    
+            DKGenericHashTableInsert( &_self->table, &row, DKInsertAlways );
+            
+            DKRelease( row.str );
+        }
+
+        va_end( arg_ptr );
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKEnumInitWithCStringsAndValues64()
+//
+DKObjectRef DKEnumInitWithCStringsAndValues64( DKObjectRef _untyped_self, ... )
+{
+    DKEnumRef _self = DKInit( _untyped_self );
+    
+    if( _self )
+    {
+        va_list arg_ptr;
+        va_start( arg_ptr, _untyped_self );
+
+        const char * str;
+
+        while( (str = va_arg( arg_ptr, const char * ) ) != NULL )
+        {
+            struct DKEnumEntry row;
+            row.str = __DKStringGetConstantString( str, true );
             row.value = va_arg( arg_ptr, int64_t );
     
             DKGenericHashTableInsert( &_self->table, &row, DKInsertAlways );

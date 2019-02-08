@@ -283,7 +283,7 @@ struct PathAppendTestCase
         struct PathTestCase * test = &tests[i];
         
         DKMutableStringRef result = DKStringMutableCopy( test->path );
-        DKStringRemoveLastPathComponent( result );
+        DKStringDeleteLastPathComponent( result );
         XCTAssert( DKStringEqual( result, test->result ) );
         DKRelease( result );
     }

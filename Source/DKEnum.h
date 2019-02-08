@@ -35,6 +35,7 @@
 DKClassRef DKEnumClass( void );
 
 DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _self, ... );
+DKObjectRef DKEnumInitWithCStringsAndValues64( DKObjectRef _self, ... );
 
 #define DKDefineEnum( accessor, ... )                                                   \
     DKThreadSafeSharedObjectInit( accessor, DKEnumRef )                                 \
@@ -44,7 +45,15 @@ DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _self, ... );
             NULL );                                                                     \
     }
 
-#define DKEnumFromString( _self, str )  (int)DKEnumFromString64( (_self), (str) )
+#define DKDefineEnum64( accessor, ... )                                                 \
+    DKThreadSafeSharedObjectInit( accessor, DKEnumRef )                                 \
+    {                                                                                   \
+        return DKEnumInitWithCStringsAndValues64( DKAlloc( DKEnumClass() ),             \
+            __VA_ARGS__,                                                                \
+            NULL );                                                                     \
+    }
+
+#define DKEnumFromString( _self, str )  ((int)DKEnumFromString64( (_self), (str) ))
 #define DKStringFromEnum( _self, val )  DKStringFromEnum64( (_self), (val) )
 
 int64_t DKEnumFromString64( DKEnumRef _self, DKStringRef str );

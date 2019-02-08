@@ -31,6 +31,7 @@ enum
 } Test;
 
 DKEnumRef TestEnum( void );
+DKEnumRef TestEnum64( void );
 
 DKDefineEnum( TestEnum,
     "Zero", Zero,
@@ -43,6 +44,18 @@ DKDefineEnum( TestEnum,
     "Seven", Seven,
     "Eight", Eight,
     "Nine", Nine )
+
+DKDefineEnum64( TestEnum64,
+    "Zero", (int64_t)Zero,
+    "One", (int64_t)One,
+    "Two", (int64_t)Two,
+    "Three", (int64_t)Three,
+    "Four", (int64_t)Four,
+    "Five", (int64_t)Five,
+    "Size", (int64_t)Six,
+    "Seven", (int64_t)Seven,
+    "Eight", (int64_t)Eight,
+    "Nine", (int64_t)Nine )
 
 
 @interface TestDKEnum : XCTestCase
@@ -79,7 +92,20 @@ DKDefineEnum( TestEnum,
     XCTAssert( DKEnumFromString( TestEnum(), DKSTR( "Three" ) ) == Three );
     XCTAssert( DKEnumFromString( TestEnum(), DKSTR( "Eight" ) ) != Two );
     XCTAssert( DKEnumFromString( TestEnum(), DKSTR( "Eleven" ) ) == 0 );
+}
 
+- (void) testDKStringFromEnum64
+{
+    XCTAssert( DKEqual( DKStringFromEnum64( TestEnum64(), Four ), DKSTR( "Four" ) ) );
+    XCTAssert( !DKEqual( DKStringFromEnum64( TestEnum64(), Seven ), DKSTR( "Five" ) ) );
+    XCTAssert( DKStringFromEnum64( TestEnum64(), 17 ) == NULL );
+}
+
+- (void) testDKEnumFromString64
+{
+    XCTAssert( DKEnumFromString64( TestEnum64(), DKSTR( "Three" ) ) == Three );
+    XCTAssert( DKEnumFromString64( TestEnum64(), DKSTR( "Eight" ) ) != Two );
+    XCTAssert( DKEnumFromString64( TestEnum64(), DKSTR( "Eleven" ) ) == 0 );
 }
 
 
