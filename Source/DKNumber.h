@@ -80,6 +80,7 @@ DKEncoding  DKNumberGetEncoding( DKNumberRef _self );
 size_t      DKNumberGetValue( DKNumberRef _self, void * value );
 size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding );
 const void* DKNumberGetValuePtr( DKNumberRef _self );
+const void* DKNumberGetBytePtr( DKNumberRef _self, DKEncoding * encoding );
 
 #define     DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
 

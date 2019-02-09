@@ -606,7 +606,7 @@ size_t DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding )
 const void * DKNumberGetValuePtr( DKNumberRef _self )
 {
     static int64_t zero = 0;
-
+    
     if( _self )
     {
         DKAssertKindOfClass( _self, DKNumberClass() );
@@ -615,6 +615,26 @@ const void * DKNumberGetValuePtr( DKNumberRef _self )
     }
     
     return &zero;
+}
+
+
+///
+//  DKNumberGetBytePtr()
+//
+const void * DKNumberGetBytePtr( DKNumberRef _self, DKEncoding * encoding )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        *encoding = DKGetObjectTag( _self );
+        
+        return &_self->value;
+    }
+    
+    *encoding = DKEncodingNull;
+    
+    return NULL;
 }
 
 
