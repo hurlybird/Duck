@@ -55,6 +55,9 @@ DKClassRef  DKNumberClass( void );
 #define     DKNumber( value, encoding )         DKAutorelease( DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding ) )
 #define     DKNewNumber( value, encoding )      DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding )
 
+#define     DKNumberWithNumber( number, encodingType )      DKAutorelease( DKNumberInitWithNumber( DKAlloc( DKNumberClass() ), number, encodingType ) )
+#define     DKNewNumberWithNumber( number, encodingType )   DKNumberInitWithNumber( DKAlloc( DKNumberClass() ), number, encodingType )
+
 DKNumberRef DKNewNumberWithInt32( int32_t x );
 DKNumberRef DKNewNumberWithInt64( int64_t x );
 DKNumberRef DKNewNumberWithUInt32( uint32_t x );
@@ -74,6 +77,7 @@ DKNumberRef DKNewNumberWithDate( const DKDateTime * date ); // Passing NULL will
 #define     DKNumberWithDate( x )       DKAutorelease( DKNewNumberWithDate( x ) )
 
 DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding );
+DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEncodingType encodingType );
 
 DKEncoding  DKNumberGetEncoding( DKNumberRef _self );
 

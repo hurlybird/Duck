@@ -443,6 +443,40 @@ DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding enco
 
 
 ///
+//  DKNumberInitWithNumber()
+//
+DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEncodingType encodingType )
+{
+    if( _self == &DKPlaceholderNumber  )
+    {
+        DKCheckKindOfClass( number, DKNumberClass(), NULL );
+        DKAssert( DKEncodingTypeIsNumber( encodingType ) );
+
+        DKEncoding srcEncoding = DKGetObjectTag( number );
+        DKEncoding encoding = DKEncode( encodingType, DKEncodingGetCount( srcEncoding ) );
+
+        size_t size = DKEncodingGetSize( encoding );
+        
+        _self = DKAllocObject( DKNumberClass(), size );
+        
+        DKSetObjectTag( _self, encoding );
+
+        CastFunction castFunction = GetCastFunction( srcEncoding, encoding );
+        size_t count = DKEncodingGetCount( encoding );
+
+        castFunction( &number->value, &_self->value, count );
+    }
+    
+    else if( _self != NULL )
+    {
+        DKFatalError( "DKNumberInitWithNumber: Trying to initialize a non-number object.\n" );
+    }
+
+    return _self;
+}
+
+
+///
 //  DKNumberInitWithEgg()
 //
 static DKObjectRef DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef egg )

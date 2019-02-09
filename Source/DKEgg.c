@@ -1444,10 +1444,10 @@ void DKEggAddTextData( DKEggArchiverRef _self, DKStringRef key, const char * tex
         length = strlen( text );
     }
 
-    if( (length + 1) > DKMaxEncodingSize )
+    if( (length + 1) > DKMaxEncodingCount )
     {
         DKError( "DKEggArchiver: %lu exceeds the maximum encoded data size (%dM)",
-            length, DKMaxEncodingSize / (1024 * 1024) );
+            length, DKMaxEncodingCount / (1024 * 1024) );
         return;
     }
     
@@ -1469,10 +1469,10 @@ void DKEggAddTextData( DKEggArchiverRef _self, DKStringRef key, const char * tex
 //
 void DKEggAddBinaryData( DKEggArchiverRef _self, DKStringRef key, const void * bytes, size_t length )
 {
-    if( length > DKMaxEncodingSize )
+    if( length > DKMaxEncodingCount )
     {
         DKError( "DKEggArchiver: %lu exceeds the maximum encoded data size (%dM)",
-            length, DKMaxEncodingSize / (1024 * 1024) );
+            length, DKMaxEncodingCount / (1024 * 1024) );
         return;
     }
 

@@ -90,19 +90,23 @@ typedef enum
 
 typedef uint32_t DKEncoding;
 
-#define DKMaxEncodingSize               (16 * 1024 * 1024) // 2^24
+#define DKMaxEncodingCount                      (0x00ffffff) // 2^24
 
-#define DKEncode( type, count )         (((type) << 24) | (count))
-#define DKEncodingGetType( encoding )   ((encoding) >> 24)
-#define DKEncodingGetCount( encoding )  ((encoding) & 0x00ffffff)
+#define DKEncode( baseType, count )             (((baseType) << 24) | (count))
+#define DKEncodingGetType( encoding )           ((encoding) >> 24)
+#define DKEncodingGetCount( encoding )          ((encoding) & 0x00ffffff)
 
-#define DKEncodingTypeInt( baseType )   DKEncode( (DKEncodingTypeInt8 + sizeof(baseType) - 1), 1 )
+// Macro for building integer encodings from built-in C types (i.e. enums)
+#define DKEncodingTypeInt( ctype )              DKEncode( (DKEncodingTypeInt8 + sizeof(ctype) - 1), 1 )
 
-#define DKEncodingTypeIsInt( baseType )         ((baseType >= DKEncodingTypeInt8) && (baseType <= DKEncodingTypeUInt64))
-#define DKEncodingTypeIsSignedInt( baseType )   ((baseType >= DKEncodingTypeInt8) && (baseType <= DKEncodingTypeInt64))
-#define DKEncodingTypeIsUnsignedInt( baseType ) ((baseType >= DKEncodingTypeUInt8) && (baseType <= DKEncodingTypeUInt64))
-#define DKEncodingTypeIsFloat( baseType )       ((baseType >= DKEncodingTypeFloat) && (baseType <= DKEncodingTypeDouble))
-
+// Base type tests
+#define DKEncodingTypeIsValid( baseType )       (((baseType) >= 0) && ((baseType) < DKMaxEncodingTypes))
+#define DKEncodingTypeIsObject( baseType )      (((baseType) >= DKEncodingTypeClass) && ((baseType) <= DKEncodingTypeKeyedObject))
+#define DKEncodingTypeIsInteger( baseType )     (((baseType) >= DKEncodingTypeInt8) && ((baseType) <= DKEncodingTypeUInt64))
+#define DKEncodingTypeIsSigned( baseType )      (((baseType) >= DKEncodingTypeInt8) && ((baseType) <= DKEncodingTypeInt64))
+#define DKEncodingTypeIsUnsigned( baseType )    (((baseType) >= DKEncodingTypeUInt8) && ((baseType) <= DKEncodingTypeUInt64))
+#define DKEncodingTypeIsReal( baseType )        (((baseType) >= DKEncodingTypeFloat) && ((baseType) <= DKEncodingTypeDouble))
+#define DKEncodingTypeIsNumber( baseType )      (((baseType) >= DKEncodingTypeInt8) && ((baseType) <= DKEncodingTypeDouble))
 
 size_t DKEncodingGetSize( DKEncoding encoding );
 size_t DKEncodingGetTypeSize( DKEncoding encoding );
