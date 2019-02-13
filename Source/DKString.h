@@ -95,6 +95,10 @@ DKStringRef DKStringCopySubstring( DKStringRef _self, DKRange range );
 DKStringRef DKStringCopySubstringFromIndex( DKStringRef _self, DKIndex index );
 DKStringRef DKStringCopySubstringToIndex( DKStringRef _self, DKIndex index );
 
+#define     DKStringGetSubstring( str, range )      DKAutorelease( DKStringCopySubstring( (str), (range) ) )
+#define     DKStringGetSubstringFromIndex( str, i ) DKAutorelease( DKStringCopySubstringFromIndex( (str), (i) ) )
+#define     DKStringGetSubstringToIndex( str, i )   DKAutorelease( DKStringCopySubstringToIndex( (str), (i) ) )
+
 DKRange     DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex startLoc );
 
 // Separating and concatenating strings
