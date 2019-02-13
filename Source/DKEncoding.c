@@ -83,6 +83,18 @@ size_t DKEncodingGetSize( DKEncoding encoding )
 
 
 ///
+//  DKEncodingTypeGetSize()
+//
+size_t DKEncodingTypeGetSize( DKEncodingType encodingType )
+{
+    if( (encodingType > 0) && (encodingType < DKMaxEncodingTypes) )
+        return TypeInfo[encodingType].size;
+    
+    return TypeInfo[0].size;
+}
+
+
+///
 //  DKEncodingGetTypeSize()
 //
 size_t DKEncodingGetTypeSize( DKEncoding type )

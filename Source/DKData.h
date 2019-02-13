@@ -70,6 +70,9 @@ DKIndex     DKDataGetLength( DKDataRef _self );
 void        DKDataSetLength( DKMutableDataRef _self, DKIndex length );
 void        DKDataIncreaseLength( DKMutableDataRef _self, DKIndex length );
 
+DKEncodingType DKDataGetEncodingType( DKDataRef _self );
+void DKDataSetEncodingType( DKDataRef _self, DKEncodingType type );
+
 const void * DKDataGetBytePtr( DKDataRef _self, DKIndex index );
 const void * DKDataGetByteRange( DKDataRef _self, DKRange range );
 const void * DKDataGetByteEnd( DKDataRef _self );

@@ -317,10 +317,28 @@ DKMutableDataRef DKDataInitWithCapacity( DKMutableDataRef _self, DKIndex capacit
 //
 static DKObjectRef DKDataInitWithEgg( DKDataRef _self, DKEggUnarchiverRef egg )
 {
-    size_t length = 0;
-    const void * bytes = DKEggGetBinaryDataPtr( egg, DKSTR( "data" ), &length );
+    DKEncoding encoding = DKEggGetEncoding( egg, DKSTR( "data" ) );
 
-    return DKDataInitWithBytes( _self, bytes, length );
+    if( DKEncodingIsNumber( encoding ) )
+    {
+        _self = DKInit( _self );
+
+        DKSetObjectTag( _self, DKEncodingGetType( encoding ) );
+        size_t length = DKEncodingGetSize( encoding );
+
+        DKByteArraySetLength( (DKByteArray *)&_self->byteArray, length );
+        DKEggGetNumberData( egg, DKSTR( "data" ), &_self->byteArray.bytes );
+        
+        return _self;
+    }
+    
+    else
+    {
+        size_t length = 0;
+        const void * bytes = DKEggGetBinaryDataPtr( egg, DKSTR( "data" ), &length );
+
+        return DKDataInitWithBytes( _self, bytes, length );
+    }
 }
 
 
@@ -329,10 +347,26 @@ static DKObjectRef DKDataInitWithEgg( DKDataRef _self, DKEggUnarchiverRef egg )
 //
 static void DKDataAddToEgg( DKDataRef _self, DKEggArchiverRef egg )
 {
-    DKIndex length = _self->byteArray.length;
-    
-    if( length > 0 )
-        DKEggAddBinaryData( egg, DKSTR( "data" ), _self->byteArray.bytes, length );
+    DKEncodingType encodingType = DKGetObjectTag( _self );
+
+    if( DKEncodingTypeIsNumber( encodingType ) )
+    {
+        size_t size = DKEncodingTypeGetSize( encodingType );
+        unsigned int count = (unsigned int)(_self->byteArray.length / size);
+        DKAssert( _self->byteArray.length == (size * count) );
+
+        DKEncoding encoding = DKEncode( encodingType, count );
+
+        DKEggAddNumberData( egg, DKSTR( "data" ), encoding, &_self->byteArray.bytes );
+    }
+
+    else
+    {
+        DKIndex length = _self->byteArray.length;
+        
+        if( length > 0 )
+            DKEggAddBinaryData( egg, DKSTR( "data" ), _self->byteArray.bytes, length );
+    }
 }
 
 
@@ -516,6 +550,26 @@ void DKDataIncreaseLength( DKMutableDataRef _self, DKIndex length )
 
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
         DKByteArrayReplaceBytes( &_self->byteArray, range, NULL, length );
+    }
+}
+
+
+DKEncodingType DKDataGetEncodingType( DKDataRef _self )
+{
+    if( _self )
+    {
+        return DKGetObjectTag( _self );
+    }
+    
+    return 0;
+}
+
+
+void DKDataSetEncodingType( DKDataRef _self, DKEncodingType type )
+{
+    if( _self )
+    {
+        DKSetObjectTag( _self, type );
     }
 }
 
