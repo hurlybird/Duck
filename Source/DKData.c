@@ -305,7 +305,7 @@ DKMutableDataRef DKDataInitWithCapacity( DKMutableDataRef _self, DKIndex capacit
     if( _self )
     {
         DKAssertKindOfClass( _self, DKMutableDataClass() );
-        DKByteArrayReserve( (DKByteArray *)&_self->byteArray, capacity );
+        DKByteArrayReserve( &_self->byteArray, capacity );
     }
     
     return _self;
@@ -321,13 +321,18 @@ static DKObjectRef DKDataInitWithEgg( DKDataRef _self, DKEggUnarchiverRef egg )
 
     if( DKEncodingIsNumber( encoding ) )
     {
-        _self = DKInit( _self );
+        _self = DKDataInitialize( _self );
 
-        DKSetObjectTag( _self, DKEncodingGetType( encoding ) );
-        size_t length = DKEncodingGetSize( encoding );
+        if( _self )
+        {
+            DKEncodingType encodingType = DKEncodingGetType( encoding );
+            DKSetObjectTag( _self, encodingType );
+            
+            size_t length = DKEncodingGetSize( encoding );
 
-        DKByteArraySetLength( (DKByteArray *)&_self->byteArray, length );
-        DKEggGetNumberData( egg, DKSTR( "data" ), &_self->byteArray.bytes );
+            DKByteArraySetLength( &_self->byteArray, length );
+            DKEggGetNumberData( egg, DKSTR( "data" ), DKByteArrayGetBytePtr( &_self->byteArray, 0 ) );
+        }
         
         return _self;
     }
@@ -357,7 +362,7 @@ static void DKDataAddToEgg( DKDataRef _self, DKEggArchiverRef egg )
 
         DKEncoding encoding = DKEncode( encodingType, count );
 
-        DKEggAddNumberData( egg, DKSTR( "data" ), encoding, &_self->byteArray.bytes );
+        DKEggAddNumberData( egg, DKSTR( "data" ), encoding, DKByteArrayGetBytePtr( &_self->byteArray, 0 ) );
     }
 
     else
