@@ -338,7 +338,7 @@ void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class )
         
         for( size_t i = 0; i < dstInterface->methodCount; i++ )
         {
-            if( (dstMethods == NULL) || (dstMethods[i] == DKUninitializedMethodError) )
+            if( (dstMethods[i] == NULL) || (dstMethods[i] == DKUninitializedMethodError) )
                 dstMethods[i] = srcMethods[i];
         }
     }
