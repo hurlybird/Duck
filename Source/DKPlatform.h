@@ -196,8 +196,21 @@ void DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr
 void DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 
+// Set a prefix for warnings, errors and fatal errors
+void DKSetWarningPrefix( const char * prefix );
+void DKSetErrorPrefix( const char * prefix );
+void DKSetFatalErrorPrefix( const char * prefix );
 
-// print a message. Object descriptions can be printed using the
+// Set whether to abort on errors (default yes for debug builds, no for release builds)
+void DKSetAbortOnErrors( bool flag );
+
+#ifdef DEBUG
+#define DK_DEFAULT_ABORT_ON_ERRORS  true
+#else
+#define DK_DEFAULT_ABORT_ON_ERRORS  false
+#endif
+
+// Print a message. Object descriptions can be printed using the
 // Foundation/CoreFoundation idiom "%@".
 int    _DKPrintf( const char * format, ... );
 

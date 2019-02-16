@@ -37,6 +37,12 @@ static int (*WarningCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*ErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*FatalErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
 
+static const char * WarningPrefix = "WARNING: ";
+static const char * ErrorPrefix = "ERROR: ";
+static const char * FatalErrorPrefix = "FATAL ERROR: ";
+
+static bool AbortOnErrors = DK_DEFAULT_ABORT_ON_ERRORS;
+
 void DKSetPrintfCallback( int (*callback)( const char * format, va_list arg_ptr ) )
 {
     PrintfCallback = callback;
@@ -55,6 +61,26 @@ void DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr )
 void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) )
 {
     FatalErrorCallback = callback;
+}
+
+void DKSetWarningPrefix( const char * prefix )
+{
+    WarningPrefix = prefix;
+}
+
+void DKSetErrorPrefix( const char * prefix )
+{
+    ErrorPrefix = prefix;
+}
+
+void DKSetFatalErrorPrefix( const char * prefix )
+{
+    FatalErrorPrefix = prefix;
+}
+
+void DKSetAbortOnErrors( bool flag )
+{
+    AbortOnErrors = flag;
 }
 
 
@@ -114,7 +140,7 @@ void _DKWarning( const char * format, ... )
 
     va_end( arg_ptr );
     
-    _DKPrintfInternal( WarningCallback, stdout, "%s", DKStringGetCStringPtr( tmp ) );
+    _DKPrintfInternal( WarningCallback, stdout, "%s%s", WarningPrefix, DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
 }
@@ -133,11 +159,15 @@ void _DKError( const char * format, ... )
 
     va_end( arg_ptr );
     
-    _DKPrintfInternal( ErrorCallback, stderr, "%s", DKStringGetCStringPtr( tmp ) );
+    _DKPrintfInternal( ErrorCallback, stderr, "%s%s", ErrorPrefix, DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
 
-    assert( 0 );
+    if( AbortOnErrors )
+    {
+        assert( 0 );
+        abort();
+    }
 }
 
 
@@ -154,7 +184,7 @@ void _DKFatalError( const char * format, ... )
 
     va_end( arg_ptr );
     
-    _DKPrintfInternal( FatalErrorCallback, stderr, "%s", DKStringGetCStringPtr( tmp ) );
+    _DKPrintfInternal( FatalErrorCallback, stderr, "%s%s", FatalErrorPrefix, DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
 
