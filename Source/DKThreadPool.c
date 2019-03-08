@@ -29,6 +29,7 @@
 #include "DKString.h"
 #include "DKMutex.h"
 #include "DKCondition.h"
+#include "DKSemaphore.h"
 #include "DKCopying.h"
 
 
@@ -61,13 +62,14 @@ struct DKThreadPool
     DKMutexRef queueMutex;
     DKConditionRef queueCondition;
     
+    DKSemaphoreRef stopCounter;
+    
     DKThreadPoolCallback onThreadStart;
     DKThreadPoolCallback onThreadStop;
     void * onThreadStartStopContext;
     
     volatile int32_t pendingTasks;
     volatile int32_t idleThreads;
-    volatile int32_t stoppedThreads;
 };
 
 
@@ -101,6 +103,8 @@ static DKObjectRef DKThreadPoolInit( DKObjectRef _untyped_self )
         
         _self->queueMutex = DKNewMutex();
         _self->queueCondition = DKNewCondition();
+        
+        _self->stopCounter = DKNewSemaphore();
     }
     
     return _self;
@@ -122,6 +126,7 @@ static void DKThreadPoolFinalize( DKObjectRef _untyped_self )
     DKRelease( _self->controlCondition );
     DKRelease( _self->queueMutex );
     DKRelease( _self->queueCondition );
+    DKRelease( _self->stopCounter );
     DKRelease( _self->label );
 
     DKNodePoolFinalize( &_self->nodePool );
@@ -293,7 +298,7 @@ static void DKThreadPoolExec( void * _untyped_self )
         _self->onThreadStop( _self, _self->onThreadStartStopContext );
     }
     
-    DKAtomicIncrement32( &_self->stoppedThreads );
+    DKSemaphoreDecrement( _self->stopCounter, 1 );
 }
 
 
@@ -349,23 +354,17 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
         DKMutexLock( _self->controlMutex );
 
         // Note: pthread_join doesn't seem to be reliable enough to properly wait for
-        // cancelled threads to finish, therefore this uses a stopped threads counter
-        // as a pseudo-semaphore instead.
-
-        // A mutex/condition would be more efficient if we have to wait for a long-running
-        // task to end, but DKThreadPoolWaitUntilIdle() is really the proper thing to use
-        // in that situation.
+        // cancelled threads to finish, therefore this uses a semaphore to instead.
         
         // We DON'T want to use the control condition/mutex to watch the cancelled threads
         // because that would allow someone else to start new threads while we're trying
         // to stop the old ones.
 
         // Reset the stopped threads counter
-        _self->stoppedThreads = 0;
+        DKIndex threadCount = DKListGetCount( _self->threads );
+        DKSemaphoreIncrement( _self->stopCounter, (uint32_t)threadCount );
 
         // Issue the cancel command
-        DKIndex threadCount = DKListGetCount( _self->threads );
-
         for( DKIndex i = 0; i < threadCount; i++ )
         {
             DKThreadRef thread = DKListGetObjectAtIndex( _self->threads, i );
@@ -376,8 +375,7 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
         DKConditionSignalAll( _self->queueCondition );
 
         // Wait for the threads to finish
-        while( !DKAtomicCmpAndSwap32( &_self->stoppedThreads, (int32_t)threadCount, 0 ) )
-            ;
+        DKSemaphoreWait( _self->stopCounter, 0 );
 
         // Release the thread objects
         DKListRemoveAllObjects( _self->threads );

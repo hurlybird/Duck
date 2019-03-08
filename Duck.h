@@ -56,6 +56,7 @@ extern "C"
 #include "DKMutex.h"
 #include "DKCondition.h"
 #include "DKReadWriteLock.h"
+#include "DKSemaphore.h"
 
 #include "DKAllocation.h"
 #include "DKBuffer.h"
