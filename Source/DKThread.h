@@ -63,6 +63,8 @@ void DKDetachNewThreadToTarget( DKObjectRef target, DKThreadMethod method, DKObj
 DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc proc, void * context );
 DKObjectRef DKThreadInitWithTarget( DKObjectRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
 
+void DKThreadSetLabel( DKThreadRef _self, DKStringRef label );
+
 void DKThreadStart( DKThreadRef _self );
 void DKThreadJoin( DKThreadRef _self );
 void DKThreadCancel( DKThreadRef _self );

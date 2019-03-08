@@ -45,9 +45,13 @@ void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
     DKThreadPoolCallback onThreadStop,
     void * context );
 
+void DKThreadPoolSetLabel( DKThreadPoolRef _self, DKStringRef label );
+
 int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
 void DKThreadPoolStop( DKThreadPoolRef _self );
+
 int DKThreadPoolIsBusy( DKThreadPoolRef _self );
+void DKThreadPoolWaitUntilIdle( DKThreadPoolRef _self );
 
 void DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context );
 void DKThreadPoolAddObjectTask( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );

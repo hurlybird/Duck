@@ -28,6 +28,7 @@
 
 #include "DKThread.h"
 #include "DKString.h"
+#include "DKCopying.h"
 
 
 
@@ -188,7 +189,9 @@ struct DKThread
     pthread_t threadId;
     DKThreadState state;
     DKSpinLock lock;
-    
+
+    DKStringRef label;
+
     DKThreadProc proc;
     void * context;
     
@@ -241,6 +244,18 @@ static void DKThreadFinalize( DKObjectRef _untyped_self )
     DKRelease( _self->target );
     DKRelease( _self->param );
     DKRelease( _self->dictionary );
+    DKRelease( _self->label );
+}
+
+
+///
+//  DKThreadSetLabel()
+//
+void DKThreadSetLabel( DKThreadRef _self, DKStringRef label )
+{
+    label = DKCopy( label );
+    DKRelease( _self->label );
+    _self->label = label;
 }
 
 
@@ -425,6 +440,7 @@ void DKThreadJoin( DKThreadRef _self )
         else
         {
             DKSpinLockUnlock( &_self->lock );
+            
             pthread_join( _self->threadId, NULL );
         }
     }
@@ -442,7 +458,7 @@ void DKThreadCancel( DKThreadRef _self )
         
         if( _self->state < DKThreadStarted )
         {
-            DKError( "DKThreadJoin: Trying to cancel a thread that was never started." );
+            DKError( "DKThreadCancel: Trying to cancel a thread that was never started." );
         }
         
         else
