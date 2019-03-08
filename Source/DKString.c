@@ -1585,7 +1585,8 @@ DKStringRef DKStringByAppendingPathComponent( DKStringRef _self, DKStringRef pat
     {
         DKMutableStringRef copy = DKStringMutableCopy( _self );
         DKStringAppendPathComponent( copy, pathComponent );
-        return DKStringMakeImmutable( copy );
+        DKStringMakeImmutable( copy );
+        return DKAutorelease( copy );
     }
     
     return NULL;
@@ -1601,7 +1602,8 @@ DKStringRef DKStringByAppendingPathExtension( DKStringRef _self, DKStringRef ext
     {
         DKMutableStringRef copy = DKStringMutableCopy( _self );
         DKStringAppendPathExtension( copy, extension );
-        return DKStringMakeImmutable( copy );
+        DKStringMakeImmutable( copy );
+        return DKAutorelease( copy );
     }
     
     return NULL;
@@ -1617,7 +1619,8 @@ DKStringRef DKStringByDeletingLastPathComponent( DKStringRef _self )
     {
         DKMutableStringRef copy = DKStringMutableCopy( _self );
         DKStringDeleteLastPathComponent( copy );
-        return DKStringMakeImmutable( copy );
+        DKStringMakeImmutable( copy );
+        return DKAutorelease( copy );
     }
     
     return NULL;
@@ -1633,7 +1636,8 @@ DKStringRef DKStringByDeletingPathExtension( DKStringRef _self )
     {
         DKMutableStringRef copy = DKStringMutableCopy( _self );
         DKStringDeletePathExtension( copy );
-        return DKStringMakeImmutable( copy );
+        DKStringMakeImmutable( copy );
+        return DKAutorelease( copy );
     }
     
     return NULL;
