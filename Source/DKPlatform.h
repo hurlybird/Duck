@@ -107,7 +107,15 @@ enum
 };
 
 
-// UTF32 character - char32_t support is flaky
+// UTF-8 character - a single UTF-8 code point + '\0'
+// Valid UTF-8 code points should be <= 4 bytes (and always <= 6 bytes)
+typedef struct
+{
+    char s[8];
+    
+} DKChar8;
+
+// UTF-32 character - char32_t support is flaky
 typedef int32_t DKChar32;
 
 
@@ -156,6 +164,19 @@ typedef enum
     DKInsertIfNotFound
     
 } DKInsertPolicy;
+
+
+// Filter Actions
+typedef enum
+{
+    DKFilterSkip =  0,
+    DKFilterKeep =  0x1,
+    DKFilterStop =  0x2,
+
+    DKFilterKeepAndStop = (DKFilterKeep | DKFilterStop),
+    DKFilterSkipAndStop = (DKFilterSkip | DKFilterStop)
+
+} DKFilterAction;
 
 
 // Byte Order

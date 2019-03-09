@@ -108,6 +108,10 @@ DKStringRef DKStringCombine( DKListRef list, DKStringRef separator );
 // Trimming
 DKStringRef DKStringByTrimmingWhitespace( DKStringRef _self );
 
+// Filtering
+typedef DKFilterAction (*ZLStringFilterFunction)( DKIndex sourceIndex, DKIndex destinationIndex, DKChar8 utf8, DKChar32 utf32, void * context );
+DKStringRef DKStringByFilteringString( DKStringRef _self, ZLStringFilterFunction filter, void * context );
+
 // Modifying mutable strings
 void        DKStringSetString( DKMutableStringRef _self, DKStringRef str );
 void        DKStringSetCString( DKMutableStringRef _self, const char * cstr );

@@ -1189,6 +1189,63 @@ DKStringRef DKStringByTrimmingWhitespace( DKStringRef _self )
 
 
 ///
+//  DKStringByFilteringString()
+//
+DKStringRef DKStringByFilteringString( DKStringRef _self, ZLStringFilterFunction filter, void * context )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        
+        DKMutableStringRef filteredString = DKMutableString();
+
+        const char * str = (const char *)_self->byteArray.bytes;
+        DKIndex rdx = 0;
+        DKIndex wrx = 0;
+
+        while( *str )
+        {
+            // Get the next character
+            DKChar32 utf32;
+            size_t bytes = dk_ustrscan( str, &utf32 );
+            
+            // Copy the code point
+            DKChar8 utf8;
+            DKAssert( bytes < sizeof(DKChar8) );
+            
+            for( size_t i = 0; i < bytes; i++ )
+                utf8.s[i] = str[i];
+            
+            utf8.s[bytes] = '\0';
+            
+            // Filter the character
+            DKFilterAction action = filter( rdx, wrx, utf8, utf32, context );
+            
+            if( action & DKFilterKeep )
+            {
+                DKByteArrayAppendBytes( &filteredString->byteArray, (void *)utf8.s, bytes );
+                wrx++;
+            }
+            
+            if( action & DKFilterStop )
+            {
+                break;
+            }
+
+            // Move the cursor
+            str += bytes;
+            rdx += 1;
+        }
+        
+        DKStringMakeImmutable( filteredString );
+        return filteredString;
+    }
+
+    return _self;
+}
+
+
+///
 //  DKStringSetString()
 //
 void DKStringSetString( DKMutableStringRef _self, DKStringRef str )
