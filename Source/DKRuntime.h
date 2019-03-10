@@ -308,6 +308,9 @@ struct DKClass
 };
 
 
+void DKRuntimeInitSymbols( void );
+
+
 
 #endif // DK_RUNTIME_PRIVATE
 

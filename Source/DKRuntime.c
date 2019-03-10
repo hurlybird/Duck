@@ -416,6 +416,9 @@ void DKRuntimeInit( int options )
         
         // Initialize the object metadata table
         DKMetadataTableInit();
+        
+        // Init class/selector symbols
+        DKRuntimeInitSymbols();
     }
 }
 

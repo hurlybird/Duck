@@ -943,7 +943,7 @@ DKObjectRef DKEggArchiverInitWithObject( DKObjectRef _untyped_self, DKObjectRef 
 
             struct ArchivedObject rootObject;
             rootObject.object = NULL;
-            rootObject.className = (uint32_t)AddSymbol( _self, DKSTR( "DKDictionary" ) );
+            rootObject.className = (uint32_t)AddSymbol( _self, DKSTR( "DKHashTable" ) );
             DKGenericArrayInit( &rootObject.attributes, sizeof(DKEggAttribute) );
             
             DKGenericArrayAppendElements( &_self->archivedObjects, &rootObject, 1 );
