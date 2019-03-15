@@ -875,6 +875,48 @@ const char * DKStringGetCStringPtr( DKStringRef _self )
 
 
 ///
+//  DKStringGetCharacterAtIndex()
+//
+DKChar32 DKStringGetCharacterAtIndex( DKStringRef _self, DKIndex index, DKChar8 * utf8 )
+{
+    if( _self )
+    {
+        const char * str = (const char *)_self->byteArray.bytes;
+
+        for( DKIndex i = 0; *str; i++ )
+        {
+            // Get the next character
+            DKChar32 utf32;
+            size_t bytes = dk_ustrscan( str, &utf32 );
+            
+            if( i == index )
+            {
+                // Copy the code point
+                if( utf8 )
+                {
+                    DKAssert( bytes < sizeof(DKChar8) );
+                    
+                    for( size_t i = 0; i < bytes; i++ )
+                        utf8->s[i] = str[i];
+                    
+                    utf8->s[bytes] = '\0';
+                }
+                
+                return utf32;
+            }
+            
+            str += bytes;
+        }
+    }
+    
+    if( utf8 )
+        utf8->s[0] = '\0';
+
+    return '\0';
+}
+
+
+///
 //  DKStringGetBytePtr()
 //
 const void * DKStringGetBytePtr( DKStringRef _self, DKIndex index )

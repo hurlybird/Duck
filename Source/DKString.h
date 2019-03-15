@@ -86,6 +86,7 @@ DKIndex     DKStringGetByteLength( DKStringRef _self );
 void        DKStringSetByteLength( DKMutableStringRef _self, DKIndex length );
 
 const char * DKStringGetCStringPtr( DKStringRef _self );
+DKChar32    DKStringGetCharacterAtIndex( DKStringRef _self, DKIndex index, DKChar8 * utf8 );
 
 const void * DKStringGetBytePtr( DKStringRef _self, DKIndex index );
 void *      DKStringGetMutableBytePtr( DKStringRef _self, DKIndex index );
