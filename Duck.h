@@ -67,6 +67,7 @@ extern "C"
 #include "DKStream.h"
 #include "DKConversion.h"
 
+#include "DKBitList.h"
 #include "DKBoolean.h"
 #include "DKData.h"
 #include "DKNumber.h"

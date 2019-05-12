@@ -209,6 +209,10 @@
 		028F1B631B0E6C0F006FDFDF /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
 		028F1B651B0E6F89006FDFDF /* TestDKJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 028F1B641B0E6F89006FDFDF /* TestDKJSON.m */; };
 		02A33EAB1EEB8E6D005BC38D /* TestDKShell.m in Sources */ = {isa = PBXBuildFile; fileRef = 02A33EAA1EEB8E6D005BC38D /* TestDKShell.m */; };
+		02B15F962288B8F300ACF163 /* DKBitList.h in Headers */ = {isa = PBXBuildFile; fileRef = 02B15F942288B8F300ACF163 /* DKBitList.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		02B15F972288B8F300ACF163 /* DKBitList.h in Headers */ = {isa = PBXBuildFile; fileRef = 02B15F942288B8F300ACF163 /* DKBitList.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		02B15F982288B8F300ACF163 /* DKBitList.c in Sources */ = {isa = PBXBuildFile; fileRef = 02B15F952288B8F300ACF163 /* DKBitList.c */; };
+		02B15F992288B8F300ACF163 /* DKBitList.c in Sources */ = {isa = PBXBuildFile; fileRef = 02B15F952288B8F300ACF163 /* DKBitList.c */; };
 		02C3078C1C304F8A0077DC56 /* DKMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C3078A1C304F8A0077DC56 /* DKMutex.c */; };
 		02C3078D1C304F8A0077DC56 /* DKMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 02C3078A1C304F8A0077DC56 /* DKMutex.c */; };
 		02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C3078B1C304F8A0077DC56 /* DKMutex.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -363,6 +367,8 @@
 		02A33EAA1EEB8E6D005BC38D /* TestDKShell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKShell.m; sourceTree = "<group>"; };
 		02A54D271B08C4D600D00EEE /* dictionary.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 0; path = dictionary.txt; sourceTree = "<group>"; };
 		02AFC05D18F172A0006B70B9 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		02B15F942288B8F300ACF163 /* DKBitList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBitList.h; sourceTree = "<group>"; };
+		02B15F952288B8F300ACF163 /* DKBitList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKBitList.c; sourceTree = "<group>"; };
 		02BD1E141946C5CC00F35A5B /* DKGenericHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGenericHashTable.c; sourceTree = "<group>"; };
 		02C3078A1C304F8A0077DC56 /* DKMutex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKMutex.c; sourceTree = "<group>"; };
 		02C3078B1C304F8A0077DC56 /* DKMutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKMutex.h; sourceTree = "<group>"; };
@@ -559,6 +565,8 @@
 		0269BF4D19D857CC002E876C /* Data Types */ = {
 			isa = PBXGroup;
 			children = (
+				02B15F942288B8F300ACF163 /* DKBitList.h */,
+				02B15F952288B8F300ACF163 /* DKBitList.c */,
 				020482A91AC6972B00936FA1 /* DKBoolean.h */,
 				020482A81AC6972B00936FA1 /* DKBoolean.c */,
 				0269BF1A19D85669002E876C /* DKData.h */,
@@ -785,6 +793,7 @@
 				02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */,
 				02E535422232FCC10050BD21 /* DKSemaphore.h in Headers */,
 				028F1AC71B0DCBBB006FDFDF /* DKUnicode.h in Headers */,
+				02B15F962288B8F300ACF163 /* DKBitList.h in Headers */,
 				02393EBD1C3EFE15009E8731 /* DKXML.h in Headers */,
 				026FBD1A1C309B5F00C96822 /* DKThreadPool.h in Headers */,
 				025D78031C245CB7005C56A4 /* DKConversion.h in Headers */,
@@ -844,6 +853,7 @@
 				02C3078F1C304F8A0077DC56 /* DKMutex.h in Headers */,
 				02E535432232FCC10050BD21 /* DKSemaphore.h in Headers */,
 				028F1B611B0E6BFC006FDFDF /* DKThread.h in Headers */,
+				02B15F972288B8F300ACF163 /* DKBitList.h in Headers */,
 				021283231C244F9A00B7C3A7 /* DKConversion.h in Headers */,
 				028F1B621B0E6BFC006FDFDF /* DKUnicode.h in Headers */,
 				02393EC31C3F1999009E8731 /* DKXML.h in Headers */,
@@ -934,6 +944,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 024EE3D7148E0B21008FDADC;
@@ -1011,6 +1022,7 @@
 				028F1AE01B0DCC05006FDFDF /* DKStruct.c in Sources */,
 				028F1AE11B0DCC05006FDFDF /* DKByteArray.c in Sources */,
 				028F1AE21B0DCC05006FDFDF /* DKGenericArray.c in Sources */,
+				02B15F982288B8F300ACF163 /* DKBitList.c in Sources */,
 				028F1AE31B0DCC05006FDFDF /* DKGenericHashTable.c in Sources */,
 				02C3078C1C304F8A0077DC56 /* DKMutex.c in Sources */,
 				028F1AE41B0DCC05006FDFDF /* DKNodePool.c in Sources */,
@@ -1091,6 +1103,7 @@
 				028F1B311B0E6BC9006FDFDF /* DKStruct.c in Sources */,
 				028F1B321B0E6BC9006FDFDF /* DKByteArray.c in Sources */,
 				028F1B331B0E6BC9006FDFDF /* DKGenericArray.c in Sources */,
+				02B15F992288B8F300ACF163 /* DKBitList.c in Sources */,
 				028F1B341B0E6BC9006FDFDF /* DKGenericHashTable.c in Sources */,
 				02C3078D1C304F8A0077DC56 /* DKMutex.c in Sources */,
 				028F1B351B0E6BC9006FDFDF /* DKNodePool.c in Sources */,
