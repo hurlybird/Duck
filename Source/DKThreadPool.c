@@ -386,6 +386,18 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
 
 
 ///
+//  DKThreadPoolGetThreadCount()
+//
+int DKThreadPoolGetThreadCount( DKThreadPoolRef _self )
+{
+    if( _self )
+        return (int)DKListGetCount( _self->threads );
+    
+    return 0;
+}
+
+
+///
 //  DKThreadPoolIsBusy()
 //
 int DKThreadPoolIsBusy( DKThreadPoolRef _self )

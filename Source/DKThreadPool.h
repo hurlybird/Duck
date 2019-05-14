@@ -50,6 +50,8 @@ void DKThreadPoolSetLabel( DKThreadPoolRef _self, DKStringRef label );
 int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
 void DKThreadPoolStop( DKThreadPoolRef _self );
 
+int DKThreadPoolGetThreadCount( DKThreadPoolRef _self );
+
 int DKThreadPoolIsBusy( DKThreadPoolRef _self );
 void DKThreadPoolWaitUntilIdle( DKThreadPoolRef _self );
 
