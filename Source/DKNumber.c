@@ -320,6 +320,11 @@ static struct DKNumber DKPlaceholderNumber =
     DKInitStaticObjectHeader( NULL ),
 };
 
+static struct DKNumber DKPlaceholderVariableNumber =
+{
+    DKInitStaticObjectHeader( NULL ),
+};
+
 
 static void *       DKNumberAllocPlaceholder( DKClassRef _class, size_t extraBytes );
 static void         DKNumberDealloc( DKNumberRef _self );
@@ -388,6 +393,20 @@ DKThreadSafeClassInit( DKNumberClass )
 
 
 ///
+//  DKVariableNumberClass()
+//
+DKThreadSafeClassInit( DKVariableNumberClass )
+{
+    // NOTE: The value field of DKNumber is dynamically sized, and not included in the
+    // base instance structure size.
+    DKAssert( sizeof(struct DKNumber) == (sizeof(DKObject) + sizeof(DKNumberValue)) );
+    DKClassRef cls = DKNewClass( DKSTR( "DKVariableNumber" ), DKNumberClass(), sizeof(DKObject), 0, NULL, NULL );
+    
+    return cls;
+}
+
+
+///
 //  DKNumberAllocPlaceholder()
 //
 static void * DKNumberAllocPlaceholder( DKClassRef _class, size_t extraBytes )
@@ -397,7 +416,13 @@ static void * DKNumberAllocPlaceholder( DKClassRef _class, size_t extraBytes )
         DKPlaceholderNumber._obj.isa = DKNumberClass_SharedObject;
         return &DKPlaceholderNumber;
     }
-    
+
+    if( _class == DKVariableNumberClass_SharedObject )
+    {
+        DKPlaceholderVariableNumber._obj.isa = DKVariableNumberClass_SharedObject;
+        return &DKPlaceholderVariableNumber;
+    }
+
     DKAssert( 0 );
     return NULL;
 }
@@ -408,7 +433,7 @@ static void * DKNumberAllocPlaceholder( DKClassRef _class, size_t extraBytes )
 //
 static void DKNumberDealloc( DKNumberRef _self )
 {
-    if( _self == &DKPlaceholderNumber )
+    if( (_self == &DKPlaceholderNumber) || (_self == &DKPlaceholderVariableNumber) )
         return;
     
     DKDeallocObject( _self );
@@ -420,14 +445,14 @@ static void DKNumberDealloc( DKNumberRef _self )
 //
 DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding )
 {
-    if( _self == &DKPlaceholderNumber  )
+    if( (_self == &DKPlaceholderNumber) || (_self == &DKPlaceholderVariableNumber) )
     {
         DKAssert( value != NULL );
         DKAssert( DKEncodingIsNumber( encoding ) );
 
         size_t size = DKEncodingGetSize( encoding );
 
-        _self = DKAllocObject( DKNumberClass(), size );
+        _self = DKAllocObject( _self->_obj.isa, size );
         
         DKSetObjectTag( _self, encoding );
         memcpy( &_self->value, value, size );
@@ -447,7 +472,7 @@ DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding enco
 //
 DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEncodingType encodingType )
 {
-    if( _self == &DKPlaceholderNumber  )
+    if( (_self == &DKPlaceholderNumber) || (_self == &DKPlaceholderVariableNumber) )
     {
         DKCheckKindOfClass( number, DKNumberClass(), NULL );
         DKAssert( DKEncodingTypeIsNumber( encodingType ) );
@@ -457,7 +482,7 @@ DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEnc
 
         size_t size = DKEncodingGetSize( encoding );
         
-        _self = DKAllocObject( DKNumberClass(), size );
+        _self = DKAllocObject( _self->_obj.isa, size );
         
         DKSetObjectTag( _self, encoding );
 
@@ -481,14 +506,14 @@ DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEnc
 //
 static DKObjectRef DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef egg )
 {
-    if( _self == &DKPlaceholderNumber  )
+    if( (_self == &DKPlaceholderNumber) || (_self == &DKPlaceholderVariableNumber) )
     {
         DKEncoding encoding = DKEggGetEncoding( egg, DKSTR( "value" ) );
         DKAssert( DKEncodingIsNumber( encoding ) );
 
         size_t size = DKEncodingGetSize( encoding );
 
-        _self = DKAllocObject( DKNumberClass(), size );
+        _self = DKAllocObject( _self->_obj.isa, size );
         
         DKSetObjectTag( _self, encoding );
         
@@ -619,6 +644,24 @@ size_t DKNumberGetValue( DKNumberRef _self, void * value )
 
 
 ///
+//  DKNumberGetValue()
+//
+size_t DKNumberSetValue( DKNumberRef _self, const void * srcValue, DKEncoding srcEncoding )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKVariableNumberClass() );
+        
+        DKEncoding dstEncoding = DKGetObjectTag( _self );
+
+        return DKNumberConvert( srcValue, srcEncoding, &_self->value, dstEncoding );
+    }
+
+    return 0;
+}
+
+
+///
 //  DKNumberCastValue()
 //
 size_t DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding )
@@ -639,16 +682,20 @@ size_t DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding )
 //
 const void * DKNumberGetValuePtr( DKNumberRef _self )
 {
-    static int64_t zero = 0;
+    DKAssertKindOfClass( _self, DKNumberClass() );
     
-    if( _self )
-    {
-        DKAssertKindOfClass( _self, DKNumberClass() );
-        
-        return &_self->value;
-    }
+    return &_self->value;
+}
+
+
+///
+//  DKNumberGetVariableValuePtr()
+//
+void * DKNumberGetVariableValuePtr( DKNumberRef _self )
+{
+    DKAssertKindOfClass( _self, DKVariableNumberClass() );
     
-    return &zero;
+    return &_self->value;
 }
 
 

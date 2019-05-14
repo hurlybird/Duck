@@ -51,12 +51,17 @@
 // typedef struct DKNumber * DKNumberRef; -- Declared in DKPlatform.h
 
 DKClassRef  DKNumberClass( void );
+DKClassRef  DKVariableNumberClass( void );
 
-#define     DKNumber( value, encoding )         DKAutorelease( DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding ) )
-#define     DKNewNumber( value, encoding )      DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding )
+#define     DKNumber( value, encoding )                     DKAutorelease( DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding ) )
+#define     DKNewNumber( value, encoding )                  DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding )
 
 #define     DKNumberWithNumber( number, encodingType )      DKAutorelease( DKNumberInitWithNumber( DKAlloc( DKNumberClass() ), number, encodingType ) )
 #define     DKNewNumberWithNumber( number, encodingType )   DKNumberInitWithNumber( DKAlloc( DKNumberClass() ), number, encodingType )
+
+#define     DKVariableNumber( value, encoding )             DKAutorelease( DKNumberInit( DKAlloc( DKVariableNumberClass() ), value, encoding ) )
+#define     DKNewVariableNumber( value, encoding )          DKNumberInit( DKAlloc( DKVariableNumberClass() ), value, encoding )
+
 
 DKNumberRef DKNewNumberWithInt32( int32_t x );
 DKNumberRef DKNewNumberWithInt64( int64_t x );
@@ -82,8 +87,12 @@ DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEnc
 DKEncoding  DKNumberGetEncoding( DKNumberRef _self );
 
 size_t      DKNumberGetValue( DKNumberRef _self, void * value );
-size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding );
+size_t      DKNumberSetValue( DKNumberRef _self, const void * value, DKEncoding encoding ); // Variable numbers only
+
 const void* DKNumberGetValuePtr( DKNumberRef _self );
+void *      DKNumberGetVariableValuePtr( DKNumberRef _self ); // Variable numbers only
+
+size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding );
 const void* DKNumberGetBytePtr( DKNumberRef _self, DKEncoding * encoding );
 
 #define     DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
