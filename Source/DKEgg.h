@@ -100,7 +100,7 @@ DKClassRef DKEggArchiverClass( void );
 DKObjectRef DKEggArchiverInitWithObject( DKObjectRef _self, DKObjectRef object );
 
 void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKObjectRef stream );
-DKDataRef DKEggArchiverCopyData( DKEggArchiverRef _self );
+DKDataRef DKEggArchiverGetArchivedData( DKEggArchiverRef _self );
 
 void DKEggAddObject( DKEggArchiverRef _self, DKStringRef key, DKObjectRef object );
 void DKEggAddCollection( DKEggArchiverRef _self, DKStringRef key, DKObjectRef collection );

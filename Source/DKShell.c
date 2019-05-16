@@ -173,11 +173,11 @@ static DKObjectRef EncodeEgg( DKObjectRef object, DKObjectRef context )
 {
     DKEggArchiverRef archiver = DKNewEggArchiverWithObject( object );
     
-    DKDataRef data = DKEggArchiverCopyData( archiver );
+    DKDataRef data = DKEggArchiverGetArchivedData( archiver );
     
     DKRelease( archiver );
     
-    return DKAutorelease( data );
+    return data;
 }
 
 

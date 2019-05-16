@@ -466,6 +466,7 @@
 				028F1B011B0E6B6C006FDFDF /* Duck-iOS */,
 				028F1A971B0DCA86006FDFDF /* Duck-Tests */,
 				02D00FB518E6258C00FC3054 /* Frameworks */,
+				024EE3E3148E0B21008FDADC /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -477,7 +478,6 @@
 				028F1B001B0E6B6C006FDFDF /* Duck.framework */,
 			);
 			name = Products;
-			path = ..;
 			sourceTree = "<group>";
 		};
 		025C0F4718EFED96000344C0 /* Source */ = {
@@ -610,7 +610,6 @@
 				0269BF1E19D85669002E876C /* DKFile.h */,
 				025C0F4E18EFED96000344C0 /* DKFile.c */,
 				02A25AFC1AC3D1B600D97B11 /* DKJSON.h */,
-				024EE3E3148E0B21008FDADC /* Products */,
 				02A25AFB1AC3D1B600D97B11 /* DKJSON.c */,
 				0269BF2719D85669002E876C /* DKPredicate.h */,
 				028F5CE619CF59B900CF4D47 /* DKPredicate.c */,

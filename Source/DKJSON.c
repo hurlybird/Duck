@@ -614,9 +614,9 @@ static Token ScanStringToken( Token token, ParseContext * context, DKObjectRef *
 
 
 ///
-//  ScanVectorToken()
+//  ScanVectorToken64()
 //
-static Token ScanVectorToken( Token token, ParseContext * context, DKObjectRef * obj )
+static Token ScanVectorToken64( Token token, ParseContext * context, DKObjectRef * obj )
 {
     DKChar32 ch;
     size_t n = dk_ustrscan( token.str + token.length, &ch );
@@ -647,7 +647,7 @@ static Token ScanVectorToken( Token token, ParseContext * context, DKObjectRef *
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }
                 
-                else if( ParseNumberType( numberToken ) == DKEncodingTypeDouble )
+                else if( DKEncodingTypeIsReal( ParseNumberType( numberToken ) ) )
                 {
                     // Convert previously read integers to doubles
                     if( numberType != DKEncodingTypeDouble )
@@ -658,12 +658,11 @@ static Token ScanVectorToken( Token token, ParseContext * context, DKObjectRef *
                         
                         if( len > 0 )
                         {
+                            int64_t * src = DKGenericArrayGetPointerToElementAtIndex( &buffer, 0 );
+                            double * dst = (double *)src;
+                            
                             for( size_t i = 0; i < len; ++i )
-                            {
-                                int64_t * src = DKGenericArrayGetPointerToElementAtIndex( &buffer, i );
-                                double * dst = DKGenericArrayGetPointerToElementAtIndex( &buffer, i );
                                 dst[i] = (double)src[i];
-                            }
                         }
                     }
                 
@@ -677,6 +676,115 @@ static Token ScanVectorToken( Token token, ParseContext * context, DKObjectRef *
                 {
                     int64_t x;
                     sscanf( numberToken.str, "%" PRId64, &x );
+                    
+                    DKGenericArrayAppendElements( &buffer, &x, 1 );
+                }
+            }
+            
+            else
+            {
+                break;
+            }
+            
+            numberToken = ScanToken( context, NULL );
+            ch = *numberToken.str;
+            
+            if( ch == ',' )
+            {
+                // Continue parsing
+            }
+            
+            else if( ch == ']' )
+            {
+                if( obj )
+                {
+                    void * value = DKGenericArrayGetPointerToElementAtIndex( &buffer, 0 );
+                    int count = (int)DKGenericArrayGetLength( &buffer );
+                    
+                    *obj = DKNewNumber( value, DKEncode( numberType, count ) );
+                }
+                
+                break;
+            }
+            
+            else
+            {
+                break;
+            }
+        }
+        
+        DKGenericArrayFinalize( &buffer );
+    }
+
+    token.length = context->cursor - token.str;
+    
+    return token;
+}
+
+
+///
+//  ScanVectorToken32()
+//
+static Token ScanVectorToken32( Token token, ParseContext * context, DKObjectRef * obj )
+{
+    DKChar32 ch;
+    size_t n = dk_ustrscan( token.str + token.length, &ch );
+    
+    if( ch == '[' )
+    {
+        token.length += n;
+        context->cursor = token.str + token.length;
+        
+        DKGenericArray buffer;
+        DKGenericArrayInit( &buffer, sizeof(int32_t) );
+        DKGenericArrayReserve( &buffer, 32 );
+        
+        DKEncodingType numberType = DKEncodingTypeInt32;
+        
+        while( true )
+        {
+            Token numberToken = ScanToken( context, NULL );
+            ch = *numberToken.str;
+
+            if( (ch == '-') || isdigit( ch ) )
+            {
+                if( numberType == DKEncodingTypeFloat )
+                {
+                    float x;
+                    sscanf( numberToken.str, "%f", &x );
+                    
+                    DKGenericArrayAppendElements( &buffer, &x, 1 );
+                }
+                
+                else if( DKEncodingTypeIsReal( ParseNumberType( numberToken ) ) )
+                {
+                    // Convert previously read integers to floats
+                    if( numberType != DKEncodingTypeFloat )
+                    {
+                        numberType = DKEncodingTypeFloat;
+                    
+                        size_t len = DKGenericArrayGetLength( &buffer );
+                        
+                        if( len > 0 )
+                        {
+                            int32_t * src = DKGenericArrayGetPointerToElementAtIndex( &buffer, 0 );
+                            float * dst = (float *)src;
+                            
+                            for( size_t i = 0; i < len; ++i )
+                                dst[i] = (float)src[i];
+                        }
+                    }
+                
+                    float x;
+                    sscanf( numberToken.str, "%f", &x );
+                    
+                    DKGenericArrayAppendElements( &buffer, &x, 1 );
+                }
+                
+                else
+                {
+                    int32_t x;
+                    sscanf( numberToken.str, "%d", &x );
                     
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }
@@ -763,7 +871,11 @@ static Token ScanToken( ParseContext * context, DKObjectRef * obj )
     // Scan to the end of a vector
     else if( (ch == '#') && (context->options & DKJSONVectorSyntaxExtension) )
     {
-        return ScanVectorToken( token, context, obj );
+        if( context->options & DKJSONVectorRead32BitTypes )
+            return ScanVectorToken32( token, context, obj );
+
+        else
+            return ScanVectorToken64( token, context, obj );
     }
     
     // Scan to the end of other tokens

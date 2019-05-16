@@ -1095,9 +1095,9 @@ void DKEggArchiverWriteToStream( DKEggArchiverRef _self, DKObjectRef stream )
 
 
 ///
-//  DKEggArchiverCopyData()
+//  DKEggArchiverGetArchivedData()
 //
-DKDataRef DKEggArchiverCopyData( DKEggArchiverRef _self )
+DKDataRef DKEggArchiverGetArchivedData( DKEggArchiverRef _self )
 {
     DKEggHeader header;
     BuildHeader( _self, &header );
@@ -1110,7 +1110,7 @@ DKDataRef DKEggArchiverCopyData( DKEggArchiverRef _self )
     WriteAttributeTable( _self, &header, data );
     WriteData( _self, &header, data );
     
-    return data;
+    return DKAutorelease( data );
 }
 
 

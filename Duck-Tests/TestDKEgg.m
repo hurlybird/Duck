@@ -87,7 +87,7 @@ typedef struct
         NULL );
 
     // Rootless archiver
-    DKEggArchiverRef archiver = DKNew( DKEggArchiverClass() );
+    DKEggArchiverRef archiver = DKEggArchiver();
     DKEggAddObject( archiver, DKSTR( "string" ), s1 );
     DKEggAddObject( archiver, DKSTR( "number" ), n1 );
     DKEggAddObject( archiver, DKSTR( "date" ), d1 );
@@ -98,8 +98,8 @@ typedef struct
     DKEggAddObject( archiver, DKSTR( "binary-tree" ), b1 );
     DKEggAddObject( archiver, DKSTR( "document" ), doc1 );
     
-    DKDataRef archivedData = DKEggArchiverCopyData( archiver );
-    DKEggUnarchiverRef unarchiver = DKNewEggUnarchiverWithData( archivedData );
+    DKDataRef archivedData = DKEggArchiverGetArchivedData( archiver );
+    DKEggUnarchiverRef unarchiver = DKEggUnarchiverWithData( archivedData );
 
     DKStringRef s2 = DKEggGetObject( unarchiver, DKSTR( "string" ) );
     XCTAssert( DKEqual( s1, s2 ) );
@@ -127,10 +127,6 @@ typedef struct
     
     DKDictionaryRef doc2 = DKEggGetObject( unarchiver, DKSTR( "document" ) );
     XCTAssert( DKEqual( doc1, doc2 ) );
-
-    DKRelease( archiver );
-    DKRelease( unarchiver );
-    DKRelease( archivedData );
     
     // Rooted archiver
     DKDictionaryRef root = DKDictionaryWithKeysAndObjects(
@@ -145,17 +141,51 @@ typedef struct
         DKSTR( "document" ), doc1,
         NULL );
     
-    archiver = DKNewEggArchiverWithObject( root );
-    archivedData = DKEggArchiverCopyData( archiver );
-    unarchiver = DKNewEggUnarchiverWithData( archivedData );
+    archiver = DKEggArchiverWithObject( root );
+    archivedData = DKEggArchiverGetArchivedData( archiver );
+    unarchiver = DKEggUnarchiverWithData( archivedData );
 
     DKDictionaryRef unarchivedRoot = DKEggGetRootObject( unarchiver );
     XCTAssert( DKEqual( root, unarchivedRoot ) );
-
-    DKRelease( archiver );
-    DKRelease( unarchiver );
-    DKRelease( archivedData );
-    
 }
+
+
+//- (void) testEggReadPerformance
+//{
+//    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
+//    DKStringRef path = DKStringWithCString( [_path UTF8String] );
+//    DKStringRef json = DKStringWithContentsOfFile( path );
+//    DKObjectRef document = DKJSONParse( json, 0 );
+//
+//    DKEggArchiverRef archiver = DKEggArchiverWithObject( document );
+//    DKDataRef archivedData = DKEggArchiverGetArchivedData( archiver );
+//
+//    [self measureBlock:^{
+//        DKPushAutoreleasePool();
+//
+//        DKEggUnarchiverRef unarchiver = DKEggUnarchiverWithData( archivedData );
+//        DKEggGetRootObject( unarchiver );
+//
+//        DKPopAutoreleasePool();
+//    }];
+//}
+
+
+//- (void) testEggWritePerformance
+//{
+//    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
+//    DKStringRef path = DKStringWithCString( [_path UTF8String] );
+//    DKStringRef json = DKStringWithContentsOfFile( path );
+//    DKObjectRef document = DKJSONParse( json, 0 );
+//
+//    [self measureBlock:^{
+//        DKPushAutoreleasePool();
+//
+//        DKEggArchiverRef archiver = DKEggArchiverWithObject( document );
+//        DKEggArchiverGetArchivedData( archiver );
+//
+//        DKPopAutoreleasePool();
+//    }];
+//}
 
 @end

@@ -101,10 +101,29 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     XCTAssert( DKEqual( document, parsedDocument ) );
 
+    // Parse the JSON with 32-bit vector types
+    DKObjectRef parsedDocument32 = DKJSONParse( json, DKJSONVectorSyntaxExtension | DKJSONVectorRead32BitTypes );
+
+    XCTAssert( DKEqual( document, parsedDocument32 ) );
+
     //DKPrintf( "Orignal Document:\n%@\n\n", document );
     //DKPrintf( "JSON:\n%@\n\n", json );
     //DKPrintf( "Parsed Document:\n%@\n\n", parsedDocument );
 }
+
+
+//- (void) testJSONReadPerformance
+//{
+//    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
+//    DKStringRef path = DKStringWithCString( [_path UTF8String] );
+//    DKStringRef json = DKStringWithContentsOfFile( path );
+//
+//    [self measureBlock:^{
+//        DKPushAutoreleasePool();
+//        DKJSONParse( json, 0 );
+//        DKPopAutoreleasePool();
+//    }];
+//}
 
 
 @end
