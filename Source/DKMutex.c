@@ -34,6 +34,7 @@
 static void DKMutexFinalize( DKObjectRef _untyped_self );
 
 
+
 DKThreadSafeClassInit( DKMutexClass )
 {
     DKClassRef cls = DKNewClass( DKSTR( "DKMutex" ), DKObjectClass(), sizeof(struct DKMutex), 0, DKMutexInit, DKMutexFinalize );
@@ -59,7 +60,12 @@ DKObjectRef DKMutexInit( DKObjectRef _untyped_self )
     
     if( _self )
     {
+#if DK_PLATFORM_POSIX
         pthread_mutex_init( &_self->mutex, NULL );
+#elif DK_PLATFORM_WINDOWS
+        InitializeCriticalSection( &_self->criticalSection );
+#endif
+        
     }
     
     return _self;
@@ -75,11 +81,15 @@ DKObjectRef DKRecursiveMutexInit( DKObjectRef _untyped_self )
     
     if( _self )
     {
+#if DK_PLATFORM_POSIX
         pthread_mutexattr_t recursiveAttributes;
         pthread_mutexattr_init( &recursiveAttributes );
         pthread_mutexattr_settype( &recursiveAttributes, PTHREAD_MUTEX_RECURSIVE );
         pthread_mutex_init( &_self->mutex, &recursiveAttributes );
         pthread_mutexattr_destroy( &recursiveAttributes );
+#elif DK_PLATFORM_WINDOWS
+        InitializeCriticalSection( &_self->criticalSection );
+#endif
     }
     
     return _self;
@@ -92,8 +102,12 @@ DKObjectRef DKRecursiveMutexInit( DKObjectRef _untyped_self )
 static void DKMutexFinalize( DKObjectRef _untyped_self )
 {
     DKMutexRef _self = _untyped_self;
-    
+
+#if DK_PLATFORM_POSIX
     pthread_mutex_destroy( &_self->mutex );
+#elif DK_PLATFORM_WINDOWS
+    DeleteCriticalSection( &_self->criticalSection );
+#endif
 }
 
 
@@ -105,7 +119,12 @@ void DKMutexLock( DKMutexRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKMutexClass() );
+
+#if DK_PLATFORM_POSIX
         pthread_mutex_lock( &_self->mutex );
+#elif DK_PLATFORM_WINDOWS
+        EnterCriticalSection( &_self->criticalSection );
+#endif
     }
 }
 
@@ -118,7 +137,12 @@ bool DKMutexTryLock( DKMutexRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKMutexClass() );
+
+#if DK_PLATFORM_POSIX
         return pthread_mutex_trylock( &_self->mutex ) == 0;
+#elif DK_PLATFORM_WINDOWS
+        return TryEnterCriticalSection( &_self->criticalSection );
+#endif
     }
     
     return true;
@@ -133,7 +157,14 @@ void DKMutexUnlock( DKMutexRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKMutexClass() );
+
+#if DK_PLATFORM_POSIX
         pthread_mutex_unlock( &_self->mutex );
+#elif DK_PLATFORM_WINDOWS
+        LeaveCriticalSection( &_self->criticalSection );
+#endif
+
+
     }
 }
 

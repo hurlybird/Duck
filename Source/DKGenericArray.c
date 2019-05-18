@@ -30,7 +30,7 @@
 #define MIN_ELEMENT_ARRAY_SIZE          32
 #define HAS_ALLOCATED_STORAGE( array )  (((array)->elements != NULL) && ((array)->maxLength > 0))
 #define HAS_EXTERNAL_STORAGE( array )   ((array)->maxLength < 0)
-
+#define SCRATCHPAD_SIZE                 128
 
 ///
 //  DKGenericArrayInit()
@@ -410,7 +410,12 @@ static void Reverse64( DKGenericArray * array )
 static void Reverse( DKGenericArray * array )
 {
     DKIndex n = array->length / 2;
-    uint8_t tmp[array->elementSize];
+
+    uint8_t scratchpad[SCRATCHPAD_SIZE];
+    uint8_t * tmp = scratchpad;
+
+    if( array->elementSize > SCRATCHPAD_SIZE )
+        tmp = dk_malloc( array->elementSize );
     
     for( DKIndex i = 0; i < n; ++i )
     {
@@ -421,6 +426,9 @@ static void Reverse( DKGenericArray * array )
         memcpy( elem_i, elem_j, array->elementSize );
         memcpy( elem_j, tmp, array->elementSize );
     }
+
+    if( tmp != scratchpad )
+        dk_free( tmp );
 }
 
 void DKGenericArrayReverse( DKGenericArray * array )
@@ -503,7 +511,12 @@ static void Shuffle64( DKGenericArray * array )
 static void Shuffle( DKGenericArray * array )
 {
     DKIndex n = array->length - 1;
-    uint8_t tmp[array->elementSize];
+
+    uint8_t scratchpad[SCRATCHPAD_SIZE];
+    uint8_t * tmp = scratchpad;
+
+    if( array->elementSize > SCRATCHPAD_SIZE )
+        tmp = dk_malloc( array->elementSize );
 
     for( DKIndex i = 0; i < n; ++i )
     {
@@ -516,6 +529,10 @@ static void Shuffle( DKGenericArray * array )
         memcpy( elem_i, elem_j, array->elementSize );
         memcpy( elem_j, tmp, array->elementSize );
     }
+
+
+    if( tmp != scratchpad )
+        dk_free( tmp );
 }
 
 void DKGenericArrayShuffle( DKGenericArray * array )

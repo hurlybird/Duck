@@ -215,7 +215,7 @@ void DKSetAddObject( DKMutableSetRef _self, DKObjectRef object )
     if( _self )
     {
         DKSetInterfaceRef set = DKGetInterface( _self, DKSelector(Set) );
-        return set->addObject( _self, object );
+        set->addObject( _self, object );
     }
 }
 
@@ -228,7 +228,7 @@ void DKSetRemoveObject( DKMutableSetRef _self, DKObjectRef object )
     if( _self )
     {
         DKSetInterfaceRef set = DKGetInterface( _self, DKSelector(Set) );
-        return set->removeObject( _self, object );
+        set->removeObject( _self, object );
     }
 }
 
@@ -241,7 +241,7 @@ void DKSetRemoveAllObjects( DKMutableSetRef _self )
     if( _self )
     {
         DKSetInterfaceRef set = DKGetInterface( _self, DKSelector(Set) );
-        return set->removeAllObjects( _self );
+        set->removeAllObjects( _self );
     }
 }
 

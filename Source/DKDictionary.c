@@ -299,7 +299,7 @@ void DKDictionaryRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key )
     if( _self )
     {
         DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
-        return dict->removeObject( _self, key );
+        dict->removeObject( _self, key );
     }
 }
 
@@ -312,7 +312,7 @@ void DKDictionaryRemoveAllObjects( DKMutableDictionaryRef _self )
     if( _self )
     {
         DKDictionaryInterfaceRef dict = DKGetInterface( _self, DKSelector(Dictionary) );
-        return dict->removeAllObjects( _self );
+        dict->removeAllObjects( _self );
     }
 }
 

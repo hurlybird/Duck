@@ -237,9 +237,9 @@ DKThreadSafeClassInit( DKMutableStringClass )
 // Internals =============================================================================
 
 ///
-//  SetCursor()
+//  DKStringSetCursor()
 //
-static void SetCursor( const struct DKString * string, DKIndex cursor )
+static void DKStringSetCursor( const struct DKString * string, DKIndex cursor )
 {
     struct DKString * _string = (struct DKString *)string;
     
@@ -513,7 +513,7 @@ void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
         va_start( arg_ptr, format );
         
         DKVSPrintf( _self, format, arg_ptr );
-        SetCursor( _self, 0 );
+        DKStringSetCursor( _self, 0 );
 
         va_end( arg_ptr );
 
@@ -528,7 +528,7 @@ void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
         va_start( arg_ptr, format );
         
         DKVSPrintf( _self, format, arg_ptr );
-        SetCursor( _self, 0 );
+        DKStringSetCursor( _self, 0 );
 
         va_end( arg_ptr );
     }
@@ -1311,7 +1311,7 @@ void DKStringSetString( DKMutableStringRef _self, DKStringRef str )
             ReplaceBytes( _self, range, NULL, 0 );
         }
 
-        SetCursor( _self, _self->byteArray.length );
+        DKStringSetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -1338,7 +1338,7 @@ void DKStringSetCString( DKMutableStringRef _self, const char * cstr )
             ReplaceBytes( _self, range, NULL, 0 );
         }
 
-        SetCursor( _self, _self->byteArray.length );
+        DKStringSetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -1355,7 +1355,7 @@ void DKStringSetBytes( DKMutableStringRef _self, const void * bytes, DKIndex len
         DKRange range = DKRangeMake( 0, _self->byteArray.length );
         ReplaceBytes( _self, range, bytes, length );
 
-        SetCursor( _self, _self->byteArray.length );
+        DKStringSetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -1373,7 +1373,7 @@ void DKStringAppendString( DKMutableStringRef _self, DKStringRef str )
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
         ReplaceBytes( _self, range, str->byteArray.bytes, str->byteArray.length );
         
-        SetCursor( _self, _self->byteArray.length );
+        DKStringSetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -1387,7 +1387,7 @@ void DKStringAppendFormat( DKMutableStringRef _self, const char * format, ... )
     {
         DKCheckKindOfClass( _self, DKMutableStringClass() );
 
-        SetCursor( _self, _self->byteArray.length );
+        DKStringSetCursor( _self, _self->byteArray.length );
 
         va_list arg_ptr;
         va_start( arg_ptr, format );
@@ -1412,7 +1412,7 @@ void DKStringAppendCString( DKMutableStringRef _self, const char * cstr )
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
         ReplaceBytes( _self, range, cstr, length );
         
-        SetCursor( _self, _self->byteArray.length );
+        DKStringSetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -1429,7 +1429,7 @@ void DKStringAppendBytes( DKMutableStringRef _self, const void * bytes, DKIndex 
         DKRange range = DKRangeMake( _self->byteArray.length, 0 );
         ReplaceBytes( _self, range, bytes, length );
         
-        SetCursor( _self, _self->byteArray.length );
+        DKStringSetCursor( _self, _self->byteArray.length );
     }
 }
 
@@ -2145,7 +2145,7 @@ int DKStringSeek( DKStringRef _self, DKIndex offset, int origin )
         else
             cursor = _self->byteArray.length + cursor;
 
-        SetCursor( _self, cursor );
+        DKStringSetCursor( _self, cursor );
         
         return 0;
     }
@@ -2178,7 +2178,7 @@ DKIndex DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex co
     {
         DKAssertKindOfClass( _self, DKStringClass() );
 
-        SetCursor( _self, _self->cursor );
+        DKStringSetCursor( _self, _self->cursor );
         
         DKRange range = DKRangeMake( _self->cursor, size * count );
         
@@ -2187,7 +2187,7 @@ DKIndex DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex co
         
         memcpy( buffer, &_self->byteArray.bytes[range.location], range.length );
         
-        SetCursor( _self, _self->cursor + range.length );
+        DKStringSetCursor( _self, _self->cursor + range.length );
         
         return range.length / size;
     }
@@ -2205,7 +2205,7 @@ DKIndex DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex si
     {
         DKCheckKindOfClass( _self, DKMutableStringClass(), 0 );
 
-        SetCursor( _self, _self->cursor );
+        DKStringSetCursor( _self, _self->cursor );
         
         DKRange range = DKRangeMake( _self->cursor, size * count );
         
@@ -2214,7 +2214,7 @@ DKIndex DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex si
         
         ReplaceBytes( _self, range, buffer, size * count );
 
-        SetCursor( _self, _self->cursor + (size * count) );
+        DKStringSetCursor( _self, _self->cursor + (size * count) );
         
         return count;
     }
@@ -2347,20 +2347,20 @@ static DKSpinLock DKConstantStringTableLock = DKSpinLockInit;
 
 static DKRowStatus DKConstantStringTableRowStatus( const void * _row )
 {
-    struct DKString * const * row = _row;
+    struct DKString const ** row = _row;
     return (DKRowStatus)(*row);
 }
 
 static DKHashCode DKConstantStringTableRowHash( const void * _row )
 {
-    struct DKString * const * row = _row;
+    struct DKString const ** row = _row;
     return (*row)->hashCode;
 }
 
 static bool DKConstantStringTableRowEqual( const void * _row1, const void * _row2 )
 {
-    struct DKString * const * row1 = _row1;
-    struct DKString * const * row2 = _row2;
+    struct DKString ** row1 = (void *)_row1;
+    struct DKString ** row2 = (void *)_row2;
 
     return DKStringEqualToString( *row1, *row2 );
 }
@@ -2374,7 +2374,7 @@ static void DKConstantStringTableRowInit( void * _row )
 static void DKConstantStringTableRowUpdate( void * _row, const void * _src )
 {
     struct DKString ** row = _row;
-    struct DKString * const * src = _src;
+    struct DKString ** src = (void *)_src;
     *row = *src;
 }
 
@@ -2444,7 +2444,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
     DKStringRef constantString;
 
     DKSpinLockLock( &DKConstantStringTableLock );
-    const DKStringRef * entry = DKGenericHashTableFind( DKConstantStringTable, &lookupString );
+    DKStringRef * entry = (DKStringRef *)DKGenericHashTableFind( DKConstantStringTable, &lookupString );
     
     if( entry )
     {
@@ -2475,7 +2475,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
     
     else
     {
-        entry = DKGenericHashTableFind( DKConstantStringTable, &lookupString );
+        entry = (DKStringRef *)DKGenericHashTableFind( DKConstantStringTable, &lookupString );
         constantString = *entry;
     }
 

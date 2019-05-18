@@ -85,6 +85,11 @@ bool DKFileExists( DKStringRef filename )
 
     struct stat fileStats;
     return stat( fname, &fileStats ) == 0;
+#elif DK_PLATFORM_WINDOWS
+    const char * fname = DKStringGetCStringPtr( filename );
+
+    DWORD attr = GetFileAttributesA( fname );
+    return (attr != INVALID_FILE_ATTRIBUTES) && !(attr & FILE_ATTRIBUTE_DIRECTORY);
 #else
     DKAssert( 0 );
 #endif
@@ -157,7 +162,7 @@ FILE * DKFileGetStreamPtr( DKFileRef _self )
 ///
 //  DKFileSeek()
 //
-int DKFileSeek( DKFileRef _self, DKIndex offset, int origin )
+int DKFileSeek( DKFileRef _self, long offset, int origin )
 {
     if( _self )
     {
@@ -174,7 +179,7 @@ int DKFileSeek( DKFileRef _self, DKIndex offset, int origin )
 ///
 //  DKFileTell()
 //
-DKIndex DKFileTell( DKFileRef _self )
+long DKFileTell( DKFileRef _self )
 {
     if( _self )
     {
@@ -207,7 +212,7 @@ DKIndex DKFileGetLength( DKFileRef _self )
             fstat( fd, &fileStats );
             length = (DKIndex)fileStats.st_size;
 #else
-            DKIndex cursor = ftell( _self->file );
+            long cursor = ftell( _self->file );
             fseek( _self->file, 0, SEEK_END );
             length = ftell( _self->file );
             fseek( _self->file, cursor, SEEK_SET );

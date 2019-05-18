@@ -57,7 +57,11 @@ struct DKMutex
 {
     DKObject _obj;
     
+#if DK_PLATFORM_POSIX
     pthread_mutex_t mutex;
+#elif DK_PLATFORM_WINDOWS
+    CRITICAL_SECTION criticalSection;
+#endif
 };
 
 

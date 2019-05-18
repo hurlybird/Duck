@@ -105,6 +105,7 @@
 // #define DK_PLATFORM_BSD              -- BSD system calls available
 // #define DK_PLATFORM_LINUX            -- Linux system calls available
 // #define DK_PLATFORM_ANDROID_NDK      -- Android NDK available
+// #define DK_PLATFORM_WINDOWS			-- Windows SDK available
 // #define DK_PLATFORM_GCC_INTRINSICS   -- Use GCC __sync* and __builtin_bswap* intrinsics
 
 
@@ -125,6 +126,10 @@
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_ANDROID_NDK     1
 #define DK_PLATFORM_GCC_INTRINSICS  1
+
+
+// Windows
+#elif DK_PLATFORM_WINDOWS
 
 
 // Default (Apple)

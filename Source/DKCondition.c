@@ -33,8 +33,12 @@
 struct DKCondition
 {
     DKObject _obj;
-    
+
+#if DK_PLATFORM_POSIX
     pthread_cond_t condition;
+#elif DK_PLATFORM_WINDOWS
+    CONDITION_VARIABLE conditionVariable;
+#endif
 };
 
 
@@ -60,7 +64,11 @@ DKObjectRef DKConditionInit( DKObjectRef _untyped_self )
     
     if( _self )
     {
+#if DK_PLATFORM_POSIX
         pthread_cond_init( &_self->condition, NULL );
+#elif DK_PLATFORM_WINDOWS
+        InitializeConditionVariable( &_self->conditionVariable );
+#endif
     }
     
     return _self;
@@ -74,7 +82,11 @@ static void DKConditionFinalize( DKObjectRef _untyped_self )
 {
     DKConditionRef _self = _untyped_self;
     
+#if DK_PLATFORM_POSIX
     pthread_cond_destroy( &_self->condition );
+#elif DK_PLATFORM_WINDOWS
+    // Nothing to do here
+#endif
 }
 
 
@@ -88,7 +100,11 @@ void DKConditionWait( DKConditionRef _self, DKMutexRef mutex )
         DKAssertKindOfClass( _self, DKConditionClass() );
         DKAssertKindOfClass( mutex, DKMutexClass() );
     
+#if DK_PLATFORM_POSIX
         pthread_cond_wait( &_self->condition, &mutex->mutex );
+#elif DK_PLATFORM_WINDOWS
+        SleepConditionVariableCS( &_self->conditionVariable, &mutex->criticalSection, INFINITE );
+#endif
     }
 }
 
@@ -102,7 +118,11 @@ void DKConditionSignal( DKConditionRef _self )
     {
         DKAssertKindOfClass( _self, DKConditionClass() );
         
+#if DK_PLATFORM_POSIX
         pthread_cond_signal( &_self->condition );
+#elif DK_PLATFORM_WINDOWS
+        WakeConditionVariable( &_self->conditionVariable );
+#endif
     }
 }
 
@@ -116,7 +136,11 @@ void DKConditionSignalAll( DKConditionRef _self )
     {
         DKAssertKindOfClass( _self, DKConditionClass() );
         
+#if DK_PLATFORM_POSIX
         pthread_cond_broadcast( &_self->condition );
+#elif DK_PLATFORM_WINDOWS
+        WakeAllConditionVariable( &_self->conditionVariable );
+#endif
     }
 }
 

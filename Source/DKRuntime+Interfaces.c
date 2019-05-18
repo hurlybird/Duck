@@ -77,20 +77,20 @@ DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
 // Hash Table Callbacks
 static DKRowStatus InterfaceTableRowStatus( const void * _row )
 {
-    DKInterface * const * row = _row;
+    DKInterface const ** row = _row;
     return (DKRowStatus)(*row);
 }
 
 static DKHashCode InterfaceTableRowHash( const void * _row )
 {
-    DKInterface * const * row = _row;
+    DKInterface const ** row = _row;
     return DKObjectUniqueHash( (*row)->sel );
 }
 
 static bool InterfaceTableRowEqual( const void * _row1, const void * _row2 )
 {
-    DKInterface * const * row1 = _row1;
-    DKInterface * const * row2 = _row2;
+    DKInterface const ** row1 = _row1;
+    DKInterface const ** row2 = _row2;
 
     return DKSelectorEqual( (*row1)->sel, (*row2)->sel );
 }
@@ -104,7 +104,7 @@ static void InterfaceTableRowInit( void * _row )
 static void InterfaceTableRowUpdate( void * _row, const void * _src )
 {
     DKInterface ** row = _row;
-    DKInterface * const * src = _src;
+    DKInterface ** src = (void *)_src;
     
     DKRetain( *src );
     

@@ -34,8 +34,13 @@
 struct DKReadWriteLock
 {
     DKObject _obj;
-    
+
+#if DK_PLATFORM_POSIX
     pthread_rwlock_t rwlock;
+#elif DK_PLATFORM_WINDOWS
+    SRWLOCK rwlock;
+    bool exclusive;
+#endif
 };
 
 
@@ -70,7 +75,11 @@ static DKObjectRef DKReadWriteLockInit( DKObjectRef _untyped_self )
     
     if( _self )
     {
+#if DK_PLATFORM_POSIX
         pthread_rwlock_init( &_self->rwlock, NULL );
+#elif DK_PLATFORM_WINDOWS
+        InitializeSRWLock( &_self->rwlock );
+#endif
     }
     
     return _self;
@@ -84,7 +93,11 @@ static void DKReadWriteLockFinalize( DKObjectRef _untyped_self )
 {
     DKReadWriteLockRef _self = _untyped_self;
     
+#if DK_PLATFORM_POSIX
     pthread_rwlock_destroy( &_self->rwlock );
+#elif DK_PLATFORM_WINDOWS
+    // Nothing to do here
+#endif
 }
 
 
@@ -107,11 +120,24 @@ void DKReadWriteLockLock( DKReadWriteLockRef _self, bool readwrite )
     {
         DKAssertKindOfClass( _self, DKReadWriteLockClass() );
         
+ #if DK_PLATFORM_POSIX
         if( readwrite )
             pthread_rwlock_wrlock( &_self->rwlock );
         
         else
             pthread_rwlock_rdlock( &_self->rwlock );
+#elif DK_PLATFORM_WINDOWS
+        if( readwrite )
+        {
+            AcquireSRWLockExclusive( &_self->rwlock );
+            _self->exclusive = true;
+        }
+
+        else
+        {
+            AcquireSRWLockShared( &_self->rwlock );
+        }
+#endif
     }
 }
 
@@ -125,11 +151,27 @@ bool DKReadWriteLockTryLock( DKReadWriteLockRef _self, bool readwrite )
     {
         DKAssertKindOfClass( _self, DKReadWriteLockClass() );
 
+ #if DK_PLATFORM_POSIX
         if( readwrite )
             return pthread_rwlock_trywrlock( &_self->rwlock ) == 0;
         
         else
             return pthread_rwlock_tryrdlock( &_self->rwlock ) == 0;
+#elif DK_PLATFORM_WINDOWS
+        if( readwrite )
+        {
+            if( TryAcquireSRWLockExclusive( &_self->rwlock ) )
+            {
+                _self->exclusive = true;
+                return true;
+            }
+        }
+
+        else
+        {
+            return TryAcquireSRWLockShared( &_self->rwlock ) != 0;
+        }
+#endif
     }
     
     return true;
@@ -144,7 +186,21 @@ void DKReadWriteLockUnlock( DKReadWriteLockRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKReadWriteLockClass() );
+ 
+#if DK_PLATFORM_POSIX
         pthread_rwlock_unlock( &_self->rwlock );
+#elif DK_PLATFORM_WINDOWS
+        if( _self->exclusive )
+        {
+            _self->exclusive = false;
+            ReleaseSRWLockExclusive( &_self->rwlock );
+        }
+
+        else
+        {
+            ReleaseSRWLockShared( &_self->rwlock );
+        }
+#endif
     }
 }
 

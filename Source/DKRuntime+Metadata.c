@@ -43,20 +43,20 @@ static DKGenericHashTable MetadataTable;
 // Hash Table Callbacks
 static DKRowStatus MetadataTableRowStatus( const void * _row )
 {
-    const DKMetadataRef * row = _row;
+    struct DKMetadata const ** row = _row;
     return (DKRowStatus)(*row);
 }
 
 static DKHashCode MetadataTableRowHash( const void * _row )
 {
-    const DKMetadataRef * row = _row;
+    struct DKMetadata const ** row = _row;
     return DKObjectUniqueHash( (*row)->owner );
 }
 
 static bool MetadataTableRowEqual( const void * _row1, const void * _row2 )
 {
-    const DKMetadataRef * row1 = _row1;
-    const DKMetadataRef * row2 = _row2;
+    struct DKMetadata const ** row1 = _row1;
+    struct DKMetadata const ** row2 = _row2;
     return (*row1)->owner == (*row2)->owner;
 }
 
@@ -69,7 +69,7 @@ static void MetadataTableRowInit( void * _row )
 static void MetadataTableRowUpdate( void * _row, const void * _src )
 {
     DKMetadataRef * row = _row;
-    const DKMetadataRef * src = _src;
+    DKMetadataRef * src = (void *)_src;
     *row = *src;
 }
 
@@ -113,7 +113,7 @@ DKMetadataRef DKMetadataFindOrInsert( DKObject * obj )
     // Check the table for a weak reference
     DKSpinLockLock( &MetadataTableLock );
     
-    const DKWeakRef * entry = DKGenericHashTableFind( &MetadataTable, &key );
+    DKWeakRef * entry = (DKWeakRef *)DKGenericHashTableFind( &MetadataTable, &key );
     
     if( entry )
     {
@@ -140,7 +140,7 @@ DKMetadataRef DKMetadataFindOrInsert( DKObject * obj )
     
     else
     {
-        const DKMetadataRef * entry = DKGenericHashTableFind( &MetadataTable, &key );
+        DKMetadataRef * entry = (DKMetadataRef *)DKGenericHashTableFind( &MetadataTable, &key );
         metadata = *entry;
     }
 

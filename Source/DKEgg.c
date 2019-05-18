@@ -449,9 +449,9 @@ static const DKEggAttribute * GetAttribute( DKEggUnarchiverRef _self, DKStringRe
 
 
 ///
-//  GetClass()
+//  DKEggUnarchiverGetClass()
 //
-static DKClassRef GetClass( DKEggUnarchiverRef _self, uint32_t offset )
+static DKClassRef DKEggUnarchiverGetClass( DKEggUnarchiverRef _self, uint32_t offset )
 {
     const char * cstr = (const char *)&_self->data[offset];
     DKStringRef className = DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr );
@@ -468,9 +468,9 @@ static DKClassRef GetClass( DKEggUnarchiverRef _self, uint32_t offset )
 
 
 ///
-//  GetCSelector()
+//  DKEggUnarchiverGetCSelector()
 //
-static DKSEL GetSelector( DKEggUnarchiverRef _self, uint32_t offset )
+static DKSEL DKEggUnarchiverGetSelector( DKEggUnarchiverRef _self, uint32_t offset )
 {
     const char * cstr = (const char *)&_self->data[offset];
     DKStringRef selectorName = DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr );
@@ -487,9 +487,9 @@ static DKSEL GetSelector( DKEggUnarchiverRef _self, uint32_t offset )
 
 
 ///
-//  GetObject()
+//  DKEggUnarchiverGetObject()
 //
-static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
+static DKObjectRef DKEggUnarchiverGetObject( DKEggUnarchiverRef _self, DKIndex index )
 {
     DKAssert( index >= 0 );
     DKCheckIndex( index, _self->header->objectTable.length, NULL );
@@ -501,7 +501,7 @@ static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
         const DKEggObject * archivedObject = &_self->objectTable[index];
         
         // Get the class
-        DKClassRef cls = GetClass( _self, archivedObject->className );
+        DKClassRef cls = DKEggUnarchiverGetClass( _self, archivedObject->className );
         
         if( !cls )
             return NULL;
@@ -542,7 +542,7 @@ static DKObjectRef GetObject( DKEggUnarchiverRef _self, DKIndex index )
 //
 DKObjectRef DKEggGetRootObject( DKEggUnarchiverRef _self )
 {
-    return GetObject( _self, 0 );
+    return DKEggUnarchiverGetObject( _self, 0 );
 }
 
 
@@ -570,13 +570,13 @@ DKObjectRef DKEggGetObject( DKEggUnarchiverRef _self, DKStringRef key )
     if( attribute )
     {
         if( attribute->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
-            return GetObject( _self, attribute->value );
+            return DKEggUnarchiverGetObject( _self, attribute->value );
         
         else if( attribute->encoding == DKEncode( DKEncodingTypeClass, 1 ) )
-            return GetClass( _self, attribute->value );
+            return DKEggUnarchiverGetClass( _self, attribute->value );
         
         else if( attribute->encoding == DKEncode( DKEncodingTypeSelector, 1 ) )
-            return GetSelector( _self, attribute->value );
+            return DKEggUnarchiverGetSelector( _self, attribute->value );
     }
     
     return NULL;
@@ -598,7 +598,7 @@ void DKEggGetCollection( DKEggUnarchiverRef _self, DKStringRef key, DKApplierFun
             
             if( count == 1 )
             {
-                DKObjectRef object = (attribute->value > 0) ? GetObject( _self, attribute->value ) : NULL;
+                DKObjectRef object = (attribute->value > 0) ? DKEggUnarchiverGetObject( _self, attribute->value ) : NULL;
                 callback( object, context );
             }
             
@@ -613,7 +613,7 @@ void DKEggGetCollection( DKEggUnarchiverRef _self, DKStringRef key, DKApplierFun
                     if( _self->header->byteOrder != DKByteOrderNative )
                         index = DKSwapInt32( index );
                 
-                    DKObjectRef object = (indexes[i] > 0) ? GetObject( _self, index ) : NULL;
+                    DKObjectRef object = (indexes[i] > 0) ? DKEggUnarchiverGetObject( _self, index ) : NULL;
                     callback( object, context );
                 }
             }
@@ -648,11 +648,11 @@ void DKEggGetKeyedCollection( DKEggUnarchiverRef _self, DKStringRef key, DKKeyed
                     v = DKSwapInt32( v );
                 }
             
-                DKObjectRef key = GetObject( _self, k );
+                DKObjectRef key = DKEggUnarchiverGetObject( _self, k );
                 
                 if( key )
                 {
-                    DKObjectRef object = v ? GetObject( _self, v ) : NULL;
+                    DKObjectRef object = v ? DKEggUnarchiverGetObject( _self, v ) : NULL;
                     callback( key, object, context );
                 }
             }
@@ -1003,7 +1003,7 @@ static void BuildHeader( DKEggArchiverRef _self, DKEggHeader * header )
     for( DKIndex i = 0; i < header->objectTable.length; ++i )
     {
         struct ArchivedObject * archivedObject = DKGenericArrayGetPointerToElementAtIndex( &_self->archivedObjects, i );
-        header->attributeTable.length += DKGenericArrayGetLength( &archivedObject->attributes );
+        header->attributeTable.length += (uint32_t)DKGenericArrayGetLength( &archivedObject->attributes );
     }
 
     header->data.index = header->attributeTable.index + (header->attributeTable.length * sizeof(DKEggAttribute));

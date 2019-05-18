@@ -47,6 +47,8 @@
 #if DK_PLATFORM_APPLE
 #include <os/lock.h>
 #include <uuid/uuid.h>
+
+#define DK_ATTRIBUTE_ANALYZER_NO_RETURN     __attribute__((analyzer_noreturn))
 #endif
 
 #if DK_PLATFORM_POSIX
@@ -65,6 +67,16 @@
 #endif
 
 #if DK_PLATFORM_ANDROID_NDK
+#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+#endif
+
+#if DK_PLATFORM_WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+#define __LITTLE_ENDIAN__
+#define restrict __restrict
 #endif
 
 
@@ -98,7 +110,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert );
 
 
 // Indexes
-typedef intptr_t  DKIndex;    // Indexes are basically a signed size_t
+typedef size_t    DKIndex;
 typedef uintptr_t DKHashCode; // Pointers can be used as hash codes
 
 enum
@@ -267,7 +279,7 @@ void   _DKError( const char * format, ... );
 
 // Print a error. In a debug build execution is halted with assert(0). In a non-debug
 // build the program is halted with abort().
-void   _DKFatalError( const char * format, ... ) __attribute__((analyzer_noreturn));
+void   _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_RETURN;
 
 #define DKFatalError( ... ) _DKFatalError( __VA_ARGS__ )
 
@@ -474,18 +486,29 @@ void   dk_free( void * ptr );
 // Atomic Operations =====================================================================
 #if DK_PLATFORM_GCC_INTRINSICS
 
-#define DKAtomicAdd32( ptr, x )                 __sync_add_and_fetch( ptr, x )
-#define DKAtomicSub32( ptr, x )                 __sync_sub_and_fetch( ptr, x )
-#define DKAtomicAnd32( ptr, x )                 __sync_and_and_fetch( ptr, x )
-#define DKAtomicOr32( ptr, x )                  __sync_or_and_fetch( ptr, x )
-#define DKAtomicIncrement32( ptr )              __sync_add_and_fetch( ptr, 1 )
-#define DKAtomicDecrement32( ptr )              __sync_sub_and_fetch( ptr, 1 )
-#define DKAtomicCmpAndSwap32( val, old, new )   __sync_bool_compare_and_swap( val, old, new )
-#define DKAtomicCmpAndSwapPtr( val, old, new )  __sync_bool_compare_and_swap( val, old, new )
-#define DKMemoryBarrier()                       __sync_synchronize()
+#define DKAtomicAdd32( ptr, x )                     __sync_add_and_fetch( ptr, x )
+#define DKAtomicSub32( ptr, x )                     __sync_sub_and_fetch( ptr, x )
+#define DKAtomicAnd32( ptr, x )                     __sync_and_and_fetch( ptr, x )
+#define DKAtomicOr32( ptr, x )                      __sync_or_and_fetch( ptr, x )
+#define DKAtomicIncrement32( ptr )                  __sync_add_and_fetch( ptr, 1 )
+#define DKAtomicDecrement32( ptr )                  __sync_sub_and_fetch( ptr, 1 )
+#define DKAtomicCmpAndSwap32( ptr, _old, _new )     __sync_bool_compare_and_swap( ptr, _old, _new )
+#define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    __sync_bool_compare_and_swap( ptr, _old, _new )
 
 #endif
 
+#if DK_PLATFORM_WINDOWS
+
+#define DKAtomicAdd32( ptr, x )                     InterlockedAdd( ptr, x )
+#define DKAtomicSub32( ptr, x )                     InterlockedAdd( ptr, -(x) )
+#define DKAtomicAnd32( ptr, x )                     InterlockedAnd( ptr, x )
+#define DKAtomicOr32( ptr, x )                      InterlockedOr( ptr, x )
+#define DKAtomicIncrement32( ptr )                  InterlockedIncrement( ptr )
+#define DKAtomicDecrement32( ptr )                  InterlockedDecrement( ptr )
+#define DKAtomicCmpAndSwap32( ptr, _old, _new )     (InterlockedCompareExchange( ptr, _new, _old ) == (_old))
+#define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    (InterlockedCompareExchangePointer( ptr, _new, _old ) == (_old))
+
+#endif
 
 
 // Spin Locks ============================================================================
@@ -504,16 +527,13 @@ typedef spinlock_t DKSpinLock;
 #define DKSpinLockUnlock( s )       spin_unlock( s )
 
 #else
-typedef struct
-{
-	uint32_t lock;
-} DKSpinLock;
+typedef uint32_t DKSpinLock;
 
-#define DKSpinLockInit              ((DKSpinLock){0})
+#define DKSpinLockInit              0
 
 inline static void DKSpinLockLock( DKSpinLock * spinlock )
 {
-    volatile uint32_t * lock = &spinlock->lock;
+    uint32_t volatile * lock = spinlock;
 
 	while( 1 )
 	{
@@ -524,10 +544,9 @@ inline static void DKSpinLockLock( DKSpinLock * spinlock )
 
 inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
 {
-    volatile uint32_t * lock = &spinlock->lock;
+    uint32_t volatile * lock = spinlock;
     
-    DKMemoryBarrier();
-    *lock = 0;
+    DKAtomicAnd32( lock, 0 );
 }
 #endif
 
@@ -562,7 +581,7 @@ static inline uint32_t DKSwapInt32( uint32_t x )
 
 static inline int64_t DKSwapInt64( int64_t x )
 {
-    uint64_t word0 = DKSwapInt32( (uint32_t)x )
+    uint64_t word0 = DKSwapInt32( (uint32_t)x );
     uint64_t word1 = DKSwapInt32( (uint32_t)(x >> 32) );
     
     return word0 | word1;

@@ -354,6 +354,42 @@ DKUUID dk_uuid_generate( void )
     return uuid;
 }
 
+#elif DK_PLATFORM_WINDOWS
+#include <Rpc.h>
+
+DKUUID dk_uuid_generate( void )
+{
+    DKUUID uuid;
+    UUID tmp;
+
+    RPC_STATUS status = UuidCreate( &tmp );
+    DKAssert( status == RPC_S_OK );
+
+    uuid.bytes[0] = (uint8_t)(tmp.Data1 & 0xff);
+    uuid.bytes[1] = (uint8_t)((tmp.Data1 >> 8) & 0xff);
+    uuid.bytes[2] = (uint8_t)((tmp.Data1 >> 16) & 0xff);
+    uuid.bytes[3] = (uint8_t)((tmp.Data1 >> 24) & 0xff);
+
+    uuid.bytes[4] = (uint8_t)(tmp.Data2 & 0xff);
+    uuid.bytes[5] = (uint8_t)((tmp.Data2 >> 8) & 0xff);
+        
+    uuid.bytes[6] = (uint8_t)(tmp.Data3 & 0xff);
+    uuid.bytes[7] = (uint8_t)((tmp.Data3 >> 8) & 0xff);
+
+    uuid.bytes[8] = tmp.Data4[0];
+    uuid.bytes[9] = tmp.Data4[1];
+
+    uuid.bytes[10] = tmp.Data4[2];
+    uuid.bytes[11] = tmp.Data4[3];
+    uuid.bytes[12] = tmp.Data4[4];
+    uuid.bytes[13] = tmp.Data4[5];
+    uuid.bytes[14] = tmp.Data4[6];
+    uuid.bytes[15] = tmp.Data4[7];
+
+    return uuid;
+}
+
+
 #else
 
 #error dk_uuid_generate() is not defined for the current platform
@@ -433,6 +469,24 @@ DKDateTime dk_datetime( void )
         return 0.0;
     
     return ((DKDateTime)t.tv_sec) - DKAbsoluteTimeSince1970 + (((DKDateTime)t.tv_usec) * 1.0e-6);
+}
+
+#elif DK_PLATFORM_WINDOWS
+DKDateTime dk_datetime( void )
+{
+    
+    FILETIME fileTime;
+
+    GetSystemTimePreciseAsFileTime( &fileTime );
+    
+    // These are actually 100 nanosecond intervals
+    uint64_t nsecs_since_1601 = (((uint64_t)fileTime.dwHighDateTime) << 32) | ((uint64_t)fileTime.dwLowDateTime);
+    uint64_t nsecs_since_1970 = nsecs_since_1601 - (11644473600000 * 10000);
+
+    uint64_t secs = nsecs_since_1970 / 10000000;
+    uint64_t nsecs = nsecs_since_1970 - secs;
+
+    return (double)secs + ((double)nsecs * 1.0e-7);
 }
 
 #else

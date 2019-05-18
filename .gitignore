@@ -1,6 +1,8 @@
 /.sconsign.dblite
-
 /Build/
 .DS_Store
 Duck.xcodeproj/xcuserdata
 Duck.xcodeproj/project.xcworkspace/xcuserdata
+Duck-Windows/.vs/*
+Duck-Windows/Debug/*
+/Duck-Windows/Duck-Windows.vcxproj.user

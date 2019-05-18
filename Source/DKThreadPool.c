@@ -426,7 +426,7 @@ void DKThreadPoolWaitUntilIdle( DKThreadPoolRef _self )
     {
         DKMutexLock( _self->controlMutex );
         
-        while( _self->idleThreads < DKListGetCount( _self->threads ) )
+        while( _self->idleThreads < (int32_t)DKListGetCount( _self->threads ) )
             DKConditionWait( _self->controlCondition, _self->controlMutex );
         
         DKMutexUnlock( _self->controlMutex );

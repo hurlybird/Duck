@@ -690,7 +690,7 @@ int DKHashTableApplyFunctionToObjects( DKHashTableRef _self, DKApplierFunction c
 //
 static void INTERNAL_DKHashTableSetObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object )
 {
-    return INTERNAL_DKHashTableInsertObject( _self, key, object, DKInsertAlways );
+    INTERNAL_DKHashTableInsertObject( _self, key, object, DKInsertAlways );
 }
 
 

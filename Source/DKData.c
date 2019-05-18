@@ -163,9 +163,9 @@ DKThreadSafeClassInit( DKMutableDataClass )
 // Internals =============================================================================
 
 ///
-//  SetCursor()
+//  DKDataSetCursor()
 //
-static void SetCursor( const struct DKData * data, DKIndex cursor )
+static void DKDataSetCursor( const struct DKData * data, DKIndex cursor )
 {
     struct DKData * _data = (struct DKData *)data;
     
@@ -773,7 +773,7 @@ int DKDataSeek( DKDataRef _self, DKIndex offset, int origin )
         else
             cursor = _self->byteArray.length + cursor;
 
-        SetCursor( _self, cursor );
+        DKDataSetCursor( _self, cursor );
         
         return 0;
     }
@@ -807,7 +807,7 @@ DKIndex DKDataRead( DKDataRef _self, void * buffer, DKIndex size, DKIndex count 
     {
         DKAssertKindOfClass( _self, DKDataClass() );
 
-        SetCursor( _self, _self->cursor );
+        DKDataSetCursor( _self, _self->cursor );
         
         DKRange range = DKRangeMake( _self->cursor, size * count );
         
@@ -816,7 +816,7 @@ DKIndex DKDataRead( DKDataRef _self, void * buffer, DKIndex size, DKIndex count 
 
         memcpy( buffer, &_self->byteArray.bytes[range.location], range.length );
         
-        SetCursor( _self, _self->cursor + range.length );
+        DKDataSetCursor( _self, _self->cursor + range.length );
         
         return range.length / size;
     }
@@ -834,7 +834,7 @@ DKIndex DKDataWrite( DKMutableDataRef _self, const void * buffer, DKIndex size, 
     {
         DKCheckKindOfClass( _self, DKMutableDataClass(), 0 );
 
-        SetCursor( _self, _self->cursor );
+        DKDataSetCursor( _self, _self->cursor );
         
         DKRange range = DKRangeMake( _self->cursor, size * count );
         
@@ -843,7 +843,7 @@ DKIndex DKDataWrite( DKMutableDataRef _self, const void * buffer, DKIndex size, 
         
         DKByteArrayReplaceBytes( &_self->byteArray, range, buffer, size * count );
 
-        SetCursor( _self, _self->cursor + (size * count) );
+        DKDataSetCursor( _self, _self->cursor + (size * count) );
         
         return count;
     }

@@ -45,8 +45,8 @@ int         DKFileClose( DKFileRef _self );
 
 FILE *      DKFileGetStreamPtr( DKFileRef _self );
 
-int         DKFileSeek( DKFileRef _self, DKIndex offset, int origin );
-DKIndex     DKFileTell( DKFileRef _self );
+int         DKFileSeek( DKFileRef _self, long offset, int origin );
+long        DKFileTell( DKFileRef _self );
 DKIndex     DKFileGetLength( DKFileRef _self );
 
 DKIndex     DKFileRead( DKFileRef _self, void * buffer, DKIndex size, DKIndex count );

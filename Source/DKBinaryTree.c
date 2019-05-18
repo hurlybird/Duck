@@ -972,7 +972,7 @@ DKObjectRef DKBinaryTreeGetFirstObject( DKBinaryTreeRef _self )
 //
 static void INTERNAL_DKBinaryTreeSetObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object )
 {
-    return INTERNAL_DKBinaryTreeInsertObject( _self, key, object, DKInsertAlways );
+    INTERNAL_DKBinaryTreeInsertObject( _self, key, object, DKInsertAlways );
 }
 
 

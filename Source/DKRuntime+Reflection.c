@@ -49,20 +49,20 @@ static DKSpinLock SelectorNameDatabaseSpinLock = DKSpinLockInit;
 // GenericHashTable Callbacks ============================================================
 static DKRowStatus NameDatabaseRowStatus( const void * _row )
 {
-    struct NameDatabaseEntry * const * row = _row;
+    struct NameDatabaseEntry const ** row = _row;
     return (DKRowStatus)(*row);
 }
 
 static DKHashCode NameDatabaseRowHash( const void * _row )
 {
-    struct NameDatabaseEntry * const * row = _row;
+    struct NameDatabaseEntry const ** row = _row;
     return DKStringHash( (*row)->name );
 }
 
 static bool NameDatabaseRowEqual( const void * _row1, const void * _row2 )
 {
-    struct NameDatabaseEntry * const * row1 = _row1;
-    struct NameDatabaseEntry * const * row2 = _row2;
+    struct NameDatabaseEntry const ** row1 = _row1;
+    struct NameDatabaseEntry const ** row2 = _row2;
 
     return DKStringEqualToString( (*row1)->name, (*row2)->name );
 }
@@ -76,7 +76,7 @@ static void NameDatabaseRowInit( void * _row )
 static void NameDatabaseRowUpdate( void * _row, const void * _src )
 {
     struct NameDatabaseEntry ** row = _row;
-    struct NameDatabaseEntry * const * src = _src;
+    struct NameDatabaseEntry ** src = (void *)_src;
     *row = *src;
 }
 
@@ -335,7 +335,7 @@ DKClassRef DKClassFromString( DKStringRef className )
 
         DKSpinLockLock( &ClassNameDatabaseSpinLock );
         
-        const DKClassRef * entry = DKGenericHashTableFind( &ClassNameDatabase, &key );
+        DKClassRef * entry = (DKClassRef *)DKGenericHashTableFind( &ClassNameDatabase, &key );
         
         if( entry )
             cls = *entry;
@@ -393,7 +393,7 @@ DKSEL DKSelectorFromString( DKStringRef name )
 
         DKSpinLockLock( &SelectorNameDatabaseSpinLock );
         
-        const DKSEL * entry = DKGenericHashTableFind( &SelectorNameDatabase, &key );
+        DKSEL * entry = (DKSEL *)DKGenericHashTableFind( &SelectorNameDatabase, &key );
         
         if( entry )
             sel = *entry;

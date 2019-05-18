@@ -40,8 +40,16 @@ enum
 };
 
 static struct DKThreadContext DKMainThreadContext;
+
+#if DK_PLATFORM_POSIX
 static pthread_key_t DKThreadContextKey;
-static bool DKThreadContextInitialized = false;
+#elif DK_PLATFORM_WINDOWS
+static DWORD DKThreadContextKey; 
+#endif
+
+static bool DKThreadContextKeyInitialized = false;
+
+
 
 
 ///
@@ -107,11 +115,14 @@ void DKFreeThreadContext( DKThreadContextRef threadContext )
 ///
 //  DKThreadContextDestructor()
 //
+#if DK_PLATFORM_POSIX
 static void DKThreadContextDestructor( void * context )
 {
     DKFreeThreadContext( context );
+
     pthread_setspecific( DKThreadContextKey, NULL );
 }
+#endif
 
 
 ///
@@ -119,9 +130,14 @@ static void DKThreadContextDestructor( void * context )
 //
 void DKSetCurrentThreadContext( DKThreadContextRef threadContext )
 {
-    DKAssert( DKThreadContextInitialized );
-    
+    DKAssert( DKThreadContextKeyInitialized );
+   
+#if DK_PLATFORM_POSIX
     pthread_setspecific( DKThreadContextKey, threadContext );
+#elif DK_PLATFORM_WINDOWS
+    if( !TlsSetValue( DKThreadContextKey, threadContext ) )
+        DKFatalError( "DKThread: Failed to save thread context to thread local storage.\n" );
+#endif
 }
 
 
@@ -130,10 +146,14 @@ void DKSetCurrentThreadContext( DKThreadContextRef threadContext )
 //
 bool DKCurrentThreadContextIsSet( void )
 {
-    DKAssert( DKThreadContextInitialized );
+    DKAssert( DKThreadContextKeyInitialized );
 
+#if DK_PLATFORM_POSIX
     DKThreadContextRef threadContext = pthread_getspecific( DKThreadContextKey );
-    
+#elif DK_PLATFORM_WINDOWS
+    DKThreadContextRef threadContext = TlsGetValue( DKThreadContextKey );
+#endif
+
     return threadContext != NULL;
 }
 
@@ -143,9 +163,14 @@ bool DKCurrentThreadContextIsSet( void )
 //
 DKThreadContextRef DKGetCurrentThreadContext( void )
 {
-    DKAssert( DKThreadContextInitialized );
+    DKAssert( DKThreadContextKeyInitialized );
 
+#if DK_PLATFORM_POSIX
     DKThreadContextRef threadContext = pthread_getspecific( DKThreadContextKey );
+#elif DK_PLATFORM_WINDOWS
+    DKThreadContextRef threadContext = TlsGetValue( DKThreadContextKey );
+#endif
+
     DKAssert( threadContext != NULL );
     
     return threadContext;
@@ -157,11 +182,16 @@ DKThreadContextRef DKGetCurrentThreadContext( void )
 //
 void DKMainThreadContextInit( void )
 {
-    DKRequire( !DKThreadContextInitialized );
+    DKRequire( !DKThreadContextKeyInitialized );
     
-    DKThreadContextInitialized = true;
+    DKThreadContextKeyInitialized = true;
 
+#if DK_PLATFORM_POSIX
     pthread_key_create( &DKThreadContextKey, DKThreadContextDestructor );
+#elif DK_PLATFORM_WINDOWS
+    if( (DKThreadContextKey = TlsAlloc()) == TLS_OUT_OF_INDEXES ) 
+        DKFatalError( "DKThread: Out of thread local storage indexes.\n" );
+#endif
 
     DKThreadContextInit( &DKMainThreadContext, 0 );
     DKSetCurrentThreadContext( &DKMainThreadContext );
@@ -173,7 +203,7 @@ void DKMainThreadContextInit( void )
 //
 DKThreadContextRef DKGetMainThreadContext( void )
 {
-    DKAssert( DKThreadContextInitialized );
+    DKAssert( DKThreadContextKeyInitialized );
 
     return &DKMainThreadContext;
 }
@@ -186,7 +216,12 @@ struct DKThread
 {
     DKObject _obj;
 
+#if DK_PLATFORM_POSIX
     pthread_t threadId;
+#elif DK_PLATFORM_WINDOWS
+    HANDLE threadHandle;
+#endif
+
     DKThreadState state;
     DKSpinLock lock;
 
@@ -270,7 +305,12 @@ DKThreadRef DKThreadGetCurrentThread( void )
     {
         threadContext->threadObject = DKNew( DKThreadClass() );
         threadContext->threadObject->state = DKThreadStateUnknown;
+
+#if DK_PLATFORM_POSIX
         threadContext->threadObject->threadId = pthread_self();
+#elif DK_PLATFORM_WINDOWS
+        threadContext->threadObject->threadHandle = GetCurrentThread();
+#endif
     }
     
     return threadContext->threadObject;
@@ -352,7 +392,11 @@ DKObjectRef DKThreadInitWithTarget( DKObjectRef _untyped_self, DKObjectRef targe
 ///
 //  DKThreadExec()
 //
+#if DK_PLATFORM_POSIX
 static void * DKThreadExec( void * _thread )
+#elif DK_PLATFORM_WINDOWS
+static DWORD WINAPI DKThreadExec( LPVOID _thread )
+#endif
 {
     DKThreadRef thread = _thread;
     
@@ -384,8 +428,12 @@ static void * DKThreadExec( void * _thread )
     DKThreadContextFinalize( &threadContext );
     
     DKRelease( thread ); // Retained in DKThreadStart
-    
+   
+#if DK_PLATFORM_POSIX
     return NULL;
+#elif DK_PLATFORM_WINDOWS
+    return 0;
+#endif
 }
 
 
@@ -408,8 +456,12 @@ void DKThreadStart( DKThreadRef _self )
             
             DKRetain( _self ); // Released in DKThreadExec
             
+#if DK_PLATFORM_POSIX
             pthread_create( &_self->threadId, NULL, DKThreadExec, _self );
             pthread_detach( _self->threadId );
+#elif DK_PLATFORM_WINDOWS
+            _self->threadHandle = CreateThread( NULL, 0, DKThreadExec, _self, 0, NULL );
+#endif
         }
         
         else
@@ -441,7 +493,11 @@ void DKThreadJoin( DKThreadRef _self )
         {
             DKSpinLockUnlock( &_self->lock );
             
+#if DK_PLATFORM_POSIX
             pthread_join( _self->threadId, NULL );
+#elif DK_PLATFORM_WINDOWS
+            WaitForSingleObject( _self->threadHandle, INFINITE );
+#endif
         }
     }
 }
@@ -485,7 +541,11 @@ void DKThreadExit( void )
     thread->state = DKThreadFinished;
     DKSpinLockUnlock( &thread->lock );
 
+#if DK_PLATFORM_POSIX
     pthread_exit( NULL );
+#elif DK_PLATFORM_WINDOWS
+    ExitThread( 0 );
+#endif
 }
 
 
