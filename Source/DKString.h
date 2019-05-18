@@ -132,10 +132,10 @@ void        DKStringUnescape( DKMutableStringRef _self, DKDictionaryRef patterns
 void        DKStringDeleteSubstring( DKMutableStringRef _self, DKRange range );
 
 // Stream interface
-int         DKStringSeek( DKStringRef _self, DKIndex offset, int origin );
-DKIndex     DKStringTell( DKStringRef _self );
-DKIndex     DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex count );
-DKIndex     DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex size, DKIndex count );
+int         DKStringSeek( DKStringRef _self, long offset, int origin );
+long        DKStringTell( DKStringRef _self );
+size_t      DKStringRead( DKStringRef _self, void * buffer, size_t size, size_t count );
+size_t      DKStringWrite( DKMutableStringRef _self, const void * buffer, size_t size, size_t count );
 
 // Paths
 bool        DKStringIsAbsolutePath( DKStringRef _self );

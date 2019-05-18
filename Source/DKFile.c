@@ -196,9 +196,9 @@ long DKFileTell( DKFileRef _self )
 ///
 //  DKFileGetLength()
 //
-DKIndex DKFileGetLength( DKFileRef _self )
+long DKFileGetLength( DKFileRef _self )
 {
-    DKIndex length = 0;
+    long length = 0;
 
     if( _self )
     {
@@ -227,7 +227,7 @@ DKIndex DKFileGetLength( DKFileRef _self )
 ///
 //  DKFileRead()
 //
-DKIndex DKFileRead( DKFileRef _self, void * buffer, DKIndex size, DKIndex count )
+size_t DKFileRead( DKFileRef _self, void * buffer, size_t size, size_t count )
 {
     if( _self )
     {
@@ -244,7 +244,7 @@ DKIndex DKFileRead( DKFileRef _self, void * buffer, DKIndex size, DKIndex count 
 ///
 //  DKFileWrite()
 //
-DKIndex DKFileWrite( DKFileRef _self, const void * buffer, DKIndex size, DKIndex count )
+size_t DKFileWrite( DKFileRef _self, const void * buffer, size_t size, size_t count )
 {
     if( _self )
     {

@@ -216,11 +216,11 @@ static struct HashTableSize NextHashTableSize( size_t rowCount )
 //
 static void ResizeAndRehash( DKGenericHashTable * hashTable )
 {
-    if( (hashTable->activeCount + hashTable->deletedCount) < hashTable->maxActive )
+    if( (size_t)(hashTable->activeCount + hashTable->deletedCount) < hashTable->maxActive )
         return;
     
     uint8_t * oldRows = hashTable->rows;
-    DKIndex oldRowCount = hashTable->rowCount;
+    size_t oldRowCount = hashTable->rowCount;
 
     // Only resize the table if its more than half full
     if( (hashTable->rowCount == 0) || (hashTable->activeCount > hashTable->deletedCount) )
@@ -235,7 +235,7 @@ static void ResizeAndRehash( DKGenericHashTable * hashTable )
     hashTable->deletedCount = 0;
     hashTable->rows = dk_malloc( hashTable->rowSize * hashTable->rowCount );
     
-    for( DKIndex i = 0; i < hashTable->rowCount; ++i )
+    for( size_t i = 0; i < hashTable->rowCount; ++i )
     {
         void * row = hashTable->rows + (hashTable->rowSize * i);
         hashTable->callbacks.rowInit( row );
@@ -243,7 +243,7 @@ static void ResizeAndRehash( DKGenericHashTable * hashTable )
     
     if( oldRows )
     {
-        for( DKIndex i = 0; i < oldRowCount; ++i )
+        for( size_t i = 0; i < oldRowCount; ++i )
         {
             void * row = oldRows + (hashTable->rowSize * i);
             DKRowStatus status = hashTable->callbacks.rowStatus( row );
@@ -351,7 +351,7 @@ void DKGenericHashTableInit( DKGenericHashTable * hashTable, size_t rowSize, con
 //
 void DKGenericHashTableFinalize( DKGenericHashTable * hashTable )
 {
-    for( DKIndex i = 0; i < hashTable->rowCount; ++i )
+    for( size_t i = 0; i < hashTable->rowCount; ++i )
     {
         void * row = hashTable->rows + (hashTable->rowSize * i);
         DKRowStatus status = hashTable->callbacks.rowStatus( row );
@@ -446,7 +446,7 @@ void DKGenericHashTableRemove( DKGenericHashTable * hashTable, const void * entr
 //
 void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable )
 {
-    for( DKIndex i = 0; i < hashTable->rowCount; ++i )
+    for( size_t i = 0; i < hashTable->rowCount; ++i )
     {
         void * row = hashTable->rows + (hashTable->rowSize * i);
 
@@ -468,7 +468,7 @@ void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable )
 //
 void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHashTableForeachRowCallback callback, void * context )
 {
-    for( DKIndex i = 0; i < hashTable->rowCount; ++i )
+    for( size_t i = 0; i < hashTable->rowCount; ++i )
     {
         void * row = hashTable->rows + (hashTable->rowSize * i);
 

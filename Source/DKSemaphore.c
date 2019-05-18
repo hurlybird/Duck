@@ -140,7 +140,7 @@ void DKSemaphoreDecrement( DKSemaphoreRef _self, uint32_t value )
 #if DK_PLATFORM_POSIX
         pthread_mutex_lock( &_self->mutex );
         
-        DKRequire( _self->counter >= value );
+        DKRequire( _self->counter >= (int32_t)value );
         _self->counter -= value;
         
         pthread_mutex_unlock( &_self->mutex );
@@ -172,7 +172,7 @@ void DKSemaphoreWait( DKSemaphoreRef _self, uint32_t value )
 #if DK_PLATFORM_POSIX
         pthread_mutex_lock( &_self->mutex );
         
-        while( _self->counter != value )
+        while( _self->counter != (int32_t)value )
             pthread_cond_wait( &_self->condition, &_self->mutex );
         
         pthread_mutex_unlock( &_self->mutex );

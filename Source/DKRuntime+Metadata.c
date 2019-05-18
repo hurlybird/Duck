@@ -43,20 +43,20 @@ static DKGenericHashTable MetadataTable;
 // Hash Table Callbacks
 static DKRowStatus MetadataTableRowStatus( const void * _row )
 {
-    struct DKMetadata const ** row = _row;
+    struct DKMetadata ** row = (void *)_row;
     return (DKRowStatus)(*row);
 }
 
 static DKHashCode MetadataTableRowHash( const void * _row )
 {
-    struct DKMetadata const ** row = _row;
+    struct DKMetadata ** row =  (void *)_row;
     return DKObjectUniqueHash( (*row)->owner );
 }
 
 static bool MetadataTableRowEqual( const void * _row1, const void * _row2 )
 {
-    struct DKMetadata const ** row1 = _row1;
-    struct DKMetadata const ** row2 = _row2;
+    struct DKMetadata ** row1 =  (void *)_row1;
+    struct DKMetadata ** row2 =  (void *)_row2;
     return (*row1)->owner == (*row2)->owner;
 }
 

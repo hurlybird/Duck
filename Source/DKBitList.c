@@ -195,7 +195,7 @@ void DKBitListSetBit( DKBitListRef _self, DKIndex i )
     size_t index = BIT_INDEX( i );
     size_t offset = BIT_OFFSET( i );
     
-    DKAssert( i < _self->numBits );
+    DKAssert( (size_t)i < _self->numBits );
     _self->bits[index] |= (1 << offset);
 }
 
@@ -208,7 +208,7 @@ void DKBitListClearBit( DKBitListRef _self, DKIndex i )
     size_t index = BIT_INDEX( i );
     size_t offset = BIT_OFFSET( i );
     
-    DKAssert( i < _self->numBits );
+    DKAssert( (size_t)i < _self->numBits );
     _self->bits[index] &= ~(1 << offset);
 }
 
@@ -221,7 +221,7 @@ void DKBitListFlipBit( DKBitListRef _self, DKIndex i )
     size_t index = BIT_INDEX( i );
     size_t offset = BIT_OFFSET( i );
     
-    DKAssert( i < _self->numBits );
+    DKAssert( (size_t)i < _self->numBits );
     _self->bits[index] ^= (1 << offset);
 }
 
@@ -234,7 +234,7 @@ bool DKBitListTestBit( DKBitListRef _self, DKIndex i )
     size_t index = BIT_INDEX( i );
     size_t offset = BIT_OFFSET( i );
     
-    DKAssert( i < _self->numBits );
+    DKAssert( (size_t)i < _self->numBits );
     uint32_t test = _self->bits[index] & (1 << offset);
     
     return test >> offset;
@@ -249,7 +249,7 @@ bool DKBitListTestAndSetBit( DKBitListRef _self, DKIndex i )
     size_t index = BIT_INDEX( i );
     size_t offset = BIT_OFFSET( i );
     
-    DKAssert( i < _self->numBits );
+    DKAssert( (size_t)i < _self->numBits );
     uint32_t test = _self->bits[index] & (1 << offset);
     _self->bits[index] |= (1 << offset);
     
@@ -265,7 +265,7 @@ bool DKBitListTestAndClearBit( DKBitListRef _self, DKIndex i )
     size_t index = BIT_INDEX( i );
     size_t offset = BIT_OFFSET( i );
     
-    DKAssert( i < _self->numBits );
+    DKAssert( (size_t)i < _self->numBits );
     uint32_t test = _self->bits[index] & (1 << offset);
     _self->bits[index] &= ~(1 << offset);
     
@@ -281,7 +281,7 @@ bool DKBitListTestAndFlipBit( DKBitListRef _self, DKIndex i )
     size_t index = BIT_INDEX( i );
     size_t offset = BIT_OFFSET( i );
     
-    DKAssert( i < _self->numBits );
+    DKAssert( (size_t)i < _self->numBits );
     uint32_t test = _self->bits[index] & (1 << offset);
     _self->bits[index] ^= (1 << offset);
     
@@ -297,33 +297,36 @@ DKIndex DKBitListGetFirstSetBit( DKBitListRef _self )
     size_t i, j, n;
     uint32_t bits;
     
-    n = _self->numInts - 1;
-    
-    for( i = 0; i < n; i++ )
+    if( _self->numInts > 0 )
     {
+        n = _self->numInts - 1;
+        
+        for( i = 0; i < n; i++ )
+        {
+            bits = _self->bits[i];
+            
+            if( bits != 0 )
+            {
+                for( j = 0; j < BITS_PER_INT; j++ )
+                {
+                    if( bits & (1 << j) )
+                        return (i * BITS_PER_INT) + j;
+                }
+            }
+        }
+
+        // Unroll the last iteration to avoid a branch
         bits = _self->bits[i];
         
         if( bits != 0 )
         {
-            for( j = 0; j < BITS_PER_INT; j++ )
+            n = _self->numBits & (BITS_PER_INT - 1);
+
+            for( j = 0; j < n; j++ )
             {
                 if( bits & (1 << j) )
                     return (i * BITS_PER_INT) + j;
             }
-        }
-    }
-
-    // Unroll the last iteration to avoid a branch
-    bits = _self->bits[i];
-    
-    if( bits != 0 )
-    {
-        n = _self->numBits & (BITS_PER_INT - 1);
-
-        for( j = 0; j < n; j++ )
-        {
-            if( bits & (1 << j) )
-                return (i * BITS_PER_INT) + j;
         }
     }
     
@@ -339,33 +342,36 @@ DKIndex DKBitListGetFirstClearBit( DKBitListRef _self )
     size_t i, j, n;
     uint32_t bits;
 
-    n = _self->numInts - 1;
-    
-    for( i = 0; i < n; i++ )
+    if( _self->numInts > 0 )
     {
+        n = _self->numInts - 1;
+        
+        for( i = 0; i < n; i++ )
+        {
+            bits = _self->bits[i];
+            
+            if( bits != (uint32_t)(-1) )
+            {
+                for( j = 0; j < BITS_PER_INT; j++ )
+                {
+                    if( !(bits & (1 << j)) )
+                        return (i * BITS_PER_INT) + j;
+                }
+            }
+        }
+
+        // Unroll the last iteration to avoid a branch
         bits = _self->bits[i];
         
-        if( bits != ~0 )
+        if( bits != (uint32_t)(-1) )
         {
-            for( j = 0; j < BITS_PER_INT; j++ )
+            n = _self->numBits & (BITS_PER_INT - 1);
+            
+            for( j = 0; j < n; j++ )
             {
                 if( !(bits & (1 << j)) )
                     return (i * BITS_PER_INT) + j;
             }
-        }
-    }
-
-    // Unroll the last iteration to avoid a branch
-    bits = _self->bits[i];
-    
-    if( bits != ~0 )
-    {
-        n = _self->numBits & (BITS_PER_INT - 1);
-        
-        for( j = 0; j < n; j++ )
-        {
-            if( !(bits & (1 << j)) )
-                return (i * BITS_PER_INT) + j;
         }
     }
     
@@ -383,28 +389,31 @@ DKIndex DKBitListCountSetBits( DKBitListRef _self )
 
     count = 0;
     
-    n = _self->numInts - 1;
-    
-    for( i = 0; i < n; i++ )
+    if( _self->numInts > 0 )
     {
+        n = _self->numInts - 1;
+        
+        for( i = 0; i < n; i++ )
+        {
+            bits = _self->bits[i];
+            
+            if( bits != 0 )
+            {
+                for( j = 0; j < BITS_PER_INT; j++ )
+                    count += (bits >> j) & 1;
+            }
+        }
+        
+        // Unroll the last iteration to avoid a branch
         bits = _self->bits[i];
         
         if( bits != 0 )
         {
-            for( j = 0; j < BITS_PER_INT; j++ )
+            n = _self->numBits & (BITS_PER_INT - 1);
+            
+            for( j = 0; j < n; j++ )
                 count += (bits >> j) & 1;
         }
-    }
-    
-    // Unroll the last iteration to avoid a branch
-    bits = _self->bits[i];
-    
-    if( bits != 0 )
-    {
-        n = _self->numBits & (BITS_PER_INT - 1);
-        
-        for( j = 0; j < n; j++ )
-            count += (bits >> j) & 1;
     }
     
     return count;
@@ -421,28 +430,31 @@ DKIndex DKBitListCountClearBits( DKBitListRef _self )
 
     count = 0;
     
-    n = _self->numInts - 1;
-    
-    for( i = 0; i < n; i++ )
+    if( _self->numInts > 0 )
     {
+        n = _self->numInts - 1;
+        
+        for( i = 0; i < n; i++ )
+        {
+            bits = _self->bits[i];
+            
+            if( bits != (uint32_t)(-1) )
+            {
+                for( j = 0; j < BITS_PER_INT; j++ )
+                    count += ~(bits >> j) & 1;
+            }
+        }
+        
+        // Unroll the last iteration to avoid a branch
         bits = _self->bits[i];
         
-        if( bits != ~0 )
+        if( bits != (uint32_t)(-1) )
         {
-            for( j = 0; j < BITS_PER_INT; j++ )
+            n = _self->numBits & (BITS_PER_INT - 1);
+            
+            for( j = 0; j < n; j++ )
                 count += ~(bits >> j) & 1;
         }
-    }
-    
-    // Unroll the last iteration to avoid a branch
-    bits = _self->bits[i];
-    
-    if( bits != ~0 )
-    {
-        n = _self->numBits & (BITS_PER_INT - 1);
-        
-        for( j = 0; j < n; j++ )
-            count += ~(bits >> j) & 1;
     }
     
     return count;

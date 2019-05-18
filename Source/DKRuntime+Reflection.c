@@ -49,20 +49,20 @@ static DKSpinLock SelectorNameDatabaseSpinLock = DKSpinLockInit;
 // GenericHashTable Callbacks ============================================================
 static DKRowStatus NameDatabaseRowStatus( const void * _row )
 {
-    struct NameDatabaseEntry const ** row = _row;
+    struct NameDatabaseEntry ** row = (void *)_row;
     return (DKRowStatus)(*row);
 }
 
 static DKHashCode NameDatabaseRowHash( const void * _row )
 {
-    struct NameDatabaseEntry const ** row = _row;
+    struct NameDatabaseEntry ** row = (void *)_row;
     return DKStringHash( (*row)->name );
 }
 
 static bool NameDatabaseRowEqual( const void * _row1, const void * _row2 )
 {
-    struct NameDatabaseEntry const ** row1 = _row1;
-    struct NameDatabaseEntry const ** row2 = _row2;
+    struct NameDatabaseEntry ** row1 = (void *)_row1;
+    struct NameDatabaseEntry ** row2 = (void *)_row2;
 
     return DKStringEqualToString( (*row1)->name, (*row2)->name );
 }

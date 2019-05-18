@@ -262,8 +262,8 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
             SwizzleEggHeader( (DKEggHeader *)_self->header );
         }
 
-        DKIndex archiveLength = _self->header->data.index + _self->header->data.length;
-        DKIndex remainingLength = archiveLength - sizeof(DKEggHeader);
+        size_t archiveLength = _self->header->data.index + _self->header->data.length;
+        size_t remainingLength = archiveLength - sizeof(DKEggHeader);
         
         // Read the rest of the archive into the buffer
         DKByteArraySetLength( &_self->buffer, archiveLength );
@@ -320,7 +320,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
         DKByteArrayInit( &_self->buffer );
 
         // Read the header
-        if( DKDataGetLength( data ) < sizeof(DKEggHeader) )
+        if( (size_t)DKDataGetLength( data ) < sizeof(DKEggHeader) )
         {
             // *** ERROR ***
             
@@ -365,7 +365,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
                 (sizeof(DKEggObject) * objectTableLength) +
                 (sizeof(DKEggAttribute) * attributeTableLength);
 
-            if( DKDataGetLength( data ) < bytelength )
+            if( (size_t)DKDataGetLength( data ) < bytelength )
             {
                 // *** ERROR ***
                 
@@ -755,7 +755,7 @@ size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * num
                 uint16_t * dst = number;
                 const uint16_t * src = (uint16_t *)&_self->data[attribute->value];
                 
-                for( DKIndex i = 0; i < count; ++i )
+                for( size_t i = 0; i < count; ++i )
                     dst[i] = DKSwapInt16( src[i] );
             }
             
@@ -764,7 +764,7 @@ size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * num
                 uint32_t * dst = number;
                 const uint32_t * src = (uint32_t *)&_self->data[attribute->value];
                 
-                for( DKIndex i = 0; i < count; ++i )
+                for( size_t i = 0; i < count; ++i )
                     dst[i] = DKSwapInt32( src[i] );
             }
             
@@ -773,7 +773,7 @@ size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * num
                 uint64_t * dst = number;
                 const uint64_t * src = (uint64_t *)&_self->data[attribute->value];
                 
-                for( DKIndex i = 0; i < count; ++i )
+                for( size_t i = 0; i < count; ++i )
                     dst[i] = DKSwapInt64( src[i] );
             }
             

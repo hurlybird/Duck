@@ -38,7 +38,7 @@
 ///
 //  DKSeek()
 //
-int DKSeek( DKStreamRef _self, DKIndex offset, int origin )
+int DKSeek( DKStreamRef _self, long offset, int origin )
 {
     if( _self )
     {
@@ -53,7 +53,7 @@ int DKSeek( DKStreamRef _self, DKIndex offset, int origin )
 ///
 //  DKTell()
 //
-DKIndex DKTell( DKStreamRef _self )
+long DKTell( DKStreamRef _self )
 {
     if( _self )
     {
@@ -68,7 +68,7 @@ DKIndex DKTell( DKStreamRef _self )
 ///
 //  DKRead()
 //
-DKIndex DKRead( DKStreamRef _self, void * data, DKIndex size, DKIndex count )
+size_t DKRead( DKStreamRef _self, void * data, size_t size, size_t count )
 {
     if( _self )
     {
@@ -83,7 +83,7 @@ DKIndex DKRead( DKStreamRef _self, void * data, DKIndex size, DKIndex count )
 ///
 //  DKWrite()
 //
-DKIndex DKWrite( DKStreamRef _self, const void * data, DKIndex size, DKIndex count )
+size_t DKWrite( DKStreamRef _self, const void * data, size_t size, size_t count )
 {
     if( _self )
     {
@@ -98,12 +98,12 @@ DKIndex DKWrite( DKStreamRef _self, const void * data, DKIndex size, DKIndex cou
 ///
 //  DKSPrintf()
 //
-DKIndex DKSPrintf( DKStreamRef _self, const char * format, ... )
+int DKSPrintf( DKStreamRef _self, const char * format, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, format );
     
-    DKIndex result = DKVSPrintf( _self, format, arg_ptr );
+    int result = DKVSPrintf( _self, format, arg_ptr );
     
     va_end( arg_ptr );
     
@@ -235,7 +235,7 @@ static void WriteCounter( const char * format, size_t len, size_t count, void * 
     }
 }
 
-DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
+int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
 {
     if( !_self )
         return 0;
@@ -428,8 +428,6 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
             WriteCounter( tmp_format, tok + 1, write_count, va_arg( arg_ptr, void * ) );
             break;
         
-        
-        
         // All numeric types
         default:
             DKAssert( 0 );
@@ -446,7 +444,7 @@ DKIndex DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
         write_count += stream->write( _self, seq_start, 1, seq_count );
     }
     
-    return write_count;
+    return (int)write_count;
 }
 
 

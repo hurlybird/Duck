@@ -88,10 +88,10 @@ typedef int (*CmpFunction)( const DKNumberValue * x, const DKNumberValue * y, si
     {                                                                                   \
         for( size_t i = 0; i < count; ++i )                                             \
         {                                                                               \
-            if( x->_ ## xtype[i] < y->_ ## ytype[i] )                                   \
+            if( x->_ ## xtype[i] < (xtype)y->_ ## ytype[i] )                            \
                 return 1;                                                               \
                                                                                         \
-            if( x->_ ## xtype[i] > y->_ ## ytype[i] )                                   \
+            if( x->_ ## xtype[i] > (xtype)y->_ ## ytype[i] )                            \
                 return -1;                                                              \
         }                                                                               \
                                                                                         \
@@ -123,11 +123,6 @@ static int UndefinedCmpFunction( const DKNumberValue * x, const DKNumberValue * 
     DefineFunctionSet( xtype, float )                                                   \
     DefineFunctionSet( xtype, double )                                                  \
 
-#if DK_PLATFORM_WINDOWS
-#pragma warning( push )
-#pragma warning( disable : 4018 ) // Disable signed/unsigned mismatch for number comparisons
-#endif
-
 DefineFunctionSetForType( int8_t );
 DefineFunctionSetForType( int16_t );
 DefineFunctionSetForType( int32_t );
@@ -140,10 +135,6 @@ DefineFunctionSetForType( uint64_t );
 
 DefineFunctionSetForType( float );
 DefineFunctionSetForType( double );
-
-#if DK_PLATFORM_WINDOWS
-#pragma warning( pop )
-#endif
 
 
 

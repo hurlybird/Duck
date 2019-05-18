@@ -47,10 +47,10 @@ FILE *      DKFileGetStreamPtr( DKFileRef _self );
 
 int         DKFileSeek( DKFileRef _self, long offset, int origin );
 long        DKFileTell( DKFileRef _self );
-DKIndex     DKFileGetLength( DKFileRef _self );
+long        DKFileGetLength( DKFileRef _self );
 
-DKIndex     DKFileRead( DKFileRef _self, void * buffer, DKIndex size, DKIndex count );
-DKIndex     DKFileWrite( DKFileRef _self, const void * buffer, DKIndex size, DKIndex count );
+size_t      DKFileRead( DKFileRef _self, void * buffer, size_t size, size_t count );
+size_t      DKFileWrite( DKFileRef _self, const void * buffer, size_t size, size_t count );
 
 
 

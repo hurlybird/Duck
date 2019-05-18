@@ -50,7 +50,7 @@ struct DKString
     DKObject _obj;          // 24 bytes
     DKByteArray byteArray;  // 24 bytes
     DKHashCode hashCode;    // 8 bytes
-    DKIndex cursor;         // 8 bytes
+    long cursor;            // 8 bytes
 };
 
 static void *       DKStringAllocPlaceholder( DKClassRef _class, size_t extraBytes );
@@ -2128,7 +2128,7 @@ DKDictionaryRef DKStringSplitCSSStyles( DKStringRef _self )
 ///
 //  DKStringSeek()
 //
-int DKStringSeek( DKStringRef _self, DKIndex offset, int origin )
+int DKStringSeek( DKStringRef _self, long offset, int origin )
 {
     if( _self )
     {
@@ -2157,7 +2157,7 @@ int DKStringSeek( DKStringRef _self, DKIndex offset, int origin )
 ///
 //  DKStringTell()
 //
-DKIndex DKStringTell( DKStringRef _self )
+long DKStringTell( DKStringRef _self )
 {
     if( _self )
     {
@@ -2172,7 +2172,7 @@ DKIndex DKStringTell( DKStringRef _self )
 ///
 //  DKStringRead()
 //
-DKIndex DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex count )
+size_t DKStringRead( DKStringRef _self, void * buffer, size_t size, size_t count )
 {
     if( _self )
     {
@@ -2199,7 +2199,7 @@ DKIndex DKStringRead( DKStringRef _self, void * buffer, DKIndex size, DKIndex co
 ///
 //  DKStringWrite()
 //
-DKIndex DKStringWrite( DKMutableStringRef _self, const void * buffer, DKIndex size, DKIndex count )
+size_t DKStringWrite( DKMutableStringRef _self, const void * buffer, size_t size, size_t count )
 {
     if( _self )
     {
@@ -2347,13 +2347,13 @@ static DKSpinLock DKConstantStringTableLock = DKSpinLockInit;
 
 static DKRowStatus DKConstantStringTableRowStatus( const void * _row )
 {
-    struct DKString const ** row = _row;
+    DKStringRef * row = (void *)_row;
     return (DKRowStatus)(*row);
 }
 
 static DKHashCode DKConstantStringTableRowHash( const void * _row )
 {
-    struct DKString const ** row = _row;
+    DKStringRef * row = (void *)_row;
     return (*row)->hashCode;
 }
 

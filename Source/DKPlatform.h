@@ -110,7 +110,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert );
 
 
 // Indexes
-typedef size_t    DKIndex;
+typedef long      DKIndex;    // This is signed to make index arithmetic easier
 typedef uintptr_t DKHashCode; // Pointers can be used as hash codes
 
 enum

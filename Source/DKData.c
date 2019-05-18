@@ -40,7 +40,7 @@ struct DKData
 {
     DKObject _obj;
     DKByteArray byteArray;
-    DKIndex cursor;
+    long cursor;
 };
 
 
@@ -358,7 +358,7 @@ static void DKDataAddToEgg( DKDataRef _self, DKEggArchiverRef egg )
     {
         size_t size = DKEncodingTypeGetSize( encodingType );
         unsigned int count = (unsigned int)(_self->byteArray.length / size);
-        DKAssert( _self->byteArray.length == (size * count) );
+        DKAssert( (size_t)_self->byteArray.length == (size * count) );
 
         DKEncoding encoding = DKEncode( encodingType, count );
 
@@ -756,7 +756,7 @@ void DKDataDeleteBytes( DKMutableDataRef _self, DKRange range )
 ///
 //  DKDataSeek()
 //
-int DKDataSeek( DKDataRef _self, DKIndex offset, int origin )
+int DKDataSeek( DKDataRef _self, long offset, int origin )
 {
     if( _self )
     {
@@ -785,7 +785,7 @@ int DKDataSeek( DKDataRef _self, DKIndex offset, int origin )
 ///
 //  DKDataTell()
 //
-DKIndex DKDataTell( DKDataRef _self )
+long DKDataTell( DKDataRef _self )
 {
     if( _self )
     {
@@ -801,7 +801,7 @@ DKIndex DKDataTell( DKDataRef _self )
 ///
 //  DKDataRead()
 //
-DKIndex DKDataRead( DKDataRef _self, void * buffer, DKIndex size, DKIndex count )
+size_t DKDataRead( DKDataRef _self, void * buffer, size_t size, size_t count )
 {
     if( _self )
     {
@@ -828,7 +828,7 @@ DKIndex DKDataRead( DKDataRef _self, void * buffer, DKIndex size, DKIndex count 
 ///
 //  DKDataWrite()
 //
-DKIndex DKDataWrite( DKMutableDataRef _self, const void * buffer, DKIndex size, DKIndex count )
+size_t DKDataWrite( DKMutableDataRef _self, const void * buffer, size_t size, size_t count )
 {
     if( _self )
     {
