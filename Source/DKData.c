@@ -40,7 +40,7 @@ struct DKData
 {
     DKObject _obj;
     DKByteArray byteArray;
-    long cursor;
+    DKIndex cursor;
 };
 
 
@@ -791,7 +791,7 @@ long DKDataTell( DKDataRef _self )
     {
         DKAssertKindOfClass( _self, DKDataClass() );
 
-        return _self->cursor;
+        return (long)_self->cursor;
     }
     
     return -1;

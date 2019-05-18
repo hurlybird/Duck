@@ -47,10 +47,10 @@
 
 struct DKString
 {
-    DKObject _obj;          // 24 bytes
-    DKByteArray byteArray;  // 24 bytes
-    DKHashCode hashCode;    // 8 bytes
-    long cursor;            // 8 bytes
+    DKObject _obj;
+    DKByteArray byteArray;
+    DKHashCode hashCode;
+    DKIndex cursor;
 };
 
 static void *       DKStringAllocPlaceholder( DKClassRef _class, size_t extraBytes );
@@ -2162,7 +2162,7 @@ long DKStringTell( DKStringRef _self )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
-        return _self->cursor;
+        return (long)_self->cursor;
     }
     
     return -1;

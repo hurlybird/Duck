@@ -109,14 +109,21 @@ typedef struct DKSet *              DKSetRef;
 DKStringRef __DKStringGetConstantString( const char * str, bool insert );
 
 
-// Indexes
-typedef long      DKIndex;    // This is signed to make index arithmetic easier
-typedef uintptr_t DKHashCode; // Pointers can be used as hash codes
+// DKIndex is a signed integer the same width as size_t, to make index arithmetic
+// easier. A long works for clang and gcc (CFIndex is defined as a long), but in
+// Microsoft compiler land under Win64 a long is 4-bytes and size_t is 8-bytes.
+// Thus far intptr_t resolves to the desired size, but this may need to be updated
+// for other architectures/compilers.
+typedef intptr_t  DKIndex;
 
 enum
 {
     DKNotFound = -1,
 };
+
+
+// Hash codes must be the same size as pointers so pointers can be used as hashcodes
+typedef uintptr_t DKHashCode;
 
 
 // UTF-8 character - a single UTF-8 code point + '\0'

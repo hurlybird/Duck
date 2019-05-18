@@ -382,7 +382,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKData
             SwizzleEggHeader( (DKEggHeader *)_self->header );
         }
 
-        if( DKDataGetLength( data ) < (_self->header->data.index + _self->header->data.length) )
+        if( (size_t)DKDataGetLength( data ) < (_self->header->data.index + _self->header->data.length) )
         {
             // *** ERROR ***
             
@@ -492,7 +492,7 @@ static DKSEL DKEggUnarchiverGetSelector( DKEggUnarchiverRef _self, uint32_t offs
 static DKObjectRef DKEggUnarchiverGetObject( DKEggUnarchiverRef _self, DKIndex index )
 {
     DKAssert( index >= 0 );
-    DKCheckIndex( index, _self->header->objectTable.length, NULL );
+    DKCheckIndex( index, (DKIndex)_self->header->objectTable.length, NULL );
     
     DKObjectRef object = DKGenericArrayElementAtIndex( &_self->unarchivedObjects, index, DKObjectRef );
     
@@ -1000,7 +1000,7 @@ static void BuildHeader( DKEggArchiverRef _self, DKEggHeader * header )
     header->attributeTable.index = header->objectTable.index + (header->objectTable.length * sizeof(DKEggObject));
     header->attributeTable.length = 0;
 
-    for( DKIndex i = 0; i < header->objectTable.length; ++i )
+    for( uint32_t i = 0; i < header->objectTable.length; ++i )
     {
         struct ArchivedObject * archivedObject = DKGenericArrayGetPointerToElementAtIndex( &_self->archivedObjects, i );
         header->attributeTable.length += (uint32_t)DKGenericArrayGetLength( &archivedObject->attributes );
@@ -1027,7 +1027,7 @@ static void WriteObjectTable( DKEggArchiverRef _self, const DKEggHeader * header
 {
     DKIndex index = 0;
 
-    for( DKIndex i = 0; i < header->objectTable.length; ++i )
+    for( uint32_t i = 0; i < header->objectTable.length; ++i )
     {
         struct ArchivedObject * archivedObject = DKGenericArrayGetPointerToElementAtIndex( &_self->archivedObjects, i );
         
@@ -1050,7 +1050,7 @@ static void WriteObjectTable( DKEggArchiverRef _self, const DKEggHeader * header
 //
 static void WriteAttributeTable( DKEggArchiverRef _self, const DKEggHeader * header, DKObjectRef stream )
 {
-    for( DKIndex i = 0; i < header->objectTable.length; ++i )
+    for( uint32_t i = 0; i < header->objectTable.length; ++i )
     {
         struct ArchivedObject * archivedObject = DKGenericArrayGetPointerToElementAtIndex( &_self->archivedObjects, i );
         
