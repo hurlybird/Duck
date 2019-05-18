@@ -49,6 +49,10 @@ inline struct initialization. The main workaround for these issues is to add
 extra casts where needed and avoid any convenience macros that aren't C++
 friendly.
 
+A **PRELIMINARY** Visual Studio project is located in Duck-Windows. The project
+is configured for both 32 ad 64-bit Windows builds. While all the required porting
+work is done, none of it has been tested.
+
 A CMakeLists.h file is included for building with Android Studio.
 
 A basic SConstruct file is included for building with scons.
