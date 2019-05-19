@@ -74,23 +74,23 @@
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)..\Build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(OutDir)Intermediates\</IntDir>
+    <IntDir>$(OutDir)Intermediates\Duck\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\Build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(OutDir)Intermediates\</IntDir>
+    <IntDir>$(OutDir)Intermediates\Duck\</IntDir>
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\Build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(OutDir)Intermediates\</IntDir>
+    <IntDir>$(OutDir)Intermediates\Duck\</IntDir>
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)..\Build\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(OutDir)Intermediates\</IntDir>
+    <IntDir>$(OutDir)Intermediates\Duck\</IntDir>
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
@@ -100,7 +100,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;DK_API_EXPORTS;_CRT_SECURE_NO_WARNINGS;DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;DK_API_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>
       </CompileAs>
       <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdParty;$(ProjectDir)..\ThirdParty\icu;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -124,7 +124,7 @@ xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)Include\Duck\</Command>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdParty;$(ProjectDir)..\ThirdParty\icu;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;DK_API_EXPORTS;_CRT_SECURE_NO_WARNINGS;DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;DK_API_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

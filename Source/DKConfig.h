@@ -30,6 +30,53 @@
 
 
 
+// Platform ==============================================================================
+
+// #define DK_PLATFORM_APPLE            -- Apple (Darwin) system calls available
+// #define DK_PLATFORM_POSIX            -- POSIX available
+// #define DK_PLATFORM_BSD              -- BSD system calls available
+// #define DK_PLATFORM_LINUX            -- Linux system calls available
+// #define DK_PLATFORM_ANDROID_NDK      -- Android NDK available
+// #define DK_PLATFORM_WINDOWS			-- Windows SDK available
+// #define DK_PLATFORM_GCC_INTRINSICS   -- Use GCC __sync* and __builtin_bswap* intrinsics
+
+
+// Apple MacOS and iOS
+#if DK_PLATFORM_APPLE
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1 // Clang supports GCC-style sync and swap intrinsics
+
+
+// Linux
+#elif DK_PLATFORM_LINUX
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
+// Android
+#elif DK_PLATFORM_ANDROID
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_ANDROID_NDK     1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
+// Windows
+#elif DK_PLATFORM_WINDOWS
+#ifdef _DEBUG
+#define DEBUG 1
+#endif
+
+
+// Default (Apple)
+#else
+#define DK_PLATFORM_APPLE           1
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+#endif
+
+
+
+
 // Debug =================================================================================
 #ifdef DEBUG
 
@@ -94,50 +141,6 @@
 #endif
 
 #endif // DEBUG
-
-
-
-
-// Platform ==============================================================================
-
-// #define DK_PLATFORM_APPLE            -- Apple (Darwin) system calls available
-// #define DK_PLATFORM_POSIX            -- POSIX available
-// #define DK_PLATFORM_BSD              -- BSD system calls available
-// #define DK_PLATFORM_LINUX            -- Linux system calls available
-// #define DK_PLATFORM_ANDROID_NDK      -- Android NDK available
-// #define DK_PLATFORM_WINDOWS			-- Windows SDK available
-// #define DK_PLATFORM_GCC_INTRINSICS   -- Use GCC __sync* and __builtin_bswap* intrinsics
-
-
-// Apple MacOS and iOS
-#if DK_PLATFORM_APPLE
-#define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1 // Clang supports GCC-style sync and swap intrinsics
-
-
-// Linux
-#elif DK_PLATFORM_LINUX
-#define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
-
-
-// Android
-#elif DK_PLATFORM_ANDROID
-#define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_ANDROID_NDK     1
-#define DK_PLATFORM_GCC_INTRINSICS  1
-
-
-// Windows
-#elif DK_PLATFORM_WINDOWS
-
-
-// Default (Apple)
-#else
-#define DK_PLATFORM_APPLE           1
-#define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
-#endif
 
 
 
