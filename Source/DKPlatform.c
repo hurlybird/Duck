@@ -355,7 +355,7 @@ DKUUID dk_uuid_generate( void )
 }
 
 #elif DK_PLATFORM_WINDOWS
-#include <Rpc.h>
+#include <rpc.h>
 
 DKUUID dk_uuid_generate( void )
 {
@@ -486,7 +486,7 @@ DKDateTime dk_datetime( void )
     uint64_t secs = nsecs_since_1970 / 10000000;
     uint64_t nsecs = nsecs_since_1970 - secs;
 
-    return (double)secs + ((double)nsecs * 1.0e-7);
+    return (DKDateTime)secs - DKAbsoluteTimeSince1970 + ((DKDateTime)nsecs * 1.0e-7);
 }
 
 #else

@@ -29,34 +29,34 @@
 
 
 // Returns the object itself (useful for callbacks).
-DKObjectRef DKGetSelf( DKObjectRef _self );
+DK_API DKObjectRef DKGetSelf( DKObjectRef _self );
 
 // Returns false if the object's class was created with the DKImmutableInstances option.
-bool        DKIsMutable( DKObjectRef _self );
+DK_API bool        DKIsMutable( DKObjectRef _self );
 
 // Retrieve the class, superclass and class name. These functions return the same values
 // for classes and instances (i.e. DKGetClass(DKObjectClass()) == DKObjectClass()).
-DKClassRef  DKGetClass( DKObjectRef _self );
-DKStringRef DKGetClassName( DKObjectRef _self );
-DKClassRef  DKGetSuperclass( DKObjectRef _self );
+DK_API DKClassRef  DKGetClass( DKObjectRef _self );
+DK_API DKStringRef DKGetClassName( DKObjectRef _self );
+DK_API DKClassRef  DKGetSuperclass( DKObjectRef _self );
 
 // Returns true if the object is a instance of the class.
-bool        DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class );
+DK_API bool        DKIsMemberOfClass( DKObjectRef _self, DKClassRef _class );
 
 // Returns true if the object is a instance of the class or one of its subclasses.
-bool        DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
+DK_API bool        DKIsKindOfClass( DKObjectRef _self, DKClassRef _class );
 
 // Returns true if the class is a subclass of (or equal to) another class
-bool        DKIsSubclass( DKClassRef _class, DKClassRef otherClass );
+DK_API bool        DKIsSubclass( DKClassRef _class, DKClassRef otherClass );
 
 // Convert between classes and strings
-DKClassRef  DKClassFromString( DKStringRef className );
-DKClassRef  DKClassFromCString( const char * className );
-DKStringRef DKStringFromClass( DKClassRef _class );
+DK_API DKClassRef  DKClassFromString( DKStringRef className );
+DK_API DKClassRef  DKClassFromCString( const char * className );
+DK_API DKStringRef DKStringFromClass( DKClassRef _class );
 
 // Convert between selectors and strings
-DKSEL       DKSelectorFromString( DKStringRef name );
-DKStringRef DKStringFromSelector( DKSEL sel );
+DK_API DKSEL       DKSelectorFromString( DKStringRef name );
+DK_API DKStringRef DKStringFromSelector( DKSEL sel );
 
 
 

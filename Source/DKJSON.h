@@ -39,9 +39,9 @@ enum
 };
 
 
-int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options );
+DK_API int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options );
 
-DKObjectRef DKJSONParse( DKStringRef json, int options );
+DK_API DKObjectRef DKJSONParse( DKStringRef json, int options );
 
 
 

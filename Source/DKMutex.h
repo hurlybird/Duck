@@ -34,18 +34,18 @@
 typedef struct DKMutex * DKMutexRef;
 
 
-DKClassRef DKMutexClass( void );
+DK_API DKClassRef DKMutexClass( void );
 
 #define DKNewMutex()            DKMutexInit( DKAlloc( DKMutexClass() ) )
 #define DKNewRecursiveMutex()   DKRecursiveMutexInit( DKAlloc( DKMutexClass() ) )
 
 
-DKObjectRef DKMutexInit( DKObjectRef _self );
-DKObjectRef DKRecursiveMutexInit( DKObjectRef _self );
+DK_API DKObjectRef DKMutexInit( DKObjectRef _self );
+DK_API DKObjectRef DKRecursiveMutexInit( DKObjectRef _self );
 
-void DKMutexLock( DKMutexRef _self );
-bool DKMutexTryLock( DKMutexRef _self );
-void DKMutexUnlock( DKMutexRef _self );
+DK_API void DKMutexLock( DKMutexRef _self );
+DK_API bool DKMutexTryLock( DKMutexRef _self );
+DK_API void DKMutexUnlock( DKMutexRef _self );
 
 
 

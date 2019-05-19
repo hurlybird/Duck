@@ -34,16 +34,16 @@
 
 typedef struct DKBoolean * DKBooleanRef;
 
-DKClassRef   DKBooleanClass( void );
+DK_API DKClassRef   DKBooleanClass( void );
 
-#define      DKBoolean( value ) ((value) ? DKTrue() : DKFalse())
+#define             DKBoolean( value ) ((value) ? DKTrue() : DKFalse())
 
-DKBooleanRef DKTrue( void );
-DKBooleanRef DKFalse( void );
+DK_API DKBooleanRef DKTrue( void );
+DK_API DKBooleanRef DKFalse( void );
 
-#define      DKBooleanGetValue( b )     (((b) == DKTrue()) ? true : false)
+#define             DKBooleanGetValue( b )     (((b) == DKTrue()) ? true : false)
 
-DKStringRef  DKBooleanGetDescription( DKBooleanRef _self );
+DK_API DKStringRef  DKBooleanGetDescription( DKBooleanRef _self );
 
 
 

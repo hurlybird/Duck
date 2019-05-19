@@ -82,78 +82,78 @@ struct DKListInterface
 typedef const struct DKListInterface * DKListInterfaceRef;
 
 
-DKClassRef  DKListClass( void );
-void        DKSetDefaultListClass( DKClassRef _self );
+DK_API DKClassRef  DKListClass( void );
+DK_API void        DKSetDefaultListClass( DKClassRef _self );
 
-DKClassRef  DKMutableListClass( void );
-void        DKSetDefaultMutableListClass( DKClassRef _self );
+DK_API DKClassRef  DKMutableListClass( void );
+DK_API void        DKSetDefaultMutableListClass( DKClassRef _self );
 
-#define     DKEmptyList()           DKAutorelease( DKNew( DKListClass() ) )
-#define     DKMutableList()         DKAutorelease( DKNew( DKMutableListClass() ) )
+#define            DKEmptyList()           DKAutorelease( DKNew( DKListClass() ) )
+#define            DKMutableList()         DKAutorelease( DKNew( DKMutableListClass() ) )
 
-#define     DKListWithObject( object )          DKAutorelease( DKListInitWithObject( DKAlloc( DKListClass() ), object ) )
-#define     DKListWithObjects( ... )            DKAutorelease( DKListInitWithObjects( DKAlloc( DKListClass() ), __VA_ARGS__, NULL ) )
-#define     DKListWithVAObjects( objects )      DKAutorelease( DKListInitWithVAObjects( DKAlloc( DKListClass() ), objects ) )
-#define     DKListWithCArray( objects, count )  DKAutorelease( DKListInitWithCArray( DKAlloc( DKListClass() ), objects, count ) )
-#define     DKListWithCollection( collection )  DKAutorelease( DKListInitWithCollection( DKAlloc( DKListClass() ), collection ) )
+#define            DKListWithObject( object )          DKAutorelease( DKListInitWithObject( DKAlloc( DKListClass() ), object ) )
+#define            DKListWithObjects( ... )            DKAutorelease( DKListInitWithObjects( DKAlloc( DKListClass() ), __VA_ARGS__, NULL ) )
+#define            DKListWithVAObjects( objects )      DKAutorelease( DKListInitWithVAObjects( DKAlloc( DKListClass() ), objects ) )
+#define            DKListWithCArray( objects, count )  DKAutorelease( DKListInitWithCArray( DKAlloc( DKListClass() ), objects, count ) )
+#define            DKListWithCollection( collection )  DKAutorelease( DKListInitWithCollection( DKAlloc( DKListClass() ), collection ) )
 
-#define     DKNewMutableList()      DKNew( DKMutableListClass() )
+#define            DKNewMutableList()      DKNew( DKMutableListClass() )
 
-DKObjectRef DKListInitWithObject( DKListRef _self, DKObjectRef object );
-DKObjectRef DKListInitWithObjects( DKListRef _self, ... );
-DKObjectRef DKListInitWithVAObjects( DKListRef _self, va_list objects );
-DKObjectRef DKListInitWithCArray( DKListRef _self, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKListInitWithCollection( DKListRef _self, DKObjectRef srcCollection );
+DK_API DKObjectRef DKListInitWithObject( DKListRef _self, DKObjectRef object );
+DK_API DKObjectRef DKListInitWithObjects( DKListRef _self, ... );
+DK_API DKObjectRef DKListInitWithVAObjects( DKListRef _self, va_list objects );
+DK_API DKObjectRef DKListInitWithCArray( DKListRef _self, DKObjectRef objects[], DKIndex count );
+DK_API DKObjectRef DKListInitWithCollection( DKListRef _self, DKObjectRef srcCollection );
 
-DKObjectRef DKListInitSetWithObjects( DKListRef _self, ... );
-DKObjectRef DKListInitSetWithVAObjects( DKListRef _self, va_list objects );
-DKObjectRef DKListInitSetWithCArray( DKListRef _self, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKListInitSetWithCollection( DKListRef _self, DKObjectRef srcCollection );
+DK_API DKObjectRef DKListInitSetWithObjects( DKListRef _self, ... );
+DK_API DKObjectRef DKListInitSetWithVAObjects( DKListRef _self, va_list objects );
+DK_API DKObjectRef DKListInitSetWithCArray( DKListRef _self, DKObjectRef objects[], DKIndex count );
+DK_API DKObjectRef DKListInitSetWithCollection( DKListRef _self, DKObjectRef srcCollection );
 
-DKIndex     DKListGetCount( DKListRef _self );
-DKIndex     DKListGetCountOfObject( DKListRef _self, DKObjectRef object );
+DK_API DKIndex     DKListGetCount( DKListRef _self );
+DK_API DKIndex     DKListGetCountOfObject( DKListRef _self, DKObjectRef object );
 
-#define     DKListGetIndexOfObject( list, obj )     DKListGetFirstIndexOfObject( list, obj )
-DKIndex     DKListGetFirstIndexOfObject( DKListRef _self, DKObjectRef object );
-DKIndex     DKListGetFirstIndexOfObjectInRange( DKListRef _self, DKObjectRef object, DKRange range );
+#define            DKListGetIndexOfObject( list, obj )     DKListGetFirstIndexOfObject( list, obj )
+DK_API DKIndex     DKListGetFirstIndexOfObject( DKListRef _self, DKObjectRef object );
+DK_API DKIndex     DKListGetFirstIndexOfObjectInRange( DKListRef _self, DKObjectRef object, DKRange range );
 
-DKIndex     DKListGetLastIndexOfObject( DKListRef _self, DKObjectRef object );
-DKIndex     DKListGetLastIndexOfObjectInRange( DKListRef _self, DKObjectRef object, DKRange range );
+DK_API DKIndex     DKListGetLastIndexOfObject( DKListRef _self, DKObjectRef object );
+DK_API DKIndex     DKListGetLastIndexOfObjectInRange( DKListRef _self, DKObjectRef object, DKRange range );
 
-DKObjectRef DKListGetObjectAtIndex( DKListRef _self, DKIndex index );
-DKIndex     DKListGetObjectsInRange( DKListRef _self, DKRange range, DKObjectRef objects[] );
+DK_API DKObjectRef DKListGetObjectAtIndex( DKListRef _self, DKIndex index );
+DK_API DKIndex     DKListGetObjectsInRange( DKListRef _self, DKRange range, DKObjectRef objects[] );
 
-DKObjectRef DKListGetFirstObject( DKListRef _self );
-DKObjectRef DKListGetLastObject( DKListRef _self );
+DK_API DKObjectRef DKListGetFirstObject( DKListRef _self );
+DK_API DKObjectRef DKListGetLastObject( DKListRef _self );
 
-void        DKListAppendObject( DKMutableListRef _self, DKObjectRef object );
-void        DKListAppendCArray( DKMutableListRef _self, DKObjectRef objects[], DKIndex count );
-void        DKListAppendCollection( DKMutableListRef _self, DKObjectRef srcCollection );
+DK_API void        DKListAppendObject( DKMutableListRef _self, DKObjectRef object );
+DK_API void        DKListAppendCArray( DKMutableListRef _self, DKObjectRef objects[], DKIndex count );
+DK_API void        DKListAppendCollection( DKMutableListRef _self, DKObjectRef srcCollection );
 
-void        DKListSetObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
-void        DKListInsertObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
+DK_API void        DKListSetObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
+DK_API void        DKListInsertObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
 
-void        DKListReplaceRangeWithCArray( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
-void        DKListReplaceRangeWithCollection( DKMutableListRef _self, DKRange range, DKObjectRef srcCollection );
+DK_API void        DKListReplaceRangeWithCArray( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
+DK_API void        DKListReplaceRangeWithCollection( DKMutableListRef _self, DKRange range, DKObjectRef srcCollection );
 
-bool        DKListContainsObject( DKListRef _self, DKObjectRef object );
-DKObjectRef DKListGetMemberOfSet( DKListRef _self, DKObjectRef object );
-void        DKListAddObjectToSet( DKMutableListRef _self, DKObjectRef object );
+DK_API bool        DKListContainsObject( DKListRef _self, DKObjectRef object );
+DK_API DKObjectRef DKListGetMemberOfSet( DKListRef _self, DKObjectRef object );
+DK_API void        DKListAddObjectToSet( DKMutableListRef _self, DKObjectRef object );
 
-void        DKListRemoveObject( DKMutableListRef _self, DKObjectRef object );
-void        DKListRemoveObjectAtIndex( DKMutableListRef _self, DKIndex index );
-void        DKListRemoveObjectsInRange( DKMutableListRef _self, DKRange range );
-void        DKListRemoveAllObjects( DKMutableListRef _self );
+DK_API void        DKListRemoveObject( DKMutableListRef _self, DKObjectRef object );
+DK_API void        DKListRemoveObjectAtIndex( DKMutableListRef _self, DKIndex index );
+DK_API void        DKListRemoveObjectsInRange( DKMutableListRef _self, DKRange range );
+DK_API void        DKListRemoveAllObjects( DKMutableListRef _self );
 
-void        DKListRemoveFirstObject( DKMutableListRef _self );
-void        DKListRemoveLastObject( DKMutableListRef _self );
+DK_API void        DKListRemoveFirstObject( DKMutableListRef _self );
+DK_API void        DKListRemoveLastObject( DKMutableListRef _self );
 
-bool        DKListEqual( DKListRef _self, DKListRef other );
-int         DKListCompare( DKListRef _self, DKListRef other );
+DK_API bool        DKListEqual( DKListRef _self, DKListRef other );
+DK_API int         DKListCompare( DKListRef _self, DKListRef other );
 
-void        DKListSort( DKMutableListRef _self, DKCompareFunction cmp );
-void        DKListReverse( DKMutableListRef _self );
-void        DKListShuffle( DKMutableListRef _self );
+DK_API void        DKListSort( DKMutableListRef _self, DKCompareFunction cmp );
+DK_API void        DKListReverse( DKMutableListRef _self );
+DK_API void        DKListShuffle( DKMutableListRef _self );
 
 
 

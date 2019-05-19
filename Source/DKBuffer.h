@@ -55,11 +55,11 @@ typedef const struct DKBufferInterface * DKBufferInterfaceRef;
 
 
 // Wrappers
-DKIndex         DKBufferGetLength( DKObjectRef _self );
-const void *    DKBufferGetBytePtr( DKObjectRef _self, DKIndex index );
+DK_API DKIndex      DKBufferGetLength( DKObjectRef _self );
+DK_API const void * DKBufferGetBytePtr( DKObjectRef _self, DKIndex index );
 
-void            DKBufferSetLength( DKObjectRef _self, DKIndex length );
-void *          DKBufferGetMutableBytePtr( DKObjectRef _self, DKIndex index );
+DK_API void         DKBufferSetLength( DKObjectRef _self, DKIndex length );
+DK_API void *       DKBufferGetMutableBytePtr( DKObjectRef _self, DKIndex index );
 
 
 

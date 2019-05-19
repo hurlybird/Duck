@@ -41,15 +41,15 @@ struct DKPair
 typedef struct DKPair * DKPairRef;
 
 
-DKClassRef  DKPairClass( void );
+DK_API DKClassRef  DKPairClass( void );
 
-#define DKPair( first, second )         DKAutorelease( DKPairInit( DKAlloc( DKPairClass() ), first, second ) )
-#define DKNewPair( first, second )      DKPairInit( DKAlloc( DKPairClass() ), first, second )
+#define            DKPair( first, second )         DKAutorelease( DKPairInit( DKAlloc( DKPairClass() ), first, second ) )
+#define            DKNewPair( first, second )      DKPairInit( DKAlloc( DKPairClass() ), first, second )
 
-DKObjectRef DKPairInit( DKObjectRef _self, DKObjectRef first, DKObjectRef second );
+DK_API DKObjectRef DKPairInit( DKObjectRef _self, DKObjectRef first, DKObjectRef second );
 
-DKObjectRef DKPairGetFirstObject( DKPairRef _self );
-DKObjectRef DKPairGetSecondObject( DKPairRef _self );
+DK_API DKObjectRef DKPairGetFirstObject( DKPairRef _self );
+DK_API DKObjectRef DKPairGetSecondObject( DKPairRef _self );
 
 
 

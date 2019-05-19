@@ -67,51 +67,51 @@ struct DKDictionaryInterface
 typedef const struct DKDictionaryInterface * DKDictionaryInterfaceRef;
 
 
-DKClassRef  DKDictionaryClass( void );
-void        DKSetDefaultDictionaryClass( DKClassRef _class );
+DK_API DKClassRef  DKDictionaryClass( void );
+DK_API void        DKSetDefaultDictionaryClass( DKClassRef _class );
 
-DKClassRef  DKMutableDictionaryClass( void );
-void        DKSetDefaultMutableDictionaryClass( DKClassRef _class );
+DK_API DKClassRef  DKMutableDictionaryClass( void );
+DK_API void        DKSetDefaultMutableDictionaryClass( DKClassRef _class );
 
-#define     DKEmptyDictionary()         DKAutorelease( DKNew( DKDictionaryClass() ) )
-#define     DKMutableDictionary()       DKAutorelease( DKNew( DKMutableDictionaryClass() ) )
+#define            DKEmptyDictionary()         DKAutorelease( DKNew( DKDictionaryClass() ) )
+#define            DKMutableDictionary()       DKAutorelease( DKNew( DKMutableDictionaryClass() ) )
 
-#define     DKNewEmptyDictionary()      DKNew( DKDictionaryClass() )
-#define     DKNewMutableDictionary()    DKNew( DKMutableDictionaryClass() )
+#define            DKNewEmptyDictionary()      DKNew( DKDictionaryClass() )
+#define            DKNewMutableDictionary()    DKNew( DKMutableDictionaryClass() )
 
-#define     DKDictionaryWithKeysAndObjects( firstKey, ... )         DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__, NULL ) )
-#define     DKDictionaryWithDictionary( srcDictionary )             DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary ) )
+#define            DKDictionaryWithKeysAndObjects( firstKey, ... )         DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__, NULL ) )
+#define            DKDictionaryWithDictionary( srcDictionary )             DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary ) )
 
-#define     DKNewDictionaryWithKeysAndObjects( firstKey, ... )      DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__, NULL )
-#define     DKNewDictionaryWithDictionary( srcDictionary )          DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary )
+#define            DKNewDictionaryWithKeysAndObjects( firstKey, ... )      DKDictionaryInitWithKeysAndObjects( DKAlloc( DKDictionaryClass() ), firstKey, __VA_ARGS__, NULL )
+#define            DKNewDictionaryWithDictionary( srcDictionary )          DKDictionaryInitWithDictionary( DKAlloc( DKDictionaryClass() ), srcDictionary )
 
-#define     DKMutableDictionaryWithKeysAndObjects( firstKey, ... )  DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKMutableDictionaryClass() ), firstKey, __VA_ARGS__, NULL ) )
-#define     DKMutableDictionaryWithDictionary( srcDictionary )      DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKMutableDictionaryClass() ), srcDictionary ) )
+#define            DKMutableDictionaryWithKeysAndObjects( firstKey, ... )  DKAutorelease( DKDictionaryInitWithKeysAndObjects( DKAlloc( DKMutableDictionaryClass() ), firstKey, __VA_ARGS__, NULL ) )
+#define            DKMutableDictionaryWithDictionary( srcDictionary )      DKAutorelease( DKDictionaryInitWithDictionary( DKAlloc( DKMutableDictionaryClass() ), srcDictionary ) )
 
-DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, ... );
-DKObjectRef DKDictionaryInitWithDictionary( DKDictionaryRef _self, DKDictionaryRef srcDictionary );
+DK_API DKObjectRef DKDictionaryInitWithKeysAndObjects( DKDictionaryRef _self, ... );
+DK_API DKObjectRef DKDictionaryInitWithDictionary( DKDictionaryRef _self, DKDictionaryRef srcDictionary );
 
-DKIndex     DKDictionaryGetCount( DKDictionaryRef _self );
-DKObjectRef DKDictionaryGetObject( DKDictionaryRef _self, DKObjectRef key );
+DK_API DKIndex     DKDictionaryGetCount( DKDictionaryRef _self );
+DK_API DKObjectRef DKDictionaryGetObject( DKDictionaryRef _self, DKObjectRef key );
 
-int         DKDictionaryContainsKey( DKDictionaryRef _self, DKObjectRef key );
-int         DKDictionaryContainsObject( DKDictionaryRef _self, DKObjectRef object );
+DK_API int         DKDictionaryContainsKey( DKDictionaryRef _self, DKObjectRef key );
+DK_API int         DKDictionaryContainsObject( DKDictionaryRef _self, DKObjectRef object );
 
-DKListRef   DKDictionaryGetAllKeys( DKDictionaryRef _self );
-DKListRef   DKDictionaryGetAllObjects( DKDictionaryRef _self );
+DK_API DKListRef   DKDictionaryGetAllKeys( DKDictionaryRef _self );
+DK_API DKListRef   DKDictionaryGetAllObjects( DKDictionaryRef _self );
 
-void        DKDictionarySetObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
-void        DKDictionaryAddObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
-void        DKDictionaryReplaceObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
-void        DKDictionaryInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
-void        DKDictionaryInsertEntriesFromDictionary( DKMutableDictionaryRef _self, DKDictionaryRef src, DKInsertPolicy policy );
+DK_API void        DKDictionarySetObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
+DK_API void        DKDictionaryAddObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
+DK_API void        DKDictionaryReplaceObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object );
+DK_API void        DKDictionaryInsertObject( DKMutableDictionaryRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
+DK_API void        DKDictionaryInsertEntriesFromDictionary( DKMutableDictionaryRef _self, DKDictionaryRef src, DKInsertPolicy policy );
 
-void        DKDictionaryRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );
-void        DKDictionaryRemoveAllObjects( DKMutableDictionaryRef _self );
+DK_API void        DKDictionaryRemoveObject( DKMutableDictionaryRef _self, DKObjectRef key );
+DK_API void        DKDictionaryRemoveAllObjects( DKMutableDictionaryRef _self );
 
-bool        DKDictionaryEqual( DKDictionaryRef _self, DKDictionaryRef other );
+DK_API bool        DKDictionaryEqual( DKDictionaryRef _self, DKDictionaryRef other );
 
-bool        DKDictionaryIsSubsetOfDictionary( DKDictionaryRef _self, DKDictionaryRef other );
+DK_API bool        DKDictionaryIsSubsetOfDictionary( DKDictionaryRef _self, DKDictionaryRef other );
 
 
 #endif // _DK_DICTIONARY_H_

@@ -108,14 +108,14 @@ typedef uint32_t DKEncoding;
 #define DKEncodingTypeIsReal( baseType )        (((baseType) >= DKEncodingTypeFloat) && ((baseType) <= DKEncodingTypeDouble))
 #define DKEncodingTypeIsNumber( baseType )      (((baseType) >= DKEncodingTypeInt8) && ((baseType) <= DKEncodingTypeDouble))
 
-size_t DKEncodingTypeGetSize( DKEncodingType encodingType );
+DK_API size_t DKEncodingTypeGetSize( DKEncodingType encodingType );
 
-size_t DKEncodingGetSize( DKEncoding encoding );
-size_t DKEncodingGetTypeSize( DKEncoding encoding );
-const char * DKEncodingGetTypeName( DKEncoding encoding );
-bool   DKEncodingIsNumber( DKEncoding encoding );
-bool   DKEncodingIsInteger( DKEncoding encoding );
-bool   DKEncodingIsReal( DKEncoding encoding );
+DK_API size_t DKEncodingGetSize( DKEncoding encoding );
+DK_API size_t DKEncodingGetTypeSize( DKEncoding encoding );
+DK_API const char * DKEncodingGetTypeName( DKEncoding encoding );
+DK_API bool   DKEncodingIsNumber( DKEncoding encoding );
+DK_API bool   DKEncodingIsInteger( DKEncoding encoding );
+DK_API bool   DKEncodingIsReal( DKEncoding encoding );
 
 
 #endif // _DK_ENCODING_H_

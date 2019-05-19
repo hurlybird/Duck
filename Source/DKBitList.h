@@ -33,41 +33,41 @@
 typedef struct DKBitList * DKBitListRef;
 
 
-DKClassRef DKBitListClass( void );
+DK_API DKClassRef DKBitListClass( void );
 
 #define DKBitList( len, val )       DKAutorelease( DKBitListInit( DKAlloc( DKBitListClass() ), len, val ) )
 #define DKNewBitList( len, val )    DKBitListInit( DKAlloc( DKBitListClass() ), len, val )
 
-DKObjectRef DKBitListInit( DKBitListRef _self, DKIndex length, bool initialValue );
+DK_API DKObjectRef DKBitListInit( DKBitListRef _self, DKIndex length, bool initialValue );
 
-DKIndex DKBitListGetLength( DKBitListRef _self );
+DK_API DKIndex DKBitListGetLength( DKBitListRef _self );
 
-void DKBitListSetAllBits( DKBitListRef _self );
-void DKBitListClearAllBits( DKBitListRef _self );
-void DKBitListFlipAllBits( DKBitListRef _self );
+DK_API void DKBitListSetAllBits( DKBitListRef _self );
+DK_API void DKBitListClearAllBits( DKBitListRef _self );
+DK_API void DKBitListFlipAllBits( DKBitListRef _self );
 
-void DKBitListSetBit( DKBitListRef _self, DKIndex i );
-void DKBitListClearBit( DKBitListRef _self, DKIndex i );
-void DKBitListFlipBit( DKBitListRef _self, DKIndex i );
+DK_API void DKBitListSetBit( DKBitListRef _self, DKIndex i );
+DK_API void DKBitListClearBit( DKBitListRef _self, DKIndex i );
+DK_API void DKBitListFlipBit( DKBitListRef _self, DKIndex i );
 
-bool DKBitListTestBit( DKBitListRef _self, DKIndex i );
-bool DKBitListTestAndSetBit( DKBitListRef _self, DKIndex i );
-bool DKBitListTestAndClearBit( DKBitListRef _self, DKIndex i );
-bool DKBitListTestAndFlipBit( DKBitListRef _self, DKIndex i );
+DK_API bool DKBitListTestBit( DKBitListRef _self, DKIndex i );
+DK_API bool DKBitListTestAndSetBit( DKBitListRef _self, DKIndex i );
+DK_API bool DKBitListTestAndClearBit( DKBitListRef _self, DKIndex i );
+DK_API bool DKBitListTestAndFlipBit( DKBitListRef _self, DKIndex i );
 
-DKIndex DKBitListGetFirstSetBit( DKBitListRef _self );
-DKIndex DKBitListGetFirstClearBit( DKBitListRef _self );
+DK_API DKIndex DKBitListGetFirstSetBit( DKBitListRef _self );
+DK_API DKIndex DKBitListGetFirstClearBit( DKBitListRef _self );
 
-DKIndex DKBitListCountSetBits( DKBitListRef _self );
-DKIndex DKBitListCountClearBits( DKBitListRef _self );
+DK_API DKIndex DKBitListCountSetBits( DKBitListRef _self );
+DK_API DKIndex DKBitListCountClearBits( DKBitListRef _self );
 
 // Merge r = a OP b
-void DKBitListMergeBitsAND( DKBitListRef a, DKBitListRef b, DKBitListRef r );
-void DKBitListMergeBitsNAND( DKBitListRef a, DKBitListRef b, DKBitListRef r );
-void DKBitListMergeBitsOR( DKBitListRef a, DKBitListRef b, DKBitListRef r );
-void DKBitListMergeBitsNOR( DKBitListRef a, DKBitListRef b, DKBitListRef r );
-void DKBitListMergeBitsXOR( DKBitListRef a, DKBitListRef b, DKBitListRef r );
-void DKBitListMergeBitsNXOR( DKBitListRef a, DKBitListRef b, DKBitListRef r );
+DK_API void DKBitListMergeBitsAND( DKBitListRef a, DKBitListRef b, DKBitListRef r );
+DK_API void DKBitListMergeBitsNAND( DKBitListRef a, DKBitListRef b, DKBitListRef r );
+DK_API void DKBitListMergeBitsOR( DKBitListRef a, DKBitListRef b, DKBitListRef r );
+DK_API void DKBitListMergeBitsNOR( DKBitListRef a, DKBitListRef b, DKBitListRef r );
+DK_API void DKBitListMergeBitsXOR( DKBitListRef a, DKBitListRef b, DKBitListRef r );
+DK_API void DKBitListMergeBitsNXOR( DKBitListRef a, DKBitListRef b, DKBitListRef r );
 
 
 

@@ -39,8 +39,8 @@ enum
 };
 
 // Initialize the library
-void DKRuntimeInit( int options );
-bool DKRuntimeIsInitialized( void );
+DK_API void DKRuntimeInit( int options );
+DK_API bool DKRuntimeIsInitialized( void );
 
 
 
@@ -117,14 +117,14 @@ enum
 
 
 // Root Classes ==========================================================================
-DKClassRef DKRootClass( void );
-DKClassRef DKClassClass( void );
-DKClassRef DKSelectorClass( void );
-DKClassRef DKInterfaceClass( void );
-DKClassRef DKMsgHandlerClass( void );
-DKClassRef DKMetadataClass( void );
-DKClassRef DKObjectClass( void );
-DKClassRef DKZombieClass( void );
+DK_API DKClassRef DKRootClass( void );
+DK_API DKClassRef DKClassClass( void );
+DK_API DKClassRef DKSelectorClass( void );
+DK_API DKClassRef DKInterfaceClass( void );
+DK_API DKClassRef DKMsgHandlerClass( void );
+DK_API DKClassRef DKMetadataClass( void );
+DK_API DKClassRef DKObjectClass( void );
+DK_API DKClassRef DKZombieClass( void );
 
 
 
@@ -153,7 +153,7 @@ typedef DKObjectRef (*DKInitMethod)( DKObjectRef _self );
 typedef void (*DKFinalizeMethod)( DKObjectRef _self );
 
 // Create a new class object.
-DKClassRef  DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSize,
+DK_API DKClassRef DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSize,
     uint32_t options, DKInitMethod init, DKFinalizeMethod finalize );
 
 
@@ -164,37 +164,37 @@ DKClassRef  DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSi
 
 // These functions implement the default allocator for objects. You should never need to
 // call them outside of a custom allocation scheme. Use DKAlloc and DKDealloc instead.
-DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes );
-void        DKDeallocObject( DKObjectRef _self );
+DK_API DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes );
+DK_API void        DKDeallocObject( DKObjectRef _self );
 
 // Allocates a new object using the Allocation interface of its class. Use 'extraBytes' to
 // allocate memory beyond the 'structSize' specified by the class. The extra memory is not
 // automatically zeroed for you.
-#define     DKAlloc( _class )   DKAllocEx( _class, 0 )
-DKObjectRef DKAllocEx( DKClassRef _class, size_t extraBytes );
+#define            DKAlloc( _class )   DKAllocEx( _class, 0 )
+DK_API DKObjectRef DKAllocEx( DKClassRef _class, size_t extraBytes );
 
 // Deallocates an object using the Allocation interface of its class. You should never
 // need to call this directly unless dealing with an object that bypasses normal reference
 // counting.
-void        DKDealloc( DKObjectRef _self );
+DK_API void        DKDealloc( DKObjectRef _self );
 
 // Call the default initializer specified by the object's class. The object returned may
 // not be the same as the object passed to it.
-DKObjectRef DKInit( DKObjectRef _self );
+DK_API DKObjectRef DKInit( DKObjectRef _self );
 
 // Call the default initializer specified by 'superclass'.
-DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass );
+DK_API DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass );
 
 // Call the object's finalizer chain. You should never need to call this directly unless
 // dealing with an object that bypasses normal reference counting.
-void        DKFinalize( DKObjectRef _self );
+DK_API void        DKFinalize( DKObjectRef _self );
 
 // Wrapper for DKAlloc + DKInit
-#define     DKNew( _class )  DKInit( DKAllocEx( _class, 0 ) )
+#define            DKNew( _class )  DKInit( DKAllocEx( _class, 0 ) )
 
 // Simple object synchronization
-void        DKLockObject( DKObjectRef _self );
-void        DKUnlockObject( DKObjectRef _self );
+DK_API void        DKLockObject( DKObjectRef _self );
+DK_API void        DKUnlockObject( DKObjectRef _self );
 
 
 

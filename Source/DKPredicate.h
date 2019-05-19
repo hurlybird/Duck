@@ -83,7 +83,7 @@ typedef enum
 // typedef const struct DKPredicate * DKPredicateRef; -- Declared in DKPlatform.h
 
 
-DKClassRef DKPredicateClass( void );
+DK_API DKClassRef DKPredicateClass( void );
 
 #define DKPredicate( op, a, b )                 DKAutorelease( DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, NULL, b, NULL ) )
 #define DKNewPredicate( op, a, b )              DKPredicateInit( DKAlloc( DKPredicateClass() ), op, a, NULL, b, NULL )
@@ -91,16 +91,16 @@ DKClassRef DKPredicateClass( void );
 #define DKPredicateWithFormat( fmt, ... )       DKAutorelease( DKPredicateInitWithFormat( DKAlloc( DKPredicateClass() ), fmt, __VA_ARGS__ ) )
 #define DKNewPredicateWithFormat( fmt, ... )    DKPredicateInit( DKAlloc( DKPredicateClass() ), fmt, __VA_ARGS__ )
 
-DKObjectRef DKPredicateInit( DKObjectRef _self, DKPredicateOp op, DKObjectRef obj_a, DKStringRef key_a, DKObjectRef b, DKStringRef key_b );
-DKObjectRef DKPredicateInitWithFormat( DKObjectRef _self, DKStringRef fmt, ... );
+DK_API DKObjectRef DKPredicateInit( DKObjectRef _self, DKPredicateOp op, DKObjectRef obj_a, DKStringRef key_a, DKObjectRef b, DKStringRef key_b );
+DK_API DKObjectRef DKPredicateInitWithFormat( DKObjectRef _self, DKStringRef fmt, ... );
 
-bool DKPredicateEvaluate( DKPredicateRef _self );
-bool DKPredicateEvaluateWithObject( DKPredicateRef _self, DKObjectRef subst );
+DK_API bool DKPredicateEvaluate( DKPredicateRef _self );
+DK_API bool DKPredicateEvaluateWithObject( DKPredicateRef _self, DKObjectRef subst );
 
-DKStringRef DKStringFromPredicateOp( DKPredicateOp op );
-DKPredicateOp DKPredicateOpFromString( DKStringRef str );
+DK_API DKStringRef DKStringFromPredicateOp( DKPredicateOp op );
+DK_API DKPredicateOp DKPredicateOpFromString( DKStringRef str );
 
-bool DKEvaluate( DKObjectRef obj );
+DK_API bool DKEvaluate( DKObjectRef obj );
 
 
 

@@ -102,7 +102,7 @@ typedef struct _DKSEL * DKSEL;
 
 
 // Allocate a new selector object.
-DKSEL DKAllocSelector( DKStringRef name );
+DK_API DKSEL DKAllocSelector( DKStringRef name );
 
 
 // Thread-safe initialization of selector objects.
@@ -140,7 +140,7 @@ typedef void * DKInterfaceRef;
 
 // Declare an interface selector.
 #define DKDeclareInterfaceSelector( name )                                              \
-    DKSEL DKSelector_ ## name( void )
+    DK_API DKSEL DKSelector_ ## name( void )
 
 // Get the interface method count from the structure size
 #define DKInterfaceCountMethods( structSize )    (((structSize) - sizeof(DKInterface)) / sizeof(void *))
@@ -149,29 +149,29 @@ typedef void * DKInterfaceRef;
 #define DKInterfaceGetMethodTable( interface )   (void **)(((uint8_t *)(interface)) + sizeof(DKInterface))
 
 // Create a new interface object.
-DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize );
+DK_API DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize );
 
 // Inherit undefined methods from another class. This is automatically done for the
 // superclass of '_class' when installing the interface.
-void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class );
+DK_API void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class );
 
 // Install an interface on a class.
 //
 // *** WARNING ***
 // Replacing interfaces after a class is in use (i.e. implementation swizzling) is not
 // currently supported.
-void DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
-void DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interface );
+DK_API void DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
+DK_API void DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interface );
 
 // Retrieve an installed interface. If a matching interface cannot be found on the class
 // or any of its superclasses, DKGetInterace() will report an error and return the
 // DKInterfaceNotFound() interface.
-DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel );
-DKInterfaceRef DKGetClassInterface( DKClassRef _class, DKSEL sel );
+DK_API DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel );
+DK_API DKInterfaceRef DKGetClassInterface( DKClassRef _class, DKSEL sel );
 
 // Check to see if an interface is available for an object.
-bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * interface );
-bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * interface );
+DK_API bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * interface );
+DK_API bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * interface );
 
 
 
@@ -197,7 +197,7 @@ typedef struct DKMsgHandler * DKMsgHandlerRef;
 // Declare a message handler selector. This also defines a callback type used by
 // DKMsgSend() for type safety.
 #define DKDeclareMessageSelector( name, ... )                                           \
-    DKSEL DKSelector_ ## name( void );                                                  \
+    DK_API DKSEL DKSelector_ ## name( void );                                                  \
     typedef intptr_t (*DKMsgHandler_ ## name)( DKObjectRef, DKSEL , ## __VA_ARGS__ )
 
 // Selector for dynamic message handling. If defined for a class, the dynamic message
@@ -206,25 +206,25 @@ DKDeclareMessageSelector( DKDynamicMsgHandler );
 
 // A generic message handler that does nothing. Returned by DKGetMsgHandler() when a
 // matching message handler cannot be located.
-DKMsgHandlerRef DKMsgHandlerNotFound( void );
+DK_API DKMsgHandlerRef DKMsgHandlerNotFound( void );
 
 // Install a message handler on a class.
 //
 // *** WARNING ***
 // Replacing message handlers after a class is in use (i.e. implementation swizzling) is
 // not currently supported.
-void DKInstallMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
-void DKInstallClassMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
+DK_API void DKInstallMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
+DK_API void DKInstallClassMsgHandler( DKClassRef cls, DKSEL sel, DKMsgFunction func );
 
 // Retrieve an installed message handler. If a matching message handler cannot be found on
 // the class or any of its superclasses, DKGetMsgHandler() will report a warning and
 // return the DKMsgHandlerNotFound() message handler.
-DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel );
-DKMsgHandlerRef DKGetClassMsgHandler( DKClassRef _class, DKSEL sel );
+DK_API DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel );
+DK_API DKMsgHandlerRef DKGetClassMsgHandler( DKClassRef _class, DKSEL sel );
 
 // Check to see if a message handler is available for an object.
-bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
-bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * msgHandler );
+DK_API bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
+DK_API bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * msgHandler );
 
 
 

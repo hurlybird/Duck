@@ -45,23 +45,23 @@ typedef struct
 } DKByteArray;
 
 
-void DKByteArrayInit( DKByteArray * array );
+DK_API void DKByteArrayInit( DKByteArray * array );
 
-void DKByteArrayInitWithExternalStorage( DKByteArray * array, const uint8_t bytes[], DKIndex length );
-bool DKByteArrayHasExternalStorage( DKByteArray * array );
+DK_API void DKByteArrayInitWithExternalStorage( DKByteArray * array, const uint8_t bytes[], DKIndex length );
+DK_API bool DKByteArrayHasExternalStorage( DKByteArray * array );
 
-void DKByteArrayFinalize( DKByteArray * array );
+DK_API void DKByteArrayFinalize( DKByteArray * array );
 
-void DKByteArrayReserve( DKByteArray * array, DKIndex length );
+DK_API void DKByteArrayReserve( DKByteArray * array, DKIndex length );
 
 #define DKByteArrayGetLength( array )       ((array)->length)
 #define DKByteArrayGetBytePtr( array, i )   ((void *)&((array)->bytes[i]))
 
-void DKByteArraySetLength( DKByteArray * array, DKIndex length );
+DK_API void DKByteArraySetLength( DKByteArray * array, DKIndex length );
 
-void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t bytes[], DKIndex length );
-void DKByteArrayAppendBytes( DKByteArray * array, const uint8_t bytes[], DKIndex length );
+DK_API void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const uint8_t bytes[], DKIndex length );
+DK_API void DKByteArrayAppendBytes( DKByteArray * array, const uint8_t bytes[], DKIndex length );
 
-DKIndex DKByteArrayAlignLength( DKByteArray * array, DKIndex byteAlignment );
+DK_API DKIndex DKByteArrayAlignLength( DKByteArray * array, DKIndex byteAlignment );
 
 #endif // _DK_BYTE_ARRAY_H_

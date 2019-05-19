@@ -71,46 +71,46 @@ struct DKSetInterface
 typedef const struct DKSetInterface * DKSetInterfaceRef;
 
 
-DKClassRef  DKSetClass( void );
-void        DKSetDefaultSetClass( DKClassRef _self );
+DK_API DKClassRef  DKSetClass( void );
+DK_API void        DKSetDefaultSetClass( DKClassRef _self );
 
-DKClassRef  DKMutableSetClass( void );
-void        DKSetDefaultMutableSetClass( DKClassRef _self );
+DK_API DKClassRef  DKMutableSetClass( void );
+DK_API void        DKSetDefaultMutableSetClass( DKClassRef _self );
 
-#define     DKEmptySet()            DKAutorelease( DKNew( DKSetClass() ) )
-#define     DKMutableSet()          DKAutorelease( DKNew( DKMutableSetClass() ) )
+#define            DKEmptySet()            DKAutorelease( DKNew( DKSetClass() ) )
+#define            DKMutableSet()          DKAutorelease( DKNew( DKMutableSetClass() ) )
 
-#define     DKSetWithObject( object )           DKAutorelease( DKSetInitWithObject( DKAlloc( DKSetClass() ), object ) )
-#define     DKSetWithObjects( ... )             DKAutorelease( DKSetInitWithObjects( DKAlloc( DKSetClass() ), __VA_ARGS__, NULL ) )
-#define     DKSetWithVAObjects( objects )       DKAutorelease( DKSetInitWithVAObjects( DKAlloc( DKSetClass() ), objects ) )
-#define     DKSetWithCArray( objects, count )   DKAutorelease( DKSetInitWithCArray( DKAlloc( DKSetClass() ), objects, count ) )
-#define     DKSetWithCollection( collection )   DKAutorelease( DKSetInitWithCollection( DKAlloc( DKSetClass() ), collection ) )
+#define            DKSetWithObject( object )           DKAutorelease( DKSetInitWithObject( DKAlloc( DKSetClass() ), object ) )
+#define            DKSetWithObjects( ... )             DKAutorelease( DKSetInitWithObjects( DKAlloc( DKSetClass() ), __VA_ARGS__, NULL ) )
+#define            DKSetWithVAObjects( objects )       DKAutorelease( DKSetInitWithVAObjects( DKAlloc( DKSetClass() ), objects ) )
+#define            DKSetWithCArray( objects, count )   DKAutorelease( DKSetInitWithCArray( DKAlloc( DKSetClass() ), objects, count ) )
+#define            DKSetWithCollection( collection )   DKAutorelease( DKSetInitWithCollection( DKAlloc( DKSetClass() ), collection ) )
 
-#define     DKNewMutableSet()       DKNew( DKMutableSetClass() )
+#define            DKNewMutableSet()       DKNew( DKMutableSetClass() )
 
-DKObjectRef DKSetInitWithObject( DKSetRef _self, DKObjectRef object );
-DKObjectRef DKSetInitWithObjects( DKSetRef _self, ... );
-DKObjectRef DKSetInitWithVAObjects( DKSetRef _self, va_list objects );
-DKObjectRef DKSetInitWithCArray( DKSetRef _self, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKSetInitWithCollection( DKSetRef _self, DKObjectRef srcCollection );
+DK_API DKObjectRef DKSetInitWithObject( DKSetRef _self, DKObjectRef object );
+DK_API DKObjectRef DKSetInitWithObjects( DKSetRef _self, ... );
+DK_API DKObjectRef DKSetInitWithVAObjects( DKSetRef _self, va_list objects );
+DK_API DKObjectRef DKSetInitWithCArray( DKSetRef _self, DKObjectRef objects[], DKIndex count );
+DK_API DKObjectRef DKSetInitWithCollection( DKSetRef _self, DKObjectRef srcCollection );
 
-DKIndex     DKSetGetCount( DKSetRef _self );
-DKObjectRef DKSetGetMember( DKSetRef _self, DKObjectRef object );
-bool        DKSetContainsObject( DKSetRef _self, DKObjectRef object );
+DK_API DKIndex     DKSetGetCount( DKSetRef _self );
+DK_API DKObjectRef DKSetGetMember( DKSetRef _self, DKObjectRef object );
+DK_API bool        DKSetContainsObject( DKSetRef _self, DKObjectRef object );
 
-DKListRef   DKSetGetAllObjects( DKDictionaryRef _self );
+DK_API DKListRef   DKSetGetAllObjects( DKDictionaryRef _self );
 
-void        DKSetAddObject( DKMutableSetRef _self, DKObjectRef object );
-void        DKSetRemoveObject( DKMutableSetRef _self, DKObjectRef object );
-void        DKSetRemoveAllObjects( DKMutableSetRef _self );
+DK_API void        DKSetAddObject( DKMutableSetRef _self, DKObjectRef object );
+DK_API void        DKSetRemoveObject( DKMutableSetRef _self, DKObjectRef object );
+DK_API void        DKSetRemoveAllObjects( DKMutableSetRef _self );
 
-bool        DKSetEqualToSet( DKSetRef _self, DKSetRef otherSet );
-int         DKSetIsSubsetOfSet( DKSetRef _self, DKSetRef otherSet );
-int         DKSetIntersectsSet( DKSetRef _self, DKSetRef otherSet );
+DK_API bool        DKSetEqualToSet( DKSetRef _self, DKSetRef otherSet );
+DK_API int         DKSetIsSubsetOfSet( DKSetRef _self, DKSetRef otherSet );
+DK_API int         DKSetIntersectsSet( DKSetRef _self, DKSetRef otherSet );
 
-void        DKSetUnion( DKMutableSetRef _self, DKSetRef otherSet );
-void        DKSetMinus( DKMutableSetRef _self, DKSetRef otherSet );
-void        DKSetIntersect( DKMutableSetRef _self, DKSetRef otherSet );
+DK_API void        DKSetUnion( DKMutableSetRef _self, DKSetRef otherSet );
+DK_API void        DKSetMinus( DKMutableSetRef _self, DKSetRef otherSet );
+DK_API void        DKSetIntersect( DKMutableSetRef _self, DKSetRef otherSet );
 
 
 

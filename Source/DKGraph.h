@@ -35,17 +35,17 @@
 
 typedef struct DKGraphEdge * DKGraphEdgeRef;
 
-DKClassRef  DKGraphEdgeClass( void );
+DK_API DKClassRef  DKGraphEdgeClass( void );
 
 #define DKNewDirectedGraphEdge( from, to )      DKGraphEdgeInit( DKAlloc( DKGraphEdgeClass() ), from, to )
 
-DKObjectRef DKGraphEdgeInit( DKObjectRef _self, DKObjectRef from, DKObjectRef to );
+DK_API DKObjectRef DKGraphEdgeInit( DKObjectRef _self, DKObjectRef from, DKObjectRef to );
 
-DKObjectRef DKGraphEdgeGetFirstVertex( DKGraphEdgeRef _self );
-DKObjectRef DKGraphEdgeGetSecondVertex( DKGraphEdgeRef _self );
+DK_API DKObjectRef DKGraphEdgeGetFirstVertex( DKGraphEdgeRef _self );
+DK_API DKObjectRef DKGraphEdgeGetSecondVertex( DKGraphEdgeRef _self );
 
-DKObjectRef DKGraphEdgeGetUserInfo( DKGraphEdgeRef _self );
-void DKGraphEdgeSetUserInfo( DKGraphEdgeRef _self, DKObjectRef userInfo );
+DK_API DKObjectRef DKGraphEdgeGetUserInfo( DKGraphEdgeRef _self );
+DK_API void DKGraphEdgeSetUserInfo( DKGraphEdgeRef _self, DKObjectRef userInfo );
 
 
 
@@ -55,24 +55,24 @@ void DKGraphEdgeSetUserInfo( DKGraphEdgeRef _self, DKObjectRef userInfo );
 typedef struct DKGraph * DKGraphRef;
 typedef double (*DKGraphCostFunction)( DKObjectRef a, DKObjectRef b, void * context );
 
-DKClassRef  DKGraphClass( void );
+DK_API DKClassRef  DKGraphClass( void );
 
 #define DKGraph()       DKAutorelease( DKNew( DKGraphClass() ) )
 #define DKNewGraph()    DKNew( DKGraphClass() )
 
-void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
-void DKGraphRemoveEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
-void DKGraphRemoveAllEdges( DKGraphRef _self );
+DK_API void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
+DK_API void DKGraphRemoveEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
+DK_API void DKGraphRemoveAllEdges( DKGraphRef _self );
 
-DKListRef DKGraphGetEdges( DKGraphRef _self, DKObjectRef from );
-DKGraphEdgeRef DKGraphGetEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to );
+DK_API DKListRef DKGraphGetEdges( DKGraphRef _self, DKObjectRef from );
+DK_API DKGraphEdgeRef DKGraphGetEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to );
 
-int DKGraphTraverse( DKGraphRef _self, DKObjectRef from, DKApplierFunction callback, void * context );
+DK_API int DKGraphTraverse( DKGraphRef _self, DKObjectRef from, DKApplierFunction callback, void * context );
 
-DKListRef DKGraphGetShortestPath( DKGraphRef _self, DKObjectRef from, DKObjectRef to,
+DK_API DKListRef DKGraphGetShortestPath( DKGraphRef _self, DKObjectRef from, DKObjectRef to,
     DKGraphCostFunction distance, DKGraphCostFunction heuristic, void * context );
 
-double DKGraphUniformCostFunction( DKObjectRef a, DKObjectRef b, void * context );
+DK_API double DKGraphUniformCostFunction( DKObjectRef a, DKObjectRef b, void * context );
 
 
 #endif // _DK_DIRECTED_GRAPH_H_

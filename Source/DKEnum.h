@@ -32,10 +32,10 @@
 
 // typedef struct DKEnum * DKEnumRef; -- Declared in DKPlatform.h
 
-DKClassRef DKEnumClass( void );
+DK_API DKClassRef DKEnumClass( void );
 
-DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _self, ... );
-DKObjectRef DKEnumInitWithCStringsAndValues64( DKObjectRef _self, ... );
+DK_API DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _self, ... );
+DK_API DKObjectRef DKEnumInitWithCStringsAndValues64( DKObjectRef _self, ... );
 
 #define DKDefineEnum( accessor, ... )                                                   \
     DKThreadSafeSharedObjectInit( accessor, DKEnumRef )                                 \
@@ -56,8 +56,8 @@ DKObjectRef DKEnumInitWithCStringsAndValues64( DKObjectRef _self, ... );
 #define DKEnumFromString( _self, str )  ((int)DKEnumFromString64( (_self), (str) ))
 #define DKStringFromEnum( _self, val )  DKStringFromEnum64( (_self), (val) )
 
-int64_t DKEnumFromString64( DKEnumRef _self, DKStringRef str );
-DKStringRef DKStringFromEnum64( DKEnumRef _self, int64_t value );
+DK_API int64_t DKEnumFromString64( DKEnumRef _self, DKStringRef str );
+DK_API DKStringRef DKStringFromEnum64( DKEnumRef _self, int64_t value );
 
 
 

@@ -34,8 +34,8 @@
 typedef struct DKBinaryTree * DKBinaryTreeRef;
 typedef struct DKBinaryTree * DKMutableBinaryTreeRef;
 
-DKClassRef  DKBinaryTreeClass( void );
-DKClassRef  DKMutableBinaryTreeClass( void );
+DK_API DKClassRef  DKBinaryTreeClass( void );
+DK_API DKClassRef  DKMutableBinaryTreeClass( void );
 
 #define     DKEmptyBinaryTree()         DKAutorelease( DKNew( DKBinaryTreeClass() ) )
 #define     DKMutableBinaryTree()       DKAutorelease( DKNew( DKMutableBinaryTreeClass() ) )
@@ -43,33 +43,33 @@ DKClassRef  DKMutableBinaryTreeClass( void );
 #define     DKNewMutableBinaryTree()    DKNew( DKMutableBinaryTreeClass() )
 
 #define DKBinaryTreeWithCompareFunction( keyCompare )   DKAutorelease( DKNewBinaryTreeWithCompareFunction( keyCompare ) )
-DKMutableBinaryTreeRef DKNewBinaryTreeWithCompareFunction( DKCompareFunction keyCompare );
+DK_API DKMutableBinaryTreeRef DKNewBinaryTreeWithCompareFunction( DKCompareFunction keyCompare );
 
-DKObjectRef DKBinaryTreeInitDictionaryWithVAKeysAndObjects( DKBinaryTreeRef _self, va_list keysAndObjects );
-DKObjectRef DKBinaryTreeInitDictionaryWithDictionary( DKBinaryTreeRef _self, DKDictionaryRef dictionary );
+DK_API DKObjectRef DKBinaryTreeInitDictionaryWithVAKeysAndObjects( DKBinaryTreeRef _self, va_list keysAndObjects );
+DK_API DKObjectRef DKBinaryTreeInitDictionaryWithDictionary( DKBinaryTreeRef _self, DKDictionaryRef dictionary );
 
-DKObjectRef DKBinaryTreeInitSetWithVAObjects( DKBinaryTreeRef _self, va_list objects );
-DKObjectRef DKBinaryTreeInitSetWithCArray( DKBinaryTreeRef _self, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKBinaryTreeInitSetWithCollection( DKBinaryTreeRef _self, DKObjectRef collection );
+DK_API DKObjectRef DKBinaryTreeInitSetWithVAObjects( DKBinaryTreeRef _self, va_list objects );
+DK_API DKObjectRef DKBinaryTreeInitSetWithCArray( DKBinaryTreeRef _self, DKObjectRef objects[], DKIndex count );
+DK_API DKObjectRef DKBinaryTreeInitSetWithCollection( DKBinaryTreeRef _self, DKObjectRef collection );
 
-DKBinaryTreeRef DKBinaryTreeCopy( DKBinaryTreeRef _self );
-DKMutableBinaryTreeRef DKBinaryTreeMutableCopy( DKBinaryTreeRef _self );
+DK_API DKBinaryTreeRef DKBinaryTreeCopy( DKBinaryTreeRef _self );
+DK_API DKMutableBinaryTreeRef DKBinaryTreeMutableCopy( DKBinaryTreeRef _self );
 
-DKIndex     DKBinaryTreeGetCount( DKBinaryTreeRef _self );
-DKObjectRef DKBinaryTreeGetObject( DKBinaryTreeRef _self, DKObjectRef key );
+DK_API DKIndex     DKBinaryTreeGetCount( DKBinaryTreeRef _self );
+DK_API DKObjectRef DKBinaryTreeGetObject( DKBinaryTreeRef _self, DKObjectRef key );
 
-int         DKBinaryTreeApplyFunction( DKBinaryTreeRef _self, DKKeyedApplierFunction callback, void * context );
-int         DKBinaryTreeApplyFunctionToKeys( DKBinaryTreeRef _self, DKApplierFunction callback, void * context );
-int         DKBinaryTreeApplyFunctionToObjects( DKBinaryTreeRef _self, DKApplierFunction callback, void * context );
+DK_API int         DKBinaryTreeApplyFunction( DKBinaryTreeRef _self, DKKeyedApplierFunction callback, void * context );
+DK_API int         DKBinaryTreeApplyFunctionToKeys( DKBinaryTreeRef _self, DKApplierFunction callback, void * context );
+DK_API int         DKBinaryTreeApplyFunctionToObjects( DKBinaryTreeRef _self, DKApplierFunction callback, void * context );
 
-int         DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKKeyedApplierFunction callback, void * context );
-DKObjectRef DKBinaryTreeGetFirstObject( DKBinaryTreeRef _self );
+DK_API int         DKBinaryTreeTraverseInOrder( DKBinaryTreeRef _self, DKKeyedApplierFunction callback, void * context );
+DK_API DKObjectRef DKBinaryTreeGetFirstObject( DKBinaryTreeRef _self );
 
-void        DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
-void        DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef _self, DKObjectRef key );
-void        DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef _self );
+DK_API void        DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
+DK_API void        DKBinaryTreeRemoveObject( DKMutableBinaryTreeRef _self, DKObjectRef key );
+DK_API void        DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef _self );
 
-void        DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef object );
+DK_API void        DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef object );
 
 
 

@@ -28,30 +28,30 @@
 #define _DK_RUNTIME_REFERENCE_COUNTING_H_
 
 
-DKObjectRef DKRetain( DKObjectRef _self );
-DKObjectRef DKRelease( DKObjectRef _self ); // Always returns NULL
+DK_API DKObjectRef DKRetain( DKObjectRef _self );
+DK_API DKObjectRef DKRelease( DKObjectRef _self ); // Always returns NULL
 
 // If a call to DKRelease would free the object, do so and return NULL. Otherwise return
 // the object unchanged. (This is mainly useful for implementing object caches.)
-DKObjectRef DKTryRelease( DKObjectRef _self );
+DK_API DKObjectRef DKTryRelease( DKObjectRef _self );
 
 // Get a weak reference to an object. The weak reference itself must be released when the
 // caller is finished with it.
-DKWeakRef   DKRetainWeak( DKObjectRef _self );
+DK_API DKWeakRef   DKRetainWeak( DKObjectRef _self );
 
 // Resolve a weak reference into a strong reference. The returned object must be released
 // when the caller is finished with it. This will return NULL if the object has been
 // deallocated.
-DKObjectRef DKResolveWeak( DKWeakRef weakref );
+DK_API DKObjectRef DKResolveWeak( DKWeakRef weakref );
 
 // Drain the current autorelease pool
-void        DKDrainAutoreleasePool( void );
+DK_API void        DKDrainAutoreleasePool( void );
 
 // Push/Pop the current autorelease pool
-void        DKPushAutoreleasePool( void );
-void        DKPopAutoreleasePool( void );
+DK_API void        DKPushAutoreleasePool( void );
+DK_API void        DKPopAutoreleasePool( void );
 
-DKObjectRef DKAutorelease( DKObjectRef _self );
+DK_API DKObjectRef DKAutorelease( DKObjectRef _self );
 
 
 

@@ -39,11 +39,11 @@ typedef struct
 } DKNodePool;
 
 
-void DKNodePoolInit( DKNodePool * pool, DKIndex nodeSize, DKIndex nodeCount );
-void DKNodePoolFinalize( DKNodePool * pool );
+DK_API void DKNodePoolInit( DKNodePool * pool, DKIndex nodeSize, DKIndex nodeCount );
+DK_API void DKNodePoolFinalize( DKNodePool * pool );
 
-void * DKNodePoolAlloc( DKNodePool * pool );
-void DKNodePoolFree( DKNodePool * pool, void * node );
+DK_API void * DKNodePoolAlloc( DKNodePool * pool );
+DK_API void DKNodePoolFree( DKNodePool * pool, void * node );
 
 
 

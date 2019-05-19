@@ -50,7 +50,7 @@ typedef const struct DKAllocationInterface * DKAllocationInterfaceRef;
 
 // Default allocation interface that maps to DKAllocObject and DKDeallocObject. This
 // is used by the root classes so it's defined in DKRuntime.c.
-DKInterfaceRef DKDefaultAllocation( void );
+DK_API DKInterfaceRef DKDefaultAllocation( void );
 
 
 

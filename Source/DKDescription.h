@@ -49,16 +49,16 @@ typedef const struct DKDescriptionInterface * DKDescriptionInterfaceRef;
 
 // Default description interface. This is used by the root classes so it's defined in
 // DKRuntime.c.
-DKInterfaceRef DKDefaultDescription( void );
+DK_API DKInterfaceRef DKDefaultDescription( void );
 
 
 // A default copyDescription method that returns the class name
-DKStringRef DKDefaultGetDescription( DKObjectRef _self );
-size_t      DKDefaultGetSizeInBytes( DKObjectRef _self );
+DK_API DKStringRef DKDefaultGetDescription( DKObjectRef _self );
+DK_API size_t      DKDefaultGetSizeInBytes( DKObjectRef _self );
 
 
-DKStringRef DKGetDescription( DKObjectRef _self );
-size_t      DKGetSizeInBytes( DKObjectRef _self );
+DK_API DKStringRef DKGetDescription( DKObjectRef _self );
+DK_API size_t      DKGetSizeInBytes( DKObjectRef _self );
 
 
 #endif // _DK_DESCRIPTION_H_

@@ -49,11 +49,11 @@ typedef const struct DKCopyingInterface * DKCopyingInterfaceRef;
 
 // Default copying interface that retains and returns the object. This is used by the
 // root classes so it's defined in DKRuntime.c.
-DKInterfaceRef DKDefaultCopying( void );
+DK_API DKInterfaceRef DKDefaultCopying( void );
 
 
-DKObjectRef DKCopy( DKObjectRef _self );
-DKObjectRef DKMutableCopy( DKObjectRef _self );
+DK_API DKObjectRef DKCopy( DKObjectRef _self );
+DK_API DKObjectRef DKMutableCopy( DKObjectRef _self );
 
 
 

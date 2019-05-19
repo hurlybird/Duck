@@ -34,70 +34,70 @@ typedef struct DKData * DKDataRef;
 typedef struct DKData * DKMutableDataRef;
 
 
-DKClassRef  DKDataClass( void );
-DKClassRef  DKMutableDataClass( void );
+DK_API DKClassRef  DKDataClass( void );
+DK_API DKClassRef  DKMutableDataClass( void );
 
-#define     DKEmptyData()                           DKAutorelease( DKNew( DKDataClass() ) )
-#define     DKMutableData()                         DKAutorelease( DKNew( DKMutableDataClass() ) )
+#define            DKEmptyData()                           DKAutorelease( DKNew( DKDataClass() ) )
+#define            DKMutableData()                         DKAutorelease( DKNew( DKMutableDataClass() ) )
 
-#define     DKDataWithBytes( bytes, length )        DKAutorelease( DKDataInitWithBytes( DKAlloc( DKDataClass() ), bytes, length ) )
-#define     DKDataWithBytesNoCopy( bytes, length )  DKAutorelease( DKDataInitWithBytesNoCopy( DKAlloc( DKDataClass() ), bytes, length ) )
-#define     DKDataWithContentsOfFile( filename )    DKAutorelease( DKDataInitWithContentsOfFile( DKAlloc( DKDataClass() ), filename ) )
+#define            DKDataWithBytes( bytes, length )        DKAutorelease( DKDataInitWithBytes( DKAlloc( DKDataClass() ), bytes, length ) )
+#define            DKDataWithBytesNoCopy( bytes, length )  DKAutorelease( DKDataInitWithBytesNoCopy( DKAlloc( DKDataClass() ), bytes, length ) )
+#define            DKDataWithContentsOfFile( filename )    DKAutorelease( DKDataInitWithContentsOfFile( DKAlloc( DKDataClass() ), filename ) )
 
-#define     DKNewMutableData()                      DKNew( DKMutableDataClass() )
-#define     DKNewMutableDataWithCapacity( length )  DKDataInitWithCapacity( DKAlloc( DKMutableDataClass() ), length )
+#define            DKNewMutableData()                      DKNew( DKMutableDataClass() )
+#define            DKNewMutableDataWithCapacity( length )  DKDataInitWithCapacity( DKAlloc( DKMutableDataClass() ), length )
 
-#define     DKMutableDataWithBytes( bytes, length ) DKAutorelease( DKDataInitWithBytes( DKAlloc( DKMutableDataClass() ), bytes, length ) )
-#define     DKMutableDataWithCapacity( length )     DKAutorelease( DKDataInitWithCapacity( DKAlloc( DKMutableDataClass() ), length ) )
+#define            DKMutableDataWithBytes( bytes, length ) DKAutorelease( DKDataInitWithBytes( DKAlloc( DKMutableDataClass() ), bytes, length ) )
+#define            DKMutableDataWithCapacity( length )     DKAutorelease( DKDataInitWithCapacity( DKAlloc( DKMutableDataClass() ), length ) )
 
-DKDataRef   DKDataInitWithBytes( DKDataRef _self, const void * bytes, DKIndex length );
-DKDataRef   DKDataInitWithBytesNoCopy( DKDataRef _self, const void * bytes, DKIndex length );
-DKDataRef   DKDataInitWithLength( DKDataRef _self, DKIndex length );
-DKDataRef   DKDataInitWithContentsOfFile( DKDataRef _self, DKStringRef filename );
-DKMutableDataRef DKDataInitWithCapacity( DKMutableDataRef _self, DKIndex capacity );
+DK_API DKDataRef   DKDataInitWithBytes( DKDataRef _self, const void * bytes, DKIndex length );
+DK_API DKDataRef   DKDataInitWithBytesNoCopy( DKDataRef _self, const void * bytes, DKIndex length );
+DK_API DKDataRef   DKDataInitWithLength( DKDataRef _self, DKIndex length );
+DK_API DKDataRef   DKDataInitWithContentsOfFile( DKDataRef _self, DKStringRef filename );
+DK_API DKMutableDataRef DKDataInitWithCapacity( DKMutableDataRef _self, DKIndex capacity );
 
-DKDataRef DKDataMakeImmutable( DKMutableDataRef _self );
+DK_API DKDataRef   DKDataMakeImmutable( DKMutableDataRef _self );
 
-DKDataRef   DKDataCopy( DKDataRef _self );
-DKMutableDataRef DKDataMutableCopy( DKDataRef _self );
+DK_API DKDataRef   DKDataCopy( DKDataRef _self );
+DK_API DKMutableDataRef DKDataMutableCopy( DKDataRef _self );
 
-DKStringRef DKDataGetDescription( DKDataRef _self );
+DK_API DKStringRef DKDataGetDescription( DKDataRef _self );
 
-bool        DKDataEqual( DKDataRef _self, DKObjectRef other );
-int         DKDataCompare( DKDataRef _self, DKObjectRef other );
-DKHashCode  DKDataHash( DKDataRef _self );
+DK_API bool        DKDataEqual( DKDataRef _self, DKObjectRef other );
+DK_API int         DKDataCompare( DKDataRef _self, DKObjectRef other );
+DK_API DKHashCode  DKDataHash( DKDataRef _self );
 
-DKIndex     DKDataGetLength( DKDataRef _self );
-void        DKDataSetLength( DKMutableDataRef _self, DKIndex length );
-void        DKDataIncreaseLength( DKMutableDataRef _self, DKIndex length );
+DK_API DKIndex     DKDataGetLength( DKDataRef _self );
+DK_API void        DKDataSetLength( DKMutableDataRef _self, DKIndex length );
+DK_API void        DKDataIncreaseLength( DKMutableDataRef _self, DKIndex length );
 
-DKEncodingType DKDataGetEncodingType( DKDataRef _self );
-void DKDataSetEncodingType( DKDataRef _self, DKEncodingType type );
+DK_API DKEncodingType DKDataGetEncodingType( DKDataRef _self );
+DK_API void DKDataSetEncodingType( DKDataRef _self, DKEncodingType type );
 
-const void * DKDataGetBytePtr( DKDataRef _self, DKIndex index );
-const void * DKDataGetByteRange( DKDataRef _self, DKRange range );
-const void * DKDataGetByteEnd( DKDataRef _self );
+DK_API const void * DKDataGetBytePtr( DKDataRef _self, DKIndex index );
+DK_API const void * DKDataGetByteRange( DKDataRef _self, DKRange range );
+DK_API const void * DKDataGetByteEnd( DKDataRef _self );
 
-void *      DKDataGetMutableBytePtr( DKMutableDataRef _self, DKIndex index );
-void *      DKDataGetMutableByteRange( DKMutableDataRef _self, DKRange range );
+DK_API void *      DKDataGetMutableBytePtr( DKMutableDataRef _self, DKIndex index );
+DK_API void *      DKDataGetMutableByteRange( DKMutableDataRef _self, DKRange range );
 
-#define     DKDataGetElementCount( data, type )             (DKDataGetLength( data ) / sizeof(type))
-#define     DKDataGetElementPtr( data, type, index )        DKDataGetBytePtr( data, ((index) * sizeof(type)) )
-#define     DKDataGetMutableElementPtr( data, type, index ) DKDataGetMutableBytePtr( data, ((index) * sizeof(type)) )
+#define            DKDataGetElementCount( data, type )             (DKDataGetLength( data ) / sizeof(type))
+#define            DKDataGetElementPtr( data, type, index )        DKDataGetBytePtr( data, ((index) * sizeof(type)) )
+#define            DKDataGetMutableElementPtr( data, type, index ) DKDataGetMutableBytePtr( data, ((index) * sizeof(type)) )
 
-DKIndex     DKDataGetBytes( DKDataRef _self, DKRange range, void * buffer );
+DK_API DKIndex     DKDataGetBytes( DKDataRef _self, DKRange range, void * buffer );
 
-void        DKDataAppendData( DKMutableDataRef _self, DKDataRef data );
+DK_API void        DKDataAppendData( DKMutableDataRef _self, DKDataRef data );
 
-void        DKDataReplaceBytes( DKMutableDataRef _self, DKRange range, const void * bytes, DKIndex length );
-void        DKDataAppendBytes( DKMutableDataRef _self, const void * bytes, DKIndex length );
-void        DKDataDeleteBytes( DKMutableDataRef _self, DKRange range );
+DK_API void        DKDataReplaceBytes( DKMutableDataRef _self, DKRange range, const void * bytes, DKIndex length );
+DK_API void        DKDataAppendBytes( DKMutableDataRef _self, const void * bytes, DKIndex length );
+DK_API void        DKDataDeleteBytes( DKMutableDataRef _self, DKRange range );
 
-int         DKDataSeek( DKDataRef _self, long offset, int origin );
-long        DKDataTell( DKDataRef _self );
+DK_API int         DKDataSeek( DKDataRef _self, long offset, int origin );
+DK_API long        DKDataTell( DKDataRef _self );
 
-size_t      DKDataRead( DKDataRef _self, void * buffer, size_t size, size_t count );
-size_t      DKDataWrite( DKMutableDataRef _self, const void * buffer, size_t size, size_t count );
+DK_API size_t      DKDataRead( DKDataRef _self, void * buffer, size_t size, size_t count );
+DK_API size_t      DKDataWrite( DKMutableDataRef _self, const void * buffer, size_t size, size_t count );
 
 
 #endif // _DK_DATA_H_

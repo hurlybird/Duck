@@ -80,20 +80,20 @@ typedef struct
 } DKGenericHashTable;
 
 
-void DKGenericHashTableInit( DKGenericHashTable * hashTable, size_t rowSize, const DKGenericHashTableCallbacks * callbacks );
-void DKGenericHashTableFinalize( DKGenericHashTable * hashTable );
+DK_API void DKGenericHashTableInit( DKGenericHashTable * hashTable, size_t rowSize, const DKGenericHashTableCallbacks * callbacks );
+DK_API void DKGenericHashTableFinalize( DKGenericHashTable * hashTable );
 
 #define DKGenericHashTableGetCount( table )     ((table)->activeCount)
 #define DKGenericHashTableGetRow( table, i )    (const void *)((table)->rows + ((table)->rowSize * i))
 #define DKGenericHashTableGetRowCount( table )  ((DKIndex)((table)->rowCount))
 
-const void * DKGenericHashTableFind( DKGenericHashTable * hashTable, const void * entry );
-bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entry, DKInsertPolicy policy );
-void DKGenericHashTableRemove( DKGenericHashTable * hashTable, const void * entry );
-void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable );
+DK_API const void * DKGenericHashTableFind( DKGenericHashTable * hashTable, const void * entry );
+DK_API bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entry, DKInsertPolicy policy );
+DK_API void DKGenericHashTableRemove( DKGenericHashTable * hashTable, const void * entry );
+DK_API void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable );
 
-typedef void (*DKGenericHashTableForeachRowCallback)( const void * row, void * context );
-void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHashTableForeachRowCallback callback, void * context );
+DK_API typedef void (*DKGenericHashTableForeachRowCallback)( const void * row, void * context );
+DK_API void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHashTableForeachRowCallback callback, void * context );
 
 
 

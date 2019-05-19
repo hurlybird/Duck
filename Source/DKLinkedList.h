@@ -34,8 +34,8 @@ typedef struct DKLinkedList * DKLinkedListRef;
 typedef struct DKLinkedList * DKMutableLinkedListRef;
 
 
-DKClassRef  DKLinkedListClass( void );
-DKClassRef  DKMutableLinkedListClass( void );
+DK_API DKClassRef  DKLinkedListClass( void );
+DK_API DKClassRef  DKMutableLinkedListClass( void );
 
 #define     DKEmptyLinkedList()         DKAutorelease( DKNew( DKLinkedListClass() ) )
 #define     DKMutableLinkedList()       DKAutorelease( DKNew( DKMutableLinkedListClass() ) )
@@ -45,32 +45,32 @@ DKClassRef  DKMutableLinkedListClass( void );
 
 #define     DKNewMutableLinkedList()    DKNew( DKMutableLinkedListClass() )
 
-DKObjectRef DKLinkedListInitWithVAObjects( DKLinkedListRef _self, va_list objects );
-DKObjectRef DKLinkedListInitWithCArray( DKLinkedListRef _self, DKObjectRef objects[], DKIndex count );
-DKObjectRef DKLinkedListInitWithCollection( DKLinkedListRef _self, DKObjectRef srcCollection );
+DK_API DKObjectRef DKLinkedListInitWithVAObjects( DKLinkedListRef _self, va_list objects );
+DK_API DKObjectRef DKLinkedListInitWithCArray( DKLinkedListRef _self, DKObjectRef objects[], DKIndex count );
+DK_API DKObjectRef DKLinkedListInitWithCollection( DKLinkedListRef _self, DKObjectRef srcCollection );
 
-DKLinkedListRef DKLinkedListCopy( DKLinkedListRef _self );
-DKMutableLinkedListRef DKLinkedListMutableCopy( DKLinkedListRef _self );
+DK_API DKLinkedListRef DKLinkedListCopy( DKLinkedListRef _self );
+DK_API DKMutableLinkedListRef DKLinkedListMutableCopy( DKLinkedListRef _self );
 
-DKIndex     DKLinkedListGetCount( DKLinkedListRef _self );
+DK_API DKIndex     DKLinkedListGetCount( DKLinkedListRef _self );
 
-DKObjectRef DKLinkedListGetObjectAtIndex( DKLinkedListRef _self, DKIndex index );
-DKIndex     DKLinkedListGetObjectsInRange( DKLinkedListRef _self, DKRange range, DKObjectRef objects[] );
+DK_API DKObjectRef DKLinkedListGetObjectAtIndex( DKLinkedListRef _self, DKIndex index );
+DK_API DKIndex     DKLinkedListGetObjectsInRange( DKLinkedListRef _self, DKRange range, DKObjectRef objects[] );
 
-void        DKLinkedListAppendCArray( DKMutableLinkedListRef _self, DKObjectRef objects[], DKIndex count );
-void        DKLinkedListAppendCollection( DKMutableLinkedListRef _self, DKObjectRef srcCollection );
+DK_API void        DKLinkedListAppendCArray( DKMutableLinkedListRef _self, DKObjectRef objects[], DKIndex count );
+DK_API void        DKLinkedListAppendCollection( DKMutableLinkedListRef _self, DKObjectRef srcCollection );
 
-void        DKLinkedListReplaceRangeWithCArray( DKMutableLinkedListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
-void        DKLinkedListReplaceRangeWithCollection( DKMutableLinkedListRef _self, DKRange range, DKObjectRef srcCollection );
+DK_API void        DKLinkedListReplaceRangeWithCArray( DKMutableLinkedListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
+DK_API void        DKLinkedListReplaceRangeWithCollection( DKMutableLinkedListRef _self, DKRange range, DKObjectRef srcCollection );
 
-void        DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp );
-void        DKLinkedListReverse( DKMutableLinkedListRef _self );
-void        DKLinkedListShuffle( DKMutableLinkedListRef _self );
+DK_API void        DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp );
+DK_API void        DKLinkedListReverse( DKMutableLinkedListRef _self );
+DK_API void        DKLinkedListShuffle( DKMutableLinkedListRef _self );
 
-int         DKLinkedListApplyFunction( DKLinkedListRef _self, DKApplierFunction callback, void * context );
+DK_API int         DKLinkedListApplyFunction( DKLinkedListRef _self, DKApplierFunction callback, void * context );
 
-bool        DKLinkedListInsertObjectWithPriority( DKMutableLinkedListRef _self, DKObjectRef object, double priority, DKInsertPolicy policy );
-double      DKLinkedListGetPriorityOfObjectAtIndex( DKLinkedListRef _self, DKIndex index );
+DK_API bool        DKLinkedListInsertObjectWithPriority( DKMutableLinkedListRef _self, DKObjectRef object, double priority, DKInsertPolicy policy );
+DK_API double      DKLinkedListGetPriorityOfObjectAtIndex( DKLinkedListRef _self, DKIndex index );
 
 
 #endif // _DK_LINKED_LIST_H_

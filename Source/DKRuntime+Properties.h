@@ -79,7 +79,7 @@ struct DKProperty
 
 // typedef const struct DKProperty * DKPropertyRef; -- Defined in DKPlatform.h
 
-DKClassRef DKPropertyClass( void );
+DK_API DKClassRef DKPropertyClass( void );
 
 
 // Interface for custom get/set property
@@ -106,7 +106,7 @@ typedef const struct DKPropertyInterface * DKPropertyInterfaceRef;
 // Replacing properties after a class is in use (i.e. implementation swizzling) is not
 // currently supported.
 
-void DKInstallObjectProperty( DKClassRef _class,
+DK_API void DKInstallObjectProperty( DKClassRef _class,
     DKStringRef name,
     DKStringRef semantic,
     int32_t attributes,
@@ -117,7 +117,7 @@ void DKInstallObjectProperty( DKClassRef _class,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite );
 
-void DKInstallNumberProperty( DKClassRef _class,
+DK_API void DKInstallNumberProperty( DKClassRef _class,
     DKStringRef name,
     DKStringRef semantic,
     int32_t attributes,
@@ -128,7 +128,7 @@ void DKInstallNumberProperty( DKClassRef _class,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite );
 
-void DKInstallStructProperty( DKClassRef _class,
+DK_API void DKInstallStructProperty( DKClassRef _class,
     DKStringRef name,
     DKStringRef semantic,
     int32_t attributes,
@@ -139,7 +139,7 @@ void DKInstallStructProperty( DKClassRef _class,
     DKPropertyObserver willRead,
     DKPropertyObserver didWrite );
 
-void DKInstallEnumProperty( DKClassRef _class,
+DK_API void DKInstallEnumProperty( DKClassRef _class,
     DKStringRef name,
     DKStringRef semantic,
     int32_t attributes,
@@ -152,51 +152,51 @@ void DKInstallEnumProperty( DKClassRef _class,
     DKPropertyObserver didWrite );
 
 // Retrieve installed properties
-DKListRef   DKGetAllPropertyDefinitions( DKObjectRef _self );
-DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
+DK_API DKListRef   DKGetAllPropertyDefinitions( DKObjectRef _self );
+DK_API DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
 
 // Set an object property. DKNumbers and DKStructs will be automatically unpacked if the
 // property is stored as a number type or structure.
-void        DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound );
-void        DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object, bool warnIfNotFound );
+DK_API void        DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound );
+DK_API void        DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object, bool warnIfNotFound );
 
 #define DKSetProperty( _self, name, object )            DKTrySetProperty( _self, name, object, true )
 #define DKSetPropertyForKeyPath( _self, path, object )  DKTrySetPropertyForKeyPath( _self, path, object, true )
 
 // Get an object property. If the property is stored as a number type or structure, the
 // value will be automatically packaged in a DKNumber or DKStruct.
-DKObjectRef DKTryGetProperty( DKObjectRef _self, DKStringRef name, bool warnIfNotFound );
-DKObjectRef DKTryGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, bool warnIfNotFound );
+DK_API DKObjectRef DKTryGetProperty( DKObjectRef _self, DKStringRef name, bool warnIfNotFound );
+DK_API DKObjectRef DKTryGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, bool warnIfNotFound );
 
 #define DKGetProperty( _self, name )            DKTryGetProperty( _self, name, true )
 #define DKGetPropertyForKeyPath( _self, path )  DKTryGetPropertyForKeyPath( _self, path, true )
 
 // Get/Set a numerical property, with automatic conversion to/from storage as a DKNumber object.
-void        DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKEncoding srcEncoding );
-void        DKSetNumberPropertyForKeyPath( DKObjectRef _self, DKStringRef path, const void * srcValue, DKEncoding srcEncoding );
+DK_API void        DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKEncoding srcEncoding );
+DK_API void        DKSetNumberPropertyForKeyPath( DKObjectRef _self, DKStringRef path, const void * srcValue, DKEncoding srcEncoding );
 
-size_t      DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKEncoding dstEncoding );
-size_t      DKGetNumberPropertyForKeyPath( DKObjectRef _self, DKStringRef path, void * dstValue, DKEncoding dstEncoding );
+DK_API size_t      DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKEncoding dstEncoding );
+DK_API size_t      DKGetNumberPropertyForKeyPath( DKObjectRef _self, DKStringRef path, void * dstValue, DKEncoding dstEncoding );
 
 // Get/Set a struct property, with automatic conversion to/from storage as a DKStruct object.
-void        DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, const void * srcValue, size_t srcSize );
-void        DKSetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStringRef semantic, const void * srcValue, size_t srcSize );
+DK_API void        DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, const void * srcValue, size_t srcSize );
+DK_API void        DKSetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStringRef semantic, const void * srcValue, size_t srcSize );
 
-size_t      DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, void * dstValue, size_t dstSize );
-size_t      DKGetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStringRef semantic, void * dstValue, size_t dstSize );
+DK_API size_t      DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, void * dstValue, size_t dstSize );
+DK_API size_t      DKGetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStringRef semantic, void * dstValue, size_t dstSize );
 
 // Get/Set wrappers for basic types
-void        DKSetBoolProperty( DKObjectRef _self, DKStringRef name, bool x );
-bool        DKGetBoolProperty( DKObjectRef _self, DKStringRef name );
+DK_API void        DKSetBoolProperty( DKObjectRef _self, DKStringRef name, bool x );
+DK_API bool        DKGetBoolProperty( DKObjectRef _self, DKStringRef name );
 
-void        DKSetIntegerProperty( DKObjectRef _self, DKStringRef name, int64_t x );
-int64_t     DKGetIntegerProperty( DKObjectRef _self, DKStringRef name );
+DK_API void        DKSetIntegerProperty( DKObjectRef _self, DKStringRef name, int64_t x );
+DK_API int64_t     DKGetIntegerProperty( DKObjectRef _self, DKStringRef name );
 
-void        DKSetFloatProperty( DKObjectRef _self, DKStringRef name, double x );
-double      DKGetFloatProperty( DKObjectRef _self, DKStringRef name );
+DK_API void        DKSetFloatProperty( DKObjectRef _self, DKStringRef name, double x );
+DK_API double      DKGetFloatProperty( DKObjectRef _self, DKStringRef name );
 
-void        DKSetEnumProperty( DKObjectRef _self, DKStringRef name, int x );
-int         DKGetEnumProperty( DKObjectRef _self, DKStringRef name );
+DK_API void        DKSetEnumProperty( DKObjectRef _self, DKStringRef name, int x );
+DK_API int         DKGetEnumProperty( DKObjectRef _self, DKStringRef name );
 
 
 

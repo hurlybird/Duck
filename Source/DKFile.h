@@ -32,25 +32,25 @@
 typedef struct DKFile * DKFileRef;
 
 
-DKClassRef  DKFileClass( void );
+DK_API DKClassRef  DKFileClass( void );
 
 // Returns true if the file exists
-bool        DKFileExists( DKStringRef filename );
+DK_API bool        DKFileExists( DKStringRef filename );
 
 // Create and open a new file
-DKFileRef   DKFileOpen( DKStringRef filename, const char * mode );
+DK_API DKFileRef   DKFileOpen( DKStringRef filename, const char * mode );
 
 // Close the file and release the object reference
-int         DKFileClose( DKFileRef _self );
+DK_API int         DKFileClose( DKFileRef _self );
 
-FILE *      DKFileGetStreamPtr( DKFileRef _self );
+DK_API FILE *      DKFileGetStreamPtr( DKFileRef _self );
 
-int         DKFileSeek( DKFileRef _self, long offset, int origin );
-long        DKFileTell( DKFileRef _self );
-long        DKFileGetLength( DKFileRef _self );
+DK_API int         DKFileSeek( DKFileRef _self, long offset, int origin );
+DK_API long        DKFileTell( DKFileRef _self );
+DK_API long        DKFileGetLength( DKFileRef _self );
 
-size_t      DKFileRead( DKFileRef _self, void * buffer, size_t size, size_t count );
-size_t      DKFileWrite( DKFileRef _self, const void * buffer, size_t size, size_t count );
+DK_API size_t      DKFileRead( DKFileRef _self, void * buffer, size_t size, size_t count );
+DK_API size_t      DKFileWrite( DKFileRef _self, const void * buffer, size_t size, size_t count );
 
 
 

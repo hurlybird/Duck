@@ -56,12 +56,12 @@ struct DKConversionInterface
 typedef const struct DKConversionInterface * DKConversionInterfaceRef;
 
 
-DKStringRef DKGetString( DKObjectRef _self );
-bool        DKGetBool( DKObjectRef _self );
-int32_t     DKGetInt32( DKObjectRef _self );
-int64_t     DKGetInt64( DKObjectRef _self );
-float       DKGetFloat( DKObjectRef _self );
-double      DKGetDouble( DKObjectRef _self );
+DK_API DKStringRef DKGetString( DKObjectRef _self );
+DK_API bool        DKGetBool( DKObjectRef _self );
+DK_API int32_t     DKGetInt32( DKObjectRef _self );
+DK_API int64_t     DKGetInt64( DKObjectRef _self );
+DK_API float       DKGetFloat( DKObjectRef _self );
+DK_API double      DKGetDouble( DKObjectRef _self );
 
 
 #define DKGetInt( _self )       DKGetInt32( _self )

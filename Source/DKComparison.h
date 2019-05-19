@@ -51,20 +51,20 @@ typedef const struct DKComparisonInterface * DKComparisonInterfaceRef;
 
 // Default comparison interface that implements pointer comparison/equality. This
 // is used by the root classes so it's defined in DKRuntime.c.
-DKInterfaceRef DKDefaultComparison( void );
+DK_API DKInterfaceRef DKDefaultComparison( void );
 
 
 // Pointer equality, comparison and hashing
-bool        DKPointerEqual( DKObjectRef _self, DKObjectRef other );
-int         DKPointerCompare( DKObjectRef _self, DKObjectRef other );
-DKHashCode  DKPointerHash( DKObjectRef _self );
+DK_API bool        DKPointerEqual( DKObjectRef _self, DKObjectRef other );
+DK_API int         DKPointerCompare( DKObjectRef _self, DKObjectRef other );
+DK_API DKHashCode  DKPointerHash( DKObjectRef _self );
 
 
 // Wrappers for the comparison interface
-bool        DKEqual( DKObjectRef a, DKObjectRef b );
-int         DKCompare( DKObjectRef a, DKObjectRef b );
-int         DKReverseCompare( DKObjectRef a, DKObjectRef b );
-DKHashCode  DKHash( DKObjectRef _self );
+DK_API bool        DKEqual( DKObjectRef a, DKObjectRef b );
+DK_API int         DKCompare( DKObjectRef a, DKObjectRef b );
+DK_API int         DKReverseCompare( DKObjectRef a, DKObjectRef b );
+DK_API DKHashCode  DKHash( DKObjectRef _self );
 
 
 

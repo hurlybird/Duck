@@ -51,30 +51,30 @@ typedef enum
 } DKThreadState;
 
 
-DKClassRef DKThreadClass( void );
+DK_API DKClassRef DKThreadClass( void );
 
-DKThreadRef DKThreadGetCurrentThread( void );
-DKThreadRef DKThreadGetMainThread( void );
+DK_API DKThreadRef DKThreadGetCurrentThread( void );
+DK_API DKThreadRef DKThreadGetMainThread( void );
 
 
-void DKDetachNewThread( DKThreadProc proc, void * context );
-void DKDetachNewThreadToTarget( DKObjectRef target, DKThreadMethod method, DKObjectRef param );
+DK_API void DKDetachNewThread( DKThreadProc proc, void * context );
+DK_API void DKDetachNewThreadToTarget( DKObjectRef target, DKThreadMethod method, DKObjectRef param );
 
-DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc proc, void * context );
-DKObjectRef DKThreadInitWithTarget( DKObjectRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
+DK_API DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc proc, void * context );
+DK_API DKObjectRef DKThreadInitWithTarget( DKObjectRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
 
-void DKThreadSetLabel( DKThreadRef _self, DKStringRef label );
+DK_API void DKThreadSetLabel( DKThreadRef _self, DKStringRef label );
 
-void DKThreadStart( DKThreadRef _self );
-void DKThreadJoin( DKThreadRef _self );
-void DKThreadCancel( DKThreadRef _self );
-void DKThreadExit( void );
+DK_API void DKThreadStart( DKThreadRef _self );
+DK_API void DKThreadJoin( DKThreadRef _self );
+DK_API void DKThreadCancel( DKThreadRef _self );
+DK_API void DKThreadExit( void );
 
 // Get thread information. Unlike most interfaces, if '_self' is NULL, the values
 // associated with the current thread are returned.
-DKThreadState DKThreadGetState( DKThreadRef _self );
-DKMutableDictionaryRef DKThreadGetDictionary( DKThreadRef _self );
-bool DKThreadIsMainThread( DKThreadRef _self );
+DK_API DKThreadState DKThreadGetState( DKThreadRef _self );
+DK_API DKMutableDictionaryRef DKThreadGetDictionary( DKThreadRef _self );
+DK_API bool DKThreadIsMainThread( DKThreadRef _self );
 
 
 
@@ -82,14 +82,14 @@ bool DKThreadIsMainThread( DKThreadRef _self );
 // DKThreadContext =======================================================================
 typedef struct DKThreadContext * DKThreadContextRef;
 
-DKThreadContextRef DKAllocThreadContext( void );
-void DKFreeThreadContext( DKThreadContextRef threadContext );
+DK_API DKThreadContextRef DKAllocThreadContext( void );
+DK_API void DKFreeThreadContext( DKThreadContextRef threadContext );
 
-void DKSetCurrentThreadContext( DKThreadContextRef threadContext );
-bool DKCurrentThreadContextIsSet( void );
-DKThreadContextRef DKGetCurrentThreadContext( void );
+DK_API void DKSetCurrentThreadContext( DKThreadContextRef threadContext );
+DK_API bool DKCurrentThreadContextIsSet( void );
+DK_API DKThreadContextRef DKGetCurrentThreadContext( void );
 
-DKThreadContextRef DKGetMainThreadContext( void );
+DK_API DKThreadContextRef DKGetMainThreadContext( void );
 
 
 

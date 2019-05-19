@@ -64,7 +64,7 @@ typedef const struct DKStreamInterface * DKStreamInterfaceRef;
 // a value returned by an earlier call to DKTell() on the same stream (which only works
 // when 'origin' is SEEK_SET).
 //
-int DKSeek( DKStreamRef _self, long offset, int origin );
+DK_API int DKSeek( DKStreamRef _self, long offset, int origin );
 
 // Returns the current stream position.
 //
@@ -74,32 +74,32 @@ int DKSeek( DKStreamRef _self, long offset, int origin );
 // For DKString and text DKFile streams the returned value is only useful for a future
 // call to DKSeek() (and only works with SEEK_SET).
 //
-long DKTell( DKStreamRef _self );
+DK_API long DKTell( DKStreamRef _self );
 
 // Read up to 'count' items into a buffer. Returns the number of items read (which may
 // be less than 'count' on partial reads or negative if an error occurs.
-size_t DKRead( DKStreamRef _self, void * data, size_t size, size_t count );
+DK_API size_t DKRead( DKStreamRef _self, void * data, size_t size, size_t count );
 
 // Write up to 'count' items from a buffer. Returns the number of items written (which may
 // be less than 'count' on partial writes or negative if an error occurs.
-size_t DKWrite( DKStreamRef _self, const void * data, size_t size, size_t count );
+DK_API size_t DKWrite( DKStreamRef _self, const void * data, size_t size, size_t count );
 
 // Write a formatted string to a buffer.
-int DKSPrintf( DKStreamRef _self, const char * format, ... );
-int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr );
+DK_API int DKSPrintf( DKStreamRef _self, const char * format, ... );
+DK_API int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr );
 
 // Read characters from a stream until a newline character is found or end-of-file occurs.
 // The newline character is discarded but not stored in the returned string.
-DKStringRef DKGets( DKStreamRef _self );
+DK_API DKStringRef DKGets( DKStreamRef _self );
 
 // Write a string to the stream. Returns EOF on failure or a non-negative value on success.
-int         DKPuts( DKStreamRef _self, DKStringRef s );
+DK_API int         DKPuts( DKStreamRef _self, DKStringRef s );
 
 // Read a character from the stream. Returns EOF on failure.
-int         DKGetc( DKStreamRef _self );
+DK_API int         DKGetc( DKStreamRef _self );
 
 // Write a character to the stream. Returns EOF on failure or the character written on success.
-int         DKPutc( DKStreamRef _self, int ch );
+DK_API int         DKPutc( DKStreamRef _self, int ch );
 
 
 #endif // _DK_STREAM_H_

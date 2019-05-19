@@ -50,82 +50,82 @@
 
 // typedef struct DKNumber * DKNumberRef; -- Declared in DKPlatform.h
 
-DKClassRef  DKNumberClass( void );
-DKClassRef  DKVariableNumberClass( void );
+DK_API DKClassRef  DKNumberClass( void );
+DK_API DKClassRef  DKVariableNumberClass( void );
 
-#define     DKNumber( value, encoding )                     DKAutorelease( DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding ) )
-#define     DKNewNumber( value, encoding )                  DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding )
+#define            DKNumber( value, encoding )                     DKAutorelease( DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding ) )
+#define            DKNewNumber( value, encoding )                  DKNumberInit( DKAlloc( DKNumberClass() ), value, encoding )
 
-#define     DKNumberWithNumber( number, encodingType )      DKAutorelease( DKNumberInitWithNumber( DKAlloc( DKNumberClass() ), number, encodingType ) )
-#define     DKNewNumberWithNumber( number, encodingType )   DKNumberInitWithNumber( DKAlloc( DKNumberClass() ), number, encodingType )
+#define            DKNumberWithNumber( number, encodingType )      DKAutorelease( DKNumberInitWithNumber( DKAlloc( DKNumberClass() ), number, encodingType ) )
+#define            DKNewNumberWithNumber( number, encodingType )   DKNumberInitWithNumber( DKAlloc( DKNumberClass() ), number, encodingType )
 
-#define     DKVariableNumber( value, encoding )             DKAutorelease( DKNumberInit( DKAlloc( DKVariableNumberClass() ), value, encoding ) )
-#define     DKNewVariableNumber( value, encoding )          DKNumberInit( DKAlloc( DKVariableNumberClass() ), value, encoding )
+#define            DKVariableNumber( value, encoding )             DKAutorelease( DKNumberInit( DKAlloc( DKVariableNumberClass() ), value, encoding ) )
+#define            DKNewVariableNumber( value, encoding )          DKNumberInit( DKAlloc( DKVariableNumberClass() ), value, encoding )
 
 
-DKNumberRef DKNewNumberWithInt32( int32_t x );
-DKNumberRef DKNewNumberWithInt64( int64_t x );
-DKNumberRef DKNewNumberWithUInt32( uint32_t x );
-DKNumberRef DKNewNumberWithUInt64( uint64_t x );
-DKNumberRef DKNewNumberWithFloat( float x );
-DKNumberRef DKNewNumberWithDouble( double x );
-DKNumberRef DKNewNumberWithUUID( const DKUUID * uuid );     // Passing NULL will generate a new UUID
-DKNumberRef DKNewNumberWithDate( const DKDateTime * date ); // Passing NULL will retrieve the current date+time
+DK_API DKNumberRef DKNewNumberWithInt32( int32_t x );
+DK_API DKNumberRef DKNewNumberWithInt64( int64_t x );
+DK_API DKNumberRef DKNewNumberWithUInt32( uint32_t x );
+DK_API DKNumberRef DKNewNumberWithUInt64( uint64_t x );
+DK_API DKNumberRef DKNewNumberWithFloat( float x );
+DK_API DKNumberRef DKNewNumberWithDouble( double x );
+DK_API DKNumberRef DKNewNumberWithUUID( const DKUUID * uuid );     // Passing NULL will generate a new UUID
+DK_API DKNumberRef DKNewNumberWithDate( const DKDateTime * date ); // Passing NULL will retrieve the current date+time
 
-#define     DKNumberWithInt32( x )      DKAutorelease( DKNewNumberWithInt32( x ) )
-#define     DKNumberWithInt64( x )      DKAutorelease( DKNewNumberWithInt64( x ) )
-#define     DKNumberWithUInt32( x )     DKAutorelease( DKNewNumberWithUInt32( x ) )
-#define     DKNumberWithUInt64( x )     DKAutorelease( DKNewNumberWithUInt64( x ) )
-#define     DKNumberWithFloat( x )      DKAutorelease( DKNewNumberWithFloat( x ) )
-#define     DKNumberWithDouble( x )     DKAutorelease( DKNewNumberWithDouble( x ) )
-#define     DKNumberWithUUID( x )       DKAutorelease( DKNewNumberWithUUID( x ) )
-#define     DKNumberWithDate( x )       DKAutorelease( DKNewNumberWithDate( x ) )
+#define            DKNumberWithInt32( x )      DKAutorelease( DKNewNumberWithInt32( x ) )
+#define            DKNumberWithInt64( x )      DKAutorelease( DKNewNumberWithInt64( x ) )
+#define            DKNumberWithUInt32( x )     DKAutorelease( DKNewNumberWithUInt32( x ) )
+#define            DKNumberWithUInt64( x )     DKAutorelease( DKNewNumberWithUInt64( x ) )
+#define            DKNumberWithFloat( x )      DKAutorelease( DKNewNumberWithFloat( x ) )
+#define            DKNumberWithDouble( x )     DKAutorelease( DKNewNumberWithDouble( x ) )
+#define            DKNumberWithUUID( x )       DKAutorelease( DKNewNumberWithUUID( x ) )
+#define            DKNumberWithDate( x )       DKAutorelease( DKNewNumberWithDate( x ) )
 
-DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding );
-DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEncodingType encodingType );
+DK_API DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding );
+DK_API DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEncodingType encodingType );
 
-DKEncoding  DKNumberGetEncoding( DKNumberRef _self );
+DK_API DKEncoding  DKNumberGetEncoding( DKNumberRef _self );
 
-size_t      DKNumberGetValue( DKNumberRef _self, void * value );
-size_t      DKNumberSetValue( DKNumberRef _self, const void * value, DKEncoding encoding ); // Variable numbers only
+DK_API size_t      DKNumberGetValue( DKNumberRef _self, void * value );
+DK_API size_t      DKNumberSetValue( DKNumberRef _self, const void * value, DKEncoding encoding ); // Variable numbers only
 
-const void* DKNumberGetValuePtr( DKNumberRef _self );
-void *      DKNumberGetVariableValuePtr( DKNumberRef _self ); // Variable numbers only
+DK_API const void* DKNumberGetValuePtr( DKNumberRef _self );
+DK_API void *      DKNumberGetVariableValuePtr( DKNumberRef _self ); // Variable numbers only
 
-size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding );
-const void* DKNumberGetBytePtr( DKNumberRef _self, DKEncoding * encoding );
+DK_API size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding );
+DK_API const void* DKNumberGetBytePtr( DKNumberRef _self, DKEncoding * encoding );
 
-#define     DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
+#define            DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
 
-bool        DKNumberGetBool( DKNumberRef _self );
-int32_t     DKNumberGetInt32( DKNumberRef _self );
-int64_t     DKNumberGetInt64( DKNumberRef _self );
-float       DKNumberGetFloat( DKNumberRef _self );
-double      DKNumberGetDouble( DKNumberRef _self );
+DK_API bool        DKNumberGetBool( DKNumberRef _self );
+DK_API int32_t     DKNumberGetInt32( DKNumberRef _self );
+DK_API int64_t     DKNumberGetInt64( DKNumberRef _self );
+DK_API float       DKNumberGetFloat( DKNumberRef _self );
+DK_API double      DKNumberGetDouble( DKNumberRef _self );
 
-#define     DKNumberGetString( _self )    DKNumberFormatString( _self, " " )
-#define     DKNumberGetInt8( _self )      ((_self) ? *((int8_t *)DKNumberGetValuePtr( _self )) : 0)
-#define     DKNumberGetInt16( _self )     ((_self) ? *((int16_t *)DKNumberGetValuePtr( _self )) : 0)
-//#define   DKNumberGetInt32( _self )     ((_self) ? *((int32_t *)DKNumberGetValuePtr( _self )) : 0)
-//#define   DKNumberGetInt64( _self )     ((_self) ? *((int64_t *)DKNumberGetValuePtr( _self )) : 0)
-#define     DKNumberGetUInt8( _self )     ((_self) ? *((uint8_t *)DKNumberGetValuePtr( _self )) : 0)
-#define     DKNumberGetUInt16( _self )    ((_self) ? *((uint16_t *)DKNumberGetValuePtr( _self )) : 0)
-#define     DKNumberGetUInt32( _self )    ((_self) ? *((uint32_t *)DKNumberGetValuePtr( _self )) : 0)
-#define     DKNumberGetUInt64( _self )    ((_self) ? *((uint64_t *)DKNumberGetValuePtr( _self )) : 0)
-//#define   DKNumberGetFloat( _self )     ((_self) ? *((float *)DKNumberGetValuePtr( _self )) : 0)
-//#define   DKNumberGetDouble( _self )    ((_self) ? *((double *)DKNumberGetValuePtr( _self )) : 0)
-#define     DKNumberGetUUID( _self )      ((_self) ? *((DKUUID *)DKNumberGetValuePtr( _self )) : DKUUIDZero)
-#define     DKNumberGetDate( _self )      ((_self) ? *((DKDateTime *)DKNumberGetValuePtr( _self )) : 0)
+#define            DKNumberGetString( _self )    DKNumberFormatString( _self, " " )
+#define            DKNumberGetInt8( _self )      ((_self) ? *((int8_t *)DKNumberGetValuePtr( _self )) : 0)
+#define            DKNumberGetInt16( _self )     ((_self) ? *((int16_t *)DKNumberGetValuePtr( _self )) : 0)
+//#define          DKNumberGetInt32( _self )     ((_self) ? *((int32_t *)DKNumberGetValuePtr( _self )) : 0)
+//#define          DKNumberGetInt64( _self )     ((_self) ? *((int64_t *)DKNumberGetValuePtr( _self )) : 0)
+#define            DKNumberGetUInt8( _self )     ((_self) ? *((uint8_t *)DKNumberGetValuePtr( _self )) : 0)
+#define            DKNumberGetUInt16( _self )    ((_self) ? *((uint16_t *)DKNumberGetValuePtr( _self )) : 0)
+#define            DKNumberGetUInt32( _self )    ((_self) ? *((uint32_t *)DKNumberGetValuePtr( _self )) : 0)
+#define            DKNumberGetUInt64( _self )    ((_self) ? *((uint64_t *)DKNumberGetValuePtr( _self )) : 0)
+//#define          DKNumberGetFloat( _self )     ((_self) ? *((float *)DKNumberGetValuePtr( _self )) : 0)
+//#define          DKNumberGetDouble( _self )    ((_self) ? *((double *)DKNumberGetValuePtr( _self )) : 0)
+#define            DKNumberGetUUID( _self )      ((_self) ? *((DKUUID *)DKNumberGetValuePtr( _self )) : DKUUIDZero)
+#define            DKNumberGetDate( _self )      ((_self) ? *((DKDateTime *)DKNumberGetValuePtr( _self )) : 0)
 
-bool        DKNumberEqual( DKNumberRef a, DKNumberRef b );
-int         DKNumberCompare( DKNumberRef a, DKNumberRef b );
-DKHashCode  DKNumberHash( DKNumberRef _self );
+DK_API bool        DKNumberEqual( DKNumberRef a, DKNumberRef b );
+DK_API int         DKNumberCompare( DKNumberRef a, DKNumberRef b );
+DK_API DKHashCode  DKNumberHash( DKNumberRef _self );
 
-DKStringRef DKNumberFormatString( DKNumberRef _self, const char * seperator );
-DKStringRef DKNumberGetDescription( DKNumberRef _self );
+DK_API DKStringRef DKNumberFormatString( DKNumberRef _self, const char * seperator );
+DK_API DKStringRef DKNumberGetDescription( DKNumberRef _self );
 
 // Utility function for converting number types
-size_t DKNumberConvert( const void * src, DKEncoding srcType, void * dst, DKEncoding dstType );
+DK_API size_t      DKNumberConvert( const void * src, DKEncoding srcType, void * dst, DKEncoding dstType );
 
 
 #endif // _DK_NUMBER_H_

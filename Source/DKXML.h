@@ -35,16 +35,15 @@
 typedef struct DKXMLElement * DKXMLElementRef;
 
 
-DKClassRef DKXMLElementClass( void );
+DK_API DKClassRef DKXMLElementClass( void );
 
-DKStringRef DKXMLElementGetName( DKXMLElementRef _self );
-DKDictionaryRef DKXMLElementGetAttributes( DKXMLElementRef _self );
-DKListRef DKXMLElementGetElements( DKXMLElementRef _self );
-DKStringRef DKXMLElementGetDescription( DKXMLElementRef _self );
+DK_API DKStringRef DKXMLElementGetName( DKXMLElementRef _self );
+DK_API DKDictionaryRef DKXMLElementGetAttributes( DKXMLElementRef _self );
+DK_API DKListRef DKXMLElementGetElements( DKXMLElementRef _self );
+DK_API DKStringRef DKXMLElementGetDescription( DKXMLElementRef _self );
 
 
-
-DKXMLElementRef DKXMLParse( DKStringRef xml, int options );
+DK_API DKXMLElementRef DKXMLParse( DKStringRef xml, int options );
 
 
 

@@ -52,19 +52,19 @@ typedef struct
 } DKGenericArray;
 
 
-void DKGenericArrayInit( DKGenericArray * array, DKIndex elementSize );
+DK_API void DKGenericArrayInit( DKGenericArray * array, DKIndex elementSize );
 
-void DKGenericArrayInitWithExternalStorage( DKGenericArray * array, const void * elements, DKIndex elementSize, DKIndex length );
-int  DKGenericArrayHasExternalStorage( DKGenericArray * array );
+DK_API void DKGenericArrayInitWithExternalStorage( DKGenericArray * array, const void * elements, DKIndex elementSize, DKIndex length );
+DK_API int  DKGenericArrayHasExternalStorage( DKGenericArray * array );
 
-void DKGenericArrayFinalize( DKGenericArray * array );
+DK_API void DKGenericArrayFinalize( DKGenericArray * array );
 
-void DKGenericArrayReserve( DKGenericArray * array, DKIndex length );
+DK_API void DKGenericArrayReserve( DKGenericArray * array, DKIndex length );
 
 #define DKGenericArrayGetLength( array ) ((array)->length)
-void DKGenericArraySetLength( DKGenericArray * array, DKIndex length );
+DK_API void DKGenericArraySetLength( DKGenericArray * array, DKIndex length );
 
-void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex index );
+DK_API void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex index );
 
 #define DKGenericArrayElementAtIndex( array, index, type )                              \
     *((type *)DKGenericArrayGetPointerToElementAtIndex( (array), (index) ))
@@ -72,14 +72,14 @@ void * DKGenericArrayGetPointerToElementAtIndex( DKGenericArray * array, DKIndex
 #define DKGenericArrayLastElement( array, type )                                        \
     *((type *)DKGenericArrayGetPointerToElementAtIndex( (array), DKGenericArrayGetLength( array ) - 1 ))
 
-void DKGenericArrayReplaceElements( DKGenericArray * array, DKRange range, const void * elements, DKIndex length );
-void DKGenericArrayAppendElements( DKGenericArray * array, const void * elements, DKIndex length );
+DK_API void DKGenericArrayReplaceElements( DKGenericArray * array, DKRange range, const void * elements, DKIndex length );
+DK_API void DKGenericArrayAppendElements( DKGenericArray * array, const void * elements, DKIndex length );
 
-void DKGenericArraySort( DKGenericArray * array, int (*cmp)(const void *, const void *) );
-void DKGenericArraySortObjects( DKGenericArray * array, DKCompareFunction cmp );
+DK_API void DKGenericArraySort( DKGenericArray * array, int (*cmp)(const void *, const void *) );
+DK_API void DKGenericArraySortObjects( DKGenericArray * array, DKCompareFunction cmp );
 
-void DKGenericArrayReverse( DKGenericArray * array );
-void DKGenericArrayShuffle( DKGenericArray * array );
+DK_API void DKGenericArrayReverse( DKGenericArray * array );
+DK_API void DKGenericArrayShuffle( DKGenericArray * array );
 
 #define DKGenericArrayPush( array, elem )   DKGenericArrayAppendElements( (array), (elem), 1 )
 #define DKGenericArrayPop( array )          DKGenericArrayReplaceElements( (array), DKRangeMake( (array)->length - 1, 1 ), NULL, 0 )

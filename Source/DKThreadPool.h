@@ -36,29 +36,29 @@ typedef struct DKThreadPool * DKThreadPoolRef;
 typedef void (*DKThreadPoolCallback)( DKThreadPoolRef threadPool, void * context );
 
 
-DKClassRef DKThreadPoolClass( void );
+DK_API DKClassRef DKThreadPoolClass( void );
 
 #define DKNewThreadPool()   DKNew( DKThreadPoolClass() )
 
-void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
+DK_API void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
     DKThreadPoolCallback onThreadStart,
     DKThreadPoolCallback onThreadStop,
     void * context );
 
-void DKThreadPoolSetLabel( DKThreadPoolRef _self, DKStringRef label );
+DK_API void DKThreadPoolSetLabel( DKThreadPoolRef _self, DKStringRef label );
 
-int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
-void DKThreadPoolStop( DKThreadPoolRef _self );
+DK_API int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
+DK_API void DKThreadPoolStop( DKThreadPoolRef _self );
 
-int DKThreadPoolGetThreadCount( DKThreadPoolRef _self );
+DK_API int DKThreadPoolGetThreadCount( DKThreadPoolRef _self );
 
-int DKThreadPoolIsBusy( DKThreadPoolRef _self );
-void DKThreadPoolWaitUntilIdle( DKThreadPoolRef _self );
+DK_API int DKThreadPoolIsBusy( DKThreadPoolRef _self );
+DK_API void DKThreadPoolWaitUntilIdle( DKThreadPoolRef _self );
 
-void DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context );
-void DKThreadPoolAddObjectTask( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
+DK_API void DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context );
+DK_API void DKThreadPoolAddObjectTask( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
 
-void DKThreadPoolRemoveAllTasks( DKThreadPoolRef _self );
+DK_API void DKThreadPoolRemoveAllTasks( DKThreadPoolRef _self );
 
 
 #endif // _DK_THREAD_POOL_H_

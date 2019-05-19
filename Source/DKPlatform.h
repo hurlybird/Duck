@@ -44,35 +44,55 @@
 #include "DKConfig.h"
 
 
+// Apple ---------------------------------------------------------------------------------
 #if DK_PLATFORM_APPLE
 #include <os/lock.h>
 #include <uuid/uuid.h>
 
+#define DK_API
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN     __attribute__((analyzer_noreturn))
 #endif
 
+// POSIX ---------------------------------------------------------------------------------
 #if DK_PLATFORM_POSIX
 #include <pthread.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #endif
 
+// BSD -----------------------------------------------------------------------------------
 #if DK_PLATFORM_BSD
 #error Include BSD System Headers
-#endif
 
-#if DK_PLATFORM_LINUX
-#include <linux/spinlock.h>
-#include <uuid/uuid.h>
-#endif
-
-#if DK_PLATFORM_ANDROID_NDK
+#define DK_API
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
 #endif
 
+// Linux ---------------------------------------------------------------------------------
+#if DK_PLATFORM_LINUX
+#include <linux/spinlock.h>
+#include <uuid/uuid.h>
+
+#define DK_API
+#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+#endif
+
+// Android -------------------------------------------------------------------------------
+#if DK_PLATFORM_ANDROID_NDK
+#define DK_API
+#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+#endif
+
+// Windows -------------------------------------------------------------------------------
 #if DK_PLATFORM_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#ifdef DK_LIBRARY_EXPORTS
+#define DK_API __declspec(dllexport)
+#else
+#define DK_API __declspec(dllimport)
+#endif
 
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
 #define __LITTLE_ENDIAN__
@@ -106,7 +126,7 @@ typedef struct DKSet *              DKSetRef;
 
 // Define a constant string. Constant strings require external storage so unless you
 // know what you're doing, use the DKSTR macro instead of calling this directly
-DKStringRef __DKStringGetConstantString( const char * str, bool insert );
+DK_API DKStringRef __DKStringGetConstantString( const char * str, bool insert );
 
 
 // DKIndex is a signed integer the same width as size_t, to make index arithmetic
@@ -231,18 +251,18 @@ typedef struct
 // Error Reporting =======================================================================
 
 // Set external handlers for debug, warning and error messages
-void DKSetPrintfCallback( int (*callback)( const char * format, va_list arg_ptr ) );
-void DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) );
-void DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
-void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+DK_API void DKSetPrintfCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+DK_API void DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+DK_API void DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+DK_API void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 
 // Set a prefix for warnings, errors and fatal errors
-void DKSetWarningPrefix( const char * prefix );
-void DKSetErrorPrefix( const char * prefix );
-void DKSetFatalErrorPrefix( const char * prefix );
+DK_API void DKSetWarningPrefix( const char * prefix );
+DK_API void DKSetErrorPrefix( const char * prefix );
+DK_API void DKSetFatalErrorPrefix( const char * prefix );
 
 // Set whether to abort on errors (default yes for debug builds, no for release builds)
-void DKSetAbortOnErrors( bool flag );
+DK_API void DKSetAbortOnErrors( bool flag );
 
 #ifdef DEBUG
 #define DK_DEFAULT_ABORT_ON_ERRORS  true
@@ -252,7 +272,7 @@ void DKSetAbortOnErrors( bool flag );
 
 // Print a message. Object descriptions can be printed using the
 // Foundation/CoreFoundation idiom "%@".
-int    _DKPrintf( const char * format, ... );
+DK_API int _DKPrintf( const char * format, ... );
 
 #define DKPrintf( ... )     _DKPrintf( __VA_ARGS__ )
 
@@ -268,7 +288,7 @@ int    _DKPrintf( const char * format, ... );
 
 // Print a warning. This is ignored in non-debug builds unless DK_RUNTIME_WARNINGS is
 // defined.
-void   _DKWarning( const char * format, ... );
+DK_API void _DKWarning( const char * format, ... );
 
 #if DK_RUNTIME_WARNINGS
 #define DKWarning( ... )    _DKWarning( __VA_ARGS__ )
@@ -279,14 +299,14 @@ void   _DKWarning( const char * format, ... );
 
 // Print a error. In a debug build execution is halted with assert(0). In a non-debug
 // build the program will continue running.
-void   _DKError( const char * format, ... );
+DK_API void _DKError( const char * format, ... );
 
 #define DKError( ... )      _DKError( __VA_ARGS__ )
 
 
 // Print a error. In a debug build execution is halted with assert(0). In a non-debug
 // build the program is halted with abort().
-void   _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_RETURN;
+DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_RETURN;
 
 #define DKFatalError( ... ) _DKFatalError( __VA_ARGS__ )
 
@@ -473,7 +493,7 @@ void   _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_RETURN
 
 
 // Specific Errors
-void DKImmutableObjectAccessError( DKObjectRef _self );
+DK_API void DKImmutableObjectAccessError( DKObjectRef _self );
 
 
 
@@ -482,10 +502,10 @@ void DKImmutableObjectAccessError( DKObjectRef _self );
 typedef void * (*dk_malloc_callback)( size_t size );
 typedef void (*dk_free_callback)( void * ptr );
 
-void   DKSetExternalAllocator( dk_malloc_callback _malloc, dk_free_callback _free );
+DK_API void DKSetExternalAllocator( dk_malloc_callback _malloc, dk_free_callback _free );
 
-void * dk_malloc( size_t size );
-void   dk_free( void * ptr );
+DK_API void * dk_malloc( size_t size );
+DK_API void   dk_free( void * ptr );
 
 
 
@@ -673,14 +693,14 @@ static inline double DKSwapDouble( double x )
 // Other Utilities =======================================================================
 
 // Generate UUIDs
-DKUUID dk_uuid_generate( void );
+DK_API DKUUID dk_uuid_generate( void );
 
 // Basic hashing
-uint32_t dk_strhash32( const char * str );
-uint64_t dk_strhash64( const char * str );
+DK_API uint32_t dk_strhash32( const char * str );
+DK_API uint64_t dk_strhash64( const char * str );
 
-uint32_t dk_memhash32( const void * buffer, size_t buffer_size );
-uint64_t dk_memhash64( const void * buffer, size_t buffer_size );
+DK_API uint32_t dk_memhash32( const void * buffer, size_t buffer_size );
+DK_API uint64_t dk_memhash64( const void * buffer, size_t buffer_size );
 
 #if __LP64__
 #define dk_strhash( str )                   dk_strhash64( str )
@@ -691,8 +711,8 @@ uint64_t dk_memhash64( const void * buffer, size_t buffer_size );
 #endif
 
 
-// Time in seconds since midnight January 1, 1970 (i.e. gettimeofday())
-DKDateTime dk_datetime( void );
+// Time in seconds since Jan 1 2001 00:00:00 GMT (equivalent to Apple's CFDate)
+DK_API DKDateTime dk_datetime( void );
 
 
 

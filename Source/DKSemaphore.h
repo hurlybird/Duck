@@ -34,14 +34,14 @@
 typedef struct DKSemaphore * DKSemaphoreRef;
 
 
-DKClassRef DKSemaphoreClass( void );
+DK_API DKClassRef DKSemaphoreClass( void );
 
 #define DKNewSemaphore()        DKNew( DKSemaphoreClass() )
 
 
-void DKSemaphoreIncrement( DKSemaphoreRef _self, uint32_t value );
-void DKSemaphoreDecrement( DKSemaphoreRef _self, uint32_t value );
-void DKSemaphoreWait( DKSemaphoreRef _self, uint32_t value );
+DK_API void DKSemaphoreIncrement( DKSemaphoreRef _self, uint32_t value );
+DK_API void DKSemaphoreDecrement( DKSemaphoreRef _self, uint32_t value );
+DK_API void DKSemaphoreWait( DKSemaphoreRef _self, uint32_t value );
 
 
 #endif // _DK_MUTEX_H_

@@ -50,11 +50,11 @@ typedef const struct DKLockingInterface * DKLockingInterfaceRef;
 
 // Default locking interface that associates aretains and returns the object. This is used by the
 // root classes so it's defined in DKRuntime.c.
-DKInterfaceRef DKDefaultLocking( void );
+DK_API DKInterfaceRef DKDefaultLocking( void );
 
 
-void DKLock( DKObjectRef _self );
-void DKUnlock( DKObjectRef _self );
+DK_API void DKLock( DKObjectRef _self );
+DK_API void DKUnlock( DKObjectRef _self );
 
 
 

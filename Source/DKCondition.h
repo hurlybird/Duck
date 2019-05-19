@@ -35,14 +35,14 @@
 typedef struct DKCondition * DKConditionRef;
 
 
-DKClassRef DKConditionClass( void );
+DK_API DKClassRef DKConditionClass( void );
 
 #define DKNewCondition()        DKNew( DKConditionClass() )
 
 
-void DKConditionWait( DKConditionRef _self, DKMutexRef mutex );
-void DKConditionSignal( DKConditionRef _self );
-void DKConditionSignalAll( DKConditionRef _self );
+DK_API void DKConditionWait( DKConditionRef _self, DKMutexRef mutex );
+DK_API void DKConditionSignal( DKConditionRef _self );
+DK_API void DKConditionSignalAll( DKConditionRef _self );
 
 
 

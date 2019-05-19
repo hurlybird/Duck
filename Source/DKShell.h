@@ -88,13 +88,13 @@ enum
 typedef DKObjectRef (*DKShellEncodeFunction)( DKObjectRef object, DKObjectRef context );
 
 // Register encode/decode callbacks for a contentType
-void DKShellRegisterContentType( DKStringRef contentType, DKShellEncodeFunction encode, DKShellEncodeFunction decode, DKObjectRef context );
+DK_API void DKShellRegisterContentType( DKStringRef contentType, DKShellEncodeFunction encode, DKShellEncodeFunction decode, DKObjectRef context );
 
 // Returns the number of objects read (i.e. 1) on success
-int DKShellRead( DKStreamRef stream, DKObjectRef * object, DKStringRef * contentType, DKStringRef * annotation, int options );
+DK_API int DKShellRead( DKStreamRef stream, DKObjectRef * object, DKStringRef * contentType, DKStringRef * annotation, int options );
 
 // Returns the number of objects written (i.e. 1) on success
-int DKShellWrite( DKStreamRef stream, DKObjectRef object, DKStringRef contentType, DKStringRef annotation, int options );
+DK_API int DKShellWrite( DKStreamRef stream, DKObjectRef object, DKStringRef contentType, DKStringRef annotation, int options );
 
 
 #endif // _DK_SHELL_H_

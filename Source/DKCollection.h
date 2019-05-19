@@ -67,20 +67,20 @@ typedef const struct DKKeyedCollectionInterface * DKKeyedCollectionInterfaceRef;
 
 
 
-DKIndex     DKGetCount( DKObjectRef _self );
+DK_API DKIndex     DKGetCount( DKObjectRef _self );
 
-DKObjectRef DKGetAnyKey( DKObjectRef _self );
-DKObjectRef DKGetAnyObject( DKObjectRef _self );
+DK_API DKObjectRef DKGetAnyKey( DKObjectRef _self );
+DK_API DKObjectRef DKGetAnyObject( DKObjectRef _self );
 
-bool        DKContainsKey( DKObjectRef _self, DKObjectRef key );
-bool        DKContainsObject( DKObjectRef _self, DKObjectRef object );
+DK_API bool        DKContainsKey( DKObjectRef _self, DKObjectRef key );
+DK_API bool        DKContainsObject( DKObjectRef _self, DKObjectRef object );
 
-int         DKForeachKey( DKObjectRef _self, DKApplierFunction callback, void * context );
-int         DKForeachObject( DKObjectRef _self, DKApplierFunction callback, void * context );
-int         DKForeachKeyAndObject( DKObjectRef _self, DKKeyedApplierFunction callback, void * context );
+DK_API int         DKForeachKey( DKObjectRef _self, DKApplierFunction callback, void * context );
+DK_API int         DKForeachObject( DKObjectRef _self, DKApplierFunction callback, void * context );
+DK_API int         DKForeachKeyAndObject( DKObjectRef _self, DKKeyedApplierFunction callback, void * context );
 
-DKStringRef DKCollectionGetDescription( DKObjectRef _self );
-DKStringRef DKKeyedCollectionGetDescription( DKObjectRef _self );
+DK_API DKStringRef DKCollectionGetDescription( DKObjectRef _self );
+DK_API DKStringRef DKKeyedCollectionGetDescription( DKObjectRef _self );
 
 
 

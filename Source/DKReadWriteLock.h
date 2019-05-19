@@ -34,14 +34,14 @@
 typedef struct DKReadWriteLock * DKReadWriteLockRef;
 
 
-DKClassRef DKReadWriteLockClass( void );
+DK_API DKClassRef DKReadWriteLockClass( void );
 
 #define DKNewReadWriteLock()    DKNew( DKReadWriteLockClass() )
 
 
-void DKReadWriteLockLock( DKReadWriteLockRef _self, bool readwrite );
-bool DKReadWriteLockTryLock( DKReadWriteLockRef _self, bool readwrite );
-void DKReadWriteLockUnlock( DKReadWriteLockRef _self );
+DK_API void DKReadWriteLockLock( DKReadWriteLockRef _self, bool readwrite );
+DK_API bool DKReadWriteLockTryLock( DKReadWriteLockRef _self, bool readwrite );
+DK_API void DKReadWriteLockUnlock( DKReadWriteLockRef _self );
 
 
 
