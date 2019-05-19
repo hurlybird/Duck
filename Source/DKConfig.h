@@ -62,22 +62,39 @@
 
 // Windows
 #elif DK_PLATFORM_WINDOWS
-#ifdef _DEBUG
-#define DEBUG 1
-#endif
 
 
-// Default (Apple)
-#else
+// Autodetect most platforms
+#elif __APPLE__
 #define DK_PLATFORM_APPLE           1
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_GCC_INTRINSICS  1
+
+
+#elif __linux__
+#define DK_PLATFORM_LINUX           1
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
+#elif defined(_WIN32) || defined(_WIN64)
+#define DK_PLATFORM_WINDOWS         1
+
+
+// Unknown Platform
+#else
+#error "Duck: Unknown or missing platform definition"
+
 #endif
 
 
 
 
 // Debug =================================================================================
+#ifdef _DEBUG
+#define DEBUG 1
+#endif
+
 #ifdef DEBUG
 
 // Enable warnings

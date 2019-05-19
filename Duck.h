@@ -33,7 +33,7 @@
 //! Project version string for Duck.
 //FOUNDATION_EXPORT const unsigned char DuckVersionString[];
 
-#if DK_PLATFORM_APPLE
+#if __APPLE__
 #define DK_EXCLUDE_NONMODULAR_HEADERS
 #endif
 
