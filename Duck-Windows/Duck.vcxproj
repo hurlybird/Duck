@@ -23,29 +23,30 @@
     <ProjectGuid>{F6FBD30A-33F0-4FF1-850C-7C54864A2EEC}</ProjectGuid>
     <RootNamespace>DuckWindows</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Duck</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -71,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>Duck</TargetName>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)..\Build\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(OutDir)Intermediates\</IntDir>
   </PropertyGroup>
@@ -79,19 +80,19 @@
     <OutDir>$(SolutionDir)..\Build\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(OutDir)Intermediates\</IntDir>
     <TargetName>Duck</TargetName>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\Build\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(OutDir)Intermediates\</IntDir>
     <TargetName>Duck</TargetName>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)..\Build\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(OutDir)Intermediates\</IntDir>
     <TargetName>Duck</TargetName>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -99,17 +100,18 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;DK_API_EXPORTS;_CRT_SECURE_NO_WARNINGS;DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>
       </CompileAs>
       <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdParty;$(ProjectDir)..\ThirdParty\icu;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /q $(ProjectDir)..\Duck.h $(OutDir)\Include\
-xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)\Include\</Command>
+      <Command>xcopy /y /q $(ProjectDir)..\Duck.h $(OutDir)Include\Duck\
+xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying Headers...</Message>
@@ -122,14 +124,15 @@ xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)\Include\</Command>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdParty;$(ProjectDir)..\ThirdParty\icu;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;DK_API_EXPORTS;_CRT_SECURE_NO_WARNINGS;DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /q $(ProjectDir)..\Duck.h $(OutDir)\Include\
-xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)\Include\</Command>
+      <Command>xcopy /y /q $(ProjectDir)..\Duck.h $(OutDir)Include\Duck\
+xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying Headers...</Message>
@@ -143,17 +146,18 @@ xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)\Include\</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;DK_API_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdParty;$(ProjectDir)..\ThirdParty\icu;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /q $(ProjectDir)..\Duck.h $(OutDir)\Include\
-xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)\Include\</Command>
+      <Command>xcopy /y /q $(ProjectDir)..\Duck.h $(OutDir)Include\Duck\
+xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying Headers...</Message>
@@ -167,17 +171,18 @@ xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)\Include\</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DK_PLATFORM_WINDOWS=1;DK_API_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdParty;$(ProjectDir)..\ThirdParty\icu;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /q $(ProjectDir)..\Duck.h $(OutDir)\Include\
-xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)\Include\</Command>
+      <Command>xcopy /y /q $(ProjectDir)..\Duck.h $(OutDir)Include\Duck\
+xcopy /y /q $(ProjectDir)..\Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying Headers...</Message>

@@ -88,7 +88,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#ifdef DK_LIBRARY_EXPORTS
+#ifdef DK_API_EXPORTS
 #define DK_API __declspec(dllexport)
 #else
 #define DK_API __declspec(dllimport)
