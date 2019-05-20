@@ -259,6 +259,7 @@
 		02083FA018F3BC2200EEBBAC /* DKRuntime+Properties.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = "DKRuntime+Properties.c"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		02083FA218F3C49E00EEBBAC /* TestDKProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKProperty.m; sourceTree = "<group>"; };
 		02083FA518F4A86700EEBBAC /* DKStruct.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKStruct.c; sourceTree = "<group>"; };
+		020864BF2293233B00885EB1 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0208A643190576130041677A /* TestDKEgg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKEgg.m; sourceTree = "<group>"; };
 		0212831E1C244F9A00B7C3A7 /* DKConversion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKConversion.c; sourceTree = "<group>"; };
 		0212831F1C244F9A00B7C3A7 /* DKConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKConversion.h; sourceTree = "<group>"; };
@@ -355,11 +356,9 @@
 		028D61C81ED9F55B00E7BC72 /* DKGraph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGraph.c; sourceTree = "<group>"; };
 		028D61C91ED9F55B00E7BC72 /* DKGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKGraph.h; sourceTree = "<group>"; };
 		028F1A891B0DCA85006FDFDF /* Duck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Duck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		028F1A8C1B0DCA85006FDFDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		028F1A931B0DCA85006FDFDF /* Duck-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Duck-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		028F1A991B0DCA86006FDFDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		028F1B001B0E6B6C006FDFDF /* Duck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Duck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		028F1B031B0E6B6C006FDFDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		028F1B641B0E6F89006FDFDF /* TestDKJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKJSON.m; sourceTree = "<group>"; };
 		028F5CE619CF59B900CF4D47 /* DKPredicate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKPredicate.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		02A25AFB1AC3D1B600D97B11 /* DKJSON.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKJSON.c; sourceTree = "<group>"; };
@@ -459,12 +458,11 @@
 			children = (
 				021EC2EF18F0CDB1004148AD /* README.md */,
 				02AFC05D18F172A0006B70B9 /* LICENSE */,
+				020864BF2293233B00885EB1 /* Info.plist */,
 				0269BF4A19D856BC002E876C /* Duck.h */,
 				025C0F4718EFED96000344C0 /* Source */,
 				0263C4A718EFD957005E0ED5 /* ThirdParty */,
-				028F1A8A1B0DCA85006FDFDF /* Duck-MacOS */,
-				028F1B011B0E6B6C006FDFDF /* Duck-iOS */,
-				028F1A971B0DCA86006FDFDF /* Duck-Tests */,
+				028F1A971B0DCA86006FDFDF /* Tests */,
 				02D00FB518E6258C00FC3054 /* Frameworks */,
 				024EE3E3148E0B21008FDADC /* Products */,
 			);
@@ -623,23 +621,7 @@
 			name = Other;
 			sourceTree = "<group>";
 		};
-		028F1A8A1B0DCA85006FDFDF /* Duck-MacOS */ = {
-			isa = PBXGroup;
-			children = (
-				028F1A8B1B0DCA85006FDFDF /* Supporting Files */,
-			);
-			path = "Duck-MacOS";
-			sourceTree = "<group>";
-		};
-		028F1A8B1B0DCA85006FDFDF /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				028F1A8C1B0DCA85006FDFDF /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		028F1A971B0DCA86006FDFDF /* Duck-Tests */ = {
+		028F1A971B0DCA86006FDFDF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
 				02393EBE1C3F16BB009E8731 /* test.xml */,
@@ -660,29 +642,13 @@
 				02393EC01C3F16F6009E8731 /* TestDKXML.m */,
 				028F1A981B0DCA86006FDFDF /* Supporting Files */,
 			);
-			path = "Duck-Tests";
+			path = Tests;
 			sourceTree = "<group>";
 		};
 		028F1A981B0DCA86006FDFDF /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
 				028F1A991B0DCA86006FDFDF /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		028F1B011B0E6B6C006FDFDF /* Duck-iOS */ = {
-			isa = PBXGroup;
-			children = (
-				028F1B021B0E6B6C006FDFDF /* Supporting Files */,
-			);
-			path = "Duck-iOS";
-			sourceTree = "<group>";
-		};
-		028F1B021B0E6B6C006FDFDF /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				028F1B031B0E6B6C006FDFDF /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1261,7 +1227,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = "Duck-MacOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
@@ -1302,7 +1268,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = "Duck-MacOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
@@ -1347,7 +1313,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = "Duck-Tests/Info.plist";
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -1385,7 +1351,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = "Duck-Tests/Info.plist";
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -1425,7 +1391,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = "Duck-iOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1469,7 +1435,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = "Duck-iOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
