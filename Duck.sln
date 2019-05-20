@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28803.452
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Duck", "Duck.vcxproj", "{F6FBD30A-33F0-4FF1-850C-7C54864A2EEC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloWorld", "HelloWorld.vcxproj", "{BB7703F3-2994-459C-9036-4A29C000F799}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloWorld", "HelloWorld\HelloWorld.vcxproj", "{BB7703F3-2994-459C-9036-4A29C000F799}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F6FBD30A-33F0-4FF1-850C-7C54864A2EEC} = {F6FBD30A-33F0-4FF1-850C-7C54864A2EEC}
 	EndProjectSection

@@ -39,364 +39,364 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ThirdParty\yxml\yxml.c">
+    <ClCompile Include="ThirdParty\yxml\yxml.c">
       <Filter>ThirdParty\yxml</Filter>
     </ClCompile>
-    <ClCompile Include="..\ThirdParty\icu\utf_impl.c">
+    <ClCompile Include="ThirdParty\icu\utf_impl.c">
       <Filter>ThirdParty\icu</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKPlatform.c">
+    <ClCompile Include="Source\DKPlatform.c">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKAllocation.c">
+    <ClCompile Include="Source\DKAllocation.c">
       <Filter>Source\Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKArray.c">
+    <ClCompile Include="Source\DKArray.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKBinaryTree.c">
+    <ClCompile Include="Source\DKBinaryTree.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKBitList.c">
+    <ClCompile Include="Source\DKBitList.c">
       <Filter>Source\Data Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKBoolean.c">
+    <ClCompile Include="Source\DKBoolean.c">
       <Filter>Source\Data Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKBuffer.c">
+    <ClCompile Include="Source\DKBuffer.c">
       <Filter>Source\Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKByteArray.c">
+    <ClCompile Include="Source\DKByteArray.c">
       <Filter>Source\Storage Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKCollection.c">
+    <ClCompile Include="Source\DKCollection.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKComparison.c">
+    <ClCompile Include="Source\DKComparison.c">
       <Filter>Source\Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKCondition.c">
+    <ClCompile Include="Source\DKCondition.c">
       <Filter>Source\Thread Synchronization</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKConversion.c">
+    <ClCompile Include="Source\DKConversion.c">
       <Filter>Source\Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKCopying.c">
+    <ClCompile Include="Source\DKCopying.c">
       <Filter>Source\Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKData.c">
+    <ClCompile Include="Source\DKData.c">
       <Filter>Source\Data Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKDescription.c">
+    <ClCompile Include="Source\DKDescription.c">
       <Filter>Source\Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKDictionary.c">
+    <ClCompile Include="Source\DKDictionary.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKHashTable.c">
+    <ClCompile Include="Source\DKHashTable.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKGraph.c">
+    <ClCompile Include="Source\DKGraph.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKLinkedList.c">
+    <ClCompile Include="Source\DKLinkedList.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKEgg.c">
+    <ClCompile Include="Source\DKEgg.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKEncoding.c">
+    <ClCompile Include="Source\DKEncoding.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKEnum.c">
+    <ClCompile Include="Source\DKEnum.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKFile.c">
+    <ClCompile Include="Source\DKFile.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKGenericArray.c">
+    <ClCompile Include="Source\DKGenericArray.c">
       <Filter>Source\Storage Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKGenericHashTable.c">
+    <ClCompile Include="Source\DKGenericHashTable.c">
       <Filter>Source\Storage Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKNodePool.c">
+    <ClCompile Include="Source\DKNodePool.c">
       <Filter>Source\Storage Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKList.c">
+    <ClCompile Include="Source\DKList.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKSet.c">
+    <ClCompile Include="Source\DKSet.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKJSON.c">
+    <ClCompile Include="Source\DKJSON.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKPredicate.c">
+    <ClCompile Include="Source\DKPredicate.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKShell.c">
+    <ClCompile Include="Source\DKShell.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKStruct.c">
+    <ClCompile Include="Source\DKStruct.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKUnicode.c">
+    <ClCompile Include="Source\DKUnicode.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKXML.c">
+    <ClCompile Include="Source\DKXML.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKMutex.c">
+    <ClCompile Include="Source\DKMutex.c">
       <Filter>Source\Thread Synchronization</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKReadWriteLock.c">
+    <ClCompile Include="Source\DKReadWriteLock.c">
       <Filter>Source\Thread Synchronization</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKSemaphore.c">
+    <ClCompile Include="Source\DKSemaphore.c">
       <Filter>Source\Thread Synchronization</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKThread.c">
+    <ClCompile Include="Source\DKThread.c">
       <Filter>Source\Thread Synchronization</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKThreadPool.c">
+    <ClCompile Include="Source\DKThreadPool.c">
       <Filter>Source\Thread Synchronization</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKRuntime.c">
+    <ClCompile Include="Source\DKRuntime.c">
       <Filter>Source\Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKRuntime+Interfaces.c">
+    <ClCompile Include="Source\DKRuntime+Interfaces.c">
       <Filter>Source\Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKRuntime+Metadata.c">
+    <ClCompile Include="Source\DKRuntime+Metadata.c">
       <Filter>Source\Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKRuntime+Properties.c">
+    <ClCompile Include="Source\DKRuntime+Properties.c">
       <Filter>Source\Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKRuntime+RefCount.c">
+    <ClCompile Include="Source\DKRuntime+RefCount.c">
       <Filter>Source\Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKRuntime+Reflection.c">
+    <ClCompile Include="Source\DKRuntime+Reflection.c">
       <Filter>Source\Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKRuntime+Symbols.c">
+    <ClCompile Include="Source\DKRuntime+Symbols.c">
       <Filter>Source\Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKLocking.c">
+    <ClCompile Include="Source\DKLocking.c">
       <Filter>Source\Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKStream.c">
+    <ClCompile Include="Source\DKStream.c">
       <Filter>Source\Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKPair.c">
+    <ClCompile Include="Source\DKPair.c">
       <Filter>Source\Data Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKString.c">
+    <ClCompile Include="Source\DKString.c">
       <Filter>Source\Data Types</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\DKNumber.c">
+    <ClCompile Include="Source\DKNumber.c">
       <Filter>Source\Data Types</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\ThirdParty\yxml\yxml.h">
+    <ClInclude Include="ThirdParty\yxml\yxml.h">
       <Filter>ThirdParty\yxml</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\uassert.h">
+    <ClInclude Include="ThirdParty\icu\uassert.h">
       <Filter>ThirdParty\icu</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\platform.h">
+    <ClInclude Include="ThirdParty\icu\unicode\platform.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\ptypes.h">
+    <ClInclude Include="ThirdParty\icu\unicode\ptypes.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\uconfig.h">
+    <ClInclude Include="ThirdParty\icu\unicode\uconfig.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\umachine.h">
+    <ClInclude Include="ThirdParty\icu\unicode\umachine.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\urename.h">
+    <ClInclude Include="ThirdParty\icu\unicode\urename.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\utf.h">
+    <ClInclude Include="ThirdParty\icu\unicode\utf.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\utf_old.h">
+    <ClInclude Include="ThirdParty\icu\unicode\utf_old.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\utf8.h">
+    <ClInclude Include="ThirdParty\icu\unicode\utf8.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\utf16.h">
+    <ClInclude Include="ThirdParty\icu\unicode\utf16.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\utf32.h">
+    <ClInclude Include="ThirdParty\icu\unicode\utf32.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\utypes.h">
+    <ClInclude Include="ThirdParty\icu\unicode\utypes.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\uvernum.h">
+    <ClInclude Include="ThirdParty\icu\unicode\uvernum.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\icu\unicode\uversion.h">
+    <ClInclude Include="ThirdParty\icu\unicode\uversion.h">
       <Filter>ThirdParty\icu\unicode</Filter>
     </ClInclude>
-    <ClInclude Include="..\Duck.h" />
-    <ClInclude Include="..\Source\DKConfig.h">
+    <ClInclude Include="Duck.h" />
+    <ClInclude Include="Source\DKConfig.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKPlatform.h">
+    <ClInclude Include="Source\DKPlatform.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKAllocation.h">
+    <ClInclude Include="Source\DKAllocation.h">
       <Filter>Source\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKArray.h">
+    <ClInclude Include="Source\DKArray.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKBinaryTree.h">
+    <ClInclude Include="Source\DKBinaryTree.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKBitList.h">
+    <ClInclude Include="Source\DKBitList.h">
       <Filter>Source\Data Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKBoolean.h">
+    <ClInclude Include="Source\DKBoolean.h">
       <Filter>Source\Data Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKBuffer.h">
+    <ClInclude Include="Source\DKBuffer.h">
       <Filter>Source\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKByteArray.h">
+    <ClInclude Include="Source\DKByteArray.h">
       <Filter>Source\Storage Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKCollection.h">
+    <ClInclude Include="Source\DKCollection.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKComparison.h">
+    <ClInclude Include="Source\DKComparison.h">
       <Filter>Source\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKCondition.h">
+    <ClInclude Include="Source\DKCondition.h">
       <Filter>Source\Thread Synchronization</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKConversion.h">
+    <ClInclude Include="Source\DKConversion.h">
       <Filter>Source\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKCopying.h">
+    <ClInclude Include="Source\DKCopying.h">
       <Filter>Source\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKData.h">
+    <ClInclude Include="Source\DKData.h">
       <Filter>Source\Data Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKDescription.h">
+    <ClInclude Include="Source\DKDescription.h">
       <Filter>Source\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKDictionary.h">
+    <ClInclude Include="Source\DKDictionary.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKHashTable.h">
+    <ClInclude Include="Source\DKHashTable.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKGraph.h">
+    <ClInclude Include="Source\DKGraph.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKLinkedList.h">
+    <ClInclude Include="Source\DKLinkedList.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKEgg.h">
+    <ClInclude Include="Source\DKEgg.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKEncoding.h">
+    <ClInclude Include="Source\DKEncoding.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKEnum.h">
+    <ClInclude Include="Source\DKEnum.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKFile.h">
+    <ClInclude Include="Source\DKFile.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKGenericArray.h">
+    <ClInclude Include="Source\DKGenericArray.h">
       <Filter>Source\Storage Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKGenericHashTable.h">
+    <ClInclude Include="Source\DKGenericHashTable.h">
       <Filter>Source\Storage Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKNodePool.h">
+    <ClInclude Include="Source\DKNodePool.h">
       <Filter>Source\Storage Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKList.h">
+    <ClInclude Include="Source\DKList.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKSet.h">
+    <ClInclude Include="Source\DKSet.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKJSON.h">
+    <ClInclude Include="Source\DKJSON.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKPredicate.h">
+    <ClInclude Include="Source\DKPredicate.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKShell.h">
+    <ClInclude Include="Source\DKShell.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKStruct.h">
+    <ClInclude Include="Source\DKStruct.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKUnicode.h">
+    <ClInclude Include="Source\DKUnicode.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKXML.h">
+    <ClInclude Include="Source\DKXML.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKMutex.h">
+    <ClInclude Include="Source\DKMutex.h">
       <Filter>Source\Thread Synchronization</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKReadWriteLock.h">
+    <ClInclude Include="Source\DKReadWriteLock.h">
       <Filter>Source\Thread Synchronization</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKSemaphore.h">
+    <ClInclude Include="Source\DKSemaphore.h">
       <Filter>Source\Thread Synchronization</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKThread.h">
+    <ClInclude Include="Source\DKThread.h">
       <Filter>Source\Thread Synchronization</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKThreadPool.h">
+    <ClInclude Include="Source\DKThreadPool.h">
       <Filter>Source\Thread Synchronization</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKRuntime.h">
+    <ClInclude Include="Source\DKRuntime.h">
       <Filter>Source\Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKRuntime+Interfaces.h">
+    <ClInclude Include="Source\DKRuntime+Interfaces.h">
       <Filter>Source\Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKRuntime+Metadata.h">
+    <ClInclude Include="Source\DKRuntime+Metadata.h">
       <Filter>Source\Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKRuntime+Properties.h">
+    <ClInclude Include="Source\DKRuntime+Properties.h">
       <Filter>Source\Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKRuntime+RefCount.h">
+    <ClInclude Include="Source\DKRuntime+RefCount.h">
       <Filter>Source\Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKRuntime+Reflection.h">
+    <ClInclude Include="Source\DKRuntime+Reflection.h">
       <Filter>Source\Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKLocking.h">
+    <ClInclude Include="Source\DKLocking.h">
       <Filter>Source\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKStream.h">
+    <ClInclude Include="Source\DKStream.h">
       <Filter>Source\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKPair.h">
+    <ClInclude Include="Source\DKPair.h">
       <Filter>Source\Data Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKString.h">
+    <ClInclude Include="Source\DKString.h">
       <Filter>Source\Data Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\DKNumber.h">
+    <ClInclude Include="Source\DKNumber.h">
       <Filter>Source\Data Types</Filter>
     </ClInclude>
   </ItemGroup>
