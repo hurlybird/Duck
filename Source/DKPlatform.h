@@ -97,6 +97,11 @@
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
 #define __LITTLE_ENDIAN__
 #define restrict __restrict
+
+#ifndef strcasecmp
+#define strcasecmp( s1, s2 )     _stricmp( s1, s2 )
+#define strncasecmp( s1, s2, n ) _strnicmp( s1, s2, n )
+#endif
 #endif
 
 
