@@ -140,7 +140,7 @@ typedef void * DKInterfaceRef;
 
 // Declare an interface selector.
 #define DKDeclareInterfaceSelector( name )                                              \
-    DK_API DKSEL DKSelector_ ## name( void )
+    DKSEL DKSelector_ ## name( void )
 
 // Get the interface method count from the structure size
 #define DKInterfaceCountMethods( structSize )    (((structSize) - sizeof(DKInterface)) / sizeof(void *))
@@ -197,12 +197,12 @@ typedef struct DKMsgHandler * DKMsgHandlerRef;
 // Declare a message handler selector. This also defines a callback type used by
 // DKMsgSend() for type safety.
 #define DKDeclareMessageSelector( name, ... )                                           \
-    DK_API DKSEL DKSelector_ ## name( void );                                                  \
+    DKSEL DKSelector_ ## name( void );                                                  \
     typedef intptr_t (*DKMsgHandler_ ## name)( DKObjectRef, DKSEL , ## __VA_ARGS__ )
 
 // Selector for dynamic message handling. If defined for a class, the dynamic message
 // handler is returned whenever a matching message hander cannot be located.
-DKDeclareMessageSelector( DKDynamicMsgHandler );
+DK_API DKDeclareMessageSelector( DKDynamicMsgHandler );
 
 // A generic message handler that does nothing. Returned by DKGetMsgHandler() when a
 // matching message handler cannot be located.

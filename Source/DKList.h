@@ -31,7 +31,7 @@
 #include "DKCollection.h"
 
 
-DKDeclareInterfaceSelector( List );
+DK_API DKDeclareInterfaceSelector( List );
 
 
 //typedef struct DKList * DKListRef; -- Declared in DKPlatform.h

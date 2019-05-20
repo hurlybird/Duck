@@ -30,8 +30,8 @@
 #include "DKRuntime.h"
 
 
-DKDeclareInterfaceSelector( Collection );
-DKDeclareInterfaceSelector( KeyedCollection );
+DK_API DKDeclareInterfaceSelector( Collection );
+DK_API DKDeclareInterfaceSelector( KeyedCollection );
 
 
 typedef DKIndex (*DKGetCountMethod)( DKObjectRef _self );

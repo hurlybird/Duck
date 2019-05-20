@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-DKDeclareInterfaceSelector( Copying );
+DK_API DKDeclareInterfaceSelector( Copying );
 
 
 typedef DKObjectRef (*DKCopyMethod)( DKObjectRef );

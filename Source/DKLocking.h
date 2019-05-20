@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-DKDeclareInterfaceSelector( Locking );
+DK_API DKDeclareInterfaceSelector( Locking );
 
 
 typedef void (*DKLockMethod)( DKObjectRef _self );

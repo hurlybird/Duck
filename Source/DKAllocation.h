@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-DKDeclareInterfaceSelector( Allocation );
+DK_API DKDeclareInterfaceSelector( Allocation );
 
 
 typedef DKObjectRef (*DKAllocMethod)( DKClassRef _class, size_t extraBytes );

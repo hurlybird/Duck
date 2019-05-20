@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-DKDeclareInterfaceSelector( Buffer );
+DK_API DKDeclareInterfaceSelector( Buffer );
 
 
 typedef DKIndex      (*DKBufferGetLengthMethod)( DKObjectRef _self );

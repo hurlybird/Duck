@@ -31,7 +31,7 @@
 #include "DKList.h"
 
 
-DKDeclareInterfaceSelector( Dictionary );
+DK_API DKDeclareInterfaceSelector( Dictionary );
 
 
 // typedef struct DKDictionary * DKDictionaryRef; -- Declared in DKPlatform.h

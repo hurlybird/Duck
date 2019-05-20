@@ -31,7 +31,7 @@
 #include "DKList.h"
 
 
-DKDeclareInterfaceSelector( Set );
+DK_API DKDeclareInterfaceSelector( Set );
 
 
 //typedef struct DKSet * DKSetRef; -- Declared in DKPlatform.h

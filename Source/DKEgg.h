@@ -39,7 +39,7 @@ typedef struct DKEggArchiver * DKEggArchiverRef;
 
 
 // Egg Interface - Adopted by any object that supports egg storage =======================
-DKDeclareInterfaceSelector( Egg );
+DK_API DKDeclareInterfaceSelector( Egg );
 
 typedef DKObjectRef (*DKInitWithEggMethod)( DKObjectRef _self, DKEggUnarchiverRef egg );
 typedef void        (*DKAddToEggMethod)( DKObjectRef _self, DKEggArchiverRef egg );

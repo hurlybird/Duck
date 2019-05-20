@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-DKDeclareInterfaceSelector( Comparison );
+DK_API DKDeclareInterfaceSelector( Comparison );
 
 
 typedef DKEqualityFunction DKEqualityMethod;

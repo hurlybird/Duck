@@ -30,7 +30,7 @@
 
 #include "DKRuntime.h"
 
-DKDeclareInterfaceSelector( Stream );
+DK_API DKDeclareInterfaceSelector( Stream );
 
 
 typedef DKObjectRef DKStreamRef;

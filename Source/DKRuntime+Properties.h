@@ -83,7 +83,7 @@ DK_API DKClassRef DKPropertyClass( void );
 
 
 // Interface for custom get/set property
-DKDeclareInterfaceSelector( Property );
+DK_API DKDeclareInterfaceSelector( Property );
 
 typedef DKObjectRef (*DKGetPropertyMethod)( DKObjectRef _self, DKStringRef name );
 typedef void        (*DKSetPropertyMethod)( DKObjectRef _self, DKStringRef name, DKObjectRef object );

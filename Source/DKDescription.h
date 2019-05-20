@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-DKDeclareInterfaceSelector( Description );
+DK_API DKDeclareInterfaceSelector( Description );
 
 
 typedef DKStringRef (*DKGetDescriptionMethod)( DKObjectRef _self );
