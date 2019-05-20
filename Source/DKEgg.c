@@ -1248,7 +1248,7 @@ static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object )
 ///
 //  AddAttribute()
 //
-static void AddAttribute( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, DKIndex value )
+static void AddAttribute( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, uint32_t value )
 {
     DKAssert( value <= 0xffffffff );
 
@@ -1460,7 +1460,7 @@ void DKEggAddTextData( DKEggArchiverRef _self, DKStringRef key, const char * tex
     DKEncoding encoding = DKEncode( DKEncodingTypeTextData, (uint32_t)(length + 1) );
     DKIndex offset = AddEncodedData( _self, encoding, text );
 
-    AddAttribute( _self, key, encoding, offset );
+    AddAttribute( _self, key, encoding, (uint32_t)offset );
 }
 
 
@@ -1479,7 +1479,7 @@ void DKEggAddBinaryData( DKEggArchiverRef _self, DKStringRef key, const void * b
     DKEncoding encoding = DKEncode( DKEncodingTypeBinaryData, (uint32_t)length );
     DKIndex offset = AddEncodedData( _self, encoding, bytes );
 
-    AddAttribute( _self, key, encoding, offset );
+    AddAttribute( _self, key, encoding, (uint32_t)offset );
 }
 
 
@@ -1492,7 +1492,7 @@ void DKEggAddNumberData( DKEggArchiverRef _self, DKStringRef key, DKEncoding enc
 
     DKIndex offset = AddEncodedData( _self, encoding, number );
 
-    AddAttribute( _self, key, encoding, offset );
+    AddAttribute( _self, key, encoding, (uint32_t)offset );
 }
 
 
