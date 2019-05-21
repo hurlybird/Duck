@@ -58,7 +58,7 @@ static bool DKThreadContextKeyInitialized = false;
 void DKThreadContextInit( DKThreadContextRef threadContext, uint32_t options )
 {
     threadContext->threadObject = NULL;
-    threadContext->threadDictionary = DKNewMutableDictionary();
+    threadContext->threadDictionary = NULL;
     
     threadContext->options = options;
     
@@ -217,6 +217,10 @@ DKThreadContextRef DKGetMainThreadContext( void )
 DKMutableDictionaryRef DKGetCurrentThreadDictionary( void )
 {
     DKThreadContextRef threadContext = DKGetCurrentThreadContext();
+    
+    if( !threadContext->threadDictionary )
+        threadContext->threadDictionary = DKNewMutableDictionary();
+    
     return threadContext->threadDictionary;
 }
 
