@@ -97,6 +97,12 @@ DK_API const void* DKNumberGetBytePtr( DKNumberRef _self, DKEncoding * encoding 
 
 #define            DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
 
+DK_API void        DKNumberEnumerateValue( DKNumberRef _self, DKEncodingType encodingType,
+                       void (*callback)( const void * value, size_t valueIndex, void * context ), void * context );
+
+DK_API void        DKNumberSetEnumeratedValue( DKNumberRef _self, DKEncodingType encodingType,
+                       void (*callback)( void * value, size_t valueIndex, void * context ), void * context ); // Variable numbers only
+
 DK_API bool        DKNumberGetBool( DKNumberRef _self );
 DK_API int32_t     DKNumberGetInt32( DKNumberRef _self );
 DK_API int64_t     DKNumberGetInt64( DKNumberRef _self );

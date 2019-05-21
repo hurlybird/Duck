@@ -443,7 +443,7 @@ static void DKNumberDealloc( DKNumberRef _self )
 //
 DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding )
 {
-    if( (_self == &DKPlaceholderNumber) || (_self == &DKPlaceholderVariableNumber) )
+    if( _self == &DKPlaceholderNumber )
     {
         DKAssert( value != NULL );
         DKAssert( DKEncodingIsNumber( encoding ) );
@@ -453,7 +453,24 @@ DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding enco
         _self = DKAllocObject( _self->_obj.isa, size );
         
         DKSetObjectTag( _self, encoding );
+
         memcpy( &_self->value, value, size );
+    }
+
+    else if( _self == &DKPlaceholderVariableNumber )
+    {
+        DKAssert( DKEncodingIsNumber( encoding ) );
+
+        size_t size = DKEncodingGetSize( encoding );
+
+        _self = DKAllocObject( _self->_obj.isa, size );
+        
+        DKSetObjectTag( _self, encoding );
+
+        if( value )
+        {
+            memcpy( &_self->value, value, size );
+        }
     }
     
     else if( _self != NULL )
@@ -714,6 +731,64 @@ const void * DKNumberGetBytePtr( DKNumberRef _self, DKEncoding * encoding )
     *encoding = DKEncodingNull;
     
     return NULL;
+}
+
+
+///
+//  DKNumberEnumerateValue()
+//
+void DKNumberEnumerateValue( DKNumberRef _self, DKEncodingType encodingType,
+    void (*callback)( const void * value, size_t valueIndex, void * context ), void * context )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        size_t size = DKEncodingGetTypeSize( encoding );
+        size_t count = DKEncodingGetCount( encoding );
+
+        CastFunction castFunction = GetCastFunction( encoding, DKEncode( encodingType, 1 ) );
+
+        for( size_t i = 0; i < count; i++ )
+        {
+            const void * src = (uint8_t *)&_self->value + (size * i);
+            DKNumberValue dst;
+
+            castFunction( src, &dst, 1 );
+
+            callback( &dst, i, context );
+        }
+    }
+}
+
+
+///
+//  DKNumberSetEnumeratedValue()
+//
+void DKNumberSetEnumeratedValue( DKNumberRef _self, DKEncodingType encodingType,
+    void (*callback)( void * value, size_t valueIndex, void * context ), void * context )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKVariableNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        size_t size = DKEncodingGetTypeSize( encoding );
+        size_t count = DKEncodingGetCount( encoding );
+
+        CastFunction castFunction = GetCastFunction( DKEncode( encodingType, 1 ), encoding );
+
+        for( size_t i = 0; i < count; i++ )
+        {
+            void * dst = (uint8_t *)&_self->value + (size * i);
+            DKNumberValue src;
+
+            callback( &src, i, context );
+
+            castFunction( &src, dst, 1 );
+        }
+    }
 }
 
 
