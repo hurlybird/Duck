@@ -531,13 +531,15 @@ DK_API void   dk_free( void * ptr );
 
 #if DK_PLATFORM_WINDOWS
 
-#define DKAtomicAdd32( ptr, x )                     InterlockedAdd( ptr, x )
-#define DKAtomicSub32( ptr, x )                     InterlockedAdd( ptr, -(x) )
-#define DKAtomicAnd32( ptr, x )                     InterlockedAnd( ptr, x )
-#define DKAtomicOr32( ptr, x )                      InterlockedOr( ptr, x )
+static_assert( sizeof(LONG) == sizeof(int32_t), "DKAtomic: Windows LONG type is not 32-bits." );
+
+#define DKAtomicAdd32( ptr, x )                     InterlockedAdd( (LONG volatile *)(ptr), (LONG)(x) )
+#define DKAtomicSub32( ptr, x )                     InterlockedAdd( (LONG volatile *)(ptr), -(LONG)(x) )
+#define DKAtomicAnd32( ptr, x )                     InterlockedAnd( (LONG volatile *)(ptr), (LONG)(x) )
+#define DKAtomicOr32( ptr, x )                      InterlockedOr( (LONG volatile *)(ptr), (LONG)(x) )
 #define DKAtomicIncrement32( ptr )                  InterlockedIncrement( ptr )
 #define DKAtomicDecrement32( ptr )                  InterlockedDecrement( ptr )
-#define DKAtomicCmpAndSwap32( ptr, _old, _new )     (InterlockedCompareExchange( ptr, _new, _old ) == (_old))
+#define DKAtomicCmpAndSwap32( ptr, _old, _new )     (InterlockedCompareExchange( (LONG volatile *)(ptr), (LONG)(_new), (LONG)(_old) ) == (LONG)(_old))
 #define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    (InterlockedCompareExchangePointer( ptr, _new, _old ) == (_old))
 
 #endif
@@ -559,13 +561,13 @@ typedef spinlock_t DKSpinLock;
 #define DKSpinLockUnlock( s )       spin_unlock( s )
 
 #else
-typedef uint32_t DKSpinLock;
+typedef int32_t DKSpinLock;
 
 #define DKSpinLockInit              0
 
 inline static void DKSpinLockLock( DKSpinLock * spinlock )
 {
-    uint32_t volatile * lock = spinlock;
+    int32_t volatile * lock = spinlock;
 
 	while( 1 )
 	{
@@ -576,7 +578,7 @@ inline static void DKSpinLockLock( DKSpinLock * spinlock )
 
 inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
 {
-    uint32_t volatile * lock = spinlock;
+    int32_t volatile * lock = spinlock;
     
     DKAtomicAnd32( lock, 0 );
 }
