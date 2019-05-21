@@ -73,7 +73,6 @@ DK_API void DKThreadExit( void );
 // Get thread information. Unlike most interfaces, if '_self' is NULL, the values
 // associated with the current thread are returned.
 DK_API DKThreadState DKThreadGetState( DKThreadRef _self );
-DK_API DKMutableDictionaryRef DKThreadGetDictionary( DKThreadRef _self );
 DK_API bool DKThreadIsMainThread( DKThreadRef _self );
 
 
@@ -82,14 +81,22 @@ DK_API bool DKThreadIsMainThread( DKThreadRef _self );
 // DKThreadContext =======================================================================
 typedef struct DKThreadContext * DKThreadContextRef;
 
+// The main thread and DKThreads manage their own thread contexts. Any threads created
+// manually must allocate a DKThreadContext structure and set it before calling any Duck
+// functions, and free the DKThreadContext once it is no longer in use.
 DK_API DKThreadContextRef DKAllocThreadContext( void );
 DK_API void DKFreeThreadContext( DKThreadContextRef threadContext );
 
+// Get/Set the thread context for the current thread
 DK_API void DKSetCurrentThreadContext( DKThreadContextRef threadContext );
 DK_API bool DKCurrentThreadContextIsSet( void );
 DK_API DKThreadContextRef DKGetCurrentThreadContext( void );
 
+// Get the thread context of the main thread
 DK_API DKThreadContextRef DKGetMainThreadContext( void );
+
+// Get rhe thread-specific dictionary for the current thread
+DK_API DKMutableDictionaryRef DKGetCurrentThreadDictionary( void );
 
 
 
@@ -100,6 +107,7 @@ DK_API DKThreadContextRef DKGetMainThreadContext( void );
 struct DKThreadContext
 {
     DKThreadRef threadObject;
+    DKMutableDictionaryRef threadDictionary;
 
     uint32_t options;
 

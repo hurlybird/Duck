@@ -58,6 +58,7 @@ static bool DKThreadContextKeyInitialized = false;
 void DKThreadContextInit( DKThreadContextRef threadContext, uint32_t options )
 {
     threadContext->threadObject = NULL;
+    threadContext->threadDictionary = DKNewMutableDictionary();
     
     threadContext->options = options;
     
@@ -77,6 +78,7 @@ void DKThreadContextInit( DKThreadContextRef threadContext, uint32_t options )
 void DKThreadContextFinalize( DKThreadContextRef threadContext )
 {
     DKRelease( threadContext->threadObject );
+    DKRelease( threadContext->threadDictionary );
     
     DKRequire( threadContext->arp.top == -1 );
     
@@ -209,6 +211,16 @@ DKThreadContextRef DKGetMainThreadContext( void )
 }
 
 
+///
+//  DKGetCurrentThreadDictionary()
+//
+DKMutableDictionaryRef DKGetCurrentThreadDictionary( void )
+{
+    DKThreadContextRef threadContext = DKGetCurrentThreadContext();
+    return threadContext->threadDictionary;
+}
+
+
 
 
 // DKThread ==============================================================================
@@ -233,8 +245,6 @@ struct DKThread
     DKObjectRef target;
     DKThreadMethod method;
     DKObjectRef param;
-    
-    DKMutableDictionaryRef dictionary;
 };
 
 
@@ -278,7 +288,6 @@ static void DKThreadFinalize( DKObjectRef _untyped_self )
     
     DKRelease( _self->target );
     DKRelease( _self->param );
-    DKRelease( _self->dictionary );
     DKRelease( _self->label );
 }
 
@@ -564,23 +573,6 @@ DKThreadState DKThreadGetState( DKThreadRef _self )
     DKSpinLockUnlock( &_self->lock );
     
     return state;
-}
-
-
-///
-//  DKThreadGetDictionary()
-//
-DKMutableDictionaryRef DKThreadGetDictionary( DKThreadRef _self )
-{
-    if( !_self )
-        _self = DKThreadGetCurrentThread();
-
-    DKAssertKindOfClass( _self, DKThreadClass() );
-    
-    if( !_self->dictionary )
-        _self->dictionary = DKNewMutableDictionary();
-    
-    return _self->dictionary;
 }
 
 
