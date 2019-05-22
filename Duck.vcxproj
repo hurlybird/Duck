@@ -74,23 +74,23 @@
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Products\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\Duck\</IntDir>
+    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Products\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\Duck\</IntDir>
+    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Products\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\Duck\</IntDir>
+    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Products\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\Duck\</IntDir>
+    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
@@ -114,7 +114,7 @@
 xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copying Headers...</Message>
+      <Message>Copying Header Files...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -135,7 +135,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
 xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copying Headers...</Message>
+      <Message>Copying Header Files...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -160,7 +160,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
 xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copying Headers...</Message>
+      <Message>Copying Header Files...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -185,7 +185,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
 xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copying Headers...</Message>
+      <Message>Copying Header Files...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
