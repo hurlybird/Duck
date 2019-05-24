@@ -327,7 +327,7 @@ static struct DKNumber DKPlaceholderVariableNumber =
 static void *       DKNumberAllocPlaceholder( DKClassRef _class, size_t extraBytes );
 static void         DKNumberDealloc( DKNumberRef _self );
 
-static DKObjectRef  DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef egg );
+static DKObjectRef  DKNumberInitWithEgg( DKObjectRef _self, DKEggUnarchiverRef egg );
 static void         DKNumberAddToEgg( DKNumberRef _self, DKEggArchiverRef egg );
 
 
@@ -441,8 +441,10 @@ static void DKNumberDealloc( DKNumberRef _self )
 ///
 //  DKNumberInit()
 //
-DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding )
+DKObjectRef DKNumberInit( DKObjectRef _untyped_self, const void * value, DKEncoding encoding )
 {
+    DKNumberRef _self = _untyped_self;
+
     if( _self == &DKPlaceholderNumber )
     {
         DKAssert( value != NULL );
@@ -485,8 +487,10 @@ DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding enco
 ///
 //  DKNumberInitWithNumber()
 //
-DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEncodingType encodingType )
+DKObjectRef DKNumberInitWithNumber( DKObjectRef _untyped_self, DKNumberRef number, DKEncodingType encodingType )
 {
+    DKNumberRef _self = _untyped_self;
+
     if( (_self == &DKPlaceholderNumber) || (_self == &DKPlaceholderVariableNumber) )
     {
         DKCheckKindOfClass( number, DKNumberClass(), NULL );
@@ -519,8 +523,10 @@ DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEnc
 ///
 //  DKNumberInitWithEgg()
 //
-static DKObjectRef DKNumberInitWithEgg( DKNumberRef _self, DKEggUnarchiverRef egg )
+static DKObjectRef DKNumberInitWithEgg( DKObjectRef _untyped_self, DKEggUnarchiverRef egg )
 {
+    DKNumberRef _self = _untyped_self;
+
     if( (_self == &DKPlaceholderNumber) || (_self == &DKPlaceholderVariableNumber) )
     {
         DKEncoding encoding = DKEggGetEncoding( egg, DKSTR( "value" ) );

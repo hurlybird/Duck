@@ -34,8 +34,8 @@
 DK_API DKDeclareInterfaceSelector( Set );
 
 
-//typedef struct DKSet * DKSetRef; -- Declared in DKPlatform.h
-typedef struct DKSet * DKMutableSetRef;
+//typedef DKObjectRef DKSetRef; -- Declared in DKPlatform.h
+typedef DKObjectRef DKMutableSetRef;
 
 
 typedef int (*DKSetApplierFunction)( DKObjectRef object, void * context );

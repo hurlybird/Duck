@@ -81,8 +81,8 @@ DK_API DKNumberRef DKNewNumberWithDate( const DKDateTime * date ); // Passing NU
 #define            DKNumberWithUUID( x )       DKAutorelease( DKNewNumberWithUUID( x ) )
 #define            DKNumberWithDate( x )       DKAutorelease( DKNewNumberWithDate( x ) )
 
-DK_API DKNumberRef DKNumberInit( DKNumberRef _self, const void * value, DKEncoding encoding );
-DK_API DKNumberRef DKNumberInitWithNumber( DKNumberRef _self, DKNumberRef number, DKEncodingType encodingType );
+DK_API DKObjectRef DKNumberInit( DKObjectRef _self, const void * value, DKEncoding encoding );
+DK_API DKObjectRef DKNumberInitWithNumber( DKObjectRef _self, DKNumberRef number, DKEncodingType encodingType );
 
 DK_API DKEncoding  DKNumberGetEncoding( DKNumberRef _self );
 

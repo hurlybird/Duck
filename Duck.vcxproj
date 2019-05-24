@@ -114,7 +114,7 @@
 xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copying Header Files...</Message>
+      <Message>Copying Duck Header Files...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -135,7 +135,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
 xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copying Header Files...</Message>
+      <Message>Copying Duck Header Files...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -160,7 +160,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
 xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copying Header Files...</Message>
+      <Message>Copying Duck Header Files...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -185,7 +185,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
 xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copying Header Files...</Message>
+      <Message>Copying Duck Header Files...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

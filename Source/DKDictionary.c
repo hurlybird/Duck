@@ -35,12 +35,6 @@
 DKThreadSafeFastSelectorInit( Dictionary );
 
 
-struct DKDictionary
-{
-    const DKObject * _obj;
-};
-
-
 ///
 //  DKDictionaryClass()
 //

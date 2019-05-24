@@ -57,12 +57,12 @@ DK_API DKClassRef  DKMutableStringClass( void );
 #define            DKNewStringWithFormat( fmt, ... )           DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ )
 #define            DKNewStringWithContentsOfFile( filename )   DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename )
 
-DK_API DKObjectRef DKStringInitWithString( DKStringRef _self, DKStringRef other );
-DK_API DKObjectRef DKStringInitWithCString( DKStringRef _self, const char * cstr );
-DK_API DKObjectRef DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr );
-DK_API DKObjectRef DKStringInitWithBytes( DKStringRef _self, const void * bytes, DKIndex length );
-DK_API DKObjectRef DKStringInitWithFormat( DKStringRef _self, const char * format, ... );
-DK_API DKObjectRef DKStringInitWithContentsOfFile( DKStringRef _self, DKStringRef filename );
+DK_API DKObjectRef DKStringInitWithString( DKObjectRef _self, DKStringRef other );
+DK_API DKObjectRef DKStringInitWithCString( DKObjectRef _self, const char * cstr );
+DK_API DKObjectRef DKStringInitWithCStringNoCopy( DKObjectRef _self, const char * cstr );
+DK_API DKObjectRef DKStringInitWithBytes( DKObjectRef _self, const void * bytes, DKIndex length );
+DK_API DKObjectRef DKStringInitWithFormat( DKObjectRef _self, const char * format, ... );
+DK_API DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _self, DKStringRef filename );
 
 DK_API DKStringRef DKStringMakeImmutable( DKMutableStringRef _self );
 
