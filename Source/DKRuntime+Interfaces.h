@@ -146,7 +146,7 @@ typedef void * DKInterfaceRef;
 #define DKInterfaceCountMethods( structSize )    (((structSize) - sizeof(DKInterface)) / sizeof(void *))
 
 // Get the interface method table
-#define DKInterfaceGetMethodTable( _interface )   (void **)(((uint8_t *)(interface)) + sizeof(DKInterface))
+#define DKInterfaceGetMethodTable( _interface )   (void **)(((uint8_t *)(_interface)) + sizeof(DKInterface))
 
 // Create a new interface object.
 DK_API DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize );
