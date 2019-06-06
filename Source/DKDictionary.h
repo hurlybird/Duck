@@ -34,8 +34,8 @@
 DK_API DKDeclareInterfaceSelector( Dictionary );
 
 
-// typedef struct DKDictionary * DKDictionaryRef; -- Declared in DKPlatform.h
-typedef struct DKDictionary * DKMutableDictionaryRef;
+// typedef DKObjectRef DKDictionaryRef; -- Declared in DKPlatform.h
+typedef DKObjectRef DKMutableDictionaryRef;
 
 
 typedef DKObjectRef (*DKDictionaryInitWithVAKeysAndObjectsMethod)( DKDictionaryRef _self, va_list keysAndObjects );

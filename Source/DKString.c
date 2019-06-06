@@ -59,7 +59,7 @@ static void         DKStringDealloc( DKStringRef _self );
 static DKObjectRef  DKStringInit( DKObjectRef _self );
 static void         DKStringFinalize( DKObjectRef _self );
 
-static DKObjectRef  DKStringInitWithEgg( DKStringRef _self, DKEggUnarchiverRef egg );
+static DKObjectRef  DKStringInitWithEgg( DKObjectRef _self, DKEggUnarchiverRef egg );
 static void         DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef egg );
 
 static DKStringRef  DKMutableStringGetDescription( DKMutableStringRef _self );
@@ -415,24 +415,27 @@ static DKObjectRef DKStringInit( DKObjectRef _self )
 ///
 //  DKStringFinalize()
 //
-static void DKStringFinalize( DKObjectRef _self )
+static void DKStringFinalize( DKObjectRef _untyped_self )
 {
+    DKStringRef _self = _untyped_self;
+
     if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString) )
     {
         DKFatalError( "DKStringFinalize: Trying to finalize a string that was never initialized.\n" );
         return;
     }
 
-    struct DKString * string = (struct DKString *)_self;
-    DKByteArrayFinalize( &string->byteArray );
+    DKByteArrayFinalize( &_self->byteArray );
 }
 
 
 ///
 //  DKStringInitWithString()
 //
-void * DKStringInitWithString( DKStringRef _self, DKStringRef other )
+void * DKStringInitWithString( DKObjectRef _untyped_self, DKStringRef other )
 {
+    DKStringRef _self = _untyped_self;
+
     const char * cstr = "";
     DKIndex length = 0;
     DKHashCode hashCode = 0;
@@ -455,8 +458,10 @@ void * DKStringInitWithString( DKStringRef _self, DKStringRef other )
 ///
 //  DKStringInitWithCString()
 //
-void * DKStringInitWithCString( DKStringRef _self, const char * cstr )
+void * DKStringInitWithCString( DKObjectRef _untyped_self, const char * cstr )
 {
+    DKStringRef _self = _untyped_self;
+
     if( !cstr )
         cstr = "";
 
@@ -468,8 +473,10 @@ void * DKStringInitWithCString( DKStringRef _self, const char * cstr )
 ///
 //  DKStringInitWithCStringNoCopy()
 //
-void * DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr )
+void * DKStringInitWithCStringNoCopy( DKObjectRef _untyped_self, const char * cstr )
 {
+    DKStringRef _self = _untyped_self;
+
     if( !cstr )
         cstr = "";
 
@@ -493,8 +500,10 @@ void * DKStringInitWithCStringNoCopy( DKStringRef _self, const char * cstr )
 ///
 //  DKStringInitWithBytes()
 //
-DKObjectRef DKStringInitWithBytes( DKStringRef _self, const void * bytes, DKIndex length )
+DKObjectRef DKStringInitWithBytes( DKObjectRef _untyped_self, const void * bytes, DKIndex length )
 {
+    DKStringRef _self = _untyped_self;
+
     return InitString( _self, bytes, length );
 }
 
@@ -502,8 +511,10 @@ DKObjectRef DKStringInitWithBytes( DKStringRef _self, const void * bytes, DKInde
 ///
 //  DKStringInitWithFormat()
 //
-void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
+void * DKStringInitWithFormat( DKObjectRef _untyped_self, const char * format, ... )
 {
+    DKStringRef _self = _untyped_self;
+
     if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString)  )
     {
         _self = DKAllocObject( DKMutableStringClass(), 0 );
@@ -545,8 +556,10 @@ void * DKStringInitWithFormat( DKStringRef _self, const char * format, ... )
 ///
 //  DKStringInitWithContentsOfFile()
 //
-DKObjectRef DKStringInitWithContentsOfFile( DKStringRef _self, DKStringRef filename )
+DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _untyped_self, DKStringRef filename )
 {
+    DKStringRef _self = _untyped_self;
+
     if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString)  )
     {
         _self = DKAllocObject( DKStringClass(), 0 );
@@ -590,8 +603,10 @@ DKObjectRef DKStringInitWithContentsOfFile( DKStringRef _self, DKStringRef filen
 ///
 //  DKStringInitWithEgg()
 //
-static DKObjectRef DKStringInitWithEgg( DKStringRef _self, DKEggUnarchiverRef egg )
+static DKObjectRef DKStringInitWithEgg( DKObjectRef _untyped_self, DKEggUnarchiverRef egg )
 {
+    DKStringRef _self = _untyped_self;
+
     size_t length = 0;
     const char * cstr = DKEggGetTextDataPtr( egg, DKSTR( "str" ), &length );
 

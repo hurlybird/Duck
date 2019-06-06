@@ -121,9 +121,9 @@ typedef struct DKString *           DKStringRef;
 typedef struct DKNumber *           DKNumberRef;
 typedef struct DKEnum *             DKEnumRef;
 typedef struct DKPredicate *        DKPredicateRef;
-typedef struct DKList *             DKListRef;
-typedef struct DKDictionary *       DKDictionaryRef;
-typedef struct DKSet *              DKSetRef;
+typedef DKObjectRef                 DKListRef;
+typedef DKObjectRef                 DKDictionaryRef;
+typedef DKObjectRef                 DKSetRef;
 
 
 // Define a constant string with a compile-time constant C string.

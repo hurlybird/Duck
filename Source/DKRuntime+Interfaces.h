@@ -146,21 +146,21 @@ typedef void * DKInterfaceRef;
 #define DKInterfaceCountMethods( structSize )    (((structSize) - sizeof(DKInterface)) / sizeof(void *))
 
 // Get the interface method table
-#define DKInterfaceGetMethodTable( interface )   (void **)(((uint8_t *)(interface)) + sizeof(DKInterface))
+#define DKInterfaceGetMethodTable( _interface )   (void **)(((uint8_t *)(interface)) + sizeof(DKInterface))
 
 // Create a new interface object.
 DK_API DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize );
 
 // Inherit undefined methods from another class. This is automatically done for the
 // superclass of '_class' when installing the interface.
-DK_API void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class );
+DK_API void DKInterfaceInheritMethods( DKInterfaceRef _interface, DKClassRef _class );
 
 // Install an interface on a class.
 //
 // *** WARNING ***
 // Replacing interfaces after a class is in use (i.e. implementation swizzling) is not
 // currently supported.
-DK_API void DKInstallInterface( DKClassRef cls, DKInterfaceRef interface );
+DK_API void DKInstallInterface( DKClassRef cls, DKInterfaceRef _interface );
 DK_API void DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interface );
 
 // Retrieve an installed interface. If a matching interface cannot be found on the class
@@ -170,8 +170,8 @@ DK_API DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel );
 DK_API DKInterfaceRef DKGetClassInterface( DKClassRef _class, DKSEL sel );
 
 // Check to see if an interface is available for an object.
-DK_API bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * interface );
-DK_API bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * interface );
+DK_API bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface );
+DK_API bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * _interface );
 
 
 

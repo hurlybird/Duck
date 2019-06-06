@@ -34,12 +34,6 @@
 DKThreadSafeFastSelectorInit( Set );
 
 
-struct DKSet
-{
-    const DKObject * _obj;
-};
-
-
 ///
 //  DKSetClass()
 //

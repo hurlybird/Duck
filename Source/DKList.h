@@ -34,8 +34,8 @@
 DK_API DKDeclareInterfaceSelector( List );
 
 
-//typedef struct DKList * DKListRef; -- Declared in DKPlatform.h
-typedef struct DKList * DKMutableListRef;
+//typedef DKObjectRef DKListRef; -- Declared in DKPlatform.h
+typedef DKObjectRef DKMutableListRef;
 
 typedef DKObjectRef (*DKListInitWithVAObjectsMethod)( DKListRef _self, va_list objects );
 typedef DKObjectRef (*DKListInitWithCArrayMethod)( DKListRef _self, DKObjectRef objects[], DKIndex count );
