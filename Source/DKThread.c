@@ -39,6 +39,8 @@ enum
     DKThreadContextAllocated = (1 << 0)
 };
 
+#define DK_AUTORELEASE_POOL_RESERVE 256
+
 static struct DKThreadContext DKMainThreadContext;
 
 #if DK_PLATFORM_POSIX
@@ -64,7 +66,8 @@ void DKThreadContextInit( DKThreadContextRef threadContext, uint32_t options )
     
     // Initialize the autorelease pool stack
     DKGenericArrayInit( &threadContext->arp.objects, sizeof(DKObjectRef) );
-    
+    DKGenericArrayReserve( &threadContext->arp.objects, DK_AUTORELEASE_POOL_RESERVE );
+
     threadContext->arp.top = -1;
 
     for( int i = 0; i < DK_AUTORELEASE_POOL_STACK_SIZE; i++ )

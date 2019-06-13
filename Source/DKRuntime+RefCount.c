@@ -223,7 +223,6 @@ DKObjectRef DKResolveWeak( DKWeakRef weakref )
 
 
 // Autorelease Pools =====================================================================
-#define DK_AUTORELEASE_POOL_RESERVE 128
 
 ///
 //  DKDrainAutoreleasePool()
@@ -287,18 +286,10 @@ void DKPushAutoreleasePool( void )
     struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
     DKRequire( (threadContext->arp.top >= -1) && (threadContext->arp.top < (DK_AUTORELEASE_POOL_STACK_SIZE - 1)) );
     
-    DKIndex count = DKGenericArrayGetLength( &threadContext->arp.objects );
-    
-    if( threadContext->arp.top == -1 )
-    {
-        // Reserve space in the object list on the first push
-        DKAssert( count == 0 );
-        DKGenericArrayReserve( &threadContext->arp.objects, DK_AUTORELEASE_POOL_RESERVE );
-    }
-    
-    else
+    if( threadContext->arp.top >= 0 )
     {
         // Save the number of objects currently in the pool
+        DKIndex count = DKGenericArrayGetLength( &threadContext->arp.objects );
         threadContext->arp.count[threadContext->arp.top] = count;
     }
 

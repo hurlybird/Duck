@@ -47,7 +47,7 @@ struct DKData
 static DKObjectRef  DKDataInitialize( DKObjectRef _self );
 static void         DKDataFinalize( DKObjectRef _self );
 
-static DKObjectRef  DKDataInitWithEgg( DKDataRef _self, DKEggUnarchiverRef egg );
+static DKObjectRef  DKDataInitWithEgg( DKObjectRef _self, DKEggUnarchiverRef egg );
 static void         DKDataAddToEgg( DKDataRef _self, DKEggArchiverRef egg );
 
 
@@ -109,7 +109,7 @@ DKThreadSafeClassInit( DKDataClass )
     
     // Egg
     struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
-    egg->initWithEgg = (DKInitWithEggMethod)DKDataInitWithEgg;
+    egg->initWithEgg = DKDataInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKDataAddToEgg;
     
     DKInstallInterface( cls, egg );
@@ -214,9 +214,9 @@ static void DKDataFinalize( DKObjectRef _untyped_self )
 ///
 //  DKDataInitWithBytes()
 //
-DKDataRef DKDataInitWithBytes( DKDataRef _self, const void * bytes, DKIndex length )
+DKDataRef DKDataInitWithBytes( DKObjectRef _untyped_self, const void * bytes, DKIndex length )
 {
-    _self = DKInit( _self );
+    DKDataRef _self = DKInit( _untyped_self );
 
     if( _self )
     {
@@ -231,9 +231,9 @@ DKDataRef DKDataInitWithBytes( DKDataRef _self, const void * bytes, DKIndex leng
 ///
 //  DKDataInitWithBytesNoCopy()
 //
-DKDataRef DKDataInitWithBytesNoCopy( DKDataRef _self, const void * bytes, DKIndex length )
+DKDataRef DKDataInitWithBytesNoCopy( DKObjectRef _untyped_self, const void * bytes, DKIndex length )
 {
-    _self = DKInit( _self );
+    DKDataRef _self = DKInit( _untyped_self );
 
     if( _self )
     {
@@ -248,9 +248,9 @@ DKDataRef DKDataInitWithBytesNoCopy( DKDataRef _self, const void * bytes, DKInde
 ///
 //  DKDataInitWithLength()
 //
-DKDataRef DKDataInitWithLength( DKDataRef _self, DKIndex length )
+DKDataRef DKDataInitWithLength( DKObjectRef _untyped_self, DKIndex length )
 {
-    _self = DKInit( _self );
+    DKDataRef _self = DKInit( _untyped_self );
 
     if( _self )
     {
@@ -265,9 +265,9 @@ DKDataRef DKDataInitWithLength( DKDataRef _self, DKIndex length )
 ///
 //  DKDataInitWithContentsOfFile()
 //
-DKDataRef DKDataInitWithContentsOfFile( DKDataRef _self, DKStringRef filename )
+DKDataRef DKDataInitWithContentsOfFile( DKObjectRef _untyped_self, DKStringRef filename )
 {
-    _self = DKInit( _self );
+    DKDataRef _self = DKInit( _untyped_self );
 
     if( _self )
     {
@@ -298,9 +298,9 @@ DKDataRef DKDataInitWithContentsOfFile( DKDataRef _self, DKStringRef filename )
 ///
 //  DKDataInitWithCapacity()
 //
-DKMutableDataRef DKDataInitWithCapacity( DKMutableDataRef _self, DKIndex capacity )
+DKMutableDataRef DKDataInitWithCapacity( DKObjectRef _untyped_self, DKIndex capacity )
 {
-    _self = DKInit( _self );
+    DKMutableDataRef _self = DKInit( _untyped_self );
 
     if( _self )
     {
@@ -315,13 +315,13 @@ DKMutableDataRef DKDataInitWithCapacity( DKMutableDataRef _self, DKIndex capacit
 ///
 //  DKDataInitWithEgg()
 //
-static DKObjectRef DKDataInitWithEgg( DKDataRef _self, DKEggUnarchiverRef egg )
+static DKObjectRef DKDataInitWithEgg( DKObjectRef _untyped_self, DKEggUnarchiverRef egg )
 {
     DKEncoding encoding = DKEggGetEncoding( egg, DKSTR( "data" ) );
 
     if( DKEncodingIsNumber( encoding ) )
     {
-        _self = DKDataInitialize( _self );
+        DKDataRef _self = DKDataInitialize( _untyped_self );
 
         if( _self )
         {
@@ -342,7 +342,7 @@ static DKObjectRef DKDataInitWithEgg( DKDataRef _self, DKEggUnarchiverRef egg )
         size_t length = 0;
         const void * bytes = DKEggGetBinaryDataPtr( egg, DKSTR( "data" ), &length );
 
-        return DKDataInitWithBytes( _self, bytes, length );
+        return DKDataInitWithBytes( _untyped_self, bytes, length );
     }
 }
 
