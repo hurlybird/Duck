@@ -400,4 +400,7 @@
       <Filter>Source\Data Types</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
+  </ItemGroup>
 </Project>
