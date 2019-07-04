@@ -95,7 +95,7 @@
 #endif
 
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
-#define __LITTLE_ENDIAN__
+#define __LITTLE_ENDIAN__ 1
 #define restrict __restrict
 
 #ifndef strcasecmp
