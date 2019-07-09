@@ -578,7 +578,7 @@ DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _untyped_self, DKStringR
     {
         DKByteArrayInit( &_self->byteArray );
 
-        DKFileRef file = DKFileOpen( filename, "r" );
+        DKFileRef file = DKFileOpen( filename, "rb" );
         
         if( file )
         {

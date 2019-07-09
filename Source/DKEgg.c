@@ -49,11 +49,15 @@
 #define DKEggPrefixSize     20
 #define DKEggVersion        1
 
-
 // EggHeader
 // EggObject * header.objectTable.length
 // EggAttribute * header.attributeTable.length
 // Data
+
+#if DK_PLATFORM_WINDOWS
+#pragma pack( push, 4 )
+#endif
+
 
 typedef struct
 {
@@ -98,6 +102,11 @@ typedef struct
     uint32_t value;
     
 } DKEggKVPair;
+
+
+#if DK_PLATFORM_WINDOWS
+#pragma pack( pop )
+#endif
 
 
 
@@ -312,7 +321,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
 DKEggUnarchiverRef DKEggUnarchiverInitWithData( DKEggUnarchiverRef _self, DKDataRef data )
 {
     _self = DKSuperInit( _self, DKObjectClass() );
-    
+
     if( _self )
     {
         DKGenericArrayInit( &_self->unarchivedObjects, sizeof(DKObjectRef) );

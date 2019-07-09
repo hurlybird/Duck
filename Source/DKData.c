@@ -273,7 +273,7 @@ DKDataRef DKDataInitWithContentsOfFile( DKObjectRef _untyped_self, DKStringRef f
     {
         DKAssertKindOfClass( _self, DKDataClass() );
         
-        DKFileRef file = DKFileOpen( filename, "r" );
+        DKFileRef file = DKFileOpen( filename, "rb" );
         
         if( file )
         {
