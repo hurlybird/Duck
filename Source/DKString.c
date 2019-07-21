@@ -731,15 +731,40 @@ int DKStringCompareString( DKStringRef _self, DKStringRef other )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKStringClass() );
-        DKAssertKindOfClass( other, DKStringClass() );
-    
-        if( _self == other )
-            return 0;
 
-        return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes );
+        if( other )
+        {
+            DKAssertKindOfClass( other, DKStringClass() );
+    
+            if( _self == other )
+                return 0;
+
+            return dk_ustrcmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes );
+        }
+
+        return 1;
     }
     
-    return 0;
+    return -1;
+}
+
+
+///
+//  DKStringCompareCString()
+//
+int DKStringCompareCString( DKStringRef _self, const char * cstr )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        if( cstr )
+            return dk_ustrcmp( (const char *)_self->byteArray.bytes, cstr );
+
+        return 1;
+    }
+    
+    return -1;
 }
 
 

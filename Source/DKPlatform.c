@@ -474,7 +474,6 @@ DKDateTime dk_datetime( void )
 #elif DK_PLATFORM_WINDOWS
 DKDateTime dk_datetime( void )
 {
-    
     FILETIME fileTime;
 
     GetSystemTimePreciseAsFileTime( &fileTime );

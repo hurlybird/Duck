@@ -75,6 +75,7 @@ DK_API DKHashCode  DKStringHash( DKStringRef _self );
 
 DK_API bool        DKStringEqualToString( DKStringRef _self, DKStringRef other );
 DK_API int         DKStringCompareString( DKStringRef _self, DKStringRef other );
+DK_API int         DKStringCompareCString( DKStringRef _self, const char * cstr );
 
 DK_API bool        DKStringIsEmptyString( DKStringRef _self );
 DK_API bool        DKStringHasPrefix( DKStringRef _self, DKStringRef other );
