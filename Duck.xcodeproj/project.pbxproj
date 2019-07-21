@@ -889,7 +889,7 @@
 		024EE3D9148E0B21008FDADC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = "Derek W. Nylen";
 				TargetAttributes = {
 					028F1A881B0DCA85006FDFDF = {
@@ -906,11 +906,11 @@
 			};
 			buildConfigurationList = 024EE3DC148E0B21008FDADC /* Build configuration list for PBXProject "Duck" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
+				Base,
 			);
 			mainGroup = 024EE3D7148E0B21008FDADC;
 			productRefGroup = 024EE3E3148E0B21008FDADC /* Products */;
