@@ -554,22 +554,9 @@ static_assert( sizeof(LONG) == sizeof(int32_t), "DKAtomic: Windows LONG type is 
 #endif
 
 
+
+
 // Spin Locks ============================================================================
-#if DK_PLATFORM_APPLE
-typedef os_unfair_lock DKSpinLock;
-
-#define DKSpinLockInit              OS_UNFAIR_LOCK_INIT
-#define DKSpinLockLock( s )         os_unfair_lock_lock( s )
-#define DKSpinLockUnlock( s )       os_unfair_lock_unlock( s )
-
-#elif DK_PLATFORM_LINUX
-typedef spinlock_t DKSpinLock;
-
-#define DKSpinLockInit              SPIN_LOCK_UNLOCKED
-#define DKSpinLockLock( s )         spin_lock( s )
-#define DKSpinLockUnlock( s )       spin_unlock( s )
-
-#else
 typedef int32_t DKSpinLock;
 
 #define DKSpinLockInit              0
@@ -591,7 +578,6 @@ inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
     
     DKAtomicAnd32( lock, 0 );
 }
-#endif
 
 
 
