@@ -94,8 +94,17 @@
 #define DK_API __declspec(dllimport)
 #endif
 
-#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+#ifdef _WIN64
+#ifndef __LP64__
+#define __LP64__ 1
+#endif
+#endif
+
+#ifndef __LITTLE_ENDIAN__
 #define __LITTLE_ENDIAN__ 1
+#endif
+
+#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
 #define restrict __restrict
 
 #ifndef strcasecmp
