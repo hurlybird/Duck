@@ -139,6 +139,9 @@ static size_t IntegerSize( const char * format, size_t len )
         return sizeof(short);
     }
     
+    if( m1 == 'p' )
+        return sizeof(intptr_t);
+    
     if( m1 == 'j' )
         return sizeof(intmax_t);
     
@@ -338,19 +341,14 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
                 write_count++;
             break;
         
-        // Pointer
-        case 'p':
-            CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
-            write_count += sprintf( tmp, tmp_format, va_arg( arg_ptr, void * ) );
-            break;
-        
-        // Integer
+        // Integer / Pointer
         case 'd':
         case 'i':
         case 'u':
         case 'o':
         case 'x':
         case 'X':
+        case 'p':
             CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
             num_size = IntegerSize( cursor, tok + 1 );
             switch( num_size )
