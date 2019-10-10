@@ -88,6 +88,13 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+//#define _CRT_NONSTDC_NO_DEPRECATE
+//#define _CRT_SECURE_NO_WARNINGS
+//#define _CRT_SECURE_NO_DEPRECATE  
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #ifdef DK_API_EXPORTS
 #define DK_API __declspec(dllexport)
 #else

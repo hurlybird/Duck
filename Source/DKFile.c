@@ -217,9 +217,9 @@ long DKFileTell( DKFileRef _self )
 ///
 //  DKFileGetLength()
 //
-long DKFileGetLength( DKFileRef _self )
+DKIndex DKFileGetLength( DKFileRef _self )
 {
-    long length = 0;
+    DKIndex length = 0;
 
     if( _self )
     {
@@ -231,9 +231,14 @@ long DKFileGetLength( DKFileRef _self )
             int fd = fileno( _self->file );
             struct stat fileStats;
             fstat( fd, &fileStats );
-            length = (long)fileStats.st_size;
+            length = fileStats.st_size;
+#elif DK_PLATFORM_WINDOWS
+            int fd = _fileno( _self->file );
+            struct _stat64 fileStats;
+            _fstat64( fd, &fileStats );
+            length = (DKIndex)fileStats.st_size;
 #else
-            #pragma message "Using fseek + ftell for file stream length - the behaviour is platform dependent and may be unsupported."
+            #pragma message( "Using fseek + ftell for file stream length - the behaviour is platform dependent and may be unsupported." )
             
             long cursor = ftell( _self->file );
             fseek( _self->file, 0, SEEK_END );
