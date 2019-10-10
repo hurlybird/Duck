@@ -33,6 +33,7 @@ struct DKFile
 {
     DKObject _obj;
     FILE * file;
+    bool closeOnDealloc;
 };
 
 
@@ -61,6 +62,23 @@ DKThreadSafeClassInit( DKFileClass )
 
 
 ///
+//  DKFileInitWithStreamPtr()
+//
+DK_API DKFileRef DKFileInitWithStreamPtr( DKObjectRef _untyped_self, FILE * stream, bool closeOnDealloc )
+{
+    DKFileRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
+    
+    if( _self )
+    {
+        _self->file = stream;
+        _self->closeOnDealloc = closeOnDealloc;
+    }
+    
+    return _self;
+}
+
+
+///
 //  DKFileFinalize()
 //
 static void DKFileFinalize( DKObjectRef _untyped_self )
@@ -69,7 +87,9 @@ static void DKFileFinalize( DKObjectRef _untyped_self )
     
     if( _self->file )
     {
-        fclose( _self->file );
+        if( _self->closeOnDealloc )
+            fclose( _self->file );
+        
         _self->file = NULL;
     }
 }
@@ -111,6 +131,7 @@ DKFileRef DKFileOpen( DKStringRef filename, const char * mode )
         if( _self )
         {
             _self->file = file;
+            _self->closeOnDealloc = true;
             
             return _self;
         }
@@ -210,8 +231,10 @@ long DKFileGetLength( DKFileRef _self )
             int fd = fileno( _self->file );
             struct stat fileStats;
             fstat( fd, &fileStats );
-            length = (DKIndex)fileStats.st_size;
+            length = (long)fileStats.st_size;
 #else
+            #pragma message "Using fseek + ftell for file stream length - the behaviour is platform dependent and may be unsupported."
+            
             long cursor = ftell( _self->file );
             fseek( _self->file, 0, SEEK_END );
             length = ftell( _self->file );
