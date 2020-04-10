@@ -143,8 +143,10 @@ static void DKStructFinalize( DKStructRef _self )
 ///
 //  DKStructInit()
 //
-DKStructRef DKStructInit( DKStructRef _self, DKStringRef semantic, const void * bytes, size_t size )
+DKStructRef DKStructInit( DKObjectRef _untyped_self, DKStringRef semantic, const void * bytes, size_t size )
 {
+    DKStructRef _self = _untyped_self;
+
     // The real size limit is MAX_INT, but > 64K in a structure is almost certainly an error
     DKAssert( size < (64 * 1024) );
 

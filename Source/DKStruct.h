@@ -43,7 +43,7 @@ DK_API DKClassRef  DKStructClass( void );
 #define            DKNewStruct( semantic, bytes, size )    DKStructInit( DKAlloc( DKStructClass() ), semantic, bytes, size )
 #define            DKNewStructWithType( ptr, type )        DKStructInit( DKAlloc( DKStructClass() ), DKSTR( #type ), ptr, sizeof(type) )
 
-DK_API DKStructRef DKStructInit( DKStructRef _self, DKStringRef semantic, const void * bytes, size_t size );
+DK_API DKStructRef DKStructInit( DKObjectRef _self, DKStringRef semantic, const void * bytes, size_t size );
 
 DK_API bool        DKStructEqual( DKStructRef _self, DKStructRef other );
 DK_API int         DKStructCompare( DKStructRef _self, DKStructRef other );
@@ -53,7 +53,7 @@ DK_API DKStringRef DKStructGetSemantic( DKStructRef _self );
 DK_API size_t      DKStructGetSize( DKStructRef _self );
 DK_API size_t      DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, size_t size );
 
-#define            DKStructGetValueAsType( st, dst, type ) DKStructGetValue( st, DKSTR( #type ), dst, sizeof(type) );
+#define            DKStructGetValueAsType( _self, dst, type ) DKStructGetValue( _self, DKSTR( #type ), dst, sizeof(type) )
 
 
 #endif
