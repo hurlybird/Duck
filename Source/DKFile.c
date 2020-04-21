@@ -219,6 +219,7 @@ long DKFileTell( DKFileRef _self )
 //
 DKIndex DKFileGetLength( DKFileRef _self )
 {
+    // Using a DKIndex for the length effectively limits file length to ~3 GB on 32-bit builds
     DKIndex length = 0;
 
     if( _self )
@@ -231,7 +232,7 @@ DKIndex DKFileGetLength( DKFileRef _self )
             int fd = fileno( _self->file );
             struct stat fileStats;
             fstat( fd, &fileStats );
-            length = fileStats.st_size;
+            length = (DKIndex)fileStats.st_size;
 #elif DK_PLATFORM_WINDOWS
             int fd = _fileno( _self->file );
             struct _stat64 fileStats;
