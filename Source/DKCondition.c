@@ -110,6 +110,40 @@ void DKConditionWait( DKConditionRef _self, DKMutexRef mutex )
 
 
 ///
+//  DKConditionWait()
+//
+DK_API bool DKConditionTimedWait( DKConditionRef _self, DKMutexRef mutex, DKTimeInterval timeout )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKConditionClass() );
+        DKAssertKindOfClass( mutex, DKMutexClass() );
+    
+#if DK_PLATFORM_POSIX
+        double ipart, fpart;
+        fpart = modf( timeout, &ipart );
+        
+        struct timespec abstime;
+        clock_gettime( CLOCK_REALTIME, &abstime );
+        
+        abstime.tv_sec += (__darwin_time_t)ipart;
+        abstime.tv_nsec += (long)(fpart * 1000000000.0);
+        
+        if( pthread_cond_timedwait( &_self->condition, &mutex->mutex, &abstime ) == 0 )
+            return true;
+            
+#elif DK_PLATFORM_WINDOWS
+        DWORD ms = (DWORD)(timeout * 1000.0);
+        if( SleepConditionVariableCS( &_self->conditionVariable, &mutex->criticalSection, ms ) )
+            return true;
+#endif
+    }
+    
+    return false;
+}
+
+
+///
 //  DKConditionSignal()
 //
 void DKConditionSignal( DKConditionRef _self )
