@@ -130,14 +130,23 @@ DK_API bool DKConditionTimedWait( DKConditionRef _self, DKMutexRef mutex, DKTime
 #if DK_PLATFORM_POSIX
         double ipart, fpart;
         fpart = modf( timeout, &ipart );
+
+        struct timespec endtime;
+
+#if DK_PLATFORM_APPLE
+        struct timeval timeofday;
+        gettimeofday( &timeofday, NULL );
         
+        endtime.tv_sec = timeofday.tv_sec + (time_t)ipart;
+        endtime.tv_nsec = (timeofday.tv_usec * 1000) + (long)(fpart * 1000000000.0);
+#else
         struct timespec abstime;
         clock_gettime( CLOCK_REALTIME, &abstime );
-        
-        struct timespec endtime;
+
         endtime.tv_sec = abstime.tv_sec + (time_t)ipart;
         endtime.tv_nsec = abstime.tv_nsec + (long)(fpart * 1000000000.0);
-        
+#endif
+
         while( endtime.tv_nsec > 999999999 )
         {
             endtime.tv_sec += 1;
