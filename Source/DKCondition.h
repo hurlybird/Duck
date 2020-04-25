@@ -40,7 +40,7 @@ DK_API DKClassRef DKConditionClass( void );
 #define DKNewCondition()        DKNew( DKConditionClass() )
 
 
-DK_API void DKConditionWait( DKConditionRef _self, DKMutexRef mutex );
+DK_API bool DKConditionWait( DKConditionRef _self, DKMutexRef mutex );
 DK_API bool DKConditionTimedWait( DKConditionRef _self, DKMutexRef mutex, DKTimeInterval timeout );
 DK_API void DKConditionSignal( DKConditionRef _self );
 DK_API void DKConditionSignalAll( DKConditionRef _self );

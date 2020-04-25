@@ -57,6 +57,7 @@
 // POSIX ---------------------------------------------------------------------------------
 #if DK_PLATFORM_POSIX
 #include <pthread.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #endif

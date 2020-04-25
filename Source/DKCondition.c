@@ -93,7 +93,7 @@ static void DKConditionFinalize( DKObjectRef _untyped_self )
 ///
 //  DKConditionWait()
 //
-void DKConditionWait( DKConditionRef _self, DKMutexRef mutex )
+bool DKConditionWait( DKConditionRef _self, DKMutexRef mutex )
 {
     if( _self )
     {
@@ -101,11 +101,19 @@ void DKConditionWait( DKConditionRef _self, DKMutexRef mutex )
         DKAssertKindOfClass( mutex, DKMutexClass() );
     
 #if DK_PLATFORM_POSIX
-        pthread_cond_wait( &_self->condition, &mutex->mutex );
+        int error = pthread_cond_wait( &_self->condition, &mutex->mutex );
+        DKAssert( error == 0 );
+        
+        if( error == 0 )
+            return true;
+            
 #elif DK_PLATFORM_WINDOWS
-        SleepConditionVariableCS( &_self->conditionVariable, &mutex->criticalSection, INFINITE );
+        if( SleepConditionVariableCS( &_self->conditionVariable, &mutex->criticalSection, INFINITE ) )
+            return true;
 #endif
     }
+    
+    return false;
 }
 
 
@@ -126,14 +134,25 @@ DK_API bool DKConditionTimedWait( DKConditionRef _self, DKMutexRef mutex, DKTime
         struct timespec abstime;
         clock_gettime( CLOCK_REALTIME, &abstime );
         
-        abstime.tv_sec += (__darwin_time_t)ipart;
-        abstime.tv_nsec += (long)(fpart * 1000000000.0);
+        struct timespec endtime;
+        endtime.tv_sec = abstime.tv_sec + (__darwin_time_t)ipart;
+        endtime.tv_nsec = abstime.tv_nsec + (long)(fpart * 1000000000.0);
         
-        if( pthread_cond_timedwait( &_self->condition, &mutex->mutex, &abstime ) == 0 )
+        while( endtime.tv_nsec > 999999999 )
+        {
+            endtime.tv_sec += 1;
+            endtime.tv_nsec -= 1000000000;
+        }
+        
+        int error = pthread_cond_timedwait( &_self->condition, &mutex->mutex, &endtime );
+        DKAssert( (error == 0) || (error == ETIMEDOUT) );
+        
+        if( error == 0 )
             return true;
             
 #elif DK_PLATFORM_WINDOWS
         DWORD ms = (DWORD)(timeout * 1000.0);
+        
         if( SleepConditionVariableCS( &_self->conditionVariable, &mutex->criticalSection, ms ) )
             return true;
 #endif
