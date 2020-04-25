@@ -245,5 +245,27 @@ size_t dk_ustrscan( const char * str, DKChar32 * ch )
 }
 
 
+///
+//  dk_ustrwrite()
+//
+size_t dk_ustrwrite( DKChar32 ch, char * str, size_t str_size )
+{
+    uint32_t capacity = (uint32_t)str_size - 1;
+    uint32_t i = 0;
+    UBool error = 0;
+    
+    U8_APPEND( (uint8_t *)str, i, capacity, ch, error );
+
+    if( !error )
+    {
+        if( i < str_size )
+            str[i] = '\0';
+
+        return i;
+    }
+     
+    return 0;
+}
+
 
 

@@ -39,7 +39,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 - (void) testJSON
 {
     // Create a document
-    DKMutableDictionaryRef document = DKDictionaryWithKeysAndObjects(
+    DKDictionaryRef document = DKDictionaryWithKeysAndObjects(
         DKSTR( "Dick" ), DKSTR( "\"boy\"" ),
         DKSTR( "Jane" ), DKSTR( "girl" ),
         DKSTR( "Spot" ), DKSTR( "dog" ),
@@ -63,7 +63,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     XCTAssert( DKEqual( document, parsedDocument ) );
 
-    //DKPrintf( "Orignal Document:\n%@\n\n", document );
+    //DKPrintf( "Original Document:\n%@\n\n", document );
     //DKPrintf( "JSON:\n%@\n\n", json );
     //DKPrintf( "Parsed Document:\n%@\n\n", parsedDocument );
 }
@@ -74,7 +74,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
     int64_t v[3] = { 1, 2, 3 };
     double w[3] = { 1.0, 2.0, 3.0 };
     
-    DKMutableDictionaryRef document = DKDictionaryWithKeysAndObjects(
+    DKDictionaryRef document = DKDictionaryWithKeysAndObjects(
         DKSTR( "Dick" ), DKSTR( "\"boy\"" ),
         DKSTR( "Jane" ), DKSTR( "girl" ),
         DKSTR( "Spot" ), DKSTR( "dog" ),
@@ -95,7 +95,6 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKMutableStringRef json = DKMutableString();
     DKJSONWrite( json, document, DKJSONWritePretty | DKJSONVectorSyntaxExtension );
     
-    
     // Parse the JSON
     DKObjectRef parsedDocument = DKJSONParse( json, DKJSONVectorSyntaxExtension );
 
@@ -106,9 +105,43 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
     XCTAssert( DKEqual( document, parsedDocument32 ) );
 
-    //DKPrintf( "Orignal Document:\n%@\n\n", document );
+    //DKPrintf( "Original Document:\n%@\n\n", document );
     //DKPrintf( "JSON:\n%@\n\n", json );
     //DKPrintf( "Parsed Document:\n%@\n\n", parsedDocument );
+}
+
+- (void) testJSONUnicode
+{
+    // Create some JSON with utf code points
+    DKStringRef json = DKStringWithCString(
+        "{\n" \
+        "    \"ASCII\" : \"\\u003F\",\n" \
+        "    \"Latin-1\" : \"\\u00A3\",\n" \
+        "    \"Latin Extended-A\" : \"\\u0152\",\n" \
+        "    \"Greek and Coptic\" : \"\\u0398\",\n" \
+        "    \"Unicode Symbols\" : \"\\u2014\",\n" \
+        "    \"Mathematical Symbols\" : \"\\u2211\",\n" \
+        "    \"Snowman\" : \"\\u26C4\"\n" \
+        "}" );
+        
+    // Create the decoded verson of the json
+    DKDictionaryRef decodedDocument =  DKDictionaryWithKeysAndObjects(
+        DKSTR( "ASCII" ), DKSTR( "?" ),
+        DKSTR( "Latin-1" ), DKSTR( "£" ),
+        DKSTR( "Latin Extended-A" ), DKSTR( "Œ" ),
+        DKSTR( "Greek and Coptic" ), DKSTR( "Θ" ),
+        DKSTR( "Unicode Symbols" ), DKSTR( "—" ),
+        DKSTR( "Mathematical Symbols" ), DKSTR( "∑" ),
+        DKSTR( "Snowman" ), DKSTR( "⛄" ) );
+
+    // Parse the JSON
+    DKObjectRef parsedDocument = DKJSONParse( json, 0 );
+
+    XCTAssert( DKEqual( decodedDocument, parsedDocument ) );
+
+//    DKPrintf( "Decoded Document:\n%@\n\n", decodedDocument );
+//    DKPrintf( "JSON:\n%@\n\n", json );
+//    DKPrintf( "Parsed Document:\n%@\n\n", parsedDocument );
 }
 
 

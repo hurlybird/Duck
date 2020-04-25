@@ -522,12 +522,36 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
 
 
 ///
+//  ScanUnicodeCodePoint()
+//
+static size_t ScanUnicodeCodePoint( const char * str, DKMutableStringRef buffer )
+{
+    char hex[8];
+    char utf[8];
+    char * end;
+    
+    hex[0] = str[0];
+    hex[1] = str[1];
+    hex[2] = str[2];
+    hex[3] = str[3];
+    hex[4] = '\0';
+    
+    DKChar32 ch = (DKChar32)strtol( hex, &end, 16 );
+    size_t n = dk_ustrwrite( ch, utf, 8 );
+
+    DKStringAppendCString( buffer, utf );
+
+    return 4;
+}
+
+
+///
 //  ScanStringToken()
 //
 static Token ScanStringToken( Token token, ParseContext * context, DKObjectRef * obj )
 {
     DKChar32 ch;
-    DKStringRef buffer = NULL;
+    DKMutableStringRef buffer = NULL;
     
     if( obj != NULL )
     {
@@ -585,8 +609,7 @@ static Token ScanStringToken( Token token, ParseContext * context, DKObjectRef *
                 break;
                     
             case 'u':
-                DKWarning( "DKJSON: Escaped unicode characters (\\uXXXX) are not supported.\n" );
-                token.length += 4;
+                token.length += ScanUnicodeCodePoint( token.str + token.length + n, buffer );
                 break;
                 
             default:
