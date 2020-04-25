@@ -537,7 +537,7 @@ static size_t ScanUnicodeCodePoint( const char * str, DKMutableStringRef buffer 
     hex[4] = '\0';
     
     DKChar32 ch = (DKChar32)strtol( hex, &end, 16 );
-    size_t n = dk_ustrwrite( ch, utf, 8 );
+    dk_ustrwrite( ch, utf, 8 );
 
     DKStringAppendCString( buffer, utf );
 
