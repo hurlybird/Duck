@@ -135,7 +135,7 @@ DK_API bool DKConditionTimedWait( DKConditionRef _self, DKMutexRef mutex, DKTime
         clock_gettime( CLOCK_REALTIME, &abstime );
         
         struct timespec endtime;
-        endtime.tv_sec = abstime.tv_sec + (__darwin_time_t)ipart;
+        endtime.tv_sec = abstime.tv_sec + (time_t)ipart;
         endtime.tv_nsec = abstime.tv_nsec + (long)(fpart * 1000000000.0);
         
         while( endtime.tv_nsec > 999999999 )
