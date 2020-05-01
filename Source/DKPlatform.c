@@ -476,7 +476,7 @@ DKDateTime dk_datetime( void )
 {
     FILETIME fileTime;
 
-    GetSystemTimePreciseAsFileTime( &fileTime );
+    GetSystemTimeAsFileTime( &fileTime );
     
     // These are actually 100 nanosecond intervals
     uint64_t nsecs_since_1601 = (((uint64_t)fileTime.dwHighDateTime) << 32) | ((uint64_t)fileTime.dwLowDateTime);
