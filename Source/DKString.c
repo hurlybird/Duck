@@ -313,12 +313,16 @@ static DKStringRef CopySubstring( const char * cstr, DKRange byteRange )
     if( (cstr == NULL) || (byteRange.length == 0) )
         return DKSTR( "" );
 
-    struct DKString * str = DKAllocObject( DKStringClass(), byteRange.length + 1 );
+    // Note: Add a DKChar32 '\0' to mimic the string termination done by DKByteArray
+    struct DKString * str = DKAllocObject( DKStringClass(), byteRange.length + 4 );
 
     DKByteArrayInitWithExternalStorage( &str->byteArray, (const void *)(str + 1), byteRange.length );
         
     memcpy( str->byteArray.bytes, &cstr[byteRange.location], byteRange.length );
     str->byteArray.bytes[byteRange.length] = '\0';
+    str->byteArray.bytes[byteRange.length+1] = '\0';
+    str->byteArray.bytes[byteRange.length+2] = '\0';
+    str->byteArray.bytes[byteRange.length+3] = '\0';
 
     return str;
 }

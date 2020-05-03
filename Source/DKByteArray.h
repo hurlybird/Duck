@@ -33,8 +33,8 @@
 // and DKString rely on this behaviour).
 
 // Note: DKByteArray internally stores four '\0' bytes (i.e. a UTF32 NULL) at data[length]
-// to make storing strings safer. The NULLs aren't included in the length or maxLength of
-// the array.
+// to make storing strings safer, regardless of encoding. The NULLs aren't included in the
+// length or maxLength of the array.
 
 typedef struct
 {
