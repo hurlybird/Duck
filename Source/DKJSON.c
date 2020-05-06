@@ -171,16 +171,17 @@ typedef struct
 
 } DKEscapedChar;
 
+// The escaped characters are listed in descending order for fast rejection
 static const DKEscapedChar EscapedChars[] =
 {
-    { '\\', "\\\\" },
-    { '\"', "\\\"" },
-    { '\n', "\\n" },
-    { '\r', "\\r" },
-    { '\f', "\\f" },
-    { '\t', "\\t" },
-    { '\b', "\\b" },
-    //{ '/', "\\/" },
+    { '\\', "\\\\" },   // 92
+    //{ '/', "\\/" },   // 47
+    { '\"', "\\\"" },   // 34
+    { '\r', "\\r" },    // 13
+    { '\f', "\\f" },    // 12
+    { '\n', "\\n" },    // 10
+    { '\t', "\\t" },    // 09
+    { '\b', "\\b" },    // 08
     { 0, NULL },
 };
 
@@ -202,6 +203,12 @@ static void WriteEscapedString( DKStringRef str, WriteContext * context )
         
         while( 1 )
         {
+            if( (ec->pattern < ch) || (ec->replacement == NULL) )
+            {
+                bufferLength += n;
+                break;
+            }
+        
             if( ec->pattern == ch )
             {
                 if( bufferLength > 0 )
@@ -211,12 +218,6 @@ static void WriteEscapedString( DKStringRef str, WriteContext * context )
 
                 bufferStart = cursor + n;
                 bufferLength = 0;
-                break;
-            }
-        
-            if( ec->pattern == 0 )
-            {
-                bufferLength += n;
                 break;
             }
             

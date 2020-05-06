@@ -66,6 +66,8 @@ DK_API DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _self, DKStringRe
 
 DK_API DKStringRef DKStringMakeImmutable( DKMutableStringRef _self );
 
+// Unlike DKCopy, which may retain and return an immutable object as an optimization,
+// DKStringCopy and DKStringMutableCopy always return a new copy of a string's contents.
 DK_API DKStringRef DKStringCopy( DKStringRef _self );
 DK_API DKMutableStringRef DKStringMutableCopy( DKStringRef _self );
 
