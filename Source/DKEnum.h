@@ -34,6 +34,9 @@
 
 DK_API DKClassRef DKEnumClass( void );
 
+// NOTE: DKEnum stores its strings as DKConstantStrings which rely on external storage.
+// Passing any transient string to the following functions and methods will result in a
+// dangling pointer to that string.
 DK_API DKObjectRef DKEnumInitWithCStringsAndValues( DKObjectRef _self, ... );
 DK_API DKObjectRef DKEnumInitWithCStringsAndValues64( DKObjectRef _self, ... );
 

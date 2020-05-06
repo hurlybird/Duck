@@ -2403,28 +2403,28 @@ static DKHashCode DKConstantStringTableRowHash( const void * _row )
 
 static bool DKConstantStringTableRowEqual( const void * _row1, const void * _row2 )
 {
-    struct DKString ** row1 = (void *)_row1;
-    struct DKString ** row2 = (void *)_row2;
+    DKStringRef * row1 = (void *)_row1;
+    DKStringRef * row2 = (void *)_row2;
 
     return DKStringEqualToString( *row1, *row2 );
 }
 
 static void DKConstantStringTableRowInit( void * _row )
 {
-    struct DKString ** row = _row;
+    DKStringRef * row = _row;
     *row = DKRowStatusEmpty;
 }
 
 static void DKConstantStringTableRowUpdate( void * _row, const void * _src )
 {
-    struct DKString ** row = _row;
-    struct DKString ** src = (void *)_src;
+    DKStringRef * row = _row;
+    DKStringRef * src = (void *)_src;
     *row = *src;
 }
 
 static void DKConstantStringTableRowDelete( void * _row )
 {
-    struct DKString ** row = _row;
+    DKStringRef * row = _row;
     *row = DKRowStatusDeleted;
 }
 
