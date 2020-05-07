@@ -5,3 +5,4 @@ Duck.xcodeproj/xcuserdata
 Duck.xcodeproj/project.xcworkspace/xcuserdata
 *.vcxproj.user
 .vs/*
+/Tests/largefile.json
