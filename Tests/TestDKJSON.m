@@ -145,18 +145,48 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
-//- (void) testJSONReadPerformance
-//{
-//    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
-//    DKStringRef path = DKStringWithCString( [_path UTF8String] );
-//    DKStringRef json = DKStringWithContentsOfFile( path );
-//
-//    [self measureBlock:^{
-//        DKPushAutoreleasePool();
-//        DKJSONParse( json, 0 );
-//        DKPopAutoreleasePool();
-//    }];
-//}
+#if 0
+- (void) testNSJSONReadPerformance
+{
+    NSString * path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
+    NSData * jsonData = [NSData dataWithContentsOfFile:path];
 
+    [self measureBlock:^{
+        @autoreleasepool
+        {
+            [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+        }
+    }];
+}
+
+- (void) testJSONReadPerformance
+{
+    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
+    DKStringRef path = DKStringWithCString( [_path UTF8String] );
+    DKStringRef json = DKStringWithContentsOfFile( path );
+
+    [self measureBlock:^{
+        DKPushAutoreleasePool();
+        DKJSONParse( json, 0 );
+        DKPopAutoreleasePool();
+    }];
+}
+
+- (void) testJSONWritePerformance
+{
+    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
+    DKStringRef path = DKStringWithCString( [_path UTF8String] );
+    DKStringRef json = DKStringWithContentsOfFile( path );
+
+    DKObjectRef object = DKJSONParse( json, 0 );
+
+    [self measureBlock:^{
+        DKPushAutoreleasePool();
+        DKMutableStringRef buffer = DKMutableString();
+        DKJSONWrite( buffer, object, 0 );
+        DKPopAutoreleasePool();
+    }];
+}
+#endif
 
 @end
