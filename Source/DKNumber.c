@@ -73,7 +73,7 @@ typedef void (*CastFunction)( const DKNumberValue * restrict x, DKNumberValue * 
 
 static void UndefinedCastFunction( const DKNumberValue * restrict x, DKNumberValue * restrict y, size_t count )
 {
-    DKFatalError( "DKNumber: Undefined cast function.\n" );
+    DKFatalError( "DKNumber: Undefined cast function." );
 }
 
 
@@ -100,7 +100,7 @@ typedef int (*CmpFunction)( const DKNumberValue * x, const DKNumberValue * y, si
 
 static int UndefinedCmpFunction( const DKNumberValue * x, const DKNumberValue * y, size_t count )
 {
-    DKFatalError( "DKNumber: Undefined compare function.\n" );
+    DKFatalError( "DKNumber: Undefined compare function." );
     return 0;
 }
 
@@ -477,7 +477,7 @@ DKObjectRef DKNumberInit( DKObjectRef _untyped_self, const void * value, DKEncod
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKNumberInit: Trying to initialize a non-number object.\n" );
+        DKFatalError( "DKNumberInit: Trying to initialize a non-number object." );
     }
 
     return _self;
@@ -513,7 +513,7 @@ DKObjectRef DKNumberInitWithNumber( DKObjectRef _untyped_self, DKNumberRef numbe
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKNumberInitWithNumber: Trying to initialize a non-number object.\n" );
+        DKFatalError( "DKNumberInitWithNumber: Trying to initialize a non-number object." );
     }
 
     return _self;
@@ -543,7 +543,7 @@ static DKObjectRef DKNumberInitWithEgg( DKObjectRef _untyped_self, DKEggUnarchiv
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKNumberInitWithEgg: Trying to initialize a non-number object.\n" );
+        DKFatalError( "DKNumberInitWithEgg: Trying to initialize a non-number object." );
     }
 
     return _self;

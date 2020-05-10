@@ -47,7 +47,7 @@ static void DKUninitializedMethodError( DKObjectRef _self )
     // Note: The '_self' pointer is for debugging only -- it may not be valid since
     // interface methods do not require it.
 
-    DKFatalError( "DKRuntime: Calling an uninitialized interface method\n" );
+    DKFatalError( "DKRuntime: Calling an uninitialized interface method" );
 }
 
 
@@ -379,7 +379,7 @@ void DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interface )
 //
 static DKInterfaceRef DKGetInterfaceNotFound( DKClassRef _class, DKSEL sel )
 {
-    DKFatalError( "DKRuntime: Interface '%@' not found on object '%@'\n", sel->name, _class->name );
+    DKFatalError( "DKRuntime: Interface '%@' not found on object '%@'", sel->name, _class->name );
     return NULL;
 }
 
@@ -403,7 +403,7 @@ DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
 //
 static DKInterfaceRef DKGetClassInterfaceNotFound( DKClassRef _class, DKSEL sel )
 {
-    DKFatalError( "DKRuntime: Class interface '%@' not found on object '%@'\n", sel->name, _class->name );
+    DKFatalError( "DKRuntime: Class interface '%@' not found on object '%@'", sel->name, _class->name );
     return NULL;
 }
 

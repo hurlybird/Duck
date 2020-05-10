@@ -226,23 +226,23 @@ static DKXMLElementRef INTERNAL_DKXMLParse( DKStringRef xml, int options, size_t
         switch( parseResult )
         {
         case YXML_EEOF:         // Unexpected EOF
-            DKError( "DKXMLParse: Unexpected end-of-file (line %ld, char %ld)\n", parser->line, parser->byte );
+            DKError( "DKXMLParse: Unexpected end-of-file (line %ld, char %ld)", parser->line, parser->byte );
             goto error;
             
         case YXML_EREF:         // Invalid character or entity reference (&whatever;)
-            DKError( "DKXMLParse: Invalid character or entity reference (line %ld, char %ld)\n", parser->line, parser->byte );
+            DKError( "DKXMLParse: Invalid character or entity reference (line %ld, char %ld)", parser->line, parser->byte );
             goto error;
             
         case YXML_ECLOSE:       // Close tag does not match open tag (<Tag> .. </OtherTag>)
-            DKError( "DKXMLParse: Closing tag does match opening tag (line %ld, char %ld)\n", parser->line, parser->byte );
+            DKError( "DKXMLParse: Closing tag does match opening tag (line %ld, char %ld)", parser->line, parser->byte );
             goto error;
             
         case YXML_ESTACK:       // Stack overflow (too deeply nested tags or too long element/attribute name)
-            DKDebug( "DKXMLParse: Stack overflow, re-parsing with larger stack (%Invalid character or entity reference (line %ud, char %ud)\n", parser->line, parser->byte );
+            DKError( "DKXMLParse: Stack overflow, re-parsing with larger stack (%Invalid character or entity reference (line %ud, char %ud)", parser->line, parser->byte );
             goto error;
             
         case YXML_ESYN:         // Syntax error (unexpected byte)
-            DKError( "DKXMLParse: Syntax error (line %ld, char %ld)\n", parser->line, parser->byte );
+            DKError( "DKXMLParse: Syntax error (line %ld, char %ld)", parser->line, parser->byte );
             goto error;
             
         case YXML_OK:           // Character consumed, no new token present
@@ -323,7 +323,7 @@ static DKXMLElementRef INTERNAL_DKXMLParse( DKStringRef xml, int options, size_t
         return DKAutorelease( root );
     }
 
-    DKError( "DKXMLParse: Incomplete document\n" );
+    DKError( "DKXMLParse: Incomplete document" );
     
 error:
     dk_free( parser );

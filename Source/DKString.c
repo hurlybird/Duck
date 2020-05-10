@@ -356,7 +356,7 @@ static void * InitString( DKStringRef _self, const char * cstr, DKIndex length )
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKStringInit: Trying to initialize a non-string object.\n" );
+        DKFatalError( "DKStringInit: Trying to initialize a non-string object." );
     }
 
     return _self;
@@ -425,7 +425,7 @@ static void DKStringFinalize( DKObjectRef _untyped_self )
 
     if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString) )
     {
-        DKFatalError( "DKStringFinalize: Trying to finalize a string that was never initialized.\n" );
+        DKFatalError( "DKStringFinalize: Trying to finalize a string that was never initialized." );
         return;
     }
 
@@ -494,7 +494,7 @@ void * DKStringInitWithCStringNoCopy( DKObjectRef _untyped_self, const char * cs
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKStringInitWithCStringNoCopy: Trying to initialize a non-immutable string object.\n" );
+        DKFatalError( "DKStringInitWithCStringNoCopy: Trying to initialize a non-immutable string object." );
     }
 
     return _self;
@@ -550,7 +550,7 @@ void * DKStringInitWithFormat( DKObjectRef _untyped_self, const char * format, .
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKStringInit: Trying to initialize a non-string object.\n" );
+        DKFatalError( "DKStringInit: Trying to initialize a non-string object." );
     }
     
     return _self;
@@ -575,7 +575,7 @@ DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _untyped_self, DKStringR
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKStringInit: Trying to initialize a non-string object.\n" );
+        DKFatalError( "DKStringInit: Trying to initialize a non-string object." );
     }
     
     if( _self )
@@ -1024,7 +1024,7 @@ DKStringRef DKStringCopySubstring( DKStringRef _self, DKRange range )
                 }
             }
 
-            DKError( "%s: Range %ld,%ld is outside 0,%ld\n", __func__,
+            DKError( "%s: Range %ld,%ld is outside 0,%ld", __func__,
                 range.location, range.length, dk_ustrlen( (const char *)_self->byteArray.bytes ) );
         }
     }
@@ -1059,7 +1059,7 @@ DKStringRef DKStringCopySubstringFromIndex( DKStringRef _self, DKIndex index )
             }
         }
 
-        DKError( "%s: Index %ld is outside 0,%ld\n", __func__,
+        DKError( "%s: Index %ld is outside 0,%ld", __func__,
             index, dk_ustrlen( (const char *)_self->byteArray.bytes ) );
     }
     
@@ -1093,7 +1093,7 @@ DKStringRef DKStringCopySubstringToIndex( DKStringRef _self, DKIndex index )
             }
         }
 
-        DKError( "%s: Index %ld is outside 0,%ld\n", __func__,
+        DKError( "%s: Index %ld is outside 0,%ld", __func__,
             index, dk_ustrlen( (const char *)_self->byteArray.bytes ) );
     }
     
@@ -1122,7 +1122,7 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
                 
                 if( s == NULL )
                 {
-                    DKError( "%s: Index %ld is outside 0,%ld\n", __func__,
+                    DKError( "%s: Index %ld is outside 0,%ld", __func__,
                         startLoc, dk_ustrlen( (const char *)_self->byteArray.bytes ) );
                 }
             }
@@ -1872,7 +1872,7 @@ void DKStringAppendPathExtension( DKMutableStringRef _self, DKStringRef extensio
         // Empty or root path
         if( (_self->byteArray.length == 0) || ((_self->byteArray.length == 1) && (path[0] == DKPathComponentSeparator)) )
         {
-            DKError( "%s: Cannot append path extension '%s' to path '%s'\n",
+            DKError( "%s: Cannot append path extension '%s' to path '%s'",
                 __func__, (const char *)extension->byteArray.bytes, path );
             return;
         }

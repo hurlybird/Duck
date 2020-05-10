@@ -117,7 +117,7 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
         
         else
         {
-            DKWarning( "DKJSON: Only scalar number encodings are supported. Writing vector as string.\n" );
+            DKWarning( "DKJSON: Only scalar number encodings are supported. Writing vector as string." );
             DKSPrintf( context->stream, "\"%@\"", obj );
         }
     }
@@ -614,7 +614,7 @@ static Token ScanStringToken( Token token, ParseContext * context, DKObjectRef *
                 break;
                 
             default:
-                DKWarning( "DKJSON: Invalid control character: %c (%d)\n", ch, ch );
+                DKWarning( "DKJSON: Invalid control character: %c (%d)", ch, ch );
                 break;
             }
         }

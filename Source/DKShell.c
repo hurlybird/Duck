@@ -275,7 +275,7 @@ int DKShellRead( DKStreamRef stream, DKObjectRef * outObject, DKStringRef * outC
     // Invalid prefix?
     if( strcmp( DKStringGetCStringPtr( prefix ), DKShellHeaderString ) )
     {
-        DKError( "DKShellRead: The stream does not contain a valid DKShell segment.\n" );
+        DKError( "DKShellRead: The stream does not contain a valid DKShell segment." );
         return 0;
     }
     
@@ -311,7 +311,7 @@ int DKShellRead( DKStreamRef stream, DKObjectRef * outObject, DKStringRef * outC
     {
         if( DKGetc( stream ) != '\n' )
         {
-            DKError( "DKShellRead: The segment annotation was not property terminated.\n" );
+            DKError( "DKShellRead: The segment annotation was not property terminated." );
             return 0;
         }
 
@@ -336,7 +336,7 @@ int DKShellRead( DKStreamRef stream, DKObjectRef * outObject, DKStringRef * outC
 
     if( DKRead( stream, bufferPtr, 1, contentLength ) != contentLength )
     {
-        DKError( "DKShellRead: Error reading content data (expected &zu bytes).\n", contentLength );
+        DKError( "DKShellRead: Error reading content data (expected &zu bytes).", contentLength );
         return 0;
     }
     

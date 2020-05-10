@@ -33,19 +33,30 @@
 
 // Error Reporting =======================================================================
 static int (*PrintfCallback)( const char * format, va_list arg_ptr ) = NULL;
+static int (*LogCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*WarningCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*ErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
 static int (*FatalErrorCallback)( const char * format, va_list arg_ptr ) = NULL;
 
+static const char * LogPrefix = "";
+static const char * LogSuffix = "\n";
 static const char * WarningPrefix = "WARNING: ";
+static const char * WarningSuffix = "\n";
 static const char * ErrorPrefix = "ERROR: ";
+static const char * ErrorSuffix = "\n";
 static const char * FatalErrorPrefix = "FATAL ERROR: ";
+static const char * FatalErrorSuffix = "\n";
 
 static bool AbortOnErrors = DK_DEFAULT_ABORT_ON_ERRORS;
 
 void DKSetPrintfCallback( int (*callback)( const char * format, va_list arg_ptr ) )
 {
     PrintfCallback = callback;
+}
+
+void DKSetLogCallback( int (*callback)( const char * format, va_list arg_ptr ) )
+{
+    LogCallback = callback;
 }
 
 void DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) )
@@ -63,19 +74,28 @@ void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_
     FatalErrorCallback = callback;
 }
 
-void DKSetWarningPrefix( const char * prefix )
+void DKSetLogFormat( const char * prefix, const char * suffix )
+{
+    LogPrefix = prefix;
+    LogSuffix = suffix;
+}
+
+void DKSetWarningFormat( const char * prefix, const char * suffix )
 {
     WarningPrefix = prefix;
+    WarningSuffix = suffix;
 }
 
-void DKSetErrorPrefix( const char * prefix )
+void DKSetErrorFormat( const char * prefix, const char * suffix )
 {
     ErrorPrefix = prefix;
+    ErrorSuffix = suffix;
 }
 
-void DKSetFatalErrorPrefix( const char * prefix )
+void DKSetFatalErrorFormat( const char * prefix, const char * suffix )
 {
     FatalErrorPrefix = prefix;
+    FatalErrorSuffix = suffix;
 }
 
 void DKSetAbortOnErrors( bool flag )
@@ -128,6 +148,25 @@ int _DKPrintf( const char * format, ... )
 
 
 ///
+//  DKLog()
+//
+void _DKLog( const char * format, ... )
+{
+    va_list arg_ptr;
+    va_start( arg_ptr, format );
+    
+    DKMutableStringRef tmp = DKNewMutableString();
+    DKVSPrintf( tmp, format, arg_ptr );
+
+    va_end( arg_ptr );
+    
+    _DKPrintfInternal( LogCallback, stdout, "%s%s%s", LogPrefix, DKStringGetCStringPtr( tmp ), LogSuffix );
+
+    DKRelease( tmp );
+}
+
+
+///
 //  DKWarning()
 //
 void _DKWarning( const char * format, ... )
@@ -140,7 +179,7 @@ void _DKWarning( const char * format, ... )
 
     va_end( arg_ptr );
     
-    _DKPrintfInternal( WarningCallback, stdout, "%s%s", WarningPrefix, DKStringGetCStringPtr( tmp ) );
+    _DKPrintfInternal( WarningCallback, stdout, "%s%s%s", WarningPrefix, DKStringGetCStringPtr( tmp ), WarningSuffix );
 
     DKRelease( tmp );
 }
@@ -159,7 +198,7 @@ void _DKError( const char * format, ... )
 
     va_end( arg_ptr );
     
-    _DKPrintfInternal( ErrorCallback, stderr, "%s%s", ErrorPrefix, DKStringGetCStringPtr( tmp ) );
+    _DKPrintfInternal( ErrorCallback, stderr, "%s%s%s", ErrorPrefix, DKStringGetCStringPtr( tmp ), ErrorSuffix );
 
     DKRelease( tmp );
 
@@ -184,7 +223,7 @@ void _DKFatalError( const char * format, ... )
 
     va_end( arg_ptr );
     
-    _DKPrintfInternal( FatalErrorCallback, stderr, "%s%s", FatalErrorPrefix, DKStringGetCStringPtr( tmp ) );
+    _DKPrintfInternal( FatalErrorCallback, stderr, "%s%s%s", FatalErrorPrefix, DKStringGetCStringPtr( tmp ), FatalErrorSuffix );
 
     DKRelease( tmp );
 

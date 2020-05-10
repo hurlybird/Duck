@@ -442,7 +442,7 @@ static void Insert( struct DKBinaryTree * tree, DKObjectRef key, DKObjectRef obj
 {
     if( key == NULL )
     {
-        DKError( "DKBinaryTreeInsert: Trying to insert a NULL key.\n" );
+        DKError( "DKBinaryTreeInsert: Trying to insert a NULL key." );
         return;
     }
 

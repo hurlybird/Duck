@@ -275,14 +275,16 @@ typedef struct
 
 // Set external handlers for debug, warning and error messages
 DK_API void DKSetPrintfCallback( int (*callback)( const char * format, va_list arg_ptr ) );
+DK_API void DKSetLogCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 DK_API void DKSetWarningCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 DK_API void DKSetErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 DK_API void DKSetFatalErrorCallback( int (*callback)( const char * format, va_list arg_ptr ) );
 
 // Set a prefix for warnings, errors and fatal errors
-DK_API void DKSetWarningPrefix( const char * prefix );
-DK_API void DKSetErrorPrefix( const char * prefix );
-DK_API void DKSetFatalErrorPrefix( const char * prefix );
+DK_API void DKSetLogFormat( const char * prefix, const char * suffix );
+DK_API void DKSetWarningFormat( const char * prefix, const char * suffix );
+DK_API void DKSetErrorFormat( const char * prefix, const char * suffix );
+DK_API void DKSetFatalErrorFormat( const char * prefix, const char * suffix );
 
 // Set whether to abort on errors (default yes for debug builds, no for release builds)
 DK_API void DKSetAbortOnErrors( bool flag );
@@ -307,6 +309,13 @@ DK_API int _DKPrintf( const char * format, ... );
 #else
 #define DKDebug( ... )
 #endif
+
+
+// Print a logged message. Object descriptions can be printed using the
+// Foundation/CoreFoundation idiom "%@".
+DK_API void _DKLog( const char * format, ... );
+
+#define DKLog( ... )        _DKLog( __VA_ARGS__ )
 
 
 // Print a warning. This is ignored in non-debug builds unless DK_RUNTIME_WARNINGS is
@@ -341,7 +350,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !(x) )                                                                      \
         {                                                                               \
-            _DKFatalError( "%s: Failed Runtime Requirement( %s )\n", __func__, #x );    \
+            _DKFatalError( "%s: Failed Runtime Requirement( %s )", __func__, #x );      \
         }                                                                               \
     } while( 0 )
 
@@ -352,7 +361,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !(x) )                                                                      \
         {                                                                               \
-            _DKError( "%s: Failed Runtime Check( %s )\n", __func__, #x );               \
+            _DKError( "%s: Failed Runtime Check( %s )", __func__, #x );                 \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
@@ -365,7 +374,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !(x) )                                                                      \
         {                                                                               \
-            _DKFatalError( "%s: Failed Assert( %s )\n", __func__, #x );                 \
+            _DKFatalError( "%s: Failed Assert( %s )", __func__, #x );                   \
         }                                                                               \
     } while( 0 )
 
@@ -374,7 +383,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKIsKindOfClass( _self, cls ) )                                            \
         {                                                                               \
-            _DKFatalError( "%s: Required kind of class %s, received %s\n",              \
+            _DKFatalError( "%s: Required kind of class %s, received %s",                \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
@@ -386,7 +395,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKIsMemberOfClass( _self, cls ) )                                          \
         {                                                                               \
-            _DKFatalError( "%s: Required member of class %s, received %s\n",            \
+            _DKFatalError( "%s: Required member of class %s, received %s",              \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
@@ -398,7 +407,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKQueryInterface( _self, sel, NULL ) )                                     \
         {                                                                               \
-            _DKFatalError( "%s: Required interface %s on class %s\n",                   \
+            _DKFatalError( "%s: Required interface %s on class %s",                     \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKStringFromSelector( sel ) ),                   \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
@@ -410,7 +419,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKIsMutable( _self, cls ) )                                                \
         {                                                                               \
-            _DKFatalError( "%s: Trying to modify an instance of immutable class %s\n",  \
+            _DKFatalError( "%s: Trying to modify an instance of immutable class %s",    \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
         }                                                                               \
@@ -432,7 +441,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKIsKindOfClass( _self, cls ) )                                            \
         {                                                                               \
-            _DKError( "%s: Expected kind of class %s, received %s\n",                   \
+            _DKError( "%s: Expected kind of class %s, received %s",                     \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
@@ -445,7 +454,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKIsKindOfClass( _self, cls ) )                                            \
         {                                                                               \
-            _DKError( "%s: Expected member of class %s, received %s\n",                 \
+            _DKError( "%s: Expected member of class %s, received %s",                   \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
@@ -458,7 +467,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKQueryInterface( _self, sel, NULL ) )                                     \
         {                                                                               \
-            _DKError( "%s: Expected interface %s on class %s\n",                        \
+            _DKError( "%s: Expected interface %s on class %s",                          \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKStringFromSelector( sel ) ),                   \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
@@ -471,7 +480,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKIsMutable( _self ) )                                                     \
         {                                                                               \
-            _DKError( "%s: Trying to modify an instance of immutable class %s\n",       \
+            _DKError( "%s: Trying to modify an instance of immutable class %s",         \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
             return __VA_ARGS__;                                                         \
@@ -493,7 +502,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( ((index) < 0) || ((index) >= len) )                                         \
         {                                                                               \
-            _DKError( "%s: Index %ld is outside 0,%ld\n", __func__, (index), len );     \
+            _DKError( "%s: Index %ld is outside 0,%ld", __func__, (index), len );       \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
@@ -503,7 +512,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKRangeInsideOrEnd( range, len ) )                                         \
         {                                                                               \
-            _DKError( "%s: Range %ld,%ld is outside 0,%ld\n",                           \
+            _DKError( "%s: Range %ld,%ld is outside 0,%ld",                             \
                 __func__, (range).location, (range).length, len );                      \
             return __VA_ARGS__;                                                         \
         }                                                                               \

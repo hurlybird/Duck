@@ -435,7 +435,7 @@ DKClassRef DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSiz
 {
     if( superclass && ((superclass->options & DKPreventSubclassing) != 0) )
     {
-        DKFatalError( "DKNewClass: Class '%@' does not allow subclasses.\n", superclass->name );
+        DKFatalError( "DKNewClass: Class '%@' does not allow subclasses.", superclass->name );
         return NULL;
     }
     
@@ -506,19 +506,19 @@ DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
 {
     if( !cls )
     {
-        DKError( "DKAllocObject: Specified class object is NULL.\n" );
+        DKError( "DKAllocObject: Specified class object is NULL." );
         return NULL;
     }
     
     if( cls->structSize < sizeof(DKObject) )
     {
-        DKFatalError( "DKAllocObject: Requested struct size is smaller than DKObject.\n" );
+        DKFatalError( "DKAllocObject: Requested struct size is smaller than DKObject." );
         return NULL;
     }
     
     if( (cls->options & DKAbstractBaseClass) != 0 )
     {
-        DKFatalError( "DKAllocObject: Class '%@' is an abstract base class.\n", cls->name );
+        DKFatalError( "DKAllocObject: Class '%@' is an abstract base classn", cls->name );
         return NULL;
     }
     
@@ -628,7 +628,7 @@ DKObjectRef DKInit( DKObjectRef _self )
             
             if( cls->options & DKNoImplicitInitializer )
             {
-                DKFatalError( "DKInit: Class '%@' has no implicit initializer.\n", cls->name );
+                DKFatalError( "DKInit: Class '%@' has no implicit initializer.", cls->name );
                 return NULL;
             }
         }
@@ -656,7 +656,7 @@ DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass )
 
             if( cls->options & DKNoImplicitInitializer )
             {
-                DKFatalError( "DKSuperInit: Class '%@' has no implicit initializer.\n", cls->name );
+                DKFatalError( "DKSuperInit: Class '%@' has no implicit initializer.", cls->name );
                 return NULL;
             }
         }

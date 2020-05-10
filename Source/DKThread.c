@@ -141,7 +141,7 @@ void DKSetCurrentThreadContext( DKThreadContextRef threadContext )
     pthread_setspecific( DKThreadContextKey, threadContext );
 #elif DK_PLATFORM_WINDOWS
     if( !TlsSetValue( DKThreadContextKey, threadContext ) )
-        DKFatalError( "DKThread: Failed to save thread context to thread local storage.\n" );
+        DKFatalError( "DKThread: Failed to save thread context to thread local storage." );
 #endif
 }
 
@@ -195,7 +195,7 @@ void DKMainThreadContextInit( void )
     pthread_key_create( &DKThreadContextKey, DKThreadContextDestructor );
 #elif DK_PLATFORM_WINDOWS
     if( (DKThreadContextKey = TlsAlloc()) == TLS_OUT_OF_INDEXES ) 
-        DKFatalError( "DKThread: Out of thread local storage indexes.\n" );
+        DKFatalError( "DKThread: Out of thread local storage indexes." );
 #endif
 
     DKThreadContextInit( &DKMainThreadContext, 0 );

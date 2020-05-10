@@ -166,7 +166,7 @@ DKStructRef DKStructInit( DKObjectRef _untyped_self, DKStringRef semantic, const
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKStructInit: Trying to initialize a non-struct object.\n" );
+        DKFatalError( "DKStructInit: Trying to initialize a non-struct object." );
     }
 
     return _self;
@@ -334,13 +334,13 @@ size_t DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, 
             
             else
             {
-                DKWarning( "DKStructGetValue: Semantic mismatch '%@' != '%@'.\n", _self->semantic, semantic );
+                DKWarning( "DKStructGetValue: Semantic mismatch '%@' != '%@'.", _self->semantic, semantic );
             }
         }
         
         else
         {
-            DKError( "DKStructGetValue: Size mismatch %u != %u.\n",
+            DKError( "DKStructGetValue: Size mismatch %u != %u.",
                 (unsigned int)DKGetObjectTag( _self ), (unsigned int)size );
         }
     }

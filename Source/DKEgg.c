@@ -265,7 +265,7 @@ DKEggUnarchiverRef DKEggUnarchiverInitWithStream( DKEggUnarchiverRef _self, DKOb
         
         if( _self->header->byteOrder != DKByteOrderNative )
         {
-            DKWarning( "DKEggUnarchiver: Reading an archive with a non-native byte order is untested.\n" );
+            DKWarning( "DKEggUnarchiver: Reading an archive with a non-native byte order is untested." );
         
             // Note: This is safe since we've copied the header into our own buffer
             SwizzleEggHeader( (DKEggHeader *)_self->header );
@@ -469,7 +469,7 @@ static DKClassRef DKEggUnarchiverGetClass( DKEggUnarchiverRef _self, uint32_t of
     
     if( !cls )
     {
-        DKError( "DKEggUnarchiver: %s is not a recognized class name.\n", cstr );
+        DKError( "DKEggUnarchiver: %s is not a recognized class name.", cstr );
     }
 
     return cls;
@@ -488,7 +488,7 @@ static DKSEL DKEggUnarchiverGetSelector( DKEggUnarchiverRef _self, uint32_t offs
     
     if( !sel )
     {
-        DKError( "DKEggUnarchiver: %s is not a recognized selector name.\n", cstr );
+        DKError( "DKEggUnarchiver: %s is not a recognized selector name.", cstr );
     }
 
     return sel;
@@ -523,7 +523,7 @@ static DKObjectRef DKEggUnarchiverGetObject( DKEggUnarchiverRef _self, DKIndex i
         
         if( !DKQueryInterface( object, DKSelector(Egg), (DKInterfaceRef *)&eggInterface ) )
         {
-            DKError( "DKEggUnarchiver: %@ does not implement .egg file archiving.\n", DKGetClassName( cls ) );
+            DKError( "DKEggUnarchiver: %@ does not implement .egg file archiving.", DKGetClassName( cls ) );
             
             DKRelease( object );
             
@@ -1218,7 +1218,7 @@ static DKIndex AddObject( DKEggArchiverRef _self, DKObjectRef object )
     
     if( !DKQueryInterface( object, DKSelector(Egg), (DKInterfaceRef *)&eggInterface ) )
     {
-        DKError( "DKEggArchiver: %@ does not implement .egg file archiving.\n", DKGetClassName( object ) );
+        DKError( "DKEggArchiver: %@ does not implement .egg file archiving.", DKGetClassName( object ) );
         
         return -1;
     }

@@ -139,7 +139,7 @@ DKObjectRef DKBitListInit( DKBitListRef _self, DKIndex length, bool initialValue
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKBitListInit: Trying to initialize a non-bitlist object.\n" );
+        DKFatalError( "DKBitListInit: Trying to initialize a non-bitlist object." );
     }
 
     return _self;
