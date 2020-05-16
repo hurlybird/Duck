@@ -316,7 +316,7 @@ void dk_free( void * ptr )
 ///
 //  dk_uuid_generate()
 //
-#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX
+#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX
 DKUUID dk_uuid_generate( void )
 {
     DKAssert( sizeof(DKUUID) == sizeof(uuid_t) );
@@ -329,7 +329,7 @@ DKUUID dk_uuid_generate( void )
     return uuid;
 }
 
-#elif DK_PLATFORM_ANDROID_NDK
+#elif DK_PLATFORM_ANDROID
 static const uint8_t ascii_to_hex[128] =
 {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //   0 - 15

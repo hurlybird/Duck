@@ -28,20 +28,20 @@
 #define _DK_CONFIG_H_
 
 
-
-
 // Platform ==============================================================================
 
-// #define DK_PLATFORM_APPLE            -- Apple (Darwin) system calls available
+// #define DK_PLATFORM_APPLE            -- Apple MacOS or iOS (Darwin)
+// #define DK_PLATFORM_LINUX            -- Linux
+// #define DK_PLATFORM_UNIX             -- Other Unix
+// #define DK_PLATFORM_WINDOWS			-- Windows
+// #define DK_PLATFORM_ANDROID			-- Android
+
+// These are configured based on the above platforms
 // #define DK_PLATFORM_POSIX            -- POSIX available
-// #define DK_PLATFORM_BSD              -- BSD system calls available
-// #define DK_PLATFORM_LINUX            -- Linux system calls available
-// #define DK_PLATFORM_ANDROID_NDK      -- Android NDK available
-// #define DK_PLATFORM_WINDOWS			-- Windows SDK available
 // #define DK_PLATFORM_GCC_INTRINSICS   -- Use GCC __sync* and __builtin_bswap* intrinsics
 
 
-// Apple MacOS and iOS
+// Apple
 #if DK_PLATFORM_APPLE
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_GCC_INTRINSICS  1 // Clang supports GCC-style sync and swap intrinsics
@@ -49,6 +49,12 @@
 
 // Linux
 #elif DK_PLATFORM_LINUX
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
+// Generic Unix
+#elif DK_PLATFORM_UNIX
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_GCC_INTRINSICS  1
 
@@ -64,19 +70,35 @@
 #elif DK_PLATFORM_WINDOWS
 
 
-// Autodetect most platforms
+// Autodetect Apple
 #elif __APPLE__
 #define DK_PLATFORM_APPLE           1
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_GCC_INTRINSICS  1
 
 
+// Autodetect Android
+#elif __ANDROID__
+#define DK_PLATFORM_ANDROID         1
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
+// Autodetect Linux
 #elif __linux__
 #define DK_PLATFORM_LINUX           1
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_GCC_INTRINSICS  1
 
 
+// Autodetect Other Unix
+#elif __unix__
+#define DK_PLATFORM_UNIX            1
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
+// Autodetect Windows
 #elif defined(_WIN32) || defined(_WIN64)
 #define DK_PLATFORM_WINDOWS         1
 

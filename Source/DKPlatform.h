@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <string.h>
 #include <ctype.h>
 #include <float.h>
@@ -47,7 +48,6 @@
 
 // Apple ---------------------------------------------------------------------------------
 #if DK_PLATFORM_APPLE
-#include <os/lock.h>
 #include <uuid/uuid.h>
 
 #define DK_API
@@ -62,25 +62,42 @@
 #include <sys/time.h>
 #endif
 
-// BSD -----------------------------------------------------------------------------------
-#if DK_PLATFORM_BSD
-#error Include BSD System Headers
 
-#define DK_API
-#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
-#endif
-
-// Linux ---------------------------------------------------------------------------------
-#if DK_PLATFORM_LINUX
-#include <linux/spinlock.h>
+// Linux/Unix ----------------------------------------------------------------------------
+#if DK_PLATFORM_LINUX || DK_PLATFORM_UNIX
+#include <endian.h>
 #include <uuid/uuid.h>
 
 #define DK_API
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+
+#if !defined(__BIG_ENDIAN__) && !defined(__LITTLE_ENDIAN__)
+    #if defined(BYTE_ORDER) && defined(BIG_ENDIAN)
+        #if BYTE_ORDER == BIG_ENDIAN
+            #define __BIG_ENDIAN__ 1
+        #else
+            #define __LITTLE_ENDIAN__ 1
+        #endif
+    #elif defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__)
+        #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+            #define __BIG_ENDIAN__ 1
+        #else
+            #define __LITTLE_ENDIAN__ 1
+        #endif
+    #else
+        #error "Duck: Unknown or missing byte order definition"
+    #endif
 #endif
 
+#ifndef __LP64__
+    #error "Duck: Unknown or missing pointer size definition"
+#endif
+
+#endif
+
+
 // Android -------------------------------------------------------------------------------
-#if DK_PLATFORM_ANDROID_NDK
+#if DK_PLATFORM_ANDROID
 #define DK_API
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
 #endif

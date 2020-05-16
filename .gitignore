@@ -6,3 +6,5 @@ Duck.xcodeproj/project.xcworkspace/xcuserdata
 *.vcxproj.user
 .vs/*
 /Tests/largefile.json
+.idea
+/HelloWorld/Build

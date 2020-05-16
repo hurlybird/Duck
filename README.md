@@ -24,43 +24,57 @@ respective licenses, but are similarly unrestrictive.
 
 ## Development Status
 
-The library is almost ready to be considered version 1.0. The majority of the
-changes happening right now involve filling in gaps and tweaking to match
+The library is effectively (though not officially) version 1.0. The majority of
+the changes happening right now involve filling in gaps and tweaking to match
 expected/intuitive use in real use cases.
 
-That being said, the code should be considered ***experimental*** until it's
+That being said, the code should be considered *experimental* until it's
 undergone more exhaustive testing in real-world use--particularly regarding
 thread safety.
 
 
 ## Building
 
-Duck is mainly written in XCode and includes framework targets for Mac OS and
-iOS. It should compile anywhere with a C99 compliant compiler. A few types and
-functions--system calls, atomic operations, thread support, etc--will likely
-need to be ported for non-Apple or non-POSIX systems.
+Duck is mainly developed in Xcode and includes framework targets for Mac OS and
+iOS. The Xcode project also contains unit tests.
 
-(Eventually Duck should transition to C11 once compiler and OS support for that
+A Visual Studio project is located in Duck-Windows. The project is configured for
+both 32 ad 64-bit Windows builds.
+
+A [CMakeLists](CMakeLists.txt) file is included for building from the command line,
+with CLion, or as part of an Android Studio project. That file also contains some
+documentation on including Duck in another CMake project.
+
+The [cmake.sh](cmake.sh) script is a convenience wrapper for building with CMake
+from the command line.
+
+From the project directory, run:
+* `./cmake.sh` to build static and shared libraries.
+* `./cmake.sh --debug` to build debug versions of the library.
+* `./cmake.sh --examples` to build the HelloWorld example.
+* `./cmake.sh --install` to install the library to */usr/local*.
+
+
+## Porting
+
+Duck is known to work on on MacOS, iOS, Linux, Windows and Android, and should also
+compile anywhere with a C99 compliant compiler. A few types and functions--system calls,
+atomic operations, thread support, etc--will likely need to be ported for non-Apple
+or non-POSIX systems.
+
+(Eventually the library will transition to C11 once compiler and OS support for that
 specification is better.)
 
-While Duck objects can be used in C++ code, C++ compilers will no doubt complain
-about some of the C99 code that Duck uses--namely explicit casts from void and
-inline struct initialization. The main workaround for these issues is to add
-extra casts where needed and avoid any convenience macros that aren't C++
-friendly.
-
-A **PRELIMINARY** Visual Studio project is located in Duck-Windows. The project
-is configured for both 32 ad 64-bit Windows builds. While all the required porting
-work is done, none of it has been tested.
-
-A CMakeLists.h file is included for building with Android Studio.
-
-A basic SConstruct file is included for building with scons.
+While Duck objects can be (and are) used in C++ code, C++ compilers will no doubt
+complain about some of the C99 code that Duck uses--namely explicit casts from void
+and inline struct initialization. The main workaround for these issues is to add
+extra casts where needed and avoid any convenience macros that aren't C++ friendly.
 
 
 ## Hello World
 
-Here's a snippet of code that shows what using Duck Objects looks like.
+Here's a snippet of code that shows what using Duck Objects looks like. This example
+is included in the HelloWorld directory.
 
 ```C
 #include <Duck/Duck.h>
