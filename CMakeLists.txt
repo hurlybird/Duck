@@ -60,7 +60,7 @@ function( AddCopyFilesTarget TargetName SourceDirs Patterns DestinationDir )
 endfunction()
 
 
-function( SetPublicHeaderFiles TargetName HeaderDirs )
+function( AddPublicHeaderFiles TargetName HeaderDirs )
     foreach( HeaderDir ${HeaderDirs} )
         file( GLOB Headers ${HeaderDir}/*.h )
         set_property( TARGET ${TargetName} APPEND PROPERTY PUBLIC_HEADER "${Headers}" )
@@ -177,8 +177,8 @@ set_target_properties( duck-static PROPERTIES LINKER_LANGUAGE C )
 set_target_properties( duck-shared PROPERTIES OUTPUT_NAME ${DuckSharedLibraryName} )
 set_target_properties( duck-shared PROPERTIES LINKER_LANGUAGE C )
 
-SetPublicHeaderFiles( duck-static "${DuckPublicHeaderSearchPaths}" )
-SetPublicHeaderFiles( duck-shared "${DuckPublicHeaderSearchPaths}" )
+AddPublicHeaderFiles( duck-static "${DuckPublicHeaderSearchPaths}" )
+AddPublicHeaderFiles( duck-shared "${DuckPublicHeaderSearchPaths}" )
 
 
 # Header Search Paths ====================================================================
