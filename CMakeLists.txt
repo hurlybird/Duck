@@ -194,5 +194,7 @@ target_include_directories( duck-shared
 # Install ================================================================================
 if( NOT ANDROID )
     install( TARGETS duck-static duck-shared
+            ARCHIVE DESTINATION lib
+            LIBRARY DESTINATION lib
             PUBLIC_HEADER DESTINATION include/Duck )
 endif()

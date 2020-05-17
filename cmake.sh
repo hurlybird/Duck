@@ -37,7 +37,7 @@ done
 
 mkdir -p $BUILD_DIR
 
-if [ $BUILD_EXAMPLES == 1 ]
+if [ $BUILD_EXAMPLES = 1 ]
 then
     cmake "$BUILD_TYPE" -S "HelloWorld" -B "HelloWorld/$BUILD_DIR"
     cmake --build "HelloWorld/$BUILD_DIR" $CLEAN
@@ -46,9 +46,9 @@ else
     cmake --build "$BUILD_DIR" $CLEAN
 fi
 
-if [ $INSTALL == 1 ]
+if [ $INSTALL = 1 ]
 then
-    if [ "$INSTALL_PREFIX" == "" ]
+    if [ "$INSTALL_PREFIX" = "" ]
     then
         cmake --install "$BUILD_DIR"
     else

@@ -89,10 +89,6 @@
     #endif
 #endif
 
-#ifndef __LP64__
-    #error "Duck: Unknown or missing pointer size definition"
-#endif
-
 #endif
 
 
