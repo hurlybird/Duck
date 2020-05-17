@@ -192,5 +192,7 @@ target_include_directories( duck-shared
 
 
 # Install ================================================================================
-install( TARGETS duck-static duck-shared
-        PUBLIC_HEADER DESTINATION include/Duck )
+if( NOT ANDROID )
+    install( TARGETS duck-static duck-shared
+            PUBLIC_HEADER DESTINATION include/Duck )
+endif()
