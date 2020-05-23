@@ -323,6 +323,10 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
         // %s - C string
         case 's':
             cstr = va_arg( arg_ptr, const char * );
+
+            if( !cstr )
+                cstr = "(null)";
+
             write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
             break;
         
