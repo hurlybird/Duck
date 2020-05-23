@@ -16,7 +16,7 @@ while [ "$1" != "" ]; do
     case $1 in
         -c | --clean )          CLEAN="--clean-first"
                                 ;;
-        -d | --debug )          BUILD_TYPE="-DCMAKE_BUILD_TYPE=Release"
+        -d | --debug )          BUILD_TYPE="-DCMAKE_BUILD_TYPE=Debug"
                                 BUILD_DIR="Build/Debug"
                                 ;;
         --examples )            BUILD_EXAMPLES=1
