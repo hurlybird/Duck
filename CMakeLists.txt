@@ -53,7 +53,7 @@ function( AddCopyFilesTarget TargetName SourceDirs Patterns DestinationDir )
             foreach( File ${Files} )
                 add_custom_command( TARGET ${TargetName} PRE_BUILD
                         COMMAND ${CMAKE_COMMAND} -E
-                        copy ${File} ${DestinationDir} )
+                        copy_if_different  ${File} ${DestinationDir} )
             endforeach()
         endforeach()
     endforeach()
@@ -189,6 +189,13 @@ target_include_directories( duck-static
 target_include_directories( duck-shared
         PUBLIC ${DuckPublicHeaderSearchPaths}
         PRIVATE ${DuckPrivateHeaderSearchPaths} )
+
+
+# Link Libraries =========================================================================
+if( UNIX )
+    target_link_libraries( duck-static uuid )
+    target_link_libraries( duck-shared uuid )
+endif()
 
 
 # Install ================================================================================
