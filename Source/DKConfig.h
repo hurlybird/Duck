@@ -113,7 +113,7 @@
 
 
 // Debug =================================================================================
-#ifdef _DEBUG
+#if !defined(NDEBUG) && !defined(DEBUG)
 #define DEBUG 1
 #endif
 
