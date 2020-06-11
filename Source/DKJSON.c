@@ -37,7 +37,6 @@
 #include "DKGenericArray.h"
 
 
-
 // Writer ================================================================================
 
 typedef struct
@@ -319,6 +318,18 @@ typedef struct
 
 } Token;
 
+#define ParseInt32( str )   (int32_t)strtol( (str), NULL, 10 );
+
+#if LONG_MAX == 0x7FFFFFFFFFFFFFFF
+#define ParseInt64( str )   (int32_t)strtol( (str), NULL, 10 );
+#else
+#define ParseInt64( str )   (int32_t)strtoll( (str), NULL, 10 );
+#endif
+
+#define ParseFloat( str )   strtof( (str), NULL );
+
+#define ParseDouble( str )   strtod( (str), NULL );
+
 static int ParseObject( ParseContext * context, DKObjectRef * obj );
 
 static Token ScanToken( ParseContext * context, DKObjectRef * obj );
@@ -475,8 +486,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     {
         if( ParseNumberType( token ) == DKEncodingTypeDouble )
         {
-            double x;
-            sscanf( token.str, "%lf", &x );
+            double x = ParseDouble( token.str );
             
             *obj = DKNewNumberWithDouble( x );
             return 0;
@@ -484,8 +494,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
         
         else
         {
-            int64_t x;
-            sscanf( token.str, "%" PRId64, &x );
+            int64_t x = ParseInt64( token.str );
             
             *obj = DKNewNumberWithInt64( x );
             return 0;
@@ -665,8 +674,7 @@ static Token ScanVectorToken64( Token token, ParseContext * context, DKObjectRef
             {
                 if( numberType == DKEncodingTypeDouble )
                 {
-                    double x;
-                    sscanf( numberToken.str, "%lf", &x );
+                    double x = ParseDouble( numberToken.str );
                     
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }
@@ -690,16 +698,14 @@ static Token ScanVectorToken64( Token token, ParseContext * context, DKObjectRef
                         }
                     }
                 
-                    double x;
-                    sscanf( numberToken.str, "%lf", &x );
+                    double x = ParseDouble( numberToken.str );
                     
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }
                 
                 else
                 {
-                    int64_t x;
-                    sscanf( numberToken.str, "%" PRId64, &x );
+                    int64_t x = ParseInt64( numberToken.str );
                     
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }
@@ -774,8 +780,7 @@ static Token ScanVectorToken32( Token token, ParseContext * context, DKObjectRef
             {
                 if( numberType == DKEncodingTypeFloat )
                 {
-                    float x;
-                    sscanf( numberToken.str, "%f", &x );
+                    float x = ParseFloat( numberToken.str );
                     
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }
@@ -799,16 +804,14 @@ static Token ScanVectorToken32( Token token, ParseContext * context, DKObjectRef
                         }
                     }
                 
-                    float x;
-                    sscanf( numberToken.str, "%f", &x );
+                    float x = ParseFloat( numberToken.str );
                     
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }
                 
                 else
                 {
-                    int32_t x;
-                    sscanf( numberToken.str, "%d", &x );
+                    int32_t x = ParseInt32( numberToken.str );
                     
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }

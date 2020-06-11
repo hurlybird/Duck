@@ -36,6 +36,7 @@
 #include <ctype.h>
 #include <float.h>
 #include <math.h>
+#include <limits.h>
 
 // Some system headers (i.e. inttypes.h) can cause errors when exposed by the framework.
 #ifndef DK_EXCLUDE_NONMODULAR_HEADERS
