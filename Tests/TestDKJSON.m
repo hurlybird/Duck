@@ -145,6 +145,33 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
+- (void) testJSONTrailingComma
+{
+    // Create some JSON with utf code points
+    DKStringRef json = DKStringWithCString(
+        "{\n" \
+        "    \"a\" : [ 1, 2, 3 ],\n" \
+        "    \"b\" : [ 1, 2, 3, ],\n" \
+        "    \"c\" : 3,\n" \
+        "}" );
+        
+    // Create the decoded verson of the json
+    DKDictionaryRef decodedDocument =  DKDictionaryWithKeysAndObjects(
+        DKSTR( "a" ), DKListWithObjects( DKNumberWithInt64( 1 ), DKNumberWithInt64( 2 ), DKNumberWithInt64( 3 ) ),
+        DKSTR( "b" ), DKListWithObjects( DKNumberWithInt64( 1 ), DKNumberWithInt64( 2 ), DKNumberWithInt64( 3 ) ),
+        DKSTR( "c" ), DKNumberWithInt64( 3 ) );
+
+    // Parse the JSON
+    DKObjectRef parsedDocument = DKJSONParse( json, 0 );
+
+    XCTAssert( DKEqual( decodedDocument, parsedDocument ) );
+
+//    DKPrintf( "Decoded Document:\n%@\n\n", decodedDocument );
+//    DKPrintf( "JSON:\n%@\n\n", json );
+//    DKPrintf( "Parsed Document:\n%@\n\n", parsedDocument );
+}
+
+
 #if 0
 - (void) testNSJSONReadPerformance
 {
