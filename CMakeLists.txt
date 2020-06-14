@@ -192,9 +192,16 @@ target_include_directories( duck-shared
 
 
 # Link Libraries =========================================================================
-if( UNIX )
+if( APPLE )
+
+elseif( ANDROID )
+
+elseif( UNIX )
     target_link_libraries( duck-static uuid )
     target_link_libraries( duck-shared uuid )
+    
+elseif( WIN32 )
+    
 endif()
 
 
