@@ -112,6 +112,13 @@ DK_API DKSEL DKAllocSelector( DKStringRef name );
         return DKAllocSelector( DKSTR( #name ) );                                       \
     }
 
+// Thread-safe initialization of selector objects.
+#define DKThreadSafeStaticSelectorInit( name )                                          \
+    DKThreadSafeStaticObjectInit( DKSelector_ ## name, DKSEL )                          \
+    {                                                                                   \
+        return DKAllocSelector( DKSTR( #name ) );                                       \
+    }
+
 // Thread-safe initialization of "fast" selectors. Each fast selector is assigned a
 // unique, reserved cache line in the interface cache.
 #define DKThreadSafeFastSelectorInit( name )                                            \
@@ -258,7 +265,7 @@ DK_API bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRe
 
 
 #define DKMsgSendf( ftype, _self, sel, ... ) \
-    ((ftype)(DKGetMsgHandler( _self, sel )->func))( _self, sel , ## __VA_ARGS__ );
+    ((ftype)(DKGetMsgHandler( _self, sel )->func))( _self, sel , ## __VA_ARGS__ )
 
 
 
