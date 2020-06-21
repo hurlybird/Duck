@@ -95,6 +95,9 @@ typedef struct _DKSEL * DKSEL;
 // A friendly macro for accessing selector objects.
 #define DKSelector( name )      DKSelector_ ## name()
 
+// A friendly macro for accessing the function prototype for message handlers
+#define DKSelectorFunc( name )  DKMsgHandler_ ## name
+
 #define DKSelectorEqual( a, b )         ((a) == (b))
 #define DKSelectorCompare( a, b )       DKPointerCompare( a, b )
 #define DKSelectorHash( _self )         DKPointerHash( _self )
