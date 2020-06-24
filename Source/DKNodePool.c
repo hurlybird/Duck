@@ -28,19 +28,6 @@
 
 #define MIN_RESERVE_NODE_COUNT 32
 
-typedef struct DKNodePoolFreeNode
-{
-    struct DKNodePoolFreeNode * next;
-    
-} DKNodePoolFreeNode;
-
-typedef struct DKNodePoolBlock
-{
-    struct DKNodePoolBlock * next;
-    DKIndex count;
-
-} DKNodePoolBlock;
-
 
 ///
 //  DKNodePoolAllocBlock()
@@ -54,7 +41,7 @@ static DKNodePoolBlock * DKNodePoolAllocBlock( DKNodePool * pool, DKIndex count 
     DKNodePoolBlock * block = dk_malloc( bytes );
     
     block->next = NULL;
-    block->count = count;
+    block->nodeCount = count;
     
     uint8_t * firstNode = (uint8_t *)block + sizeof(DKNodePoolBlock);
     
@@ -75,16 +62,17 @@ static void DKNodePoolAddBlock( DKNodePool * pool, DKIndex count )
 {
     if( pool->blockList )
     {
-        count = 2 * pool->blockList->count;
-        DKNodePoolBlock * newBlock = DKNodePoolAllocBlock( pool, count );
+        DKNodePoolBlock * newBlock = DKNodePoolAllocBlock( pool, pool->nodeCount );
         
         newBlock->next = pool->blockList;
         pool->blockList = newBlock;
+        pool->nodeCount += newBlock->nodeCount;
     }
     
     else
     {
         pool->blockList = DKNodePoolAllocBlock( pool, count );
+        pool->nodeCount = pool->blockList->nodeCount;
     }
 }
 
@@ -97,6 +85,7 @@ void DKNodePoolInit( DKNodePool * pool, DKIndex nodeSize, DKIndex nodeCount )
     pool->freeList = NULL;
     pool->blockList = NULL;
     pool->nodeSize = nodeSize;
+    pool->nodeCount = 0;
     
     if( nodeCount > 0 )
         DKNodePoolAddBlock( pool, nodeCount );
@@ -150,6 +139,14 @@ void DKNodePoolFree( DKNodePool * pool, void * node )
 }
 
 
+///
+//  DKNodePoolGetBlockSegment()
+//
+DK_API void * DKNodePoolGetBlockSegment( const DKNodePoolBlock * block )
+{
+    uint8_t * firstNode = (uint8_t *)block + sizeof(DKNodePoolBlock);
+    return firstNode;
+}
 
 
 

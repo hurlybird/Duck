@@ -30,11 +30,25 @@
 #include "DKPlatform.h"
 
 
+typedef struct _DKNodePoolFreeNode
+{
+    struct _DKNodePoolFreeNode * next;
+    
+} DKNodePoolFreeNode;
+
+typedef struct _DKNodePoolBlock
+{
+    struct _DKNodePoolBlock * next;
+    DKIndex nodeCount;
+
+} DKNodePoolBlock;
+
 typedef struct
 {
-    struct DKNodePoolFreeNode * freeList;
-    struct DKNodePoolBlock * blockList;
+    DKNodePoolFreeNode * freeList;
+    DKNodePoolBlock * blockList;
     DKIndex nodeSize;
+    DKIndex nodeCount;
     
 } DKNodePool;
 
@@ -45,6 +59,7 @@ DK_API void DKNodePoolFinalize( DKNodePool * pool );
 DK_API void * DKNodePoolAlloc( DKNodePool * pool );
 DK_API void DKNodePoolFree( DKNodePool * pool, void * node );
 
+DK_API void * DKNodePoolGetBlockSegment( const DKNodePoolBlock * block );
 
 
 #endif // _DK_NODE_POOL_H_
