@@ -834,19 +834,19 @@ struct VisitedObjectsRow
 
 // Visited List --------------------------------------------------------------------------
 
-static DKRowStatus VisitedObjectsRowStatus( const void * _row )
+static DKRowStatus VisitedObjectsRowStatus( const void * _row, void * not_used )
 {
     const struct VisitedObjectsRow * row = _row;
     return (DKRowStatus)(row->object);
 }
 
-static DKHashCode VisitedObjectsRowHash( const void * _row )
+static DKHashCode VisitedObjectsRowHash( const void * _row, void * not_used )
 {
     const struct VisitedObjectsRow * row = _row;
     return DKPointerHash( row->object );
 }
 
-static bool VisitedObjectsRowEqual( const void * _row1, const void * _row2 )
+static bool VisitedObjectsRowEqual( const void * _row1, const void * _row2, void * not_used )
 {
     const struct VisitedObjectsRow * row1 = _row1;
     const struct VisitedObjectsRow * row2 = _row2;
@@ -854,7 +854,7 @@ static bool VisitedObjectsRowEqual( const void * _row1, const void * _row2 )
     return DKPointerEqual( row1->object, row2->object );
 }
 
-static void VisitedObjectsRowInit( void * _row )
+static void VisitedObjectsRowInit( void * _row, void * not_used )
 {
     struct VisitedObjectsRow * row = _row;
     
@@ -862,7 +862,7 @@ static void VisitedObjectsRowInit( void * _row )
     row->index = 0;
 }
 
-static void VisitedObjectsRowUpdate( void * _row, const void * _src )
+static void VisitedObjectsRowUpdate( void * _row, const void * _src, void * not_used )
 {
     struct VisitedObjectsRow * row = _row;
     const struct VisitedObjectsRow * src = _src;
@@ -871,7 +871,7 @@ static void VisitedObjectsRowUpdate( void * _row, const void * _src )
     row->index = src->index;
 }
 
-static void VisitedObjectsRowDelete( void * _row )
+static void VisitedObjectsRowDelete( void * _row, void * not_used )
 {
     struct VisitedObjectsRow * row = _row;
 
@@ -933,8 +933,8 @@ DKObjectRef DKEggArchiverInitWithObject( DKObjectRef _untyped_self, DKObjectRef 
 
         DKGenericArrayInit( &_self->stack, sizeof(DKIndex) );
         DKGenericArrayInit( &_self->archivedObjects, sizeof(struct ArchivedObject) );
-        DKGenericHashTableInit( &_self->visitedObjects, sizeof(struct VisitedObjectsRow), &callbacks );
-        DKGenericHashTableInit( &_self->symbolTable, sizeof(struct VisitedObjectsRow), &callbacks );
+        DKGenericHashTableInit( &_self->visitedObjects, sizeof(struct VisitedObjectsRow), &callbacks, NULL );
+        DKGenericHashTableInit( &_self->symbolTable, sizeof(struct VisitedObjectsRow), &callbacks, NULL );
         DKByteArrayInit( &_self->data );
 
         // Rooted archive, add the root object

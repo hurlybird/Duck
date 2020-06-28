@@ -230,19 +230,19 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
 
 // DKGenericHashTable Callbacks ==========================================================
 
-static DKRowStatus RowStatus( const void * _row )
+static DKRowStatus RowStatus( const void * _row, void * not_used )
 {
     const struct DKHashTableRow * row = _row;
     return (DKRowStatus)(row->key);
 }
 
-static DKHashCode RowHash( const void * _row )
+static DKHashCode RowHash( const void * _row, void * not_used )
 {
     const struct DKHashTableRow * row = _row;
     return DKHash( row->key );
 }
 
-static bool RowEqual( const void * _row1, const void * _row2 )
+static bool RowEqual( const void * _row1, const void * _row2, void * not_used )
 {
     const struct DKHashTableRow * row1 = _row1;
     const struct DKHashTableRow * row2 = _row2;
@@ -250,7 +250,7 @@ static bool RowEqual( const void * _row1, const void * _row2 )
     return DKEqual( row1->key, row2->key );
 }
 
-static void RowInit( void * _row )
+static void RowInit( void * _row, void * not_used )
 {
     struct DKHashTableRow * row = _row;
     
@@ -258,7 +258,7 @@ static void RowInit( void * _row )
     row->object = NULL;
 }
 
-static void RowUpdate( void * _row, const void * _src )
+static void RowUpdate( void * _row, const void * _src, void * not_used )
 {
     struct DKHashTableRow * row = _row;
     const struct DKHashTableRow * src = _src;
@@ -275,7 +275,7 @@ static void RowUpdate( void * _row, const void * _src )
     }
 }
 
-static void RowDelete( void * _row )
+static void RowDelete( void * _row, void * not_used )
 {
     struct DKHashTableRow * row = _row;
     
@@ -350,7 +350,7 @@ static DKObjectRef DKHashTableInitialize( DKObjectRef _untyped_self )
             RowDelete
         };
 
-        DKGenericHashTableInit( &_self->table, sizeof(struct DKHashTableRow), &callbacks );
+        DKGenericHashTableInit( &_self->table, sizeof(struct DKHashTableRow), &callbacks, NULL );
     }
     
     return _self;
@@ -615,7 +615,7 @@ int DKHashTableApplyFunction( DKHashTableRef _self, DKKeyedApplierFunction callb
         for( DKIndex i = 0; i < DKGenericHashTableGetRowCount( &_self->table ); ++i )
         {
             const struct DKHashTableRow * row = DKGenericHashTableGetRow( &_self->table, i );
-            DKRowStatus status = RowStatus( row );
+            DKRowStatus status = RowStatus( row, _self->table.context );
             
             if( DKRowIsActive( status ) )
             {
@@ -643,7 +643,7 @@ int DKHashTableApplyFunctionToKeys( DKHashTableRef _self, DKApplierFunction call
         for( DKIndex i = 0; i < DKGenericHashTableGetRowCount( &_self->table ); ++i )
         {
             const struct DKHashTableRow * row = DKGenericHashTableGetRow( &_self->table, i );
-            DKRowStatus status = RowStatus( row );
+            DKRowStatus status = RowStatus( row, _self->table.context );
             
             if( DKRowIsActive( status ) )
             {
@@ -671,7 +671,7 @@ int DKHashTableApplyFunctionToObjects( DKHashTableRef _self, DKApplierFunction c
         for( DKIndex i = 0; i < DKGenericHashTableGetRowCount( &_self->table ); ++i )
         {
             const struct DKHashTableRow * row = DKGenericHashTableGetRow( &_self->table, i );
-            DKRowStatus status = RowStatus( row );
+            DKRowStatus status = RowStatus( row, _self->table.context );
             
             if( DKRowIsActive( status ) )
             {

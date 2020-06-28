@@ -2389,19 +2389,19 @@ static DKGenericHashTable * DKConstantStringTable = NULL;
 static DKSpinLock DKConstantStringTableLock = DKSpinLockInit;
 
 
-static DKRowStatus DKConstantStringTableRowStatus( const void * _row )
+static DKRowStatus DKConstantStringTableRowStatus( const void * _row, void * not_used )
 {
     DKStringRef * row = (void *)_row;
     return (DKRowStatus)(*row);
 }
 
-static DKHashCode DKConstantStringTableRowHash( const void * _row )
+static DKHashCode DKConstantStringTableRowHash( const void * _row, void * not_used )
 {
     DKStringRef * row = (void *)_row;
     return (*row)->hashCode;
 }
 
-static bool DKConstantStringTableRowEqual( const void * _row1, const void * _row2 )
+static bool DKConstantStringTableRowEqual( const void * _row1, const void * _row2, void * not_used )
 {
     DKStringRef * row1 = (void *)_row1;
     DKStringRef * row2 = (void *)_row2;
@@ -2409,20 +2409,20 @@ static bool DKConstantStringTableRowEqual( const void * _row1, const void * _row
     return DKStringEqualToString( *row1, *row2 );
 }
 
-static void DKConstantStringTableRowInit( void * _row )
+static void DKConstantStringTableRowInit( void * _row, void * not_used )
 {
     DKStringRef * row = _row;
     *row = DKRowStatusEmpty;
 }
 
-static void DKConstantStringTableRowUpdate( void * _row, const void * _src )
+static void DKConstantStringTableRowUpdate( void * _row, const void * _src, void * not_used )
 {
     DKStringRef * row = _row;
     DKStringRef * src = (void *)_src;
     *row = *src;
 }
 
-static void DKConstantStringTableRowDelete( void * _row )
+static void DKConstantStringTableRowDelete( void * _row, void * not_used )
 {
     DKStringRef * row = _row;
     *row = DKRowStatusDeleted;
@@ -2448,7 +2448,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
             DKConstantStringTableRowDelete
         };
 
-        DKGenericHashTableInit( table, sizeof(DKStringRef), &callbacks );
+        DKGenericHashTableInit( table, sizeof(DKStringRef), &callbacks, NULL );
         
         DKSpinLockLock( &DKConstantStringTableLock );
         

@@ -64,19 +64,19 @@ DKThreadSafeClassInit( DKEnumClass )
 
 // DKGenericHashTable Callbacks ==========================================================
 
-static DKRowStatus RowStatus( const void * _row )
+static DKRowStatus RowStatus( const void * _row, void * not_used )
 {
     const struct DKEnumEntry * row = _row;
     return (DKRowStatus)(row->str);
 }
 
-static DKHashCode RowHash( const void * _row )
+static DKHashCode RowHash( const void * _row, void * not_used )
 {
     const struct DKEnumEntry * row = _row;
     return DKHash( row->str );
 }
 
-static bool RowEqual( const void * _row1, const void * _row2 )
+static bool RowEqual( const void * _row1, const void * _row2, void * not_used )
 {
     const struct DKEnumEntry * row1 = _row1;
     const struct DKEnumEntry * row2 = _row2;
@@ -84,7 +84,7 @@ static bool RowEqual( const void * _row1, const void * _row2 )
     return DKEqual( row1->str, row2->str );
 }
 
-static void RowInit( void * _row )
+static void RowInit( void * _row, void * not_used )
 {
     struct DKEnumEntry * row = _row;
     
@@ -92,7 +92,7 @@ static void RowInit( void * _row )
     row->value = 0;
 }
 
-static void RowUpdate( void * _row, const void * _src )
+static void RowUpdate( void * _row, const void * _src, void * not_used )
 {
     struct DKEnumEntry * row = _row;
     const struct DKEnumEntry * src = _src;
@@ -105,7 +105,7 @@ static void RowUpdate( void * _row, const void * _src )
     row->value = src->value;
 }
 
-static void RowDelete( void * _row )
+static void RowDelete( void * _row, void * not_used )
 {
     struct DKEnumEntry * row = _row;
     
@@ -139,7 +139,7 @@ static DKObjectRef DKEnumInitialize( DKObjectRef _untyped_self )
             RowDelete
         };
 
-        DKGenericHashTableInit( &_self->table, sizeof(struct DKEnumEntry), &callbacks );
+        DKGenericHashTableInit( &_self->table, sizeof(struct DKEnumEntry), &callbacks, NULL );
     }
     
     return _self;
@@ -251,7 +251,7 @@ DKStringRef DKStringFromEnum64( DKEnumRef _self, int64_t value )
         for( DKIndex i = 0; i < DKGenericHashTableGetRowCount( &_self->table ); ++i )
         {
             const struct DKEnumEntry * row = DKGenericHashTableGetRow( &_self->table, i );
-            DKRowStatus status = RowStatus( row );
+            DKRowStatus status = RowStatus( row, _self->table.context );
             
             if( DKRowIsActive( status ) )
             {

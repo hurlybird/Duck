@@ -54,12 +54,12 @@ extern void * DKRowStatusDeleted;
 
 typedef struct
 {
-    DKRowStatus (*rowStatus)( const void * row );
-    DKHashCode  (*rowHash)( const void * row );
-    bool        (*rowEqual)( const void * row1, const void * row2 );
-    void        (*rowInit)( void * row );
-    void        (*rowUpdate)( void * row, const void * src );
-    void        (*rowDelete)( void * row );
+    DKRowStatus (*rowStatus)( const void * row, void * context );
+    DKHashCode  (*rowHash)( const void * row, void * context );
+    bool        (*rowEqual)( const void * row1, const void * row2, void * context );
+    void        (*rowInit)( void * row, void * context );
+    void        (*rowUpdate)( void * row, const void * src, void * context );
+    void        (*rowDelete)( void * row, void * context );
 
 } DKGenericHashTableCallbacks;
 
@@ -76,11 +76,12 @@ typedef struct
     size_t maxActive;       // maximum number of active rows
     
     DKGenericHashTableCallbacks callbacks;
+    void * context;
     
 } DKGenericHashTable;
 
 
-DK_API void DKGenericHashTableInit( DKGenericHashTable * hashTable, size_t rowSize, const DKGenericHashTableCallbacks * callbacks );
+DK_API void DKGenericHashTableInit( DKGenericHashTable * hashTable, size_t rowSize, const DKGenericHashTableCallbacks * callbacks, void * context );
 DK_API void DKGenericHashTableFinalize( DKGenericHashTable * hashTable );
 
 #define DKGenericHashTableGetCount( table )     ((table)->activeCount)

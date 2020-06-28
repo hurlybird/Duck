@@ -75,19 +75,19 @@ DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
 // DKInterfaceTable ======================================================================
 
 // Hash Table Callbacks
-static DKRowStatus InterfaceTableRowStatus( const void * _row )
+static DKRowStatus InterfaceTableRowStatus( const void * _row, void * not_used )
 {
     DKInterface ** row =  (void *)_row;
     return (DKRowStatus)(*row);
 }
 
-static DKHashCode InterfaceTableRowHash( const void * _row )
+static DKHashCode InterfaceTableRowHash( const void * _row, void * not_used )
 {
     DKInterface ** row =  (void *)_row;
     return DKObjectUniqueHash( (*row)->sel );
 }
 
-static bool InterfaceTableRowEqual( const void * _row1, const void * _row2 )
+static bool InterfaceTableRowEqual( const void * _row1, const void * _row2, void * not_used )
 {
     DKInterface ** row1 =  (void *)_row1;
     DKInterface ** row2 =  (void *)_row2;
@@ -95,13 +95,13 @@ static bool InterfaceTableRowEqual( const void * _row1, const void * _row2 )
     return DKSelectorEqual( (*row1)->sel, (*row2)->sel );
 }
 
-static void InterfaceTableRowInit( void * _row )
+static void InterfaceTableRowInit( void * _row, void * not_used )
 {
     DKInterface ** row = _row;
     *row = DKRowStatusEmpty;
 }
 
-static void InterfaceTableRowUpdate( void * _row, const void * _src )
+static void InterfaceTableRowUpdate( void * _row, const void * _src, void * not_used )
 {
     DKInterface ** row = _row;
     DKInterface ** src = (void *)_src;
@@ -114,7 +114,7 @@ static void InterfaceTableRowUpdate( void * _row, const void * _src )
     *row = *src;
 }
 
-static void InterfaceTableRowDelete( void * _row )
+static void InterfaceTableRowDelete( void * _row, void * not_used )
 {
     DKInterface ** row = _row;
     
@@ -148,7 +148,7 @@ void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKIn
 
     interfaceTable->lock = DKSpinLockInit;
 
-    DKGenericHashTableInit( &interfaceTable->interfaces, sizeof(DKObjectRef), &callbacks );
+    DKGenericHashTableInit( &interfaceTable->interfaces, sizeof(DKObjectRef), &callbacks, NULL );
     
     if( inheritedInterfaces )
         DKGenericHashTableForeachRow( &inheritedInterfaces->interfaces, InterfaceTableForeachRowCallback, interfaceTable );

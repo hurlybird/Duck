@@ -47,19 +47,19 @@ static DKSpinLock SelectorNameDatabaseSpinLock = DKSpinLockInit;
 
 
 // GenericHashTable Callbacks ============================================================
-static DKRowStatus NameDatabaseRowStatus( const void * _row )
+static DKRowStatus NameDatabaseRowStatus( const void * _row, void * not_used )
 {
     struct NameDatabaseEntry ** row = (void *)_row;
     return (DKRowStatus)(*row);
 }
 
-static DKHashCode NameDatabaseRowHash( const void * _row )
+static DKHashCode NameDatabaseRowHash( const void * _row, void * not_used )
 {
     struct NameDatabaseEntry ** row = (void *)_row;
     return DKStringHash( (*row)->name );
 }
 
-static bool NameDatabaseRowEqual( const void * _row1, const void * _row2 )
+static bool NameDatabaseRowEqual( const void * _row1, const void * _row2, void * not_used )
 {
     struct NameDatabaseEntry ** row1 = (void *)_row1;
     struct NameDatabaseEntry ** row2 = (void *)_row2;
@@ -67,20 +67,20 @@ static bool NameDatabaseRowEqual( const void * _row1, const void * _row2 )
     return DKStringEqualToString( (*row1)->name, (*row2)->name );
 }
 
-static void NameDatabaseRowInit( void * _row )
+static void NameDatabaseRowInit( void * _row, void * not_used )
 {
     struct NameDatabaseEntry ** row = _row;
     *row = DKRowStatusEmpty;
 }
 
-static void NameDatabaseRowUpdate( void * _row, const void * _src )
+static void NameDatabaseRowUpdate( void * _row, const void * _src, void * not_used )
 {
     struct NameDatabaseEntry ** row = _row;
     struct NameDatabaseEntry ** src = (void *)_src;
     *row = *src;
 }
 
-static void NameDatabaseRowDelete( void * _row )
+static void NameDatabaseRowDelete( void * _row, void * not_used )
 {
     struct NameDatabaseEntry ** row = _row;
     *row = DKRowStatusDeleted;
@@ -106,8 +106,8 @@ void DKNameDatabaseInit( void )
         NameDatabaseRowDelete
     };
 
-    DKGenericHashTableInit( &ClassNameDatabase, sizeof(DKObjectRef), &nameDatabaseCallbacks );
-    DKGenericHashTableInit( &SelectorNameDatabase, sizeof(DKObjectRef), &nameDatabaseCallbacks );
+    DKGenericHashTableInit( &ClassNameDatabase, sizeof(DKObjectRef), &nameDatabaseCallbacks, NULL );
+    DKGenericHashTableInit( &SelectorNameDatabase, sizeof(DKObjectRef), &nameDatabaseCallbacks, NULL );
 }
 
 

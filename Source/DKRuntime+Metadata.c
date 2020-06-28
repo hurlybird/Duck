@@ -41,39 +41,39 @@ static DKGenericHashTable MetadataTable;
 
 
 // Hash Table Callbacks
-static DKRowStatus MetadataTableRowStatus( const void * _row )
+static DKRowStatus MetadataTableRowStatus( const void * _row, void * not_used )
 {
     struct DKMetadata ** row = (void *)_row;
     return (DKRowStatus)(*row);
 }
 
-static DKHashCode MetadataTableRowHash( const void * _row )
+static DKHashCode MetadataTableRowHash( const void * _row, void * not_used )
 {
     struct DKMetadata ** row =  (void *)_row;
     return DKObjectUniqueHash( (*row)->owner );
 }
 
-static bool MetadataTableRowEqual( const void * _row1, const void * _row2 )
+static bool MetadataTableRowEqual( const void * _row1, const void * _row2, void * not_used )
 {
     struct DKMetadata ** row1 =  (void *)_row1;
     struct DKMetadata ** row2 =  (void *)_row2;
     return (*row1)->owner == (*row2)->owner;
 }
 
-static void MetadataTableRowInit( void * _row )
+static void MetadataTableRowInit( void * _row, void * not_used )
 {
     DKMetadataRef * row = _row;
     (*row) = DKRowStatusEmpty;
 }
 
-static void MetadataTableRowUpdate( void * _row, const void * _src )
+static void MetadataTableRowUpdate( void * _row, const void * _src, void * not_used )
 {
     DKMetadataRef * row = _row;
     DKMetadataRef * src = (void *)_src;
     *row = *src;
 }
 
-static void MetadataTableRowDelete( void * _row )
+static void MetadataTableRowDelete( void * _row, void * not_used )
 {
     DKMetadataRef * row = _row;
     (*row) = DKRowStatusDeleted;
@@ -95,7 +95,7 @@ void DKMetadataTableInit( void )
         MetadataTableRowDelete
     };
     
-    DKGenericHashTableInit( &MetadataTable, sizeof(DKMetadataRef), &callbacks );
+    DKGenericHashTableInit( &MetadataTable, sizeof(DKMetadataRef), &callbacks, NULL );
 }
 
 
