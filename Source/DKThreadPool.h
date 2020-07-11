@@ -38,6 +38,7 @@ typedef void (*DKThreadPoolCallback)( DKThreadPoolRef threadPool, void * context
 
 DK_API DKClassRef DKThreadPoolClass( void );
 
+#define DKThreadPool()      DKAutorelease( DKNew( DKThreadPoolClass() ) )
 #define DKNewThreadPool()   DKNew( DKThreadPoolClass() )
 
 DK_API void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
