@@ -10,8 +10,10 @@
 # subdirectory, making it easy to include Duck via #include <Duck/Duck.h>
 # set( DUCK_PUBLIC_HEADERS_PATH Destination-Path-For-Public-Headers )
 
-# Include this file in the build to import the 'duck-static' and 'duck-shared' targets
+# Include this file in the build or add Duck as a subdirectory to import the 'duck-static'
+# and 'duck-shared' targets
 # include( ${DUCK_PATH}/CMakeLists.txt )
+# add_subdirectory( ${DUCK_PATH} ${PROJECT_BINARY_DIR} )
 
 # Link against 'duck-static' or 'duck-shared'
 # target_include_directories( Your-Target PUBLIC ${DUCK_PUBLIC_HEADERS_PATH} )
@@ -25,19 +27,15 @@ project( Duck )
 
 
 # Setup Paths ============================================================================
-if( DEFINED DUCK_PATH )
-    set( DuckProjectDir ${DUCK_PATH} )
-else()
-    set( DuckProjectDir ${CMAKE_CURRENT_SOURCE_DIR} )
+if( NOT DEFINED DUCK_PATH )
+    set( DUCK_PATH ${CMAKE_CURRENT_SOURCE_DIR} )
 endif()
 
-if( DEFINED DUCK_PUBLIC_HEADERS_PATH )
-    set( DuckPublicHeadersDir ${DUCK_PUBLIC_HEADERS_PATH} )
-else()
-    set( DuckPublicHeadersDir ${PROJECT_BINARY_DIR}/Include )
+if( NOT DEFINED DUCK_PUBLIC_HEADERS_PATH )
+    set( DUCK_PUBLIC_HEADERS_PATH ${CMAKE_CURRENT_BINARY_DIR}/Include )
 endif()
 
-file( MAKE_DIRECTORY ${DuckPublicHeadersDir} )
+file( MAKE_DIRECTORY ${DUCK_PUBLIC_HEADERS_PATH} )
 
 
 # Functions ==============================================================================
@@ -71,75 +69,75 @@ endfunction()
 
 # Source Files ===========================================================================
 set( DuckSources
-        # ${DuckProjectDir}/Source/DKAllocation.c
-        ${DuckProjectDir}/Source/DKArray.c
-        ${DuckProjectDir}/Source/DKBinaryTree.c
-        ${DuckProjectDir}/Source/DKBitList.c
-        ${DuckProjectDir}/Source/DKBoolean.c
-        ${DuckProjectDir}/Source/DKBuffer.c
-        ${DuckProjectDir}/Source/DKByteArray.c
-        ${DuckProjectDir}/Source/DKCollection.c
-        ${DuckProjectDir}/Source/DKComparison.c
-        ${DuckProjectDir}/Source/DKCondition.c
-        ${DuckProjectDir}/Source/DKConversion.c
-        ${DuckProjectDir}/Source/DKCopying.c
-        ${DuckProjectDir}/Source/DKData.c
-        ${DuckProjectDir}/Source/DKDescription.c
-        ${DuckProjectDir}/Source/DKDictionary.c
-        ${DuckProjectDir}/Source/DKEgg.c
-        ${DuckProjectDir}/Source/DKEncoding.c
-        ${DuckProjectDir}/Source/DKEnum.c
-        ${DuckProjectDir}/Source/DKFile.c
-        ${DuckProjectDir}/Source/DKGenericArray.c
-        ${DuckProjectDir}/Source/DKGenericHashTable.c
-        ${DuckProjectDir}/Source/DKGraph.c
-        ${DuckProjectDir}/Source/DKHashTable.c
-        ${DuckProjectDir}/Source/DKJSON.c
-        ${DuckProjectDir}/Source/DKLinkedList.c
-        ${DuckProjectDir}/Source/DKList.c
-        ${DuckProjectDir}/Source/DKLocking.c
-        ${DuckProjectDir}/Source/DKMutex.c
-        ${DuckProjectDir}/Source/DKNodePool.c
-        ${DuckProjectDir}/Source/DKNumber.c
-        ${DuckProjectDir}/Source/DKPair.c
-        ${DuckProjectDir}/Source/DKPlatform.c
-        ${DuckProjectDir}/Source/DKPredicate.c
-        ${DuckProjectDir}/Source/DKReadWriteLock.c
-        ${DuckProjectDir}/Source/DKRuntime.c
-        ${DuckProjectDir}/Source/DKRuntime+Interfaces.c
-        ${DuckProjectDir}/Source/DKRuntime+Metadata.c
-        ${DuckProjectDir}/Source/DKRuntime+Properties.c
-        ${DuckProjectDir}/Source/DKRuntime+RefCount.c
-        ${DuckProjectDir}/Source/DKRuntime+Reflection.c
-        ${DuckProjectDir}/Source/DKRuntime+Symbols.c
-        ${DuckProjectDir}/Source/DKSemaphore.c
-        ${DuckProjectDir}/Source/DKSet.c
-        ${DuckProjectDir}/Source/DKShell.c
-        ${DuckProjectDir}/Source/DKStream.c
-        ${DuckProjectDir}/Source/DKString.c
-        ${DuckProjectDir}/Source/DKStruct.c
-        ${DuckProjectDir}/Source/DKThread.c
-        ${DuckProjectDir}/Source/DKThreadPool.c
-        ${DuckProjectDir}/Source/DKUnicode.c
-        ${DuckProjectDir}/Source/DKXML.c )
+        # ${DUCK_PATH}/Source/DKAllocation.c
+        ${DUCK_PATH}/Source/DKArray.c
+        ${DUCK_PATH}/Source/DKBinaryTree.c
+        ${DUCK_PATH}/Source/DKBitList.c
+        ${DUCK_PATH}/Source/DKBoolean.c
+        ${DUCK_PATH}/Source/DKBuffer.c
+        ${DUCK_PATH}/Source/DKByteArray.c
+        ${DUCK_PATH}/Source/DKCollection.c
+        ${DUCK_PATH}/Source/DKComparison.c
+        ${DUCK_PATH}/Source/DKCondition.c
+        ${DUCK_PATH}/Source/DKConversion.c
+        ${DUCK_PATH}/Source/DKCopying.c
+        ${DUCK_PATH}/Source/DKData.c
+        ${DUCK_PATH}/Source/DKDescription.c
+        ${DUCK_PATH}/Source/DKDictionary.c
+        ${DUCK_PATH}/Source/DKEgg.c
+        ${DUCK_PATH}/Source/DKEncoding.c
+        ${DUCK_PATH}/Source/DKEnum.c
+        ${DUCK_PATH}/Source/DKFile.c
+        ${DUCK_PATH}/Source/DKGenericArray.c
+        ${DUCK_PATH}/Source/DKGenericHashTable.c
+        ${DUCK_PATH}/Source/DKGraph.c
+        ${DUCK_PATH}/Source/DKHashTable.c
+        ${DUCK_PATH}/Source/DKJSON.c
+        ${DUCK_PATH}/Source/DKLinkedList.c
+        ${DUCK_PATH}/Source/DKList.c
+        ${DUCK_PATH}/Source/DKLocking.c
+        ${DUCK_PATH}/Source/DKMutex.c
+        ${DUCK_PATH}/Source/DKNodePool.c
+        ${DUCK_PATH}/Source/DKNumber.c
+        ${DUCK_PATH}/Source/DKPair.c
+        ${DUCK_PATH}/Source/DKPlatform.c
+        ${DUCK_PATH}/Source/DKPredicate.c
+        ${DUCK_PATH}/Source/DKReadWriteLock.c
+        ${DUCK_PATH}/Source/DKRuntime.c
+        ${DUCK_PATH}/Source/DKRuntime+Interfaces.c
+        ${DUCK_PATH}/Source/DKRuntime+Metadata.c
+        ${DUCK_PATH}/Source/DKRuntime+Properties.c
+        ${DUCK_PATH}/Source/DKRuntime+RefCount.c
+        ${DUCK_PATH}/Source/DKRuntime+Reflection.c
+        ${DUCK_PATH}/Source/DKRuntime+Symbols.c
+        ${DUCK_PATH}/Source/DKSemaphore.c
+        ${DUCK_PATH}/Source/DKSet.c
+        ${DUCK_PATH}/Source/DKShell.c
+        ${DUCK_PATH}/Source/DKStream.c
+        ${DUCK_PATH}/Source/DKString.c
+        ${DUCK_PATH}/Source/DKStruct.c
+        ${DUCK_PATH}/Source/DKThread.c
+        ${DUCK_PATH}/Source/DKThreadPool.c
+        ${DUCK_PATH}/Source/DKUnicode.c
+        ${DUCK_PATH}/Source/DKXML.c )
 
 set( DuckICU
-        ${DuckProjectDir}/ThirdParty/icu/utf_impl.c )
+        ${DUCK_PATH}/ThirdParty/icu/utf_impl.c )
 
 set( DuckYXML
-        ${DuckProjectDir}/ThirdParty/yxml/yxml.c )
+        ${DUCK_PATH}/ThirdParty/yxml/yxml.c )
 
 set( DuckPublicHeaderSearchPaths
-        ${DuckProjectDir}
-        ${DuckProjectDir}/Source )
+        ${DUCK_PATH}
+        ${DUCK_PATH}/Source )
 
 set( DuckPrivateHeaderSearchPaths
-        ${DuckProjectDir}/ThirdParty
-        ${DuckProjectDir}/ThirdParty/icu )
+        ${DUCK_PATH}/ThirdParty
+        ${DUCK_PATH}/ThirdParty/icu )
 
 
 # Copy Public Header Files ===============================================================
-AddCopyFilesTarget( DuckCopyPublicHeaders "${DuckPublicHeaderSearchPaths}" "*.h" ${DuckPublicHeadersDir}/Duck )
+AddCopyFilesTarget( DuckCopyPublicHeaders "${DuckPublicHeaderSearchPaths}" "*.h" ${DUCK_PUBLIC_HEADERS_PATH}/Duck )
 
 
 # Static and Shared Library Targets ======================================================

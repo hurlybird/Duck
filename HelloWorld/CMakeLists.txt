@@ -1,7 +1,7 @@
 
 cmake_minimum_required( VERSION 3.0 )
 
-project( Duck-HelloWorld )
+project( HelloWorld )
 
 # Configure and include the Duck library
 get_filename_component( DUCK_PATH "../" ABSOLUTE )

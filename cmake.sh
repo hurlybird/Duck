@@ -5,9 +5,9 @@ usage()
     echo "Usage: cmake.sh [-h,--help] [-d,--debug] [-c,--clean] [--examples] [--install] [--install-prefix PREFIX]"
 }
 
+SOURCE_DIR="."
 BUILD_DIR="Build/Release"
 BUILD_TYPE="-DCMAKE_BUILD_TYPE=Release"
-BUILD_EXAMPLES=0
 CLEAN=""
 INSTALL=0
 INSTALL_PREFIX=""
@@ -19,7 +19,7 @@ while [ "$1" != "" ]; do
         -d | --debug )          BUILD_TYPE="-DCMAKE_BUILD_TYPE=Debug"
                                 BUILD_DIR="Build/Debug"
                                 ;;
-        --examples )            BUILD_EXAMPLES=1
+        --examples )            SOURCE_DIR="HelloWorld"
                                 ;;
         -h | --help )           usage
                                 exit
@@ -37,14 +37,8 @@ done
 
 mkdir -p $BUILD_DIR
 
-if [ $BUILD_EXAMPLES = 1 ]
-then
-    cmake "$BUILD_TYPE" -S "HelloWorld" -B "HelloWorld/$BUILD_DIR"
-    cmake --build "HelloWorld/$BUILD_DIR" $CLEAN
-else
-    cmake "$BUILD_TYPE" -S "." -B "$BUILD_DIR" 
-    cmake --build "$BUILD_DIR" $CLEAN
-fi
+cmake "$BUILD_TYPE" -S "$SOURCE_DIR" -B "$BUILD_DIR"
+cmake --build "$BUILD_DIR" $CLEAN
 
 if [ $INSTALL = 1 ]
 then
