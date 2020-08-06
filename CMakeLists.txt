@@ -1,27 +1,42 @@
 # Duck Object Library
 
-# How to configure your CMakeLists.txt to add libduck as a dependency in another project
+# How to add libduck to your CMakeLists.txt build.
 
-# Set the path to the location of the Duck project files (i.e. where this file lives)
+# (Optional) - Set the path to the Duck project files (i.e. where this file lives). This
+# is mainly useful if you're adding libduck via include vs. add_subdirectory.
+#
 # set( DUCK_PATH Absolute-Path-To-Duck-Project )
 # get_filename_component( DUCK_PATH Relative-Path-To-Duck-Project ABSOLUTE )
 
-# Set the destination path for public headers -- the headers will be copied into a 'Duck'
-# subdirectory, making it easy to include Duck via #include <Duck/Duck.h>
+# (Optional) - Set the build variants. Valid values are:
+#   SHARED -    build the shared library and public headers
+#   STATIC -    build the static library and public headers
+#   FRAMEWORK - build the framework (on Apple platforms)
+#
+# If not specified, the default is to build everything.
+#
+# set( DUCK_BUILD STATIC SHARED )
+
+# Set the destination path for public headers. The public headers will be copied into a
+# 'Duck' subdirectory of the destination, making it easy to include the Duck umbrella
+# header via #include <Duck/Duck.h>. The default is to copy the headers to 'Include/Duck'.
+# in the current binary output directory.
+#
 # set( DUCK_PUBLIC_HEADERS_PATH Destination-Path-For-Public-Headers )
 
-# Include this file in the build or add Duck as a subdirectory to import the 'DuckStaticLibrary'
-# and 'DuckSharedLibrary' targets
+# Include this file in the build or add Duck as a subdirectory.
+#
 # include( ${DUCK_PATH}/CMakeLists.txt )
 # add_subdirectory( ${DUCK_PATH} ${PROJECT_BINARY_DIR} )
 
-# Link against 'DuckStaticLibrary' or 'DuckSharedLibrary'
+# Link against 'DuckStaticLibrary', 'DuckSharedLibrary' or 'DuckFramework'.
+#
 # target_include_directories( Your-Target PUBLIC ${DUCK_PUBLIC_HEADERS_PATH} )
 # target_link_libraries( Your-Target DuckSharedLibrary )
 
 
 # Project Settings =======================================================================
-cmake_minimum_required( VERSION 3.0 )
+cmake_minimum_required( VERSION 3.18 )
 
 project( Duck )
 
@@ -37,14 +52,12 @@ if( NOT DEFINED DUCK_PUBLIC_HEADERS_PATH )
     set( DUCK_PUBLIC_HEADERS_PATH ${CMAKE_CURRENT_BINARY_DIR}/Include )
 endif()
 
-if( NOT DEFINED DUCK_BUILD_STATIC
-    AND NOT DEFINED DUCK_BUILD_SHARED
-    AND NOT DEFINED DUCK_BUILD_FRAMEWORK )
-    
-    set( DUCK_BUILD_STATIC 1 )
-    set( DUCK_BUILD_SHARED 1 )
-    set( DUCK_BUILD_FRAMEWORK 1 )
+
+# Build Variants -------------------------------------------------------------------------
+if( NOT DEFINED DUCK_BUILD )
+    set( DUCK_BUILD STATIC SHARED FRAMEWORK )
 endif()
+
 
 # Library Name ---------------------------------------------------------------------------
 if( WIN32 )
@@ -58,7 +71,13 @@ if( WIN32 )
 else()
     set( DuckStaticLibraryName duck )
     set( DuckSharedLibraryName duck )
+    set( DuckFrameworkName Duck )
 endif()
+
+
+# Includes -------------------------------------------------------------------------------
+include( ${DUCK_PATH}/Tools/BuildToolkit.cmake )
+
 
 # External Dependencies ------------------------------------------------------------------
 if( APPLE )
@@ -79,139 +98,11 @@ elseif( WIN32 )
     
 endif()
 
-# Functions ==============================================================================
-
-# Extract a list of headers from a list of files
-function( get_header_files VarName Files )
-    set( HeaderFiles Files )
-    list( FILTER HeaderFiles INCLUDE REGEX "^.*\\.(h)$" )
-    set( ${VarName} HeaderFiles PARENT_SCOPE )
-endfunction()
-
-
-# Create a copy target
-function( add_copy_target TargetName DestinationDir )
-    add_custom_target( ${TargetName} )
-    set_target_properties( ${TargetName} PROPERTIES "COPY_DESTINATION" ${DestinationDir} )
-
-    add_custom_command( TARGET ${TargetName} PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${DestinationDir} )
-endfunction()
-
-
-# Add files to a copy target
-function( add_copy_files TargetName )
-    get_target_property( DestinationDir ${TargetName} "COPY_DESTINATION" )
-    foreach( argi ${ARGN} )
-        add_custom_command( TARGET ${TargetName} PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${argi} ${DestinationDir} )
-    endforeach()
-endfunction()
-
-
-# Add header files to a copy target
-function( add_copy_headers TargetName )
-    get_target_property( DestinationDir ${TargetName} "COPY_DESTINATION" )
-    foreach( argi ${ARGN} )
-        if( ${argi} MATCHES "^.*\\.(h)$" )
-            add_custom_command( TARGET ${TargetName} PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${argi} ${DestinationDir} )
-        endif()
-    endforeach()
-endfunction()
-
-
-# Add files matching a glob pattern to a copy target
-function( add_copy_directories TargetName Patterns )
-    get_target_property( DestinationDir ${TargetName} "COPY_DESTINATION" )
-    foreach( argi ${ARGN} )
-        foreach( Pattern ${Patterns} )
-            file( GLOB Files ${argi}/${Pattern} )
-
-            foreach( File ${Files} )
-                add_custom_command( TARGET ${TargetName} PRE_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${File} ${DestinationDir} )
-            endforeach()
-        endforeach()
-    endforeach()
-endfunction()
-
-# function( add_copy_files_target TargetName Sources Patterns DestinationDir )
-#     add_custom_target( ${TargetName} )
-# 
-#     add_custom_command( TARGET ${TargetName} PRE_BUILD
-#         COMMAND ${CMAKE_COMMAND} -E make_directory ${DestinationDir} )
-# 
-#     foreach( Source ${Sources} )
-#         if( IS_DIRECTORY Source )
-#             foreach( Pattern ${Patterns} )
-#                 file( GLOB Files ${Source}/${Pattern} )
-# 
-#                 foreach( File ${Files} )
-#                     add_custom_command( TARGET ${TargetName} PRE_BUILD
-#                         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${File} ${DestinationDir} )
-#                 endforeach()
-#             endforeach()
-#         elseif( EXISTS Source )
-#             add_custom_command( TARGET ${TargetName} PRE_BUILD
-#                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${Source} ${DestinationDir} )
-#         endif()
-#     endforeach()
-# endfunction()
-
-
-function( add_target_headers TargetName )
-    set( scope "PUBLIC" )
-    foreach( argi ${ARGN} )
-        if( ${argi} STREQUAL "PUBLIC" )
-            set( scope "PUBLIC" )
-        elseif( ${argi} STREQUAL "PRIVATE" )
-            set( scope "PUBLIC" )
-        elseif( ${argi} STREQUAL "PROJECT" )
-            set( scope "PROJECT" )
-        elseif( ${argi} MATCHES "^.*\\.(h)$" )
-            if( ${scope} STREQUAL "PUBLIC" )
-                set_property( TARGET ${TargetName} APPEND PROPERTY PUBLIC_HEADER "${argi}" )
-            elseif( ${scope} STREQUAL "PRIVATE" )
-                set_property( TARGET ${TargetName} APPEND PROPERTY PRIVATE_HEADER "${argi}" )
-            endif()
-            set_property( TARGET ${TargetName} APPEND PROPERTY SOURCES "${argi}" )
-        endif()
-    endforeach()
-endfunction()
-
-
-# function( set_public_headers TargetName HeaderDirs )
-#     foreach( HeaderDir ${HeaderDirs} )
-#         file( GLOB Headers ${HeaderDir}/*.h )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY PUBLIC_HEADER "${Headers}" )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY SOURCES "${Headers}" )
-#     endforeach()
-# endfunction()
-# 
-# 
-# function( set_private_headers TargetName HeaderDirs )
-#     foreach( HeaderDir ${HeaderDirs} )
-#         file( GLOB Headers ${HeaderDir}/*.h )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY PRIVATE_HEADER "${Headers}" )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY SOURCES "${Headers}" )
-#     endforeach()
-# endfunction()
-# 
-# 
-# function( set_project_headers TargetName HeaderDirs )
-#     foreach( HeaderDir ${HeaderDirs} )
-#         file( GLOB Headers ${HeaderDir}/*.h )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY SOURCES "${Headers}" )
-#     endforeach()
-# endfunction()
-
-
 
 # Source Files ===========================================================================
 set( DuckSources
         ${DUCK_PATH}/Duck.h
-        ${DUCK_PATH}/Source/DKAllocation.c
+        #${DUCK_PATH}/Source/DKAllocation.c -- empty file
         ${DUCK_PATH}/Source/DKAllocation.h
         ${DUCK_PATH}/Source/DKArray.c
         ${DUCK_PATH}/Source/DKArray.h
@@ -347,7 +238,7 @@ source_group( TREE ${DUCK_PATH} FILES ${DuckSources} ${DuckICU} ${DuckYXML} )
 
 
 # Copy Public Header Files ===============================================================
-if( DUCK_BUILD_STATIC OR DUCK_BUILD_SHARED )
+if( STATIC IN_LIST DUCK_BUILD OR SHARED IN_LIST DUCK_BUILD )
     add_copy_target( DuckCopyPublicHeaders ${DUCK_PUBLIC_HEADERS_PATH}/Duck )
     add_copy_headers( DuckCopyPublicHeaders ${DuckSources} )
 endif()
@@ -392,19 +283,30 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
     endif()
 endfunction()
 
+
 # Static Library -------------------------------------------------------------------------
-if( DUCK_BUILD_STATIC )
+if( STATIC IN_LIST DUCK_BUILD )
     add_duck_library( DuckStaticLibrary STATIC NO ${DuckStaticLibraryName}  )
 endif()
 
+
 # Shared Library -------------------------------------------------------------------------
-if( DUCK_BUILD_SHARED )
+if( SHARED IN_LIST DUCK_BUILD )
     add_duck_library( DuckSharedLibrary SHARED NO ${DuckSharedLibraryName}  )
 endif()
 
+
 # Framework ------------------------------------------------------------------------------
-if( APPLE AND DUCK_BUILD_FRAMEWORK )
-    add_duck_library( DuckFramework SHARED YES "Duck" )
+if( APPLE AND FRAMEWORK IN_LIST DUCK_BUILD )
+    add_duck_library( DuckFramework SHARED YES ${DuckFrameworkName} )
 endif()
+
+
+# Build Examples =========================================================================
+if( DUCK_BUILD_EXAMPLES )
+    include( ${DUCK_PATH}/HelloWorld/CMakeLists.txt )
+endif()
+
+
 
 
