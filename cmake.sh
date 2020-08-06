@@ -8,6 +8,7 @@ usage()
 SOURCE_DIR="."
 BUILD_DIR="Build/Release"
 BUILD_TYPE="-DCMAKE_BUILD_TYPE=Release"
+TARGETS=()
 CLEAN=""
 INSTALL=0
 INSTALL_PREFIX=""
@@ -19,7 +20,14 @@ while [ "$1" != "" ]; do
         -d | --debug )          BUILD_TYPE="-DCMAKE_BUILD_TYPE=Debug"
                                 BUILD_DIR="Build/Debug"
                                 ;;
+        --static )              TARGETS+=("DuckStaticLibrary")
+                                ;;
+        --shared )              TARGETS+=("DuckSharedLibrary")
+                                ;;
+        --framework )           TARGETS+=("DuckFramework")
+                                ;;
         --examples )            SOURCE_DIR="HelloWorld"
+                                TARGETS+=("HelloWorld")
                                 ;;
         -h | --help )           usage
                                 exit
@@ -35,10 +43,8 @@ while [ "$1" != "" ]; do
     shift
 done
 
-mkdir -p $BUILD_DIR
-
 cmake "$BUILD_TYPE" -S "$SOURCE_DIR" -B "$BUILD_DIR"
-cmake --build "$BUILD_DIR" $CLEAN
+cmake --build "$BUILD_DIR" --target ${TARGETS[*]} $CLEAN
 
 if [ $INSTALL = 1 ]
 then
