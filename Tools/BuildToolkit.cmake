@@ -64,32 +64,10 @@ function( add_copy_directories TargetName Patterns )
     endforeach()
 endfunction()
 
-# function( add_copy_files_target TargetName Sources Patterns DestinationDir )
-#     add_custom_target( ${TargetName} )
-# 
-#     add_custom_command( TARGET ${TargetName} PRE_BUILD
-#         COMMAND ${CMAKE_COMMAND} -E make_directory ${DestinationDir} )
-# 
-#     foreach( Source ${Sources} )
-#         if( IS_DIRECTORY Source )
-#             foreach( Pattern ${Patterns} )
-#                 file( GLOB Files ${Source}/${Pattern} )
-# 
-#                 foreach( File ${Files} )
-#                     add_custom_command( TARGET ${TargetName} PRE_BUILD
-#                         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${File} ${DestinationDir} )
-#                 endforeach()
-#             endforeach()
-#         elseif( EXISTS Source )
-#             add_custom_command( TARGET ${TargetName} PRE_BUILD
-#                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${Source} ${DestinationDir} )
-#         endif()
-#     endforeach()
-# endfunction()
 
+# Target Headers/Sources =================================================================
 
-# Target Headers =========================================================================
-
+# Add headers to a target (also adds the headers as sources)
 function( add_target_headers TargetName )
     set( scope "PUBLIC" )
     foreach( argi ${ARGN} )
@@ -111,28 +89,4 @@ function( add_target_headers TargetName )
 endfunction()
 
 
-# function( set_public_headers TargetName HeaderDirs )
-#     foreach( HeaderDir ${HeaderDirs} )
-#         file( GLOB Headers ${HeaderDir}/*.h )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY PUBLIC_HEADER "${Headers}" )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY SOURCES "${Headers}" )
-#     endforeach()
-# endfunction()
-# 
-# 
-# function( set_private_headers TargetName HeaderDirs )
-#     foreach( HeaderDir ${HeaderDirs} )
-#         file( GLOB Headers ${HeaderDir}/*.h )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY PRIVATE_HEADER "${Headers}" )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY SOURCES "${Headers}" )
-#     endforeach()
-# endfunction()
-# 
-# 
-# function( set_project_headers TargetName HeaderDirs )
-#     foreach( HeaderDir ${HeaderDirs} )
-#         file( GLOB Headers ${HeaderDir}/*.h )
-#         set_property( TARGET ${TargetName} APPEND PROPERTY SOURCES "${Headers}" )
-#     endforeach()
-# endfunction()
 

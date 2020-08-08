@@ -234,6 +234,8 @@ set( DuckProjectHeaderSearchPaths
         ${DUCK_PATH}/ThirdParty
         ${DUCK_PATH}/ThirdParty/icu )
 
+
+# Configure Source Groups ================================================================
 source_group( TREE ${DUCK_PATH} FILES ${DuckSources} ${DuckICU} ${DuckYXML} )
 
 
@@ -241,6 +243,8 @@ source_group( TREE ${DUCK_PATH} FILES ${DuckSources} ${DuckICU} ${DuckYXML} )
 if( STATIC IN_LIST DUCK_BUILD OR SHARED IN_LIST DUCK_BUILD )
     add_copy_target( DuckCopyPublicHeaders ${DUCK_PUBLIC_HEADERS_PATH}/Duck )
     add_copy_headers( DuckCopyPublicHeaders ${DuckSources} )
+
+    set_target_properties( DuckCopyPublicHeaders PROPERTIES FOLDER Duck )
 endif()
 
 
@@ -252,18 +256,19 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         ${DuckYXML} )
 
     set_target_properties( ${TargetName} PROPERTIES
-        OUTPUT_NAME ${LibraryName} 
+        OUTPUT_NAME ${LibraryName}
+        FOLDER Duck
         LINKER_LANGUAGE C )
 
     if( FRAMEWORK )
-        set_target_properties( DuckFramework PROPERTIES
+        set_target_properties( ${TargetName} PROPERTIES
             FRAMEWORK 1 
             MACOSX_FRAMEWORK_INFO_PLIST ${DUCK_PATH}/Info.plist )
     endif()
 
     add_target_headers( ${TargetName}
-        PUBLIC "${DuckSources}"
-        PROJECT "${DuckICU}" "${DuckYXML}" )
+        PUBLIC ${DuckSources}
+        PROJECT ${DuckICU} ${DuckYXML} )
 
     target_include_directories( ${TargetName}
         PUBLIC ${DuckPublicHeaderSearchPaths}
@@ -286,13 +291,13 @@ endfunction()
 
 # Static Library -------------------------------------------------------------------------
 if( STATIC IN_LIST DUCK_BUILD )
-    add_duck_library( DuckStaticLibrary STATIC NO ${DuckStaticLibraryName}  )
+    add_duck_library( DuckStaticLibrary STATIC NO ${DuckStaticLibraryName} )
 endif()
 
 
 # Shared Library -------------------------------------------------------------------------
 if( SHARED IN_LIST DUCK_BUILD )
-    add_duck_library( DuckSharedLibrary SHARED NO ${DuckSharedLibraryName}  )
+    add_duck_library( DuckSharedLibrary SHARED NO ${DuckSharedLibraryName} )
 endif()
 
 

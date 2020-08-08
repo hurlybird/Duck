@@ -2,7 +2,7 @@
 
 usage()
 {
-    echo "Usage: cmake.sh [-h,--help] [-d,--debug] [-c,--clean] [options]"
+    echo "Usage: cmake.sh [-h,--help] [-d,--debug] [-r,--release] [-c,--clean] [options]"
     echo ""
     echo "Options:"
     echo "  --arch <architecture>"
@@ -33,6 +33,8 @@ while [ "$1" != "" ]; do
         -c | --clean )          CLEAN="--clean-first"
                                 ;;
         -d | --debug )          BUILD_TYPE="Debug"
+                                ;;
+        -r | --release )        BUILD_TYPE="Release"
                                 ;;
         --arch )                shift
                                 BUILD_ARCH=$1
