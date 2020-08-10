@@ -28,7 +28,7 @@ endfunction()
 
 
 # Add files to a copy target
-function( add_copy_files TargetName )
+function( target_copy_files TargetName )
     get_target_property( DestinationDir ${TargetName} "COPY_DESTINATION" )
     foreach( argi ${ARGN} )
         add_custom_command( TARGET ${TargetName} PRE_BUILD
@@ -38,7 +38,7 @@ endfunction()
 
 
 # Add header files to a copy target
-function( add_copy_headers TargetName )
+function( target_copy_headers TargetName )
     get_target_property( DestinationDir ${TargetName} "COPY_DESTINATION" )
     foreach( argi ${ARGN} )
         if( ${argi} MATCHES "^.*\\.(h)$" )
@@ -50,7 +50,7 @@ endfunction()
 
 
 # Add files matching a glob pattern to a copy target
-function( add_copy_directories TargetName Patterns )
+function( target_copy_directories TargetName Patterns )
     get_target_property( DestinationDir ${TargetName} "COPY_DESTINATION" )
     foreach( argi ${ARGN} )
         foreach( Pattern ${Patterns} )

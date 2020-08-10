@@ -19,7 +19,7 @@
 
 # Set the destination path for public headers. The public headers will be copied into a
 # 'Duck' subdirectory of the destination, making it easy to include the Duck umbrella
-# header via #include <Duck/Duck.h>. The default is to copy the headers to 'Include/Duck'.
+# header via #include <Duck/Duck.h>. The default is to copy the headers to 'Include/Duck'
 # in the current binary output directory.
 #
 # set( DUCK_PUBLIC_HEADERS_PATH Destination-Path-For-Public-Headers )
@@ -27,7 +27,7 @@
 # Include this file in the build or add Duck as a subdirectory.
 #
 # include( ${DUCK_PATH}/CMakeLists.txt )
-# add_subdirectory( ${DUCK_PATH} ${PROJECT_BINARY_DIR} )
+# add_subdirectory( ${DUCK_PATH} ${PROJECT_BINARY_DIR}/Duck )
 
 # Link against 'DuckStaticLibrary', 'DuckSharedLibrary' or 'DuckFramework'.
 #
@@ -242,7 +242,7 @@ source_group( TREE ${DUCK_PATH} FILES ${DuckSources} ${DuckICU} ${DuckYXML} )
 # Copy Public Header Files ===============================================================
 if( STATIC IN_LIST DUCK_BUILD OR SHARED IN_LIST DUCK_BUILD )
     add_copy_target( DuckCopyPublicHeaders ${DUCK_PUBLIC_HEADERS_PATH}/Duck )
-    add_copy_headers( DuckCopyPublicHeaders ${DuckSources} )
+    target_copy_headers( DuckCopyPublicHeaders ${DuckSources} )
 
     set_target_properties( DuckCopyPublicHeaders PROPERTIES FOLDER Duck )
 endif()
