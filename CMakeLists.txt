@@ -61,7 +61,7 @@ endif()
 
 # Library Name ---------------------------------------------------------------------------
 if( WIN32 )
-    if( DEBUG )
+    if( ${CMAKE_BUILD_TYPE} STREQUAL Debug )
         set( DuckStaticLibraryName DuckStaticd )
         set( DuckSharedLibraryName Duckd )
     else()
@@ -259,6 +259,9 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         OUTPUT_NAME ${LibraryName}
         FOLDER Duck
         LINKER_LANGUAGE C )
+
+    target_compile_definitions( ${TargetName}
+         PUBLIC $<$<CONFIG:Debug>:DEBUG=1> )
 
     if( FRAMEWORK )
         set_target_properties( ${TargetName} PROPERTIES

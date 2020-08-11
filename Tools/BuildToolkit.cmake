@@ -7,11 +7,21 @@ include_guard( DIRECTORY )
 
 # General Stuff ==========================================================================
 
-# Extract a list of headers from a list of files
-function( get_header_files VarName Files )
-    set( HeaderFiles Files )
-    list( FILTER HeaderFiles INCLUDE REGEX "^.*\\.(h)$" )
-    set( ${VarName} HeaderFiles PARENT_SCOPE )
+# Split a list of files into headers and sources
+function( append_headers_and_sources HeadersVar SourcesVar )
+    set( HeaderFiles "" )
+    set( SourceFiles "" )
+    
+    foreach( argi ${ARGN} )
+        if( ${argi} MATCHES "^.*\\.(h)$" )
+            list( APPEND HeaderFiles ${argi} )
+        else()
+            list( APPEND SourceFiles ${argi} )
+        endif()
+    endforeach()
+    
+    set( ${HeadersVar} ${${HeadersVar}} ${HeaderFiles} PARENT_SCOPE )
+    set( ${SourcesVar} ${${SourcesVar}} ${SourceFiles} PARENT_SCOPE )
 endfunction()
 
 
