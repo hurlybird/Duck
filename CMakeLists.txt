@@ -61,13 +61,8 @@ endif()
 
 # Library Name ---------------------------------------------------------------------------
 if( WIN32 )
-    if( ${CMAKE_BUILD_TYPE} STREQUAL Debug )
-        set( DuckStaticLibraryName DuckStaticd )
-        set( DuckSharedLibraryName Duckd )
-    else()
-        set( DuckStaticLibraryName DuckStatic )
-        set( DuckSharedLibraryName Duck )
-    endif()
+    set( DuckStaticLibraryName DuckStatic )
+    set( DuckSharedLibraryName Duck )
 else()
     set( DuckStaticLibraryName duck )
     set( DuckSharedLibraryName duck )
@@ -85,15 +80,8 @@ if( APPLE )
 elseif( ANDROID )
 
 elseif( UNIX )
-    set( DuckRequiredLibraries  uuid )
-    if( TARGET DuckStaticLibrary )
-        target_link_libraries( DuckStaticLibrary uuid )
-    endif()
-    
-    if( TARGET DuckSharedLibrary )
-        target_link_libraries( DuckSharedLibrary uuid )
-    endif()
-    
+    set( DuckRequiredLibraries uuid )
+
 elseif( WIN32 )
     
 endif()
@@ -277,7 +265,7 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         PUBLIC ${DuckPublicHeaderSearchPaths}
         PRIVATE ${DuckProjectHeaderSearchPaths} )
 
-    target_link_libraries( ${TargetName} "${DuckRequiredLibraries}" )
+    target_link_libraries( ${TargetName} ${DuckRequiredLibraries} )
 
     if( NOT FRAMEWORK )
         add_dependencies( ${TargetName} DuckCopyPublicHeaders )
