@@ -52,6 +52,10 @@ if( NOT DEFINED DUCK_PUBLIC_HEADERS_PATH )
     set( DUCK_PUBLIC_HEADERS_PATH ${CMAKE_CURRENT_BINARY_DIR}/Include )
 endif()
 
+if( NOT DEFINED DUCK_BINARY_PATH )
+    set( DUCK_BINARY_PATH ${CMAKE_CURRENT_BINARY_DIR} )
+endif()
+
 # Fix Windows paths
 string( REPLACE "\\" "/" DUCK_PATH ${DUCK_PATH} )
 string( REPLACE "\\" "/" DUCK_PUBLIC_HEADERS_PATH ${DUCK_PUBLIC_HEADERS_PATH} )
@@ -249,6 +253,8 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
 
     set_target_properties( ${TargetName} PROPERTIES
         OUTPUT_NAME ${LibraryName}
+        ARCHIVE_OUTPUT_DIRECTORY ${DUCK_BINARY_PATH}
+        LIBRARY_OUTPUT_DIRECTORY ${DUCK_BINARY_PATH}
         FOLDER Duck
         LINKER_LANGUAGE C )
 
