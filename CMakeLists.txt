@@ -52,6 +52,10 @@ if( NOT DEFINED DUCK_PUBLIC_HEADERS_PATH )
     set( DUCK_PUBLIC_HEADERS_PATH ${CMAKE_CURRENT_BINARY_DIR}/Include )
 endif()
 
+# Fix Windows paths
+string( REPLACE "\\" "/" DUCK_PATH ${DUCK_PATH} )
+string( REPLACE "\\" "/" DUCK_PUBLIC_HEADERS_PATH ${DUCK_PUBLIC_HEADERS_PATH} )
+
 
 # Build Variants -------------------------------------------------------------------------
 if( NOT DEFINED DUCK_BUILD )
@@ -249,7 +253,17 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         LINKER_LANGUAGE C )
 
     target_compile_definitions( ${TargetName}
-         PUBLIC $<$<CONFIG:Debug>:DEBUG=1> )
+         PUBLIC
+         $<$<CONFIG:Debug>:DEBUG=1> )
+
+    if( WIN32 )
+        target_compile_definitions( ${TargetName}
+            PUBLIC
+            $<IF:$<STREQUAL:${TargetType},STATIC>,DK_API_STATIC,DK_API_EXPORTS>
+            _CRT_SECURE_NO_WARNINGS )
+
+        target_compile_options( ${TargetName} PUBLIC /EHsc )
+    endif()
 
     if( FRAMEWORK )
         set_target_properties( ${TargetName} PROPERTIES
@@ -273,9 +287,9 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
 
     if( NOT ANDROID AND NOT FRAMEWORK )
         install( TARGETS ${TargetName}
-                ARCHIVE DESTINATION lib
-                LIBRARY DESTINATION lib
-                PUBLIC_HEADER DESTINATION include/Duck )
+            ARCHIVE DESTINATION lib
+            LIBRARY DESTINATION lib
+            PUBLIC_HEADER DESTINATION include/Duck )
     endif()
 endfunction()
 

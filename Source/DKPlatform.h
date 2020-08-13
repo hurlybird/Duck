@@ -111,7 +111,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifdef DK_API_EXPORTS
+#if defined(DK_API_STATIC)
+#define DK_API
+#elif defined(DK_API_EXPORTS)
 #define DK_API __declspec(dllexport)
 #else
 #define DK_API __declspec(dllimport)
