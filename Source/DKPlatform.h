@@ -130,7 +130,10 @@
 #endif
 
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+
+#ifndef restrict
 #define restrict __restrict
+#endif
 
 #ifndef strcasecmp
 #define strcasecmp( s1, s2 )     _stricmp( s1, s2 )
