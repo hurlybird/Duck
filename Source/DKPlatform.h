@@ -43,6 +43,15 @@
 #include <inttypes.h>
 #endif
 
+// C++ Compatibility
+#ifdef __cplusplus
+
+#ifndef restrict
+#define restrict
+#endif
+
+#endif
+
 
 #include "DKConfig.h"
 
