@@ -36,7 +36,7 @@
 
 
 # Project Settings =======================================================================
-cmake_minimum_required( VERSION 3.18 )
+cmake_minimum_required( VERSION 3.16 )
 
 project( Duck )
 
@@ -88,7 +88,9 @@ if( APPLE )
 elseif( ANDROID )
 
 elseif( UNIX )
-    set( DuckRequiredLibraries uuid )
+    set( DuckRequiredLibraries
+            pthread
+            uuid )
 
 elseif( WIN32 )
     
