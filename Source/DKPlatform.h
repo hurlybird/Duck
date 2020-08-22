@@ -110,13 +110,7 @@
 
 // Windows -------------------------------------------------------------------------------
 #if DK_PLATFORM_WINDOWS
-
 #define WIN32_LEAN_AND_MEAN
-
-//#define _WIN32_WINNT        0x0A00  // Windows 10
-#define _WIN32_WINNT        0x0601  // Windows 7
-//#define _WIN32_WINNT        0x0501  // Windows XP
-
 #include <windows.h>
 
 //#define _CRT_NONSTDC_NO_DEPRECATE
