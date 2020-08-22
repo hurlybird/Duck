@@ -110,7 +110,13 @@
 
 // Windows -------------------------------------------------------------------------------
 #if DK_PLATFORM_WINDOWS
+
 #define WIN32_LEAN_AND_MEAN
+
+//#define _WIN32_WINNT        0x0A00  // Windows 10
+#define _WIN32_WINNT        0x0601  // Windows 7
+//#define _WIN32_WINNT        0x0501  // Windows XP
+
 #include <windows.h>
 
 //#define _CRT_NONSTDC_NO_DEPRECATE
@@ -611,11 +617,16 @@ inline static void DKSpinLockLock( DKSpinLock * spinlock )
 {
     int32_t volatile * lock = spinlock;
 
-	while( 1 )
-	{
-        if( DKAtomicCmpAndSwap32( lock, 0, 1 ) )
-            return;
-	}
+    while( !DKAtomicCmpAndSwap32( lock, 0, 1 ) )
+    {
+    #if DK_PLATFORM_POSIX
+        sched_yield();
+    #elif DK_PLATFORM_WINDOWS
+        SwitchToThread();
+    #else
+        #warning "Duck: No yield implemented for spinlocks"
+    #endif
+    }
 }
 
 inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
