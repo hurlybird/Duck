@@ -118,6 +118,8 @@ void DKInstallObjectProperty( DKClassRef _class,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
+    DKPropertyObserver didRead,
+    DKPropertyObserver willWrite,
     DKPropertyObserver didWrite )
 {
     DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
@@ -137,6 +139,8 @@ void DKInstallObjectProperty( DKClassRef _class,
     property->getter = getter;
     property->setter = setter;
     property->willRead = willRead;
+    property->didRead = didRead;
+    property->willWrite = willWrite;
     property->didWrite = didWrite;
     
     DKInstallProperty( _class, name, property );
@@ -156,6 +160,8 @@ void DKInstallNumberProperty( DKClassRef _class,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
+    DKPropertyObserver didRead,
+    DKPropertyObserver willWrite,
     DKPropertyObserver didWrite )
 {
     DKAssert( DKEncodingIsNumber( encoding ) );
@@ -174,6 +180,8 @@ void DKInstallNumberProperty( DKClassRef _class,
     property->getter = getter;
     property->setter = setter;
     property->willRead = willRead;
+    property->didRead = didRead;
+    property->willWrite = willWrite;
     property->didWrite = didWrite;
     
     DKInstallProperty( _class, name, property );
@@ -193,6 +201,8 @@ void DKInstallStructProperty( DKClassRef _class,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
+    DKPropertyObserver didRead,
+    DKPropertyObserver willWrite,
     DKPropertyObserver didWrite )
 {
     DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
@@ -210,6 +220,8 @@ void DKInstallStructProperty( DKClassRef _class,
     property->getter = getter;
     property->setter = setter;
     property->willRead = willRead;
+    property->didRead = didRead;
+    property->willWrite = willWrite;
     property->didWrite = didWrite;
     
     DKInstallProperty( _class, name, property );
@@ -230,6 +242,8 @@ void DKInstallEnumProperty( DKClassRef _class,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
+    DKPropertyObserver didRead,
+    DKPropertyObserver willWrite,
     DKPropertyObserver didWrite )
 {
     DKAssert( DKEncodingIsNumber( encoding ) );
@@ -249,6 +263,8 @@ void DKInstallEnumProperty( DKClassRef _class,
     property->getter = getter;
     property->setter = setter;
     property->willRead = willRead;
+    property->didRead = didRead;
+    property->willWrite = willWrite;
     property->didWrite = didWrite;
     
     DKInstallProperty( _class, name, property );
@@ -400,7 +416,7 @@ static void FailedSemanticRequirement( DKObjectRef _self, DKPropertyRef property
 ///
 //  DKWillReadProperty()
 //
-static void DKWillReadProperty( DKObjectRef _self, DKPropertyRef property )
+static inline void DKWillReadProperty( DKObjectRef _self, DKPropertyRef property )
 {
     if( property->willRead )
         property->willRead( _self, property );
@@ -408,9 +424,28 @@ static void DKWillReadProperty( DKObjectRef _self, DKPropertyRef property )
 
 
 ///
+//  DKDidReadProperty()
+//
+static inline void DKDidReadProperty( DKObjectRef _self, DKPropertyRef property )
+{
+    if( property->didRead )
+        property->didRead( _self, property );
+}
+
+///
+//  DKWillWriteProperty()
+//
+static inline void DKWillWriteProperty( DKObjectRef _self, DKPropertyRef property )
+{
+    if( property->willWrite )
+        property->willWrite( _self, property );
+}
+
+
+///
 //  DKDidWriteProperty()
 //
-static void DKDidWriteProperty( DKObjectRef _self, DKPropertyRef property )
+static inline void DKDidWriteProperty( DKObjectRef _self, DKPropertyRef property )
 {
     if( property->didWrite )
         property->didWrite( _self, property );
@@ -427,6 +462,7 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     // Custom setter
     if( property->setter )
     {
+        DKWillWriteProperty( _self, property );
         property->setter( _self, property, object );
         DKDidWriteProperty( _self, property );
         return;
@@ -438,6 +474,8 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
         CheckPredicateRequirement( _self, property, object );
 
         DKObjectRef * ref = value;
+        
+        DKWillWriteProperty( _self, property );
         
         if( property->attributes & DKPropertyCopy )
         {
@@ -471,32 +509,35 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
         {
             int enumValue = DKEnumFromString( property->enumType, object );
 
-            if( DKNumberConvert( &enumValue, DKEncodingTypeInt(int), value, property->encoding ) )
-            {
-                DKDidWriteProperty( _self, property );
+            DKWillWriteProperty( _self, property );
+            bool success = DKNumberConvert( &enumValue, DKEncodingTypeInt(int), value, property->encoding );
+            DKDidWriteProperty( _self, property );
+
+            if( success )
                 return;
-            }
         }
     }
     
-    // Automatic conversion of numerical types (including booleans)
+    // Automatic conversion of numerical types, enums and booleans
     if( DKIsKindOfClass( object, DKNumberClass() ) )
     {
-        if( DKNumberCastValue( object, value, property->encoding ) )
-        {
-            DKDidWriteProperty( _self, property );
+        DKWillWriteProperty( _self, property );
+        bool success = DKNumberCastValue( object, value, property->encoding );
+        DKDidWriteProperty( _self, property );
+        
+        if( success )
             return;
-        }
     }
     
     // Automatic conversion of structure types
     if( DKIsKindOfClass( object, DKStructClass() ) )
     {
-        if( DKStructGetValue( object, property->semantic, value, DKEncodingGetSize( property->encoding ) ) )
-        {
-            DKDidWriteProperty( _self, property );
+        DKWillWriteProperty( _self, property );
+        bool success = DKStructGetValue( object, property->semantic, value, DKEncodingGetSize( property->encoding ) );
+        DKDidWriteProperty( _self, property );
+
+        if( success )
             return;
-        }
     }
 
     DKWarning( "DKProperty: No available conversion for property '%@' from %@.", property->name, DKGetClassName( object ) );
@@ -510,28 +551,37 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
 {
     void * value = (uint8_t *)_self + property->offset;
 
-    DKWillReadProperty( _self, property );
-    
     // Custom getter
     if( property->getter )
     {
-        return property->getter( _self, property );
+        DKWillReadProperty( _self, property );
+        DKObjectRef object = property->getter( _self, property );
+        DKDidReadProperty( _self, property );
+        
+        return object;
     }
     
     // Object types
-    if( property->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
+    else if( property->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
     {
+        DKWillReadProperty( _self, property );
+        DKObjectRef object;
+
         if( property->attributes & DKPropertyWeak )
         {
             DKWeakRef * ref = value;
-            return DKAutorelease( DKResolveWeak( *ref ) );
+            object = DKAutorelease( DKResolveWeak( *ref ) );
         }
         
         else
         {
             DKObjectRef * ref = value;
-            return DKAutorelease( DKRetain( *ref ) );
+            object = DKAutorelease( DKRetain( *ref ) );
         }
+
+        DKDidReadProperty( _self, property );
+        
+        return object;
     }
     
     // Automatic conversion of enum types to strings
@@ -539,21 +589,31 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
     {
         int enumValue;
         
-        if( DKNumberConvert( value, property->encoding, &enumValue, DKEncodingTypeInt(int) ) )
+        DKWillReadProperty( _self, property );
+        bool success = DKNumberConvert( value, property->encoding, &enumValue, DKEncodingTypeInt(int) );
+        DKDidReadProperty( _self, property );
+        
+        if( success )
             return DKStringFromEnum( property->enumType, enumValue );
     }
     
     // Automatic conversion of numerical types
     if( DKEncodingIsNumber( property->encoding ) )
     {
+        DKWillReadProperty( _self, property );
         DKNumberRef number = DKNewNumber( value, property->encoding );
+        DKDidReadProperty( _self, property );
+        
         return DKAutorelease( number );
     }
 
     // Automatic conversion of structure types
     if( property->semantic != NULL )
     {
+        DKWillReadProperty( _self, property );
         DKStructRef structure = DKNewStruct( property->semantic, value, DKEncodingGetSize( property->encoding ) );
+        DKDidReadProperty( _self, property );
+        
         return DKAutorelease( structure );
     }
 
@@ -730,12 +790,13 @@ void DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcV
         else
         {
             void * dstValue = (uint8_t *)_self + property->offset;
+
+            DKWillWriteProperty( _self, property );
+            bool success = DKNumberConvert( srcValue, srcEncoding, dstValue, property->encoding );
+            DKDidWriteProperty( _self, property );
             
-            if( DKNumberConvert( srcValue, srcEncoding, dstValue, property->encoding ) )
-            {
-                DKDidWriteProperty( _self, property );
+            if( success )
                 return;
-            }
         }
         
         DKWarning( "DKProperty: No available conversion for property '%@' from %s[%d].",
@@ -822,11 +883,13 @@ size_t DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue
             
             else
             {
-                DKWillReadProperty( _self, property );
-
                 void * srcValue = (uint8_t *)_self + property->offset;
 
-                if( (result = DKNumberConvert( srcValue, property->encoding, dstValue, dstEncoding )) != 0 )
+                DKWillReadProperty( _self, property );
+                result = DKNumberConvert( srcValue, property->encoding, dstValue, dstEncoding );
+                DKDidReadProperty( _self, property );
+                
+                if( result != 0 )
                     return result;
             }
         }
@@ -895,9 +958,11 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef seman
         if( property->encoding == DKEncode( DKEncodingTypeBinaryData, srcSize ) )
         {
             void * dstValue = (uint8_t *)_self + property->offset;
+
+            DKWillWriteProperty( _self, property );
             memcpy( dstValue, srcValue, srcSize );
-            
             DKDidWriteProperty( _self, property );
+
             return;
         }
         
@@ -984,10 +1049,11 @@ size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef sem
 
             if( property->encoding == DKEncode( DKEncodingTypeBinaryData, dstSize ) )
             {
-                DKWillReadProperty( _self, property );
-
                 const void * srcValue = (uint8_t *)_self + property->offset;
+
+                DKWillReadProperty( _self, property );
                 memcpy( dstValue, srcValue, dstSize );
+                DKDidReadProperty( _self, property );
                 
                 return dstSize;
             }

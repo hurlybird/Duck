@@ -73,7 +73,11 @@ struct DKProperty
 
     DKPropertyGetter getter;
     DKPropertySetter setter;
+    
     DKPropertyObserver willRead;
+    DKPropertyObserver didRead;
+    
+    DKPropertyObserver willWrite;
     DKPropertyObserver didWrite;
 };
 
@@ -99,6 +103,11 @@ struct DKPropertyInterface
 typedef const struct DKPropertyInterface * DKPropertyInterfaceRef;
 
 
+// Parameter macros to make using the following functions a bit more readable
+#define DK_NO_XETTERS           NULL, NULL
+#define DK_NO_READ_OBSERVERS    NULL, NULL
+#define DK_NO_WRITE_OBSERVERS   NULL, NULL
+#define DK_NO_OBSERVERS         NULL, NULL, NULL, NULL
 
 // Install properties
 //
@@ -115,6 +124,8 @@ DK_API void DKInstallObjectProperty( DKClassRef _class,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
+    DKPropertyObserver didRead,
+    DKPropertyObserver willWrite,
     DKPropertyObserver didWrite );
 
 DK_API void DKInstallNumberProperty( DKClassRef _class,
@@ -126,6 +137,8 @@ DK_API void DKInstallNumberProperty( DKClassRef _class,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
+    DKPropertyObserver didRead,
+    DKPropertyObserver willWrite,
     DKPropertyObserver didWrite );
 
 DK_API void DKInstallStructProperty( DKClassRef _class,
@@ -137,6 +150,8 @@ DK_API void DKInstallStructProperty( DKClassRef _class,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
+    DKPropertyObserver didRead,
+    DKPropertyObserver willWrite,
     DKPropertyObserver didWrite );
 
 DK_API void DKInstallEnumProperty( DKClassRef _class,
@@ -149,6 +164,8 @@ DK_API void DKInstallEnumProperty( DKClassRef _class,
     DKPropertyGetter getter,
     DKPropertySetter setter,
     DKPropertyObserver willRead,
+    DKPropertyObserver didRead,
+    DKPropertyObserver willWrite,
     DKPropertyObserver didWrite );
 
 // Retrieve installed properties
