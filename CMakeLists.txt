@@ -42,6 +42,7 @@ project( Duck )
 
 
 # Configuration ==========================================================================
+set( CMAKE_POSITION_INDEPENDENT_CODE 1 )
 
 # Paths ----------------------------------------------------------------------------------
 if( NOT DEFINED DUCK_PATH )
