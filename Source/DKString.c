@@ -2304,12 +2304,7 @@ int32_t DKStringGetInt32( DKStringRef _self )
         DKAssertKindOfClass( _self, DKStringClass() );
 
         if( _self->byteArray.length > 0 )
-        {
-            int32_t value;
-            
-            if( sscanf( (const char *)_self->byteArray.bytes, "%d", &value ) == 1 )
-                return value;
-        }
+            return dk_strtoi32( (const char *)_self->byteArray.bytes, NULL, 10 );
     }
     
     return 0;
@@ -2326,12 +2321,7 @@ int64_t DKStringGetInt64( DKStringRef _self )
         DKAssertKindOfClass( _self, DKStringClass() );
 
         if( _self->byteArray.length > 0 )
-        {
-            int64_t value;
-            
-            if( sscanf( (const char *)_self->byteArray.bytes, "%" PRId64, &value ) == 1 )
-                return value;
-        }
+            return dk_strtoi64( (const char *)_self->byteArray.bytes, NULL, 10 );
     }
     
     return 0;
@@ -2348,12 +2338,7 @@ float DKStringGetFloat( DKStringRef _self )
         DKAssertKindOfClass( _self, DKStringClass() );
 
         if( _self->byteArray.length > 0 )
-        {
-            float value;
-            
-            if( sscanf( (const char *)_self->byteArray.bytes, "%f", &value ) == 1 )
-                return value;
-        }
+            return dk_strtof32( (const char *)_self->byteArray.bytes, NULL );
     }
     
     return 0.0f;
@@ -2370,12 +2355,7 @@ double DKStringGetDouble( DKStringRef _self )
         DKAssertKindOfClass( _self, DKStringClass() );
 
         if( _self->byteArray.length > 0 )
-        {
-            double value;
-            
-            if( sscanf( (const char *)_self->byteArray.bytes, "%lf", &value ) == 1 )
-                return value;
-        }
+            return dk_strtof64( (const char *)_self->byteArray.bytes, NULL );
     }
     
     return 0.0;

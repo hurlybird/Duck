@@ -768,6 +768,21 @@ DK_API uint64_t dk_memhash64( const void * buffer, size_t buffer_size );
 DK_API DKDateTime dk_datetime( void );
 
 
+// String-to-X wrappers (because MS likes to be different)
+#define dk_strtoi32( str, end, base )       ((int32_t)strtol( (str), (end), (base) ));
+#define dk_strtou32( str, end, base )       ((uint32_t)strtoul( (str), (end), (base) ));
+
+#if LONG_MAX == 0x7FFFFFFFFFFFFFFF
+#define dk_strtoi64( str, end, base )       strtol( (str), (end), (base) );
+#define dk_strtou64( str, end, base )       strtoul( (str), (end), (base) );
+#else
+#define dk_strtoi64( str, end, base )       strtoll( (str), (end), (base) );
+#define dk_strtou64( str, end, base )       strtoull( (str), (end), (base) );
+#endif
+
+#define dk_strtof32( str, end )             strtof( (str), (end) )
+#define dk_strtof64( str, end )             strtod( (str), (end) )
+
 
 #endif // _DK_PLATFORM_H_
 

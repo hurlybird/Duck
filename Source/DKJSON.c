@@ -318,17 +318,10 @@ typedef struct
 
 } Token;
 
-#define ParseInt32( str )   (int32_t)strtol( (str), NULL, 10 );
-
-#if LONG_MAX == 0x7FFFFFFFFFFFFFFF
-#define ParseInt64( str )   (int32_t)strtol( (str), NULL, 10 );
-#else
-#define ParseInt64( str )   (int32_t)strtoll( (str), NULL, 10 );
-#endif
-
-#define ParseFloat( str )   strtof( (str), NULL );
-
-#define ParseDouble( str )   strtod( (str), NULL );
+#define ParseInt32( str )   dk_strtoi32( str, NULL, 10 )
+#define ParseInt64( str )   dk_strtoi64( (str), NULL, 10 );
+#define ParseFloat( str )   dk_strtof32( (str), NULL );
+#define ParseDouble( str )  dk_strtof64( (str), NULL );
 
 static int ParseObject( ParseContext * context, DKObjectRef * obj );
 
