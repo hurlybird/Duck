@@ -16,7 +16,7 @@ usage()
 }
 
 SOURCE_ROOT="."
-BUILD_ROOT="Build"
+BUILD_ROOT="_Build"
 BUILD_TYPE="Release"
 BUILD_ARCH=""
 OPTIONS=()
