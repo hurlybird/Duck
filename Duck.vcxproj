@@ -73,24 +73,24 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
-    <OutDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Products\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)_Build\$(Configuration)\$(Platform)\Products\</OutDir>
+    <IntDir>$(SolutionDir)_Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Products\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)_Build\$(Configuration)\$(Platform)\Products\</OutDir>
+    <IntDir>$(SolutionDir)_Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Products\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)_Build\$(Configuration)\$(Platform)\Products\</OutDir>
+    <IntDir>$(SolutionDir)_Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Products\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)_Build\$(Configuration)\$(Platform)\Products\</OutDir>
+    <IntDir>$(SolutionDir)_Build\$(Configuration)\$(Platform)\Intermediates\$(ProjectName)\</IntDir>
     <TargetName>Duck</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
