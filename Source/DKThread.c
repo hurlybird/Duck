@@ -71,7 +71,7 @@ void DKThreadContextInit( DKThreadContextRef threadContext, uint32_t options )
     threadContext->arp.top = -1;
 
     for( int i = 0; i < DK_AUTORELEASE_POOL_STACK_SIZE; i++ )
-        threadContext->arp.count[i] = 0;
+        threadContext->arp.lowWater[i] = 0;
 }
 
 

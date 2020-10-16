@@ -115,7 +115,7 @@ struct DKThreadContext
     {
         DKGenericArray objects;
         DKIndex top;
-        DKIndex count[DK_AUTORELEASE_POOL_STACK_SIZE];
+        DKIndex lowWater[DK_AUTORELEASE_POOL_STACK_SIZE];
         
     } arp;
 };

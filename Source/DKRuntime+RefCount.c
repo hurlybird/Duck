@@ -244,7 +244,7 @@ static void INTERNAL_DKDrainAutoreleasePool( struct DKThreadContext * threadCont
         
         else
         {
-            range.location = threadContext->arp.count[threadContext->arp.top];
+            range.location = threadContext->arp.lowWater[threadContext->arp.top];
             range.length = count - range.location;
         }
 
@@ -285,15 +285,12 @@ void DKPushAutoreleasePool( void )
 {
     struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
     DKRequire( (threadContext->arp.top >= -1) && (threadContext->arp.top < (DK_AUTORELEASE_POOL_STACK_SIZE - 1)) );
-    
-    if( threadContext->arp.top >= 0 )
-    {
-        // Save the number of objects currently in the pool
-        DKIndex count = DKGenericArrayGetLength( &threadContext->arp.objects );
-        threadContext->arp.count[threadContext->arp.top] = count;
-    }
 
     threadContext->arp.top++;
+
+    // Save the number of objects currently in the pool
+    DKIndex count = DKGenericArrayGetLength( &threadContext->arp.objects );
+    threadContext->arp.lowWater[threadContext->arp.top] = count;
 }
 
 
@@ -305,9 +302,9 @@ void DKPopAutoreleasePool( void )
     struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
     DKRequire( (threadContext->arp.top >= 0) && (threadContext->arp.top < DK_AUTORELEASE_POOL_STACK_SIZE) );
 
-    threadContext->arp.top--;
-
     INTERNAL_DKDrainAutoreleasePool( threadContext );
+
+    threadContext->arp.top--;
 }
 
 
