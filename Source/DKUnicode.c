@@ -185,6 +185,26 @@ size_t dk_ustrlen( const char * str )
 
 
 ///
+//  dk_ustrnlen()
+//
+size_t dk_ustrnlen( const char * str, size_t n )
+{
+    size_t length = 0;
+    const char * cur = str;
+
+    while( (*cur != '\0') && ((cur - str) < n) )
+    {
+        DKChar32 ch;
+        cur += dk_ustrscan( cur, &ch );
+
+        length++;
+    }
+
+    return length;
+}
+
+
+///
 //  dk_ustridx()
 //
 const char * dk_ustridx( const char * str, size_t idx )

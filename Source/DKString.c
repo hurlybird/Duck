@@ -1189,6 +1189,81 @@ DKListRef DKStringSplit( DKStringRef _self, DKStringRef separator )
 
 
 ///
+//  DKStringWrap()
+//
+DKListRef DKStringWrap( DKStringRef _self, size_t glyphsPerLine )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        DKMutableArrayRef array = DKMutableArray();
+        DKMutableStringRef line = DKMutableString();
+
+        const char * str = (const char *)_self->byteArray.bytes;
+        const char * cur = str;
+
+        size_t lineLength = 0;
+
+        while( *cur )
+        {
+            size_t wordLengthInBytes = strcspn( cur, " \n\r\t" );
+            size_t wordLength = dk_ustrnlen( cur, wordLengthInBytes );
+
+            if( (lineLength > 0) && ((lineLength + wordLength) > glyphsPerLine) )
+            {
+                DKArrayAppendObject( array, DKStringByTrimmingWhitespace( line ) );
+                DKStringSetByteLength( line, 0 );
+                lineLength = 0;
+            }
+
+
+            DKStringAppendBytes( line, cur, wordLength );
+            lineLength += wordLength;
+            cur += wordLength;
+
+            if( *cur == '\r' )
+            {
+                cur++;
+            }
+
+            else if( *cur == '\n' )
+            {
+                if( lineLength > 0 )
+                {
+                    DKArrayAppendObject( array, DKStringByTrimmingWhitespace( line ) );
+                    DKStringSetByteLength( line, 0 );
+                    lineLength = 0;
+                }
+
+                DKArrayAppendObject( array, DKSTR( "" ) );
+
+                cur++;
+            }
+
+            else
+            {
+                size_t spaceLength = strspn( cur, " \t" );
+
+                DKStringAppendBytes( line, cur, spaceLength );
+                lineLength += spaceLength;
+                cur += spaceLength;
+            }
+        }
+
+        if( lineLength > 0 )
+        {
+            DKArrayAppendObject( array, DKStringByTrimmingWhitespace( line ) );
+        }
+
+        return (DKListRef)array;
+    }
+
+    return NULL;
+}
+
+
+///
 //  DKStringCombine()
 //
 DKStringRef DKStringCombine( DKListRef list, DKStringRef separator )
@@ -1266,11 +1341,11 @@ DKStringRef DKStringByTrimmingWhitespace( DKStringRef _self )
         
         if( byteRange.length != _self->byteArray.length )
         {
-            return CopySubstring( (const char *)_self->byteArray.bytes, byteRange );
+            return DKAutorelease( CopySubstring( (const char *)_self->byteArray.bytes, byteRange ) );
         }
     }
 
-    return _self;
+    return DKAutorelease( DKCopy( _self ) );
 }
 
 

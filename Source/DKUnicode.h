@@ -49,6 +49,7 @@ DK_API int dk_ustrcmp( const char * str1, const char * str2 );
 
 // strlen
 DK_API size_t dk_ustrlen( const char * str );
+DK_API size_t dk_ustrnlen( const char * str, size_t n );
 
 // Returns a pointer to the start of the unicode character at index 'idx'
 DK_API const char * dk_ustridx( const char * str, size_t idx );

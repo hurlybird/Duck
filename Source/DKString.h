@@ -107,6 +107,7 @@ DK_API DKRange     DKStringGetRangeOfString( DKStringRef _self, DKStringRef str,
 
 // Separating and concatenating strings
 DK_API DKListRef   DKStringSplit( DKStringRef _self, DKStringRef separator );
+DK_API DKListRef   DKStringWrap( DKStringRef _self, size_t glyphsPerLine );
 DK_API DKStringRef DKStringCombine( DKListRef list, DKStringRef separator );
 
 // Trimming
