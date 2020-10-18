@@ -580,6 +580,15 @@ DK_API void   dk_free( void * ptr );
 #define DKAtomicIncrement32( ptr )                  __sync_add_and_fetch( ptr, 1 )
 #define DKAtomicDecrement32( ptr )                  __sync_sub_and_fetch( ptr, 1 )
 #define DKAtomicCmpAndSwap32( ptr, _old, _new )     __sync_bool_compare_and_swap( ptr, _old, _new )
+
+#define DKAtomicAdd64( ptr, x )                     __sync_add_and_fetch( ptr, x )
+#define DKAtomicSub64( ptr, x )                     __sync_sub_and_fetch( ptr, x )
+#define DKAtomicAnd64( ptr, x )                     __sync_and_and_fetch( ptr, x )
+#define DKAtomicOr64( ptr, x )                      __sync_or_and_fetch( ptr, x )
+#define DKAtomicIncrement64( ptr )                  __sync_add_and_fetch( ptr, 1 )
+#define DKAtomicDecrement64( ptr )                  __sync_sub_and_fetch( ptr, 1 )
+#define DKAtomicCmpAndSwap64( ptr, _old, _new )     __sync_bool_compare_and_swap( ptr, _old, _new )
+
 #define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    __sync_bool_compare_and_swap( ptr, _old, _new )
 
 #endif
@@ -595,6 +604,15 @@ static_assert( sizeof(LONG) == sizeof(int32_t), "DKAtomic: Windows LONG type is 
 #define DKAtomicIncrement32( ptr )                  InterlockedIncrement( ptr )
 #define DKAtomicDecrement32( ptr )                  InterlockedDecrement( ptr )
 #define DKAtomicCmpAndSwap32( ptr, _old, _new )     (InterlockedCompareExchange( (LONG volatile *)(ptr), (LONG)(_new), (LONG)(_old) ) == (LONG)(_old))
+
+#define DKAtomicAdd64( ptr, x )                     InterlockedAdd64( (LONG64 volatile *)(ptr), (LONG64)(x) )
+#define DKAtomicSub64( ptr, x )                     InterlockedAdd64( (LONG64 volatile *)(ptr), -(LONG64)(x) )
+#define DKAtomicAnd64( ptr, x )                     InterlockedAnd64( (LONG64 volatile *)(ptr), (LONG64)(x) )
+#define DKAtomicOr64( ptr, x )                      InterlockedOr64( (LONG64 volatile *)(ptr), -(LONG64)(x) )
+#define DKAtomicIncrement64( ptr )                  InterlockedIncrement64( ptr )
+#define DKAtomicDecrement64( ptr )                  InterlockedDecrement64( ptr )
+#define DKAtomicCmpAndSwap64( ptr, _old, _new )     (InterlockedCompareExchange64( (LONG64 volatile *)(ptr), (LONG64)(_new), (LONG64)(_old) ) == (LONG64)(_old))
+
 #define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    (InterlockedCompareExchangePointer( ptr, _new, _old ) == (_old))
 
 #endif
