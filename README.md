@@ -38,8 +38,8 @@ thread safety.
 Duck is mainly developed in Xcode and includes framework targets for Mac OS and
 iOS. The Xcode project also contains unit tests.
 
-A Visual Studio project is located in Duck-Windows. The project is configured for
-both 32 ad 64-bit Windows builds.
+A Visual Studio project is also available and has configurations for both 32 and
+64-bit Windows builds.
 
 A [CMakeLists](CMakeLists.txt) file is included for building from the command line,
 with CLion, or as part of an Android Studio project. That file also contains some
@@ -58,15 +58,12 @@ From the project directory, run:
 ## Porting
 
 Duck is known to work on on MacOS, iOS, Linux, Windows and Android, and should also
-compile anywhere with a C99 compliant compiler. A few types and functions--system calls,
+compile anywhere with a C11 compliant compiler. A few types and functions--system calls,
 atomic operations, thread support, etc--will likely need to be ported for non-Apple
 or non-POSIX systems.
 
-(Eventually the library will transition to C11 once compiler and OS support for that
-specification is better.)
-
 While Duck objects can be (and are) used in C++ code, C++ compilers will no doubt
-complain about some of the C99 code that Duck uses--namely explicit casts from void
+complain about some of the C11 code that Duck uses--namely explicit casts from void
 and inline struct initialization. The main workaround for these issues is to add
 extra casts where needed and avoid any convenience macros that aren't C++ friendly.
 
