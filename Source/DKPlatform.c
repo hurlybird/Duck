@@ -429,10 +429,6 @@ DKUUID dk_uuid_generate( void )
 }
 
 
-#else
-
-#error dk_uuid_generate() is not defined for the current platform
-
 #endif
 
 
@@ -499,7 +495,7 @@ uint64_t dk_memhash64( const void * buffer, size_t buffer_size )
 ///
 //  dk_datetime()
 //
-#if DK_PLATFORM_POSIX
+#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX
 DKDateTime dk_datetime( void )
 {
     struct timeval t;
@@ -527,9 +523,36 @@ DKDateTime dk_datetime( void )
     return (DKDateTime)secs - DKAbsoluteTimeSince1970 + ((DKDateTime)nsecs * 1.0e-7);
 }
 
-#else
+#endif
 
-#error dk_datetime() is not defined for the current platform
+
+///
+//  dk_systemtime()
+//
+#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX
+DKDateTime dk_systemtime( void )
+{
+    return dk_datetime();
+}
+
+#elif DK_PLATFORM_WINDOWS
+DKDateTime dk_systemtime( void )
+{
+    static uint64_t Frequency = 0;
+
+    if( Frequency == 0 )
+    {
+        LARGE_INTEGER tmp;
+        QueryPerformanceFrequency( &tmp );
+
+        Frequency = tmp.QuadPart;
+    }
+
+    LARGE_INTEGER now;
+    QueryPerformanceCounter( &now );
+
+    return (double)now.QuadPart / (double)Frequency;
+}
 
 #endif
 

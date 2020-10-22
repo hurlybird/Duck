@@ -64,7 +64,7 @@ DKThreadSafeClassInit( DKFileClass )
 ///
 //  DKFileInitWithStreamPtr()
 //
-DK_API DKFileRef DKFileInitWithStreamPtr( DKObjectRef _untyped_self, FILE * stream, bool closeOnDealloc )
+DKFileRef DKFileInitWithStreamPtr( DKObjectRef _untyped_self, FILE * stream, bool closeOnDealloc )
 {
     DKFileRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
     

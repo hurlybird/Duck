@@ -70,6 +70,12 @@
 #elif DK_PLATFORM_WINDOWS
 
 
+// Nintendo Switch
+#elif DK_PLATFORM_NS
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
 // Autodetect Apple
 #elif __APPLE__
 #define DK_PLATFORM_APPLE           1

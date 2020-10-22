@@ -3,7 +3,7 @@ _*
 Duck.xcodeproj/xcuserdata
 Duck.xcodeproj/project.xcworkspace/xcuserdata
 *.vcxproj.user
-.vs/*
+.vs
 /Tests/largefile.json
 .idea
 CMakeLists.txt.user

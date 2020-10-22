@@ -70,6 +70,9 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+
+#define dk_spinlock_yield()     sched_yield()
+
 #endif
 
 
@@ -108,6 +111,7 @@
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
 #endif
 
+
 // Windows -------------------------------------------------------------------------------
 #if DK_PLATFORM_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -145,11 +149,31 @@
 #endif
 
 #ifndef strcasecmp
+#define strcasecmp( s1, s2 )        _stricmp( s1, s2 )
+#define strncasecmp( s1, s2, n )    _strnicmp( s1, s2, n )
+#endif
+
+#define dk_spinlock_yield()         SwitchToThread()
+
+#endif
+
+
+// Nintendo Switch
+#if DK_PLATFORM_NS
+
+#define DK_API
+#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+
+#ifndef restrict
+#define restrict __restrict
+#endif
+
+#ifndef strcasecmp
 #define strcasecmp( s1, s2 )     _stricmp( s1, s2 )
 #define strncasecmp( s1, s2, n ) _strnicmp( s1, s2, n )
 #endif
-#endif
 
+#endif
 
 
 
@@ -631,13 +655,7 @@ inline static void DKSpinLockLock( DKSpinLock * spinlock )
 
     while( !DKAtomicCmpAndSwap32( lock, 0, 1 ) )
     {
-    #if DK_PLATFORM_POSIX
-        sched_yield();
-    #elif DK_PLATFORM_WINDOWS
-        SwitchToThread();
-    #else
-        #warning "Duck: No yield implemented for spinlocks"
-    #endif
+        dk_spinlock_yield();
     }
 }
 
@@ -784,6 +802,10 @@ DK_API uint64_t dk_memhash64( const void * buffer, size_t buffer_size );
 
 // Time in seconds since Jan 1 2001 00:00:00 GMT (equivalent to Apple's CFDate)
 DK_API DKDateTime dk_datetime( void );
+
+// Time in seconds since a system-specific start time. The returned values are not
+// compatible with, but may have greater precision than, those from dk_datetime().
+DK_API DKDateTime dk_systemtime( void );
 
 
 // String-to-X wrappers (because MS likes to be different)
