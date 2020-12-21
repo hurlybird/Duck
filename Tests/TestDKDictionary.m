@@ -139,12 +139,14 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 
 // Performance Tests =====================================================================
+#define PERFORMANCE_TESTS 1
+
 const int PERFORMANCE_N = 1000000;
 
 
 - (void) testNSDictionaryReadPerformance
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     NSString * path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
     NSString * file = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
     NSArray * words = [file componentsSeparatedByString:@"\n"];
@@ -172,7 +174,7 @@ const int PERFORMANCE_N = 1000000;
 
 - (void) testNSDictionaryWritePerformance
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     NSString * path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
     NSString * file = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
     NSArray * words = [file componentsSeparatedByString:@"\n"];
@@ -198,7 +200,7 @@ const int PERFORMANCE_N = 1000000;
 
 - (void) testDKHashTableReadPerformance
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     [self testDictionaryClassReadPerformance:DKMutableHashTableClass()];
 #endif
 }
@@ -206,14 +208,14 @@ const int PERFORMANCE_N = 1000000;
 
 - (void) testDKBinaryTreeReadPerformance
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     //[self testDictionaryClassReadPerformance:DKMutableBinaryTreeClass()];
 #endif
 }
 
 - (void) testDKHashTableWritePerformance
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     [self testDictionaryClassWritePerformance:DKMutableHashTableClass()];
 #endif
 }
@@ -221,7 +223,7 @@ const int PERFORMANCE_N = 1000000;
 
 - (void) testDKBinaryTreeWritePerformance
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     //[self testDictionaryClassWritePerformance:DKMutableBinaryTreeClass()];
 #endif
 }

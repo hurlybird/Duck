@@ -184,6 +184,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 
 
+#define PERFORMANCE_TESTS       1
 #define PERFORMANCE_SIZE        5000
 #define PERFORMANCE_ITERATIONS  100000
 #define PERFORMANCE_QUEUE_SIZE  10000
@@ -198,7 +199,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testNSArrayFill
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     NSMutableArray * array = [NSMutableArray array];
 
     [self measureBlock:^()
@@ -210,7 +211,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testNSArrayPerformanceRandomAccess
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     NSMutableArray * array = [NSMutableArray array];
     srand( 0 );
 
@@ -237,7 +238,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testNSArrayPerformanceRandomInsertionAndRemoval
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     NSMutableArray * array = [NSMutableArray array];
     srand( 0 );
 
@@ -262,7 +263,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testNSArrayPerformanceQueueAccess
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     NSMutableArray * array = [NSMutableArray array];
 
     [self fillNSArray:array count:PERFORMANCE_QUEUE_SIZE];
@@ -279,7 +280,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 // DKArray ===============================================================================
 - (void) testDKArrayFill
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     DKObjectRef list = DKNewMutableArray();
     
     [self measureBlock:^()
@@ -291,7 +292,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKArrayPerformanceRandomAccess
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     DKObjectRef list = DKNewMutableArray();
     srand( 0 );
     
@@ -308,7 +309,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKArrayPerformanceRandomInsertionAndRemoval
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     DKObjectRef list = DKNewMutableArray();
     srand( 0 );
 
@@ -325,7 +326,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKArrayPerformanceQueueAccess
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     DKObjectRef list = DKNewMutableArray();
 
     [self fillList:list count:PERFORMANCE_QUEUE_SIZE];
@@ -343,7 +344,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 // DKLinkedList ==========================================================================
 - (void) testDKLinkedListFill
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     DKObjectRef list = DKNewMutableLinkedList();
     
     [self measureBlock:^()
@@ -355,7 +356,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKLinkedListPerformanceRandomAccess
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     DKObjectRef list = DKNewMutableLinkedList();
     srand( 0 );
 
@@ -372,7 +373,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKLinkedListPerformanceRandomInsertionAndRemoval
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     DKObjectRef list = DKNewMutableLinkedList();
     srand( 0 );
 
@@ -389,7 +390,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testDKLinkedListPerformanceQueueAccess
 {
-#if !DEBUG
+#if PERFORMANCE_TESTS
     DKObjectRef list = DKNewMutableLinkedList();
     
     [self fillList:list count:PERFORMANCE_QUEUE_SIZE];

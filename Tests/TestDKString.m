@@ -43,7 +43,9 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKStringRef quickFox = DKSTR( "The quick brown fox jumps over a lazy dog." );
     
     XCTAssert( strcmp( DKStringGetCStringPtr( DKSTR( "quick" ) ), "quick" ) == 0 );
-    XCTAssert( DKStringGetCStringPtr( DKSTR( "quick" ) ) == "quick" );
+    
+    const char * stringLiteralPoolingTest = "quick";
+    XCTAssert( DKStringGetCStringPtr( DKSTR( "quick" ) ) == stringLiteralPoolingTest );
     
     range = DKStringGetRangeOfString( quickFox, DKSTR( "The" ), 0 );
     XCTAssert( (range.location == 0) && (range.length == 3) );
