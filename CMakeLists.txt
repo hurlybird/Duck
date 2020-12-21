@@ -234,6 +234,13 @@ set( DuckProjectHeaderSearchPaths
         ${DUCK_PATH}/ThirdParty/icu )
 
 
+# Support for Proprietary Systems ========================================================
+if( NS IN_LIST DUCK_BUILD )
+    include( ${DUCK_PATH}/Proprietary/NS/CMakeLists.txt )
+endif()
+
+
+
 # Configure Source Groups ================================================================
 source_group( TREE ${DUCK_PATH} FILES ${DuckSources} ${DuckICU} ${DuckYXML} )
 
