@@ -94,6 +94,8 @@ elseif( UNIX )
             uuid )
 
 elseif( WIN32 )
+    set( DuckRequiredLibraries
+            rpcrt4 )
     
 endif()
 
