@@ -59,8 +59,18 @@ function( target_copy_headers TargetName )
 endfunction()
 
 
+# Add directories to a copy target
+function( target_copy_directories TargetName )
+    get_target_property( DestinationDir ${TargetName} "COPY_DESTINATION" )
+    foreach( argi ${ARGN} )
+        add_custom_command( TARGET ${TargetName} PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${argi} ${DestinationDir} )
+    endforeach()
+endfunction()
+
+
 # Add files matching a glob pattern to a copy target
-function( target_copy_directories TargetName Patterns )
+function( target_copy_matching_in_directories TargetName Patterns )
     get_target_property( DestinationDir ${TargetName} "COPY_DESTINATION" )
     foreach( argi ${ARGN} )
         foreach( Pattern ${Patterns} )
@@ -73,6 +83,7 @@ function( target_copy_directories TargetName Patterns )
         endforeach()
     endforeach()
 endfunction()
+
 
 
 # Target Headers/Sources =================================================================
