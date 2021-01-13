@@ -249,9 +249,7 @@ source_group( TREE ${DUCK_PATH} FILES ${DuckSources} ${DuckICU} ${DuckYXML} )
 
 # Copy Public Header Files ===============================================================
 if( STATIC IN_LIST DUCK_BUILD OR SHARED IN_LIST DUCK_BUILD )
-    add_copy_target( DuckCopyPublicHeaders ${DUCK_PUBLIC_HEADERS_PATH}/Duck )
-    target_copy_headers( DuckCopyPublicHeaders ${DuckSources} )
-
+    copy_header_files( DuckCopyPublicHeaders ${DUCK_PUBLIC_HEADERS_PATH}/Duck ${DuckSources} )
     set_target_properties( DuckCopyPublicHeaders PROPERTIES FOLDER Duck )
 endif()
 
