@@ -64,6 +64,7 @@
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN     __attribute__((analyzer_noreturn))
 #endif
 
+
 // POSIX ---------------------------------------------------------------------------------
 #if DK_PLATFORM_POSIX
 #include <pthread.h>
@@ -159,7 +160,7 @@
 
 
 // Nintendo Switch
-#if DK_PLATFORM_NS
+#if DK_PLATFORM_NX
 
 #define DK_API
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN

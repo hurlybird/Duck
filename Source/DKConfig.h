@@ -71,7 +71,7 @@
 
 
 // Nintendo Switch
-#elif DK_PLATFORM_NS
+#elif DK_PLATFORM_NX
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_GCC_INTRINSICS  1
 

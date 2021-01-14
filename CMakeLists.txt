@@ -38,6 +38,9 @@
 # Project Settings =======================================================================
 cmake_minimum_required( VERSION 3.16 )
 
+set( CMAKE_SUPPRESS_REGENERATION ON )
+set_property( GLOBAL PROPERTY USE_FOLDERS ON )
+
 project( Duck )
 
 
@@ -236,11 +239,10 @@ set( DuckProjectHeaderSearchPaths
         ${DUCK_PATH}/ThirdParty/icu )
 
 
-# Support for Proprietary Systems ========================================================
-if( NS IN_LIST DUCK_BUILD )
-    include( ${DUCK_PATH}/Proprietary/NS/CMakeLists.txt )
+# Add Support for Proprietary Platforms ==================================================
+if( NX )
+    include( ${DUCK_PATH}/Proprietary/NX/CMakeLists.txt )
 endif()
-
 
 
 # Configure Source Groups ================================================================
@@ -265,6 +267,7 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         OUTPUT_NAME ${LibraryName}
         ARCHIVE_OUTPUT_DIRECTORY ${DUCK_BINARY_PATH}
         LIBRARY_OUTPUT_DIRECTORY ${DUCK_BINARY_PATH}
+        RUNTIME_OUTPUT_DIRECTORY ${DUCK_BINARY_PATH}
         FOLDER Duck
         LINKER_LANGUAGE C )
 
