@@ -38,7 +38,7 @@ function( copy_files TargetName DestinationDir )
         add_custom_command(
             OUTPUT ${dsti}
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${srci} ${DestinationDir}
-            MAIN_DEPENDENCY ${srci}
+            DEPENDS ${srci}
             COMMENT "Copying ${filename}" )
     endforeach()
 
@@ -63,7 +63,7 @@ function( copy_header_files TargetName DestinationDir )
             add_custom_command(
                 OUTPUT ${dsti}
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${srci} ${DestinationDir}
-                MAIN_DEPENDENCY ${srci}
+                DEPENDS ${srci}
                 COMMENT "Copying ${filename}" )
         endif()
     endforeach()
