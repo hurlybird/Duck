@@ -42,7 +42,7 @@ function( copy_files TargetName DestinationDir )
             COMMENT "Copying ${filename}" )
     endforeach()
 
-    add_custom_target( ${TargetName} ALL
+    add_custom_target( ${TargetName}
         #COMMENT "Copying files to ${DestinationDir}..."
         DEPENDS ${DstFiles} )
 
@@ -68,7 +68,7 @@ function( copy_header_files TargetName DestinationDir )
         endif()
     endforeach()
 
-    add_custom_target( ${TargetName} ALL
+    add_custom_target( ${TargetName}
         #COMMENT "Copying header files to ${DestinationDir}..."
         DEPENDS ${DstFiles} )
 
