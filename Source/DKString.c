@@ -605,6 +605,23 @@ DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _untyped_self, DKStringR
 
 
 ///
+//  DKStringInitWithCapacity()
+//
+DKMutableStringRef DKStringInitWithCapacity( DKObjectRef _untyped_self, DKIndex capacity )
+{
+    DKMutableStringRef _self = DKInit( _untyped_self );
+
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        DKByteArrayReserve( &_self->byteArray, capacity );
+    }
+    
+    return _self;
+}
+
+
+///
 //  DKStringInitWithEgg()
 //
 static DKObjectRef DKStringInitWithEgg( DKObjectRef _untyped_self, DKEggUnarchiverRef egg )
@@ -1514,6 +1531,22 @@ void DKStringAppendFormat( DKMutableStringRef _self, const char * format, ... )
         DKVSPrintf( _self, format, arg_ptr );
         
         va_end( arg_ptr );
+    }
+}
+
+
+///
+//  DKStringAppendFormatv()
+//
+void DKStringAppendFormatv( DKMutableStringRef _self, const char * format, va_list arg_ptr )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
+
+        DKStringSetCursor( _self, _self->byteArray.length );
+
+        DKVSPrintf( _self, format, arg_ptr );
     }
 }
 

@@ -38,24 +38,26 @@ DK_API DKClassRef  DKStringClass( void );
 DK_API DKClassRef  DKConstantStringClass( void );
 DK_API DKClassRef  DKMutableStringClass( void );
 
-#define            DKEmptyString()         DKSTR( "" )
-#define            DKMutableString()       DKAutorelease( DKNew( DKMutableStringClass() ) )
+#define            DKEmptyString()                              DKSTR( "" )
+#define            DKMutableString()                            DKAutorelease( DKNew( DKMutableStringClass() ) )
+#define            DKMutableStringWithCapacity( capacity )      DKAutorelease( DKStringInitWithCapacity( DKAlloc( DKMutableStringClass() ), capacity ) )
 
-#define            DKStringWithString( str )               DKAutorelease( DKStringInitWithString( DKAlloc( DKStringClass() ), str ) )
-#define            DKStringWithCString( cstr )             DKAutorelease( DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr ) )
-#define            DKStringWithCStringNoCopy( cstr )       DKAutorelease( DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass() ), cstr ) )
-#define            DKStringWithBytes( bytes, length )      DKAutorelease( DKStringInitWithBytes( DKAlloc( DKStringClass() ), bytes, length ) )
-#define            DKStringWithFormat( fmt, ... )          DKAutorelease( DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ ) )
-#define            DKStringWithContentsOfFile( filename )  DKAutorelease( DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename ) )
+#define            DKStringWithString( str )                    DKAutorelease( DKStringInitWithString( DKAlloc( DKStringClass() ), str ) )
+#define            DKStringWithCString( cstr )                  DKAutorelease( DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr ) )
+#define            DKStringWithCStringNoCopy( cstr )            DKAutorelease( DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass() ), cstr ) )
+#define            DKStringWithBytes( bytes, length )           DKAutorelease( DKStringInitWithBytes( DKAlloc( DKStringClass() ), bytes, length ) )
+#define            DKStringWithFormat( fmt, ... )               DKAutorelease( DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ ) )
+#define            DKStringWithContentsOfFile( filename )       DKAutorelease( DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename ) )
 
-#define            DKNewMutableString()    DKNew( DKMutableStringClass() )
+#define            DKNewMutableString()                         DKNew( DKMutableStringClass() )
+#define            DKNewMutableStringWithCapacity( capacity )   DKStringInitWithCapacity( DKAlloc( DKMutableStringClass() ), capacity )
 
-#define            DKNewStringWithString( str )                DKStringInitWithString( DKAlloc( DKStringClass() ), str )
-#define            DKNewStringWithCString( cstr )              DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr )
-#define            DKNewStringWithCStringNoCopy( cstr )        DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass() ), cstr )
-#define            DKNewStringWithBytes( bytes, length )       DKStringInitWithBytes( DKAlloc( DKStringClass() ), bytes, length )
-#define            DKNewStringWithFormat( fmt, ... )           DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ )
-#define            DKNewStringWithContentsOfFile( filename )   DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename )
+#define            DKNewStringWithString( str )                 DKStringInitWithString( DKAlloc( DKStringClass() ), str )
+#define            DKNewStringWithCString( cstr )               DKStringInitWithCString( DKAlloc( DKStringClass() ), cstr )
+#define            DKNewStringWithCStringNoCopy( cstr )         DKStringInitWithCStringNoCopy( DKAlloc( DKStringClass() ), cstr )
+#define            DKNewStringWithBytes( bytes, length )        DKStringInitWithBytes( DKAlloc( DKStringClass() ), bytes, length )
+#define            DKNewStringWithFormat( fmt, ... )            DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ )
+#define            DKNewStringWithContentsOfFile( filename )    DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename )
 
 DK_API DKObjectRef DKStringInitWithString( DKObjectRef _self, DKStringRef other );
 DK_API DKObjectRef DKStringInitWithCString( DKObjectRef _self, const char * cstr );
@@ -63,6 +65,7 @@ DK_API DKObjectRef DKStringInitWithCStringNoCopy( DKObjectRef _self, const char 
 DK_API DKObjectRef DKStringInitWithBytes( DKObjectRef _self, const void * bytes, DKIndex length );
 DK_API DKObjectRef DKStringInitWithFormat( DKObjectRef _self, const char * format, ... );
 DK_API DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _self, DKStringRef filename );
+DK_API DKMutableStringRef DKStringInitWithCapacity( DKObjectRef _self, DKIndex capacity );
 
 DK_API DKStringRef DKStringMakeImmutable( DKMutableStringRef _self );
 
@@ -124,6 +127,7 @@ DK_API void        DKStringSetBytes( DKMutableStringRef _self, const void * byte
 
 DK_API void        DKStringAppendString( DKMutableStringRef _self, DKStringRef str );
 DK_API void        DKStringAppendFormat( DKMutableStringRef _self, const char * format, ... );
+DK_API void        DKStringAppendFormatv( DKMutableStringRef _self, const char * format, va_list arg_ptr );
 DK_API void        DKStringAppendCString( DKMutableStringRef _self, const char * cstr );
 DK_API void        DKStringAppendBytes( DKMutableStringRef _self, const void * bytes, DKIndex length );
 
