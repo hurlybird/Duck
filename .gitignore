@@ -4,6 +4,7 @@ Duck.xcodeproj/xcuserdata
 Duck.xcodeproj/project.xcworkspace/xcuserdata
 *.vcxproj.user
 .vs
+.vscode
 /Tests/largefile.json
 .idea
 CMakeLists.txt.user

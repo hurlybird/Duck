@@ -46,8 +46,12 @@ function( copy_files TargetName DestinationDir )
         #COMMENT "Copying files to ${DestinationDir}..."
         DEPENDS ${DstFiles} )
 
+    # Create destination (works for Visual Studio, Visual Studio Code, Xcode)
     add_custom_command( TARGET ${TargetName}
         PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${DestinationDir} )
+
+    # Create destination when running cmake (for CLion, make)
+    file( MAKE_DIRECTORY ${DestinationDir} )
 endfunction()
 
 
