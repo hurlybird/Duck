@@ -90,6 +90,13 @@
 #define DK_PLATFORM_GCC_INTRINSICS  1
 
 
+// Autodetect Nintendo Switch
+#elif NX
+#define DK_PLATFORM_NX              1
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
 // Autodetect Linux
 #elif __linux__
 #define DK_PLATFORM_LINUX           1
