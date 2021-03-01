@@ -404,6 +404,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
 
 // Raise a non-fatal error if the given condition is not met. These checks are not omitted
 // from release builds so use them sparingly.
+#if DK_RUNTIME_LOGIC_CHECKS
 #define DKCheck( x, ... )                                                               \
     do                                                                                  \
     {                                                                                   \
@@ -413,7 +414,9 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
-
+#else
+#define DKCheck( x, ... )
+#endif
 
 // Assertions
 #if DK_RUNTIME_ASSERTIONS

@@ -142,6 +142,11 @@
 #define DK_RUNTIME_ASSERTIONS 1
 #endif
 
+// Enable runtime logic checking. Failed checks raise errors.
+#ifndef DK_RUNTIME_LOGIC_CHECKS
+#define DK_RUNTIME_LOGIC_CHECKS 1
+#endif
+
 // Enable extra type checking. Failed checks raise errors.
 #ifndef DK_RUNTIME_TYPE_CHECKS
 #define DK_RUNTIME_TYPE_CHECKS 1
@@ -174,6 +179,10 @@
 
 #ifndef DK_RUNTIME_ASSERTIONS
 #define DK_RUNTIME_ASSERTIONS 0
+#endif
+
+#ifndef DK_RUNTIME_LOGIC_CHECKS
+#define DK_RUNTIME_LOGIC_CHECKS 1
 #endif
 
 #ifndef DK_RUNTIME_TYPE_CHECKS
