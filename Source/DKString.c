@@ -2472,6 +2472,82 @@ double DKStringGetDouble( DKStringRef _self )
 
 
 
+// Wide Character String Conversion on Windows ==========================================
+#if DK_PLATFORM_WINDOWS
+
+///
+//  DKStringInitWithWString()
+//
+DKStringRef DKStringInitWithWString( DKObjectRef _untyped_self, const WCHAR * wstr )
+{
+    int length = WideCharToMultiByte( CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL );
+
+    char * cstr = dk_malloc( length );
+
+    WideCharToMultiByte( CP_UTF8, 0, wstr, -1, cstr, length, NULL, NULL );
+
+    DKStringRef _self = DKStringInitWithCString( _untyped_self, cstr );
+
+    dk_free( cstr );
+
+    return _self;
+}
+
+
+///
+//  DKStringGetWString()
+//
+const WCHAR * DKStringGetWString( DKStringRef _self )
+{
+    static WCHAR emptyString = 0;
+
+    DKDataRef wstrData = DKStringGetWStringAsData( _self );
+
+    if( wstrData )
+        return DKDataGetBytePtr( wstrData, 0 );
+
+    return &emptyString;
+}
+
+
+///
+//  DKStringGetWStringAsData()
+//
+DK_API DKDataRef DKStringGetWStringAsData( DKStringRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        if( _self->byteArray.length == 0 )
+            return NULL;
+
+        const char * cstr = (const char *)_self->byteArray.bytes;
+
+        int length = MultiByteToWideChar( CP_UTF8, 0, cstr, -1, NULL, 0 );
+
+        if( length <= 0 )
+            return NULL;
+
+        DKMutableDataRef wstrData = DKMutableDataWithCapacity( length * sizeof(WCHAR) );
+        WCHAR * wstr = DKDataGetMutableBytePtr( wstrData, 0 );
+
+	    if( MultiByteToWideChar( CP_UTF8, 0, cstr, -1, wstr, length ) != length )
+            return NULL;
+
+        DKDataMakeImmutable( wstrData );
+
+        return wstrData;
+    }
+
+    return NULL;
+}
+
+#endif
+
+
+
+
 // Constant Strings ======================================================================
 static DKGenericHashTable * DKConstantStringTable = NULL;
 static DKSpinLock DKConstantStringTableLock = DKSpinLockInit;

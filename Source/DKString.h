@@ -182,6 +182,19 @@ DK_API int64_t     DKStringGetInt64( DKStringRef _self );
 DK_API float       DKStringGetFloat( DKStringRef _self );
 DK_API double      DKStringGetDouble( DKStringRef _self );
 
+// Wide Character String Conversion on Windows
+#if DK_PLATFORM_WINDOWS
+#define            DKStringWithWString( wstr )                  DKAutorelease( DKStringInitWithWString( DKAlloc( DKStringClass() ), wstr ) )
+#define            DKNewStringWithWString( wstr )               DKStringInitWithWString( DKAlloc( DKStringClass() ), wstr )
+
+DK_API DKStringRef DKStringInitWithWString( DKObjectRef _self, const WCHAR * wstr );
+
+// Get the wide character representation of the string. The returned characters
+// are managed by an autoreleased DKData object.
+DK_API const WCHAR * DKStringGetWString( DKStringRef _self );
+
+DK_API DKDataRef   DKStringGetWStringAsData( DKStringRef _self );
+#endif
 
 
 #endif // _DK_DATA_H_

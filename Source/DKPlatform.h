@@ -184,6 +184,7 @@ typedef void * DKWeakRef;
 typedef struct DKClass *            DKClassRef;
 typedef const struct DKProperty *   DKPropertyRef;
 typedef struct DKString *           DKStringRef;
+typedef struct DKData *             DKDataRef;
 typedef struct DKNumber *           DKNumberRef;
 typedef struct DKEnum *             DKEnumRef;
 typedef struct DKPredicate *        DKPredicateRef;
