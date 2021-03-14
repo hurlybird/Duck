@@ -210,8 +210,13 @@ typedef struct DKMsgHandler * DKMsgHandlerRef;
     DKSEL DKSelector_ ## name( void );                                                  \
     typedef intptr_t (*DKMsgHandler_ ## name)( DKObjectRef, DKSEL , ## __VA_ARGS__ )
 
+// Return true if an object will respond to a message though dynamic message handling. The
+// dynamic message handler for an object WILL NOT be called if this message returns false.
+DK_API DKDeclareMessageSelector( DKRespondsToDynamicMsg, DKSEL msg );
+
 // Selector for dynamic message handling. If defined for a class, the dynamic message
-// handler is returned whenever a matching message hander cannot be located.
+// handler is returned by DKGetMsgHandler or DKQueryMsgHandler when a message handler
+// cannot be located and DKRespondsToDynamicMsg return true.
 DK_API DKDeclareMessageSelector( DKDynamicMsgHandler );
 
 // A generic message handler that does nothing. Returned by DKGetMsgHandler() when a
@@ -286,12 +291,12 @@ struct DKInterfaceTable
     DKGenericHashTable      interfaces;
 };
 
-typedef DKInterfaceRef (*DKInterfaceNotFoundCallback)( DKClassRef _class, DKSEL sel );
+typedef DKInterfaceRef (*DKInterfaceNotFoundCallback)( DKObjectRef object, DKClassRef _class, DKSEL sel );
 
 void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKInterfaceTable * inheritedInterfaces );
 void DKInterfaceTableFinalize( struct DKInterfaceTable * interfaceTable );
 void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKInterfaceRef _interface );
-DKInterface * DKInterfaceTableFind( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel,
+DKInterface * DKInterfaceTableFind( DKObjectRef object, DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel,
     DKInterfaceNotFoundCallback interfaceNotFound );
 
 

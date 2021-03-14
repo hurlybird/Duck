@@ -35,6 +35,7 @@
 
 // Dynamic Message Handling ==============================================================
 DKThreadSafeSelectorInit( DKDynamicMsgHandler );
+DKThreadSafeSelectorInit( DKRespondsToDynamicMsg );
 
 
 
@@ -196,7 +197,7 @@ void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interf
 ///
 //  DKInterfaceTableFind()
 //
-DKInterface * DKInterfaceTableFind( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel, DKInterfaceNotFoundCallback interfaceNotFound )
+DKInterface * DKInterfaceTableFind( DKObjectRef object, DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel, DKInterfaceNotFoundCallback interfaceNotFound )
 {
     DKAssert( sel->_obj.isa == DKSelectorClass() );
 
@@ -236,7 +237,7 @@ DKInterface * DKInterfaceTableFind( DKClassRef _class, struct DKInterfaceTable *
         return *entry;
     }
 
-    return interfaceNotFound( _class, sel );
+    return interfaceNotFound( object, _class, sel );
 }
 
 
@@ -317,7 +318,7 @@ DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize )
 ///
 //  DKInterfaceInheritMethods()
 //
-static DKInterfaceRef DKSourceInterfaceNotFound( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKSourceInterfaceNotFound( DKObjectRef object, DKClassRef _class, DKSEL sel )
 {
     return NULL;
 }
@@ -327,7 +328,7 @@ void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class )
     DKAssert( interface && _class );
     
     DKInterface * dstInterface = interface;
-    const DKInterface * srcInterface = DKInterfaceTableFind( _class, &_class->instanceInterfaces, dstInterface->sel, DKSourceInterfaceNotFound );
+    const DKInterface * srcInterface = DKInterfaceTableFind( NULL, _class, &_class->instanceInterfaces, dstInterface->sel, DKSourceInterfaceNotFound );
 
     if( srcInterface )
     {
@@ -377,9 +378,9 @@ void DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interface )
 ///
 //  DKGetInterface()
 //
-static DKInterfaceRef DKGetInterfaceNotFound( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKGetInterfaceNotFound( DKObjectRef object, DKClassRef _class, DKSEL sel )
 {
-    DKFatalError( "DKRuntime: Interface '%@' not found on object '%@'", sel->name, _class->name );
+    DKFatalError( "DKRuntime: Interface '%@' is not defined for class '%@'", sel->name, _class->name );
     return NULL;
 }
 
@@ -394,16 +395,16 @@ DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel )
     const DKObject * obj = _self;
     DKClassRef cls = obj->isa;
     
-    return DKInterfaceTableFind( cls, &cls->instanceInterfaces, sel, DKGetInterfaceNotFound );
+    return DKInterfaceTableFind( _self, cls, &cls->instanceInterfaces, sel, DKGetInterfaceNotFound );
 }
 
 
 ///
 //  DKGetClassInterface()
 //
-static DKInterfaceRef DKGetClassInterfaceNotFound( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKGetClassInterfaceNotFound( DKObjectRef not_used, DKClassRef _class, DKSEL sel )
 {
-    DKFatalError( "DKRuntime: Class interface '%@' not found on object '%@'", sel->name, _class->name );
+    DKFatalError( "DKRuntime: Class interface '%@' is not defined for class '%@'", sel->name, _class->name );
     return NULL;
 }
 
@@ -412,14 +413,14 @@ DKInterfaceRef DKGetClassInterface( DKClassRef _class, DKSEL sel )
     DKAssert( (_class != NULL) && (sel != NULL) );
     DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
 
-    return DKInterfaceTableFind( _class, &_class->classInterfaces, sel, DKGetClassInterfaceNotFound );
+    return DKInterfaceTableFind( NULL, _class, &_class->classInterfaces, sel, DKGetClassInterfaceNotFound );
 }
 
 
 ///
 //  DKQueryInterface()
 //
-static DKInterfaceRef DKQueryInterfaceNotFound( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKQueryInterfaceNotFound( DKObjectRef object, DKClassRef _class, DKSEL sel )
 {
     return NULL;
 }
@@ -431,7 +432,7 @@ bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface
     const DKObject * obj = _self;
     DKClassRef cls = obj->isa;
     
-    DKInterfaceRef interface = DKInterfaceTableFind( cls, &cls->instanceInterfaces, sel, DKQueryInterfaceNotFound );
+    DKInterfaceRef interface = DKInterfaceTableFind( _self, cls, &cls->instanceInterfaces, sel, DKQueryInterfaceNotFound );
 
     if( _interface )
         *_interface = interface;
@@ -448,7 +449,7 @@ bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * _inte
     DKAssert( (_class != NULL) && (sel != NULL) );
     DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
     
-    DKInterfaceRef interface = DKInterfaceTableFind( _class, &_class->classInterfaces, sel, DKQueryInterfaceNotFound );
+    DKInterfaceRef interface = DKInterfaceTableFind( NULL, _class, &_class->classInterfaces, sel, DKQueryInterfaceNotFound );
 
     if( _interface )
         *_interface = interface;
@@ -498,23 +499,64 @@ void DKInstallClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func 
 
 
 ///
+//  DKObjectRespondsToDynamicMsg()
+//
+
+static bool DKObjectRespondsToDynamicMsg( DKObjectRef object, DKClassRef _class, DKSEL message )
+{
+    DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKInterfaceTableFind( object, _class, &_class->instanceInterfaces,
+        DKSelector(DKRespondsToDynamicMsg), DKQueryInterfaceNotFound );
+        
+    if( msgHandler )
+        return ((DKMsgHandler_DKRespondsToDynamicMsg)msgHandler->func)( object, DKSelector(DKRespondsToDynamicMsg), message ) != 0;
+        
+    return false;
+}
+
+
+///
+//  DKClassRespondsToDynamicMsg()
+//
+static bool DKClassRespondsToDynamicMsg( DKClassRef _class, DKSEL message )
+{
+    DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKInterfaceTableFind( NULL, _class, &_class->classInterfaces,
+        DKSelector(DKRespondsToDynamicMsg), DKQueryInterfaceNotFound );
+        
+    if( msgHandler )
+        return ((DKMsgHandler_DKRespondsToDynamicMsg)msgHandler->func)( _class, DKSelector(DKRespondsToDynamicMsg), message ) != 0;
+        
+    return false;
+}
+
+
+///
 //  DKGetMsgHandler()
 //
-static DKInterfaceRef DKGetMsgHandlerNotFound( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKGetMsgHandlerNotFound( DKObjectRef object, DKClassRef _class, DKSEL sel )
 {
     return DKMsgHandlerNotFound();
 }
 
-static DKInterfaceRef DKGetDynamicInstanceMsgHandler( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKGetDynamicInstanceMsgHandler( DKObjectRef object, DKClassRef _class, DKSEL sel )
 {
-    return DKInterfaceTableFind( _class, &_class->instanceInterfaces,
-        DKSelector(DKDynamicMsgHandler), DKGetMsgHandlerNotFound );
+    if( DKObjectRespondsToDynamicMsg( object, _class, sel ) )
+    {
+        return DKInterfaceTableFind( object, _class, &_class->instanceInterfaces,
+            DKSelector(DKDynamicMsgHandler), DKGetMsgHandlerNotFound );
+    }
+    
+    return DKMsgHandlerNotFound();
 }
 
-static DKInterfaceRef DKGetDynamicClassMsgHandler( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKGetDynamicClassMsgHandler( DKObjectRef not_used, DKClassRef _class, DKSEL sel )
 {
-    return DKInterfaceTableFind( _class, &_class->classInterfaces,
-        DKSelector(DKDynamicMsgHandler), DKGetMsgHandlerNotFound );
+    if( DKClassRespondsToDynamicMsg( _class, sel ) )
+    {
+        return DKInterfaceTableFind( NULL, _class, &_class->classInterfaces,
+            DKSelector(DKDynamicMsgHandler), DKGetMsgHandlerNotFound );
+    }
+    
+    return DKMsgHandlerNotFound();
 }
 
 DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
@@ -529,7 +571,7 @@ DKMsgHandlerRef DKGetMsgHandler( DKObjectRef _self, DKSEL sel )
         const DKObject * obj = _self;
         DKClassRef _class = obj->isa;
         
-        return (DKMsgHandlerRef)DKInterfaceTableFind( _class,
+        return (DKMsgHandlerRef)DKInterfaceTableFind( _self, _class,
             &_class->instanceInterfaces, sel, DKGetDynamicInstanceMsgHandler );
     }
 
@@ -548,7 +590,7 @@ DKMsgHandlerRef DKGetClassMsgHandler( DKClassRef _class, DKSEL sel )
     {
         DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
 
-        return (DKMsgHandlerRef)DKInterfaceTableFind( _class,
+        return (DKMsgHandlerRef)DKInterfaceTableFind( NULL, _class,
             &_class->classInterfaces, sel, DKGetDynamicClassMsgHandler );
     }
 
@@ -559,21 +601,31 @@ DKMsgHandlerRef DKGetClassMsgHandler( DKClassRef _class, DKSEL sel )
 ///
 //  DKQueryMsgHandler()
 //
-static DKInterfaceRef DKQueryMsgHandlerNotFound( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKQueryMsgHandlerNotFound( DKObjectRef object, DKClassRef _class, DKSEL sel )
 {
     return NULL;
 }
 
-static DKInterfaceRef DKQueryDynamicInstanceMsgHandler( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKQueryDynamicInstanceMsgHandler( DKObjectRef object, DKClassRef _class, DKSEL sel )
 {
-    return DKInterfaceTableFind( _class, &_class->instanceInterfaces,
-        DKSelector(DKDynamicMsgHandler), DKQueryMsgHandlerNotFound );
+    if( DKObjectRespondsToDynamicMsg( object, _class, sel ) )
+    {
+        return DKInterfaceTableFind( object, _class, &_class->instanceInterfaces,
+            DKSelector(DKDynamicMsgHandler), DKQueryMsgHandlerNotFound );
+    }
+    
+    return NULL;
 }
 
-static DKInterfaceRef DKQueryDynamicClassMsgHandler( DKClassRef _class, DKSEL sel )
+static DKInterfaceRef DKQueryDynamicClassMsgHandler( DKObjectRef not_used, DKClassRef _class, DKSEL sel )
 {
-    return DKInterfaceTableFind( _class, &_class->classInterfaces,
-        DKSelector(DKDynamicMsgHandler), DKQueryMsgHandlerNotFound );
+    if( DKClassRespondsToDynamicMsg( _class, sel ) )
+    {
+        return DKInterfaceTableFind( NULL, _class, &_class->classInterfaces,
+            DKSelector(DKDynamicMsgHandler), DKQueryMsgHandlerNotFound );
+    }
+    
+    return NULL;
 }
 
 bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHandler )
@@ -583,7 +635,7 @@ bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * _msgHand
         const DKObject * obj = _self;
         DKClassRef _class = obj->isa;
         
-        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKInterfaceTableFind( _class,
+        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKInterfaceTableFind( _self, _class,
             &_class->instanceInterfaces, sel, DKQueryDynamicInstanceMsgHandler );
 
         if( msgHandler )
@@ -613,7 +665,7 @@ bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * _ms
     {
         DKAssert( (_class->_obj.isa == DKClassClass()) || (_class->_obj.isa == DKRootClass()) );
 
-        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKInterfaceTableFind( _class,
+        DKMsgHandlerRef msgHandler = (DKMsgHandlerRef)DKInterfaceTableFind( NULL, _class,
             &_class->classInterfaces, sel, DKQueryDynamicClassMsgHandler );
 
         if( msgHandler )
