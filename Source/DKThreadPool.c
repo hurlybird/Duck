@@ -33,6 +33,11 @@
 #include "DKCopying.h"
 
 
+#ifndef DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+#define DK_THREADPOOL_DIAGNOSTIC_OUTPUT   0
+#endif
+
+
 struct DKThreadPoolTask
 {
     struct DKThreadPoolTask * next;
@@ -43,8 +48,21 @@ struct DKThreadPoolTask
     DKObjectRef target;
     DKThreadMethod method;
     DKObjectRef param;
+
+    int64_t taskGroup;
 };
 
+struct DKThreadPoolQueue
+{
+    struct DKThreadPoolQueue * next;
+
+    struct DKThreadPoolTask * tasks;
+    struct DKThreadPoolTask * completions;
+
+    int64_t taskGroup;
+    int32_t pendingTasks;
+    bool closed;
+};
 
 struct DKThreadPool
 {
@@ -58,7 +76,7 @@ struct DKThreadPool
     DKMutexRef controlMutex;
     DKConditionRef controlCondition;
 
-    struct DKThreadPoolTask * queue;
+    struct DKThreadPoolQueue * queues;
     DKMutexRef queueMutex;
     DKConditionRef queueCondition;
     
@@ -68,8 +86,8 @@ struct DKThreadPool
     DKThreadPoolCallback onThreadStop;
     void * onThreadStartStopContext;
     
-    volatile int32_t pendingTasks;
     volatile int32_t idleThreads;
+    int64_t nextTaskGroup;
 };
 
 
@@ -79,8 +97,10 @@ static void DKThreadPoolFinalize( DKObjectRef _untyped_self );
 
 DKThreadSafeClassInit( DKThreadPoolClass )
 {
+    DKRequire( sizeof(struct DKThreadPoolQueue) <= sizeof(struct DKThreadPoolTask) );
+
     DKClassRef cls = DKNewClass( DKSTR( "DKThreadPool" ), DKObjectClass(), sizeof(struct DKThreadPool), 0, DKThreadPoolInit, DKThreadPoolFinalize );
-    
+
     return cls;
 }
 
@@ -165,11 +185,13 @@ static struct DKThreadPoolTask * DKThreadPoolAllocTask( DKThreadPoolRef _self, D
 {
     struct DKThreadPoolTask * task = DKNodePoolAlloc( &_self->nodePool );
 
+    #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+    fprintf( stderr, "DKThreadPool %s: allocating task %"PRIxPTR"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)task );
+    #endif
+
     memset( task, 0, sizeof(struct DKThreadPoolTask) );
     task->proc = proc;
     task->context = context;
-
-    DKAtomicIncrement32( &_self->pendingTasks );
     
     return task;
 }
@@ -182,12 +204,14 @@ static struct DKThreadPoolTask * DKThreadPoolAllocObjectTask( DKThreadPoolRef _s
 {
     struct DKThreadPoolTask * task = DKNodePoolAlloc( &_self->nodePool );
 
+    #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+    fprintf( stderr, "DKThreadPool %s: allocating task (method) %"PRIxPTR"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)task );
+    #endif
+
     memset( task, 0, sizeof(struct DKThreadPoolTask) );
     task->target = DKRetain( target );
     task->method = method;
     task->param = DKRetain( param );
-
-    DKAtomicIncrement32( &_self->pendingTasks );
 
     return task;
 }
@@ -205,38 +229,289 @@ static void DKThreadPoolFreeTasks( DKThreadPoolRef _self, struct DKThreadPoolTas
         DKRelease( task->target );
         DKRelease( task->param );
         
+        #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+        fprintf( stderr, "DKThreadPool %s: freeing task %"PRIxPTR"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)task );
+        #endif
+
         DKNodePoolFree( &_self->nodePool, task );
         
         task = next;
-
-        DKAtomicDecrement32( &_self->pendingTasks );
-        
-        DKAssert( _self->pendingTasks >= 0 );
     }
 }
 
 
 ///
-//  DKThreadPoolAddTaskToQueue()
+//  DKThreadPoolAllocQueue()
 //
-static void DKThreadPoolAddTaskToQueue( DKThreadPoolRef _self, struct DKThreadPoolTask * task )
+static struct DKThreadPoolQueue * DKThreadPoolAllocQueue( DKThreadPoolRef _self )
+{
+    struct DKThreadPoolQueue * queue = DKNodePoolAlloc( &_self->nodePool );
+
+    memset( queue, 0, sizeof(struct DKThreadPoolQueue) );
+
+    queue->taskGroup = DKAtomicIncrement32( &_self->nextTaskGroup );
+    
+    #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+    fprintf( stderr, "DKThreadPool %s: allocating queue %"PRIxPTR" for group %"PRIi64"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)queue, queue->taskGroup );
+    #endif
+
+    return queue;
+}
+
+
+///
+//  DKThreadPoolFreeQueues()
+//
+static void DKThreadPoolFreeQueues( DKThreadPoolRef _self, struct DKThreadPoolQueue * queue )
+{
+    while( queue )
+    {
+        struct DKThreadPoolQueue * next = queue->next;
+        
+        DKThreadPoolFreeTasks( _self, queue->tasks );
+        DKThreadPoolFreeTasks( _self, queue->completions );
+        
+        #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+        fprintf( stderr, "DKThreadPool %s: freeing queue %"PRIxPTR" for group %"PRIi64"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)queue, queue->taskGroup );
+        #endif
+
+        DKNodePoolFree( &_self->nodePool, queue );
+        
+        queue = next;
+    }
+}
+
+
+///
+//  DKThreadPoolGetQueue()
+//
+static struct DKThreadPoolQueue * DKThreadPoolGetQueue( DKThreadPoolRef _self, int64_t taskGroup )
+{
+    struct DKThreadPoolQueue * queue = _self->queues;
+
+    while( queue != NULL )
+    {
+        if( queue->taskGroup == taskGroup )
+            return queue;
+            
+        queue = queue->next;
+    }
+        
+    return NULL;
+}
+
+
+///
+//  DKThreadPoolGetLastQueue()
+//
+static struct DKThreadPoolQueue * DKThreadPoolGetLastQueue( DKThreadPoolRef _self, bool createIfNotFound )
+{
+    if( _self->queues )
+    {
+        struct DKThreadPoolQueue * queue = _self->queues;
+
+        while( queue->next != NULL )
+            queue = queue->next;
+
+        return queue;
+    }
+    
+    else if( createIfNotFound )
+    {
+        _self->queues = DKThreadPoolAllocQueue( _self );
+        return _self->queues;
+    }
+
+    return NULL;
+}
+
+
+///
+//  DKThreadPoolGetOpenQueue()
+//
+static struct DKThreadPoolQueue * DKThreadPoolGetOpenQueue( DKThreadPoolRef _self )
+{
+    struct DKThreadPoolQueue * queue = DKThreadPoolGetLastQueue( _self, true );
+    
+    if( !queue->closed )
+        return queue;
+        
+    queue->next = DKThreadPoolAllocQueue( _self );
+    return queue->next;
+}
+
+
+///
+//  DKThreadPoolAddTaskToList()
+//
+static void DKThreadPoolAddTaskToList( struct DKThreadPoolTask ** list, struct DKThreadPoolTask * task )
 {
     DKAssert( task->next == NULL );
 
-    if( _self->queue == NULL )
+    if( *list == NULL )
     {
-        _self->queue = task;
+        *list = task;
     }
-    
+
     else
     {
-        struct DKThreadPoolTask * end = _self->queue;
+        struct DKThreadPoolTask * end = *list;
         
         while( end->next )
             end = end->next;
         
         end->next = task;
     }
+}
+
+
+///
+//  DKThreadPoolScheduleTask()
+//
+static int64_t DKThreadPoolScheduleTask( DKThreadPoolRef _self, struct DKThreadPoolTask * task )
+{
+    struct DKThreadPoolQueue * queue = DKThreadPoolGetOpenQueue( _self );
+
+    task->taskGroup = queue->taskGroup;
+
+    #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+    fprintf( stderr, "DKThreadPool %s: scheduling task %"PRIxPTR" in group %"PRIi64"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)task, queue->taskGroup );
+    #endif
+
+    DKThreadPoolAddTaskToList( &queue->tasks, task );
+    
+    DKAtomicIncrement32( &queue->pendingTasks );
+    
+    return queue->taskGroup;
+}
+
+
+///
+//  DKThreadPoolScheduleCompletion()
+//
+static int64_t DKThreadPoolScheduleCompletion( DKThreadPoolRef _self, struct DKThreadPoolTask * completion )
+{
+    struct DKThreadPoolQueue * queue = DKThreadPoolGetLastQueue( _self, true );
+
+    completion->taskGroup = 0;
+
+    #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+    fprintf( stderr, "DKThreadPool %s: scheduling completion %"PRIxPTR" for group %"PRIi64"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)completion, queue->taskGroup );
+    #endif
+
+    DKThreadPoolAddTaskToList( &queue->completions, completion );
+    queue->closed = true;
+    
+    return queue->taskGroup;
+}
+
+
+///
+//  DKThreadPoolGetNextTask()
+//
+static struct DKThreadPoolTask * DKThreadPoolGetNextTask( DKThreadPoolRef _self )
+{
+    struct DKThreadPoolQueue ** cursor = &_self->queues;
+    
+    while( *cursor )
+    {
+        struct DKThreadPoolQueue * queue = *cursor;
+        
+        // If there's a task available, run it
+        if( queue->tasks )
+        {
+            struct DKThreadPoolTask * task = queue->tasks;
+            queue->tasks = task->next;
+            task->next = NULL;
+            
+            #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+            fprintf( stderr, "DKThreadPool %s: running task %"PRIxPTR" in group %"PRIi64"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)task, queue->taskGroup );
+            #endif
+        
+            return task;
+        }
+        
+        // If all the tasks in the queue's task group are done...
+        else if( queue->pendingTasks == 0 )
+        {
+            // If there's a completion available, run it
+            if( queue->completions )
+            {
+                struct DKThreadPoolTask * completion = queue->completions;
+                queue->completions = completion->next;
+                completion->next = NULL;
+                
+                #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+                fprintf( stderr, "DKThreadPool %s: running completion %"PRIxPTR" in group %"PRIi64"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)completion, queue->taskGroup );
+                #endif
+
+                return completion;
+            }
+            
+            // ...otherwise free the queue and signal the task group completion
+            else
+            {
+                #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+                fprintf( stderr, "DKThreadPool %s: completed group %"PRIi64"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", queue->taskGroup );
+                #endif
+                
+                *cursor = queue->next;
+                queue->next = NULL;
+                
+                DKThreadPoolFreeQueues( _self, queue );
+                DKConditionSignal( _self->controlCondition );
+            }
+        }
+        
+        else
+        {
+            cursor = &queue->next;
+        }
+    }
+    
+    #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
+    fprintf( stderr, "DKThreadPool %s: queue is empty\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "" );
+    #endif
+
+    return NULL;
+}
+
+
+///
+//  DKThreadPoolExecuteTask()
+//
+static void DKThreadPoolExecuteTask( DKThreadPoolRef _self, struct DKThreadPoolTask * task )
+{
+    DKPushAutoreleasePool();
+    
+    if( task->proc )
+        task->proc( task->context );
+    
+    else
+        task->method( task->target, task->param );
+    
+    DKPopAutoreleasePool();
+}
+
+
+///
+//  DKThreadPoolCompleteTask()
+//
+static void DKThreadPoolCompleteTask( DKThreadPoolRef _self, struct DKThreadPoolTask * task )
+{
+    if( task->taskGroup )
+    {
+        struct DKThreadPoolQueue * queue = DKThreadPoolGetQueue( _self, task->taskGroup );
+
+        #if DIAGNOSTIC_OUTPUT
+        fprintf( stderr, "DKThreadPool: completed task %"PRIXPTR" in group %"PRIi64"\n", (intptr_t)task, queue->taskGroup );
+        #endif
+
+        int32_t pending = DKAtomicDecrement32( &queue->pendingTasks );
+        DKAssert( pending >= 0 );
+    }
+
+    DKThreadPoolFreeTasks( _self, task );
 }
 
 
@@ -257,7 +532,20 @@ static void DKThreadPoolExec( void * _untyped_self )
     
     while( DKThreadGetState( thread ) != DKThreadCancelled )
     {
-        if( _self->queue == NULL )
+        struct DKThreadPoolTask * task = DKThreadPoolGetNextTask( _self );
+
+        if( task )
+        {
+            DKMutexUnlock( _self->queueMutex );
+            
+            DKThreadPoolExecuteTask( _self, task );
+
+            DKMutexLock( _self->queueMutex );
+
+            DKThreadPoolCompleteTask( _self, task );
+        }
+
+        else
         {
             DKAtomicIncrement32( &_self->idleThreads );
             DKConditionSignal( _self->controlCondition );
@@ -265,29 +553,6 @@ static void DKThreadPoolExec( void * _untyped_self )
             DKConditionWait( _self->queueCondition, _self->queueMutex );
 
             DKAtomicDecrement32( &_self->idleThreads );
-        }
-
-        else
-        {
-            struct DKThreadPoolTask * task = _self->queue;
-            _self->queue = task->next;
-            task->next = NULL;
-            
-            DKMutexUnlock( _self->queueMutex );
-
-            DKPushAutoreleasePool();
-            
-            if( task->proc )
-                task->proc( task->context );
-            
-            else
-                task->method( task->target, task->param );
-            
-            DKPopAutoreleasePool();
-
-            DKMutexLock( _self->queueMutex );
-
-            DKThreadPoolFreeTasks( _self, task );
         }
     }
 
@@ -354,7 +619,7 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
         DKMutexLock( _self->controlMutex );
 
         // Note: pthread_join doesn't seem to be reliable enough to properly wait for
-        // cancelled threads to finish, therefore this uses a semaphore to instead.
+        // cancelled threads to finish, therefore this uses a semaphore instead.
         
         // We DON'T want to use the control condition/mutex to watch the cancelled threads
         // because that would allow someone else to start new threads while we're trying
@@ -398,19 +663,42 @@ int DKThreadPoolGetThreadCount( DKThreadPoolRef _self )
 
 
 ///
-//  DKThreadPoolIsBusy()
+//  DKThreadPoolGetCurrentTaskGroup()
 //
-int DKThreadPoolIsBusy( DKThreadPoolRef _self )
+int64_t DKThreadPoolGetCurrentTaskGroup( DKThreadPoolRef _self )
 {
-    int busy = 0;
-
+    int64_t taskGroup = 0;
+    
     if( _self )
     {
         DKMutexLock( _self->queueMutex );
-
-        busy = _self->pendingTasks;
-
+        
+        struct DKThreadPoolQueue * queue = DKThreadPoolGetLastQueue( _self, false );
+        
+        if( queue )
+            taskGroup = queue->taskGroup;
+        
         DKMutexUnlock( _self->queueMutex );
+    }
+    
+    return taskGroup;
+}
+
+
+///
+//  DKThreadPoolIsIdle()
+//
+bool DKThreadPoolIsIdle( DKThreadPoolRef _self )
+{
+    bool busy = false;
+
+    if( _self )
+    {
+        DKMutexLock( _self->controlMutex );
+        
+        busy = _self->idleThreads == (int32_t)DKListGetCount( _self->threads );
+        
+        DKMutexUnlock( _self->controlMutex );
     }
     
     return busy;
@@ -435,38 +723,152 @@ void DKThreadPoolWaitUntilIdle( DKThreadPoolRef _self )
 
 
 ///
-//  DKThreadPoolAddTask()
+//  DKThreadPoolWaitForTasks()
 //
-void DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context )
+void DKThreadPoolWaitForTasks( DKThreadPoolRef _self, int64_t taskGroup )
 {
-    if( _self )
+    if( _self && (taskGroup != 0) )
     {
-        DKMutexLock( _self->queueMutex );
-
-        struct DKThreadPoolTask * task = DKThreadPoolAllocTask( _self, proc, context );
-        DKThreadPoolAddTaskToQueue( _self, task );
+        DKMutexLock( _self->controlMutex );
         
-        DKMutexUnlock( _self->queueMutex );
-        DKConditionSignal( _self->queueCondition );
+        while( true )
+        {
+            DKMutexLock( _self->queueMutex );
+            
+            struct DKThreadPoolQueue * queue = DKThreadPoolGetQueue( _self, taskGroup );
+            DKAssert( (queue == NULL) || (queue->pendingTasks > 0) );
+            
+            // Close the queue to make sure nothing new gets added to it
+            if( queue != NULL )
+                queue->closed = true;
+            
+            DKMutexUnlock( _self->queueMutex );
+            
+            if( queue == NULL )
+                break;
+        
+            DKConditionWait( _self->controlCondition, _self->controlMutex );
+        }
+        
+        DKMutexUnlock( _self->controlMutex );
     }
 }
 
 
 ///
-//  DKThreadPoolAddObjectTask()
+//  DKThreadPoolWaitForCurrentTasks()
 //
-void DKThreadPoolAddObjectTask( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param )
+void DKThreadPoolWaitForCurrentTasks( DKThreadPoolRef _self )
 {
+    DKThreadPoolWaitForTasks( _self, DKThreadPoolGetCurrentTaskGroup( _self ) );
+}
+
+
+///
+//  DKThreadPoolAddTask()
+//
+int64_t DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context )
+{
+    int64_t taskGroup = 0;
+    
+    if( _self )
+    {
+        DKMutexLock( _self->queueMutex );
+
+        struct DKThreadPoolTask * task = DKThreadPoolAllocTask( _self, proc, context );
+        taskGroup = DKThreadPoolScheduleTask( _self, task );
+        
+        DKMutexUnlock( _self->queueMutex );
+        DKConditionSignal( _self->queueCondition );
+    }
+    
+    return taskGroup;
+}
+
+
+///
+//  DKThreadPoolAddTaskMethod()
+//
+int64_t DKThreadPoolAddTaskMethod( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param )
+{
+    int64_t taskGroup = 0;
+    
     if( _self )
     {
         DKMutexLock( _self->queueMutex );
 
         struct DKThreadPoolTask * task = DKThreadPoolAllocObjectTask( _self, target, method, param );
-        DKThreadPoolAddTaskToQueue( _self, task );
+        taskGroup = DKThreadPoolScheduleTask( _self, task );
         
         DKMutexUnlock( _self->queueMutex );
         DKConditionSignal( _self->queueCondition );
     }
+    
+    return taskGroup;
+}
+
+
+///
+//  DKThreadPoolAddCompletion()
+//
+int64_t DKThreadPoolAddCompletion( DKThreadPoolRef _self, DKThreadProc proc, void * context )
+{
+    int64_t taskGroup = 0;
+    
+    if( _self )
+    {
+        DKMutexLock( _self->queueMutex );
+
+        if( _self->queues )
+        {
+            struct DKThreadPoolTask * completion = DKThreadPoolAllocTask( _self, proc, context );
+            taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
+        
+            DKMutexUnlock( _self->queueMutex );
+            DKConditionSignal( _self->queueCondition );
+        }
+        
+        else
+        {
+            DKMutexUnlock( _self->queueMutex );
+
+            proc( context );
+        }
+    }
+    
+    return taskGroup;
+}
+
+
+///
+//  DKThreadPoolAddCompletionMethod()
+//
+int64_t DKThreadPoolAddCompletionMethod( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param )
+{
+    int64_t taskGroup = 0;
+    
+    if( _self )
+    {
+        DKMutexLock( _self->queueMutex );
+
+        if( _self->queues )
+        {
+            struct DKThreadPoolTask * completion = DKThreadPoolAllocObjectTask( _self, target, method, param );
+            taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
+            
+            DKMutexUnlock( _self->queueMutex );
+            DKConditionSignal( _self->queueCondition );
+        }
+        
+        else
+        {
+            DKMutexUnlock( _self->queueMutex );
+
+            method( target, param );
+        }
+    }
+    
+    return taskGroup;
 }
 
 
@@ -479,8 +881,8 @@ void DKThreadPoolRemoveAllTasks( DKThreadPoolRef _self )
     {
         DKMutexLock( _self->queueMutex );
         
-        DKThreadPoolFreeTasks( _self, _self->queue );
-        _self->queue = NULL;
+        DKThreadPoolFreeQueues( _self, _self->queues );
+        _self->queues = NULL;
         
         DKMutexUnlock( _self->queueMutex );
     }

@@ -52,12 +52,18 @@ DK_API int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
 DK_API void DKThreadPoolStop( DKThreadPoolRef _self );
 
 DK_API int DKThreadPoolGetThreadCount( DKThreadPoolRef _self );
+DK_API int64_t DKThreadPoolGetCurrentTaskGroup( DKThreadPoolRef _self );
 
-DK_API int DKThreadPoolIsBusy( DKThreadPoolRef _self );
+DK_API bool DKThreadPoolIsIdle( DKThreadPoolRef _self );
 DK_API void DKThreadPoolWaitUntilIdle( DKThreadPoolRef _self );
+DK_API void DKThreadPoolWaitForTasks( DKThreadPoolRef _self, int64_t taskGroup );
+DK_API void DKThreadPoolWaitForCurrentTasks( DKThreadPoolRef _self );
 
-DK_API void DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context );
-DK_API void DKThreadPoolAddObjectTask( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
+DK_API int64_t DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context );
+DK_API int64_t DKThreadPoolAddTaskMethod( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
+
+DK_API int64_t DKThreadPoolAddCompletion( DKThreadPoolRef _self, DKThreadProc proc, void * context );
+DK_API int64_t DKThreadPoolAddCompletionMethod( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );
 
 DK_API void DKThreadPoolRemoveAllTasks( DKThreadPoolRef _self );
 
