@@ -73,12 +73,13 @@ struct DKThreadPool
     DKStringRef label;
     
     DKMutableListRef threads;
-    DKMutexRef controlMutex;
-    DKConditionRef controlCondition;
-
+    DKMutexRef threadsMutex;
+    
     struct DKThreadPoolQueue * queues;
-    DKMutexRef queueMutex;
-    DKConditionRef queueCondition;
+    DKMutexRef queuesMutex;
+
+    DKConditionRef workAvailableCondition;  // Signalled when work is added to the queue
+    DKConditionRef stateChangedCondition;   // Signalled when a worker thread goes idle, a task group is completed, etc.
     
     DKSemaphoreRef stopCounter;
     
@@ -118,11 +119,11 @@ static DKObjectRef DKThreadPoolInit( DKObjectRef _untyped_self )
         
         _self->threads = DKNewMutableList();
         
-        _self->controlMutex = DKNewMutex();
-        _self->controlCondition = DKNewCondition();
-        
-        _self->queueMutex = DKNewMutex();
-        _self->queueCondition = DKNewCondition();
+        _self->threadsMutex = DKNewMutex();
+        _self->queuesMutex = DKNewMutex();
+
+        _self->workAvailableCondition = DKNewCondition();
+        _self->stateChangedCondition = DKNewCondition();
         
         _self->stopCounter = DKNewSemaphore();
     }
@@ -142,10 +143,10 @@ static void DKThreadPoolFinalize( DKObjectRef _untyped_self )
     DKThreadPoolRemoveAllTasks( _self );
     
     DKRelease( _self->threads );
-    DKRelease( _self->controlMutex );
-    DKRelease( _self->controlCondition );
-    DKRelease( _self->queueMutex );
-    DKRelease( _self->queueCondition );
+    DKRelease( _self->threadsMutex );
+    DKRelease( _self->queuesMutex );
+    DKRelease( _self->workAvailableCondition );
+    DKRelease( _self->stateChangedCondition );
     DKRelease( _self->stopCounter );
     DKRelease( _self->label );
 
@@ -459,7 +460,7 @@ static struct DKThreadPoolTask * DKThreadPoolGetNextTask( DKThreadPoolRef _self 
                 queue->next = NULL;
                 
                 DKThreadPoolFreeQueues( _self, queue );
-                DKConditionSignal( _self->controlCondition );
+                DKConditionSignalAll( _self->stateChangedCondition );
             }
         }
         
@@ -528,7 +529,7 @@ static void DKThreadPoolExec( void * _untyped_self )
         _self->onThreadStart( _self, _self->onThreadStartStopContext );
     }
 
-    DKMutexLock( _self->queueMutex );
+    DKMutexLock( _self->queuesMutex );
     
     while( DKThreadGetState( thread ) != DKThreadCancelled )
     {
@@ -536,11 +537,11 @@ static void DKThreadPoolExec( void * _untyped_self )
 
         if( task )
         {
-            DKMutexUnlock( _self->queueMutex );
+            DKMutexUnlock( _self->queuesMutex );
             
             DKThreadPoolExecuteTask( _self, task );
 
-            DKMutexLock( _self->queueMutex );
+            DKMutexLock( _self->queuesMutex );
 
             DKThreadPoolCompleteTask( _self, task );
         }
@@ -548,15 +549,15 @@ static void DKThreadPoolExec( void * _untyped_self )
         else
         {
             DKAtomicIncrement32( &_self->idleThreads );
-            DKConditionSignal( _self->controlCondition );
+            DKConditionSignalAll( _self->stateChangedCondition );
 
-            DKConditionWait( _self->queueCondition, _self->queueMutex );
+            DKConditionWait( _self->workAvailableCondition, _self->queuesMutex );
 
             DKAtomicDecrement32( &_self->idleThreads );
         }
     }
 
-    DKMutexUnlock( _self->queueMutex );
+    DKMutexUnlock( _self->queuesMutex );
 
     if( _self->onThreadStop )
     {
@@ -574,7 +575,7 @@ int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads )
 {
     if( _self )
     {
-        DKMutexLock( _self->controlMutex );
+        DKMutexLock( _self->threadsMutex );
     
         int runningThreads = (int)DKListGetCount( _self->threads );
         int startedThreads = numThreads - runningThreads;
@@ -600,7 +601,7 @@ int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads )
             DKRelease( thread );
         }
         
-        DKMutexUnlock( _self->controlMutex );
+        DKMutexUnlock( _self->threadsMutex );
         
         return startedThreads;
     }
@@ -616,12 +617,12 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
 {
     if( _self )
     {
-        DKMutexLock( _self->controlMutex );
+        DKMutexLock( _self->threadsMutex );
 
         // Note: pthread_join doesn't seem to be reliable enough to properly wait for
         // cancelled threads to finish, therefore this uses a semaphore instead.
         
-        // We DON'T want to use the control condition/mutex to watch the cancelled threads
+        // We DON'T want to let go of the mutex while waiting for the cancelled threads
         // because that would allow someone else to start new threads while we're trying
         // to stop the old ones.
 
@@ -636,8 +637,8 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
             DKThreadCancel( thread );
         }
         
-        // Wake up any waiting threads
-        DKConditionSignalAll( _self->queueCondition );
+        // Wake up any threads waiting for work
+        DKConditionSignalAll( _self->workAvailableCondition );
 
         // Wait for the threads to finish
         DKSemaphoreWait( _self->stopCounter, 0 );
@@ -645,7 +646,7 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
         // Release the thread objects
         DKListRemoveAllObjects( _self->threads );
 
-        DKMutexUnlock( _self->controlMutex );
+        DKMutexUnlock( _self->threadsMutex );
     }
 }
 
@@ -671,14 +672,14 @@ int64_t DKThreadPoolGetCurrentTaskGroup( DKThreadPoolRef _self )
     
     if( _self )
     {
-        DKMutexLock( _self->queueMutex );
+        DKMutexLock( _self->queuesMutex );
         
         struct DKThreadPoolQueue * queue = DKThreadPoolGetLastQueue( _self, false );
         
         if( queue )
             taskGroup = queue->taskGroup;
         
-        DKMutexUnlock( _self->queueMutex );
+        DKMutexUnlock( _self->queuesMutex );
     }
     
     return taskGroup;
@@ -694,11 +695,11 @@ bool DKThreadPoolIsIdle( DKThreadPoolRef _self )
 
     if( _self )
     {
-        DKMutexLock( _self->controlMutex );
+        DKMutexLock( _self->threadsMutex );
         
         busy = _self->idleThreads == (int32_t)DKListGetCount( _self->threads );
         
-        DKMutexUnlock( _self->controlMutex );
+        DKMutexUnlock( _self->threadsMutex );
     }
     
     return busy;
@@ -712,12 +713,12 @@ void DKThreadPoolWaitUntilIdle( DKThreadPoolRef _self )
 {
     if( _self )
     {
-        DKMutexLock( _self->controlMutex );
+        DKMutexLock( _self->threadsMutex );
         
         while( _self->idleThreads < (int32_t)DKListGetCount( _self->threads ) )
-            DKConditionWait( _self->controlCondition, _self->controlMutex );
+            DKConditionWait( _self->stateChangedCondition, _self->threadsMutex );
         
-        DKMutexUnlock( _self->controlMutex );
+        DKMutexUnlock( _self->threadsMutex );
     }
 }
 
@@ -729,28 +730,23 @@ void DKThreadPoolWaitForTasks( DKThreadPoolRef _self, int64_t taskGroup )
 {
     if( _self && (taskGroup != 0) )
     {
-        DKMutexLock( _self->controlMutex );
+        DKMutexLock( _self->queuesMutex );
         
         while( true )
         {
-            DKMutexLock( _self->queueMutex );
-            
             struct DKThreadPoolQueue * queue = DKThreadPoolGetQueue( _self, taskGroup );
             DKAssert( (queue == NULL) || (queue->pendingTasks > 0) );
             
-            // Close the queue to make sure nothing new gets added to it
-            if( queue != NULL )
-                queue->closed = true;
-            
-            DKMutexUnlock( _self->queueMutex );
-            
             if( queue == NULL )
                 break;
-        
-            DKConditionWait( _self->controlCondition, _self->controlMutex );
+            
+            // Close the queue to make sure nothing new gets added to it
+            queue->closed = true;
+            
+            DKConditionWait( _self->stateChangedCondition, _self->queuesMutex );
         }
         
-        DKMutexUnlock( _self->controlMutex );
+        DKMutexUnlock( _self->queuesMutex );
     }
 }
 
@@ -773,13 +769,13 @@ int64_t DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * co
     
     if( _self )
     {
-        DKMutexLock( _self->queueMutex );
+        DKMutexLock( _self->queuesMutex );
 
         struct DKThreadPoolTask * task = DKThreadPoolAllocTask( _self, proc, context );
         taskGroup = DKThreadPoolScheduleTask( _self, task );
         
-        DKMutexUnlock( _self->queueMutex );
-        DKConditionSignal( _self->queueCondition );
+        DKMutexUnlock( _self->queuesMutex );
+        DKConditionSignal( _self->workAvailableCondition );
     }
     
     return taskGroup;
@@ -795,13 +791,13 @@ int64_t DKThreadPoolAddTaskMethod( DKThreadPoolRef _self, DKObjectRef target, DK
     
     if( _self )
     {
-        DKMutexLock( _self->queueMutex );
+        DKMutexLock( _self->queuesMutex );
 
         struct DKThreadPoolTask * task = DKThreadPoolAllocObjectTask( _self, target, method, param );
         taskGroup = DKThreadPoolScheduleTask( _self, task );
         
-        DKMutexUnlock( _self->queueMutex );
-        DKConditionSignal( _self->queueCondition );
+        DKMutexUnlock( _self->queuesMutex );
+        DKConditionSignal( _self->workAvailableCondition );
     }
     
     return taskGroup;
@@ -817,20 +813,20 @@ int64_t DKThreadPoolAddCompletion( DKThreadPoolRef _self, DKThreadProc proc, voi
     
     if( _self )
     {
-        DKMutexLock( _self->queueMutex );
+        DKMutexLock( _self->queuesMutex );
 
         if( _self->queues )
         {
             struct DKThreadPoolTask * completion = DKThreadPoolAllocTask( _self, proc, context );
             taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
         
-            DKMutexUnlock( _self->queueMutex );
-            DKConditionSignal( _self->queueCondition );
+            DKMutexUnlock( _self->queuesMutex );
+            DKConditionSignal( _self->workAvailableCondition );
         }
         
         else
         {
-            DKMutexUnlock( _self->queueMutex );
+            DKMutexUnlock( _self->queuesMutex );
 
             proc( context );
         }
@@ -849,20 +845,20 @@ int64_t DKThreadPoolAddCompletionMethod( DKThreadPoolRef _self, DKObjectRef targ
     
     if( _self )
     {
-        DKMutexLock( _self->queueMutex );
+        DKMutexLock( _self->queuesMutex );
 
         if( _self->queues )
         {
             struct DKThreadPoolTask * completion = DKThreadPoolAllocObjectTask( _self, target, method, param );
             taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
             
-            DKMutexUnlock( _self->queueMutex );
-            DKConditionSignal( _self->queueCondition );
+            DKMutexUnlock( _self->queuesMutex );
+            DKConditionSignal( _self->workAvailableCondition );
         }
         
         else
         {
-            DKMutexUnlock( _self->queueMutex );
+            DKMutexUnlock( _self->queuesMutex );
 
             method( target, param );
         }
@@ -879,12 +875,12 @@ void DKThreadPoolRemoveAllTasks( DKThreadPoolRef _self )
 {
     if( _self )
     {
-        DKMutexLock( _self->queueMutex );
+        DKMutexLock( _self->queuesMutex );
         
         DKThreadPoolFreeQueues( _self, _self->queues );
         _self->queues = NULL;
         
-        DKMutexUnlock( _self->queueMutex );
+        DKMutexUnlock( _self->queuesMutex );
     }
 }
 
