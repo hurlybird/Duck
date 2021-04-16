@@ -250,7 +250,7 @@ static struct DKThreadPoolQueue * DKThreadPoolAllocQueue( DKThreadPoolRef _self 
 
     memset( queue, 0, sizeof(struct DKThreadPoolQueue) );
 
-    queue->taskGroup = DKAtomicIncrement32( &_self->nextTaskGroup );
+    queue->taskGroup = DKAtomicIncrement64( &_self->nextTaskGroup );
     
     #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
     fprintf( stderr, "DKThreadPool %s: allocating queue %"PRIxPTR" for group %"PRIi64"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)queue, queue->taskGroup );
