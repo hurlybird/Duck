@@ -233,19 +233,19 @@ static void INTERNAL_DKDrainAutoreleasePool( struct DKThreadContext * threadCont
     // the release call to another object.
     while( 1 )
     {
-        DKIndex count = DKGenericArrayGetLength( &threadContext->arp.objects );
+        DKIndex arrayLength = DKGenericArrayGetLength( &threadContext->arp.objects );
         DKRange range;
         
         if( threadContext->arp.top == -1 )
         {
             range.location = 0;
-            range.length = count;
+            range.length = arrayLength;
         }
         
         else
         {
             range.location = threadContext->arp.lowWater[threadContext->arp.top];
-            range.length = count - range.location;
+            range.length = arrayLength - range.location;
         }
 
         if( range.length > 0 )
@@ -257,7 +257,16 @@ static void INTERNAL_DKDrainAutoreleasePool( struct DKThreadContext * threadCont
             DKObjectRef * objects = DKGenericArrayGetPointerToElementAtIndex( &threadContext->arp.objects, range.location );
 
             for( DKIndex i = 0; i < range.length; ++i )
+            {
                 DKRelease( objects[i] );
+                
+                // Reset the pointer if the array contents have changed
+                if( arrayLength != DKGenericArrayGetLength( &threadContext->arp.objects ) )
+                {
+                    arrayLength = DKGenericArrayGetLength( &threadContext->arp.objects );
+                    objects = DKGenericArrayGetPointerToElementAtIndex( &threadContext->arp.objects, range.location );
+                }
+            }
             
             DKGenericArrayReplaceElements( &threadContext->arp.objects, range, NULL, 0 );
         }
