@@ -584,11 +584,18 @@ DK_API void DKImmutableObjectAccessError( DKObjectRef _self );
 
 // Memory Allocation =====================================================================
 typedef void * (*dk_malloc_callback)( size_t size );
+typedef void * (*dk_calloc_callback)( size_t num, size_t size );
+typedef void * (*dk_realloc_callback)( void * ptr, size_t size );
 typedef void (*dk_free_callback)( void * ptr );
 
-DK_API void DKSetExternalAllocator( dk_malloc_callback _malloc, dk_free_callback _free );
+DK_API void DKSetExternalAllocator( dk_malloc_callback _malloc,
+    dk_realloc_callback _realloc,
+    dk_calloc_callback _calloc,
+    dk_free_callback _free );
 
 DK_API void * dk_malloc( size_t size );
+DK_API void * dk_calloc( size_t num, size_t size );
+DK_API void * dk_realloc( void * ptr, size_t size );
 DK_API void   dk_free( void * ptr );
 
 

@@ -245,19 +245,49 @@ void DKImmutableObjectAccessError( DKObjectRef _self )
 
 // Memory Allocation =====================================================================
 static dk_malloc_callback malloc_callback = NULL;
+static dk_calloc_callback calloc_callback = NULL;
+static dk_realloc_callback realloc_callback = NULL;
 static dk_free_callback free_callback = NULL;
 
 
 ///
 //  DKSetExternalAllocator()
 //
-void DKSetExternalAllocator( dk_malloc_callback _malloc, dk_free_callback _free )
+DK_API void DKSetExternalAllocator( dk_malloc_callback _malloc,
+    dk_realloc_callback _realloc,
+    dk_calloc_callback _calloc,
+    dk_free_callback _free )
 {
     DKRequire( !DKRuntimeIsInitialized() );
 
     malloc_callback = _malloc;
+    calloc_callback = _calloc;
+    realloc_callback = _realloc;
     free_callback = _free;
 }
+
+
+///
+//  dk_print_backtrace()
+//
+#if DK_MALLOC_TRACE
+#include <execinfo.h>
+
+static void dk_print_backtrace( FILE * stream )
+{
+    void * callstack[256];
+    int frameCount = backtrace( callstack, 256 );
+    char ** frameStrings = backtrace_symbols( callstack, frameCount );
+
+    if( frameStrings != NULL )
+    {
+        for( int i = 1; i < frameCount; i++ )
+            fprintf( stream, "    %s\n", frameStrings[i] );
+
+        free( frameStrings );
+    }
+}
+#endif
 
 
 ///
@@ -275,18 +305,53 @@ void * dk_malloc( size_t size )
 
 #if DK_MALLOC_TRACE
     fprintf( stderr, "0x%lx = dk_malloc( %lu ):\n", (uintptr_t)ptr, size );
+    dk_print_backtrace( stderr );
+#endif
 
-    void * callstack[128];
-    int frameCount = backtrace( callstack, 128 );
-    char ** frameStrings = backtrace_symbols( callstack, frameCount );
+    return ptr;
+}
 
-    if( frameStrings != NULL )
-    {
-        for( int i = 1; i < frameCount; i++ )
-            fprintf( stderr, "    %s\n", frameStrings[i] );
 
-        free( frameStrings );
-    }
+///
+//  dk_calloc()
+//
+void * dk_calloc( size_t num, size_t size )
+{
+    void * ptr;
+    
+    if( calloc_callback )
+        ptr = calloc_callback( num, size );
+    
+    else
+        ptr = calloc( num, size );
+
+#if DK_MALLOC_TRACE
+    fprintf( stderr, "0x%lx = dk_calloc( %lu, %lu ):\n", (uintptr_t)ptr, num, size );
+    dk_print_backtrace( stderr );
+#endif
+
+    return ptr;
+}
+
+
+///
+//  dk_realloc()
+//
+void * dk_realloc( void * ptr, size_t size )
+{
+#if DK_MALLOC_TRACE
+    void * old_ptr = ptr;
+#endif
+    
+    if( realloc_callback )
+        ptr = realloc_callback( ptr, size );
+    
+    else
+        ptr = realloc( ptr, size );
+
+#if DK_MALLOC_TRACE
+    fprintf( stderr, "0x%lx = dk_realloc( 0x%lx, %lu ):\n", (uintptr_t)ptr, (uintptr_t)old_ptr, size );
+    dk_print_backtrace( stderr );
 #endif
 
     return ptr;
