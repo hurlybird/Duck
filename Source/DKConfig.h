@@ -126,7 +126,7 @@
 
 
 // Debug =================================================================================
-#if !defined(NDEBUG) && !defined(DEBUG)
+#if DK_PLATFORM_WINDOWS && defined(_DEBUG) && !defined(DEBUG)
 #define DEBUG 1
 #endif
 

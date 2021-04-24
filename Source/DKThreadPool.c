@@ -509,7 +509,7 @@ static void DKThreadPoolCompleteTask( DKThreadPoolRef _self, struct DKThreadPool
         #endif
 
         int32_t pending = DKAtomicDecrement32( &queue->pendingTasks );
-        DKAssert( pending >= 0 );
+        DKRequire( pending >= 0 );
     }
 
     DKThreadPoolFreeTasks( _self, task );
