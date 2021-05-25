@@ -76,6 +76,12 @@
 #define DK_PLATFORM_GCC_INTRINSICS  1
 
 
+// PlayStation 5
+#elif DK_PLATFORM_PS5
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
 // Autodetect Apple
 #elif __APPLE__
 #define DK_PLATFORM_APPLE           1
@@ -93,6 +99,13 @@
 // Autodetect Nintendo Switch
 #elif NX
 #define DK_PLATFORM_NX              1
+#define DK_PLATFORM_POSIX           1
+#define DK_PLATFORM_GCC_INTRINSICS  1
+
+
+// Autodetect PlayStation 5
+#elif PS5
+#define DK_PLATFORM_PS5             1
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_GCC_INTRINSICS  1
 

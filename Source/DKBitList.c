@@ -28,7 +28,11 @@
 
 
 #define ROUND_POW2( n, p )  (((n) + ((p) - 1)) & ~((p) - 1))
+
+#ifndef MIN
 #define MIN( a, b )         ((a) < (b) ? (a) : (b))
+#endif
+
 #define BITS_PER_INT        (sizeof(uint32_t) * 8)
 #define BIT_INDEX( n )      ((n) / BITS_PER_INT)
 #define BIT_OFFSET( n )     ((n) % BITS_PER_INT)

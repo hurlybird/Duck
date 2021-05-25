@@ -78,6 +78,10 @@ if( NX )
     set( DuckStaticLibraryName duck )
     set( CMAKE_STATIC_LIBRARY_PREFIX "lib" )
     set( CMAKE_STATIC_LIBRARY_SUFFIX ".a" )
+elseif( PS5 )
+    set( DuckStaticLibraryName duck )
+    set( CMAKE_STATIC_LIBRARY_PREFIX "lib" )
+    set( CMAKE_STATIC_LIBRARY_SUFFIX ".a" )
 elseif( WIN32 )
     set( DuckStaticLibraryName DuckStatic )
     set( DuckSharedLibraryName Duck )
@@ -94,6 +98,8 @@ if( APPLE )
 elseif( ANDROID )
 
 elseif( NX )
+
+elseif( PS5 )
 
 elseif( UNIX )
     set( DuckRequiredLibraries
@@ -246,6 +252,10 @@ set( DuckProjectHeaderSearchPaths
 # Add Support for Proprietary Platforms ==================================================
 if( NX )
     include( ${DUCK_PATH}/Proprietary/NX/CMakeLists.txt )
+endif()
+
+if( PS5 )
+    include( ${DUCK_PATH}/Proprietary/PS5/CMakeLists.txt )
 endif()
 
 

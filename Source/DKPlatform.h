@@ -172,6 +172,21 @@
 #endif
 
 
+// PlayStation 5
+#if DK_PLATFORM_PS5
+
+#define DK_API
+#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+
+#ifndef restrict
+#define restrict __restrict
+#endif
+
+#endif
+
+
+
+
 
 // Basic Types & Constants ===============================================================
 
