@@ -187,8 +187,12 @@
 
 
 
-
 // Basic Types & Constants ===============================================================
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 // Objects
 typedef void * DKObjectRef;
@@ -845,6 +849,11 @@ DK_API DKDateTime dk_systemtime( void );
 #define dk_strtof32( str, end )             strtof( (str), (end) )
 #define dk_strtof64( str, end )             strtod( (str), (end) )
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_PLATFORM_H_
 

@@ -38,13 +38,14 @@
 #endif
 
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#include "DKConfig.h"
-#include "DKPlatform.h"
 
 #include "DKByteArray.h"
 #include "DKGenericArray.h"
