@@ -467,18 +467,17 @@ DKUUID dk_uuid_generate( void )
     UUID tmp;
 
     RPC_STATUS status = UuidCreate( &tmp );
-    DKAssert( status == RPC_S_OK );
 
-    uuid.bytes[0] = (uint8_t)(tmp.Data1 & 0xff);
-    uuid.bytes[1] = (uint8_t)((tmp.Data1 >> 8) & 0xff);
-    uuid.bytes[2] = (uint8_t)((tmp.Data1 >> 16) & 0xff);
-    uuid.bytes[3] = (uint8_t)((tmp.Data1 >> 24) & 0xff);
+    // UuidCreate may return RPC_S_OK, RPC_S_UUID_LOCAL_ONLY or RPC_S_UUID_NO_ADDRESS,
+    // but these apparently aren't defined on all platforms.
+    if( status != ERROR_SUCCESS /* RPC_S_OK */ )
+    {
+        DKWarning( "dk_uuid_generate: UuidCreate returned status 0x%X.", status );
+    }
 
-    uuid.bytes[4] = (uint8_t)(tmp.Data2 & 0xff);
-    uuid.bytes[5] = (uint8_t)((tmp.Data2 >> 8) & 0xff);
-        
-    uuid.bytes[6] = (uint8_t)(tmp.Data3 & 0xff);
-    uuid.bytes[7] = (uint8_t)((tmp.Data3 >> 8) & 0xff);
+    *((uint32_t *)&uuid.bytes[0]) = DKSwapInt32HostToBig( tmp.Data1 );
+    *((uint16_t *)&uuid.bytes[4]) = DKSwapInt16HostToBig( tmp.Data2 );
+    *((uint16_t *)&uuid.bytes[6]) = DKSwapInt16HostToBig( tmp.Data3 );
 
     uuid.bytes[8] = tmp.Data4[0];
     uuid.bytes[9] = tmp.Data4[1];
@@ -492,7 +491,6 @@ DKUUID dk_uuid_generate( void )
 
     return uuid;
 }
-
 
 #endif
 

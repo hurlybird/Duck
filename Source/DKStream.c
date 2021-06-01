@@ -257,6 +257,7 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
     DKObjectRef object;
     DKStringRef desc;
     const char * cstr;
+    const wchar_t * wstr;
     size_t cstr_len;
 
     size_t num_size;
@@ -322,12 +323,35 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
             
         // %s - C string
         case 's':
-            cstr = va_arg( arg_ptr, const char * );
+            if( cursor[tok - 1] == 'l' )
+            {
+                wstr = va_arg( arg_ptr, const wchar_t * );
 
-            if( !cstr )
-                cstr = "(null)";
+                if( !wstr )
+                    wstr = L"(null)";
 
-            write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
+                CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+
+                int wlen = snprintf( NULL, 0, tmp_format, wstr );
+
+                if( wlen > 0 )
+                {
+                    char * tmp = dk_malloc( wlen + 1 );
+                    snprintf( tmp, wlen + 1, tmp_format, wstr );
+                    write_count += stream->write( _self, tmp, 1, strlen( tmp ) );
+                    dk_free( tmp );
+                }
+            }
+
+            else
+            {
+                cstr = va_arg( arg_ptr, const char * );
+
+                if( !cstr )
+                    cstr = "(null)";
+
+                write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
+            }
             break;
         
         // %@ - Object
@@ -430,7 +454,7 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
             WriteCounter( tmp_format, tok + 1, write_count, va_arg( arg_ptr, void * ) );
             break;
         
-        // All numeric types
+        // Unrecognized
         default:
             DKAssert( 0 );
             break;

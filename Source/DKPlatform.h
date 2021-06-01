@@ -115,7 +115,11 @@
 
 // Windows -------------------------------------------------------------------------------
 #if DK_PLATFORM_WINDOWS
+
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <windows.h>
 
 //#define _CRT_NONSTDC_NO_DEPRECATE
