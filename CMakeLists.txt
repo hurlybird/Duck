@@ -47,6 +47,11 @@ project( Duck )
 # Configuration ==========================================================================
 set( CMAKE_POSITION_INDEPENDENT_CODE 1 )
 
+# Temporary (I hope) fix for Windows SDK 10.0.19041 sulking when compiling with C++ 11 or 17
+if (WIN32)
+    add_definitions(-DMICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS=1)
+endif()
+
 # Paths ----------------------------------------------------------------------------------
 set( DUCK_PATH ${CMAKE_CURRENT_SOURCE_DIR} )
 
@@ -55,7 +60,11 @@ if( NOT DEFINED DUCK_PUBLIC_HEADERS_PATH )
 endif()
 
 if( NOT DEFINED DUCK_BINARY_PATH )
-    set( DUCK_BINARY_PATH ${CMAKE_CURRENT_BINARY_DIR} )
+    if( ${CMAKE_GENERATOR} MATCHES "^Visual Studio*" )
+        set( DUCK_BINARY_PATH ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_VS_PLATFORM_NAME} )
+    else()
+        set( DUCK_BINARY_PATH ${CMAKE_CURRENT_BINARY_DIR} )
+    endif()
 endif()
 
 # Fix Windows paths
@@ -283,7 +292,8 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         LIBRARY_OUTPUT_DIRECTORY ${DUCK_BINARY_PATH}
         RUNTIME_OUTPUT_DIRECTORY ${DUCK_BINARY_PATH}
         FOLDER Duck
-        LINKER_LANGUAGE C )
+        LINKER_LANGUAGE C
+        C_STANDARD 11 )
 
     target_compile_definitions( ${TargetName}
          PUBLIC
@@ -293,9 +303,21 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         target_compile_definitions( ${TargetName}
             PUBLIC
             $<IF:$<STREQUAL:${TargetType},STATIC>,DK_API_STATIC,DK_API_EXPORTS>
+            PRIVATE
+            $<IF:$<CONFIG:DEBUG>,_DEBUG,NDEBUG>
+            UNICODE _UNICODE
             _CRT_SECURE_NO_WARNINGS )
 
-        target_compile_options( ${TargetName} PUBLIC /EHsc )
+        # /EHsc         - C++ Exceptions
+        # /fp:fast      - fast floating point
+        # /fp:precise   - precise floating point
+        # /GS           - buffer security checks
+        # /Gy           - function level linking
+        target_compile_options( ${TargetName}
+            PRIVATE
+            /fp:precise
+            /GS
+            /Gy )
     endif()
 
     if( FRAMEWORK )
