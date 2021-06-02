@@ -91,8 +91,8 @@ DKThreadSafeClassInit( DKDataClass )
     struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer), sizeof(struct DKBufferInterface) );
     buffer->getLength = (DKBufferGetLengthMethod)DKDataGetLength;
     buffer->getBytePtr = (DKBufferGetBytePtrMethod)DKDataGetBytePtr;
-    buffer->setLength = (void *)DKImmutableObjectAccessError;
-    buffer->getMutableBytePtr = (void *)DKImmutableObjectAccessError;
+    buffer->setLength = (DKBufferSetLengthMethod)DKImmutableObjectAccessError;
+    buffer->getMutableBytePtr = (DKBufferGetMutableBytePtrMethod)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, buffer );
     DKRelease( buffer );
@@ -102,7 +102,7 @@ DKThreadSafeClassInit( DKDataClass )
     stream->seek = (DKStreamSeekMethod)DKDataSeek;
     stream->tell = (DKStreamTellMethod)DKDataTell;
     stream->read = (DKStreamReadMethod)DKDataRead;
-    stream->write = (void *)DKImmutableObjectAccessError;
+    stream->write = (DKStreamWriteMethod)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, stream );
     DKRelease( stream );

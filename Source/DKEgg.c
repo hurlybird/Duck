@@ -657,12 +657,12 @@ void DKEggGetKeyedCollection( DKEggUnarchiverRef _self, DKStringRef key, DKKeyed
                     v = DKSwapInt32( v );
                 }
             
-                DKObjectRef key = DKEggUnarchiverGetObject( _self, k );
+                DKObjectRef keyi = DKEggUnarchiverGetObject( _self, k );
                 
-                if( key )
+                if( keyi )
                 {
                     DKObjectRef object = v ? DKEggUnarchiverGetObject( _self, v ) : NULL;
-                    callback( key, object, context );
+                    callback( keyi, object, context );
                 }
             }
         }

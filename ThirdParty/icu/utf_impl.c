@@ -180,7 +180,7 @@ utf8_nextCharSafeBody(const uint8_t *s, int32_t *pi, int32_t length, UChar32 c, 
         }
     } else {
         /* too few bytes left */
-        count=length-i;
+        count=(uint8_t)(length-i);
     }
 
     /* error handling */

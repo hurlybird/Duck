@@ -113,7 +113,7 @@ DKMetadataRef DKMetadataFindOrInsert( DKObject * obj )
     // Check the table for a weak reference
     DKSpinLockLock( &MetadataTableLock );
     
-    DKWeakRef * entry = (DKWeakRef *)DKGenericHashTableFind( &MetadataTable, &key );
+    DKMetadataRef * entry = (DKMetadataRef *)DKGenericHashTableFind( &MetadataTable, &key );
     
     if( entry )
     {
@@ -140,7 +140,7 @@ DKMetadataRef DKMetadataFindOrInsert( DKObject * obj )
     
     else
     {
-        DKMetadataRef * entry = (DKMetadataRef *)DKGenericHashTableFind( &MetadataTable, &key );
+        entry = (DKMetadataRef *)DKGenericHashTableFind( &MetadataTable, &key );
         metadata = *entry;
     }
 

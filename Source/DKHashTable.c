@@ -125,9 +125,9 @@ DKThreadSafeClassInit( DKHashTableClass )
     dictionary->getCount = (DKGetCountMethod)INTERNAL_DKHashTableGetCount;
     dictionary->getObject = (DKDictionaryGetObjectMethod)INTERNAL_DKHashTableGetObject;
     
-    dictionary->insertObject = (void *)DKImmutableObjectAccessError;
-    dictionary->removeObject = (void *)DKImmutableObjectAccessError;
-    dictionary->removeAllObjects = (void *)DKImmutableObjectAccessError;
+    dictionary->insertObject = (DKDictionaryInsertObjectMethod)DKImmutableObjectAccessError;
+    dictionary->removeObject = (DKDictionaryRemoveObjectMethod)DKImmutableObjectAccessError;
+    dictionary->removeAllObjects = (DKDictionaryRemoveAllObjectsMethod)DKImmutableObjectAccessError;
 
     DKInstallInterface( cls, dictionary );
     DKRelease( dictionary );
@@ -141,9 +141,9 @@ DKThreadSafeClassInit( DKHashTableClass )
     set->getCount = (DKGetCountMethod)INTERNAL_DKHashTableGetCount;
     set->getMember = (DKSetGetMemberMethod)INTERNAL_DKHashTableGetObject;
     
-    set->addObject = (void *)DKImmutableObjectAccessError;
-    set->removeObject = (void *)DKImmutableObjectAccessError;
-    set->removeAllObjects = (void *)DKImmutableObjectAccessError;
+    set->addObject = (DKSetAddObjectMethod)DKImmutableObjectAccessError;
+    set->removeObject = (DKSetRemoveObjectMethod)DKImmutableObjectAccessError;
+    set->removeAllObjects = (DKSetRemoveAllObjectsMethod)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, set );
     DKRelease( set );
@@ -151,7 +151,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     // Property
     struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property), sizeof(struct DKPropertyInterface) );
     property->getProperty = (DKGetPropertyMethod)INTERNAL_DKHashTableGetObject;
-    property->setProperty = (void *)DKImmutableObjectAccessError;
+    property->setProperty = (DKSetPropertyMethod)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, property );
     DKRelease( property );

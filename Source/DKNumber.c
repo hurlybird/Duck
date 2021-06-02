@@ -338,7 +338,7 @@ DKThreadSafeClassInit( DKNumberClass )
 {
     // NOTE: The value field of DKNumber is dynamically sized, and not included in the
     // base instance structure size.
-    DKAssert( sizeof(struct DKNumber) == (sizeof(DKObject) + sizeof(DKNumberValue)) );
+    _Static_assert( sizeof(struct DKNumber) == (sizeof(DKObject) + sizeof(DKNumberValue)), "DKNumber struct size inconsistency." );
     DKClassRef cls = DKNewClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(DKObject), DKImmutableInstances, NULL, NULL );
     
     // Allocation
@@ -397,7 +397,7 @@ DKThreadSafeClassInit( DKVariableNumberClass )
 {
     // NOTE: The value field of DKNumber is dynamically sized, and not included in the
     // base instance structure size.
-    DKAssert( sizeof(struct DKNumber) == (sizeof(DKObject) + sizeof(DKNumberValue)) );
+    _Static_assert( sizeof(struct DKNumber) == (sizeof(DKObject) + sizeof(DKNumberValue)), "DKNumber struct size inconsistency." );
     DKClassRef cls = DKNewClass( DKSTR( "DKVariableNumber" ), DKNumberClass(), sizeof(DKObject), 0, NULL, NULL );
     
     return cls;

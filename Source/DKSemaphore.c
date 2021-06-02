@@ -179,7 +179,7 @@ void DKSemaphoreWait( DKSemaphoreRef _self, uint32_t value )
 #elif DK_PLATFORM_WINDOWS
         EnterCriticalSection( &_self->criticalSection );
 
-        while( _self->counter != value )
+        while( _self->counter != (int32_t)value )
             SleepConditionVariableCS( &_self->conditionVariable, &_self->criticalSection, INFINITE );
 
         LeaveCriticalSection( &_self->criticalSection );

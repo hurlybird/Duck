@@ -306,7 +306,7 @@ DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize )
         void ** methods = DKInterfaceGetMethodTable( interface );
         
         for( size_t i = 0; i < interface->methodCount; i++ )
-            methods[i] = DKUninitializedMethodError;
+            methods[i] = (void *)DKUninitializedMethodError;
     
         return interface;
     }

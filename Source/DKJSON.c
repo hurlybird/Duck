@@ -442,7 +442,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
                 break;
         
             // Parse a value
-            int result = ParseObject( context, &value );
+            result = ParseObject( context, &value );
             
             if( result != 0 )
                 break;

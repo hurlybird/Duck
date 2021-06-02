@@ -131,8 +131,8 @@ DKThreadSafeClassInit( DKStringClass )
     struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer), sizeof(struct DKBufferInterface) );
     buffer->getLength = (DKBufferGetLengthMethod)DKStringGetByteLength;
     buffer->getBytePtr = (DKBufferGetBytePtrMethod)DKStringGetBytePtr;
-    buffer->setLength = (void *)DKImmutableObjectAccessError;
-    buffer->getMutableBytePtr = (void *)DKImmutableObjectAccessError;
+    buffer->setLength = (DKBufferSetLengthMethod)DKImmutableObjectAccessError;
+    buffer->getMutableBytePtr = (DKBufferGetMutableBytePtrMethod)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, buffer );
     DKRelease( buffer );
@@ -142,7 +142,7 @@ DKThreadSafeClassInit( DKStringClass )
     stream->seek = (DKStreamSeekMethod)DKStringSeek;
     stream->tell = (DKStreamTellMethod)DKStringTell;
     stream->read = (DKStreamReadMethod)DKStringRead;
-    stream->write = (void *)DKImmutableObjectAccessError;
+    stream->write = (DKStreamWriteMethod)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, stream );
     DKRelease( stream );
@@ -957,8 +957,8 @@ DKChar32 DKStringGetCharacterAtIndex( DKStringRef _self, DKIndex index, DKChar8 
                 {
                     DKAssert( bytes < sizeof(DKChar8) );
                     
-                    for( size_t i = 0; i < bytes; i++ )
-                        utf8->s[i] = str[i];
+                    for( size_t j = 0; j < bytes; j++ )
+                        utf8->s[j] = str[j];
                     
                     utf8->s[bytes] = '\0';
                 }

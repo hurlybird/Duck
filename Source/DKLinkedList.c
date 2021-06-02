@@ -131,13 +131,13 @@ DKThreadSafeClassInit( DKLinkedListClass )
     list->getObjectAtIndex = (DKListGetObjectAtIndexMethod)INTERNAL_DKLinkedListGetObjectAtIndex;
     list->getObjectsInRange = (DKListGetObjectsInRangeMethod)INTERNAL_DKLinkedListGetObjectsInRange;
     
-    list->appendCArray = (void *)DKImmutableObjectAccessError;
-    list->appendCollection = (void *)DKImmutableObjectAccessError;
-    list->replaceRangeWithCArray = (void *)DKImmutableObjectAccessError;
-    list->replaceRangeWithCollection = (void *)DKImmutableObjectAccessError;
-    list->sort = (void *)DKImmutableObjectAccessError;
-    list->reverse = (void *)DKImmutableObjectAccessError;
-    list->shuffle = (void *)DKImmutableObjectAccessError;
+    list->appendCArray = (DKListAppendCArrayMethod)DKImmutableObjectAccessError;
+    list->appendCollection = (DKListAppendCollectionMethod)DKImmutableObjectAccessError;
+    list->replaceRangeWithCArray = (DKListReplaceRangeWithCArrayMethod)DKImmutableObjectAccessError;
+    list->replaceRangeWithCollection = (DKListReplaceRangeWithCollectionMethod)DKImmutableObjectAccessError;
+    list->sort = (DKListSortMethod)DKImmutableObjectAccessError;
+    list->reverse = (DKListReorderMethod)DKImmutableObjectAccessError;
+    list->shuffle = (DKListReorderMethod)DKImmutableObjectAccessError;
 
     DKInstallInterface( cls, list );
     DKRelease( list );
@@ -151,9 +151,9 @@ DKThreadSafeClassInit( DKLinkedListClass )
     set->getCount = (DKGetCountMethod)INTERNAL_DKLinkedListGetCount;
     set->getMember = (DKSetGetMemberMethod)DKListGetMemberOfSet;
     
-    set->addObject = (void *)DKImmutableObjectAccessError;
-    set->removeObject = (void *)DKImmutableObjectAccessError;
-    set->removeAllObjects = (void *)DKImmutableObjectAccessError;
+    set->addObject = (DKSetAddObjectMethod)DKImmutableObjectAccessError;
+    set->removeObject = (DKSetRemoveObjectMethod)DKImmutableObjectAccessError;
+    set->removeAllObjects = (DKSetRemoveAllObjectsMethod)DKImmutableObjectAccessError;
     
     DKInstallInterface( cls, set );
     DKRelease( set );

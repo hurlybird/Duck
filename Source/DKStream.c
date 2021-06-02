@@ -336,10 +336,10 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
 
                 if( wlen > 0 )
                 {
-                    char * tmp = dk_malloc( wlen + 1 );
-                    snprintf( tmp, wlen + 1, tmp_format, wstr );
-                    write_count += stream->write( _self, tmp, 1, strlen( tmp ) );
-                    dk_free( tmp );
+                    char * buf = dk_malloc( wlen + 1 );
+                    snprintf( buf, wlen + 1, tmp_format, wstr );
+                    write_count += stream->write( _self, buf, 1, strlen( buf ) );
+                    dk_free( buf );
                 }
             }
 

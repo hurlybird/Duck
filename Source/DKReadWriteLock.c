@@ -91,9 +91,8 @@ static DKObjectRef DKReadWriteLockInit( DKObjectRef _untyped_self )
 //
 static void DKReadWriteLockFinalize( DKObjectRef _untyped_self )
 {
-    DKReadWriteLockRef _self = _untyped_self;
-    
 #if DK_PLATFORM_POSIX
+    DKReadWriteLockRef _self = _untyped_self;
     pthread_rwlock_destroy( &_self->rwlock );
 #elif DK_PLATFORM_WINDOWS
     // Nothing to do here

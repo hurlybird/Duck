@@ -80,9 +80,8 @@ DKObjectRef DKConditionInit( DKObjectRef _untyped_self )
 //
 static void DKConditionFinalize( DKObjectRef _untyped_self )
 {
-    DKConditionRef _self = _untyped_self;
-    
 #if DK_PLATFORM_POSIX
+    DKConditionRef _self = _untyped_self;
     pthread_cond_destroy( &_self->condition );
 #elif DK_PLATFORM_WINDOWS
     // Nothing to do here
