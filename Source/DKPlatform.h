@@ -443,13 +443,15 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
 #endif
 
 // Assertions
+DK_API void _DKFailedAssert( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_RETURN;
+
 #if DK_RUNTIME_ASSERTIONS
 #define DKAssert( x )                                                                   \
     do                                                                                  \
     {                                                                                   \
         if( !(x) )                                                                      \
         {                                                                               \
-            _DKFatalError( "%s: Failed Assert( %s )", __func__, #x );                   \
+            _DKFailedAssert( "%s: Failed Assert( %s )", __func__, #x );                   \
         }                                                                               \
     } while( 0 )
 
@@ -458,7 +460,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKIsKindOfClass( _self, cls ) )                                            \
         {                                                                               \
-            _DKFatalError( "%s: Required kind of class %s, received %s",                \
+            _DKFailedAssert( "%s: Required kind of class %s, received %s",                \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
@@ -470,7 +472,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKIsMemberOfClass( _self, cls ) )                                          \
         {                                                                               \
-            _DKFatalError( "%s: Required member of class %s, received %s",              \
+            _DKFailedAssert( "%s: Required member of class %s, received %s",              \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
@@ -482,7 +484,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKQueryInterface( _self, sel, NULL ) )                                     \
         {                                                                               \
-            _DKFatalError( "%s: Required interface %s on class %s",                     \
+            _DKFailedAssert( "%s: Required interface %s on class %s",                     \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKStringFromSelector( sel ) ),                   \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
@@ -494,7 +496,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
     {                                                                                   \
         if( !DKIsMutable( _self, cls ) )                                                \
         {                                                                               \
-            _DKFatalError( "%s: Trying to modify an instance of immutable class %s",    \
+            _DKFailedAssert( "%s: Trying to modify an instance of immutable class %s",    \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
         }                                                                               \

@@ -233,6 +233,28 @@ void _DKFatalError( const char * format, ... )
 
 
 ///
+//  DKFailedAssert()
+//
+void _DKFailedAssert( const char * format, ... )
+{
+    va_list arg_ptr;
+    va_start( arg_ptr, format );
+    
+    DKMutableStringRef tmp = DKNewMutableString();
+    DKVSPrintf( tmp, format, arg_ptr );
+
+    va_end( arg_ptr );
+    
+    _DKPrintfInternal( PrintfCallback, stdout, "%s", DKStringGetCStringPtr( tmp ) );
+
+    DKRelease( tmp );
+
+    assert( 0 );
+    abort();
+}
+
+
+///
 //  DKImmutableObjectAccessError()
 //
 void DKImmutableObjectAccessError( DKObjectRef _self )
