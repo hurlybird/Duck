@@ -313,6 +313,22 @@ size_t DKStructGetSize( DKStructRef _self )
 
 
 ///
+//  DKStructGetValuePtr()
+//
+const void * DKStructGetValuePtr( DKStructRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStructClass() );
+    
+        return _self->value;
+    }
+
+    return NULL;
+}
+
+
+///
 //  DKStructGetValue()
 //
 size_t DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, size_t size )

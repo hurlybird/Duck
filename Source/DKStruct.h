@@ -51,6 +51,7 @@ DK_API DKHashCode  DKStructHash( DKStructRef _self );
 
 DK_API DKStringRef DKStructGetSemantic( DKStructRef _self );
 DK_API size_t      DKStructGetSize( DKStructRef _self );
+DK_API const void * DKStructGetValuePtr( DKStructRef _self );
 DK_API size_t      DKStructGetValue( DKStructRef _self, DKStringRef semantic, void * bytes, size_t size );
 
 #define            DKStructGetValueAsType( _self, dst, type ) DKStructGetValue( _self, DKSTR( #type ), dst, sizeof(type) )
