@@ -678,7 +678,7 @@ static void DKThreadPoolRealTimeExec( void * _untyped_self )
                 #elif DK_PLATFORM_WINDOWS
                 LARGE_INTEGER t0, t1;
                 
-                QueryPerformanceCounter( &t0 )
+                QueryPerformanceCounter( &t0 );
                 t0.QuadPart += yieldInterval;
                 
                 do
