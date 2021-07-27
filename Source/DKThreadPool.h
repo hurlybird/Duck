@@ -31,6 +31,21 @@
 #include "DKThread.h"
 
 
+typedef enum
+{
+    // Default scheduling uses conditions and signals to wake threads when tasks are added
+    // to the work queue. This is appropriate for most use cases since synchronization
+    // overhead is typically lower than the task overhead.
+    DKThreadPoolDefaultScheduling = 0,
+    
+    // Real-Time scheduling uses a combination of yields and conditions to wake threads
+    // while avoiding explict signalling when adding tasks. This is useful in sitations
+    // involving a continuous series of small tasks, or when keeping the main thread
+    // overhead as low as possible is important.
+    DKThreadPoolRealTimeScheduling
+
+} DKThreadPoolScheduling;
+
 typedef struct DKThreadPool * DKThreadPoolRef;
 
 typedef void (*DKThreadPoolCallback)( DKThreadPoolRef threadPool, void * context );
@@ -46,6 +61,7 @@ DK_API void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
     DKThreadPoolCallback onThreadStop,
     void * context );
 
+DK_API void DKThreadPoolSetScheduling( DKThreadPoolRef _self, DKThreadPoolScheduling scheduling, int yieldNSecs );
 DK_API void DKThreadPoolSetLabel( DKThreadPoolRef _self, DKStringRef label );
 
 DK_API int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
