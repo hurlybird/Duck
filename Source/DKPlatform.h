@@ -669,7 +669,7 @@ static_assert( sizeof(LONG) == sizeof(int32_t), "DKAtomic: Windows LONG type is 
 #define DKAtomicDecrement64( ptr )                  InterlockedDecrement64( (LONG64 volatile *)(ptr) )
 #define DKAtomicCmpAndSwap64( ptr, _old, _new )     (InterlockedCompareExchange64( (LONG64 volatile *)(ptr), (LONG64)(_new), (LONG64)(_old) ) == (LONG64)(_old))
 
-#define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    (InterlockedCompareExchangePointer( ptr, _new, _old ) == (_old))
+#define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    (InterlockedCompareExchangePointer( (PVOID volatile *)ptr, _new, _old ) == (_old))
 
 #endif
 
