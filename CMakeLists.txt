@@ -317,6 +317,7 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         # /wd4100       - disable unreferenced formal parameter warning
         target_compile_options( ${TargetName}
             PRIVATE
+            /Zi
             /fp:precise
             /GS
             /Gy
