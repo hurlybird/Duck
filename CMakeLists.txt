@@ -322,7 +322,7 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
             /GS
             /Gy
             /W4
-            /wd4100 )
+            $<$<NOT:$<BOOL:NX>>:/wd4100> )
     endif()
 
     if( FRAMEWORK )
