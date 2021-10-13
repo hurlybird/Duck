@@ -307,7 +307,9 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
             $<IF:$<CONFIG:DEBUG>,_DEBUG,NDEBUG>
             UNICODE _UNICODE
             _CRT_SECURE_NO_WARNINGS )
+    endif()
 
+    if( WIN32 AND NOT NX )
         # /EHsc         - C++ Exceptions
         # /fp:fast      - fast floating point
         # /fp:precise   - precise floating point
@@ -322,7 +324,7 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
             /GS
             /Gy
             /W4
-            $<$<NOT:$<BOOL:NX>>:/wd4100> )
+            /wd4100 )
     endif()
 
     if( FRAMEWORK )
