@@ -48,9 +48,10 @@ project( Duck )
 set( CMAKE_POSITION_INDEPENDENT_CODE 1 )
 
 # Temporary (I hope) fix for Windows SDK 10.0.19041 sulking when compiling with C++ 11 or 17
-if (WIN32)
-    add_definitions(-DMICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS=1)
+if( WIN32 )
+    add_definitions( -DMICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS=1 )
 endif()
+
 
 # Paths ----------------------------------------------------------------------------------
 set( DUCK_PATH ${CMAKE_CURRENT_SOURCE_DIR} )
@@ -375,7 +376,7 @@ endif()
 
 
 # Build Examples =========================================================================
-if( DUCK_BUILD_EXAMPLES )
+if( EXAMPLES IN_LIST DUCK_BUILD )
     include( ${DUCK_PATH}/HelloWorld/CMakeLists.txt )
 endif()
 

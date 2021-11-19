@@ -39,14 +39,13 @@ while [ "$1" != "" ]; do
         --arch )                shift
                                 BUILD_ARCH=$1
                                 ;;
-        --static )              TARGETS+=("DuckStaticLibrary")
+        --static )              TARGETS+=("STATIC")
                                 ;;
-        --shared )              TARGETS+=("DuckSharedLibrary")
+        --shared )              TARGETS+=("SHARED")
                                 ;;
-        --framework )           TARGETS+=("DuckFramework")
+        --framework )           TARGETS+=("FRAMEWORK")
                                 ;;
-        --examples )            OPTIONS+=("-DDUCK_BUILD_EXAMPLES=1")
-                                TARGETS+=("HelloWorld")
+        --examples )            TARGETS+=("EXAMPLES")
                                 ;;
         --install )             INSTALL=1
                                 ;;
@@ -67,8 +66,15 @@ else
     BUILD_DIR="$BUILD_ROOT/${BUILD_TYPE}-${BUILD_ARCH}"
 fi
 
-cmake "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" ${OPTIONS[*]} -S "$SOURCE_ROOT" -B "$BUILD_DIR"
-cmake --build "$BUILD_DIR" --target ${TARGETS[*]} $CLEAN
+if [ ${#TARGETS[@]} -eq 0 ]
+then
+    TARGETS="STATIC;SHARED;EXAMPLES"
+else
+    printf -v TARGETS '%s;' "${TARGETS[@]}";
+fi
+
+cmake "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" "-DDUCK_BUILD=${TARGETS}" ${OPTIONS[*]} -S "$SOURCE_ROOT" -B "$BUILD_DIR"
+cmake --build "$BUILD_DIR" $CLEAN
 
 if [ $INSTALL = 1 ]
 then
