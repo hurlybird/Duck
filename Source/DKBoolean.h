@@ -30,7 +30,7 @@
 #include "DKRuntime.h"
 
 
-#define DKNumberBoolean DKEncodingTypeInt(bool)
+#define DKNumberBoolean DKEncodeIntegerType(bool)
 
 typedef struct DKBoolean * DKBooleanRef;
 

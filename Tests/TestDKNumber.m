@@ -42,6 +42,19 @@ typedef struct
 
 } Vector3;
 
+typedef struct
+{
+    float m[3][3];
+    
+} Matrix3x3;
+
+typedef struct
+{
+    float m[3][4];
+    
+} Matrix3x4;
+
+
 - (void) testDKNumber
 {
     DKNumberRef n = DKNumberWithInt32( 100 );
@@ -50,6 +63,7 @@ typedef struct
     DKStringRef desc = DKNumberGetDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "100" ) ) );
 
+    // Casting
     int32_t i32;
     DKNumberCastValue( n, &i32, DKNumberInt32 );
     XCTAssert( i32 == 100 );
@@ -67,6 +81,7 @@ typedef struct
     XCTAssert( d == 100.0 );
     
 
+    // Floats
     n = DKNumberWithFloat( 100 );
     XCTAssert( DKNumberGetFloat( n ) == 100.0f );
     
@@ -88,6 +103,7 @@ typedef struct
     XCTAssert( DKStringEqual( desc, DKSTR( "100.0625" ) ) );
 
 
+    // Doubles
     n = DKNumberWithDouble( 100 );
     XCTAssert( DKNumberGetDouble( n ) == 100.0 );
     
@@ -109,6 +125,7 @@ typedef struct
     XCTAssert( DKStringEqual( desc, DKSTR( "100.0625" ) ) );
 
 
+    // Vector types
     const Vector3 v = { 1, 2, 3 };
     n = DKNumber( &v, DKEncode( DKEncodingTypeFloat, 3 ) );
     
@@ -117,6 +134,29 @@ typedef struct
     
     desc = DKNumberGetDescription( n );
     XCTAssert( DKStringEqual( desc, DKSTR( "1.0 2.0 3.0" ) ) );
+    
+    
+    // Row-by-row casting for matrix encodings
+    const Matrix3x3 m1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    n = DKNumber( &m1, DKEncodeMatrix( DKEncodingTypeFloat, 3, 3 ) );
+    
+    Matrix3x4 m2 = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    DKNumberCastValue( n, &m2, DKEncodeMatrix( DKEncodingTypeFloat, 3, 4 ) );
+
+    XCTAssert( (m2.m[0][0] == 1) && (m2.m[0][1] == 2) && (m2.m[0][2] == 3) && (m2.m[0][3] == 0) );
+    XCTAssert( (m2.m[1][0] == 4) && (m2.m[1][1] == 5) && (m2.m[1][2] == 6) && (m2.m[1][3] == 0) );
+    XCTAssert( (m2.m[2][0] == 7) && (m2.m[2][1] == 8) && (m2.m[2][2] == 9) && (m2.m[2][3] == 0) );
+
+
+    const Matrix3x4 m3 = { 1, 2, 3, 0, 4, 5, 6, 0, 7, 8, 9, 0 };
+    n = DKNumber( &m3, DKEncodeMatrix( DKEncodingTypeFloat, 3, 4 ) );
+    
+    Matrix3x3 m4 = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    DKNumberCastValue( n, &m4, DKEncodeMatrix( DKEncodingTypeFloat, 3, 3 ) );
+
+    XCTAssert( (m4.m[0][0] == 1) && (m4.m[0][1] == 2) && (m4.m[0][2] == 3) );
+    XCTAssert( (m4.m[1][0] == 4) && (m4.m[1][1] == 5) && (m4.m[1][2] == 6) );
+    XCTAssert( (m4.m[2][0] == 7) && (m4.m[2][1] == 8) && (m4.m[2][2] == 9) );
 }
 
 @end

@@ -81,7 +81,7 @@ DKDefineEnum( EnumType,
     DKInstallNumberProperty( testClass, DKSTR( "x" ), DKSemantic(int32_t), 0, offsetof(struct TestObject, x), DKNumberInt32, DK_NO_XETTERS, DK_NO_OBSERVERS );
     DKInstallNumberProperty( testClass, DKSTR( "y" ), DKSemantic(double), 0, offsetof(struct TestObject, y), DKNumberDouble, DK_NO_XETTERS, DK_NO_OBSERVERS );
     DKInstallStructProperty( testClass, DKSTR( "z" ), DKSemantic(Pair), 0, offsetof(struct TestObject, z), sizeof(Pair), DK_NO_XETTERS, DK_NO_OBSERVERS );
-    DKInstallEnumProperty( testClass, DKSTR( "e" ), DKSemantic(Enum), 0, offsetof(struct TestObject, e), DKEncodingTypeInt(Enum), EnumType(), DK_NO_XETTERS, DK_NO_OBSERVERS );
+    DKInstallEnumProperty( testClass, DKSTR( "e" ), DKSemantic(Enum), 0, offsetof(struct TestObject, e), DKEncodeIntegerType(Enum), EnumType(), DK_NO_XETTERS, DK_NO_OBSERVERS );
 
     return testClass;
 }
@@ -115,9 +115,14 @@ DKDefineEnum( EnumType,
     XCTAssertThrows( DKSetProperty( testObject, DKSTR( "name" ), intNumber ) );
     XCTAssertThrows( DKSetProperty( testObject, DKSTR( "x" ), DKSTR( "Jane" ) ) );
     
-    float v[3] = { 0, 0, 0 };
-    XCTAssertThrows( DKSetNumberProperty( testObject, DKSTR( "x" ), v, DKEncode( DKEncodingTypeFloat, 3 ) ) );
-    XCTAssert( testObject->x == 3 );
+    // Partial copies
+    float v[3] = { 5, 0, 0 };
+    DKSetNumberProperty( testObject, DKSTR( "x" ), v, DKEncode( DKEncodingTypeFloat, 3 ) );
+    XCTAssert( testObject->x == 5 );
+
+    float w[3] = { 0, 0, 0 };
+    DKGetNumberProperty( testObject, DKSTR( "x" ), w, DKEncode( DKEncodingTypeFloat, 3 ) );
+    XCTAssert( w[0] == 5 );
 
     // Implicit conversion from number object + cast
     DKNumberRef floatNumber = DKNumberWithFloat( 7 );

@@ -510,7 +510,7 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
             int enumValue = DKEnumFromString( property->enumType, object );
 
             DKWillWriteProperty( _self, property );
-            bool success = DKNumberConvert( &enumValue, DKEncodingTypeInt(int), value, property->encoding );
+            bool success = DKNumberConvert( &enumValue, DKEncodeIntegerType(int), value, property->encoding );
             DKDidWriteProperty( _self, property );
 
             if( success )
@@ -590,7 +590,7 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
         int enumValue;
         
         DKWillReadProperty( _self, property );
-        bool success = DKNumberConvert( value, property->encoding, &enumValue, DKEncodingTypeInt(int) );
+        bool success = DKNumberConvert( value, property->encoding, &enumValue, DKEncodeIntegerType(int) );
         DKDidReadProperty( _self, property );
         
         if( success )
@@ -1167,7 +1167,7 @@ double DKGetFloatProperty( DKObjectRef _self, DKStringRef name )
 //
 void DKSetEnumProperty( DKObjectRef _self, DKStringRef name, int x )
 {
-    DKSetNumberProperty( _self, name, &x, DKEncodingTypeInt(int) );
+    DKSetNumberProperty( _self, name, &x, DKEncodeIntegerType(int) );
 }
 
 
@@ -1178,7 +1178,7 @@ int DKGetEnumProperty( DKObjectRef _self, DKStringRef name )
 {
     int x;
     
-    if( DKGetNumberProperty( _self, name, &x, DKEncodingTypeInt(int) ) )
+    if( DKGetNumberProperty( _self, name, &x, DKEncodeIntegerType(int) ) )
         return x;
     
     return 0;

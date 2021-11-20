@@ -970,16 +970,48 @@ size_t DKNumberConvert( const void * src, DKEncoding srcEncoding, void * dst, DK
     if( !DKEncodingIsNumber( dstEncoding ) )
         return 0;
     
-    size_t dstCount = DKEncodingGetCount( dstEncoding );
-    size_t srcCount = DKEncodingGetCount( srcEncoding );
-
-    if( dstCount != srcCount )
-        return 0;
-
     CastFunction castFunction = GetCastFunction( srcEncoding, dstEncoding );
-    castFunction( src, dst, dstCount );
 
-    return dstCount;
+    unsigned int dstCount = DKEncodingGetCount( dstEncoding );
+    unsigned int srcCount = DKEncodingGetCount( srcEncoding );
+
+    if( dstCount == srcCount )
+    {
+        castFunction( src, dst, dstCount );
+        return dstCount;
+    }
+    
+    else if( DKEncodingIsMatrix( srcEncoding ) && DKEncodingIsMatrix( dstEncoding ) )
+    {
+        const uint8_t * srcPtr = src;
+        unsigned int srcRows = DKEncodingGetRows( srcEncoding );
+        unsigned int srcCols = DKEncodingGetCols( srcEncoding );
+        unsigned int srcStride = (unsigned int)DKEncodingGetTypeSize( srcEncoding ) * srcCols;
+
+        uint8_t * dstPtr = dst;
+        unsigned int dstRows = DKEncodingGetRows( dstEncoding );
+        unsigned int dstCols = DKEncodingGetCols( dstEncoding );
+        unsigned int dstStride = (unsigned int)DKEncodingGetTypeSize( srcEncoding ) * dstCols;
+        
+        unsigned int rows = (srcRows < dstRows) ? srcRows : dstRows;
+        unsigned int cols = (srcCols < dstCols) ? srcCols : dstCols;
+     
+        for( unsigned int i = 0; i < rows; i++ )
+        {
+            castFunction( (const void *)srcPtr, (void *)dstPtr, cols );
+            srcPtr += srcStride;
+            dstPtr += dstStride;
+        }
+        
+        return rows * cols;
+    }
+    
+    else
+    {
+        unsigned int count = (srcCount < dstCount) ? srcCount : dstCount;
+        castFunction( src, dst, count );
+        return count;
+    }
 }
 
 

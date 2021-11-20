@@ -90,14 +90,31 @@ typedef enum
 
 typedef uint32_t DKEncoding;
 
-#define DKMaxEncodingCount                      (0x00ffffff) // 2^24
+#define DKMaxEncodingCount      0x00ffffff // 2^24
+#define DKMaxEncodingRows       0x00000fff
+#define DKMaxEncodingCols       0x00000fff
 
-#define DKEncode( baseType, count )             (((baseType) << 24) | (count))
-#define DKEncodingGetType( encoding )           ((encoding) >> 24)
-#define DKEncodingGetCount( encoding )          ((encoding) & 0x00ffffff)
+#define DKEncodingMatrixBit     0x80000000
+#define DKEncodingTypeBits      0x7f000000
+#define DKEncodingTypeShift     24
+#define DKEncodingRowsShift     12
+
+
+#define DKEncode( baseType, count ) \
+    ((((baseType) << DKEncodingTypeShift) & DKEncodingTypeBits) | \
+     ((count) & DKMaxEncodingCount))
+
+
+#define DKEncodeMatrix( baseType, rows, cols ) \
+    (DKEncodingMatrixBit | \
+     (((baseType) << DKEncodingTypeShift) & DKEncodingTypeBits) | \
+     (((rows) & DKMaxEncodingRows) << DKEncodingRowsShift) | \
+     ((cols) & DKMaxEncodingCols))
+
 
 // Macro for building integer encodings from built-in C types (i.e. enums)
-#define DKEncodingTypeInt( ctype )              DKEncode( (DKEncodingTypeInt8 + sizeof(ctype) - 1), 1 )
+#define DKEncodeIntegerType( ctype )            DKEncode( (DKEncodingTypeInt8 + sizeof(ctype) - 1), 1 )
+
 
 // Base type tests
 #define DKEncodingTypeIsValid( baseType )       (((baseType) >= 0) && ((baseType) < DKMaxEncodingTypes))
@@ -108,8 +125,51 @@ typedef uint32_t DKEncoding;
 #define DKEncodingTypeIsReal( baseType )        (((baseType) >= DKEncodingTypeFloat) && ((baseType) <= DKEncodingTypeDouble))
 #define DKEncodingTypeIsNumber( baseType )      (((baseType) >= DKEncodingTypeInt8) && ((baseType) <= DKEncodingTypeDouble))
 
-DK_API size_t DKEncodingTypeGetSize( DKEncodingType encodingType );
 
+#define DKEncodingIsMatrix( encoding )          (((encoding) & DKEncodingMatrixBit) != 0)
+
+
+static inline DKEncodingType DKEncodingGetType( DKEncoding encoding )
+{
+    return (encoding & DKEncodingTypeBits) >> DKEncodingTypeShift;
+}
+
+static inline unsigned int DKEncodingGetCount( DKEncoding encoding )
+{
+    if( encoding & DKEncodingMatrixBit )
+    {
+        unsigned int rows = (encoding >> DKEncodingRowsShift) & DKMaxEncodingRows;
+        unsigned int cols = encoding & DKMaxEncodingCols;
+        return rows * cols;
+    }
+    
+    return (encoding & DKMaxEncodingCount);
+}
+
+static inline unsigned int DKEncodingGetRows( DKEncoding encoding )
+{
+    if( encoding & DKEncodingMatrixBit )
+        return (encoding >> DKEncodingRowsShift) & DKMaxEncodingRows;
+        
+    return 1;
+}
+
+static inline unsigned int DKEncodingGetCols( DKEncoding encoding )
+{
+    if( encoding & DKEncodingMatrixBit )
+        return encoding & DKMaxEncodingCols;
+        
+    return encoding & DKMaxEncodingCount;
+}
+
+static inline bool DKEncodingEqv( DKEncoding a, DKEncoding b )
+{
+    return (DKEncodingGetType( a ) == DKEncodingGetType( b )) &&
+        (DKEncodingGetCount( a ) == DKEncodingGetCount( b ));
+}
+
+
+DK_API size_t DKEncodingTypeGetSize( DKEncodingType encodingType );
 DK_API size_t DKEncodingGetSize( DKEncoding encoding );
 DK_API size_t DKEncodingGetTypeSize( DKEncoding encoding );
 DK_API const char * DKEncodingGetTypeName( DKEncoding encoding );
