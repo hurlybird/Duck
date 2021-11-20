@@ -131,7 +131,7 @@ typedef uint32_t DKEncoding;
 
 static inline DKEncodingType DKEncodingGetType( DKEncoding encoding )
 {
-    return (encoding & DKEncodingTypeBits) >> DKEncodingTypeShift;
+    return (DKEncodingType)((encoding & DKEncodingTypeBits) >> DKEncodingTypeShift);
 }
 
 static inline unsigned int DKEncodingGetCount( DKEncoding encoding )
