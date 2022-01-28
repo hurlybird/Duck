@@ -506,7 +506,7 @@ DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
 {
     if( !cls )
     {
-        DKError( "DKAllocObject: Specified class object is NULL." );
+        DKWarning( "DKAllocObject: Specified class object is NULL." );
         return NULL;
     }
     
@@ -518,7 +518,7 @@ DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
     
     if( (cls->options & DKAbstractBaseClass) != 0 )
     {
-        DKFatalError( "DKAllocObject: Class '%@' is an abstract base classn", cls->name );
+        DKFatalError( "DKAllocObject: Class '%@' is an abstract base class", cls->name );
         return NULL;
     }
     

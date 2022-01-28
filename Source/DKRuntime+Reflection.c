@@ -127,7 +127,7 @@ void DKNameDatabaseInsertClass( DKClassRef _class )
     
     if( !inserted )
     {
-        DKError( "DKRuntime: A class named '%@' already exists.", _class->name );
+        DKFatalError( "DKRuntime: A class named '%@' already exists.", _class->name );
     }
 }
 
@@ -159,7 +159,7 @@ void DKNameDatabaseInsertSelector( DKSEL sel )
     
     if( !inserted )
     {
-        DKError( "DKRuntime: A selector named '%@' already exists.", sel->name );
+        DKFatalError( "DKRuntime: A selector named '%@' already exists.", sel->name );
     }
 }
 
