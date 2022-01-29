@@ -112,8 +112,10 @@ typedef uint32_t DKEncoding;
      ((cols) & DKMaxEncodingCols))
 
 
-// Macro for building integer encodings from built-in C types (i.e. enums)
-#define DKEncodeIntegerType( ctype )            DKEncode( (DKEncodingTypeInt8 + sizeof(ctype) - 1), 1 )
+// Macros for building integer encodings from built-in C types (i.e. enums)
+#define DKEncodeIntegerType( ctype )                    DKEncode( (DKEncodingTypeInt8 + sizeof(ctype) - 1), 1 )
+#define DKEncodeIntegerVectorType( ctype, count )       DKEncode( (DKEncodingTypeInt8 + sizeof(ctype) - 1), (count) )
+#define DKEncodeIntegerMatrixType( ctype, rows, cols )  DKEncodeMatrix( (DKEncodingTypeInt8 + sizeof(ctype) - 1), (rows), (cols) )
 
 
 // Base type tests

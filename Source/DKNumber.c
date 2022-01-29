@@ -799,6 +799,76 @@ void DKNumberSetEnumeratedValue( DKNumberRef _self, DKEncodingType encodingType,
 
 
 ///
+//  DKNumberEnumerateMatrixValue()
+//
+void DKNumberEnumerateMatrixValue( DKNumberRef _self, DKEncodingType encodingType,
+    void (*callback)( const void * value, unsigned int row, unsigned int col, void * context ), void * context )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        size_t size = DKEncodingGetTypeSize( encoding );
+        unsigned int rows = DKEncodingGetRows( encoding );
+        unsigned int cols = DKEncodingGetCols( encoding );
+
+        CastFunction castFunction = GetCastFunction( encoding, DKEncode( encodingType, 1 ) );
+
+        for( unsigned int row = 0; row < rows; row++ )
+        {
+            for( unsigned int col = 0; col < cols; col++ )
+            {
+                unsigned int i = (row * rows) + col;
+                
+                const void * src = (uint8_t *)&_self->value + (size * i);
+                DKNumberValue dst;
+
+                castFunction( src, &dst, 1 );
+
+                callback( &dst, row, col, context );
+            }
+        }
+    }
+}
+
+
+///
+//  DKNumberSetEnumeratedMatrixValue()
+//
+void DKNumberSetEnumeratedMatrixValue( DKNumberRef _self, DKEncodingType encodingType,
+    void (*callback)( void * value, unsigned int row, unsigned int col, void * context ), void * context )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKVariableNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        size_t size = DKEncodingGetTypeSize( encoding );
+        unsigned int rows = DKEncodingGetRows( encoding );
+        unsigned int cols = DKEncodingGetCols( encoding );
+
+        CastFunction castFunction = GetCastFunction( DKEncode( encodingType, 1 ), encoding );
+
+        for( unsigned int row = 0; row < rows; row++ )
+        {
+            for( unsigned int col = 0; col < cols; col++ )
+            {
+                unsigned int i = (row * rows) + col;
+
+                void * dst = (uint8_t *)&_self->value + (size * i);
+                DKNumberValue src;
+
+                callback( &src, row, col, context );
+
+                castFunction( &src, dst, 1 );
+            }
+        }
+    }
+}
+
+
+///
 //  DKNumberEqual()
 //
 bool DKNumberEqual( DKNumberRef a, DKNumberRef b )

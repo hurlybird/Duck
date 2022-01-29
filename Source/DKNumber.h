@@ -103,6 +103,12 @@ DK_API void        DKNumberEnumerateValue( DKNumberRef _self, DKEncodingType enc
 DK_API void        DKNumberSetEnumeratedValue( DKNumberRef _self, DKEncodingType encodingType,
                        void (*callback)( void * value, size_t valueIndex, void * context ), void * context ); // Variable numbers only
 
+DK_API void        DKNumberEnumerateMatrixValue( DKNumberRef _self, DKEncodingType encodingType,
+                       void (*callback)( const void * value, unsigned int row, unsigned int col, void * context ), void * context );
+
+DK_API void        DKNumberSetEnumeratedMatrixValue( DKNumberRef _self, DKEncodingType encodingType,
+                       void (*callback)( void * value, unsigned int row, unsigned int col, void * context ), void * context ); // Variable numbers only
+
 DK_API bool        DKNumberGetBool( DKNumberRef _self );
 DK_API int32_t     DKNumberGetInt32( DKNumberRef _self );
 DK_API int64_t     DKNumberGetInt64( DKNumberRef _self );
