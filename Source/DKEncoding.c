@@ -25,6 +25,7 @@
 *****************************************************************************************/
 
 #include "DKEncoding.h"
+#include "DKString.h"
 
 
 
@@ -119,6 +120,35 @@ const char * DKEncodingGetTypeName( DKEncoding encoding )
         return TypeInfo[encodingType].name;
     
     return TypeInfo[0].name;
+}
+
+
+///
+//  DKEncodingGetDescription()
+//
+DKStringRef DKEncodingGetDescription( DKEncoding encoding )
+{
+    const char * typeName = DKEncodingGetTypeName( encoding );
+    
+    if( DKEncodingIsMatrix( encoding ) )
+    {
+        unsigned int rows = DKEncodingGetRows( encoding );
+        unsigned int cols = DKEncodingGetCols( encoding );
+        
+        return DKStringWithFormat( "%s[%d][%d]", typeName, rows, cols );
+    }
+
+    unsigned int count = DKEncodingGetCount( encoding );
+
+    if( count == 1 )
+    {
+        return DKStringWithCStringNoCopy( typeName );
+    }
+    
+    else
+    {
+        return DKStringWithFormat( "%s[%d]", typeName, count );
+    }
 }
 
 

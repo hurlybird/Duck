@@ -175,6 +175,7 @@ DK_API size_t DKEncodingTypeGetSize( DKEncodingType encodingType );
 DK_API size_t DKEncodingGetSize( DKEncoding encoding );
 DK_API size_t DKEncodingGetTypeSize( DKEncoding encoding );
 DK_API const char * DKEncodingGetTypeName( DKEncoding encoding );
+DK_API DKStringRef DKEncodingGetDescription( DKEncoding encoding );
 DK_API bool   DKEncodingIsNumber( DKEncoding encoding );
 DK_API bool   DKEncodingIsInteger( DKEncoding encoding );
 DK_API bool   DKEncodingIsReal( DKEncoding encoding );
