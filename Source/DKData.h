@@ -53,7 +53,7 @@ DK_API DKClassRef  DKMutableDataClass( void );
 DK_API DKDataRef   DKDataInitWithBytes( DKObjectRef _self, const void * bytes, DKIndex length );
 DK_API DKDataRef   DKDataInitWithBytesNoCopy( DKObjectRef _self, const void * bytes, DKIndex length );
 DK_API DKDataRef   DKDataInitWithLength( DKObjectRef _self, DKIndex length );
-DK_API DKDataRef   DKDataInitWithContentsOfFile( DKObjectRef _self, DKStringRef filename );
+DK_API DKDataRef   DKDataInitWithContentsOfFile( DKObjectRef _self, DKObjectRef file );
 DK_API DKMutableDataRef DKDataInitWithCapacity( DKObjectRef _self, DKIndex capacity );
 
 DK_API DKDataRef   DKDataMakeImmutable( DKMutableDataRef _self );

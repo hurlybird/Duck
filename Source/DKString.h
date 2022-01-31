@@ -64,7 +64,7 @@ DK_API DKObjectRef DKStringInitWithCString( DKObjectRef _self, const char * cstr
 DK_API DKObjectRef DKStringInitWithCStringNoCopy( DKObjectRef _self, const char * cstr );
 DK_API DKObjectRef DKStringInitWithBytes( DKObjectRef _self, const void * bytes, DKIndex length );
 DK_API DKObjectRef DKStringInitWithFormat( DKObjectRef _self, const char * format, ... );
-DK_API DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _self, DKStringRef filename );
+DK_API DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _self, DKObjectRef file );
 DK_API DKMutableStringRef DKStringInitWithCapacity( DKObjectRef _self, DKIndex capacity );
 
 DK_API DKStringRef DKStringMakeImmutable( DKMutableStringRef _self );

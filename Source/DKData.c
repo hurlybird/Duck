@@ -265,7 +265,7 @@ DKDataRef DKDataInitWithLength( DKObjectRef _untyped_self, DKIndex length )
 ///
 //  DKDataInitWithContentsOfFile()
 //
-DKDataRef DKDataInitWithContentsOfFile( DKObjectRef _untyped_self, DKStringRef filename )
+DKDataRef DKDataInitWithContentsOfFile( DKObjectRef _untyped_self, DKObjectRef file )
 {
     DKDataRef _self = DKInit( _untyped_self );
 
@@ -273,9 +273,14 @@ DKDataRef DKDataInitWithContentsOfFile( DKObjectRef _untyped_self, DKStringRef f
     {
         DKAssertKindOfClass( _self, DKDataClass() );
         
-        DKFileRef file = DKFileOpen( filename, "rb" );
+        DKFileRef fileHandle = NULL;
         
-        if( file )
+        if( DKIsKindOfClass( file, DKStringClass() ) )
+        {
+            file = fileHandle = DKFileOpen( file, "rb" );
+        }
+        
+        if( DKIsKindOfClass( file, DKFileClass() ) )
         {
             DKIndex length = DKFileGetLength( file );
         
@@ -286,8 +291,13 @@ DKDataRef DKDataInitWithContentsOfFile( DKObjectRef _untyped_self, DKStringRef f
                 void * buffer = DKByteArrayGetBytePtr( &_self->byteArray, 0 );
                 DKFileRead( file, buffer, 1, length );
             }
-
-            DKFileClose( file );
+            
+            DKFileClose( fileHandle );
+        }
+        
+        else if( file != NULL )
+        {
+            DKError( "DKDataInitWithContentsOfFile: '%@' is not a file.", file );
         }
     }
     
