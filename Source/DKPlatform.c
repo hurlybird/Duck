@@ -115,10 +115,24 @@ static int _DKPrintfInternal( int (*callback)( const char *, va_list ), FILE * f
     va_start( arg_ptr, format );
     
     if( callback )
+    {
         result = callback( format, arg_ptr );
+    }
     
     else
+    {
+#if DK_PLATFORM_WINDOWS || DK_PLATFORM_SCARLETT
+        if( IsDebuggerPresent() )
+        {
+            char buffer[1024];
+            vsnprintf( buffer, sizeof(buffer), format, arg_ptr );
+
+            OutputDebugStringA( buffer );
+        }
+#endif
+
         result = vfprintf( file, format, arg_ptr );
+    }
 
     va_end( arg_ptr );
     
