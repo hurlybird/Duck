@@ -288,4 +288,52 @@ size_t dk_ustrwrite( DKChar32 ch, char * str, size_t str_size )
 }
 
 
+///
+//  dk_ustrlwr()
+//
+char * dk_ustrlwr( char * dst, size_t dst_size, const char * src )
+{
+    uint32_t capacity = (uint32_t)dst_size - 1;
+    char ch;
+
+    for( uint32_t i = 0; i < capacity; ++i )
+    {
+        if( (ch = *src++) == '\0' )
+            break;
+            
+        if( U8_IS_SINGLE( ch ) )
+            *dst++ = tolower( ch );
+
+        else
+            *dst++ = ch;
+    }
+
+    *dst = '\0';
+    return dst;
+}
+
+
+///
+//  dk_ustrupr()
+//
+char * dk_ustrupr( char * dst, size_t dst_size, const char * src )
+{
+    uint32_t capacity = (uint32_t)dst_size - 1;
+    char ch;
+
+    for( uint32_t i = 0; i < capacity; ++i )
+    {
+        if( (ch = *src++) == '\0' )
+            break;
+            
+        if( U8_IS_SINGLE( ch ) )
+            *dst++ = toupper( ch );
+
+        else
+            *dst++ = ch;
+    }
+
+    *dst = '\0';
+    return dst;
+}
 

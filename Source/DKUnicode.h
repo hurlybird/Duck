@@ -63,4 +63,8 @@ DK_API size_t dk_ustrscan( const char * str, DKChar32 * ch );
 // Writes the character 'ch' into 'str' and returns the number of bytes written
 DK_API size_t dk_ustrwrite( DKChar32 ch, char * str, size_t str_size );
 
+// Versons of strlwr and strupr that leave multibyte code points unmodified
+DK_API char * dk_ustrlwr( char * dst, size_t dst_size, const char * src );
+DK_API char * dk_ustrupr( char * dst, size_t dst_size, const char * src );
+
 #endif // _DK_UNICODE_H_

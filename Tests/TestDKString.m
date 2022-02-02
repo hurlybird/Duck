@@ -404,6 +404,24 @@ struct PathAppendTestCase
 }
 
 
+- (void) testDKUnicode
+{
+    char buffer[100];
+    
+    dk_ustrlwr( buffer, sizeof(buffer), "Hello World!" );
+    XCTAssert( strcmp( buffer, "hello world!" ) == 0 );
+
+    dk_ustrupr( buffer, sizeof(buffer), "Hello World!" );
+    XCTAssert( strcmp( buffer, "HELLO WORLD!" ) == 0 );
+
+    dk_ustrlwr( buffer, sizeof(buffer), "Hello 🦋!" );
+    XCTAssert( strcmp( buffer, "hello 🦋!" ) == 0 );
+
+    dk_ustrupr( buffer, sizeof(buffer), "Hello 🦋!" );
+    XCTAssert( strcmp( buffer, "HELLO 🦋!" ) == 0 );
+}
+
+
 @end
 
 
