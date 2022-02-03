@@ -302,7 +302,7 @@ char * dk_ustrlwr( char * dst, size_t dst_size, const char * src )
             break;
             
         if( U8_IS_SINGLE( ch ) )
-            *dst++ = tolower( ch );
+            *dst++ = (char)tolower( ch );
 
         else
             *dst++ = ch;
@@ -327,7 +327,7 @@ char * dk_ustrupr( char * dst, size_t dst_size, const char * src )
             break;
             
         if( U8_IS_SINGLE( ch ) )
-            *dst++ = toupper( ch );
+            *dst++ = (char)toupper( ch );
 
         else
             *dst++ = ch;
