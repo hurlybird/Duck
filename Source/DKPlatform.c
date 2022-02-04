@@ -643,18 +643,15 @@ DKDateTime dk_localtime( void )
 #elif DK_PLATFORM_WINDOWS
 DKDateTime dk_localtime( void )
 {
-    FILETIME fileTime;
+    DYNAMIC_TIME_ZONE_INFORMATION timeZone;
+    double timeZoneOffset = 0.0;
 
-    GetSystemTimePreciseAsFileTime( &fileTime );
-    
-    // These are actually 100 nanosecond intervals
-    uint64_t nsecs_since_1601 = (((uint64_t)fileTime.dwHighDateTime) << 32) | ((uint64_t)fileTime.dwLowDateTime);
-    uint64_t nsecs_since_1970 = nsecs_since_1601 - (11644473600000 * 10000);
+    DWORD result = GetDynamicTimeZoneInformation( &timeZone );
 
-    uint64_t secs = nsecs_since_1970 / 10000000;
-    uint64_t nsecs = nsecs_since_1970 - secs;
+    if( result != TIME_ZONE_ID_INVALID )
+        timeZoneOffset = timeZone.Bias * 60.0;
 
-    return (DKDateTime)secs - DKAbsoluteTimeSince1970 + ((DKDateTime)nsecs * 1.0e-7);
+    return dk_datetime() + timeZoneOffset;
 }
 
 #endif
