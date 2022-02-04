@@ -626,6 +626,41 @@ DKDateTime dk_datetime( void )
 
 
 ///
+//  dk_localtime()
+//
+#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX
+DKDateTime dk_localtime( void )
+{
+    struct timeval t;
+    struct timezone tz;
+    
+    if( gettimeofday( &t, &tz ) )
+        return 0.0;
+    
+    return ((DKDateTime)t.tv_sec) - DKAbsoluteTimeSince1970 + (((DKDateTime)t.tv_usec) * 1.0e-6) + (tz.tz_minuteswest * 60.0);
+}
+
+#elif DK_PLATFORM_WINDOWS
+DKDateTime dk_localtime( void )
+{
+    FILETIME fileTime;
+
+    GetSystemTimePreciseAsFileTime( &fileTime );
+    
+    // These are actually 100 nanosecond intervals
+    uint64_t nsecs_since_1601 = (((uint64_t)fileTime.dwHighDateTime) << 32) | ((uint64_t)fileTime.dwLowDateTime);
+    uint64_t nsecs_since_1970 = nsecs_since_1601 - (11644473600000 * 10000);
+
+    uint64_t secs = nsecs_since_1970 / 10000000;
+    uint64_t nsecs = nsecs_since_1970 - secs;
+
+    return (DKDateTime)secs - DKAbsoluteTimeSince1970 + ((DKDateTime)nsecs * 1.0e-7);
+}
+
+#endif
+
+
+///
 //  dk_systemtime()
 //
 #if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX

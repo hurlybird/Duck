@@ -832,8 +832,11 @@ DK_API uint64_t dk_memhash64( const void * buffer, size_t buffer_size );
 #endif
 
 
-// Time in seconds since Jan 1 2001 00:00:00 GMT (equivalent to Apple's CFDate)
+// Time in seconds since Jan 1 2001 00:00:00 UTC (equivalent to Apple's CFDate)
 DK_API DKDateTime dk_datetime( void );
+
+// Local time in seconds since Jan 1 2001 00:00:00 UTC
+DK_API DKDateTime dk_localtime( void );
 
 // Time in seconds since a system-specific start time. The returned values are not
 // compatible with, but may have greater precision than, those from dk_datetime().
