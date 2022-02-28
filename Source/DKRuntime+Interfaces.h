@@ -33,7 +33,7 @@
 // DKSelector ============================================================================
 
 // Selector cache configuration
-typedef enum
+enum
 {
     // 0 - Allocation (Class), Copying (Instances)
     DKStaticCache_Allocation =      0,
@@ -70,8 +70,7 @@ typedef enum
     
     // Size of the dynamic cache
     DKDynamicCacheSize =            16
-    
-} DKCacheUsage;
+};
 
 
 struct _DKSEL
@@ -92,8 +91,18 @@ struct _DKSEL
 typedef struct _DKSEL * DKSEL;
 
 
+// Offset of the instance interface table for fast selector lookups
+// i.e. offsetof( struct DKClass, instanceInterfaceTable )
+#if __LP64__
+#define DK_INTERFACE_TABLE_OFFSET   0x18
+#else
+#define DK_INTERFACE_TABLE_OFFSET   0x14
+#endif
+
+
 // A friendly macro for accessing selector objects.
 #define DKSelector( name )      DKSelector_ ## name()
+#define DKFastSelector( name )  DKStaticCache_ ## name
 
 // A friendly macro for accessing the function prototype for message handlers
 #define DKSelectorFunc( name )  DKMsgHandler_ ## name
@@ -152,6 +161,10 @@ typedef void * DKInterfaceRef;
 #define DKDeclareInterfaceSelector( name )                                              \
     DKSEL DKSelector_ ## name( void )
 
+#define DKDeclareFastInterfaceSelector( name, cacheline )                               \
+    enum { DKStaticCache_ ##name = cacheline };                                         \
+    DKSEL DKSelector_ ## name( void )
+
 // Get the interface method count from the structure size
 #define DKInterfaceCountMethods( structSize )    (((structSize) - sizeof(DKInterface)) / sizeof(void *))
 
@@ -183,6 +196,19 @@ DK_API DKInterfaceRef DKGetClassInterface( DKClassRef _class, DKSEL sel );
 DK_API bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface );
 DK_API bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * _interface );
 
+// Retrieve a static interface fast by bypassing all safety checks
+static inline DKInterfaceRef DKGetStaticInterfaceFastUnsafe( DKObjectRef _self, unsigned int cacheline )
+{
+    DKAssert( _self && (cacheline < DKStaticCacheSize) );
+
+    DKObject * obj = (DKObject *)_self;
+    DKClassRef cls = obj->isa;
+    DKInterfaceRef * table = (DKInterfaceRef *)((uint8_t *)cls + DK_INTERFACE_TABLE_OFFSET);
+    
+    DKAssert( table[cacheline] );
+    return table[cacheline];
+}
+
 
 
 
@@ -207,6 +233,11 @@ typedef struct DKMsgHandler * DKMsgHandlerRef;
 // Declare a message handler selector. This also defines a callback type used by
 // DKMsgSend() for type safety.
 #define DKDeclareMessageSelector( name, ... )                                           \
+    DKSEL DKSelector_ ## name( void );                                                  \
+    typedef intptr_t (*DKMsgHandler_ ## name)( DKObjectRef, DKSEL , ## __VA_ARGS__ )
+
+#define DKDeclareFastMessageSelector( name, cacheline, ... )                            \
+    enum { DKStaticCache_ ##name = cacheline };                                         \
     DKSEL DKSelector_ ## name( void );                                                  \
     typedef intptr_t (*DKMsgHandler_ ## name)( DKObjectRef, DKSEL , ## __VA_ARGS__ )
 
@@ -240,6 +271,19 @@ DK_API DKMsgHandlerRef DKGetClassMsgHandler( DKClassRef _class, DKSEL sel );
 // Check to see if a message handler is available for an object.
 DK_API bool DKQueryMsgHandler( DKObjectRef _self, DKSEL sel, DKMsgHandlerRef * msgHandler );
 DK_API bool DKQueryClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgHandlerRef * msgHandler );
+
+// Retrieve a static interface fast by bypassing all safety checks
+static inline DKMsgHandlerRef DKGetStaticMsgHandlerFastUnsafe( DKObjectRef _self, unsigned int cacheline )
+{
+    DKAssert( _self && (cacheline < DKStaticCacheSize) );
+
+    DKObject * obj = (DKObject *)_self;
+    DKClassRef cls = obj->isa;
+    DKInterfaceRef * table = (DKInterfaceRef *)((uint8_t *)cls + DK_INTERFACE_TABLE_OFFSET);
+
+    DKAssert( table[cacheline] );
+    return (DKMsgHandlerRef)table[cacheline];
+}
 
 
 

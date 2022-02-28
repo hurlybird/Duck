@@ -123,16 +123,16 @@ static void InterfaceTableRowDelete( void * _row, void * not_used )
     *row = DKRowStatusDeleted;
 }
 
-static void InterfaceTableForeachRowCallback( const void * _row, void * context )
+
+///
+//  DKInterfaceTableInit()
+//
+static void InsertRowCallback( const void * _row, void * context )
 {
     struct DKInterfaceTable * interfaceTable = context;
     DKGenericHashTableInsert( &interfaceTable->interfaces, _row, DKInsertAlways );
 }
 
-
-///
-//  DKInterfaceTableInit()
-//
 void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKInterfaceTable * inheritedInterfaces )
 {
     DKGenericHashTableCallbacks callbacks =
@@ -152,7 +152,13 @@ void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKIn
     DKGenericHashTableInit( &interfaceTable->interfaces, sizeof(DKObjectRef), &callbacks, NULL );
     
     if( inheritedInterfaces )
-        DKGenericHashTableForeachRow( &inheritedInterfaces->interfaces, InterfaceTableForeachRowCallback, interfaceTable );
+    {
+        // Prime the static cache for fast selector lookups
+        for( unsigned int i = 0; i < DKStaticCacheSize; i++ )
+            interfaceTable->cache[i] = inheritedInterfaces->cache[i];
+    
+        DKGenericHashTableForeachRow( &inheritedInterfaces->interfaces, InsertRowCallback, interfaceTable );
+    }
 }
 
 
@@ -184,8 +190,8 @@ void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interf
     unsigned int cacheline = interface->sel->cacheline;
     DKAssert( cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
     
-    // Invalidate the cache
-    interfaceTable->cache[cacheline] = NULL;
+    // Prime the cache for fast selector lookup
+    interfaceTable->cache[cacheline] = interface;
 
     // Replace the interface in the interface table
     DKSpinLockLock( &interfaceTable->lock );

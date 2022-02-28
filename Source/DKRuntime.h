@@ -293,16 +293,16 @@ struct DKClass
     // in the same position in the structure (i.e. right after the object header).
     DKStringRef             name;
     
-    DKClassRef              superclass;
-    uint32_t                structSize;
-    uint32_t                options;
+    struct DKInterfaceTable instanceInterfaces;
+    struct DKInterfaceTable classInterfaces;
     
     DKInitMethod            init;
     DKFinalizeMethod        finalize;
 
-    struct DKInterfaceTable classInterfaces;
-    struct DKInterfaceTable instanceInterfaces;
-    
+    DKClassRef              superclass;
+    uint32_t                structSize;
+    uint32_t                options;
+
     DKSpinLock              propertiesLock;
     DKMutableHashTableRef   properties;
 };
