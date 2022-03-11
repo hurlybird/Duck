@@ -218,7 +218,10 @@ void _DKError( const char * format, ... )
 
     if( AbortOnErrors )
     {
-        assert( 0 );
+        #if DEBUG
+        dk_breakhere();
+        #endif
+
         abort();
     }
 }
@@ -241,7 +244,10 @@ void _DKFatalError( const char * format, ... )
 
     DKRelease( tmp );
 
-    assert( 0 );
+    #if DEBUG
+    dk_breakhere();
+    #endif
+
     abort();
 }
 
@@ -262,9 +268,6 @@ void _DKFailedAssert( const char * format, ... )
     _DKPrintfInternal( PrintfCallback, stdout, "%s", DKStringGetCStringPtr( tmp ) );
 
     DKRelease( tmp );
-
-    assert( 0 );
-    abort();
 }
 
 

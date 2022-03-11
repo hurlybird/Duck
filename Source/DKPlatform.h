@@ -56,6 +56,16 @@
 #include "DKConfig.h"
 
 
+// Clang/GCC/MSVC ------------------------------------------------------------------------
+#if __clang__
+#define dk_breakhere()  __builtin_trap()
+#elif __GNUC__
+#define dk_breakhere()  __builtin_trap()
+#elif _MSC_VER
+#define dk_breakhere()  __debugbreak()
+#endif
+
+
 // Apple ---------------------------------------------------------------------------------
 #if DK_PLATFORM_APPLE
 #include <uuid/uuid.h>
@@ -163,7 +173,7 @@
 #endif
 
 
-// Nintendo Switch
+// Nintendo Switch ----------------------------------------------------------------------
 #if DK_PLATFORM_NX
 
 #define DK_API
@@ -176,7 +186,7 @@
 #endif
 
 
-// PlayStation 5
+// PlayStation 5 ------------------------------------------------------------------------
 #if DK_PLATFORM_PS5
 
 #define DK_API
@@ -443,7 +453,7 @@ DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_R
 #endif
 
 // Assertions
-DK_API void _DKFailedAssert( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_RETURN;
+DK_API void _DKFailedAssert( const char * format, ... );
 
 #if DK_RUNTIME_ASSERTIONS
 #define DKAssert( x )                                                                   \
@@ -451,7 +461,9 @@ DK_API void _DKFailedAssert( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO
     {                                                                                   \
         if( !(x) )                                                                      \
         {                                                                               \
-            _DKFailedAssert( "%s: Failed Assert( %s )", __func__, #x );                   \
+            _DKFailedAssert( "%s: Failed Assert( %s )", __func__, #x );                 \
+            dk_breakhere();                                                             \
+            abort();                                                                    \
         }                                                                               \
     } while( 0 )
 
@@ -460,10 +472,12 @@ DK_API void _DKFailedAssert( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO
     {                                                                                   \
         if( !DKIsKindOfClass( _self, cls ) )                                            \
         {                                                                               \
-            _DKFailedAssert( "%s: Required kind of class %s, received %s",                \
+            _DKFailedAssert( "%s: Required kind of class %s, received %s",              \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
+            dk_breakhere();                                                             \
+            abort();                                                                    \
         }                                                                               \
     } while( 0 )
 
@@ -472,10 +486,12 @@ DK_API void _DKFailedAssert( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO
     {                                                                                   \
         if( !DKIsMemberOfClass( _self, cls ) )                                          \
         {                                                                               \
-            _DKFailedAssert( "%s: Required member of class %s, received %s",              \
+            _DKFailedAssert( "%s: Required member of class %s, received %s",            \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
+            dk_breakhere();                                                             \
+            abort();                                                                    \
         }                                                                               \
     } while( 0 )
 
@@ -484,10 +500,12 @@ DK_API void _DKFailedAssert( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO
     {                                                                                   \
         if( !DKQueryInterface( _self, sel, NULL ) )                                     \
         {                                                                               \
-            _DKFailedAssert( "%s: Required interface %s on class %s",                     \
+            _DKFailedAssert( "%s: Required interface %s on class %s",                   \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKStringFromSelector( sel ) ),                   \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
+            dk_breakhere();                                                             \
+            abort();                                                                    \
         }                                                                               \
     } while( 0 )
 
@@ -496,9 +514,11 @@ DK_API void _DKFailedAssert( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO
     {                                                                                   \
         if( !DKIsMutable( _self, cls ) )                                                \
         {                                                                               \
-            _DKFailedAssert( "%s: Trying to modify an instance of immutable class %s",    \
+            _DKFailedAssert( "%s: Trying to modify an instance of immutable class %s",  \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
+            dk_breakhere();                                                             \
+            abort();                                                                    \
         }                                                                               \
     } while( 0 )
 
