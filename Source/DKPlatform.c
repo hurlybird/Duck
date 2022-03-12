@@ -218,11 +218,7 @@ void _DKError( const char * format, ... )
 
     if( AbortOnErrors )
     {
-        #if DEBUG
-        dk_breakhere();
-        #endif
-
-        abort();
+        dk_abortfatal();
     }
 }
 
@@ -244,11 +240,7 @@ void _DKFatalError( const char * format, ... )
 
     DKRelease( tmp );
 
-    #if DEBUG
-    dk_breakhere();
-    #endif
-
-    abort();
+    dk_abortfatal();
 }
 
 

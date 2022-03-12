@@ -58,11 +58,17 @@
 
 // Clang/GCC/MSVC ------------------------------------------------------------------------
 #if __clang__
-#define dk_breakhere()  __builtin_trap()
+#define dk_breakfatal() __builtin_trap()
 #elif __GNUC__
-#define dk_breakhere()  __builtin_trap()
+#define dk_breakfatal() __builtin_trap()
 #elif _MSC_VER
-#define dk_breakhere()  __debugbreak()
+#define dk_breakfatal() __debugbreak(); abort()
+#endif
+
+#if DEBUG
+#define dk_abortfatal() dk_breakfatal()
+#else
+#define dk_abortfatal() abort()
 #endif
 
 
@@ -462,8 +468,7 @@ DK_API void _DKFailedAssert( const char * format, ... );
         if( !(x) )                                                                      \
         {                                                                               \
             _DKFailedAssert( "%s: Failed Assert( %s )", __func__, #x );                 \
-            dk_breakhere();                                                             \
-            abort();                                                                    \
+            dk_breakfatal();                                                            \
         }                                                                               \
     } while( 0 )
 
@@ -476,8 +481,7 @@ DK_API void _DKFailedAssert( const char * format, ... );
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
-            dk_breakhere();                                                             \
-            abort();                                                                    \
+            dk_breakfatal();                                                            \
         }                                                                               \
     } while( 0 )
 
@@ -490,8 +494,7 @@ DK_API void _DKFailedAssert( const char * format, ... );
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( cls ) ),                         \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
-            dk_breakhere();                                                             \
-            abort();                                                                    \
+            dk_breakfatal();                                                            \
         }                                                                               \
     } while( 0 )
 
@@ -504,8 +507,7 @@ DK_API void _DKFailedAssert( const char * format, ... );
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKStringFromSelector( sel ) ),                   \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
-            dk_breakhere();                                                             \
-            abort();                                                                    \
+            dk_breakfatal();                                                            \
         }                                                                               \
     } while( 0 )
 
@@ -517,8 +519,7 @@ DK_API void _DKFailedAssert( const char * format, ... );
             _DKFailedAssert( "%s: Trying to modify an instance of immutable class %s",  \
                 __func__,                                                               \
                 DKStringGetCStringPtr( DKGetClassName( _self ) ) );                     \
-            dk_breakhere();                                                             \
-            abort();                                                                    \
+            dk_breakfatal();                                                            \
         }                                                                               \
     } while( 0 )
 
