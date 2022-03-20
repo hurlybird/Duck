@@ -668,6 +668,8 @@ DK_API void   dk_free( void * ptr );
 
 #define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    __sync_bool_compare_and_swap( ptr, _old, _new )
 
+#define DKMemoryBarrier()                           __sync_synchronize()
+
 #endif
 
 #if DK_PLATFORM_WINDOWS
@@ -691,6 +693,8 @@ static_assert( sizeof(LONG) == sizeof(int32_t), "DKAtomic: Windows LONG type is 
 #define DKAtomicCmpAndSwap64( ptr, _old, _new )     (InterlockedCompareExchange64( (LONG64 volatile *)(ptr), (LONG64)(_new), (LONG64)(_old) ) == (LONG64)(_old))
 
 #define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    (InterlockedCompareExchangePointer( (PVOID volatile *)ptr, _new, _old ) == (_old))
+
+#define DKMemoryBarrier()                           MemoryBarrier()
 
 #endif
 
