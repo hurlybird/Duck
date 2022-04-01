@@ -490,20 +490,21 @@ DKUUID dk_uuid_generate( void )
 }
 
 #elif DK_PLATFORM_WINDOWS
-#include <rpc.h>
+#include <objbase.h>
 
 DKUUID dk_uuid_generate( void )
 {
     DKUUID uuid;
-    UUID tmp;
+    GUID tmp;
 
-    RPC_STATUS status = UuidCreate( &tmp );
+    HRESULT result = CoCreateGuid( &tmp );
 
     // UuidCreate may return RPC_S_OK, RPC_S_UUID_LOCAL_ONLY or RPC_S_UUID_NO_ADDRESS,
     // but these apparently aren't defined on all platforms.
-    if( status != ERROR_SUCCESS /* RPC_S_OK */ )
+    if( !SUCCEEDED( result ) )
     {
-        DKWarning( "dk_uuid_generate: UuidCreate returned status 0x%X.", status );
+        DKWarning( "dk_uuid_generate: CoCreateGuid returned result 0x%X.", result );
+        memset( &tmp, 0, sizeof(tmp) );
     }
 
     *((uint32_t *)&uuid.bytes[0]) = DKSwapInt32HostToBig( tmp.Data1 );
