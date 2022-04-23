@@ -965,12 +965,22 @@ DKChar32 DKStringGetCharacterAtIndex( DKStringRef _self, DKIndex index, DKChar8 
                 // Copy the code point
                 if( utf8 )
                 {
-                    DKAssert( bytes < sizeof(DKChar8) );
+                    // This size check is pedantic since UTF8 code points are
+                    // always < 6 bytes long, but it squashes a warning in some
+                    // versions of GCC GCC
+                    if( bytes < sizeof(DKChar8) )
+                    {
+                        for( size_t j = 0; j < bytes; j++ )
+                            utf8->s[j] = str[j];
                     
-                    for( size_t j = 0; j < bytes; j++ )
-                        utf8->s[j] = str[j];
-                    
-                    utf8->s[bytes] = '\0';
+                        utf8->s[bytes] = '\0';
+                    }
+
+                    else
+                    {
+                        DKAssert( bytes < sizeof(DKChar8) );
+                        utf8->s[0] = '\0';
+                    }
                 }
                 
                 return utf32;
