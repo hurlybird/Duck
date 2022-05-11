@@ -316,12 +316,14 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         # /fp:precise   - precise floating point
         # /GS           - buffer security checks
         # /Gy           - function level linking
+        # /MP           - multiprocessor build
         # /W4           - warning level 4
         # /wd4100       - disable unreferenced formal parameter warning
         target_compile_options( ${TargetName}
             PRIVATE
             /Zi
             /fp:precise
+            /MP
             /GS
             /Gy
             /W4
