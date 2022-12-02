@@ -54,7 +54,9 @@ endif()
 
 
 # Paths ----------------------------------------------------------------------------------
-set( DUCK_PATH ${CMAKE_CURRENT_SOURCE_DIR} )
+if( NOT DEFINED DUCK_PATH )
+    set( DUCK_PATH ${CMAKE_CURRENT_SOURCE_DIR} )
+endif()
 
 if( NOT DEFINED DUCK_PUBLIC_HEADERS_PATH )
     set( DUCK_PUBLIC_HEADERS_PATH ${CMAKE_CURRENT_BINARY_DIR}/Include )

@@ -590,7 +590,7 @@ uint64_t dk_memhash64( const void * buffer, size_t buffer_size )
 ///
 //  dk_datetime()
 //
-#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX
+#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX || DK_PLATFORM_ANDROID
 DKDateTime dk_datetime( void )
 {
     struct timeval t;
@@ -624,7 +624,7 @@ DKDateTime dk_datetime( void )
 ///
 //  dk_localtime()
 //
-#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX
+#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX || DK_PLATFORM_ANDROID
 DKDateTime dk_localtime( void )
 {
     struct timeval t;
@@ -656,7 +656,7 @@ DKDateTime dk_localtime( void )
 ///
 //  dk_systemtime()
 //
-#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX
+#if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX || DK_PLATFORM_ANDROID
 DKDateTime dk_systemtime( void )
 {
     return dk_datetime();
