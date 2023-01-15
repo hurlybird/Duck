@@ -68,18 +68,6 @@ static int RaiseException( const char * format, va_list arg_ptr )
     test = DKPredicate( DKPredicateAND, yep, yep );
     XCTAssert( DKEvaluate( test ) == true );
     
-    test = DKPredicate( DKPredicateALL, nope_nope, NULL );
-    XCTAssert( DKEvaluate( test ) == false );
-
-    test = DKPredicate( DKPredicateALL, nope_yep, NULL );
-    XCTAssert( DKEvaluate( test ) == false );
-
-    test = DKPredicate( DKPredicateALL, yep_nope, NULL );
-    XCTAssert( DKEvaluate( test ) == false );
-
-    test = DKPredicate( DKPredicateALL, yep_yep, NULL );
-    XCTAssert( DKEvaluate( test ) == true );
-
     // Or
     test = DKPredicate( DKPredicateOR, nope, nope );
     XCTAssert( DKEvaluate( test ) == false );
@@ -91,6 +79,19 @@ static int RaiseException( const char * format, va_list arg_ptr )
     XCTAssert( DKEvaluate( test ) == true );
 
     test = DKPredicate( DKPredicateOR, yep, yep );
+    XCTAssert( DKEvaluate( test ) == true );
+
+    // All
+    test = DKPredicate( DKPredicateALL, nope_nope, NULL );
+    XCTAssert( DKEvaluate( test ) == false );
+
+    test = DKPredicate( DKPredicateALL, nope_yep, NULL );
+    XCTAssert( DKEvaluate( test ) == false );
+
+    test = DKPredicate( DKPredicateALL, yep_nope, NULL );
+    XCTAssert( DKEvaluate( test ) == false );
+
+    test = DKPredicate( DKPredicateALL, yep_yep, NULL );
     XCTAssert( DKEvaluate( test ) == true );
 
     // Any
