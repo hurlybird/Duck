@@ -147,7 +147,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 - (void) testJSONTrailingComma
 {
-    // Create some JSON with utf code points
+    // Create some JSON with trailing commas
     DKStringRef json = DKStringWithCString(
         "{\n" \
         "    \"a\" : [ 1, 2, 3 ],\n" \

@@ -588,6 +588,112 @@ uint64_t dk_memhash64( const void * buffer, size_t buffer_size )
 
 
 ///
+//  dk_strtonum()
+//
+bool dk_strtonum( const char * str, int64_t * ival, double * fval, char const ** str_end )
+{
+    const char * cursor = str;
+
+    int sign = 1;
+    int64_t ipart = 0;
+    double fpart = 0;
+    int64_t epart = 0;
+    bool has_fpart = false;
+    bool has_epart = false;
+
+    // Skip whitespace
+    while( isspace( *cursor ) )
+    {
+        cursor++;
+    }
+    
+    // Optional sign
+    if( *cursor == '-' )
+    {
+        sign = -1;
+        cursor++;
+    }
+    
+    else if( *cursor == '+' )
+    {
+        sign = 1;
+        cursor++;
+    }
+    
+    // Integer part
+    while( (*cursor >= '0') && (*cursor <= '9') ) // isdigit( *cursor )
+    {
+        int x = (*cursor) - '0';
+        ipart = (ipart * 10) + x;
+    
+        cursor++;
+    }
+    
+    // Fractional part
+    if( *cursor == '.' )
+    {
+        cursor++;
+
+        has_fpart = true;
+
+        long denom = 10;
+        
+        while( (*cursor >= '0') && (*cursor <= '9') ) // isdigit( *cursor )
+        {
+            long numer = (*cursor) - '0';
+            fpart = fpart + ((double)numer / (double)denom);
+        
+            denom *= 10;
+            cursor++;
+        }
+        
+    }
+
+    // Exponent part
+    if( (*cursor == 'e') || (*cursor == 'E') )
+    {
+        cursor++;
+
+        has_fpart = true;
+        has_epart = true;
+
+        while( (*cursor >= '0') && (*cursor <= '9') ) // isdigit( *cursor )
+        {
+            int x = (*cursor) - '0';
+            epart = (epart * 10) + x;
+        
+            cursor++;
+        }
+    }
+
+    // Return the end position
+    if( str_end )
+    {
+        *str_end = cursor;
+    }
+
+    // Return a floating-point value
+    if( has_fpart )
+    {
+        if( has_epart )
+            *fval = (double)sign * ((double)ipart + fpart) * pow( 10, (double)epart );
+        
+        else
+            *fval = (double)sign * ((double)ipart + fpart);
+        
+        return false;
+    }
+    
+    // Return an integer value
+    else
+    {
+        *ival = ipart * sign;
+        return true;
+    }
+}
+
+
+///
 //  dk_datetime()
 //
 #if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX || DK_PLATFORM_ANDROID

@@ -318,15 +318,8 @@ typedef struct
 
 } Token;
 
-#define ParseInt32( str )   dk_strtoi32( str, NULL, 10 )
-#define ParseInt64( str )   dk_strtoi64( (str), NULL, 10 );
-#define ParseFloat( str )   dk_strtof32( (str), NULL );
-#define ParseDouble( str )  dk_strtof64( (str), NULL );
-
 static int ParseObject( ParseContext * context, DKObjectRef * obj );
-
 static Token ScanToken( ParseContext * context, DKObjectRef * obj );
-static DKEncodingType ParseNumberType( Token token );
 
 
 ///
@@ -477,19 +470,18 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     // Number
     else if( (ch == '-') || isdigit( ch ) )
     {
-        if( ParseNumberType( token ) == DKEncodingTypeDouble )
+        int64_t ival;
+        double fval;
+        
+        if( dk_strtonum( token.str, &ival, &fval, NULL ) )
         {
-            double x = ParseDouble( token.str );
-            
-            *obj = DKNewNumberWithDouble( x );
+            *obj = DKNewNumberWithInt64( ival );
             return 0;
         }
         
         else
         {
-            int64_t x = ParseInt64( token.str );
-            
-            *obj = DKNewNumberWithInt64( x );
+            *obj = DKNewNumberWithDouble( fval );
             return 0;
         }
     }
@@ -665,14 +657,24 @@ static Token ScanVectorToken64( Token token, ParseContext * context, DKObjectRef
 
             if( (ch == '-') || isdigit( ch ) )
             {
-                if( numberType == DKEncodingTypeDouble )
+                int64_t ival;
+                double fval;
+                
+                if( dk_strtonum( numberToken.str, &ival, &fval, NULL ) )
                 {
-                    double x = ParseDouble( numberToken.str );
+                    if( numberType == DKEncodingTypeInt64 )
+                    {
+                        DKGenericArrayAppendElements( &buffer, &ival, 1 );
+                    }
                     
-                    DKGenericArrayAppendElements( &buffer, &x, 1 );
+                    else
+                    {
+                        double x = (double)ival;
+                        DKGenericArrayAppendElements( &buffer, &x, 1 );
+                    }
                 }
                 
-                else if( DKEncodingTypeIsReal( ParseNumberType( numberToken ) ) )
+                else
                 {
                     // Convert previously read integers to doubles
                     if( numberType != DKEncodingTypeDouble )
@@ -691,16 +693,7 @@ static Token ScanVectorToken64( Token token, ParseContext * context, DKObjectRef
                         }
                     }
                 
-                    double x = ParseDouble( numberToken.str );
-                    
-                    DKGenericArrayAppendElements( &buffer, &x, 1 );
-                }
-                
-                else
-                {
-                    int64_t x = ParseInt64( numberToken.str );
-                    
-                    DKGenericArrayAppendElements( &buffer, &x, 1 );
+                    DKGenericArrayAppendElements( &buffer, &fval, 1 );
                 }
             }
             
@@ -771,14 +764,25 @@ static Token ScanVectorToken32( Token token, ParseContext * context, DKObjectRef
 
             if( (ch == '-') || isdigit( ch ) )
             {
-                if( numberType == DKEncodingTypeFloat )
+                int64_t ival;
+                double fval;
+                
+                if( dk_strtonum( numberToken.str, &ival, &fval, NULL ) )
                 {
-                    float x = ParseFloat( numberToken.str );
+                    if( numberType == DKEncodingTypeInt32 )
+                    {
+                        int32_t x = (int32_t)ival;
+                        DKGenericArrayAppendElements( &buffer, &x, 1 );
+                    }
                     
-                    DKGenericArrayAppendElements( &buffer, &x, 1 );
+                    else
+                    {
+                        float x = (float)ival;
+                        DKGenericArrayAppendElements( &buffer, &x, 1 );
+                    }
                 }
                 
-                else if( DKEncodingTypeIsReal( ParseNumberType( numberToken ) ) )
+                else
                 {
                     // Convert previously read integers to floats
                     if( numberType != DKEncodingTypeFloat )
@@ -797,15 +801,7 @@ static Token ScanVectorToken32( Token token, ParseContext * context, DKObjectRef
                         }
                     }
                 
-                    float x = ParseFloat( numberToken.str );
-                    
-                    DKGenericArrayAppendElements( &buffer, &x, 1 );
-                }
-                
-                else
-                {
-                    int32_t x = ParseInt32( numberToken.str );
-                    
+                    float x = (float)fval;
                     DKGenericArrayAppendElements( &buffer, &x, 1 );
                 }
             }
@@ -943,35 +939,6 @@ static Token ScanToken( ParseContext * context, DKObjectRef * obj )
 }
 #endif
 
-
-///
-//  ParseNumberType()
-//
-static DKEncodingType ParseNumberType( Token token )
-{
-    DKEncodingType encoding = DKEncodingTypeInt64;
-
-    const char * str = token.str;
-    const char * end = str + token.length;
-    
-    if( *str == '-' )
-        str++;
-    
-    while( str < end )
-    {
-        char ch = *str;
-        
-        if( (ch == '.') || (ch == 'e') || (ch == 'E') )
-        {
-            encoding = DKEncodingTypeDouble;
-            break;
-        }
-        
-        str++;
-    }
-    
-    return encoding;
-}
 
 
 
