@@ -681,7 +681,10 @@ const char * DKEggGetTextDataPtr( DKEggUnarchiverRef _self, DKStringRef key, siz
     {
         if( DKEncodingGetType( attribute->encoding ) == DKEncodingTypeTextData )
         {
-            *length = DKEncodingGetSize( attribute->encoding );
+            size_t storedLength = DKEncodingGetSize( attribute->encoding );
+            
+            // We store the null byte to make reading the strings safer and easier
+            *length = (storedLength > 0) ? (storedLength - 1) : 0;
             
             return (const char *)&_self->data[attribute->value];
         }
