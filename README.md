@@ -1,4 +1,4 @@
-# ![The Duck Object Library](DuckLogo.png)
+# The Duck Object Library
 
 The Duck Object Library is an object system and library for "duck-typed"
 programming in C. It takes many cues from Objective-C, CoreFoundation and COM,
