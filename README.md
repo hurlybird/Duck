@@ -24,13 +24,15 @@ respective licenses, but are similarly unrestrictive.
 
 ## Development Status
 
-The library is effectively (though not officially) version 1.0. The majority of
-the changes happening right now involve filling in gaps and tweaking to match
-expected/intuitive use in real use cases.
+The latest stable version is 1.0.
 
-That being said, the code should be considered *experimental* until it's
-undergone more exhaustive testing in real-world use--particularly regarding
-thread safety.
+The majority of the changes happening on the development branch involve filling
+in gaps and tweaking to match expected/intuitive use. None of this should cause
+widespread incompatibilites for the foreseeable future.
+
+***While Duck is being actively used in several applications, the code has not
+undergone exhaustive testing in real-world situations, particularly regarding
+security and thread safety.***
 
 
 ## Building
@@ -42,7 +44,7 @@ A Visual Studio project is also available and has configurations for both 32 and
 64-bit Windows builds.
 
 A [CMakeLists](CMakeLists.txt) file is included for building from the command line,
-with CLion, or as part of an Android Studio project. That file also contains some
+Visual Studio Code, CLion, Android Studio, etc. That file also contains some
 documentation on including Duck in another CMake project.
 
 The [cmake.sh](cmake.sh) script is a convenience wrapper for building with CMake
@@ -57,10 +59,15 @@ From the project directory, run:
 
 ## Porting
 
-Duck is known to work on on MacOS, iOS, Linux, Windows and Android, and should also
-compile anywhere with a C11 compliant compiler. A few types and functions--system calls,
-atomic operations, thread support, etc--will likely need to be ported for non-Apple
-or non-POSIX systems.
+Duck is known to work on on MacOS, iOS, Linux, Windows, Android, Nintendo Switch[^1],
+PlayStation 5[^2], and XBox Series X|S. It should build anywhere with a C11 compliant
+compiler. Some types and functions--system calls, atomic operations, thread support,
+etc--will likely need to be ported for non-Apple/POSIX/Microsoft environments.
+
+[^1]: On Ninendo Switch the time, date, and UUID generation functions are implemented
+      using proprietary Nintendo SDK APIS and are not part of this repository.
+[^1]: On PlayStation 5 the time, date, and UUID generation functions are implemented
+      using proprietary Sony SDK APIS and are not part of this repository.
 
 While Duck objects can be (and are) used in C++ code, C++ compilers will no doubt
 complain about some of the C11 code that Duck uses--namely explicit casts from void
