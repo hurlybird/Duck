@@ -68,7 +68,7 @@ fi
 
 if [ ${#TARGETS[@]} -eq 0 ]
 then
-    TARGETS="STATIC;SHARED;EXAMPLES"
+    TARGETS="STATIC;SHARED;FRAMEWORK;EXAMPLES"
 else
     printf -v TARGETS '%s;' "${TARGETS[@]}";
 fi

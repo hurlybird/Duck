@@ -115,4 +115,16 @@ function( add_target_headers TargetName )
 endfunction()
 
 
+# Target Properties ======================================================================
+
+# Add a property to a target if it isn't already set
+function( add_target_property TargetName PropertyName PropertyValue )
+    get_target_property( CurrentValue ${TargetName} ${PropertyName} )
+
+    if( (CurrentValue STREQUAL "") OR (CurrentValue STREQUAL "${PropertyName}-NOTFOUND") )
+        set_property( TARGET ${TargetName} APPEND PROPERTY ${PropertyName} ${PropertyValue} )
+    endif()
+endfunction()
+
+
 
