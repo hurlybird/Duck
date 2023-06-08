@@ -30,30 +30,54 @@ endfunction()
 # Copy files to a destination
 function( copy_files TargetName DestinationDir )
     set( DstFiles "" )
+    set( DstPaths "" )
+    set( DstPath ${DestinationDir} )
 
-    foreach( srci ${ARGN} )
-        get_filename_component( filename ${srci} NAME )
-        set( dsti ${DestinationDir}/${filename} )
-        set( DstFiles ${DstFiles} ${dsti} )
-        add_custom_command(
-            OUTPUT ${dsti}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${srci} ${DestinationDir}
-            DEPENDS ${srci}
-            COMMENT "Copying ${filename}" )
-    endforeach()
+    set( i 0 )
+    list( LENGTH ARGN count )
+
+    while( ${i} LESS ${count} )
+        list( GET ARGN ${i} srci )
+
+        if( ${srci} STREQUAL "SUBDIRECTORY" )
+            math( EXPR i ${i}+1 )
+            list( GET ARGN ${i} srci )
+            set( DstPath ${DestinationDir}/${srci} )
+            set( DstPaths ${DstPaths} ${DstPath} )
+        else()
+            get_filename_component( filename ${srci} NAME )
+            set( dsti ${DstPath}/${filename} )
+            set( DstFiles ${DstFiles} ${dsti} )
+            add_custom_command(
+                OUTPUT ${dsti}
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${srci} ${DstPath}
+                DEPENDS ${srci}
+                COMMENT "Copying ${filename}" )
+        endif()
+        math( EXPR i ${i}+1 )
+    endwhile()
 
     add_custom_target( ${TargetName}
         #COMMENT "Copying files to ${DestinationDir}..."
         DEPENDS ${DstFiles} )
 
-    # Create destination (works for Visual Studio, Visual Studio Code, Xcode)
+    # Create destination(s) (works for Visual Studio, Visual Studio Code, Xcode)
     if( ${CMAKE_GENERATOR} MATCHES "^Visual Studio*" OR ${CMAKE_GENERATOR} MATCHES "^Xcode*" )
         add_custom_command( TARGET ${TargetName}
             PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${DestinationDir} )
 
-    # Create destination when running cmake (for CLion, make)
+        foreach( path ${DstPaths} )
+            add_custom_command( TARGET ${TargetName}
+                PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${path} )
+        endforeach()
+
+    # Create destination(s) when running cmake (for CLion, make)
     else()
         file( MAKE_DIRECTORY ${DestinationDir} )
+
+        foreach( path ${DstPaths} )
+            file( MAKE_DIRECTORY ${path} )
+        endforeach()
     endif()
 endfunction()
 
