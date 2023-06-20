@@ -66,7 +66,7 @@ etc--will likely need to be ported for non-Apple/POSIX/Microsoft environments.
 
 [^1]: On Ninendo Switch the time, date, and UUID generation functions are implemented
       using proprietary Nintendo SDK APIS and are not part of this repository.
-[^1]: On PlayStation 5 the time, date, and UUID generation functions are implemented
+[^2]: On PlayStation 5 the time, date, and UUID generation functions are implemented
       using proprietary Sony SDK APIS and are not part of this repository.
 
 While Duck objects can be (and are) used in C++ code, C++ compilers will no doubt
