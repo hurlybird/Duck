@@ -27,15 +27,17 @@
 #ifndef _DK_LIST_H_
 #define _DK_LIST_H_
 
-#include "DKRuntime.h"
-#include "DKCollection.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( List );
 
 
-//typedef DKObjectRef DKListRef; -- Declared in DKPlatform.h
-typedef DKObjectRef DKMutableListRef;
+// typedef DKObjectRef DKListRef; -- Declared in DKPlatform.h
+// typedef DKObjectRef DKMutableListRef;  -- Declared in DKPlatform.h
 
 typedef DKObjectRef (*DKListInitWithVAObjectsMethod)( DKListRef _self, va_list objects );
 typedef DKObjectRef (*DKListInitWithCArrayMethod)( DKListRef _self, DKObjectRef objects[], DKIndex count );
@@ -163,5 +165,8 @@ DK_API void        DKListReverse( DKMutableListRef _self );
 DK_API void        DKListShuffle( DKMutableListRef _self );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_LIST_H_

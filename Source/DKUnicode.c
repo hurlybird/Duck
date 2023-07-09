@@ -24,6 +24,8 @@
 
 *****************************************************************************************/
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
 #include "DKUnicode.h"
 #include "icu/unicode/utf8.h"
 

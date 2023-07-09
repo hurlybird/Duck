@@ -27,7 +27,11 @@
 #ifndef _DK_FILE_H_
 #define _DK_FILE_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 typedef struct DKFile * DKFileRef;
 
@@ -61,6 +65,8 @@ DK_API size_t      DKFileRead( DKFileRef _self, void * buffer, size_t size, size
 DK_API size_t      DKFileWrite( DKFileRef _self, const void * buffer, size_t size, size_t count );
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_FILE_H_

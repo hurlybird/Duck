@@ -27,7 +27,10 @@
 #ifndef _DK_ENCODING_H_
 #define _DK_ENCODING_H_
 
-#include "DKPlatform.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 #define DKEncodingVersion           1
@@ -180,6 +183,10 @@ DK_API bool   DKEncodingIsNumber( DKEncoding encoding );
 DK_API bool   DKEncodingIsInteger( DKEncoding encoding );
 DK_API bool   DKEncodingIsReal( DKEncoding encoding );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_ENCODING_H_
 

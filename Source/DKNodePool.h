@@ -27,7 +27,10 @@
 #ifndef _DK_NODE_POOL_H_
 #define _DK_NODE_POOL_H_
 
-#include "DKPlatform.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 typedef struct _DKNodePoolFreeNode
@@ -61,5 +64,9 @@ DK_API void DKNodePoolFree( DKNodePool * pool, void * node );
 
 DK_API void * DKNodePoolGetBlockSegment( const DKNodePoolBlock * block );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_NODE_POOL_H_

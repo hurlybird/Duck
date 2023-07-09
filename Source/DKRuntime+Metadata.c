@@ -26,9 +26,13 @@
 
 #define DK_RUNTIME_PRIVATE 1
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKGenericArray.h"
+#include "DKGenericHashTable.h"
 #include "DKRuntime.h"
 #include "DKString.h"
-#include "DKGenericHashTable.h"
 
 
 static DKObjectRef DKMetadataInitWithOwner( DKObjectRef _self, DKObjectRef owner );

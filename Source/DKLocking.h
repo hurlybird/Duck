@@ -27,7 +27,10 @@
 #ifndef _DK_LOCKING_H_
 #define _DK_LOCKING_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Locking );
@@ -58,6 +61,8 @@ DK_API void DKUnlock( DKObjectRef _self );
 
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_LOCKING_H_

@@ -27,7 +27,10 @@
 #ifndef _DK_COLLECTION_H_
 #define _DK_COLLECTION_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Collection );
@@ -84,6 +87,9 @@ DK_API DKStringRef DKKeyedCollectionGetDescription( DKObjectRef _self );
 
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_COLLECTION_H_
 

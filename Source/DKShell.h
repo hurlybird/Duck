@@ -27,8 +27,10 @@
 #ifndef _DK_SHELL_H_
 #define _DK_SHELL_H_
 
-#include "DKRuntime.h"
-#include "DKStream.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 /*
@@ -96,6 +98,10 @@ DK_API int DKShellRead( DKStreamRef stream, DKObjectRef * object, DKStringRef * 
 // Returns the number of objects written (i.e. 1) on success
 DK_API int DKShellWrite( DKStreamRef stream, DKObjectRef object, DKStringRef contentType, DKStringRef annotation, int options );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_SHELL_H_
 

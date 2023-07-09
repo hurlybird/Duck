@@ -23,6 +23,11 @@
   THE SOFTWARE.
 
 *****************************************************************************************/
+
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKRuntime.h"
 #include "DKBitList.h"
 #include "DKAllocation.h"
 

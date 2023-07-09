@@ -27,11 +27,12 @@
 #ifndef _DK_CONDITION_H_
 #define _DK_CONDITION_H_
 
-#include "DKRuntime.h"
-#include "DKMutex.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
-// DKMutex ===============================================================================
 typedef struct DKCondition * DKConditionRef;
 
 
@@ -46,6 +47,9 @@ DK_API void DKConditionSignal( DKConditionRef _self );
 DK_API void DKConditionSignalAll( DKConditionRef _self );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_CONDITION_H_
 

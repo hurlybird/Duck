@@ -27,8 +27,10 @@
 #ifndef _DK_NUMBER_H_
 #define _DK_NUMBER_H_
 
-#include "DKRuntime.h"
-#include "DKEncoding.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 #define DKNumberInt8    DKEncode( DKEncodingTypeInt8, 1 )
@@ -139,5 +141,9 @@ DK_API DKStringRef DKNumberGetDescription( DKNumberRef _self );
 // Utility function for converting number types
 DK_API size_t      DKNumberConvert( const void * src, DKEncoding srcType, void * dst, DKEncoding dstType );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_NUMBER_H_

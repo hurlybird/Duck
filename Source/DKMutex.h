@@ -27,10 +27,12 @@
 #ifndef _DK_MUTEX_H_
 #define _DK_MUTEX_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
-// DKMutex ===============================================================================
 typedef struct DKMutex * DKMutexRef;
 
 
@@ -51,7 +53,7 @@ DK_API void DKMutexUnlock( DKMutexRef _self );
 
 
 // Private ===============================================================================
-#if DK_RUNTIME_PRIVATE
+#if DK_THREAD_PRIVATE
 
 struct DKMutex
 {
@@ -68,6 +70,9 @@ struct DKMutex
 #endif // DK_RUNTIME_PRIVATE
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_MUTEX_H_
 

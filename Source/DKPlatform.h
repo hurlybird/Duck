@@ -27,6 +27,12 @@
 #ifndef _DK_PLATFORM_H_
 #define _DK_PLATFORM_H_
 
+// Make sure DKConfig.h is included first
+#ifndef _DK_CONFIG_H_
+#error DKConfig.h has not been included
+#endif
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -51,9 +57,6 @@
 #endif
 
 #endif
-
-
-#include "DKConfig.h"
 
 
 // Clang/GCC/MSVC ------------------------------------------------------------------------
@@ -228,8 +231,14 @@ typedef struct DKNumber *           DKNumberRef;
 typedef struct DKEnum *             DKEnumRef;
 typedef struct DKPredicate *        DKPredicateRef;
 typedef DKObjectRef                 DKListRef;
+typedef DKObjectRef                 DKMutableListRef;
 typedef DKObjectRef                 DKDictionaryRef;
+typedef DKObjectRef                 DKMutableDictionaryRef;
 typedef DKObjectRef                 DKSetRef;
+typedef struct DKArray *            DKArrayRef;
+typedef struct DKArray *            DKMutableArrayRef;
+typedef struct DKHashTable *        DKHashTableRef;
+typedef struct DKHashTable *        DKMutableHashTableRef;
 
 
 // Define a constant string with a compile-time constant C string.

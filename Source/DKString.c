@@ -24,12 +24,17 @@
 
 *****************************************************************************************/
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKRuntime.h"
 #include "DKString.h"
 #include "DKUnicode.h"
 #include "DKByteArray.h"
 #include "DKBuffer.h"
 #include "DKStream.h"
 #include "DKGenericHashTable.h"
+#include "DKCollection.h"
 #include "DKList.h"
 #include "DKDictionary.h"
 #include "DKArray.h"

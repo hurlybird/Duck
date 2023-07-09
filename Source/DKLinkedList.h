@@ -27,7 +27,10 @@
 #ifndef _DK_LINKED_LIST_H_
 #define _DK_LINKED_LIST_H_
 
-#include "DKList.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 typedef struct DKLinkedList * DKLinkedListRef;
@@ -72,6 +75,10 @@ DK_API int         DKLinkedListApplyFunction( DKLinkedListRef _self, DKApplierFu
 DK_API bool        DKLinkedListInsertObjectWithPriority( DKMutableLinkedListRef _self, DKObjectRef object, double priority, DKInsertPolicy policy );
 DK_API double      DKLinkedListGetPriorityOfObjectAtIndex( DKLinkedListRef _self, DKIndex index );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_LINKED_LIST_H_
 

@@ -3,14 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 53;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		0206AE071B1235490095C52F /* DKRuntime+Metadata.c in Sources */ = {isa = PBXBuildFile; fileRef = 0206AE051B1235490095C52F /* DKRuntime+Metadata.c */; };
 		0206AE081B1235490095C52F /* DKRuntime+Metadata.c in Sources */ = {isa = PBXBuildFile; fileRef = 0206AE051B1235490095C52F /* DKRuntime+Metadata.c */; };
-		0206AE091B1235490095C52F /* DKRuntime+Metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 0206AE061B1235490095C52F /* DKRuntime+Metadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0206AE0A1B1235490095C52F /* DKRuntime+Metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 0206AE061B1235490095C52F /* DKRuntime+Metadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		021283201C244F9A00B7C3A7 /* DKConversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 0212831E1C244F9A00B7C3A7 /* DKConversion.c */; };
 		021283211C244F9A00B7C3A7 /* DKConversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 0212831E1C244F9A00B7C3A7 /* DKConversion.c */; };
 		021283231C244F9A00B7C3A7 /* DKConversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0212831F1C244F9A00B7C3A7 /* DKConversion.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -50,10 +48,6 @@
 		028F1AA31B0DCBBB006FDFDF /* DKConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF1919D85669002E876C /* DKConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1AA41B0DCBBB006FDFDF /* DKPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2619D85669002E876C /* DKPlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1AA51B0DCBBB006FDFDF /* DKRuntime.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2919D85669002E876C /* DKRuntime.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		028F1AA61B0DCBBB006FDFDF /* DKRuntime+Interfaces.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D5F50C19DBE79F00D2F52A /* DKRuntime+Interfaces.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		028F1AA71B0DCBBB006FDFDF /* DKRuntime+Properties.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2819D85669002E876C /* DKRuntime+Properties.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		028F1AA81B0DCBBB006FDFDF /* DKRuntime+RefCount.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D051CB19DDF32000827660 /* DKRuntime+RefCount.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		028F1AA91B0DCBBB006FDFDF /* DKRuntime+Reflection.h in Headers */ = {isa = PBXBuildFile; fileRef = 023A719E19DADCE20088CDD9 /* DKRuntime+Reflection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1AAA1B0DCBBB006FDFDF /* DKAllocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D051D619DE32CB00827660 /* DKAllocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1AAB1B0DCBBB006FDFDF /* DKComparison.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D051D019DE2FA300827660 /* DKComparison.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1AAC1B0DCBBB006FDFDF /* DKCopying.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D051DB19DE345100827660 /* DKCopying.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -90,7 +84,6 @@
 		028F1ACB1B0DCC05006FDFDF /* DKRuntime+Properties.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA018F3BC2200EEBBAC /* DKRuntime+Properties.c */; };
 		028F1ACC1B0DCC05006FDFDF /* DKRuntime+RefCount.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */; };
 		028F1ACD1B0DCC05006FDFDF /* DKRuntime+Reflection.c in Sources */ = {isa = PBXBuildFile; fileRef = 023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */; };
-		028F1ACE1B0DCC05006FDFDF /* DKAllocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051D519DE32CB00827660 /* DKAllocation.c */; };
 		028F1ACF1B0DCC05006FDFDF /* DKComparison.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051CF19DE2FA300827660 /* DKComparison.c */; };
 		028F1AD01B0DCC05006FDFDF /* DKCopying.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051DA19DE345100827660 /* DKCopying.c */; };
 		028F1AD11B0DCC05006FDFDF /* DKDescription.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051DF19DE39D700827660 /* DKDescription.c */; };
@@ -138,7 +131,6 @@
 		028F1B1C1B0E6BC9006FDFDF /* DKRuntime+Properties.c in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA018F3BC2200EEBBAC /* DKRuntime+Properties.c */; };
 		028F1B1D1B0E6BC9006FDFDF /* DKRuntime+RefCount.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */; };
 		028F1B1E1B0E6BC9006FDFDF /* DKRuntime+Reflection.c in Sources */ = {isa = PBXBuildFile; fileRef = 023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */; };
-		028F1B1F1B0E6BC9006FDFDF /* DKAllocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051D519DE32CB00827660 /* DKAllocation.c */; };
 		028F1B201B0E6BC9006FDFDF /* DKComparison.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051CF19DE2FA300827660 /* DKComparison.c */; };
 		028F1B211B0E6BC9006FDFDF /* DKCopying.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051DA19DE345100827660 /* DKCopying.c */; };
 		028F1B221B0E6BC9006FDFDF /* DKDescription.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D051DF19DE39D700827660 /* DKDescription.c */; };
@@ -172,10 +164,6 @@
 		028F1B3E1B0E6BFB006FDFDF /* DKConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF1919D85669002E876C /* DKConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1B3F1B0E6BFB006FDFDF /* DKPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2619D85669002E876C /* DKPlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1B401B0E6BFB006FDFDF /* DKRuntime.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2919D85669002E876C /* DKRuntime.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		028F1B411B0E6BFB006FDFDF /* DKRuntime+Interfaces.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D5F50C19DBE79F00D2F52A /* DKRuntime+Interfaces.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		028F1B421B0E6BFB006FDFDF /* DKRuntime+Properties.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2819D85669002E876C /* DKRuntime+Properties.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		028F1B431B0E6BFB006FDFDF /* DKRuntime+RefCount.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D051CB19DDF32000827660 /* DKRuntime+RefCount.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		028F1B441B0E6BFB006FDFDF /* DKRuntime+Reflection.h in Headers */ = {isa = PBXBuildFile; fileRef = 023A719E19DADCE20088CDD9 /* DKRuntime+Reflection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1B451B0E6BFB006FDFDF /* DKAllocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D051D619DE32CB00827660 /* DKAllocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1B461B0E6BFB006FDFDF /* DKComparison.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D051D019DE2FA300827660 /* DKComparison.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1B471B0E6BFB006FDFDF /* DKCopying.h in Headers */ = {isa = PBXBuildFile; fileRef = 02D051DB19DE345100827660 /* DKCopying.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -252,7 +240,6 @@
 		020482A81AC6972B00936FA1 /* DKBoolean.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKBoolean.c; sourceTree = "<group>"; };
 		020482A91AC6972B00936FA1 /* DKBoolean.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKBoolean.h; sourceTree = "<group>"; };
 		0206AE051B1235490095C52F /* DKRuntime+Metadata.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+Metadata.c"; sourceTree = "<group>"; };
-		0206AE061B1235490095C52F /* DKRuntime+Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+Metadata.h"; sourceTree = "<group>"; };
 		02083F9618F1E4EF00EEBBAC /* DKSet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKSet.c; sourceTree = "<group>"; };
 		02083F9818F1EDBE00EEBBAC /* TestDKSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKSet.m; sourceTree = "<group>"; };
 		02083F9B18F2615E00EEBBAC /* DKCollection.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKCollection.c; sourceTree = "<group>"; };
@@ -291,7 +278,6 @@
 		02393EBE1C3F16BB009E8731 /* test.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = test.xml; sourceTree = "<group>"; };
 		02393EC01C3F16F6009E8731 /* TestDKXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKXML.m; sourceTree = "<group>"; };
 		023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+Reflection.c"; sourceTree = "<group>"; };
-		023A719E19DADCE20088CDD9 /* DKRuntime+Reflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+Reflection.h"; sourceTree = "<group>"; };
 		023B128019E0C25800B2D683 /* DKLocking.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKLocking.c; sourceTree = "<group>"; };
 		023B128119E0C25800B2D683 /* DKLocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKLocking.h; sourceTree = "<group>"; };
 		025C0F4818EFED96000344C0 /* DKArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKArray.c; sourceTree = "<group>"; };
@@ -337,7 +323,6 @@
 		0269BF2519D85669002E876C /* DKNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKNumber.h; sourceTree = "<group>"; };
 		0269BF2619D85669002E876C /* DKPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKPlatform.h; sourceTree = "<group>"; };
 		0269BF2719D85669002E876C /* DKPredicate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKPredicate.h; sourceTree = "<group>"; };
-		0269BF2819D85669002E876C /* DKRuntime+Properties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+Properties.h"; sourceTree = "<group>"; };
 		0269BF2919D85669002E876C /* DKRuntime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKRuntime.h; sourceTree = "<group>"; };
 		0269BF2A19D85669002E876C /* DKSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DKSet.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		0269BF2B19D85669002E876C /* DKStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKStream.h; sourceTree = "<group>"; };
@@ -377,7 +362,6 @@
 		02C307971C3056270077DC56 /* DKReadWriteLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKReadWriteLock.h; sourceTree = "<group>"; };
 		02C8914618F1690F0097B6BC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+RefCount.c"; sourceTree = "<group>"; };
-		02D051CB19DDF32000827660 /* DKRuntime+RefCount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+RefCount.h"; sourceTree = "<group>"; };
 		02D051CF19DE2FA300827660 /* DKComparison.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKComparison.c; sourceTree = "<group>"; };
 		02D051D019DE2FA300827660 /* DKComparison.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKComparison.h; sourceTree = "<group>"; };
 		02D051D519DE32CB00827660 /* DKAllocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKAllocation.c; sourceTree = "<group>"; };
@@ -387,7 +371,6 @@
 		02D051DF19DE39D700827660 /* DKDescription.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKDescription.c; sourceTree = "<group>"; };
 		02D051E019DE39D700827660 /* DKDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKDescription.h; sourceTree = "<group>"; };
 		02D5F50B19DBE79F00D2F52A /* DKRuntime+Interfaces.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "DKRuntime+Interfaces.c"; sourceTree = "<group>"; };
-		02D5F50C19DBE79F00D2F52A /* DKRuntime+Interfaces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DKRuntime+Interfaces.h"; sourceTree = "<group>"; };
 		02DBA5491EAAFE3D0086A6EE /* DKEnum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEnum.c; sourceTree = "<group>"; };
 		02DBA54A1EAAFE3D0086A6EE /* DKEnum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKEnum.h; sourceTree = "<group>"; };
 		02DBA54F1EAB0E700086A6EE /* TestDKEnum.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKEnum.m; sourceTree = "<group>"; };
@@ -521,15 +504,10 @@
 				0269BF2919D85669002E876C /* DKRuntime.h */,
 				025C0F5718EFED97000344C0 /* DKRuntime.c */,
 				02E5354A22349D060050BD21 /* DKRuntime+Symbols.c */,
-				02D5F50C19DBE79F00D2F52A /* DKRuntime+Interfaces.h */,
 				02D5F50B19DBE79F00D2F52A /* DKRuntime+Interfaces.c */,
-				0269BF2819D85669002E876C /* DKRuntime+Properties.h */,
 				02083FA018F3BC2200EEBBAC /* DKRuntime+Properties.c */,
-				02D051CB19DDF32000827660 /* DKRuntime+RefCount.h */,
 				02D051CA19DDF32000827660 /* DKRuntime+RefCount.c */,
-				023A719E19DADCE20088CDD9 /* DKRuntime+Reflection.h */,
 				023A719D19DADCE20088CDD9 /* DKRuntime+Reflection.c */,
-				0206AE061B1235490095C52F /* DKRuntime+Metadata.h */,
 				0206AE051B1235490095C52F /* DKRuntime+Metadata.c */,
 			);
 			name = Runtime;
@@ -714,12 +692,7 @@
 				028F1AA31B0DCBBB006FDFDF /* DKConfig.h in Headers */,
 				028F1AA41B0DCBBB006FDFDF /* DKPlatform.h in Headers */,
 				028F1AA51B0DCBBB006FDFDF /* DKRuntime.h in Headers */,
-				028F1AA61B0DCBBB006FDFDF /* DKRuntime+Interfaces.h in Headers */,
-				028F1AA71B0DCBBB006FDFDF /* DKRuntime+Properties.h in Headers */,
-				028F1AA81B0DCBBB006FDFDF /* DKRuntime+RefCount.h in Headers */,
 				02803EA11EE4AC220070D925 /* DKShell.h in Headers */,
-				028F1AA91B0DCBBB006FDFDF /* DKRuntime+Reflection.h in Headers */,
-				0206AE091B1235490095C52F /* DKRuntime+Metadata.h in Headers */,
 				028F1AAA1B0DCBBB006FDFDF /* DKAllocation.h in Headers */,
 				028F1AAB1B0DCBBB006FDFDF /* DKComparison.h in Headers */,
 				028F1AAC1B0DCBBB006FDFDF /* DKCopying.h in Headers */,
@@ -774,12 +747,7 @@
 				028F1B3E1B0E6BFB006FDFDF /* DKConfig.h in Headers */,
 				028F1B3F1B0E6BFB006FDFDF /* DKPlatform.h in Headers */,
 				028F1B401B0E6BFB006FDFDF /* DKRuntime.h in Headers */,
-				028F1B411B0E6BFB006FDFDF /* DKRuntime+Interfaces.h in Headers */,
-				028F1B421B0E6BFB006FDFDF /* DKRuntime+Properties.h in Headers */,
-				028F1B431B0E6BFB006FDFDF /* DKRuntime+RefCount.h in Headers */,
 				02803EA21EE4AC220070D925 /* DKShell.h in Headers */,
-				028F1B441B0E6BFB006FDFDF /* DKRuntime+Reflection.h in Headers */,
-				0206AE0A1B1235490095C52F /* DKRuntime+Metadata.h in Headers */,
 				028F1B451B0E6BFB006FDFDF /* DKAllocation.h in Headers */,
 				028F1B461B0E6BFB006FDFDF /* DKComparison.h in Headers */,
 				028F1B471B0E6BFB006FDFDF /* DKCopying.h in Headers */,
@@ -889,7 +857,8 @@
 		024EE3D9148E0B21008FDADC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1420;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
 				ORGANIZATIONNAME = "Derek W. Nylen";
 				TargetAttributes = {
 					028F1A881B0DCA85006FDFDF = {
@@ -962,7 +931,6 @@
 				028F1ACC1B0DCC05006FDFDF /* DKRuntime+RefCount.c in Sources */,
 				02C307921C3053A00077DC56 /* DKCondition.c in Sources */,
 				028F1ACD1B0DCC05006FDFDF /* DKRuntime+Reflection.c in Sources */,
-				028F1ACE1B0DCC05006FDFDF /* DKAllocation.c in Sources */,
 				028F1ACF1B0DCC05006FDFDF /* DKComparison.c in Sources */,
 				028F1AD01B0DCC05006FDFDF /* DKCopying.c in Sources */,
 				02E535442232FCC10050BD21 /* DKSemaphore.c in Sources */,
@@ -1043,7 +1011,6 @@
 				028F1B1D1B0E6BC9006FDFDF /* DKRuntime+RefCount.c in Sources */,
 				02C307931C3053A00077DC56 /* DKCondition.c in Sources */,
 				028F1B1E1B0E6BC9006FDFDF /* DKRuntime+Reflection.c in Sources */,
-				028F1B1F1B0E6BC9006FDFDF /* DKAllocation.c in Sources */,
 				028F1B201B0E6BC9006FDFDF /* DKComparison.c in Sources */,
 				028F1B211B0E6BC9006FDFDF /* DKCopying.c in Sources */,
 				02E535452232FCC10050BD21 /* DKSemaphore.c in Sources */,
@@ -1118,12 +1085,14 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -1150,7 +1119,10 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "ThirdParty ThirdParty/icu";
+				USER_HEADER_SEARCH_PATHS = (
+					ThirdParty,
+					ThirdParty/icu,
+				);
 			};
 			name = Debug;
 		};
@@ -1169,12 +1141,14 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
@@ -1193,7 +1167,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "ThirdParty ThirdParty/icu";
+				USER_HEADER_SEARCH_PATHS = (
+					ThirdParty,
+					ThirdParty/icu,
+				);
 			};
 			name = Release;
 		};
@@ -1213,10 +1190,12 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_VERSION = A;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1230,7 +1209,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "c11 gnu++14";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Hurlybird.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Duck;
@@ -1256,10 +1242,12 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_VERSION = A;
@@ -1270,7 +1258,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "c11 gnu++14";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Hurlybird.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Duck;
@@ -1295,6 +1290,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1312,7 +1308,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Hurlybird.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1336,6 +1337,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1349,7 +1351,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Hurlybird.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1377,6 +1384,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1389,7 +1397,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "c11 gnu++14";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Hurlybird.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Duck;
@@ -1423,6 +1438,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1432,7 +1448,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "c11 gnu++14";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Hurlybird.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Duck;

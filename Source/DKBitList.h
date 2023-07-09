@@ -26,8 +26,10 @@
 #ifndef _DK_BITLIST_H_
 #define _DK_BITLIST_H_
 
-#include "DKRuntime.h"
-
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 typedef struct DKBitList * DKBitListRef;
@@ -70,6 +72,9 @@ DK_API void DKBitListMergeBitsXOR( DKBitListRef a, DKBitListRef b, DKBitListRef 
 DK_API void DKBitListMergeBitsNXOR( DKBitListRef a, DKBitListRef b, DKBitListRef r );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_BITLIST_H_
 

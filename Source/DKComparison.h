@@ -27,7 +27,10 @@
 #ifndef _DK_COMPARISON_H_
 #define _DK_COMPARISON_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Comparison );
@@ -68,7 +71,9 @@ DK_API DKHashCode  DKHash( DKObjectRef _self );
 
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_COMPARISON_H_
 

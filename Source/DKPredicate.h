@@ -27,7 +27,10 @@
 #ifndef _DK_PREDICATE_H_
 #define _DK_PREDICATE_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 typedef enum
@@ -103,7 +106,9 @@ DK_API DKPredicateOp DKPredicateOpFromString( DKStringRef str );
 DK_API bool DKEvaluate( DKObjectRef obj );
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_PREDICATE_H_
 

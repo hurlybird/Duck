@@ -27,7 +27,10 @@
 #ifndef _DK_ENUM_H_
 #define _DK_ENUM_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 // typedef struct DKEnum * DKEnumRef; -- Declared in DKPlatform.h
@@ -63,6 +66,9 @@ DK_API int64_t DKEnumFromString64( DKEnumRef _self, DKStringRef str );
 DK_API DKStringRef DKStringFromEnum64( DKEnumRef _self, int64_t value );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_ENUM_H_
 

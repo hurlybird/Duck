@@ -27,7 +27,10 @@
 #ifndef _DK_COPYING_H_
 #define __Duck__DKCopying__
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Copying );
@@ -56,5 +59,9 @@ DK_API DKObjectRef DKCopy( DKObjectRef _self );
 DK_API DKObjectRef DKMutableCopy( DKObjectRef _self );
 
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_COPYING_H_

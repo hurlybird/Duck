@@ -27,7 +27,10 @@
 #ifndef _DK_GENERIC_HASH_TABLE_H_
 #define _DK_GENERIC_HASH_TABLE_H_
 
-#include "DKPlatform.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 // Sentinels and related macros
@@ -97,6 +100,9 @@ DK_API typedef void (*DKGenericHashTableForeachRowCallback)( const void * row, v
 DK_API void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHashTableForeachRowCallback callback, void * context );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_GENERIC_HASH_TABLE_H_
 

@@ -24,10 +24,16 @@
 
 *****************************************************************************************/
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKRuntime.h"
 #include "DKLinkedList.h"
 #include "DKNodePool.h"
 #include "DKGenericArray.h"
 #include "DKString.h"
+#include "DKCollection.h"
+#include "DKList.h"
 #include "DKSet.h"
 #include "DKComparison.h"
 #include "DKCopying.h"

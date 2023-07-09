@@ -27,9 +27,10 @@
 #ifndef _DK_XML_H_
 #define _DK_XML_H_
 
-#include "DKPlatform.h"
-#include "DKRuntime.h"
-
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 typedef struct DKXMLElement * DKXMLElementRef;
@@ -46,8 +47,8 @@ DK_API DKStringRef DKXMLElementGetDescription( DKXMLElementRef _self );
 DK_API DKXMLElementRef DKXMLParse( DKStringRef xml, int options );
 
 
-
-
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_XML_H_

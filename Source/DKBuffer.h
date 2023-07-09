@@ -27,7 +27,10 @@
 #ifndef _DK_BUFFER_H_
 #define _DK_BUFFER_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Buffer );
@@ -62,6 +65,10 @@ DK_API void         DKBufferSetLength( DKObjectRef _self, DKIndex length );
 DK_API void *       DKBufferGetMutableBytePtr( DKObjectRef _self, DKIndex index );
 
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_BUFFER_H_
 

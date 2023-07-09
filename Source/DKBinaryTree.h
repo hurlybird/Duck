@@ -27,8 +27,10 @@
 #ifndef _DK_BINARY_TREE_H_
 #define _DK_BINARY_TREE_H_
 
-#include "DKDictionary.h"
-#include "DKSet.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 typedef struct DKBinaryTree * DKBinaryTreeRef;
@@ -72,6 +74,9 @@ DK_API void        DKBinaryTreeRemoveAllObjects( DKMutableBinaryTreeRef _self );
 DK_API void        DKBinaryTreeAddObjectToSet( DKMutableBinaryTreeRef _self, DKObjectRef object );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_BINARY_TREE_H_
 

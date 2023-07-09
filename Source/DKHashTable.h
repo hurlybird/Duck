@@ -27,12 +27,14 @@
 #ifndef _DK_HASHTABLE_H_
 #define _DK_HASHTABLE_H_
 
-#include "DKDictionary.h"
-#include "DKSet.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
-typedef struct DKHashTable * DKHashTableRef;
-typedef struct DKHashTable * DKMutableHashTableRef;
+// typedef struct DKHashTable * DKHashTableRef;  -- Declared in DKPlatform.h
+// typedef struct DKHashTable * DKMutableHashTableRef;  -- Declared in DKPlatform.h
 
 
 DK_API DKClassRef  DKHashTableClass( void );
@@ -67,5 +69,8 @@ DK_API void        DKHashTableRemoveAllObjects( DKMutableHashTableRef _self );
 DK_API void        DKHashTableAddObjectToSet( DKMutableHashTableRef _self, DKObjectRef object );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_HASHTABLE_H_

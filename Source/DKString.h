@@ -27,7 +27,10 @@
 #ifndef _DK_STRING_H_
 #define _DK_STRING_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 // typedef const struct DKString * DKStringRef; -- Declared in DKPlatform.h
@@ -197,6 +200,10 @@ DK_API DKDataRef   DKStringGetWStringAsData( DKStringRef _self );
 #endif
 
 
-#endif // _DK_DATA_H_
+#ifdef __cplusplus
+}
+#endif
+
+#endif // _DK_STRING_H_
 
 

@@ -24,6 +24,8 @@
 
 *****************************************************************************************/
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
 #include "DKByteArray.h"
 
 

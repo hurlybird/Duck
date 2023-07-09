@@ -27,7 +27,10 @@
 #ifndef _DK_STRUCT_H_
 #define _DK_STRUCT_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 typedef struct DKStruct * DKStructRef;
@@ -57,4 +60,8 @@ DK_API size_t      DKStructGetValue( DKStructRef _self, DKStringRef semantic, vo
 #define            DKStructGetValueAsType( _self, dst, type ) DKStructGetValue( _self, DKSTR( #type ), dst, sizeof(type) )
 
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // _DK_STRUCT_H_

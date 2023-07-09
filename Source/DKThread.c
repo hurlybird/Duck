@@ -24,8 +24,16 @@
 
 *****************************************************************************************/
 
-#define DK_RUNTIME_PRIVATE 1
+#define DK_THREAD_PRIVATE 1
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKGenericArray.h"
+#include "DKRuntime.h"
+#include "DKCollection.h"
+#include "DKList.h"
+#include "DKDictionary.h"
 #include "DKThread.h"
 #include "DKString.h"
 #include "DKCopying.h"

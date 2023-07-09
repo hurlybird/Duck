@@ -27,11 +27,14 @@
 #ifndef _DK_ARRAY_H_
 #define _DK_ARRAY_H_
 
-#include "DKList.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
-typedef struct DKArray * DKArrayRef;
-typedef struct DKArray * DKMutableArrayRef;
+// typedef struct DKArray * DKArrayRef; -- Declared in DKPlatform.h
+// typedef struct DKArray * DKMutableArrayRef; -- Declared in DKPlatform.h
 
 
 DK_API DKClassRef  DKArrayClass( void );
@@ -73,6 +76,9 @@ DK_API int         DKArrayApplyFunction( DKArrayRef _self, DKApplierFunction cal
 
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_ARRAY_H_
 

@@ -24,11 +24,13 @@
 
 *****************************************************************************************/
 
-#ifndef _DK_DIRECTED_GRAPH_H_
-#define _DK_DIRECTED_GRAPH_H_
+#ifndef _DK_GRAPH_H_
+#define _DK_GRAPH_H_
 
-#include "DKRuntime.h"
-
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 // DKGraphEdge ===========================================================================
@@ -75,5 +77,9 @@ DK_API DKListRef DKGraphGetShortestPath( DKGraphRef _self, DKObjectRef from, DKO
 DK_API double DKGraphUniformCostFunction( DKObjectRef a, DKObjectRef b, void * context );
 
 
-#endif // _DK_DIRECTED_GRAPH_H_
+#ifdef __cplusplus
+}
+#endif
+
+#endif // _DK_GRAPH_H_
 

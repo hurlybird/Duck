@@ -27,8 +27,11 @@
 #ifndef _DK_STREAM_H_
 #define _DK_STREAM_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-#include "DKRuntime.h"
 
 DK_API DKDeclareInterfaceSelector( Stream );
 
@@ -101,5 +104,10 @@ DK_API int         DKGetc( DKStreamRef _self );
 // Write a character to the stream. Returns EOF on failure or the character written on success.
 DK_API int         DKPutc( DKStreamRef _self, int ch );
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_STREAM_H_

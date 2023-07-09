@@ -26,11 +26,22 @@
 
 #define DK_RUNTIME_PRIVATE 1
 
-#include "DKRuntime+Properties.h"
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKGenericArray.h"
+#include "DKGenericHashTable.h"
+#include "DKRuntime.h"
 #include "DKBoolean.h"
 #include "DKString.h"
 #include "DKNumber.h"
 #include "DKStruct.h"
+#include "DKPredicate.h"
+#include "DKEnum.h"
+#include "DKCollection.h"
+#include "DKList.h"
+#include "DKDictionary.h"
+#include "DKHashTable.h"
 #include "DKCopying.h"
 #include "DKConversion.h"
 #include "DKDescription.h"

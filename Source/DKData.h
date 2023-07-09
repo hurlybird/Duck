@@ -27,7 +27,10 @@
 #ifndef _DK_DATA_H_
 #define _DK_DATA_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 //typedef struct DKData * DKDataRef; -- Declared in DKPlatform.h
@@ -99,6 +102,10 @@ DK_API long        DKDataTell( DKDataRef _self );
 DK_API size_t      DKDataRead( DKDataRef _self, void * buffer, size_t size, size_t count );
 DK_API size_t      DKDataWrite( DKMutableDataRef _self, const void * buffer, size_t size, size_t count );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_DATA_H_
 

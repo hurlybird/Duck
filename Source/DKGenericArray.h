@@ -27,7 +27,11 @@
 #ifndef _DK_GENERIC_ARRAY_H_
 #define _DK_GENERIC_ARRAY_H_
 
-#include "DKPlatform.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 // DKGenericArray DOES NOT guarantee that its elements are stored in a contiguous C array,
 // though in the current implementation that happens to be true. Change this definition
@@ -85,5 +89,8 @@ DK_API void DKGenericArrayShuffle( DKGenericArray * array );
 #define DKGenericArrayPop( array )          DKGenericArrayReplaceElements( (array), DKRangeMake( (array)->length - 1, 1 ), NULL, 0 )
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_GENERIC_ARRAY_H_

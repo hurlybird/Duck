@@ -27,7 +27,10 @@
 #ifndef _DK_ALLOCATION_H_
 #define _DK_ALLOCATION_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Allocation );
@@ -53,6 +56,10 @@ typedef const struct DKAllocationInterface * DKAllocationInterfaceRef;
 DK_API DKInterfaceRef DKDefaultAllocation( void );
 
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_ALLOCATION_H_
 

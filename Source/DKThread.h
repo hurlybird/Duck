@@ -27,8 +27,10 @@
 #ifndef _DK_THREAD_H_
 #define _DK_THREAD_H_
 
-#include "DKRuntime.h"
-#include "DKDictionary.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 // DKThread ==============================================================================
@@ -102,7 +104,7 @@ DK_API DKMutableDictionaryRef DKGetCurrentThreadDictionary( void );
 
 
 // Private ===============================================================================
-#if DK_RUNTIME_PRIVATE
+#if DK_THREAD_PRIVATE
 
 struct DKThreadContext
 {
@@ -128,6 +130,9 @@ void DKMainThreadContextInit( void );
 #endif // DK_RUNTIME_PRIVATE
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_THREAD_H_
 

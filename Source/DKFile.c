@@ -24,6 +24,10 @@
 
 *****************************************************************************************/
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKRuntime.h"
 #include "DKFile.h"
 #include "DKStream.h"
 #include "DKString.h"

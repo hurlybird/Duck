@@ -27,11 +27,10 @@
 #ifndef _DK_EGG_H_
 #define _DK_EGG_H_
 
-#include "DKRuntime.h"
-#include "DKData.h"
-#include "DKCollection.h"
-#include "DKNumber.h"
-#include "DKStream.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 typedef struct DKEggUnarchiver * DKEggUnarchiverRef;
@@ -111,6 +110,9 @@ DK_API void DKEggAddBinaryData( DKEggArchiverRef _self, DKStringRef key, const v
 DK_API void DKEggAddNumberData( DKEggArchiverRef _self, DKStringRef key, DKEncoding encoding, const void * number );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_EGG_H_
 

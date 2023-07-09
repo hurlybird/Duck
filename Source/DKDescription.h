@@ -27,7 +27,10 @@
 #ifndef _DK_DESCRIPTION_H_
 #define _DK_DESCRIPTION_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Description );
@@ -60,6 +63,11 @@ DK_API size_t      DKDefaultGetSizeInBytes( DKObjectRef _self );
 DK_API DKStringRef DKGetDescription( DKObjectRef _self );
 DK_API size_t      DKGetSizeInBytes( DKObjectRef _self );
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_DESCRIPTION_H_
 

@@ -24,8 +24,15 @@
 
 *****************************************************************************************/
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKRuntime.h"
 #include "DKGraph.h"
+#include "DKCollection.h"
+#include "DKList.h"
 #include "DKDictionary.h"
+#include "DKSet.h"
 #include "DKBinaryTree.h"
 #include "DKLinkedList.h"
 #include "DKList.h"

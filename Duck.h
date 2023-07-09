@@ -38,71 +38,61 @@
 #endif
 
 
-#include "DKConfig.h"
-#include "DKPlatform.h"
+#include <Duck/DKConfig.h>
+#include <Duck/DKPlatform.h>
+#include <Duck/DKEncoding.h>
 
+#include <Duck/DKByteArray.h>
+#include <Duck/DKGenericArray.h>
+#include <Duck/DKGenericHashTable.h>
+#include <Duck/DKNodePool.h>
+#include <Duck/DKUnicode.h>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#include <Duck/DKRuntime.h>
 
-#include "DKByteArray.h"
-#include "DKGenericArray.h"
-#include "DKGenericHashTable.h"
-#include "DKNodePool.h"
-#include "DKUnicode.h"
+#include <Duck/DKThread.h>
+#include <Duck/DKThreadPool.h>
+#include <Duck/DKMutex.h>
+#include <Duck/DKCondition.h>
+#include <Duck/DKReadWriteLock.h>
+#include <Duck/DKSemaphore.h>
 
-#include "DKRuntime.h"
-#include "DKThread.h"
-#include "DKThreadPool.h"
-#include "DKMutex.h"
-#include "DKCondition.h"
-#include "DKReadWriteLock.h"
-#include "DKSemaphore.h"
+#include <Duck/DKAllocation.h>
+#include <Duck/DKBuffer.h>
+#include <Duck/DKComparison.h>
+#include <Duck/DKCopying.h>
+#include <Duck/DKDescription.h>
+#include <Duck/DKLocking.h>
+#include <Duck/DKStream.h>
+#include <Duck/DKConversion.h>
 
-#include "DKAllocation.h"
-#include "DKBuffer.h"
-#include "DKComparison.h"
-#include "DKCopying.h"
-#include "DKDescription.h"
-#include "DKLocking.h"
-#include "DKStream.h"
-#include "DKConversion.h"
+#include <Duck/DKBitList.h>
+#include <Duck/DKBoolean.h>
+#include <Duck/DKData.h>
+#include <Duck/DKNumber.h>
+#include <Duck/DKPair.h>
+#include <Duck/DKString.h>
+#include <Duck/DKStruct.h>
 
-#include "DKBitList.h"
-#include "DKBoolean.h"
-#include "DKData.h"
-#include "DKNumber.h"
-#include "DKPair.h"
-#include "DKString.h"
-#include "DKStruct.h"
+#include <Duck/DKEnum.h>
+#include <Duck/DKPredicate.h>
 
-#include "DKEncoding.h"
-#include "DKEnum.h"
-#include "DKPredicate.h"
+#include <Duck/DKFile.h>
+#include <Duck/DKEgg.h>
+#include <Duck/DKShell.h>
+#include <Duck/DKJSON.h>
+#include <Duck/DKXML.h>
 
-#include "DKFile.h"
-#include "DKEgg.h"
-#include "DKShell.h"
-#include "DKJSON.h"
-#include "DKXML.h"
+#include <Duck/DKCollection.h>
+#include <Duck/DKList.h>
+#include <Duck/DKDictionary.h>
+#include <Duck/DKSet.h>
 
-#include "DKCollection.h"
-#include "DKList.h"
-#include "DKDictionary.h"
-#include "DKSet.h"
-
-#include "DKArray.h"
-#include "DKLinkedList.h"
-#include "DKBinaryTree.h"
-#include "DKHashTable.h"
-#include "DKGraph.h"
-
-
-#ifdef __cplusplus
-}
-#endif
+#include <Duck/DKArray.h>
+#include <Duck/DKLinkedList.h>
+#include <Duck/DKBinaryTree.h>
+#include <Duck/DKHashTable.h>
+#include <Duck/DKGraph.h>
 
 
 #endif

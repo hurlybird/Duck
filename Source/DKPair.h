@@ -27,7 +27,10 @@
 #ifndef _DK_PAIR_H_
 #define _DK_PAIR_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 struct DKPair
@@ -52,5 +55,8 @@ DK_API DKObjectRef DKPairGetFirstObject( DKPairRef _self );
 DK_API DKObjectRef DKPairGetSecondObject( DKPairRef _self );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_PAIR_H_

@@ -27,7 +27,11 @@
 #ifndef _DK_BYTE_ARRAY_H_
 #define _DK_BYTE_ARRAY_H_
 
-#include "DKPlatform.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 // DKByteArray MUST guarantee that its storage is a contiguous C array of bytes (DKData
 // and DKString rely on this behaviour).
@@ -63,5 +67,10 @@ DK_API void DKByteArrayReplaceBytes( DKByteArray * array, DKRange range, const u
 DK_API void DKByteArrayAppendBytes( DKByteArray * array, const uint8_t bytes[], DKIndex length );
 
 DK_API DKIndex DKByteArrayAlignLength( DKByteArray * array, DKIndex byteAlignment );
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_BYTE_ARRAY_H_

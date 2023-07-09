@@ -27,8 +27,10 @@
 #ifndef _DK_JSON_H_
 #define _DK_JSON_H_
 
-#include "DKRuntime.h"
-#include "DKStream.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 enum
@@ -44,7 +46,9 @@ DK_API int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options );
 DK_API DKObjectRef DKJSONParse( DKStringRef json, int options );
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_JSON_H_
 

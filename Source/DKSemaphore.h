@@ -27,10 +27,12 @@
 #ifndef _DK_SEMAPHORE_H_
 #define _DK_SEMAPHORE_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
-// DKMutex ===============================================================================
 typedef struct DKSemaphore * DKSemaphoreRef;
 
 
@@ -43,6 +45,10 @@ DK_API void DKSemaphoreIncrement( DKSemaphoreRef _self, uint32_t value );
 DK_API void DKSemaphoreDecrement( DKSemaphoreRef _self, uint32_t value );
 DK_API void DKSemaphoreWait( DKSemaphoreRef _self, uint32_t value );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_MUTEX_H_
 

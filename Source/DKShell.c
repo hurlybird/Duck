@@ -24,10 +24,16 @@
 
 *****************************************************************************************/
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKRuntime.h"
+#include "DKStream.h"
 #include "DKShell.h"
 #include "DKData.h"
-#include "DKStream.h"
 #include "DKString.h"
+#include "DKCollection.h"
+#include "DKList.h"
 #include "DKDictionary.h"
 #include "DKBuffer.h"
 #include "DKCopying.h"

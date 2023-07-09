@@ -23,8 +23,12 @@
   THE SOFTWARE.
 
 *****************************************************************************************/
-#define DK_RUNTIME_PRIVATE 1
+#define DK_THREAD_PRIVATE 1
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKRuntime.h"
 #include "DKMutex.h"
 #include "DKString.h"
 #include "DKLocking.h"

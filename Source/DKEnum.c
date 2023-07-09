@@ -24,6 +24,10 @@
 
 *****************************************************************************************/
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
+#include "DKEncoding.h"
+#include "DKRuntime.h"
 #include "DKEnum.h"
 #include "DKGenericHashTable.h"
 #include "DKComparison.h"

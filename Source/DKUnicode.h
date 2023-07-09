@@ -27,7 +27,10 @@
 #ifndef _DK_UNICODE_H_
 #define _DK_UNICODE_H_
 
-#include "DKPlatform.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 // UTF8 aware versions of standard string functions
@@ -66,5 +69,10 @@ DK_API size_t dk_ustrwrite( DKChar32 ch, char * str, size_t str_size );
 // Versons of strlwr and strupr that leave multibyte code points unmodified
 DK_API char * dk_ustrlwr( char * dst, size_t dst_size, const char * src );
 DK_API char * dk_ustrupr( char * dst, size_t dst_size, const char * src );
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_UNICODE_H_

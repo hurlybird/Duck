@@ -24,6 +24,8 @@
 
 *****************************************************************************************/
 
+#include "DKConfig.h"
+#include "DKPlatform.h"
 #include "DKNodePool.h"
 
 #define MIN_RESERVE_NODE_COUNT 32

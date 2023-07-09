@@ -27,15 +27,17 @@
 #ifndef _DK_DICTIONARY_H_
 #define _DK_DICTIONARY_H_
 
-#include "DKRuntime.h"
-#include "DKList.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Dictionary );
 
 
 // typedef DKObjectRef DKDictionaryRef; -- Declared in DKPlatform.h
-typedef DKObjectRef DKMutableDictionaryRef;
+// typedef DKObjectRef DKMutableDictionaryRef;  -- Declared in DKPlatform.h
 
 
 typedef DKObjectRef (*DKDictionaryInitWithVAKeysAndObjectsMethod)( DKDictionaryRef _self, va_list keysAndObjects );
@@ -113,6 +115,10 @@ DK_API bool        DKDictionaryEqual( DKDictionaryRef _self, DKDictionaryRef oth
 
 DK_API bool        DKDictionaryIsSubsetOfDictionary( DKDictionaryRef _self, DKDictionaryRef other );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_DICTIONARY_H_
 

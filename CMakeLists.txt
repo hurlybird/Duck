@@ -200,15 +200,10 @@ set( DuckSources
     ${DUCK_PATH}/Source/DKRuntime.c
     ${DUCK_PATH}/Source/DKRuntime.h
     ${DUCK_PATH}/Source/DKRuntime+Interfaces.c
-    ${DUCK_PATH}/Source/DKRuntime+Interfaces.h
     ${DUCK_PATH}/Source/DKRuntime+Metadata.c
-    ${DUCK_PATH}/Source/DKRuntime+Metadata.h
     ${DUCK_PATH}/Source/DKRuntime+Properties.c
-    ${DUCK_PATH}/Source/DKRuntime+Properties.h
     ${DUCK_PATH}/Source/DKRuntime+RefCount.c
-    ${DUCK_PATH}/Source/DKRuntime+RefCount.h
     ${DUCK_PATH}/Source/DKRuntime+Reflection.c
-    ${DUCK_PATH}/Source/DKRuntime+Reflection.h
     ${DUCK_PATH}/Source/DKRuntime+Symbols.c
     ${DUCK_PATH}/Source/DKSemaphore.c
     ${DUCK_PATH}/Source/DKSemaphore.h

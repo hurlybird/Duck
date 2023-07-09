@@ -27,8 +27,10 @@
 #ifndef _DK_SET_H_
 #define _DK_SET_H_
 
-#include "DKRuntime.h"
-#include "DKList.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Set );
@@ -114,5 +116,8 @@ DK_API void        DKSetIntersect( DKMutableSetRef _self, DKSetRef otherSet );
 
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_SET_H_

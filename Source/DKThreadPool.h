@@ -27,8 +27,10 @@
 #ifndef _DK_THREAD_POOL_H_
 #define _DK_THREAD_POOL_H_
 
-#include "DKRuntime.h"
-#include "DKThread.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 typedef enum
@@ -83,5 +85,9 @@ DK_API int64_t DKThreadPoolAddCompletionMethod( DKThreadPoolRef _self, DKObjectR
 
 DK_API void DKThreadPoolRemoveAllTasks( DKThreadPoolRef _self );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_THREAD_POOL_H_

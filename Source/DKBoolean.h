@@ -27,7 +27,10 @@
 #ifndef _DK_BOOLEAN_H_
 #define _DK_BOOLEAN_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 #define DKNumberBoolean DKEncodeIntegerType(bool)
@@ -46,5 +49,8 @@ DK_API DKBooleanRef DKFalse( void );
 DK_API DKStringRef  DKBooleanGetDescription( DKBooleanRef _self );
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_NUMBER_H_

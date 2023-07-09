@@ -27,7 +27,10 @@
 #ifndef _DK_CONVERSION_H_
 #define _DK_CONVERSION_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
 DK_API DKDeclareInterfaceSelector( Conversion );
@@ -68,6 +71,10 @@ DK_API double      DKGetDouble( DKObjectRef _self );
 #define DKGetLongLong( _self )  DKGetInt64( _self )
 
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_CONVERSION_H_
 

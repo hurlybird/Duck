@@ -27,10 +27,12 @@
 #ifndef _DK_READWRITE_LOCK_H_
 #define _DK_READWRITE_LOCK_H_
 
-#include "DKRuntime.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 
-// DKMutex ===============================================================================
 typedef struct DKReadWriteLock * DKReadWriteLockRef;
 
 
@@ -44,7 +46,9 @@ DK_API bool DKReadWriteLockTryLock( DKReadWriteLockRef _self, bool readwrite );
 DK_API void DKReadWriteLockUnlock( DKReadWriteLockRef _self );
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _DK_READWRITE_LOCK_H_
 
