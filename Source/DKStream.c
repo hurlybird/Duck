@@ -346,7 +346,7 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
                     dk_free( buf );
                 }
             }
-
+            
             else
             {
                 cstr = va_arg( arg_ptr, const char * );
@@ -354,7 +354,25 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
                 if( !cstr )
                     cstr = "(null)";
 
-                write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
+                if( tok > 1 )
+                {
+                    CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+
+                    int clen = snprintf( NULL, 0, tmp_format, cstr );
+
+                    if( clen > 0 )
+                    {
+                        char * buf = dk_malloc( clen + 1 );
+                        snprintf( buf, clen + 1, tmp_format, cstr );
+                        write_count += stream->write( _self, buf, 1, strlen( buf ) );
+                        dk_free( buf );
+                    }
+                }
+                
+                else
+                {
+                    write_count += stream->write( _self, cstr, 1, strlen( cstr ) );
+                }
             }
             break;
         
