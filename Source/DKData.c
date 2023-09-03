@@ -54,7 +54,7 @@ static void         DKDataFinalize( DKObjectRef _self );
 static DKObjectRef  DKDataInitWithEgg( DKObjectRef _self, DKEggUnarchiverRef egg );
 static void         DKDataAddToEgg( DKDataRef _self, DKEggArchiverRef egg );
 
-
+static int          DKDataGetStreamStatus( DKObjectRef _self );
 
 
 // Class Methods =========================================================================
@@ -107,6 +107,8 @@ DKThreadSafeClassInit( DKDataClass )
     stream->tell = (DKStreamTellMethod)DKDataTell;
     stream->read = (DKStreamReadMethod)DKDataRead;
     stream->write = (DKStreamWriteMethod)DKImmutableObjectAccessError;
+    stream->getStatus = DKDataGetStreamStatus;
+    stream->getLength = (DKStreamGetLengthMethod)DKDataGetLength;
     
     DKInstallInterface( cls, stream );
     DKRelease( stream );
@@ -866,5 +868,12 @@ size_t DKDataWrite( DKMutableDataRef _self, const void * buffer, size_t size, si
 }
 
 
+///
+//  DKDataGetStreamStatus()
+//
+static int DKDataGetStreamStatus( DKObjectRef _self )
+{
+    return 0;
+}
 
 

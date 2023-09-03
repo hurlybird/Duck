@@ -69,6 +69,8 @@ static void         DKStringAddToEgg( DKStringRef _self, DKEggArchiverRef egg );
 
 static DKStringRef  DKMutableStringGetDescription( DKMutableStringRef _self );
 
+static int          DKStringGetStreamStatus( DKObjectRef _self );
+
 static struct DKString DKPlaceholderString =
 {
     DKInitStaticObjectHeader( NULL ),
@@ -148,6 +150,8 @@ DKThreadSafeClassInit( DKStringClass )
     stream->tell = (DKStreamTellMethod)DKStringTell;
     stream->read = (DKStreamReadMethod)DKStringRead;
     stream->write = (DKStreamWriteMethod)DKImmutableObjectAccessError;
+    stream->getStatus = DKStringGetStreamStatus;
+    stream->getLength = (DKStreamGetLengthMethod)DKStringGetLength;
     
     DKInstallInterface( cls, stream );
     DKRelease( stream );
@@ -2396,6 +2400,15 @@ size_t DKStringWrite( DKMutableStringRef _self, const void * buffer, size_t size
         return count;
     }
     
+    return 0;
+}
+
+
+///
+//  DKStringGetStreamStatus()
+//
+static int DKStringGetStreamStatus( DKObjectRef _self )
+{
     return 0;
 }
 

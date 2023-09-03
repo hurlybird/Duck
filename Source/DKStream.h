@@ -44,6 +44,9 @@ typedef long    (*DKStreamTellMethod)( DKObjectRef _self );
 typedef size_t  (*DKStreamReadMethod)( DKObjectRef _self, void * data, size_t size, size_t count );
 typedef size_t  (*DKStreamWriteMethod)( DKObjectRef _self, const void * data, size_t size, size_t count );
 
+typedef int     (*DKStreamGetStatusMethod)( DKObjectRef _self );
+typedef DKIndex (*DKStreamGetLengthMethod)( DKObjectRef _self );
+
 struct DKStreamInterface
 {
     const DKInterface _interface;
@@ -52,6 +55,9 @@ struct DKStreamInterface
     DKStreamTellMethod tell;
     DKStreamReadMethod read;
     DKStreamWriteMethod write;
+    
+    DKStreamGetStatusMethod getStatus;
+    DKStreamGetLengthMethod getLength;
 };
 
 typedef const struct DKStreamInterface * DKStreamInterfaceRef;
@@ -86,6 +92,13 @@ DK_API size_t DKRead( DKStreamRef _self, void * data, size_t size, size_t count 
 // Write up to 'count' items from a buffer. Returns the number of items written (which may
 // be less than 'count' on partial writes or negative if an error occurs.
 DK_API size_t DKWrite( DKStreamRef _self, const void * data, size_t size, size_t count );
+
+// Get the status of the stream
+DK_API int DKStreamGetStatus( DKStreamRef _self );
+
+// Get the current length of the stream in bytes. Returns DKNotFound if the length cannot
+// be retrieved (e.g. for a socket backed stream).
+DK_API DKIndex DKStreamGetLength( DKStreamRef _self );
 
 // Write a formatted string to a buffer.
 DK_API int DKSPrintf( DKStreamRef _self, const char * format, ... );

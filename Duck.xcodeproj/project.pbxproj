@@ -285,7 +285,7 @@
 		025C0F4A18EFED96000344C0 /* DKByteArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKByteArray.c; sourceTree = "<group>"; };
 		025C0F4C18EFED96000344C0 /* DKData.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKData.c; sourceTree = "<group>"; };
 		025C0F4D18EFED96000344C0 /* DKDictionary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKDictionary.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
-		025C0F4E18EFED96000344C0 /* DKFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKFile.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		025C0F4E18EFED96000344C0 /* DKFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKFile.c; sourceTree = "<group>"; };
 		025C0F4F18EFED96000344C0 /* DKHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKHashTable.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		025C0F5018EFED96000344C0 /* DKLinkedList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKLinkedList.c; sourceTree = "<group>"; };
 		025C0F5118EFED96000344C0 /* DKList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKList.c; sourceTree = "<group>"; };
@@ -293,9 +293,9 @@
 		025C0F5318EFED96000344C0 /* DKNumber.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNumber.c; sourceTree = "<group>"; };
 		025C0F5418EFED97000344C0 /* DKPlatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKPlatform.c; sourceTree = "<group>"; };
 		025C0F5618EFED97000344C0 /* DKGenericArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGenericArray.c; sourceTree = "<group>"; };
-		025C0F5718EFED97000344C0 /* DKRuntime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKRuntime.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		025C0F5718EFED97000344C0 /* DKRuntime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKRuntime.c; sourceTree = "<group>"; };
 		025C0F5818EFED97000344C0 /* DKStream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKStream.c; sourceTree = "<group>"; };
-		025C0F5918EFED97000344C0 /* DKString.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKString.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		025C0F5918EFED97000344C0 /* DKString.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKString.c; sourceTree = "<group>"; };
 		025C0F5A18EFED97000344C0 /* DKUnicode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKUnicode.c; sourceTree = "<group>"; };
 		025C0F9618EFEE5D000344C0 /* TestDKData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKData.m; sourceTree = "<group>"; };
 		025C0F9718EFEE5D000344C0 /* TestDKDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKDictionary.m; sourceTree = "<group>"; };
@@ -309,7 +309,7 @@
 		0269BF1719D85669002E876C /* DKByteArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKByteArray.h; sourceTree = "<group>"; };
 		0269BF1819D85669002E876C /* DKCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKCollection.h; sourceTree = "<group>"; };
 		0269BF1919D85669002E876C /* DKConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKConfig.h; sourceTree = "<group>"; };
-		0269BF1A19D85669002E876C /* DKData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DKData.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		0269BF1A19D85669002E876C /* DKData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DKData.h; sourceTree = "<group>"; };
 		0269BF1B19D85669002E876C /* DKDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DKDictionary.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		0269BF1C19D85669002E876C /* DKEgg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKEgg.h; sourceTree = "<group>"; };
 		0269BF1D19D85669002E876C /* DKEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKEncoding.h; sourceTree = "<group>"; };

@@ -59,6 +59,8 @@ DK_API FILE *      DKFileGetStreamPtr( DKFileRef _self );
 
 DK_API int         DKFileSeek( DKFileRef _self, long offset, int origin );
 DK_API long        DKFileTell( DKFileRef _self );
+
+DK_API int         DKFileGetStatus( DKFileRef _self );
 DK_API DKIndex     DKFileGetLength( DKFileRef _self );
 
 DK_API size_t      DKFileRead( DKFileRef _self, void * buffer, size_t size, size_t count );
