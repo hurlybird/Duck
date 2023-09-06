@@ -304,8 +304,9 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
     if( WIN32 )
         target_compile_definitions( ${TargetName}
             PUBLIC
-            $<IF:$<STREQUAL:${TargetType},STATIC>,DK_API_STATIC,DK_API_EXPORTS>
+            $<$<STREQUAL:${TargetType},STATIC>:DK_API_STATIC>
             PRIVATE
+            $<$<STREQUAL:${TargetType},SHARED>:DK_API_EXPORTS>
             $<IF:$<CONFIG:DEBUG>,_DEBUG,NDEBUG>
             UNICODE _UNICODE
             _CRT_SECURE_NO_WARNINGS )

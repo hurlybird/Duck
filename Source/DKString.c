@@ -33,6 +33,7 @@
 #include "DKByteArray.h"
 #include "DKBuffer.h"
 #include "DKStream.h"
+#include "DKData.h"
 #include "DKGenericHashTable.h"
 #include "DKCollection.h"
 #include "DKList.h"

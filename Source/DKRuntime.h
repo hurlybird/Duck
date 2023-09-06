@@ -431,8 +431,8 @@ typedef void * DKInterfaceRef;
     DKSEL DKSelector_ ## name( void )
 
 #define DKDeclareFastInterfaceSelector( name, cacheline )                               \
-    enum { DKStaticCache_ ##name = cacheline };                                         \
-    DKSEL DKSelector_ ## name( void )
+    DKSEL DKSelector_ ## name( void );                                                  \
+    enum { DKStaticCache_ ##name = cacheline };
 
 // Get the interface method count from the structure size
 #define DKInterfaceCountMethods( structSize )    (((structSize) - sizeof(DKInterface)) / sizeof(void *))
