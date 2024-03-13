@@ -604,7 +604,7 @@ DK_API void _DKFailedAssert( const char * format, ... );
 
 // Range Checks
 #if DK_RUNTIME_RANGE_CHECKS
-#define DKCheckIndex( range, len, ... )                                                 \
+#define DKCheckIndex( index, len, ... )                                                 \
     do                                                                                  \
     {                                                                                   \
         if( ((index) < 0) || ((index) >= len) )                                         \
