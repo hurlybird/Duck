@@ -80,7 +80,7 @@ DK_API const char * DKEggGetTextDataPtr( DKEggUnarchiverRef _self, DKStringRef k
 DK_API size_t DKEggGetTextData( DKEggUnarchiverRef _self, DKStringRef key, char * text );
 
 DK_API const void * DKEggGetBinaryDataPtr( DKEggUnarchiverRef _self, DKStringRef key, size_t * length );
-DK_API size_t DKEggGetBinaryData( DKEggUnarchiverRef _self, DKStringRef key, void * bytes );
+DK_API size_t DKEggGetBinaryData( DKEggUnarchiverRef _self, DKStringRef key, void * bytes, size_t length );
 
 DK_API size_t DKEggGetNumberData( DKEggUnarchiverRef _self, DKStringRef key, void * number );
 

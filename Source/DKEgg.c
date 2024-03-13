@@ -738,16 +738,19 @@ const void * DKEggGetBinaryDataPtr( DKEggUnarchiverRef _self, DKStringRef key, s
     return 0;
 }
 
-size_t DKEggGetBinaryData( DKEggUnarchiverRef _self, DKStringRef key, void * bytes )
+size_t DKEggGetBinaryData( DKEggUnarchiverRef _self, DKStringRef key, void * bytes, size_t length )
 {
-    size_t length = 0;
+    size_t archivedLength = 0;
     
-    const char * src = DKEggGetBinaryDataPtr( _self, key, &length );
+    const char * src = DKEggGetBinaryDataPtr( _self, key, &archivedLength );
     
-    if( src )
+    if( src && (archivedLength == length) )
+    {
         memcpy( bytes, src, length );
+        return length;
+    }
     
-    return length;
+    return 0;
 }
 
 
