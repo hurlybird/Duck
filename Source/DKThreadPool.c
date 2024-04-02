@@ -954,6 +954,15 @@ int64_t DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * co
             DKConditionSignal( _self->workAvailableCondition );
     }
     
+    else
+    {
+#if DK_ERROR_ON_MISSING_THREADPOOL
+        DKError( "DKThreadPoolAddTask: Missing thread pool." );
+#else
+        proc( context );
+#endif
+    }
+    
     return taskGroup;
 }
 
@@ -977,7 +986,16 @@ int64_t DKThreadPoolAddTaskMethod( DKThreadPoolRef _self, DKObjectRef target, DK
         if( _self->scheduling == DKThreadPoolDefaultScheduling )
             DKConditionSignal( _self->workAvailableCondition );
     }
-    
+
+    else
+    {
+#if DK_ERROR_ON_MISSING_THREADPOOL
+        DKError( "DKThreadPoolAddTaskMethod: Missing thread pool." );
+#else
+        method( target, param );
+#endif
+    }
+
     return taskGroup;
 }
 
@@ -993,25 +1011,30 @@ int64_t DKThreadPoolAddCompletion( DKThreadPoolRef _self, DKThreadProc proc, voi
     {
         DKMutexLock( _self->queueMutex );
 
-        if( _self->queues )
-        {
-            struct DKThreadPoolTask * completion = DKThreadPoolAllocTask( _self, proc, context );
-            taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
-        
-            DKMutexUnlock( _self->queueMutex );
+        // Note: A minor optimization used to be here that would run the completion task
+        // immediately on the scheduling thread if the queues were empty. However, doing
+        // so could result in unexpected behaviour when tasks and completions run on
+        // different sets of threads. Also, a non-trivial completions could cause an
+        // unexpected slowdown on the scheduling thread.
 
-            if( _self->scheduling == DKThreadPoolDefaultScheduling )
-                DKConditionSignal( _self->workAvailableCondition );
-        }
-        
-        else
-        {
-            DKMutexUnlock( _self->queueMutex );
-
-            proc( context );
-        }
-    }
+        struct DKThreadPoolTask * completion = DKThreadPoolAllocTask( _self, proc, context );
+        taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
     
+        DKMutexUnlock( _self->queueMutex );
+
+        if( _self->scheduling == DKThreadPoolDefaultScheduling )
+            DKConditionSignal( _self->workAvailableCondition );
+    }
+
+    else
+    {
+#if DK_ERROR_ON_MISSING_THREADPOOL
+        DKError( "DKThreadPoolAddCompletion: Missing thread pool." );
+#else
+        proc( context );
+#endif
+    }
+
     return taskGroup;
 }
 
@@ -1027,23 +1050,28 @@ int64_t DKThreadPoolAddCompletionMethod( DKThreadPoolRef _self, DKObjectRef targ
     {
         DKMutexLock( _self->queueMutex );
 
-        if( _self->queues )
-        {
-            struct DKThreadPoolTask * completion = DKThreadPoolAllocObjectTask( _self, target, method, param );
-            taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
-            
-            DKMutexUnlock( _self->queueMutex );
+        // Note: A minor optimization used to be here that would run the completion task
+        // immediately on the scheduling thread if the queues were empty. However, doing
+        // so could result in unexpected behaviour when tasks and completions run on
+        // different sets of threads. Also, a non-trivial completions could cause an
+        // unexpected slowdown on the scheduling thread.
 
-            if( _self->scheduling == DKThreadPoolDefaultScheduling )
-                DKConditionSignal( _self->workAvailableCondition );
-        }
+        struct DKThreadPoolTask * completion = DKThreadPoolAllocObjectTask( _self, target, method, param );
+        taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
         
-        else
-        {
-            DKMutexUnlock( _self->queueMutex );
+        DKMutexUnlock( _self->queueMutex );
 
-            method( target, param );
-        }
+        if( _self->scheduling == DKThreadPoolDefaultScheduling )
+            DKConditionSignal( _self->workAvailableCondition );
+    }
+    
+    else
+    {
+#if DK_ERROR_ON_MISSING_THREADPOOL
+        DKError( "DKThreadPoolAddCompletionMethod: Missing thread pool." );
+#else
+        method( target, param );
+#endif
     }
     
     return taskGroup;

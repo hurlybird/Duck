@@ -231,6 +231,12 @@
 #define DK_PRETTY_PRINT_FLOATS  1
 #endif
 
+// By default, if the thread pool is NULL when scheduling a task (or completion), the
+// task is run immediately on the current thread. This simplifies code that can operate
+// either single-threaded or multi-threaded. Set this option to emit an error instead.
+#ifndef DK_ERROR_ON_MISSING_THREADPOOL
+#define DK_ERROR_ON_MISSING_THREADPOOL  0
+#endif
 
 #endif // _DK_CONFIG_H_
 
