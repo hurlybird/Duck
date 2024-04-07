@@ -2568,7 +2568,8 @@ DK_API DKDataRef DKStringGetWStringAsData( DKStringRef _self )
         if( length <= 0 )
             return NULL;
 
-        DKMutableDataRef wstrData = DKMutableDataWithCapacity( length * sizeof(WCHAR) );
+        DKMutableDataRef wstrData = DKMutableData();
+        DKDataSetLength( wstrData, length * sizeof(WCHAR) );
         WCHAR * wstr = DKDataGetMutableBytePtr( wstrData, 0 );
 
 	    if( MultiByteToWideChar( CP_UTF8, 0, cstr, -1, wstr, length ) != length )
