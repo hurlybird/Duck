@@ -220,7 +220,7 @@ void DKThreadPoolSetSchedulingEx( DKThreadPoolRef _self, DKThreadPoolScheduling 
     else
         _self->yieldNSecs = yieldNSecs;
 
-    // Get the actual sleep time given the clock resolution
+    // Get the system clock resolution
     #if DK_PLATFORM_POSIX
     uint64_t clockResolutionNSecs = DK_THREADPOOL_1_US;
 
@@ -228,22 +228,23 @@ void DKThreadPoolSetSchedulingEx( DKThreadPoolRef _self, DKThreadPoolScheduling 
     
     if( clock_getres( CLOCK_REALTIME, &res ) == 0 )
         clockResolutionNSecs = res.tv_nsec;
-
-    uint64_t sleepIntervalNSecs = ((_self->yieldNSecs + clockResolutionNSecs - 1) / clockResolutionNSecs) * clockResolutionNSecs;
-
-    if( sleepIntervalNSecs < clockResolutionNSecs )
-        sleepIntervalNSecs = clockResolutionNSecs;
     #endif
 
     #if DK_PLATFORM_WINDOWS
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency( &frequency );
 
-    uint64_t sleepIntervalNSecs = (uint64_t)floor( ((double)frequency.QuadPart / 1000000000.0) * _self->yieldNSecs );
-    
-    if( sleepIntervalNSecs < DK_THREADPOOL_1_US )
-        sleepIntervalNSecs = DK_THREADPOOL_1_US;
+    uint64_t clockResolutionNSecs = DK_THREADPOOL_1_S / frequency.QuadPart;
+
+    if( clockResolutionNSecs == 0 )
+        clockResolutionNSecs = DK_THREADPOOL_1_US;
     #endif
+
+    // Get the sleep time interval as the smallest multiple of the clock resolution
+    uint64_t sleepIntervalNSecs = ((_self->yieldNSecs + clockResolutionNSecs - 1) / clockResolutionNSecs) * clockResolutionNSecs;
+
+    if( sleepIntervalNSecs < clockResolutionNSecs )
+        sleepIntervalNSecs = clockResolutionNSecs;
 
     // Calculate the cooldown cycles
     _self->idleCooldown = (int)(idleNSecs / sleepIntervalNSecs);
