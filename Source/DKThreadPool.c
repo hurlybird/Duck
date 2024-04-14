@@ -42,10 +42,20 @@
 
 
 #ifndef DK_THREADPOOL_DIAGNOSTIC_OUTPUT
-#define DK_THREADPOOL_DIAGNOSTIC_OUTPUT     0
+#define DK_THREADPOOL_DIAGNOSTIC_OUTPUT         0
 #endif
 
-#define DK_THREADPOOL_DEFAULT_YIELD_TIME    (100 * 1000)   // 100 us
+#ifndef DK_THREADPOOL_SCHEDULING_OUTPUT
+#define DK_THREADPOOL_SCHEDULING_OUTPUT         0
+#endif
+
+#define DK_THREADPOOL_1_S                       1000000000
+#define DK_THREADPOOL_1_MS                      1000000
+#define DK_THREADPOOL_1_US                      1000
+
+#define DK_THREADPOOL_DEFAULT_YIELD_TIME        (10 * DK_THREADPOOL_1_US)
+#define DK_THREADPOOL_DEFAULT_IDLE_COOLDOWN     (100 * DK_THREADPOOL_1_US)
+#define DK_THREADPOOL_DEFAULT_ALERT_COOLDOWN    (100 * DK_THREADPOOL_1_MS)
 
 
 struct DKThreadPoolTask
@@ -96,11 +106,14 @@ struct DKThreadPool
     DKThreadPoolCallback onThreadStop;
     void * onThreadStartStopContext;
 
+    volatile int32_t totalThreads;
     volatile int32_t idleThreads;
-    volatile int32_t standbyThreads;
+    volatile int32_t sleepingThreads;
 
     DKThreadPoolScheduling scheduling;
     uint32_t yieldNSecs;
+    uint32_t idleCooldown;
+    uint32_t alertCooldown;
 
     int64_t nextTaskGroup;
 };
@@ -141,8 +154,7 @@ static DKObjectRef DKThreadPoolInit( DKObjectRef _untyped_self )
         
         _self->stopCounter = DKNewSemaphore();
         
-        _self->scheduling = DKThreadPoolDefaultScheduling;
-        _self->yieldNSecs = DK_THREADPOOL_DEFAULT_YIELD_TIME;
+        DKThreadPoolSetScheduling( _self, DKThreadPoolDefaultScheduling, -1 );
     }
     
     return _self;
@@ -190,8 +202,59 @@ void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
 //
 void DKThreadPoolSetScheduling( DKThreadPoolRef _self, DKThreadPoolScheduling scheduling, int yieldNSecs )
 {
+    DKThreadPoolSetSchedulingEx( _self, scheduling, yieldNSecs,
+        DK_THREADPOOL_DEFAULT_IDLE_COOLDOWN, DK_THREADPOOL_DEFAULT_ALERT_COOLDOWN );
+}
+
+void DKThreadPoolSetSchedulingEx( DKThreadPoolRef _self, DKThreadPoolScheduling scheduling,
+    int yieldNSecs, uint64_t idleNSecs, uint64_t alertNSecs )
+{
     _self->scheduling = scheduling;
-    _self->yieldNSecs = (yieldNSecs >= 0) ? yieldNSecs : DK_THREADPOOL_DEFAULT_YIELD_TIME;
+
+    if( yieldNSecs < 0 )
+        _self->yieldNSecs = DK_THREADPOOL_DEFAULT_YIELD_TIME;
+        
+    else if( yieldNSecs > 999999999 )
+        _self->yieldNSecs = 999999999;
+        
+    else
+        _self->yieldNSecs = yieldNSecs;
+
+    // Get the actual sleep time given the clock resolution
+    #if DK_PLATFORM_POSIX
+    uint64_t clockResolutionNSecs = DK_THREADPOOL_1_US;
+
+    struct timespec res;
+    
+    if( clock_getres( CLOCK_REALTIME, &res ) == 0 )
+        clockResolutionNSecs = res.tv_nsec;
+
+    uint64_t sleepIntervalNSecs = ((_self->yieldNSecs + clockResolutionNSecs - 1) / clockResolutionNSecs) * clockResolutionNSecs;
+
+    if( sleepIntervalNSecs < clockResolutionNSecs )
+        sleepIntervalNSecs = clockResolutionNSecs;
+    #endif
+
+    #if DK_PLATFORM_WINDOWS
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency( &frequency );
+
+    uint64_t sleepIntervalNSecs = (uint64_t)floor( ((double)frequency.QuadPart / 1000000000.0) * _self->yieldNSecs );
+    
+    if( sleepIntervalNSecs < DK_THREADPOOL_1_US )
+        sleepIntervalNSecs = DK_THREADPOOL_1_US;
+    #endif
+
+    // Calculate the cooldown cycles
+    _self->idleCooldown = (int)(idleNSecs / sleepIntervalNSecs);
+    
+    if( _self->idleCooldown < 1 )
+        _self->idleCooldown = 1;
+
+    _self->alertCooldown = (int)(alertNSecs / sleepIntervalNSecs);
+
+    if( _self->alertCooldown < 100 )
+        _self->alertCooldown = 100;
 }
 
 
@@ -575,12 +638,22 @@ static void DKThreadPoolExec( void * _untyped_self )
 
         else
         {
-            DKAtomicIncrement32( &_self->idleThreads );
+            #if DK_THREADPOOL_SCHEDULING_OUTPUT
+            fprintf( stderr, "Thread %p working -> asleep\n", thread );
+            #endif
+        
+            _self->idleThreads++;
             DKConditionSignalAll( _self->stateChangedCondition );
 
+            _self->sleepingThreads++;
             DKConditionWait( _self->workAvailableCondition, _self->queueMutex );
 
-            DKAtomicDecrement32( &_self->idleThreads );
+            _self->sleepingThreads--;
+            _self->idleThreads--;
+
+            #if DK_THREADPOOL_SCHEDULING_OUTPUT
+            fprintf( stderr, "Thread %p asleep -> working\n", thread );
+            #endif
         }
     }
 
@@ -611,8 +684,7 @@ static void DKThreadPoolRealTimeExec( void * _untyped_self )
     #endif
 
     bool idle = false;
-    bool standby = false;
-    bool cooldown = false;
+    int cooldown = 0;
 
     if( _self->onThreadStart )
     {
@@ -629,14 +701,16 @@ static void DKThreadPoolRealTimeExec( void * _untyped_self )
         {
             if( idle )
             {
+                #if DK_THREADPOOL_SCHEDULING_OUTPUT
+                fprintf( stderr, "Thread %p idle -> working\n", thread );
+                #endif
+                
                 idle = false;
-                DKAtomicDecrement32( &_self->idleThreads );
+                _self->idleThreads--;
             }
             
-            if( standby )
+            if( _self->sleepingThreads > 0 )
             {
-                standby = false;
-                DKAtomicAnd32( &_self->standbyThreads, 0 );
                 DKConditionSignal( _self->workAvailableCondition );
             }
         
@@ -647,8 +721,6 @@ static void DKThreadPoolRealTimeExec( void * _untyped_self )
             DKMutexLock( _self->queueMutex );
 
             DKThreadPoolCompleteTask( _self, task );
-            
-            cooldown = true;
         }
 
         else
@@ -656,14 +728,17 @@ static void DKThreadPoolRealTimeExec( void * _untyped_self )
             if( !idle )
             {
                 idle = true;
-                DKAtomicIncrement32( &_self->idleThreads );
+                cooldown = (_self->idleThreads == 0) ? _self->alertCooldown : _self->idleCooldown;
+
+                _self->idleThreads++;
                 DKConditionSignalAll( _self->stateChangedCondition );
-                
-                if( DKAtomicCmpAndSwap32( &_self->standbyThreads, 0, 1 ) )
-                    standby = true;
+
+                #if DK_THREADPOOL_SCHEDULING_OUTPUT
+                fprintf( stderr, "Thread %p working -> idle (%d)\n", thread, cooldown );
+                #endif
             }
             
-            if( standby || cooldown )
+            if( cooldown > 0 )
             {
                 DKMutexUnlock( _self->queueMutex );
                 
@@ -679,6 +754,10 @@ static void DKThreadPoolRealTimeExec( void * _untyped_self )
                 
                 else
                 {
+                    // Note: The cooldown timers are based on the resolution of the system
+                    // clock, so using sched_yield instead of nanosleep( 0 ) may result
+                    // in shorter cooldowns than expected.
+                
                     sched_yield();
                 }
                 
@@ -698,21 +777,35 @@ static void DKThreadPoolRealTimeExec( void * _untyped_self )
 
                 DKMutexLock( _self->queueMutex );
                 
-                cooldown = false;
+                cooldown--;
             }
             
             else
             {
+                #if DK_THREADPOOL_SCHEDULING_OUTPUT
+                fprintf( stderr, "Thread %p idle -> asleep\n", thread );
+                #endif
+                
+                _self->sleepingThreads++;
+
                 DKConditionWait( _self->workAvailableCondition, _self->queueMutex );
+
+                _self->sleepingThreads--;
+                
+                cooldown = (_self->idleThreads == 1) ? _self->alertCooldown : _self->idleCooldown;
+
+                #if DK_THREADPOOL_SCHEDULING_OUTPUT
+                fprintf( stderr, "Thread %p asleep -> idle\n", thread );
+                #endif
             }
         }
     }
 
     if( idle )
     {
-        DKAtomicDecrement32( &_self->idleThreads );
+        _self->idleThreads--;
     }
-
+    
     DKMutexUnlock( _self->queueMutex );
 
     if( _self->onThreadStop )
@@ -733,12 +826,14 @@ int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads )
     {
         DKMutexLock( _self->threadMutex );
     
-        int runningThreads = (int)DKListGetCount( _self->threads );
-        int startedThreads = numThreads - runningThreads;
+        DKAssert( _self->totalThreads == (int)DKListGetCount( _self->threads ) );
+        int startedThreads = numThreads - _self->totalThreads;
         
         if( startedThreads < 0 )
             startedThreads = 0;
-        
+
+        _self->totalThreads = _self->totalThreads + startedThreads;
+
         for( int i = 0; i < startedThreads; i++ )
         {
             DKThreadRef thread;
@@ -935,6 +1030,36 @@ void DKThreadPoolWaitForCurrentTasks( DKThreadPoolRef _self )
 
 
 ///
+//  DKThreadPoolWakeThreadIfNeeded()
+//
+static inline void DKThreadPoolWakeThreadIfNeeded( DKThreadPoolRef _self )
+{
+    bool shouldSignal;
+    
+    if( _self->scheduling == DKThreadPoolDefaultScheduling )
+    {
+        // Wake up a thread if ANY are sleeping
+        shouldSignal = _self->sleepingThreads > 0;
+    }
+        
+    else
+    {
+        // Wake up a thread if ALL are sleeping
+        shouldSignal = _self->sleepingThreads == _self->totalThreads;
+    }
+    
+    if( shouldSignal )
+    {
+        #if DK_THREADPOOL_SCHEDULING_OUTPUT
+        fprintf( stderr, "Waking up a thread (%d idle, %d sleeping)\n", _self->idleThreads, _self->sleepingThreads );
+        #endif
+        
+        DKConditionSignal( _self->workAvailableCondition );
+    }
+}
+
+
+///
 //  DKThreadPoolAddTask()
 //
 int64_t DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * context )
@@ -948,10 +1073,9 @@ int64_t DKThreadPoolAddTask( DKThreadPoolRef _self, DKThreadProc proc, void * co
         struct DKThreadPoolTask * task = DKThreadPoolAllocTask( _self, proc, context );
         taskGroup = DKThreadPoolScheduleTask( _self, task );
         
-        DKMutexUnlock( _self->queueMutex );
+        DKThreadPoolWakeThreadIfNeeded( _self );
         
-        if( _self->scheduling == DKThreadPoolDefaultScheduling )
-            DKConditionSignal( _self->workAvailableCondition );
+        DKMutexUnlock( _self->queueMutex );
     }
     
     else
@@ -981,10 +1105,9 @@ int64_t DKThreadPoolAddTaskMethod( DKThreadPoolRef _self, DKObjectRef target, DK
         struct DKThreadPoolTask * task = DKThreadPoolAllocObjectTask( _self, target, method, param );
         taskGroup = DKThreadPoolScheduleTask( _self, task );
         
+        DKThreadPoolWakeThreadIfNeeded( _self );
+        
         DKMutexUnlock( _self->queueMutex );
-
-        if( _self->scheduling == DKThreadPoolDefaultScheduling )
-            DKConditionSignal( _self->workAvailableCondition );
     }
 
     else
@@ -1020,10 +1143,9 @@ int64_t DKThreadPoolAddCompletion( DKThreadPoolRef _self, DKThreadProc proc, voi
         struct DKThreadPoolTask * completion = DKThreadPoolAllocTask( _self, proc, context );
         taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
     
+        DKThreadPoolWakeThreadIfNeeded( _self );
+        
         DKMutexUnlock( _self->queueMutex );
-
-        if( _self->scheduling == DKThreadPoolDefaultScheduling )
-            DKConditionSignal( _self->workAvailableCondition );
     }
 
     else
@@ -1059,10 +1181,9 @@ int64_t DKThreadPoolAddCompletionMethod( DKThreadPoolRef _self, DKObjectRef targ
         struct DKThreadPoolTask * completion = DKThreadPoolAllocObjectTask( _self, target, method, param );
         taskGroup = DKThreadPoolScheduleCompletion( _self, completion );
         
+        DKThreadPoolWakeThreadIfNeeded( _self );
+        
         DKMutexUnlock( _self->queueMutex );
-
-        if( _self->scheduling == DKThreadPoolDefaultScheduling )
-            DKConditionSignal( _self->workAvailableCondition );
     }
     
     else

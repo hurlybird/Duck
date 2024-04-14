@@ -63,7 +63,18 @@ DK_API void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
     DKThreadPoolCallback onThreadStop,
     void * context );
 
+// Set the scheduling behaviour of the thread pool (see DKThreadPoolScheduling above)
+// For DKThreadPoolDefaultScheduling the time arguments are ignored.
+// For DKThreadPoolRealTimeScheduling:
+//  yieldNSecs: The time interval (in nanoseconds) to yield when idle. Use -1 to specify
+//              the default time interval. (Default 10us)
+//  idleNSecs:  The time for threads to spin before going to sleep (Default 100us)
+//  alertNSecs: The time to 'alert' threads to spin before going to sleep. One idle thread
+//              is typically kept alert to watch for incoming tasks. (Default 100ms)
 DK_API void DKThreadPoolSetScheduling( DKThreadPoolRef _self, DKThreadPoolScheduling scheduling, int yieldNSecs );
+DK_API void DKThreadPoolSetSchedulingEx( DKThreadPoolRef _self, DKThreadPoolScheduling scheduling,
+    int yieldNSecs, uint64_t idleNSecs, uint64_t alertNSecs );
+
 DK_API void DKThreadPoolSetLabel( DKThreadPoolRef _self, DKStringRef label );
 
 DK_API int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads );
