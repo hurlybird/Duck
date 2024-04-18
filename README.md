@@ -30,9 +30,9 @@ The majority of the changes happening on the development branch involve filling
 in gaps and tweaking to match expected/intuitive use. None of this should cause
 widespread incompatibilites for the foreseeable future.
 
-***While Duck is being actively used in several applications, the code has not
+**While Duck is being actively used in several applications, the code has not
 undergone exhaustive testing in real-world situations, particularly regarding
-security and thread safety.***
+security and thread safety.**
 
 
 ## Building
@@ -65,9 +65,9 @@ compiler. Some types and functions--system calls, atomic operations, thread supp
 etc--will likely need to be ported for non-Apple/POSIX/Microsoft environments.
 
 [^1]: On Ninendo Switch the time, date, and UUID generation functions are implemented
-      using proprietary Nintendo SDK APIS and are not part of this repository.
+      using proprietary Nintendo SDK APIs and are not part of this repository.
 [^2]: On PlayStation 5 the time, date, and UUID generation functions are implemented
-      using proprietary Sony SDK APIS and are not part of this repository.
+      using proprietary Sony SDK APIs and are not part of this repository.
 
 While Duck objects can be (and are) used in C++ code, C++ compilers will no doubt
 complain about some of the C11 code that Duck uses--namely explicit casts from void
@@ -122,16 +122,12 @@ Duck Classes are similar to classes in any object-oriented system, except they
 are defined entirely at run time. In fact, you can create and destroy class
 objects just like any other object.
 
-*See [DKRuntime.h](Source/DKRuntime.h)*
-
 ### Interfaces
 
 Interfaces are a cross between COM interfaces and Objective-C methods. As in
 COM, a Duck interface is a table of function pointers that provide access to an
 object's methods in a polymorphic way. Like Objective-C methods, interfaces are
 bound to class objects and identified by Selectors.
-
-*See [DKRuntime+Interfaces.h](Source/DKRuntime+Interfaces.h)*
 
 ### Messages
 
@@ -145,15 +141,13 @@ intptr_t MyMethod( DKObjectRef _self, DKSEL sel, ... );
 
 Unlike Objective-C, Duck message handlers are limited to returning a single
 pointer-sized integer. The Objective-C compiler can look at the expected return
-type and pick a message dispatch function to deal with non-integer return types.
-Trying to do that in plain C risks stack corruption if the actual value returned
+type and pick a message dispatch function to deal with non-integer return types;
+trying to do that in plain C risks stack corruption if the actual value returned
 doesn't match the type expected by the caller.
 
 Message handlers are most useful for adding one-off methods for target-action
 paradigms, events, notifications, etc., without having to define a new interface
 structure.
-
-*See [DKRuntime+Interfaces.h](Source/DKRuntime+Interfaces.h)*
 
 ### Properties
 
@@ -161,8 +155,6 @@ Duck classes can also define properties to provide an abstract mechanism to
 access instance data. The runtime handles most property get/set behaviour
 automatically (including translating between object and base types), but it's
 also possible to use custom getter/setter/observer methods.
-
-*See [DKRuntime+Properties.h](Source/DKRuntime+Properties.h)*
 
 ### Reference Counting
 
@@ -173,8 +165,6 @@ Zeroing Weak references are handled by the DKWeakRef type, which stores a weak
 reference to a target object. The DKResolveWeak() function resolves a weak
 reference into a strong reference, or returns NULL if the target object has
 been deallocated.
-
-*See [DKRuntime+RefCount.h](Source/DKRuntime+RefCount.h)*
 
 ### Built-In Classes
 
