@@ -460,6 +460,22 @@ void DKListReplaceRangeWithCollection( DKMutableListRef _self, DKRange range, DK
 
 
 ///
+//  DKListExchangeObjectsAtIndexes()
+//
+void DKListExchangeObjectsAtIndexes( DKMutableListRef _self, DKIndex index1, DKIndex index2 )
+{
+    DKObjectRef obj1 = DKRetain( DKListGetObjectAtIndex( _self, index1 ) );
+    DKObjectRef obj2 = DKRetain( DKListGetObjectAtIndex( _self, index2 ) );
+    
+    DKListSetObjectAtIndex( _self, obj1, index2 );
+    DKListSetObjectAtIndex( _self, obj2, index1 );
+    
+    DKRelease( obj1 );
+    DKRelease( obj2 );
+}
+
+
+///
 //  DKListContainsObject()
 //
 bool DKListContainsObject( DKListRef _self, DKObjectRef object )

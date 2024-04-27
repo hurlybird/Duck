@@ -688,7 +688,7 @@ DKObjectRef DKLinkedListGetObjectAtIndex( DKLinkedListRef _self, DKIndex index )
 
 static DKObjectRef INTERNAL_DKLinkedListGetObjectAtIndex( DKLinkedListRef _self, DKIndex index )
 {
-    DKCheckIndex( index, _self->count, 0 );
+    DKCheckIndex( index, _self->count, NULL );
 
     struct DKLinkedListNode * node = MoveCursor( _self, index );
 

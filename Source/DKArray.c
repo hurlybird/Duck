@@ -422,7 +422,7 @@ DKObjectRef DKArrayGetObjectAtIndex( DKArrayRef _self, DKIndex index )
 
 static DKObjectRef INTERNAL_DKArrayGetObjectAtIndex( DKArrayRef _self, DKIndex index )
 {
-    DKCheckIndex( index, _self->ptrArray.length, 0 );
+    DKCheckIndex( index, _self->ptrArray.length, NULL );
     
     return DKGenericArrayElementAtIndex( &_self->ptrArray, index, DKObjectRef );
 }
