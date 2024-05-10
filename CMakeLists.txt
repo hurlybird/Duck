@@ -115,6 +115,8 @@ elseif( PS5 )
 
 elseif( UNIX )
     set( DuckRequiredLibraries
+        c
+        m
         pthread
         uuid )
 
