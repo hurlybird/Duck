@@ -706,9 +706,14 @@ size_t DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding )
 //
 const void * DKNumberGetValuePtr( DKNumberRef _self )
 {
-    DKAssertKindOfClass( _self, DKNumberClass() );
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        return &_self->value;
+    }
     
-    return &_self->value;
+    return NULL;
 }
 
 
@@ -717,20 +722,45 @@ const void * DKNumberGetValuePtr( DKNumberRef _self )
 //
 void * DKNumberGetVariableValuePtr( DKNumberRef _self )
 {
-    DKAssertKindOfClass( _self, DKVariableNumberClass() );
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKVariableNumberClass() );
+        
+        return &_self->value;
+    }
     
-    return &_self->value;
+    return NULL;
 }
 
 
 ///
-//  DKNumberGetBytePtr()
+//  DKNumberQueryValuePtr()
 //
-const void * DKNumberGetBytePtr( DKNumberRef _self, DKEncoding * encoding )
+const void * DKNumberQueryValuePtr( DKNumberRef _self, DKEncoding * encoding )
 {
     if( _self )
     {
         DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        *encoding = DKGetObjectTag( _self );
+        
+        return &_self->value;
+    }
+    
+    *encoding = DKEncodingNull;
+    
+    return NULL;
+}
+
+
+///
+//  DKNumberQueryVariableValuePtr()
+//
+void * DKNumberQueryVariableValuePtr( DKNumberRef _self, DKEncoding * encoding )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKVariableNumberClass() );
         
         *encoding = DKGetObjectTag( _self );
         

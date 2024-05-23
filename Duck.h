@@ -69,6 +69,7 @@
 #include <Duck/DKBitList.h>
 #include <Duck/DKBoolean.h>
 #include <Duck/DKData.h>
+#include <Duck/DKMember.h>
 #include <Duck/DKNumber.h>
 #include <Duck/DKPair.h>
 #include <Duck/DKString.h>

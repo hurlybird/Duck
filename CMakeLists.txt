@@ -185,6 +185,8 @@ set( DuckSources
     ${DUCK_PATH}/Source/DKList.h
     ${DUCK_PATH}/Source/DKLocking.c
     ${DUCK_PATH}/Source/DKLocking.h
+    ${DUCK_PATH}/Source/DKMember.c
+    ${DUCK_PATH}/Source/DKMember.h
     ${DUCK_PATH}/Source/DKMutex.c
     ${DUCK_PATH}/Source/DKMutex.h
     ${DUCK_PATH}/Source/DKNodePool.c
