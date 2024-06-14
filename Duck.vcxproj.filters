@@ -198,6 +198,9 @@
     <ClCompile Include="Source\DKNumber.c">
       <Filter>Source\Data Types</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DKMember.c">
+      <Filter>Source\Data Types</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\yxml\yxml.h">
@@ -397,6 +400,9 @@
       <Filter>Source\Data Types</Filter>
     </ClInclude>
     <ClInclude Include="Source\DKNumber.h">
+      <Filter>Source\Data Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DKMember.h">
       <Filter>Source\Data Types</Filter>
     </ClInclude>
   </ItemGroup>

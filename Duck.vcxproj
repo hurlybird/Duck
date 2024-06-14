@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -218,6 +218,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     <ClCompile Include="Source\DKLinkedList.c" />
     <ClCompile Include="Source\DKList.c" />
     <ClCompile Include="Source\DKLocking.c" />
+    <ClCompile Include="Source\DKMember.c" />
     <ClCompile Include="Source\DKMutex.c" />
     <ClCompile Include="Source\DKNodePool.c" />
     <ClCompile Include="Source\DKNumber.c" />
@@ -275,6 +276,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     <ClInclude Include="Source\DKLinkedList.h" />
     <ClInclude Include="Source\DKList.h" />
     <ClInclude Include="Source\DKLocking.h" />
+    <ClInclude Include="Source\DKMember.h" />
     <ClInclude Include="Source\DKMutex.h" />
     <ClInclude Include="Source\DKNodePool.h" />
     <ClInclude Include="Source\DKNumber.h" />
