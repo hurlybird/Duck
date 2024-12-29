@@ -110,7 +110,7 @@ static DKObjectRef DKMemberInitWithEgg( DKObjectRef _untyped_self, DKEggUnarchiv
         _self->object = DKRetain( DKEggGetObject( egg, DKSTR( "object" ) ) );
         
         DKEncoding offsetEncoding = DKEggGetEncoding( egg, DKSTR( "member" ) );
-        DKAssert( offsetEncoding == DKEncode( DKEncodingTypeUInt64, 2 ) );
+        DKRequire( offsetEncoding == DKEncode( DKEncodingTypeUInt64, 2 ) );
         
         uint64_t tmp[2];
         DKEggGetNumberData( egg, DKSTR( "member" ), tmp );
