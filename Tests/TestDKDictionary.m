@@ -139,14 +139,14 @@ static int RaiseException( const char * format, va_list arg_ptr )
 
 
 // Performance Tests =====================================================================
-#define PERFORMANCE_TESTS 1
+#define PERFORMANCE_TESTS 0
 
 const int PERFORMANCE_N = 1000000;
 
 
+#if PERFORMANCE_TESTS
 - (void) testNSDictionaryReadPerformance
 {
-#if PERFORMANCE_TESTS
     NSString * path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
     NSString * file = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
     NSArray * words = [file componentsSeparatedByString:@"\n"];
@@ -168,13 +168,13 @@ const int PERFORMANCE_N = 1000000;
             [dict objectForKey:word];
         }
     }];
-#endif
 }
+#endif
 
 
+#if PERFORMANCE_TESTS
 - (void) testNSDictionaryWritePerformance
 {
-#if PERFORMANCE_TESTS
     NSString * path = [[NSBundle bundleForClass:[self class]] pathForResource:@"dictionary" ofType:@"txt"];
     NSString * file = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
     NSArray * words = [file componentsSeparatedByString:@"\n"];
@@ -193,40 +193,40 @@ const int PERFORMANCE_N = 1000000;
             [dict setObject:word forKey:word];
         }
     }];
-#endif
 }
+#endif
 
 
-
+#if PERFORMANCE_TESTS
 - (void) testDKHashTableReadPerformance
 {
-#if PERFORMANCE_TESTS
     [self testDictionaryClassReadPerformance:DKMutableHashTableClass()];
-#endif
 }
+#endif
 
 
-- (void) testDKBinaryTreeReadPerformance
-{
 #if PERFORMANCE_TESTS
-    //[self testDictionaryClassReadPerformance:DKMutableBinaryTreeClass()];
-#endif
-}
-
 - (void) testDKHashTableWritePerformance
 {
-#if PERFORMANCE_TESTS
     [self testDictionaryClassWritePerformance:DKMutableHashTableClass()];
-#endif
 }
+#endif
 
 
-- (void) testDKBinaryTreeWritePerformance
-{
-#if PERFORMANCE_TESTS
-    //[self testDictionaryClassWritePerformance:DKMutableBinaryTreeClass()];
-#endif
-}
+//#if PERFORMANCE_TESTS
+//- (void) testDKBinaryTreeReadPerformance
+//{
+//    [self testDictionaryClassReadPerformance:DKMutableBinaryTreeClass()];
+//}
+//#endif
+
+
+//#if PERFORMANCE_TESTS
+//- (void) testDKBinaryTreeWritePerformance
+//{
+//    [self testDictionaryClassWritePerformance:DKMutableBinaryTreeClass()];
+//}
+//#endif
 
 
 - (void) testDictionaryClassReadPerformance:(DKClassRef)dictionaryClass

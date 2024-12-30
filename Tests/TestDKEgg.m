@@ -150,42 +150,44 @@ typedef struct
 }
 
 
-//- (void) testEggReadPerformance
-//{
-//    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
-//    DKStringRef path = DKStringWithCString( [_path UTF8String] );
-//    DKStringRef json = DKStringWithContentsOfFile( path );
-//    DKObjectRef document = DKJSONParse( json, 0 );
-//
-//    DKEggArchiverRef archiver = DKEggArchiverWithObject( document );
-//    DKDataRef archivedData = DKEggArchiverGetArchivedData( archiver );
-//
-//    [self measureBlock:^{
-//        DKPushAutoreleasePool();
-//
-//        DKEggUnarchiverRef unarchiver = DKEggUnarchiverWithData( archivedData );
-//        DKEggGetRootObject( unarchiver );
-//
-//        DKPopAutoreleasePool();
-//    }];
-//}
+#if 0
+- (void) testEggReadPerformance
+{
+    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
+    DKStringRef path = DKStringWithCString( [_path UTF8String] );
+    DKStringRef json = DKStringWithContentsOfFile( path );
+    DKObjectRef document = DKJSONParse( json, 0 );
+
+    DKEggArchiverRef archiver = DKEggArchiverWithObject( document );
+    DKDataRef archivedData = DKEggArchiverGetArchivedData( archiver );
+
+    [self measureBlock:^{
+        DKPushAutoreleasePool();
+
+        DKEggUnarchiverRef unarchiver = DKEggUnarchiverWithData( archivedData );
+        DKEggGetRootObject( unarchiver );
+
+        DKPopAutoreleasePool();
+    }];
+}
 
 
-//- (void) testEggWritePerformance
-//{
-//    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
-//    DKStringRef path = DKStringWithCString( [_path UTF8String] );
-//    DKStringRef json = DKStringWithContentsOfFile( path );
-//    DKObjectRef document = DKJSONParse( json, 0 );
-//
-//    [self measureBlock:^{
-//        DKPushAutoreleasePool();
-//
-//        DKEggArchiverRef archiver = DKEggArchiverWithObject( document );
-//        DKEggArchiverGetArchivedData( archiver );
-//
-//        DKPopAutoreleasePool();
-//    }];
-//}
+- (void) testEggWritePerformance
+{
+    NSString * _path = [[NSBundle bundleForClass:[self class]] pathForResource:@"largefile" ofType:@"json"];
+    DKStringRef path = DKStringWithCString( [_path UTF8String] );
+    DKStringRef json = DKStringWithContentsOfFile( path );
+    DKObjectRef document = DKJSONParse( json, 0 );
+
+    [self measureBlock:^{
+        DKPushAutoreleasePool();
+
+        DKEggArchiverRef archiver = DKEggArchiverWithObject( document );
+        DKEggArchiverGetArchivedData( archiver );
+
+        DKPopAutoreleasePool();
+    }];
+}
+#endif
 
 @end

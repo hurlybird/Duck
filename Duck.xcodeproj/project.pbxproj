@@ -16,8 +16,6 @@
 		0218087A1C3A323200989024 /* yxml.c in Sources */ = {isa = PBXBuildFile; fileRef = 021808751C3A323200989024 /* yxml.c */; };
 		02393EBC1C3EFE15009E8731 /* DKXML.c in Sources */ = {isa = PBXBuildFile; fileRef = 02393EBA1C3EFE15009E8731 /* DKXML.c */; };
 		02393EBD1C3EFE15009E8731 /* DKXML.h in Headers */ = {isa = PBXBuildFile; fileRef = 02393EBB1C3EFE15009E8731 /* DKXML.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		02393EBF1C3F16BB009E8731 /* test.xml in Resources */ = {isa = PBXBuildFile; fileRef = 02393EBE1C3F16BB009E8731 /* test.xml */; };
-		02393EC11C3F16F6009E8731 /* TestDKXML.m in Sources */ = {isa = PBXBuildFile; fileRef = 02393EC01C3F16F6009E8731 /* TestDKXML.m */; };
 		02393EC31C3F1999009E8731 /* DKXML.h in Headers */ = {isa = PBXBuildFile; fileRef = 02393EBB1C3EFE15009E8731 /* DKXML.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02393EC41C3F19F0009E8731 /* yxml.h in Headers */ = {isa = PBXBuildFile; fileRef = 021808761C3A323200989024 /* yxml.h */; };
 		02393EC51C3F19FE009E8731 /* yxml.h in Headers */ = {isa = PBXBuildFile; fileRef = 021808761C3A323200989024 /* yxml.h */; };
@@ -26,6 +24,23 @@
 		024786EB2BFE930F0066CA36 /* DKMember.c in Sources */ = {isa = PBXBuildFile; fileRef = 024786E82BFE930F0066CA36 /* DKMember.c */; };
 		024786EC2BFE930F0066CA36 /* DKMember.c in Sources */ = {isa = PBXBuildFile; fileRef = 024786E82BFE930F0066CA36 /* DKMember.c */; };
 		025D78031C245CB7005C56A4 /* DKConversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0212831F1C244F9A00B7C3A7 /* DKConversion.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0260FF8F2D2274F200F71143 /* Duck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 028F1A891B0DCA85006FDFDF /* Duck.framework */; };
+		0260FF952D2274FE00F71143 /* TestDKNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9918EFEE5D000344C0 /* TestDKNumber.m */; };
+		0260FF962D22752E00F71143 /* TestDKList.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9818EFEE5D000344C0 /* TestDKList.m */; };
+		0260FF972D22753400F71143 /* dictionary.txt in Resources */ = {isa = PBXBuildFile; fileRef = 02A54D271B08C4D600D00EEE /* dictionary.txt */; };
+		0260FF982D22753400F71143 /* test.xml in Resources */ = {isa = PBXBuildFile; fileRef = 02393EBE1C3F16BB009E8731 /* test.xml */; };
+		0260FF992D22756000F71143 /* TestDKDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9718EFEE5D000344C0 /* TestDKDictionary.m */; };
+		0260FF9A2D22756000F71143 /* TestDKEnum.m in Sources */ = {isa = PBXBuildFile; fileRef = 02DBA54F1EAB0E700086A6EE /* TestDKEnum.m */; };
+		0260FF9B2D22756000F71143 /* TestDKEgg.m in Sources */ = {isa = PBXBuildFile; fileRef = 0208A643190576130041677A /* TestDKEgg.m */; };
+		0260FF9C2D22756000F71143 /* TestDKJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 028F1B641B0E6F89006FDFDF /* TestDKJSON.m */; };
+		0260FF9D2D22756000F71143 /* TestDKData.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9618EFEE5D000344C0 /* TestDKData.m */; };
+		0260FF9E2D2275A100F71143 /* TestDKSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9818F1EDBE00EEBBAC /* TestDKSet.m */; };
+		0260FF9F2D2275A100F71143 /* TestDKXML.m in Sources */ = {isa = PBXBuildFile; fileRef = 02393EC01C3F16F6009E8731 /* TestDKXML.m */; };
+		0260FFA02D2275A100F71143 /* TestDKProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA218F3C49E00EEBBAC /* TestDKProperty.m */; };
+		0260FFA12D2275A100F71143 /* TestDKRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */; };
+		0260FFA22D2275A100F71143 /* TestDKShell.m in Sources */ = {isa = PBXBuildFile; fileRef = 02A33EAA1EEB8E6D005BC38D /* TestDKShell.m */; };
+		0260FFA32D2275A100F71143 /* TestDKPredicate.m in Sources */ = {isa = PBXBuildFile; fileRef = 023098FD19D53E7F00C3DB59 /* TestDKPredicate.m */; };
+		0260FFA42D2275A100F71143 /* TestDKString.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9B18EFEE5D000344C0 /* TestDKString.m */; };
 		026911C81C51E72A00432EAC /* DKXML.c in Sources */ = {isa = PBXBuildFile; fileRef = 02393EBA1C3EFE15009E8731 /* DKXML.c */; };
 		026AF4C31EE92A9F0033ED30 /* DKBuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 026AF4C11EE92A9F0033ED30 /* DKBuffer.c */; };
 		026AF4C41EE92A9F0033ED30 /* DKBuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 026AF4C11EE92A9F0033ED30 /* DKBuffer.c */; };
@@ -47,7 +62,6 @@
 		028D61CB1ED9F55B00E7BC72 /* DKGraph.c in Sources */ = {isa = PBXBuildFile; fileRef = 028D61C81ED9F55B00E7BC72 /* DKGraph.c */; };
 		028D61CC1ED9F55B00E7BC72 /* DKGraph.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D61C91ED9F55B00E7BC72 /* DKGraph.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028D61CD1ED9F55B00E7BC72 /* DKGraph.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D61C91ED9F55B00E7BC72 /* DKGraph.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		028F1A941B0DCA86006FDFDF /* Duck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 028F1A891B0DCA85006FDFDF /* Duck.framework */; };
 		028F1AA21B0DCBBB006FDFDF /* Duck.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF4A19D856BC002E876C /* Duck.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1AA31B0DCBBB006FDFDF /* DKConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF1919D85669002E876C /* DKConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1AA41B0DCBBB006FDFDF /* DKPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2619D85669002E876C /* DKPlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -118,17 +132,6 @@
 		028F1AEA1B0DCC05006FDFDF /* DKThread.c in Sources */ = {isa = PBXBuildFile; fileRef = 021E0E1519E1A5B200ECD817 /* DKThread.c */; };
 		028F1AEB1B0DCC05006FDFDF /* DKUnicode.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5A18EFED97000344C0 /* DKUnicode.c */; };
 		028F1AEC1B0DCC05006FDFDF /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
-		028F1AF01B0E639C006FDFDF /* TestDKEgg.m in Sources */ = {isa = PBXBuildFile; fileRef = 0208A643190576130041677A /* TestDKEgg.m */; };
-		028F1AF11B0E639C006FDFDF /* TestDKData.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9618EFEE5D000344C0 /* TestDKData.m */; };
-		028F1AF21B0E639C006FDFDF /* TestDKDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9718EFEE5D000344C0 /* TestDKDictionary.m */; };
-		028F1AF31B0E639C006FDFDF /* TestDKList.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9818EFEE5D000344C0 /* TestDKList.m */; };
-		028F1AF41B0E639C006FDFDF /* TestDKNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9918EFEE5D000344C0 /* TestDKNumber.m */; };
-		028F1AF51B0E639C006FDFDF /* TestDKPredicate.m in Sources */ = {isa = PBXBuildFile; fileRef = 023098FD19D53E7F00C3DB59 /* TestDKPredicate.m */; };
-		028F1AF61B0E639D006FDFDF /* TestDKProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 02083FA218F3C49E00EEBBAC /* TestDKProperty.m */; };
-		028F1AF71B0E639D006FDFDF /* TestDKRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */; };
-		028F1AF81B0E639D006FDFDF /* TestDKSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 02083F9818F1EDBE00EEBBAC /* TestDKSet.m */; };
-		028F1AF91B0E639D006FDFDF /* TestDKString.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9B18EFEE5D000344C0 /* TestDKString.m */; };
-		028F1AFA1B0E63A5006FDFDF /* dictionary.txt in Resources */ = {isa = PBXBuildFile; fileRef = 02A54D271B08C4D600D00EEE /* dictionary.txt */; };
 		028F1B191B0E6BC9006FDFDF /* DKPlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5418EFED97000344C0 /* DKPlatform.c */; };
 		028F1B1A1B0E6BC9006FDFDF /* DKRuntime.c in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F5718EFED97000344C0 /* DKRuntime.c */; };
 		028F1B1B1B0E6BC9006FDFDF /* DKRuntime+Interfaces.c in Sources */ = {isa = PBXBuildFile; fileRef = 02D5F50B19DBE79F00D2F52A /* DKRuntime+Interfaces.c */; };
@@ -199,8 +202,6 @@
 		028F1B611B0E6BFC006FDFDF /* DKThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 021E0E1619E1A5B200ECD817 /* DKThread.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1B621B0E6BFC006FDFDF /* DKUnicode.h in Headers */ = {isa = PBXBuildFile; fileRef = 0269BF2E19D85669002E876C /* DKUnicode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		028F1B631B0E6C0F006FDFDF /* utf_impl.c in Sources */ = {isa = PBXBuildFile; fileRef = 021EC2B718F0774B004148AD /* utf_impl.c */; };
-		028F1B651B0E6F89006FDFDF /* TestDKJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 028F1B641B0E6F89006FDFDF /* TestDKJSON.m */; };
-		02A33EAB1EEB8E6D005BC38D /* TestDKShell.m in Sources */ = {isa = PBXBuildFile; fileRef = 02A33EAA1EEB8E6D005BC38D /* TestDKShell.m */; };
 		02B15F962288B8F300ACF163 /* DKBitList.h in Headers */ = {isa = PBXBuildFile; fileRef = 02B15F942288B8F300ACF163 /* DKBitList.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02B15F972288B8F300ACF163 /* DKBitList.h in Headers */ = {isa = PBXBuildFile; fileRef = 02B15F942288B8F300ACF163 /* DKBitList.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02B15F982288B8F300ACF163 /* DKBitList.c in Sources */ = {isa = PBXBuildFile; fileRef = 02B15F952288B8F300ACF163 /* DKBitList.c */; };
@@ -221,7 +222,6 @@
 		02DBA54C1EAAFE3D0086A6EE /* DKEnum.c in Sources */ = {isa = PBXBuildFile; fileRef = 02DBA5491EAAFE3D0086A6EE /* DKEnum.c */; };
 		02DBA54D1EAAFE3D0086A6EE /* DKEnum.h in Headers */ = {isa = PBXBuildFile; fileRef = 02DBA54A1EAAFE3D0086A6EE /* DKEnum.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02DBA54E1EAAFE3D0086A6EE /* DKEnum.h in Headers */ = {isa = PBXBuildFile; fileRef = 02DBA54A1EAAFE3D0086A6EE /* DKEnum.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		02DBA5501EAB0E700086A6EE /* TestDKEnum.m in Sources */ = {isa = PBXBuildFile; fileRef = 02DBA54F1EAB0E700086A6EE /* TestDKEnum.m */; };
 		02E535422232FCC10050BD21 /* DKSemaphore.h in Headers */ = {isa = PBXBuildFile; fileRef = 02E535402232FCC10050BD21 /* DKSemaphore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02E535432232FCC10050BD21 /* DKSemaphore.h in Headers */ = {isa = PBXBuildFile; fileRef = 02E535402232FCC10050BD21 /* DKSemaphore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		02E535442232FCC10050BD21 /* DKSemaphore.c in Sources */ = {isa = PBXBuildFile; fileRef = 02E535412232FCC10050BD21 /* DKSemaphore.c */; };
@@ -231,12 +231,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		028F1A951B0DCA86006FDFDF /* PBXContainerItemProxy */ = {
+		0260FF902D2274F200F71143 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 024EE3D9148E0B21008FDADC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 028F1A881B0DCA85006FDFDF;
-			remoteInfo = Duck;
+			remoteInfo = "Duck-MacOS";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -310,6 +310,7 @@
 		025C0F9918EFEE5D000344C0 /* TestDKNumber.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKNumber.m; sourceTree = "<group>"; };
 		025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKRuntime.m; sourceTree = "<group>"; };
 		025C0F9B18EFEE5D000344C0 /* TestDKString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKString.m; sourceTree = "<group>"; };
+		0260FF8B2D2274F200F71143 /* Duck-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Duck-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		02624EBF190366C50023B3EE /* DKEgg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKEgg.c; sourceTree = "<group>"; };
 		0269BF1519D85669002E876C /* DKArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DKArray.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		0269BF1619D85669002E876C /* DKBinaryTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DKBinaryTree.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -348,7 +349,6 @@
 		028D61C81ED9F55B00E7BC72 /* DKGraph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKGraph.c; sourceTree = "<group>"; };
 		028D61C91ED9F55B00E7BC72 /* DKGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DKGraph.h; sourceTree = "<group>"; };
 		028F1A891B0DCA85006FDFDF /* Duck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Duck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		028F1A931B0DCA85006FDFDF /* Duck-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Duck-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		028F1A991B0DCA86006FDFDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		028F1B001B0E6B6C006FDFDF /* Duck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Duck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		028F1B641B0E6F89006FDFDF /* TestDKJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKJSON.m; sourceTree = "<group>"; };
@@ -388,18 +388,18 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0260FF882D2274F200F71143 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0260FF8F2D2274F200F71143 /* Duck.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		028F1A851B0DCA85006FDFDF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		028F1A901B0DCA85006FDFDF /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				028F1A941B0DCA86006FDFDF /* Duck.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -463,8 +463,8 @@
 			isa = PBXGroup;
 			children = (
 				028F1A891B0DCA85006FDFDF /* Duck.framework */,
-				028F1A931B0DCA85006FDFDF /* Duck-Tests.xctest */,
 				028F1B001B0E6B6C006FDFDF /* Duck.framework */,
+				0260FF8B2D2274F200F71143 /* Duck-Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -809,6 +809,26 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		0260FF8A2D2274F200F71143 /* Duck-Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0260FF922D2274F200F71143 /* Build configuration list for PBXNativeTarget "Duck-Tests" */;
+			buildPhases = (
+				0260FF872D2274F200F71143 /* Sources */,
+				0260FF882D2274F200F71143 /* Frameworks */,
+				0260FF892D2274F200F71143 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0260FF912D2274F200F71143 /* PBXTargetDependency */,
+			);
+			name = "Duck-Tests";
+			packageProductDependencies = (
+			);
+			productName = "Duck-Tests";
+			productReference = 0260FF8B2D2274F200F71143 /* Duck-Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		028F1A881B0DCA85006FDFDF /* Duck-MacOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 028F1A9C1B0DCA86006FDFDF /* Build configuration list for PBXNativeTarget "Duck-MacOS" */;
@@ -826,24 +846,6 @@
 			productName = Duck;
 			productReference = 028F1A891B0DCA85006FDFDF /* Duck.framework */;
 			productType = "com.apple.product-type.framework";
-		};
-		028F1A921B0DCA85006FDFDF /* Duck-Tests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 028F1A9F1B0DCA86006FDFDF /* Build configuration list for PBXNativeTarget "Duck-Tests" */;
-			buildPhases = (
-				028F1A8F1B0DCA85006FDFDF /* Sources */,
-				028F1A901B0DCA85006FDFDF /* Frameworks */,
-				028F1A911B0DCA85006FDFDF /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				028F1A961B0DCA86006FDFDF /* PBXTargetDependency */,
-			);
-			name = "Duck-Tests";
-			productName = DuckTests;
-			productReference = 028F1A931B0DCA85006FDFDF /* Duck-Tests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		028F1AFF1B0E6B6C006FDFDF /* Duck-iOS */ = {
 			isa = PBXNativeTarget;
@@ -873,10 +875,10 @@
 				LastUpgradeCheck = 1620;
 				ORGANIZATIONNAME = "Derek W. Nylen";
 				TargetAttributes = {
-					028F1A881B0DCA85006FDFDF = {
-						CreatedOnToolsVersion = 6.3.1;
+					0260FF8A2D2274F200F71143 = {
+						CreatedOnToolsVersion = 16.2;
 					};
-					028F1A921B0DCA85006FDFDF = {
+					028F1A881B0DCA85006FDFDF = {
 						CreatedOnToolsVersion = 6.3.1;
 					};
 					028F1AFF1B0E6B6C006FDFDF = {
@@ -899,25 +901,25 @@
 			targets = (
 				028F1A881B0DCA85006FDFDF /* Duck-MacOS */,
 				028F1AFF1B0E6B6C006FDFDF /* Duck-iOS */,
-				028F1A921B0DCA85006FDFDF /* Duck-Tests */,
+				0260FF8A2D2274F200F71143 /* Duck-Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0260FF892D2274F200F71143 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0260FF972D22753400F71143 /* dictionary.txt in Resources */,
+				0260FF982D22753400F71143 /* test.xml in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		028F1A871B0DCA85006FDFDF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		028F1A911B0DCA85006FDFDF /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				028F1AFA1B0E63A5006FDFDF /* dictionary.txt in Resources */,
-				02393EBF1C3F16BB009E8731 /* test.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -931,6 +933,27 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0260FF872D2274F200F71143 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0260FF992D22756000F71143 /* TestDKDictionary.m in Sources */,
+				0260FF9A2D22756000F71143 /* TestDKEnum.m in Sources */,
+				0260FF9B2D22756000F71143 /* TestDKEgg.m in Sources */,
+				0260FF9C2D22756000F71143 /* TestDKJSON.m in Sources */,
+				0260FF9D2D22756000F71143 /* TestDKData.m in Sources */,
+				0260FF9E2D2275A100F71143 /* TestDKSet.m in Sources */,
+				0260FF9F2D2275A100F71143 /* TestDKXML.m in Sources */,
+				0260FFA02D2275A100F71143 /* TestDKProperty.m in Sources */,
+				0260FFA12D2275A100F71143 /* TestDKRuntime.m in Sources */,
+				0260FFA22D2275A100F71143 /* TestDKShell.m in Sources */,
+				0260FFA32D2275A100F71143 /* TestDKPredicate.m in Sources */,
+				0260FFA42D2275A100F71143 /* TestDKString.m in Sources */,
+				0260FF962D22752E00F71143 /* TestDKList.m in Sources */,
+				0260FF952D2274FE00F71143 /* TestDKNumber.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		028F1A841B0DCA85006FDFDF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -988,27 +1011,6 @@
 				028F1AEC1B0DCC05006FDFDF /* utf_impl.c in Sources */,
 				021283201C244F9A00B7C3A7 /* DKConversion.c in Sources */,
 				02DBA54B1EAAFE3D0086A6EE /* DKEnum.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		028F1A8F1B0DCA85006FDFDF /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				028F1AF01B0E639C006FDFDF /* TestDKEgg.m in Sources */,
-				02A33EAB1EEB8E6D005BC38D /* TestDKShell.m in Sources */,
-				028F1AF11B0E639C006FDFDF /* TestDKData.m in Sources */,
-				028F1AF21B0E639C006FDFDF /* TestDKDictionary.m in Sources */,
-				028F1AF31B0E639C006FDFDF /* TestDKList.m in Sources */,
-				028F1AF41B0E639C006FDFDF /* TestDKNumber.m in Sources */,
-				02DBA5501EAB0E700086A6EE /* TestDKEnum.m in Sources */,
-				028F1AF51B0E639C006FDFDF /* TestDKPredicate.m in Sources */,
-				02393EC11C3F16F6009E8731 /* TestDKXML.m in Sources */,
-				028F1AF61B0E639D006FDFDF /* TestDKProperty.m in Sources */,
-				028F1AF71B0E639D006FDFDF /* TestDKRuntime.m in Sources */,
-				028F1B651B0E6F89006FDFDF /* TestDKJSON.m in Sources */,
-				028F1AF81B0E639D006FDFDF /* TestDKSet.m in Sources */,
-				028F1AF91B0E639D006FDFDF /* TestDKString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1075,10 +1077,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		028F1A961B0DCA86006FDFDF /* PBXTargetDependency */ = {
+		0260FF912D2274F200F71143 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 028F1A881B0DCA85006FDFDF /* Duck-MacOS */;
-			targetProxy = 028F1A951B0DCA86006FDFDF /* PBXContainerItemProxy */;
+			targetProxy = 0260FF902D2274F200F71143 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1187,6 +1189,75 @@
 			};
 			name = Release;
 		};
+		0260FF932D2274F200F71143 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = D45B9CGB68;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.hurlybird.Duck-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Debug;
+		};
+		0260FF942D2274F200F71143 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D45B9CGB68;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.hurlybird.Duck-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Release;
+		};
 		028F1A9D1B0DCA86006FDFDF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1288,95 +1359,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
-			};
-			name = Release;
-		};
-		028F1AA01B0DCA86006FDFDF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Hurlybird.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		028F1AA11B0DCA86006FDFDF /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = Tests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Hurlybird.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -1502,20 +1484,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		0260FF922D2274F200F71143 /* Build configuration list for PBXNativeTarget "Duck-Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0260FF932D2274F200F71143 /* Debug */,
+				0260FF942D2274F200F71143 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		028F1A9C1B0DCA86006FDFDF /* Build configuration list for PBXNativeTarget "Duck-MacOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				028F1A9D1B0DCA86006FDFDF /* Debug */,
 				028F1A9E1B0DCA86006FDFDF /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		028F1A9F1B0DCA86006FDFDF /* Build configuration list for PBXNativeTarget "Duck-Tests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				028F1AA01B0DCA86006FDFDF /* Debug */,
-				028F1AA11B0DCA86006FDFDF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
