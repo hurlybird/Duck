@@ -87,6 +87,8 @@ DK_API void DKGenericArrayShuffle( DKGenericArray * array );
 
 #define DKGenericArrayPush( array, elem )   DKGenericArrayAppendElements( (array), (elem), 1 )
 #define DKGenericArrayPop( array )          DKGenericArrayReplaceElements( (array), DKRangeMake( (array)->length - 1, 1 ), NULL, 0 )
+#define DKGenericArrayPeek( array, index )  DKGenericArrayGetPointerToElementAtIndex( (array), DKGenericArrayGetLength( array ) - 1 - (index) )
+#define DKGenericArrayTop( array )          DKGenericArrayGetPointerToElementAtIndex( (array), DKGenericArrayGetLength( array ) - 1 )
 
 
 #ifdef __cplusplus
