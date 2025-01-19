@@ -48,9 +48,11 @@ DK_API DKClassRef  DKMutableDataClass( void );
 #define            DKDataWithContentsOfFile( filename )    DKAutorelease( DKDataInitWithContentsOfFile( DKAlloc( DKDataClass() ), filename ) )
 
 #define            DKNewMutableData()                      DKNew( DKMutableDataClass() )
+#define            DKNewMutableDataWithLength( length )    DKDataInitWithLength( DKAlloc( DKMutableDataClass() ), length )
 #define            DKNewMutableDataWithCapacity( length )  DKDataInitWithCapacity( DKAlloc( DKMutableDataClass() ), length )
 
 #define            DKMutableDataWithBytes( bytes, length ) DKAutorelease( DKDataInitWithBytes( DKAlloc( DKMutableDataClass() ), bytes, length ) )
+#define            DKMutableDataWithLength( length )       DKAutorelease( DKDataInitWithLength( DKAlloc( DKMutableDataClass() ), length ) )
 #define            DKMutableDataWithCapacity( length )     DKAutorelease( DKDataInitWithCapacity( DKAlloc( DKMutableDataClass() ), length ) )
 
 DK_API DKDataRef   DKDataInitWithBytes( DKObjectRef _self, const void * bytes, DKIndex length );
