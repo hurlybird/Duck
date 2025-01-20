@@ -123,12 +123,13 @@ DKClassRef DKZombieClass( void )
 
 
 // Interfaces Required for the Root Classes ==============================================
-#define DKStaticSelectorInit( name )                                                    \
+#define DKStaticSelectorInit( name, cacheline )                                         \
     static struct _DKSEL DKSelector_ ## name ##_StaticObject =                          \
     {                                                                                   \
         DKInitStaticObjectHeader( &__DKSelectorClass__ ),                               \
         NULL,                                                                           \
-        DKStaticCache_ ## name                                                          \
+        NULL,                                                                           \
+        cacheline                                                                       \
     };                                                                                  \
                                                                                         \
     DKSEL DKSelector_ ## name( void )                                                   \
@@ -145,15 +146,18 @@ DKClassRef DKZombieClass( void )
     }
 
 
-DKStaticSelectorInit( Allocation );
-DKStaticSelectorInit( Comparison );
-DKStaticSelectorInit( Copying );
-DKStaticSelectorInit( Description );
-DKStaticSelectorInit( Locking );
-DKStaticSelectorInit( Buffer );
-DKStaticSelectorInit( Stream );
-DKStaticSelectorInit( Egg );
-DKStaticSelectorInit( Conversion );
+DKStaticSelectorInit( Allocation, DKStaticCache_Allocation );
+DKStaticSelectorInit( Comparison, DKStaticCache_Comparison );
+DKStaticSelectorInit( Copying, DKStaticCache_Copying );
+DKStaticSelectorInit( Locking, DKStaticCache_Locking );
+DKStaticSelectorInit( Buffer, DKStaticCache_Buffer );
+DKStaticSelectorInit( Stream, DKStaticCache_Stream );
+DKStaticSelectorInit( Conversion, DKStaticCache_Conversion );
+
+// These need to be defined here since they're used by base classes, but they don't need
+// to be assigned static cache lines.
+DKStaticSelectorInit( Description, DKStaticCacheSize + DKDynamicCacheSize - 1 );
+DKStaticSelectorInit( Egg, DKStaticCacheSize + DKDynamicCacheSize - 2 );
 
 
 // DefaultAllocation ---------------------------------------------------------------------
@@ -291,22 +295,36 @@ bool DKRuntimeIsInitialized( void )
 ///
 //  InstallRootClassClassInterface()
 //
-static void InstallRootClassClassInterface( struct DKClass * _class, DKInterfaceRef interface )
+static void InstallRootClassClassInterface( struct DKClass * _class, DKInterfaceRef _interface )
 {
     // Bypass the normal installation process here since the classes that allow it to
     // work haven't been fully initialized yet.
-    DKGenericHashTableInsert( &_class->classInterfaces.interfaces, &interface, DKInsertAlways );
+    DKInterface * interface = _interface;
+    
+    struct DKInterfaceTableRow row;
+    row.sel = interface->sel;
+    row.interface = interface;
+    
+    DKGenericHashTableInsert( &_class->classInterfaces.interfaces, &row, DKInsertAlways );
+    _class->classInterfaces.cache[interface->sel->cacheline] = interface;
 }
 
 
 ///
 //  InstallRootClassInstanceInterface()
 //
-static void InstallRootClassInstanceInterface( struct DKClass * _class, DKInterfaceRef interface )
+static void InstallRootClassInstanceInterface( struct DKClass * _class, DKInterfaceRef _interface )
 {
     // Bypass the normal installation process here since the classes that allow it to
     // work haven't been fully initialized yet.
-    DKGenericHashTableInsert( &_class->instanceInterfaces.interfaces, &interface, DKInsertAlways );
+    DKInterface * interface = _interface;
+
+    struct DKInterfaceTableRow row;
+    row.sel = interface->sel;
+    row.interface = interface;
+
+    DKGenericHashTableInsert( &_class->instanceInterfaces.interfaces, &row, DKInsertAlways );
+    _class->instanceInterfaces.cache[interface->sel->cacheline] = interface;
 }
 
 

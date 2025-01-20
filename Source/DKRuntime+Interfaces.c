@@ -43,6 +43,21 @@ DKThreadSafeSelectorInit( DKDynamicMsgHandler );
 DKThreadSafeSelectorInit( DKRespondsToDynamicMsg );
 
 
+// Invalid Interface Cache Line ==========================================================
+static struct _DKSEL DKInvalidInterfaceCachelineSelector =
+{
+    DKInitStaticObjectHeader( NULL ),
+    NULL,
+    NULL,
+    0,
+};
+
+static DKInterface DKInvalidInterfaceCacheLine =
+{
+    DKInitStaticObjectHeader( NULL ),
+    &DKInvalidInterfaceCachelineSelector,
+    0
+};
 
 
 // Error Handling ========================================================================
@@ -83,49 +98,58 @@ DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
 // Hash Table Callbacks
 static DKRowStatus InterfaceTableRowStatus( const void * _row, void * not_used )
 {
-    DKInterface ** row =  (void *)_row;
-    return (DKRowStatus)(*row);
+    struct DKInterfaceTableRow * row =  (void *)_row;
+    return (DKRowStatus)(row->sel);
 }
 
 static DKHashCode InterfaceTableRowHash( const void * _row, void * not_used )
 {
-    DKInterface ** row =  (void *)_row;
-    return DKObjectUniqueHash( (*row)->sel );
+    struct DKInterfaceTableRow * row =  (void *)_row;
+    return DKObjectUniqueHash( row->sel );
 }
 
 static bool InterfaceTableRowEqual( const void * _row1, const void * _row2, void * not_used )
 {
-    DKInterface ** row1 =  (void *)_row1;
-    DKInterface ** row2 =  (void *)_row2;
+    struct DKInterfaceTableRow * row1 =  (void *)_row1;
+    struct DKInterfaceTableRow * row2 =  (void *)_row2;
 
-    return DKSelectorEqual( (*row1)->sel, (*row2)->sel );
+    return DKSelectorEqual( row1->sel, row2->sel );
 }
 
 static void InterfaceTableRowInit( void * _row, void * not_used )
 {
-    DKInterface ** row = _row;
-    *row = DKRowStatusEmpty;
+    struct DKInterfaceTableRow * row = _row;
+
+    row->sel = DKRowStatusEmpty;
+    row->interface = NULL;
 }
 
 static void InterfaceTableRowUpdate( void * _row, const void * _src, void * not_used )
 {
-    DKInterface ** row = _row;
-    DKInterface ** src = (void *)_src;
+    struct DKInterfaceTableRow * row =  _row;
+    struct DKInterfaceTableRow * src =  (void *)_src;
+
+    DKRetain( src->sel );
+    DKRetain( src->interface );
     
-    DKRetain( *src );
-    
-    if( !DKRowIsSentinel( *row ) )
-        DKRelease( *row );
+    if( !DKRowIsSentinel( row->sel ) )
+    {
+        DKRelease( row->sel );
+        DKRelease( row->interface );
+    }
         
     *row = *src;
 }
 
 static void InterfaceTableRowDelete( void * _row, void * not_used )
 {
-    DKInterface ** row = _row;
+    struct DKInterfaceTableRow * row =  _row;
     
-    DKRelease( *row );
-    *row = DKRowStatusDeleted;
+    DKRelease( row->sel );
+    DKRelease( row->interface );
+    
+    row->sel = DKRowStatusDeleted;
+    row->interface = NULL;
 }
 
 
@@ -154,15 +178,22 @@ void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKIn
 
     interfaceTable->lock = DKSpinLockInit;
 
-    DKGenericHashTableInit( &interfaceTable->interfaces, sizeof(DKObjectRef), &callbacks, NULL );
+    DKGenericHashTableInit( &interfaceTable->interfaces, sizeof(struct DKInterfaceTableRow), &callbacks, NULL );
+    
+    // Initialized the interface cache
+    for( unsigned int i = 0; i < (DKStaticCacheSize + DKDynamicCacheSize); i++ )
+    {
+        interfaceTable->cache[i] = &DKInvalidInterfaceCacheLine;
+    }
     
     if( inheritedInterfaces )
     {
+        // Insert inherited interfaces into our lookup table
+        DKGenericHashTableForeachRow( &inheritedInterfaces->interfaces, InsertRowCallback, interfaceTable );
+
         // Prime the static cache for fast selector lookups
         for( unsigned int i = 0; i < DKStaticCacheSize; i++ )
             interfaceTable->cache[i] = inheritedInterfaces->cache[i];
-    
-        DKGenericHashTableForeachRow( &inheritedInterfaces->interfaces, InsertRowCallback, interfaceTable );
     }
 }
 
@@ -191,16 +222,23 @@ void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interf
 
     DKInterface * interface = (DKInterface *)_interface;
 
-    // Get the cache line from the selector
-    unsigned int cacheline = interface->sel->cacheline;
-    DKAssert( cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
+    // Insert the interface into the table for every selector in its inheritance chain
+    struct DKInterfaceTableRow row;
+    row.interface = interface;
     
-    // Prime the cache for fast selector lookup
-    interfaceTable->cache[cacheline] = interface;
-
-    // Replace the interface in the interface table
     DKSpinLockLock( &interfaceTable->lock );
-    DKGenericHashTableInsert( &interfaceTable->interfaces, &interface, DKInsertAlways );
+    
+    for( DKSEL sel = interface->sel; sel != NULL; sel = sel->extends )
+    {
+        // Insert the interface into the table
+        row.sel = sel;
+        DKGenericHashTableInsert( &interfaceTable->interfaces, &row, DKInsertAlways );
+
+        // Prime the cache for fast selector lookup
+        DKAssert( sel->cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
+        interfaceTable->cache[sel->cacheline] = interface;
+    }
+
     DKSpinLockUnlock( &interfaceTable->lock );
 }
 
@@ -216,39 +254,48 @@ DKInterface * DKInterfaceTableFind( DKObjectRef object, DKClassRef _class, struc
     unsigned int cacheline = sel->cacheline;
     DKAssert( cacheline < (DKStaticCacheSize + DKDynamicCacheSize) );
 
-    // We shoudn't need to acquire the spin lock while reading and writing to the cache
-    // since the worst that can happen is doing an extra lookup after reading a stale
-    // cache line.
-    
-    // The extra NULL check could be skipped by using a sentinal interface object instead
-    // of NULL for empty cache lines, however doing so -might- result in worse CPU cache
-    // behaviour by touching the sentinel's memory location.
+    // NOTE: We shoudn't need to acquire the spin lock while reading and writing to the
+    // cache since the worst that can happen is doing an extra lookup after reading a
+    // stale cache line.
 
-    // Check the cached interface
     DKInterface * interface = interfaceTable->cache[cacheline];
-    
-    if( interface && DKSelectorEqual( interface->sel, sel ) )
+
+    if( DKSelectorEqual( interface->sel, sel ) )
         return interface;
 
-    // Search our interface table
-    DKInterface _key;
-    _key.sel = sel;
-    
-    DKInterface * key = &_key;
-
-    DKSpinLockLock( &interfaceTable->lock );
-    DKInterface ** entry = (DKInterface **)DKGenericHashTableFind( &interfaceTable->interfaces, &key );
-    DKSpinLockUnlock( &interfaceTable->lock );
-    
-    if( entry )
+    // To prevent unecessary cache thrashing when using interface inheritance, before
+    // doing a table lookup check if the cached interface extends the requested one. This
+    // adds some overhead to looking up interfaces, however, 1) we're already dealing with
+    // a cache miss, and 2) using fast selectors bypasses all of this.
+    for( DKSEL ext = interface->sel->extends; ext != NULL; ext = ext->extends )
     {
-        // Update the cache
-        interfaceTable->cache[cacheline] = *entry;
-
-        return *entry;
+        if( DKSelectorEqual( ext, sel ) )
+            return interface;
     }
 
-    return interfaceNotFound( object, _class, sel );
+    // Lookup the selector in the interface table
+    struct DKInterfaceTableRow key;
+    key.sel = sel;
+    key.interface = NULL;
+
+    DKSpinLockLock( &interfaceTable->lock );
+    
+    const struct DKInterfaceTableRow * entry = DKGenericHashTableFind( &interfaceTable->interfaces, &key );
+    interface = entry ? entry->interface : NULL;
+    
+    DKSpinLockUnlock( &interfaceTable->lock );
+    
+    if( interface )
+    {
+        interfaceTable->cache[cacheline] = interface;
+        
+        return interface;
+    }
+
+    else
+    {
+        return interfaceNotFound( object, _class, sel );
+    }
 }
 
 
@@ -263,13 +310,14 @@ static unsigned int NextCacheLine = 0;
 ///
 //  DKAllocSelector()
 //
-DKSEL DKAllocSelector( DKStringRef name )
+DKSEL DKAllocSelector( DKStringRef name, DKSEL extends )
 {
     struct _DKSEL * sel = DKInit( DKAlloc( DKSelectorClass() ) );
 
     DKAssert( sel != NULL );
 
     sel->name = DKCopy( name );
+    sel->extends = DKRetain( extends );
     
     DKSpinLockLock( &NextCacheLineSpinLock );
     sel->cacheline = DKStaticCacheSize + (NextCacheLine % DKDynamicCacheSize);
@@ -292,6 +340,7 @@ void DKSelectorFinalize( DKObjectRef _untyped_self )
     DKNameDatabaseRemoveSelector( _self );
 
     DKRelease( _self->name );
+    DKRelease( _self->extends );
 }
 
 
@@ -327,7 +376,17 @@ DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize )
 
 
 ///
-//  DKInterfaceInheritMethods()
+//  DKInterfaceFinalize()
+//
+void DKInterfaceFinalize( DKObjectRef _untyped_self )
+{
+    DKInterface * _self = _untyped_self;
+    DKRelease( _self->sel );
+}
+
+
+///
+//  DKInterfaceInheritInstanceMethods()
 //
 static DKInterfaceRef DKSourceInterfaceNotFound( DKObjectRef object, DKClassRef _class, DKSEL sel )
 {
@@ -337,21 +396,29 @@ static DKInterfaceRef DKSourceInterfaceNotFound( DKObjectRef object, DKClassRef 
 void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class )
 {
     DKAssert( interface && _class );
-    
-    DKInterface * dstInterface = interface;
-    const DKInterface * srcInterface = DKInterfaceTableFind( NULL, _class, &_class->instanceInterfaces, dstInterface->sel, DKSourceInterfaceNotFound );
 
-    if( srcInterface )
+    DKInterface * dstInterface = interface;
+    
+    // Since classes must be initialized in-order, and since we don't allow interface
+    // swizzling, we can stop searching once we find a valid selector in the chain.
+    for( DKSEL fromSelector = dstInterface->sel; fromSelector != NULL; fromSelector = fromSelector->extends )
     {
-        DKRequire( dstInterface->methodCount == srcInterface->methodCount );
-        
-        void ** dstMethods = DKInterfaceGetMethodTable( dstInterface );
-        void ** srcMethods = DKInterfaceGetMethodTable( srcInterface );
-        
-        for( size_t i = 0; i < dstInterface->methodCount; i++ )
+        const DKInterface * srcInterface = DKInterfaceTableFind( NULL, _class, &_class->instanceInterfaces, fromSelector, DKSourceInterfaceNotFound );
+
+        if( srcInterface )
         {
-            if( (dstMethods[i] == NULL) || (dstMethods[i] == DKUninitializedMethodError) )
-                dstMethods[i] = srcMethods[i];
+            DKRequire( dstInterface->methodCount >= srcInterface->methodCount );
+            
+            void ** dstMethods = DKInterfaceGetMethodTable( dstInterface );
+            void ** srcMethods = DKInterfaceGetMethodTable( srcInterface );
+            
+            for( size_t i = 0; i < srcInterface->methodCount; i++ )
+            {
+                if( (dstMethods[i] == NULL) || (dstMethods[i] == DKUninitializedMethodError) )
+                    dstMethods[i] = srcMethods[i];
+            }
+            
+            break;
         }
     }
 }
@@ -364,16 +431,6 @@ void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
 {
     DKInterfaceInheritMethods( _interface, _class->superclass );
     DKInterfaceTableInsert( _class, &_class->instanceInterfaces, _interface );
-}
-
-
-///
-//  DKInterfaceFinalize()
-//
-void DKInterfaceFinalize( DKObjectRef _untyped_self )
-{
-    DKInterface * _self = _untyped_self;
-    DKRelease( _self->sel );
 }
 
 

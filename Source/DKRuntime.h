@@ -274,35 +274,33 @@ DK_API void        DKUnlockObject( DKObjectRef _self );
 // Selector cache configuration
 enum
 {
-    // 0 - Allocation (Class), Copying (Instances)
-    DKStaticCache_Allocation =      0,
-    DKStaticCache_Copying =         0,
+    // 0 - Reserved for the primary interface of a class
 
-    // 1 - Comparison
-    DKStaticCache_Comparison =      1,
+    // 2 - Allocation (Class), Copying (Instances)
+    DKStaticCache_Allocation =      1,
+    DKStaticCache_Copying =         1,
+
+    // 2 - Comparison
+    DKStaticCache_Comparison =      2,
     
-    // 2 - Locking
-    DKStaticCache_Locking =         2,
+    // 3 - Locking
+    DKStaticCache_Locking =         3,
     
-    // 3-4 - Collections
-    DKStaticCache_Collection =      3,
-    DKStaticCache_KeyedCollection = 4,
+    // 4-5 - Collections
+    DKStaticCache_Collection =      4,
+    DKStaticCache_KeyedCollection = 5,
     
-    // 5-7 - Containers
-    DKStaticCache_List =            5,
-    DKStaticCache_Dictionary =      6,
-    DKStaticCache_Set =             7,
+    // 6-8 - Containers
+    DKStaticCache_List =            6,
+    DKStaticCache_Dictionary =      7,
+    DKStaticCache_Set =             8,
     
-    // 8-12 - I/O and static selectors used by root classes. These don't really need to
-    // use the static cache and may be relocated if/when dynamic cache lines are assigned
-    // in a different way.
-    DKStaticCache_Buffer =          8,
-    DKStaticCache_Stream =          9,
-    DKStaticCache_Conversion =      10,
-    DKStaticCache_Description =     11,
-    DKStaticCache_Egg =             12,
+    // 9-11 - I/O
+    DKStaticCache_Buffer =          9,
+    DKStaticCache_Stream =          10,
+    DKStaticCache_Conversion =      11,
     
-    // 13-15 - Reserved
+    // 12-15 - Not Used
     
     // Size of the static cache
     DKStaticCacheSize =             16,
@@ -312,6 +310,8 @@ enum
 };
 
 
+typedef struct _DKSEL * DKSEL;
+
 struct _DKSEL
 {
     const DKObject  _obj;
@@ -319,15 +319,16 @@ struct _DKSEL
     // Selectors are typically compared by pointer value, but the name is required to
     // look up a selector by name.
 
-    // The name database requires that the name field of DKClass and DKSEL is
-    // in the same position in the structure (i.e. right after the object header).
+    // The name database requires that the name field of DKClass and DKSEL is in the same
+    // position in each structure (i.e. right after the object header).
     DKStringRef     name;
+
+    // The selector/interface this selector extends.
+    DKSEL           extends;
     
-    // Controls how interfaces retrieved by this selector are cached.
+    // The cache line determines how interfaces retrieved by this selector are cached.
     unsigned int    cacheline;
 };
-
-typedef struct _DKSEL * DKSEL;
 
 
 // Offset of the instance interface table for fast selector lookups
@@ -340,11 +341,11 @@ typedef struct _DKSEL * DKSEL;
 
 
 // A friendly macro for accessing selector objects.
-#define DKSelector( name )      DKSelector_ ## name()
-#define DKFastSelector( name )  DKStaticCache_ ## name
+#define DKSelector( name )              DKSelector_ ## name()
+#define DKFastSelector( name )          DKStaticCache_ ## name
 
 // A friendly macro for accessing the function prototype for message handlers
-#define DKSelectorFunc( name )  DKMsgHandler_ ## name
+#define DKSelectorFunc( name )          DKMsgHandler_ ## name
 
 #define DKSelectorEqual( a, b )         ((a) == (b))
 #define DKSelectorCompare( a, b )       DKPointerCompare( a, b )
@@ -353,29 +354,38 @@ typedef struct _DKSEL * DKSEL;
 
 
 // Allocate a new selector object.
-DK_API DKSEL DKAllocSelector( DKStringRef name );
+DK_API DKSEL DKAllocSelector( DKStringRef name, DKSEL extends );
 
 
 // Thread-safe initialization of selector objects.
 #define DKThreadSafeSelectorInit( name )                                                \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        return DKAllocSelector( DKSTR( #name ) );                                       \
+        return DKAllocSelector( DKSTR( #name ), NULL );                                 \
     }
 
-// Thread-safe initialization of selector objects.
-#define DKThreadSafeStaticSelectorInit( name )                                          \
-    DKThreadSafeStaticObjectInit( DKSelector_ ## name, DKSEL )                          \
+#define DKThreadSafeSelectorInitEx( name, extends )                                     \
+    DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        return DKAllocSelector( DKSTR( #name ) );                                       \
+        return DKAllocSelector( DKSTR( #name ), DKSelector_ ## extends() );             \
     }
 
-// Thread-safe initialization of "fast" selectors. Each fast selector is assigned a
-// unique, reserved cache line in the interface cache.
+
+// Thread-safe initialization of "fast" selectors. Each fast selector is assigned a cache
+// line in the static section of the interface cache. Fast cache lines must follow the
+// naming convention of 'DKStaticCache_NAME'.
 #define DKThreadSafeFastSelectorInit( name )                                            \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        struct _DKSEL * sel = (struct _DKSEL *)DKAllocSelector( DKSTR( #name ) );       \
+        DKSEL sel = DKAllocSelector( DKSTR( #name ), NULL );                            \
+        sel->cacheline = DKStaticCache_ ## name;                                        \
+        return sel;                                                                     \
+    }
+
+#define DKThreadSafeFastSelectorInitEx( name, extends )                                 \
+    DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
+    {                                                                                   \
+        DKSEL sel = DKAllocSelector( DKSTR( #name ), DKSelector_ ## extends() );        \
         sel->cacheline = DKStaticCache_ ## name;                                        \
         return sel;                                                                     \
     }
@@ -817,6 +827,12 @@ DK_API DKStringRef DKStringFromSelector( DKSEL sel );
 #if DK_RUNTIME_PRIVATE
 
 // DKInterfaceTable
+struct DKInterfaceTableRow
+{
+    DKSEL sel;
+    DKInterfaceRef interface;
+};
+
 struct DKInterfaceTable
 {
     struct _DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
@@ -833,8 +849,8 @@ struct DKClass
 {
     const DKObject          _obj;
 
-    // The name database requires that the name field of DKClass and DKSEL is
-    // in the same position in the structure (i.e. right after the object header).
+    // The name database requires that the name field of DKClass and DKSEL is in the same
+    // position in each structure (i.e. right after the object header).
     DKStringRef             name;
     
     struct DKInterfaceTable instanceInterfaces;
