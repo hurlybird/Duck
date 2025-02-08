@@ -616,7 +616,10 @@ enum
     DKPropertyCopy =            (1 << 2),
     
     // The property should not be archived or serialized
-    DKPropertyTransient =      (1 << 3)
+    DKPropertyTransient =       (1 << 3),
+    
+    // The property cannot be set to NULL -- attempting to do so will raise a warning
+    DKPropertyNonNull =         (1 << 4)
 };
 
 

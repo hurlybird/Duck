@@ -377,6 +377,26 @@ static void PropertyNotReadWrite( DKObjectRef _self, DKPropertyRef property )
 
 
 ///
+//  CheckNonNullRequirement()
+//
+static void FailedNonNullRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
+{
+    DKWarning( "DKProperty: Property '%@' cannot be set to NULL.", property->name );
+}
+
+#define CheckNonNullRequirement( obj, property, object, ... )                           \
+    do                                                                                  \
+    {                                                                                   \
+        if( ((property)->attributes & DKPropertyNonNull) && (object == NULL) )          \
+        {                                                                               \
+            FailedNonNullRequirement( obj, property, object );                          \
+            return __VA_ARGS__;                                                         \
+        }                                                                               \
+    } while( 0 )
+
+
+
+///
 //  CheckPredicateRequirement()
 //
 static void FailedPredicateRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
@@ -470,6 +490,9 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
 {
     void * value = (uint8_t *)_self + property->offset;
     
+    CheckNonNullRequirement( _self, property, object );
+    CheckPredicateRequirement( _self, property, object );
+
     // Custom setter
     if( property->setter )
     {
@@ -482,8 +505,6 @@ static void DKWritePropertyObject( DKObjectRef _self, DKPropertyRef property, DK
     // Object types
     if( property->encoding == DKEncode( DKEncodingTypeObject, 1 ) )
     {
-        CheckPredicateRequirement( _self, property, object );
-
         DKObjectRef * ref = value;
         
         DKWillWriteProperty( _self, property );
