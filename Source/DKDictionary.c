@@ -38,7 +38,7 @@
 #include "DKComparison.h"
 
 
-DKThreadSafeFastSelectorInit( Dictionary );
+DKThreadSafeFastSelectorInit( Dictionary, struct DKDictionaryInterface );
 
 
 ///

@@ -38,7 +38,7 @@
 #include "DKSet.h"
 
 
-DKThreadSafeFastSelectorInit( List );
+DKThreadSafeFastSelectorInit( List, struct DKListInterface );
 
 
 ///

@@ -63,7 +63,7 @@ DKThreadSafeClassInit( DKXMLElementClass )
         sizeof(struct DKXMLElement), 0, NULL, DKXMLElementFinalize );
     
     // Description
-    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKXMLElementGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     

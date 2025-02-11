@@ -91,7 +91,7 @@ DKThreadSafeClassInit( DKPredicateClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKPredicate" ), DKObjectClass(), sizeof(struct DKPredicate), 0, DKPredicateInitialize, DKPredicateFinalize );
     
     // Copying
-    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKRetain;
     
@@ -99,7 +99,7 @@ DKThreadSafeClassInit( DKPredicateClass )
     DKRelease( copying );
 
     // Description
-    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKPredicateGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -107,7 +107,7 @@ DKThreadSafeClassInit( DKPredicateClass )
     DKRelease( description );
     
     // Egg
-    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg) );
     egg->initWithEgg = (DKInitWithEggMethod)DKPredicateInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKPredicateAddToEgg;
     

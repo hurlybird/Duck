@@ -49,7 +49,7 @@ DKThreadSafeClassInit( DKPairClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKPair" ), DKObjectClass(), sizeof(struct DKPair), 0, NULL, DKPairFinalize );
 
     // Comparison
-    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison) );
     comparison->equal = (DKEqualityMethod)DKPairEqual;
     comparison->compare = (DKCompareMethod)DKPairCompare;
     comparison->hash = (DKHashMethod)DKPairHash;
@@ -58,7 +58,7 @@ DKThreadSafeClassInit( DKPairClass )
     DKRelease( comparison );
 
     // Egg
-    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg) );
     egg->initWithEgg = (DKInitWithEggMethod)DKPairInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKPairAddToEgg;
     

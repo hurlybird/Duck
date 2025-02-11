@@ -94,7 +94,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKLinkedList" ), DKObjectClass(), sizeof(struct DKLinkedList), DKImmutableInstances, DKLinkedListInitialize, DKLinkedListFinalize );
     
     // Comparison
-    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison) );
     comparison->equal = (DKEqualityMethod)DKListEqual;
     comparison->compare = (DKCompareMethod)DKListCompare;
     comparison->hash = (DKHashMethod)DKPointerHash;
@@ -103,7 +103,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKRelease( comparison );
 
     // Copying
-    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListMutableCopy;
     
@@ -111,7 +111,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKRelease( copying );
 
     // Description
-    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKCollectionGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -119,7 +119,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKRelease( description );
 
     // Collection
-    struct DKCollectionInterface * collection = DKNewInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
+    struct DKCollectionInterface * collection = DKNewInterface( DKSelector(Collection) );
     collection->getCount = (DKGetCountMethod)INTERNAL_DKLinkedListGetCount;
     collection->containsObject = (DKContainsMethod)DKListContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKLinkedListApplyFunction;
@@ -128,7 +128,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKRelease( collection );
 
     // List
-    struct DKListInterface * list = DKNewInterface( DKSelector(List), sizeof(struct DKListInterface) );
+    struct DKListInterface * list = DKNewInterface( DKSelector(List) );
     list->initWithVAObjects = (DKListInitWithVAObjectsMethod)DKLinkedListInitWithVAObjects;
     list->initWithCArray = (DKListInitWithCArrayMethod)DKLinkedListInitWithCArray;
     list->initWithCollection = (DKListInitWithCollectionMethod)DKLinkedListInitWithCollection;
@@ -149,7 +149,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKRelease( list );
     
     // Set
-    struct DKSetInterface * set = DKNewInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    struct DKSetInterface * set = DKNewInterface( DKSelector(Set) );
     set->initWithVAObjects = (DKSetInitWithVAObjectsMethod)DKListInitSetWithVAObjects;
     set->initWithCArray = (DKSetInitWithCArrayMethod)DKListInitSetWithCArray;
     set->initWithCollection = (DKSetInitWithCollectionMethod)DKListInitSetWithCollection;
@@ -165,7 +165,7 @@ DKThreadSafeClassInit( DKLinkedListClass )
     DKRelease( set );
 
     // Egg
-    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg) );
     egg->initWithEgg = (DKInitWithEggMethod)DKLinkedListInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKLinkedListAddToEgg;
     
@@ -184,7 +184,7 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKMutableLinkedList" ), DKLinkedListClass(), sizeof(struct DKLinkedList), 0, NULL, NULL );
     
     // Copying
-    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = (DKCopyMethod)DKLinkedListCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListMutableCopy;
     
@@ -192,7 +192,7 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     DKRelease( copying );
 
     // List
-    struct DKListInterface * list = DKNewInterface( DKSelector(List), sizeof(struct DKListInterface) );
+    struct DKListInterface * list = DKNewInterface( DKSelector(List) );
     list->initWithVAObjects = (DKListInitWithVAObjectsMethod)DKLinkedListInitWithVAObjects;
     list->initWithCArray = (DKListInitWithCArrayMethod)DKLinkedListInitWithCArray;
     list->initWithCollection = (DKListInitWithCollectionMethod)DKLinkedListInitWithCollection;
@@ -213,7 +213,7 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     DKRelease( list );
     
     // Set
-    struct DKSetInterface * set = DKNewInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    struct DKSetInterface * set = DKNewInterface( DKSelector(Set) );
     set->initWithVAObjects = (DKSetInitWithVAObjectsMethod)DKListInitSetWithVAObjects;
     set->initWithCArray = (DKSetInitWithCArrayMethod)DKListInitSetWithCArray;
     set->initWithCollection = (DKSetInitWithCollectionMethod)DKListInitSetWithCollection;

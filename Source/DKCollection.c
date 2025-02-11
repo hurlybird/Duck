@@ -33,8 +33,8 @@
 #include "DKStream.h"
 
 
-DKThreadSafeFastSelectorInit( Collection );
-DKThreadSafeFastSelectorInit( KeyedCollection );
+DKThreadSafeFastSelectorInit( Collection, struct DKCollectionInterface );
+DKThreadSafeFastSelectorInit( KeyedCollection, struct DKKeyedCollectionInterface );
 
 
 ///

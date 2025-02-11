@@ -345,7 +345,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKNumber" ), DKObjectClass(), sizeof(DKObject), DKImmutableInstances, NULL, NULL );
     
     // Allocation
-    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
+    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation) );
     allocation->alloc = (DKAllocMethod)DKNumberAllocPlaceholder;
     allocation->dealloc = (DKDeallocMethod)DKNumberDealloc;
 
@@ -353,7 +353,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( allocation );
     
     // Comparison
-    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison) );
     comparison->equal = (DKEqualityMethod)DKNumberEqual;
     comparison->compare = (DKCompareMethod)DKNumberCompare;
     comparison->hash = (DKHashMethod)DKNumberHash;
@@ -362,7 +362,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( comparison );
     
     // Description
-    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKNumberGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -370,7 +370,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( description );
 
     // Egg
-    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg) );
     egg->initWithEgg = (DKInitWithEggMethod)DKNumberInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKNumberAddToEgg;
     
@@ -378,7 +378,7 @@ DKThreadSafeClassInit( DKNumberClass )
     DKRelease( egg );
 
     // Conversion
-    struct DKConversionInterface * conv = DKNewInterface( DKSelector(Conversion), sizeof(struct DKConversionInterface) );
+    struct DKConversionInterface * conv = DKNewInterface( DKSelector(Conversion) );
     conv->getString = (DKGetStringMethod)DKNumberGetDescription;
     conv->getBool = (DKGetBoolMethod)DKNumberGetBool;
     conv->getInt32 = (DKGetInt32Method)DKNumberGetInt32;

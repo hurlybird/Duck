@@ -70,7 +70,7 @@ DKThreadSafeClassInit( DKStructClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKStruct" ), DKObjectClass(), sizeof(struct DKStruct) - 1, DKImmutableInstances, NULL, (DKFinalizeMethod)DKStructFinalize );
     
     // Allocation
-    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
+    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation) );
     allocation->alloc = (DKAllocMethod)DKStructAllocPlaceholder;
     allocation->dealloc = (DKDeallocMethod)DKStructDealloc;
 
@@ -78,7 +78,7 @@ DKThreadSafeClassInit( DKStructClass )
     DKRelease( allocation );
     
     // Comparison
-    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison) );
     comparison->equal = (DKEqualityMethod)DKStructEqual;
     comparison->compare = (DKCompareMethod)DKStructCompare;
     comparison->hash = (DKHashMethod)DKStructHash;
@@ -87,7 +87,7 @@ DKThreadSafeClassInit( DKStructClass )
     DKRelease( comparison );
     
     // Description
-    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKStructGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -95,7 +95,7 @@ DKThreadSafeClassInit( DKStructClass )
     DKRelease( description );
 
     // Egg
-    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg) );
     egg->initWithEgg = (DKInitWithEggMethod)DKStructInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKStructAddToEgg;
     

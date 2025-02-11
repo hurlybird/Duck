@@ -52,7 +52,7 @@ DKThreadSafeClassInit( DKFileClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKFile" ), DKObjectClass(), sizeof(struct DKFile), 0, NULL, DKFileFinalize );
     
     // Stream
-    struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
+    struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream) );
     stream->seek = (DKStreamSeekMethod)DKFileSeek;
     stream->tell = (DKStreamTellMethod)DKFileTell;
     stream->read = (DKStreamReadMethod)DKFileRead;

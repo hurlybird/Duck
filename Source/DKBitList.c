@@ -73,7 +73,7 @@ DKThreadSafeClassInit( DKBitListClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKBitList" ), DKObjectClass(), sizeof(struct DKBitList), 0, NULL, NULL );
     
     // Allocation
-    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
+    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation) );
     allocation->alloc = (DKAllocMethod)DKBitListAllocPlaceholder;
     allocation->dealloc = (DKDeallocMethod)DKBitListDealloc;
 

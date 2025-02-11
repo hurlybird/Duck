@@ -57,7 +57,7 @@ DKThreadSafeClassInit( DKReadWriteLockClass )
 {
     DKClassRef cls = DKNewClass( DKSTR( "DKReadWriteLock" ), DKObjectClass(), sizeof(struct DKReadWriteLock), 0, DKReadWriteLockInit, DKReadWriteLockFinalize );
     
-    struct DKLockingInterface * locking = DKNewInterface( DKSelector(Locking), sizeof(struct DKLockingInterface) );
+    struct DKLockingInterface * locking = DKNewInterface( DKSelector(Locking) );
     locking->lock = (DKLockMethod)DKReadWriteLockMutexLock;
     locking->unlock = (DKUnlockMethod)DKReadWriteLockUnlock;
     

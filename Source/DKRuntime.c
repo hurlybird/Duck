@@ -123,13 +123,14 @@ DKClassRef DKZombieClass( void )
 
 
 // Interfaces Required for the Root Classes ==============================================
-#define DKStaticSelectorInit( name, cacheline )                                         \
+#define DKStaticSelectorInit( name, type, cacheline )                                   \
     static struct _DKSEL DKSelector_ ## name ##_StaticObject =                          \
     {                                                                                   \
         DKInitStaticObjectHeader( &__DKSelectorClass__ ),                               \
         NULL,                                                                           \
         NULL,                                                                           \
-        cacheline                                                                       \
+        cacheline,                                                                      \
+        (unsigned int)DKInterfaceCountMethods( sizeof(type) )                           \
     };                                                                                  \
                                                                                         \
     DKSEL DKSelector_ ## name( void )                                                   \
@@ -138,32 +139,31 @@ DKClassRef DKZombieClass( void )
     }
 
 
-#define DKStaticInterfaceObject( sel, type )                                            \
+#define DKStaticInterfaceObject( sel )                                                  \
     {                                                                                   \
         DKInitStaticObjectHeader( &__DKInterfaceClass__ ),                              \
-        sel,                                                                            \
-        DKInterfaceCountMethods( sizeof(type) )                                         \
+        sel                                                                             \
     }
 
 
-DKStaticSelectorInit( Allocation, DKStaticCache_Allocation );
-DKStaticSelectorInit( Comparison, DKStaticCache_Comparison );
-DKStaticSelectorInit( Copying, DKStaticCache_Copying );
-DKStaticSelectorInit( Locking, DKStaticCache_Locking );
-DKStaticSelectorInit( Buffer, DKStaticCache_Buffer );
-DKStaticSelectorInit( Stream, DKStaticCache_Stream );
-DKStaticSelectorInit( Conversion, DKStaticCache_Conversion );
+DKStaticSelectorInit( Allocation, struct DKAllocationInterface, DKStaticCache_Allocation );
+DKStaticSelectorInit( Comparison, struct DKComparisonInterface, DKStaticCache_Comparison );
+DKStaticSelectorInit( Copying, struct DKCopyingInterface, DKStaticCache_Copying );
+DKStaticSelectorInit( Locking, struct DKLockingInterface, DKStaticCache_Locking );
+DKStaticSelectorInit( Buffer, struct DKBufferInterface, DKStaticCache_Buffer );
+DKStaticSelectorInit( Stream, struct DKStreamInterface, DKStaticCache_Stream );
+DKStaticSelectorInit( Conversion, struct DKConversionInterface, DKStaticCache_Conversion );
 
 // These need to be defined here since they're used by base classes, but they don't need
 // to be assigned static cache lines.
-DKStaticSelectorInit( Description, DKStaticCacheSize + DKDynamicCacheSize - 1 );
-DKStaticSelectorInit( Egg, DKStaticCacheSize + DKDynamicCacheSize - 2 );
+DKStaticSelectorInit( Description, struct DKDescriptionInterface, DKStaticCacheSize + DKDynamicCacheSize - 1 );
+DKStaticSelectorInit( Egg, struct DKEggInterface, DKStaticCacheSize + DKDynamicCacheSize - 2 );
 
 
 // DefaultAllocation ---------------------------------------------------------------------
 static struct DKAllocationInterface DKDefaultAllocation_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject, struct DKAllocationInterface ),
+    DKStaticInterfaceObject( &DKSelector_Allocation_StaticObject ),
     DKAllocObject,
     DKDeallocObject,
 };
@@ -177,7 +177,7 @@ DKInterfaceRef DKDefaultAllocation( void )
 // DefaultComparison ---------------------------------------------------------------------
 static struct DKComparisonInterface DKDefaultComparison_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject, struct DKComparisonInterface ),
+    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
     DKPointerEqual,
     DKPointerCompare,
     DKPointerHash
@@ -192,7 +192,7 @@ DKInterfaceRef DKDefaultComparison( void )
 // DefaultCopying ------------------------------------------------------------------------
 static struct DKCopyingInterface DKDefaultCopying_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Copying_StaticObject, struct DKCopyingInterface ),
+    DKStaticInterfaceObject( &DKSelector_Copying_StaticObject ),
     DKRetain,
     (DKMutableCopyMethod)DKRetain
 };
@@ -206,7 +206,7 @@ DKInterfaceRef DKDefaultCopying( void )
 // DefaultDescription --------------------------------------------------------------------
 static struct DKDescriptionInterface DKDefaultDescription_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Description_StaticObject, struct DKDescriptionInterface ),
+    DKStaticInterfaceObject( &DKSelector_Description_StaticObject ),
     DKDefaultGetDescription,
     DKDefaultGetSizeInBytes
 };
@@ -220,7 +220,7 @@ DKInterfaceRef DKDefaultDescription( void )
 // DefaultLocking ------------------------------------------------------------------------
 static struct DKLockingInterface DKDefaultLocking_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Locking_StaticObject, struct DKLockingInterface ),
+    DKStaticInterfaceObject( &DKSelector_Locking_StaticObject ),
     DKLockObject,
     DKUnlockObject
 };
@@ -234,7 +234,7 @@ DKInterfaceRef DKDefaultLocking( void )
 // Selector Comparison -------------------------------------------------------------------
 static struct DKComparisonInterface DKSelectorComparison_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject, struct DKComparisonInterface ),
+    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
     DKPointerEqual,
     DKPointerCompare,
     DKPointerHash
@@ -264,7 +264,7 @@ static DKHashCode DKInterfaceHash( DKInterface * a )
 
 static struct DKComparisonInterface DKInterfaceComparison_StaticObject =
 {
-    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject, struct DKComparisonInterface ),
+    DKStaticInterfaceObject( &DKSelector_Comparison_StaticObject ),
     (DKEqualityMethod)DKInterfaceEqual,
     (DKCompareMethod)DKInterfaceCompare,
     (DKHashMethod)DKInterfaceHash

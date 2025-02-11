@@ -67,7 +67,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKData" ), DKObjectClass(), sizeof(struct DKData), DKImmutableInstances, DKDataInitialize, DKDataFinalize );
     
     // Comparison
-    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison) );
     comparison->equal = (DKEqualityMethod)DKDataEqual;
     comparison->compare = (DKCompareMethod)DKDataCompare;
     comparison->hash = (DKHashMethod)DKDataHash;
@@ -76,7 +76,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( comparison );
 
     // Copying
-    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKDataMutableCopy;
     
@@ -84,7 +84,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( copying );
 
     // Description
-    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKDataGetDescription;
     description->getSizeInBytes = (DKGetSizeInBytesMethod)DKDataGetLength;
     
@@ -92,7 +92,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( description );
     
     // Buffer
-    struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer), sizeof(struct DKBufferInterface) );
+    struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer) );
     buffer->getLength = (DKBufferGetLengthMethod)DKDataGetLength;
     buffer->getBytePtr = (DKBufferGetBytePtrMethod)DKDataGetBytePtr;
     buffer->setLength = (DKBufferSetLengthMethod)DKImmutableObjectAccessError;
@@ -102,7 +102,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( buffer );
 
     // Stream
-    struct DKStreamInterface * stream =DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
+    struct DKStreamInterface * stream =DKNewInterface( DKSelector(Stream) );
     stream->seek = (DKStreamSeekMethod)DKDataSeek;
     stream->tell = (DKStreamTellMethod)DKDataTell;
     stream->read = (DKStreamReadMethod)DKDataRead;
@@ -114,7 +114,7 @@ DKThreadSafeClassInit( DKDataClass )
     DKRelease( stream );
     
     // Egg
-    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg) );
     egg->initWithEgg = DKDataInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKDataAddToEgg;
     
@@ -133,7 +133,7 @@ DKThreadSafeClassInit( DKMutableDataClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKMutableData" ), DKDataClass(), sizeof(struct DKData), 0, NULL, NULL );
     
     // Copying
-    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = (DKCopyMethod)DKDataCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKDataMutableCopy;
     
@@ -141,7 +141,7 @@ DKThreadSafeClassInit( DKMutableDataClass )
     DKRelease( copying );
     
     // Buffer
-    struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer), sizeof(struct DKBufferInterface) );
+    struct DKBufferInterface * buffer = DKNewInterface( DKSelector(Buffer) );
     buffer->getLength = (DKBufferGetLengthMethod)DKDataGetLength;
     buffer->getBytePtr = (DKBufferGetBytePtrMethod)DKDataGetBytePtr;
     buffer->setLength = (DKBufferSetLengthMethod)DKDataSetLength;
@@ -151,7 +151,7 @@ DKThreadSafeClassInit( DKMutableDataClass )
     DKRelease( buffer );
 
     // Stream
-    struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream), sizeof(struct DKStreamInterface) );
+    struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream) );
     stream->seek = (DKStreamSeekMethod)DKDataSeek;
     stream->tell = (DKStreamTellMethod)DKDataTell;
     stream->read = (DKStreamReadMethod)DKDataRead;

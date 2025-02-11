@@ -80,7 +80,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKHashTable" ), DKObjectClass(), sizeof(struct DKHashTable), DKImmutableInstances, DKHashTableInitialize, DKHashTableFinalize );
     
     // Comparison
-    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison), sizeof(struct DKComparisonInterface) );
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison) );
     comparison->equal = (DKEqualityMethod)DKDictionaryEqual;
     comparison->compare = (DKCompareMethod)DKPointerCompare;
     comparison->hash = (DKHashMethod)DKPointerHash;
@@ -89,7 +89,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( comparison );
 
     // Copying
-    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = DKRetain;
     copying->mutableCopy = (DKMutableCopyMethod)DKHashTableMutableCopy;
     
@@ -97,7 +97,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( copying );
     
     // Description
-    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKKeyedCollectionGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -105,7 +105,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( description );
 
     // Collection
-    struct DKCollectionInterface * collection = DKNewInterface( DKSelector(Collection), sizeof(struct DKCollectionInterface) );
+    struct DKCollectionInterface * collection = DKNewInterface( DKSelector(Collection) );
     collection->getCount = (DKGetCountMethod)INTERNAL_DKHashTableGetCount;
     collection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
     collection->foreachObject = (DKForeachObjectMethod)DKHashTableApplyFunctionToObjects;
@@ -114,7 +114,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( collection );
 
     // KeyedCollection
-    struct DKKeyedCollectionInterface * keyedCollection = DKNewInterface( DKSelector(KeyedCollection), sizeof(struct DKKeyedCollectionInterface) );
+    struct DKKeyedCollectionInterface * keyedCollection = DKNewInterface( DKSelector(KeyedCollection) );
     keyedCollection->getCount = (DKGetCountMethod)INTERNAL_DKHashTableGetCount;
     keyedCollection->containsObject = (DKContainsMethod)DKDictionaryContainsObject;
     keyedCollection->foreachObject = (DKForeachObjectMethod)DKHashTableApplyFunctionToObjects;
@@ -126,7 +126,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( keyedCollection );
 
     // Dictionary
-    struct DKDictionaryInterface * dictionary = DKNewInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );
+    struct DKDictionaryInterface * dictionary = DKNewInterface( DKSelector(Dictionary) );
     dictionary->initWithVAKeysAndObjects = (DKDictionaryInitWithVAKeysAndObjectsMethod)DKHashTableInitDictionaryWithVAKeysAndObjects;
     dictionary->initWithDictionary = (DKDictionaryInitWithDictionaryMethod)DKHashTableInitDictionaryWithDictionary;
     
@@ -141,7 +141,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( dictionary );
     
     // Set
-    struct DKSetInterface * set = DKNewInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    struct DKSetInterface * set = DKNewInterface( DKSelector(Set) );
     set->initWithVAObjects = (DKSetInitWithVAObjectsMethod)DKHashTableInitSetWithVAObjects;
     set->initWithCArray = (DKSetInitWithCArrayMethod)DKHashTableInitSetWithCArray;
     set->initWithCollection = (DKSetInitWithCollectionMethod)DKHashTableInitSetWithCollection;
@@ -157,7 +157,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( set );
     
     // Property
-    struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property), sizeof(struct DKPropertyInterface) );
+    struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property) );
     property->getProperty = (DKGetPropertyMethod)INTERNAL_DKHashTableGetObject;
     property->setProperty = (DKSetPropertyMethod)DKImmutableObjectAccessError;
     
@@ -165,7 +165,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     DKRelease( property );
     
     // Egg
-    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg) );
     egg->initWithEgg = (DKInitWithEggMethod)DKHashTableInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKHashTableAddToEgg;
     
@@ -184,7 +184,7 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     DKClassRef cls = DKNewClass( DKSTR( "DKMutablehashTable" ), DKHashTableClass(), sizeof(struct DKHashTable), 0, NULL, NULL );
     
     // Copying
-    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying), sizeof(struct DKCopyingInterface) );
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = (DKCopyMethod)DKHashTableCopy;
     copying->mutableCopy = (DKMutableCopyMethod)DKHashTableMutableCopy;
     
@@ -192,7 +192,7 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     DKRelease( copying );
 
     // Dictionary
-    struct DKDictionaryInterface * dictionary = DKNewInterface( DKSelector(Dictionary), sizeof(struct DKDictionaryInterface) );
+    struct DKDictionaryInterface * dictionary = DKNewInterface( DKSelector(Dictionary) );
     dictionary->initWithVAKeysAndObjects = (DKDictionaryInitWithVAKeysAndObjectsMethod)DKHashTableInitDictionaryWithVAKeysAndObjects;
     dictionary->initWithDictionary = (DKDictionaryInitWithDictionaryMethod)DKHashTableInitDictionaryWithDictionary;
 
@@ -207,7 +207,7 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     DKRelease( dictionary );
     
     // Set
-    struct DKSetInterface * set = DKNewInterface( DKSelector(Set), sizeof(struct DKSetInterface) );
+    struct DKSetInterface * set = DKNewInterface( DKSelector(Set) );
     set->initWithVAObjects = (DKSetInitWithVAObjectsMethod)DKHashTableInitSetWithVAObjects;
     set->initWithCArray = (DKSetInitWithCArrayMethod)DKHashTableInitSetWithCArray;
     set->initWithCollection = (DKSetInitWithCollectionMethod)DKHashTableInitSetWithCollection;
@@ -223,7 +223,7 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     DKRelease( set );
 
     // Property
-    struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property), sizeof(struct DKPropertyInterface) );
+    struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property) );
     property->getProperty = (DKGetPropertyMethod)INTERNAL_DKHashTableGetObject;
     property->setProperty = (DKSetPropertyMethod)INTERNAL_DKHashTableSetObject;
     

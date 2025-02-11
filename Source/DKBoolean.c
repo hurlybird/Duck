@@ -75,7 +75,7 @@ DKThreadSafeClassInit( DKBooleanClass )
         DKImmutableInstances | DKDisableReferenceCounting, NULL, NULL );
     
     // Allocation
-    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation), sizeof(struct DKAllocationInterface) );
+    struct DKAllocationInterface * allocation = DKNewInterface( DKSelector(Allocation) );
     allocation->alloc = (DKAllocMethod)DKBooleanAlloc;
     allocation->dealloc = (DKDeallocMethod)DKBooleanDealloc;
 
@@ -83,7 +83,7 @@ DKThreadSafeClassInit( DKBooleanClass )
     DKRelease( allocation );
     
     // Description
-    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description), sizeof(struct DKDescriptionInterface) );
+    struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKBooleanGetDescription;
     description->getSizeInBytes = DKDefaultGetSizeInBytes;
     
@@ -91,7 +91,7 @@ DKThreadSafeClassInit( DKBooleanClass )
     DKRelease( description );
 
     // Egg
-    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg), sizeof(struct DKEggInterface) );
+    struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg) );
     egg->initWithEgg = (DKInitWithEggMethod)DKBooleanInitWithEgg;
     egg->addToEgg = (DKAddToEggMethod)DKBooleanAddToEgg;
     

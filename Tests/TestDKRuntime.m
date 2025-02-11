@@ -12,10 +12,10 @@
 
 
 DKDeclareMessageSelector( Square, int );
-DKThreadSafeSelectorInit( Square );
+DKThreadSafeSelectorInit( Square, DKMsgHandler );
 
 DKDeclareMessageSelector( Cube, int );
-DKThreadSafeSelectorInit( Cube );
+DKThreadSafeSelectorInit( Cube, DKMsgHandler );
 
 static intptr_t TestOne( DKObjectRef _self, DKSEL sel, int x )
 {

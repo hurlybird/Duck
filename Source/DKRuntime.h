@@ -328,6 +328,10 @@ struct _DKSEL
     
     // The cache line determines how interfaces retrieved by this selector are cached.
     unsigned int    cacheline;
+
+    // The number of methods in the selector's interface structure.
+    unsigned int    methodCount;
+
 };
 
 
@@ -354,38 +358,40 @@ struct _DKSEL
 
 
 // Allocate a new selector object.
-DK_API DKSEL DKAllocSelector( DKStringRef name, DKSEL extends );
+DK_API DKSEL DKAllocSelector( DKStringRef name, size_t structSize, DKSEL extends );
 
 
 // Thread-safe initialization of selector objects.
-#define DKThreadSafeSelectorInit( name )                                                \
+#define DKThreadSafeSelectorInit( name, type )                                          \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        return DKAllocSelector( DKSTR( #name ), NULL );                                 \
+        return DKAllocSelector( DKSTR( #name ), sizeof(type), NULL );                   \
     }
 
-#define DKThreadSafeSelectorInitEx( name, extends )                                     \
+#define DKThreadSafeSelectorInitEx( name, type, extends )                               \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        return DKAllocSelector( DKSTR( #name ), DKSelector_ ## extends() );             \
+        return DKAllocSelector( DKSTR( #name ), sizeof(type),                           \
+            DKSelector_ ## extends() );                                                 \
     }
 
 
 // Thread-safe initialization of "fast" selectors. Each fast selector is assigned a cache
 // line in the static section of the interface cache. Fast cache lines must follow the
 // naming convention of 'DKStaticCache_NAME'.
-#define DKThreadSafeFastSelectorInit( name )                                            \
+#define DKThreadSafeFastSelectorInit( name, type )                                      \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        DKSEL sel = DKAllocSelector( DKSTR( #name ), NULL );                            \
+        DKSEL sel = DKAllocSelector( DKSTR( #name ), sizeof(type), NULL );              \
         sel->cacheline = DKStaticCache_ ## name;                                        \
         return sel;                                                                     \
     }
 
-#define DKThreadSafeFastSelectorInitEx( name, extends )                                 \
+#define DKThreadSafeFastSelectorInitEx( name, type, extends )                           \
     DKThreadSafeSharedObjectInit( DKSelector_ ## name, DKSEL )                          \
     {                                                                                   \
-        DKSEL sel = DKAllocSelector( DKSTR( #name ), DKSelector_ ## extends() );        \
+        DKSEL sel = DKAllocSelector( DKSTR( #name ), sizeof(type),                      \
+            DKSelector_ ## extends() );                                                 \
         sel->cacheline = DKStaticCache_ ## name;                                        \
         return sel;                                                                     \
     }
@@ -429,7 +435,6 @@ typedef struct _DKInterface
 {
     const DKObject  _obj;
     DKSEL           sel;
-    size_t          methodCount;
     // void *       methods[?];
     
 } DKInterface;
@@ -451,7 +456,7 @@ typedef void * DKInterfaceRef;
 #define DKInterfaceGetMethodTable( _interface )   (void **)(((uint8_t *)(_interface)) + sizeof(DKInterface))
 
 // Create a new interface object.
-DK_API DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize );
+DK_API DKInterfaceRef DKNewInterface( DKSEL sel );
 
 // Inherit undefined methods from another class. This is automatically done for the
 // superclass of '_class' when installing the interface.
@@ -498,16 +503,15 @@ typedef intptr_t (*DKMsgFunction)( DKObjectRef _self, DKSEL sel );
 typedef intptr_t (*DKMsgFunction1)( DKObjectRef _self, DKSEL sel, DKObjectRef obj );
 typedef intptr_t (*DKMsgFunction2)( DKObjectRef _self, DKSEL sel, DKObjectRef obj1, DKObjectRef obj2 );
 
-typedef struct DKMsgHandler
+typedef struct _DKMsgHandler
 {
     const DKObject  _obj;
     DKSEL           sel;
-    size_t          methodCount;
     DKMsgFunction   func;
     
 } DKMsgHandler;
 
-typedef struct DKMsgHandler * DKMsgHandlerRef;
+typedef DKMsgHandler * DKMsgHandlerRef;
 
 // Declare a message handler selector. This also defines a callback type used by
 // DKMsgSend() for type safety.

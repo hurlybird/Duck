@@ -43,7 +43,7 @@ DKThreadSafeClassInit( DKMutexClass )
 {
     DKClassRef cls = DKNewClass( DKSTR( "DKMutex" ), DKObjectClass(), sizeof(struct DKMutex), 0, DKMutexInit, DKMutexFinalize );
     
-    struct DKLockingInterface * locking = DKNewInterface( DKSelector(Locking), sizeof(struct DKLockingInterface) );
+    struct DKLockingInterface * locking = DKNewInterface( DKSelector(Locking) );
     locking->lock = (DKLockMethod)DKMutexLock;
     locking->unlock = (DKUnlockMethod)DKMutexUnlock;
     

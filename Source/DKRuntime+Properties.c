@@ -58,7 +58,7 @@ DKThreadSafeClassInit( DKPropertyClass )
     return cls;
 }
 
-DKThreadSafeSelectorInit( Property );
+DKThreadSafeSelectorInit( Property, struct DKPropertyInterface );
 
 
 ///

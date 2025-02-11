@@ -37,7 +37,7 @@
 #include "DKStream.h"
 
 
-DKThreadSafeFastSelectorInit( Set );
+DKThreadSafeFastSelectorInit( Set, struct DKSetInterface );
 
 
 ///

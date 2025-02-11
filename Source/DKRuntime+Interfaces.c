@@ -39,8 +39,8 @@
 
 
 // Dynamic Message Handling ==============================================================
-DKThreadSafeSelectorInit( DKDynamicMsgHandler );
-DKThreadSafeSelectorInit( DKRespondsToDynamicMsg );
+DKThreadSafeSelectorInit( DKDynamicMsgHandler, DKMsgHandler );
+DKThreadSafeSelectorInit( DKRespondsToDynamicMsg, DKMsgHandler );
 
 
 // Invalid Interface Cache Line ==========================================================
@@ -50,13 +50,13 @@ static struct _DKSEL DKInvalidInterfaceCachelineSelector =
     NULL,
     NULL,
     0,
+    0
 };
 
 static DKInterface DKInvalidInterfaceCacheLine =
 {
     DKInitStaticObjectHeader( NULL ),
-    &DKInvalidInterfaceCachelineSelector,
-    0
+    &DKInvalidInterfaceCachelineSelector
 };
 
 
@@ -74,7 +74,7 @@ static void DKUninitializedMethodError( DKObjectRef _self )
 
 // This handles sending messages to NULL objects.
 DKDeclareMessageSelector( MsgHandlerNotFound );
-DKThreadSafeSelectorInit( MsgHandlerNotFound );
+DKThreadSafeSelectorInit( MsgHandlerNotFound, DKMsgHandler );
 
 static intptr_t DKMsgHandlerNotFoundMethod( DKObjectRef _self, DKSEL sel )
 {
@@ -83,7 +83,7 @@ static intptr_t DKMsgHandlerNotFoundMethod( DKObjectRef _self, DKSEL sel )
 
 DKThreadSafeSharedObjectInit( DKMsgHandlerNotFound, DKMsgHandlerRef )
 {
-    struct DKMsgHandler * msgHandler = DKNewInterface( DKSelector(MsgHandlerNotFound), sizeof(struct DKMsgHandler) );
+    DKMsgHandler * msgHandler = DKNewInterface( DKSelector(MsgHandlerNotFound) );
 
     msgHandler->func = DKMsgHandlerNotFoundMethod;
 
@@ -331,7 +331,7 @@ static unsigned int NextCacheLine = 0;
 ///
 //  DKAllocSelector()
 //
-DKSEL DKAllocSelector( DKStringRef name, DKSEL extends )
+DKSEL DKAllocSelector( DKStringRef name, size_t structSize, DKSEL extends )
 {
     struct _DKSEL * sel = DKInit( DKAlloc( DKSelectorClass() ) );
 
@@ -339,6 +339,7 @@ DKSEL DKAllocSelector( DKStringRef name, DKSEL extends )
 
     sel->name = DKCopy( name );
     sel->extends = DKRetain( extends );
+    sel->methodCount = (unsigned int)DKInterfaceCountMethods( structSize );
     
     DKSpinLockLock( &NextCacheLineSpinLock );
     sel->cacheline = DKStaticCacheSize + (NextCacheLine % DKDynamicCacheSize);
@@ -372,21 +373,20 @@ void DKSelectorFinalize( DKObjectRef _untyped_self )
 ///
 //  DKNewInterface()
 //
-DKInterfaceRef DKNewInterface( DKSEL sel, size_t structSize )
+DKInterfaceRef DKNewInterface( DKSEL sel )
 {
     if( sel )
     {
-        size_t extraBytes = structSize - sizeof(DKInterface);
+        size_t extraBytes = sizeof(void *) * sel->methodCount;
         
         DKInterface * interface = DKInit( DKAllocEx( DKInterfaceClass(), extraBytes ) );
 
         interface->sel = DKRetain( sel );
     
         // Init all the function pointers
-        interface->methodCount = DKInterfaceCountMethods( structSize );
         void ** methods = DKInterfaceGetMethodTable( interface );
         
-        for( size_t i = 0; i < interface->methodCount; i++ )
+        for( size_t i = 0; i < sel->methodCount; i++ )
             methods[i] = (void *)DKUninitializedMethodError;
     
         return interface;
@@ -423,12 +423,12 @@ void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class )
 
         if( srcInterface )
         {
-            DKRequire( dstInterface->methodCount >= srcInterface->methodCount );
+            DKRequire( dstInterface->sel->methodCount >= fromSelector->methodCount );
             
             void ** dstMethods = DKInterfaceGetMethodTable( dstInterface );
             void ** srcMethods = DKInterfaceGetMethodTable( srcInterface );
             
-            for( size_t i = 0; i < srcInterface->methodCount; i++ )
+            for( size_t i = 0; i < fromSelector->methodCount; i++ )
             {
                 if( (dstMethods[i] == NULL) || (dstMethods[i] == DKUninitializedMethodError) )
                     dstMethods[i] = srcMethods[i];
@@ -551,11 +551,12 @@ bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * _inte
 //
 void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func )
 {
-    struct DKMsgHandler * msgHandler = DKInit( DKAllocEx( DKMsgHandlerClass(), sizeof(void *) ) );
+    DKAssert( sel->methodCount == 1 );
+    
+    DKMsgHandler * msgHandler = DKNew( DKMsgHandlerClass() );
     DKAssert( msgHandler != NULL );
 
     msgHandler->sel = DKRetain( sel );
-    msgHandler->methodCount = 1;
     msgHandler->func = func;
     
     DKInterfaceTableInsert( _class, &_class->instanceInterfaces, msgHandler );
@@ -569,11 +570,12 @@ void DKInstallMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func )
 //
 void DKInstallClassMsgHandler( DKClassRef _class, DKSEL sel, DKMsgFunction func )
 {
-    struct DKMsgHandler * msgHandler = DKInit( DKAllocEx( DKMsgHandlerClass(), sizeof(void *) ) );
+    DKAssert( sel->methodCount == 1 );
+
+    DKMsgHandler * msgHandler = DKNew( DKMsgHandlerClass() );
     DKAssert( msgHandler != NULL );
 
     msgHandler->sel = DKRetain( sel );
-    msgHandler->methodCount = 1;
     msgHandler->func = func;
     
     DKInterfaceTableInsert( _class, &_class->classInterfaces, msgHandler );
