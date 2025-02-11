@@ -838,10 +838,11 @@ struct DKInterfaceTableRow
 
 struct DKInterfaceTable
 {
-    struct _DKInterface *   cache[DKStaticCacheSize + DKDynamicCacheSize];
+    struct _DKInterface *       cache[DKStaticCacheSize + DKDynamicCacheSize];
 
-    DKSpinLock              lock;
-    DKGenericHashTable      interfaces;
+    DKSpinLock                  lock;
+    DKGenericHashTable          interfaces;
+    struct DKInterfaceTable *   inherited;
 };
 
 typedef DKInterfaceRef (*DKInterfaceNotFoundCallback)( DKObjectRef object, DKClassRef _class, DKSEL sel );
@@ -895,6 +896,7 @@ void DKRuntimeInitSymbols( void );
 void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKInterfaceTable * inheritedInterfaces );
 void DKInterfaceTableFinalize( struct DKInterfaceTable * interfaceTable );
 void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKInterfaceRef _interface );
+DKInterface * DKInterfaceTableLookup( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel );
 DKInterface * DKInterfaceTableFind( DKObjectRef object, DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel,
     DKInterfaceNotFoundCallback interfaceNotFound );
 

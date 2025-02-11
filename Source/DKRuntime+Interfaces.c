@@ -177,6 +177,7 @@ void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKIn
     memset( interfaceTable->cache, 0, sizeof(interfaceTable->cache) );
 
     interfaceTable->lock = DKSpinLockInit;
+    interfaceTable->inherited = inheritedInterfaces;
 
     DKGenericHashTableInit( &interfaceTable->interfaces, sizeof(struct DKInterfaceTableRow), &callbacks, NULL );
     
@@ -244,6 +245,36 @@ void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interf
 
 
 ///
+//  DKInterfaceTableLookup()
+//
+DKInterface * DKInterfaceTableLookup( DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel )
+{
+    struct DKInterfaceTableRow key;
+    key.sel = sel;
+    key.interface = NULL;
+
+    DKSpinLockLock( &interfaceTable->lock );
+    
+    const struct DKInterfaceTableRow * entry = DKGenericHashTableFind( &interfaceTable->interfaces, &key );
+    DKInterface * interface = entry ? entry->interface : NULL;
+
+    DKSpinLockUnlock( &interfaceTable->lock );
+
+    // If the lookup failed, search the inherited table. This allows subclasses to locate
+    // interfaces added after class creation (a.k.a categories/extensions).
+    if( (interface == NULL) && interfaceTable->inherited )
+    {
+        interface = DKInterfaceTableLookup( _class->superclass, interfaceTable->inherited, sel );
+        
+        if( interface )
+            DKInterfaceTableInsert( _class, interfaceTable, interface );
+    }
+
+    return interface;
+}
+
+
+///
 //  DKInterfaceTableFind()
 //
 DKInterface * DKInterfaceTableFind( DKObjectRef object, DKClassRef _class, struct DKInterfaceTable * interfaceTable, DKSEL sel, DKInterfaceNotFoundCallback interfaceNotFound )
@@ -274,21 +305,11 @@ DKInterface * DKInterfaceTableFind( DKObjectRef object, DKClassRef _class, struc
     }
 
     // Lookup the selector in the interface table
-    struct DKInterfaceTableRow key;
-    key.sel = sel;
-    key.interface = NULL;
-
-    DKSpinLockLock( &interfaceTable->lock );
-    
-    const struct DKInterfaceTableRow * entry = DKGenericHashTableFind( &interfaceTable->interfaces, &key );
-    interface = entry ? entry->interface : NULL;
-    
-    DKSpinLockUnlock( &interfaceTable->lock );
+    interface = DKInterfaceTableLookup( _class, interfaceTable, sel );
     
     if( interface )
     {
         interfaceTable->cache[cacheline] = interface;
-        
         return interface;
     }
 
@@ -388,11 +409,6 @@ void DKInterfaceFinalize( DKObjectRef _untyped_self )
 ///
 //  DKInterfaceInheritInstanceMethods()
 //
-static DKInterfaceRef DKSourceInterfaceNotFound( DKObjectRef object, DKClassRef _class, DKSEL sel )
-{
-    return NULL;
-}
-
 void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class )
 {
     DKAssert( interface && _class );
@@ -403,7 +419,7 @@ void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class )
     // swizzling, we can stop searching once we find a valid selector in the chain.
     for( DKSEL fromSelector = dstInterface->sel; fromSelector != NULL; fromSelector = fromSelector->extends )
     {
-        const DKInterface * srcInterface = DKInterfaceTableFind( NULL, _class, &_class->instanceInterfaces, fromSelector, DKSourceInterfaceNotFound );
+        const DKInterface * srcInterface = DKInterfaceTableLookup( _class, &_class->instanceInterfaces, fromSelector );
 
         if( srcInterface )
         {
@@ -429,7 +445,7 @@ void DKInterfaceInheritMethods( DKInterfaceRef interface, DKClassRef _class )
 //
 void DKInstallInterface( DKClassRef _class, DKInterfaceRef _interface )
 {
-    DKInterfaceInheritMethods( _interface, _class->superclass );
+    DKInterfaceInheritMethods( _interface, _class );
     DKInterfaceTableInsert( _class, &_class->instanceInterfaces, _interface );
 }
 
