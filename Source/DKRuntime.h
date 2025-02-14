@@ -476,6 +476,9 @@ DK_API void DKInstallClassInterface( DKClassRef _class, DKInterfaceRef _interfac
 DK_API DKInterfaceRef DKGetInterface( DKObjectRef _self, DKSEL sel );
 DK_API DKInterfaceRef DKGetClassInterface( DKClassRef _class, DKSEL sel );
 
+#define DKGetInterfaceAs( _self, sel, type )        (type)DKGetInterface( _self, sel )
+#define DKGetClassInterfaceAs( _class, sel, type )  (type)DKGetClassInterface( _class, sel )
+
 // Check to see if an interface is available for an object.
 DK_API bool DKQueryInterface( DKObjectRef _self, DKSEL sel, DKInterfaceRef * _interface );
 DK_API bool DKQueryClassInterface( DKClassRef _class, DKSEL sel, DKInterfaceRef * _interface );
