@@ -789,6 +789,11 @@ int DKStringCompareString( DKStringRef _self, DKStringRef other )
     return -1;
 }
 
+int DKStringReverseCompareString( DKStringRef _self, DKStringRef other )
+{
+    return -DKStringCompareString( _self, other );
+}
+
 
 ///
 //  DKStringCompareCString()
@@ -806,6 +811,12 @@ int DKStringCompareCString( DKStringRef _self, const char * cstr )
     }
     
     return -1;
+}
+
+
+int DKStringReverseCompareCString( DKStringRef _self, const char * cstr )
+{
+    return -DKStringCompareCString( _self, cstr );
 }
 
 

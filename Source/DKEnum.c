@@ -33,6 +33,8 @@
 #include "DKComparison.h"
 #include "DKCopying.h"
 #include "DKString.h"
+#include "DKCollection.h"
+#include "DKList.h"
 
 
 struct DKEnumEntry
@@ -271,4 +273,29 @@ DKStringRef DKStringFromEnum64( DKEnumRef _self, int64_t value )
     return NULL;
 }
 
+
+///
+//  DKEnumGetStrings()
+//
+static void GetStringsCallback( const void * _row, void * context )
+{
+    const struct DKEnumEntry * row = _row;
+    DKMutableListRef list = context;
+    
+    DKListAppendObject( list, row->str );
+}
+
+DKListRef DKEnumGetStrings( DKEnumRef _self, int sortOrder )
+{
+    DKMutableListRef list = DKMutableList();
+    DKGenericHashTableForeachRow( &_self->table, GetStringsCallback, list );
+    
+    if( sortOrder > 0 )
+        DKListSort( list, (DKCompareFunction)DKStringCompareString );
+        
+    else if( sortOrder < 0 )
+        DKListSort( list, (DKCompareFunction)DKStringReverseCompareString );
+        
+    return list;
+}
 

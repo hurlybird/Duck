@@ -85,6 +85,9 @@ DK_API bool        DKStringEqualToString( DKStringRef _self, DKStringRef other )
 DK_API int         DKStringCompareString( DKStringRef _self, DKStringRef other );
 DK_API int         DKStringCompareCString( DKStringRef _self, const char * cstr );
 
+DK_API int         DKStringReverseCompareString( DKStringRef _self, DKStringRef other );
+DK_API int         DKStringReverseCompareCString( DKStringRef _self, const char * cstr );
+
 DK_API bool        DKStringIsEmptyString( DKStringRef _self );
 DK_API bool        DKStringHasPrefix( DKStringRef _self, DKStringRef other );
 DK_API bool        DKStringHasSuffix( DKStringRef _self, DKStringRef other );
