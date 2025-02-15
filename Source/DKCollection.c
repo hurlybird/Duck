@@ -31,6 +31,8 @@
 #include "DKCollection.h"
 #include "DKString.h"
 #include "DKStream.h"
+#include "DKPair.h"
+#include "DKList.h"
 
 
 DKThreadSafeFastSelectorInit( Collection, struct DKCollectionInterface );
@@ -252,7 +254,29 @@ DKStringRef DKKeyedCollectionGetDescription( DKObjectRef _self )
 }
 
 
+///
+//  DKKeyedCollectionGetSortedEntries()
+//
+static int AppendKeyValuePair( DKObjectRef key, DKObjectRef value, void * context )
+{
+    DKMutableListRef list = context;
+    DKPairRef pair = DKNewPair( key, value );
+    
+    DKListAppendObject( list, pair );
+    DKRelease( pair );
+    
+    return 0;
+}
 
+DKListRef DKKeyedCollectionGetSortedEntries( DKObjectRef _self, DKCompareFunction cmp )
+{
+    DKMutableListRef list = DKMutableList();
+
+    DKForeachKeyAndObject( _self, AppendKeyValuePair, list );
+    DKListSort( list, cmp );
+    
+    return list;
+}
 
 
 

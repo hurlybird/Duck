@@ -291,9 +291,9 @@
 		025C0F4918EFED96000344C0 /* DKBinaryTree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKBinaryTree.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		025C0F4A18EFED96000344C0 /* DKByteArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKByteArray.c; sourceTree = "<group>"; };
 		025C0F4C18EFED96000344C0 /* DKData.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKData.c; sourceTree = "<group>"; };
-		025C0F4D18EFED96000344C0 /* DKDictionary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKDictionary.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		025C0F4D18EFED96000344C0 /* DKDictionary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKDictionary.c; sourceTree = "<group>"; };
 		025C0F4E18EFED96000344C0 /* DKFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKFile.c; sourceTree = "<group>"; };
-		025C0F4F18EFED96000344C0 /* DKHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKHashTable.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		025C0F4F18EFED96000344C0 /* DKHashTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKHashTable.c; sourceTree = "<group>"; };
 		025C0F5018EFED96000344C0 /* DKLinkedList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKLinkedList.c; sourceTree = "<group>"; };
 		025C0F5118EFED96000344C0 /* DKList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKList.c; sourceTree = "<group>"; };
 		025C0F5218EFED96000344C0 /* DKNodePool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKNodePool.c; sourceTree = "<group>"; };

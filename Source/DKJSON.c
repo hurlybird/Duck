@@ -31,6 +31,8 @@
 #include "DKStream.h"
 #include "DKJSON.h"
 #include "DKCollection.h"
+#include "DKComparison.h"
+#include "DKPair.h"
 #include "DKList.h"
 #include "DKDictionary.h"
 #include "DKString.h"
@@ -57,6 +59,7 @@ typedef struct
 
 static int WriteObject( DKObjectRef obj, WriteContext * context );
 static int WriteKeyAndObject( DKObjectRef key, DKObjectRef obj, WriteContext * context );
+static int WriteKeyAndObjectPair( DKObjectRef obj, WriteContext * context );
 
 static void WriteEscapedString( DKStringRef str, WriteContext * context );
 static void WriteComma( WriteContext * context );
@@ -131,7 +134,18 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
     else if( DKQueryInterface( obj, DKSelector(KeyedCollection), (DKInterfaceRef *)&keyedCollection ) )
     {
         BeginGroup( context, '{' );
-        result = DKForeachKeyAndObject( obj, (DKKeyedApplierFunction)WriteKeyAndObject, context );
+        
+        if( context->options & DKJSONWriteSorted )
+        {
+            DKListRef sortedEntries = DKKeyedCollectionGetSortedEntries( obj, DKCompare );
+            result = DKForeachObject( sortedEntries, (DKApplierFunction)WriteKeyAndObjectPair, context );
+        }
+        
+        else
+        {
+            result = DKForeachKeyAndObject( obj, (DKKeyedApplierFunction)WriteKeyAndObject, context );
+        }
+        
         EndGroup( context, '}' );
     }
     
@@ -151,7 +165,6 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
 ///
 //  WriteKeyAndObject()
 //
-
 static int WriteKeyAndObject( DKObjectRef key, DKObjectRef obj, WriteContext * context )
 {
     WriteComma( context );
@@ -164,6 +177,15 @@ static int WriteKeyAndObject( DKObjectRef key, DKObjectRef obj, WriteContext * c
     context->comma = 1;
     
     return 0;
+}
+
+
+///
+//  WriteKeyAndObjectPair()
+//
+static int WriteKeyAndObjectPair( DKObjectRef obj, WriteContext * context )
+{
+    return WriteKeyAndObject( DKPairGetFirstObject( obj ), DKPairGetSecondObject( obj ), context );
 }
 
 

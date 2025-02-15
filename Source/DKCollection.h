@@ -85,6 +85,7 @@ DK_API int         DKForeachKeyAndObject( DKObjectRef _self, DKKeyedApplierFunct
 DK_API DKStringRef DKCollectionGetDescription( DKObjectRef _self );
 DK_API DKStringRef DKKeyedCollectionGetDescription( DKObjectRef _self );
 
+DK_API DKListRef   DKKeyedCollectionGetSortedEntries( DKObjectRef _self, DKCompareFunction cmp );
 
 
 #ifdef __cplusplus
