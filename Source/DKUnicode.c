@@ -227,7 +227,7 @@ const char * dk_ustridx( const char * str, size_t idx )
 
 
 ///
-//  dk_ustrrchr()
+//  dk_ustrridx()
 //
 const char * dk_ustrridx( const char * str, size_t idx )
 {

@@ -1019,6 +1019,64 @@ DKChar32 DKStringGetCharacterAtIndex( DKStringRef _self, DKIndex index, DKChar8 
 
 
 ///
+//  DKStringGetFirstIndexOfCharacter()
+//
+DKIndex DKStringGetFirstIndexOfCharacter( DKStringRef _self, DKChar32 ch, DKIndex startLoc )
+{
+    if( _self )
+    {
+        const char * str = (const char *)_self->byteArray.bytes;
+
+        for( DKIndex i = 0; *str; i++ )
+        {
+            DKChar32 utf32;
+            size_t bytes = dk_ustrscan( str, &utf32 );
+            
+            if( i >= startLoc )
+            {
+                if( utf32 == ch )
+                    return i;
+            }
+            
+            str += bytes;
+        }
+    }
+
+    return DKNotFound;
+}
+
+
+///
+//  DKStringGetLastIndexOfCharacter()
+//
+DKIndex DKStringGetLastIndexOfCharacter( DKStringRef _self, DKChar32 ch, DKIndex startLoc )
+{
+    DKIndex lastIndex = DKNotFound;
+    
+    if( _self )
+    {
+        const char * str = (const char *)_self->byteArray.bytes;
+
+        for( DKIndex i = 0; *str; i++ )
+        {
+            DKChar32 utf32;
+            size_t bytes = dk_ustrscan( str, &utf32 );
+            
+            if( i >= startLoc )
+            {
+                if( utf32 == ch )
+                    lastIndex = i;
+            }
+            
+            str += bytes;
+        }
+    }
+
+    return lastIndex;
+}
+
+
+///
 //  DKStringGetBytePtr()
 //
 const void * DKStringGetBytePtr( DKStringRef _self, DKIndex index )
