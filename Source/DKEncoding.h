@@ -105,14 +105,14 @@ typedef uint32_t DKEncoding;
 
 #define DKEncode( baseType, count ) \
     ((((baseType) << DKEncodingTypeShift) & DKEncodingTypeBits) | \
-     ((count) & DKMaxEncodingCount))
+     ((uint32_t)(count) & DKMaxEncodingCount))
 
 
 #define DKEncodeMatrix( baseType, rows, cols ) \
     (DKEncodingMatrixBit | \
      (((baseType) << DKEncodingTypeShift) & DKEncodingTypeBits) | \
-     (((rows) & DKMaxEncodingRows) << DKEncodingRowsShift) | \
-     ((cols) & DKMaxEncodingCols))
+     (((uint32_t)(rows) & DKMaxEncodingRows) << DKEncodingRowsShift) | \
+     ((uint32_t)(cols) & DKMaxEncodingCols))
 
 
 // Macros for building integer encodings from built-in C types (i.e. enums)
@@ -165,6 +165,21 @@ static inline unsigned int DKEncodingGetCols( DKEncoding encoding )
         return encoding & DKMaxEncodingCols;
         
     return encoding & DKMaxEncodingCount;
+}
+
+static inline void DKEncodingGetRowsAndCols( DKEncoding encoding, unsigned int * rows, unsigned int * cols )
+{
+    if( encoding & DKEncodingMatrixBit )
+    {
+        *rows = (encoding >> DKEncodingRowsShift) & DKMaxEncodingRows;
+        *cols = encoding & DKMaxEncodingCols;
+    }
+    
+    else
+    {
+        *rows = 1;
+        *cols = encoding & DKMaxEncodingCount;
+    }
 }
 
 static inline bool DKEncodingEqv( DKEncoding a, DKEncoding b )
