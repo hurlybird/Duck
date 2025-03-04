@@ -690,48 +690,52 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
 ///
 //  DKTrySetProperty()
 //
-void DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound )
+bool DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound )
 {
     if( _self )
     {
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
 
-        if( property == NULL )
+        if( property )
         {
-            DKPropertyInterfaceRef propertyInterface;
+            CheckPropertyIsReadWrite( _self, property, false );
             
-            if( DKQueryInterface( _self, DKSelector(Property), (DKInterfaceRef *)&propertyInterface ) )
-            {
-                propertyInterface->setProperty( _self, name, object );
-                return;
-            }
+            DKWritePropertyObject( _self, property, object );
             
-            if( warnIfNotFound )
-            {
-                PropertyNotDefined( _self, name );
-            }
-            
-            return;
+            return true;
         }
+
+        DKPropertyInterfaceRef propertyInterface;
         
-        CheckPropertyIsReadWrite( _self, property );
-        
-        DKWritePropertyObject( _self, property, object );
+        if( DKQueryInterface( _self, DKSelector(Property), (DKInterfaceRef *)&propertyInterface ) )
+        {
+            if( propertyInterface->setProperty( _self, name, object ) )
+                return true;
+        }
+            
+        if( warnIfNotFound )
+        {
+            PropertyNotDefined( _self, name );
+        }
     }
+    
+    return false;
 }
 
 
 ///
 //  DKTrySetPropertyForKeyPath()
 //
-void DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object, bool warnIfNotFound )
+bool DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object, bool warnIfNotFound )
 {
     DKObjectRef target;
     DKStringRef key;
     
     if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
-        DKTrySetProperty( target, key, object, warnIfNotFound );
+        return DKTrySetProperty( target, key, object, warnIfNotFound );
+        
+    return false;
 }
 
 
@@ -745,7 +749,12 @@ DKObjectRef DKTryGetProperty( DKObjectRef _self, DKStringRef name, bool warnIfNo
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
 
-        if( property == NULL )
+        if( property )
+        {
+            return DKReadPropertyObject( _self, property );
+        }
+
+        else
         {
             DKPropertyInterfaceRef propertyInterface;
             
@@ -754,11 +763,7 @@ DKObjectRef DKTryGetProperty( DKObjectRef _self, DKStringRef name, bool warnIfNo
             
             if( warnIfNotFound )
                 PropertyNotDefined( _self, name );
-            
-            return NULL;
         }
-        
-        return DKReadPropertyObject( _self, property );
     }
     
     return NULL;

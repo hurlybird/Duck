@@ -670,7 +670,7 @@ DK_API DKClassRef DKPropertyClass( void );
 DK_API DKDeclareInterfaceSelector( Property );
 
 typedef DKObjectRef (*DKGetPropertyMethod)( DKObjectRef _self, DKStringRef name );
-typedef void        (*DKSetPropertyMethod)( DKObjectRef _self, DKStringRef name, DKObjectRef object );
+typedef bool        (*DKSetPropertyMethod)( DKObjectRef _self, DKStringRef name, DKObjectRef object );
 
 struct DKPropertyInterface
 {
@@ -754,8 +754,8 @@ DK_API DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef nam
 
 // Set an object property. DKNumbers and DKStructs will be automatically unpacked if the
 // property is stored as a number type or structure.
-DK_API void        DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound );
-DK_API void        DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object, bool warnIfNotFound );
+DK_API bool        DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound );
+DK_API bool        DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRef object, bool warnIfNotFound );
 
 #define DKSetProperty( _self, name, object )            DKTrySetProperty( _self, name, object, true )
 #define DKSetPropertyForKeyPath( _self, path, object )  DKTrySetPropertyForKeyPath( _self, path, object, true )

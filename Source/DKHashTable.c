@@ -64,7 +64,7 @@ static void        DKHashTableAddToEgg( DKHashTableRef _self, DKEggArchiverRef e
 static DKIndex     INTERNAL_DKHashTableGetCount( DKHashTableRef _self );
 static DKObjectRef INTERNAL_DKHashTableGetObject( DKHashTableRef _self, DKObjectRef key );
 
-static void        INTERNAL_DKHashTableSetObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object );
+static bool        INTERNAL_DKHashTableSetProperty( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object );
 static void        INTERNAL_DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy );
 static void        INTERNAL_DKHashTableRemoveObject( DKMutableHashTableRef _self, DKObjectRef key );
 static void        INTERNAL_DKHashTableRemoveAllObjects( DKMutableHashTableRef _self );
@@ -225,7 +225,7 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     // Property
     struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property) );
     property->getProperty = (DKGetPropertyMethod)INTERNAL_DKHashTableGetObject;
-    property->setProperty = (DKSetPropertyMethod)INTERNAL_DKHashTableSetObject;
+    property->setProperty = (DKSetPropertyMethod)INTERNAL_DKHashTableSetProperty;
     
     DKInstallInterface( cls, property );
     DKRelease( property );
@@ -694,11 +694,12 @@ int DKHashTableApplyFunctionToObjects( DKHashTableRef _self, DKApplierFunction c
 
 
 ///
-//  DKHashTableSetObject()
+//  DKHashTableSetProperty()
 //
-static void INTERNAL_DKHashTableSetObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object )
+static bool INTERNAL_DKHashTableSetProperty( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object )
 {
     INTERNAL_DKHashTableInsertObject( _self, key, object, DKInsertAlways );
+    return true;
 }
 
 
