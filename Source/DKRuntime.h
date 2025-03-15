@@ -752,6 +752,12 @@ DK_API void DKInstallEnumProperty( DKClassRef _class,
 DK_API DKListRef   DKGetAllPropertyDefinitions( DKObjectRef _self );
 DK_API DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
 
+// Accessors
+static inline DKStringRef DKPropertyGetName( DKPropertyRef _self ) { return _self ? _self->name : NULL; }
+static inline DKStringRef DKPropertyGetSemantic( DKPropertyRef _self ) { return _self ? _self->semantic : NULL; }
+static inline DKEncoding DKPropertyGetEncoding( DKPropertyRef _self ) { return _self ? _self->encoding : 0; }
+static inline size_t DKPropertyGetOffset( DKPropertyRef _self ) { return _self ? _self->offset : 0; }
+
 // Set an object property. DKNumbers and DKStructs will be automatically unpacked if the
 // property is stored as a number type or structure.
 DK_API bool        DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound );
