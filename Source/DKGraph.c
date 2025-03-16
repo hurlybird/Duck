@@ -318,14 +318,24 @@ static void RemoveEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to )
 //  DKGraphAddEdge()
 //
 
-void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional )
+void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional, DKGraphEdgeRef addedEdges[] )
 {
+    DKGraphEdgeRef edge;
+    
     if( _self )
     {
-        FindEdge( _self, from, to, true );
+        edge = FindEdge( _self, from, to, true );
+        
+        if( addedEdges )
+            addedEdges[0] = edge;
         
         if( bidirectional )
-            FindEdge( _self, to, from, true );
+        {
+            edge = FindEdge( _self, to, from, true );
+
+            if( addedEdges )
+                addedEdges[1] = edge;
+        }
     }
 }
 

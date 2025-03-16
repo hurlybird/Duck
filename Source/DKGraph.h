@@ -62,7 +62,7 @@ DK_API DKClassRef  DKGraphClass( void );
 #define DKGraph()       DKAutorelease( DKNew( DKGraphClass() ) )
 #define DKNewGraph()    DKNew( DKGraphClass() )
 
-DK_API void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
+DK_API void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional, DKGraphEdgeRef addedEdges[] );
 DK_API void DKGraphRemoveEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
 DK_API void DKGraphRemoveAllEdges( DKGraphRef _self );
 
