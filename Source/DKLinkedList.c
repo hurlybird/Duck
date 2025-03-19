@@ -29,7 +29,7 @@
 #include "DKEncoding.h"
 #include "DKRuntime.h"
 #include "DKLinkedList.h"
-#include "DKNodePool.h"
+#include "DKObjectPool.h"
 #include "DKGenericArray.h"
 #include "DKString.h"
 #include "DKCollection.h"
@@ -59,7 +59,7 @@ struct DKLinkedList
 {
     DKObject _obj;
 
-    DKNodePool nodePool;
+    DKObjectPool nodePool;
 
     struct DKLinkedListNode * first;
     struct DKLinkedListNode * last;
@@ -289,7 +289,7 @@ static void CheckListIntegrity( struct DKLinkedList * list )
 //
 static struct DKLinkedListNode * AllocNode( struct DKLinkedList * list, DKObjectRef object )
 {
-    struct DKLinkedListNode * node = DKNodePoolAlloc( &list->nodePool );
+    struct DKLinkedListNode * node = DKObjectPoolAlloc( &list->nodePool );
 
     node->prev = NULL;
     node->next = NULL;
@@ -313,7 +313,7 @@ static void FreeNode( struct DKLinkedList * list, struct DKLinkedListNode * node
 
     DKRelease( node->object );
     
-    DKNodePoolFree( &list->nodePool, node );
+    DKObjectPoolFree( &list->nodePool, node );
 }
 
 
@@ -511,7 +511,7 @@ static DKObjectRef DKLinkedListInitialize( DKObjectRef _untyped_self )
 
     if( _self )
     {
-        DKNodePoolInit( &_self->nodePool, sizeof(struct DKLinkedListNode), 0 );
+        DKObjectPoolInit( &_self->nodePool, sizeof(struct DKLinkedListNode), 0 );
 
         _self->first = NULL;
         _self->last = NULL;
@@ -534,7 +534,7 @@ static void DKLinkedListFinalize( DKObjectRef _untyped_self )
 
     RemoveRange( _self, DKRangeMake( 0, _self->count ) );
     
-    DKNodePoolFinalize( &_self->nodePool );
+    DKObjectPoolFinalize( &_self->nodePool );
 }
 
 

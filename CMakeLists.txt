@@ -189,10 +189,10 @@ set( DuckSources
     ${DUCK_PATH}/Source/DKMember.h
     ${DUCK_PATH}/Source/DKMutex.c
     ${DUCK_PATH}/Source/DKMutex.h
-    ${DUCK_PATH}/Source/DKNodePool.c
-    ${DUCK_PATH}/Source/DKNodePool.h
     ${DUCK_PATH}/Source/DKNumber.c
     ${DUCK_PATH}/Source/DKNumber.h
+    ${DUCK_PATH}/Source/DKObjectPool.c
+    ${DUCK_PATH}/Source/DKObjectPool.h
     ${DUCK_PATH}/Source/DKPair.c
     ${DUCK_PATH}/Source/DKPair.h
     ${DUCK_PATH}/Source/DKPlatform.c

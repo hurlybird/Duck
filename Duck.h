@@ -45,7 +45,7 @@
 #include <Duck/DKByteArray.h>
 #include <Duck/DKGenericArray.h>
 #include <Duck/DKGenericHashTable.h>
-#include <Duck/DKNodePool.h>
+#include <Duck/DKObjectPool.h>
 #include <Duck/DKUnicode.h>
 
 #include <Duck/DKRuntime.h>

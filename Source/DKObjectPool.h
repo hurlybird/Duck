@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  DKNodePool.h
+  DKObjectPool.h
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -24,8 +24,8 @@
 
 *****************************************************************************************/
 
-#ifndef _DK_NODE_POOL_H_
-#define _DK_NODE_POOL_H_
+#ifndef _DK_OBJECT_POOL_H_
+#define _DK_OBJECT_POOL_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -33,40 +33,40 @@ extern "C"
 #endif
 
 
-typedef struct _DKNodePoolFreeNode
+typedef struct _DKObjectPoolFreeNode
 {
-    struct _DKNodePoolFreeNode * next;
+    struct _DKObjectPoolFreeNode * next;
     
-} DKNodePoolFreeNode;
+} DKObjectPoolFreeNode;
 
-typedef struct _DKNodePoolBlock
+typedef struct _DKObjectPoolBlock
 {
-    struct _DKNodePoolBlock * next;
-    DKIndex nodeCount;
+    struct _DKObjectPoolBlock * next;
+    DKIndex count;
 
-} DKNodePoolBlock;
+} DKObjectPoolBlock;
 
 typedef struct
 {
-    DKNodePoolFreeNode * freeList;
-    DKNodePoolBlock * blockList;
-    DKIndex nodeSize;
-    DKIndex nodeCount;
+    DKObjectPoolFreeNode * freeList;
+    DKObjectPoolBlock * blockList;
+    DKIndex size;
+    DKIndex count;
     
-} DKNodePool;
+} DKObjectPool;
 
 
-DK_API void DKNodePoolInit( DKNodePool * pool, DKIndex nodeSize, DKIndex nodeCount );
-DK_API void DKNodePoolFinalize( DKNodePool * pool );
+DK_API void DKObjectPoolInit( DKObjectPool * pool, DKIndex size, DKIndex count );
+DK_API void DKObjectPoolFinalize( DKObjectPool * pool );
 
-DK_API void * DKNodePoolAlloc( DKNodePool * pool );
-DK_API void DKNodePoolFree( DKNodePool * pool, void * node );
+DK_API void * DKObjectPoolAlloc( DKObjectPool * pool );
+DK_API void DKObjectPoolFree( DKObjectPool * pool, void * node );
 
-DK_API void * DKNodePoolGetBlockSegment( const DKNodePoolBlock * block );
+DK_API void * DKObjectPoolGetBlockSegment( const DKObjectPoolBlock * block );
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // _DK_NODE_POOL_H_
+#endif // _DK_OBJECT_POOL_H_

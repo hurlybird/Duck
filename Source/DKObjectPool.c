@@ -1,6 +1,6 @@
 /*****************************************************************************************
 
-  DKNodePool.c
+  DKObjectPool.c
 
   Copyright (c) 2014 Derek W. Nylen
 
@@ -26,31 +26,31 @@
 
 #include "DKConfig.h"
 #include "DKPlatform.h"
-#include "DKNodePool.h"
+#include "DKObjectPool.h"
 
 #define MIN_RESERVE_NODE_COUNT 32
 
 
 ///
-//  DKNodePoolAllocBlock()
+//  DKObjectPoolAllocBlock()
 //
-static DKNodePoolBlock * DKNodePoolAllocBlock( DKNodePool * pool, DKIndex count )
+static DKObjectPoolBlock * DKObjectPoolAllocBlock( DKObjectPool * pool, DKIndex count )
 {
     if( count < MIN_RESERVE_NODE_COUNT )
         count = MIN_RESERVE_NODE_COUNT;
 
-    DKIndex bytes = sizeof(DKNodePoolBlock) + (pool->nodeSize * count);
-    DKNodePoolBlock * block = dk_malloc( bytes );
+    DKIndex bytes = sizeof(DKObjectPoolBlock) + (pool->size * count);
+    DKObjectPoolBlock * block = dk_malloc( bytes );
     
     block->next = NULL;
-    block->nodeCount = count;
+    block->count = count;
     
-    uint8_t * firstNode = (uint8_t *)block + sizeof(DKNodePoolBlock);
+    uint8_t * firstObject = (uint8_t *)block + sizeof(DKObjectPoolBlock);
     
     for( DKIndex i = 0; i < count; ++i )
     {
-        void * node = firstNode + (pool->nodeSize * i);
-        DKNodePoolFree( pool, node );
+        void * node = firstObject + (pool->size * i);
+        DKObjectPoolFree( pool, node );
     }
     
     return block;
@@ -58,52 +58,52 @@ static DKNodePoolBlock * DKNodePoolAllocBlock( DKNodePool * pool, DKIndex count 
 
 
 ///
-//  DKNodePoolAddBlock()
+//  DKObjectPoolAddBlock()
 //
-static void DKNodePoolAddBlock( DKNodePool * pool, DKIndex count )
+static void DKObjectPoolAddBlock( DKObjectPool * pool, DKIndex count )
 {
     if( pool->blockList )
     {
-        DKNodePoolBlock * newBlock = DKNodePoolAllocBlock( pool, pool->nodeCount );
+        DKObjectPoolBlock * newBlock = DKObjectPoolAllocBlock( pool, pool->count );
         
         newBlock->next = pool->blockList;
         pool->blockList = newBlock;
-        pool->nodeCount += newBlock->nodeCount;
+        pool->count += newBlock->count;
     }
     
     else
     {
-        pool->blockList = DKNodePoolAllocBlock( pool, count );
-        pool->nodeCount = pool->blockList->nodeCount;
+        pool->blockList = DKObjectPoolAllocBlock( pool, count );
+        pool->count = pool->blockList->count;
     }
 }
 
 
 ///
-//  DKNodePoolInit()
+//  DKObjectPoolInit()
 //
-void DKNodePoolInit( DKNodePool * pool, DKIndex nodeSize, DKIndex nodeCount )
+void DKObjectPoolInit( DKObjectPool * pool, DKIndex size, DKIndex count )
 {
     pool->freeList = NULL;
     pool->blockList = NULL;
-    pool->nodeSize = nodeSize;
-    pool->nodeCount = 0;
+    pool->size = size;
+    pool->count = 0;
     
-    if( nodeCount > 0 )
-        DKNodePoolAddBlock( pool, nodeCount );
+    if( count > 0 )
+        DKObjectPoolAddBlock( pool, count );
 }
 
 
 ///
-//  DKNodePoolFinalize()
+//  DKObjectPoolFinalize()
 //
-void DKNodePoolFinalize( DKNodePool * pool )
+void DKObjectPoolFinalize( DKObjectPool * pool )
 {
-    DKNodePoolBlock * block = pool->blockList;
+    DKObjectPoolBlock * block = pool->blockList;
     
     while( block )
     {
-        DKNodePoolBlock * tmp = block;
+        DKObjectPoolBlock * tmp = block;
         block = block->next;
         dk_free( tmp );
     }
@@ -114,39 +114,39 @@ void DKNodePoolFinalize( DKNodePool * pool )
 
 
 ///
-//  DKNodePoolAlloc()
+//  DKObjectPoolAlloc()
 //
-void * DKNodePoolAlloc( DKNodePool * pool )
+void * DKObjectPoolAlloc( DKObjectPool * pool )
 {
     if( pool->freeList == NULL )
-        DKNodePoolAddBlock( pool, 0 );
+        DKObjectPoolAddBlock( pool, 0 );
         
-    DKNodePoolFreeNode * node = pool->freeList;
+    DKObjectPoolFreeNode * node = pool->freeList;
     pool->freeList = node->next;
     
-    memset( node, 0, pool->nodeSize );
+    memset( node, 0, pool->size );
     
     return node;
 }
 
 
 ///
-//  DKNodePoolFree()
+//  DKObjectPoolFree()
 //
-void DKNodePoolFree( DKNodePool * pool, void * node )
+void DKObjectPoolFree( DKObjectPool * pool, void * node )
 {
-    DKNodePoolFreeNode * freeNode = (DKNodePoolFreeNode *)node;
+    DKObjectPoolFreeNode * freeNode = (DKObjectPoolFreeNode *)node;
     freeNode->next = pool->freeList;
     pool->freeList = freeNode;
 }
 
 
 ///
-//  DKNodePoolGetBlockSegment()
+//  DKObjectPoolGetBlockSegment()
 //
-DK_API void * DKNodePoolGetBlockSegment( const DKNodePoolBlock * block )
+DK_API void * DKObjectPoolGetBlockSegment( const DKObjectPoolBlock * block )
 {
-    uint8_t * firstNode = (uint8_t *)block + sizeof(DKNodePoolBlock);
+    uint8_t * firstNode = (uint8_t *)block + sizeof(DKObjectPoolBlock);
     return firstNode;
 }
 

@@ -33,7 +33,7 @@
 #include "DKDictionary.h"
 #include "DKSet.h"
 #include "DKBinaryTree.h"
-#include "DKNodePool.h"
+#include "DKObjectPool.h"
 #include "DKString.h"
 #include "DKComparison.h"
 #include "DKCopying.h"
@@ -55,7 +55,7 @@ struct DKBinaryTree
 {
     DKObject _obj;
 
-    DKNodePool nodePool;
+    DKObjectPool nodePool;
     struct DKBinaryTreeNode null_node;
     struct DKBinaryTreeNode * root;
     DKIndex count;
@@ -316,7 +316,7 @@ static void CheckTreeIntegrity( const struct DKBinaryTree * tree )
 //
 static struct DKBinaryTreeNode * AllocNode( struct DKBinaryTree * tree, DKObjectRef key, DKObjectRef object )
 {
-    struct DKBinaryTreeNode * node = DKNodePoolAlloc( &tree->nodePool );
+    struct DKBinaryTreeNode * node = DKObjectPoolAlloc( &tree->nodePool );
 
     node->left = &tree->null_node;
     node->right = &tree->null_node;
@@ -596,7 +596,7 @@ static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _untyped_self )
 
     if( _self )
     {
-        DKNodePoolInit( &_self->nodePool, sizeof(struct DKBinaryTreeNode), 0 );
+        DKObjectPoolInit( &_self->nodePool, sizeof(struct DKBinaryTreeNode), 0 );
 
         _self->null_node.left = &_self->null_node;
         _self->null_node.right = &_self->null_node;
@@ -624,7 +624,7 @@ static void DKBinaryTreeFinalize( DKObjectRef _untyped_self )
 
     INTERNAL_DKBinaryTreeRemoveAllObjects( _self );
     
-    DKNodePoolFinalize( &_self->nodePool );
+    DKObjectPoolFinalize( &_self->nodePool );
 }
 
 

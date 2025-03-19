@@ -33,7 +33,7 @@
 #include "DKDictionary.h"
 #include "DKThread.h"
 #include "DKThreadPool.h"
-#include "DKNodePool.h"
+#include "DKObjectPool.h"
 #include "DKString.h"
 #include "DKMutex.h"
 #include "DKCondition.h"
@@ -88,7 +88,7 @@ struct DKThreadPool
 {
     DKObject _obj;
     
-    DKNodePool nodePool;
+    DKObjectPool nodePool;
     
     DKStringRef label;
     
@@ -142,7 +142,7 @@ static DKObjectRef DKThreadPoolInit( DKObjectRef _untyped_self )
     
     if( _self )
     {
-        DKNodePoolInit( &_self->nodePool, sizeof(struct DKThreadPoolTask), 16 );
+        DKObjectPoolInit( &_self->nodePool, sizeof(struct DKThreadPoolTask), 16 );
         
         _self->threads = DKNewMutableList();
         
@@ -179,7 +179,7 @@ static void DKThreadPoolFinalize( DKObjectRef _untyped_self )
     DKRelease( _self->stopCounter );
     DKRelease( _self->label );
 
-    DKNodePoolFinalize( &_self->nodePool );
+    DKObjectPoolFinalize( &_self->nodePool );
 }
 
 
@@ -275,7 +275,7 @@ void DKThreadPoolSetLabel( DKThreadPoolRef _self, DKStringRef label )
 //
 static struct DKThreadPoolTask * DKThreadPoolAllocTask( DKThreadPoolRef _self, DKThreadProc proc, void * context )
 {
-    struct DKThreadPoolTask * task = DKNodePoolAlloc( &_self->nodePool );
+    struct DKThreadPoolTask * task = DKObjectPoolAlloc( &_self->nodePool );
 
     #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
     fprintf( stderr, "DKThreadPool %s: allocating task %"PRIxPTR"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)task );
@@ -294,7 +294,7 @@ static struct DKThreadPoolTask * DKThreadPoolAllocTask( DKThreadPoolRef _self, D
 //
 static struct DKThreadPoolTask * DKThreadPoolAllocObjectTask( DKThreadPoolRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param )
 {
-    struct DKThreadPoolTask * task = DKNodePoolAlloc( &_self->nodePool );
+    struct DKThreadPoolTask * task = DKObjectPoolAlloc( &_self->nodePool );
 
     #if DK_THREADPOOL_DIAGNOSTIC_OUTPUT
     fprintf( stderr, "DKThreadPool %s: allocating task (method) %"PRIxPTR"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)task );
@@ -325,7 +325,7 @@ static void DKThreadPoolFreeTasks( DKThreadPoolRef _self, struct DKThreadPoolTas
         fprintf( stderr, "DKThreadPool %s: freeing task %"PRIxPTR"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)task );
         #endif
 
-        DKNodePoolFree( &_self->nodePool, task );
+        DKObjectPoolFree( &_self->nodePool, task );
         
         task = next;
     }
@@ -337,7 +337,7 @@ static void DKThreadPoolFreeTasks( DKThreadPoolRef _self, struct DKThreadPoolTas
 //
 static struct DKThreadPoolQueue * DKThreadPoolAllocQueue( DKThreadPoolRef _self )
 {
-    struct DKThreadPoolQueue * queue = DKNodePoolAlloc( &_self->nodePool );
+    struct DKThreadPoolQueue * queue = DKObjectPoolAlloc( &_self->nodePool );
 
     memset( queue, 0, sizeof(struct DKThreadPoolQueue) );
 
@@ -367,7 +367,7 @@ static void DKThreadPoolFreeQueues( DKThreadPoolRef _self, struct DKThreadPoolQu
         fprintf( stderr, "DKThreadPool %s: freeing queue %"PRIxPTR" for group %"PRIi64"\n", _self->label ? DKStringGetCStringPtr( _self->label ) : "", (intptr_t)queue, queue->taskGroup );
         #endif
 
-        DKNodePoolFree( &_self->nodePool, queue );
+        DKObjectPoolFree( &_self->nodePool, queue );
         
         queue = next;
     }
