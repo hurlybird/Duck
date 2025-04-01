@@ -42,6 +42,7 @@
 #include "DKList.h"
 #include "DKDictionary.h"
 #include "DKHashTable.h"
+#include "DKPair.h"
 #include "DKCopying.h"
 #include "DKConversion.h"
 #include "DKDescription.h"
@@ -336,6 +337,14 @@ DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
 
 
 // Error Reporting =======================================================================
+
+///
+//  FailedToResolveKeyPath()
+//
+static void FailedToResolveKeyPath( DKObjectRef _self, DKStringRef path )
+{
+    DKWarning( "DKProperty: Failed to resolve property key path '%@' class '%@'.", path, DKGetClassName( _self ) );
+}
 
 ///
 //  CheckPropertyDefined()
@@ -662,25 +671,38 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
 {
     if( root )
     {
-        DKListRef keys = DKStringSplit( path, DKSTR( "." ) );
-        DKIndex count = DKListGetCount( keys );
-        
-        if( count == 0 )
-            return false;
-        
         DKObjectRef currTarget = root;
-        DKStringRef currKey = DKListGetObjectAtIndex( keys, 0 );
+        DKStringRef currKey = path;
         
-        for( DKIndex i = 1; i < count; i++ )
+        while( currTarget && currKey )
         {
-            currTarget = DKGetProperty( currTarget, currKey );
-            currKey = DKListGetObjectAtIndex( keys, i );
+            // If the target has a property matching the key, use it. This lets us resolve
+            // dotted keys at the end of a key path.
+            if( DKGetProperty( currTarget, currKey ) )
+            {
+                *target = currTarget; // Already retained
+                *key = DKAutorelease( DKRetain( currKey ) );
+                
+                return true;
+            }
+            
+            DKPairRef components = DKStringSplitFirst( currKey, DKSTR( "." ) );
+            DKStringRef nextKey = DKPairGetSecondObject( components );
+            
+            // If we're at the end of the key path, use the current target and key. This
+            // lets us add keys to a dynamic key-store.
+            if( !nextKey )
+            {
+                *target = currTarget; // Already retained
+                *key = DKAutorelease( DKRetain( currKey ) );
+                
+                return true;
+            }
+            
+            // Otherwise, step into the target and follow the remainder of the key path
+            currTarget = DKGetProperty( currTarget, DKPairGetFirstObject( components ) );
+            currKey = nextKey;
         }
-
-        *target = currTarget; // Already retained
-        *key = DKAutorelease( DKRetain( currKey ) );
-        
-        return true;
     }
     
     return false;
@@ -735,6 +757,9 @@ bool DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRe
     if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
         return DKTrySetProperty( target, key, object, warnIfNotFound );
         
+    if( warnIfNotFound )
+        FailedToResolveKeyPath( _self, path );
+        
     return false;
 }
 
@@ -780,6 +805,9 @@ DKObjectRef DKTryGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, boo
     
     if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
         return DKTryGetProperty( target, key, warnIfNotFound );
+
+    if( warnIfNotFound )
+        FailedToResolveKeyPath( _self, path );
 
     return NULL;
 }

@@ -205,27 +205,39 @@ DKDefineEnum( EnumType,
 
 - (void) testPropertyKeyPaths
 {
-    DKMutableDictionaryRef dick = DKDictionaryWithKeysAndObjects(
+    DKMutableDictionaryRef dick = DKMutableDictionaryWithKeysAndObjects(
         DKSTR( "name" ), DKSTR( "Dick" ),
+        DKSTR( "display.name" ), DKSTR( "Spot" ),
         DKSTR( "phoneNumber" ), DKSTR( "555-1234" ),
         NULL );
     
-    DKMutableDictionaryRef jane = DKDictionaryWithKeysAndObjects(
+    DKMutableDictionaryRef jane = DKMutableDictionaryWithKeysAndObjects(
         DKSTR( "name" ), DKSTR( "Jane" ),
+        DKSTR( "display.name" ), DKSTR( "Puff" ),
         DKSTR( "phoneNumber" ), DKSTR( "555-4321" ),
         NULL );
     
-    DKMutableDictionaryRef db = DKDictionaryWithKeysAndObjects(
+    DKMutableDictionaryRef db = DKMutableDictionaryWithKeysAndObjects(
         DKSTR( "dick" ), dick,
         DKSTR( "jane" ), jane,
         NULL );
+
+    DKSetPropertyForKeyPath( db, DKSTR( "dick.email" ), DKSTR( "dick@iluvspot.com" ) );
     
+    XCTAssertThrows( DKSetPropertyForKeyPath( db, DKSTR( "dick.work.email" ), DKSTR( "dick@iluvspot.com" ) ) );
+
     DKObjectRef value = DKGetPropertyForKeyPath( db, DKSTR( "dick.name" ) );
     XCTAssert( DKEqual( value, DKSTR( "Dick" ) ) );
+
+    value = DKGetPropertyForKeyPath( db, DKSTR( "dick.email" ) );
+    XCTAssert( DKEqual( value, DKSTR( "dick@iluvspot.com" ) ) );
 
     value = DKGetPropertyForKeyPath( db, DKSTR( "jane.phoneNumber" ) );
     XCTAssert( DKEqual( value, DKSTR( "555-4321" ) ) );
 
+    value = DKGetPropertyForKeyPath( db, DKSTR( "jane.display.name" ) );
+    XCTAssert( DKEqual( value, DKSTR( "Puff" ) ) );
+    
     value = DKGetPropertyForKeyPath( db, DKSTR( "dick" ) );
     XCTAssert( value == dick );
 }

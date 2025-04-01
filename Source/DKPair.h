@@ -41,7 +41,7 @@ struct DKPair
     DKObjectRef second;
 };
 
-typedef struct DKPair * DKPairRef;
+//typedef struct DKPair * DKPairRef; -- Declared in DKPlatform.h
 
 
 DK_API DKClassRef  DKPairClass( void );

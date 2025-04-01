@@ -40,6 +40,7 @@
 #include "DKDictionary.h"
 #include "DKArray.h"
 #include "DKHashTable.h"
+#include "DKPair.h"
 #include "DKEgg.h"
 #include "DKAllocation.h"
 #include "DKComparison.h"
@@ -1298,6 +1299,47 @@ DKListRef DKStringSplit( DKStringRef _self, DKStringRef separator )
         }
 
         return (DKListRef)array;
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringSplitFirst()
+//
+DKPairRef DKStringSplitFirst( DKStringRef _self, DKStringRef separator )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        DKAssertKindOfClass( separator, DKStringClass() );
+
+        const char * str = (const char *)_self->byteArray.bytes;
+        const char * sep = (const char *)separator->byteArray.bytes;
+        const char * end = (const char *)_self->byteArray.bytes + _self->byteArray.length;
+        size_t len = separator->byteArray.length;
+        
+        const char * a = str;
+        const char * b = dk_ustrstr( a, sep );
+        
+        if( a < b )
+        {
+            DKStringRef first = CopySubstring( a, DKRangeMake( 0, b - a ) );
+            DKStringRef second = CopySubstring( b + len, DKRangeMake( 0, end - b + len ) );
+            
+            DKPairRef pair = DKPair( first, second );
+            
+            DKRelease( first );
+            DKRelease( second );
+            
+            return pair;
+        }
+        
+        else
+        {
+            return DKPair( _self, NULL );
+        }
     }
     
     return NULL;

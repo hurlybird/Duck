@@ -228,6 +228,7 @@ typedef const struct DKProperty *   DKPropertyRef;
 typedef struct DKString *           DKStringRef;
 typedef struct DKData *             DKDataRef;
 typedef struct DKNumber *           DKNumberRef;
+typedef struct DKPair *             DKPairRef;
 typedef struct DKEnum *             DKEnumRef;
 typedef struct DKPredicate *        DKPredicateRef;
 typedef DKObjectRef                 DKListRef;
