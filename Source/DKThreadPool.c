@@ -1005,7 +1005,7 @@ void DKThreadPoolWaitForTasks( DKThreadPoolRef _self, int64_t taskGroup )
         while( true )
         {
             struct DKThreadPoolQueue * queue = DKThreadPoolGetQueue( _self, taskGroup );
-            DKAssert( (queue == NULL) || (queue->pendingTasks > 0) );
+            DKAssert( (queue == NULL) || (queue->pendingTasks > 0) || (queue->completions) );
             
             if( queue == NULL )
                 break;
