@@ -218,6 +218,15 @@ DKThreadSafeClassInit( DKGraphClass )
 {
     DKClassRef cls = DKNewClass( DKSTR( "DKGraph" ), DKObjectClass(), sizeof(struct DKGraph), 0, DKGraphInit, DKGraphFinalize );
     
+    // Collection
+    struct DKCollectionInterface * collection = DKNewInterface( DKSelector(Collection) );
+    collection->getCount = (DKGetCountMethod)DKGraphGetVertexCount;
+    collection->containsObject = (DKContainsMethod)DKGraphContainsVertex;
+    collection->foreachObject = (DKForeachObjectMethod)DKGraphForeachVertex;
+    
+    DKInstallInterface( cls, collection );
+    DKRelease( collection );
+
     return cls;
 }
 
@@ -245,6 +254,37 @@ static void DKGraphFinalize( DKObjectRef _untyped_self )
     DKGraphRef _self = _untyped_self;
     
     DKRelease( _self->graph );
+}
+
+
+///
+//  DKGraphGetVertexCount()
+//
+DKIndex DKGraphGetVertexCount( DKGraphRef _self )
+{
+    return _self ? DKDictionaryGetCount( _self->graph ) : 0;
+}
+
+
+///
+//  DKGraphGetEdgeCount()
+//
+static int CountEdges( DKObjectRef key, DKObjectRef object, void * context )
+{
+    DKIndex * count = context;
+    *count += DKListGetCount( object );
+    
+    return 0;
+}
+
+DKIndex DKGraphGetEdgeCount( DKGraphRef _self )
+{
+    DKIndex count = 0;
+    
+    if( _self )
+        DKForeachKeyAndObject( _self->graph, CountEdges, &count );
+    
+    return count;
 }
 
 
@@ -336,6 +376,18 @@ void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bi
             if( addedEdges )
                 addedEdges[1] = edge;
         }
+        
+        else
+        {
+            DKMutableListRef edges = DKDictionaryGetObject( _self->graph, to );
+            
+            if( !edges )
+            {
+                edges = DKNewMutableList();
+                DKDictionarySetObject( _self->graph, to, edges );
+                DKRelease( edges );
+            }
+        }
     }
 }
 
@@ -368,6 +420,18 @@ void DKGraphRemoveAllEdges( DKGraphRef _self )
 
 
 ///
+//  DKGraphGetVertices()
+//
+DKListRef DKGraphGetVertices( DKGraphRef _self )
+{
+    if( _self )
+        return DKDictionaryGetAllKeys( _self->graph );
+        
+    return NULL;
+}
+
+
+///
 //  DKGraphGetEdges()
 //
 DKListRef DKGraphGetEdges( DKGraphRef _self, DKObjectRef from )
@@ -388,6 +452,66 @@ DKGraphEdgeRef DKGraphGetEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef t
         return FindEdge( _self, from, to, false );
     
     return NULL;
+}
+
+
+///
+//  DKGraphContainsVertex()
+//
+bool DKGraphContainsVertex( DKGraphRef _self, DKObjectRef vertex )
+{
+    return _self ? DKDictionaryContainsKey( _self->graph, vertex ) : false;
+}
+
+
+///
+//  DKGraphContainsEdge()
+//
+bool DKGraphContainsEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to )
+{
+    return DKGraphGetEdge( _self, from, to ) != NULL;
+}
+
+
+///
+//  DKGraphForeachVertex()
+//
+int DKGraphForeachVertex( DKGraphRef _self, DKApplierFunction callback, void * context )
+{
+    if( _self )
+        return DKForeachKey( _self->graph, callback, context );
+        
+    return 0;
+}
+
+
+///
+//  DKGraphForeachEdge()
+//
+struct ForeachEdgeAtVertexContext
+{
+    DKApplierFunction edgeCallback;
+    void * edgeContext;
+};
+
+static int ForeachEdgeAtVertex( DKObjectRef vertex, DKObjectRef edgeList, void * _context )
+{
+    struct ForeachEdgeAtVertexContext * context = _context;
+    return DKForeachObject( edgeList, context->edgeCallback, context->edgeContext );
+}
+
+int DKGraphForeachEdge( DKGraphRef _self, DKApplierFunction callback, void * context )
+{
+    if( _self )
+    {
+        struct ForeachEdgeAtVertexContext vertexContext;
+        vertexContext.edgeCallback = callback;
+        vertexContext.edgeContext = context;
+    
+        return DKForeachKeyAndObject( _self->graph, ForeachEdgeAtVertex, &vertexContext );
+    }
+    
+    return 0;
 }
 
 

@@ -62,12 +62,22 @@ DK_API DKClassRef  DKGraphClass( void );
 #define DKGraph()       DKAutorelease( DKNew( DKGraphClass() ) )
 #define DKNewGraph()    DKNew( DKGraphClass() )
 
+DK_API DKIndex DKGraphGetVertexCount( DKGraphRef _self );
+DK_API DKIndex DKGraphGetEdgeCount( DKGraphRef _self );
+
 DK_API void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional, DKGraphEdgeRef addedEdges[] );
 DK_API void DKGraphRemoveEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
 DK_API void DKGraphRemoveAllEdges( DKGraphRef _self );
 
+DK_API DKListRef DKGraphGetVertices( DKGraphRef _self );
 DK_API DKListRef DKGraphGetEdges( DKGraphRef _self, DKObjectRef from );
 DK_API DKGraphEdgeRef DKGraphGetEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to );
+
+DK_API bool DKGraphContainsVertex( DKGraphRef _self, DKObjectRef vertex );
+DK_API bool DKGraphContainsEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to );
+
+DK_API int DKGraphForeachVertex( DKGraphRef _self, DKApplierFunction callback, void * context );
+DK_API int DKGraphForeachEdge( DKGraphRef _self, DKApplierFunction callback, void * context );
 
 DK_API int DKGraphTraverse( DKGraphRef _self, DKObjectRef from, DKApplierFunction callback, void * context );
 
