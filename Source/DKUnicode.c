@@ -162,7 +162,7 @@ int dk_ustrcmp( const char * str1, const char * str2 )
     }
     while( (ch1 == ch2) && (ch1 != '\0') );
 
-    return ch2 - ch1;
+    return ch1 - ch2;
 }
 
 

@@ -417,7 +417,7 @@ static void InsertRecursive( struct DKBinaryTree * tree, struct DKBinaryTreeNode
     
     else
     {
-        int cmp = tree->keyCompare( (*node)->key, key );
+        int cmp = tree->keyCompare( key, (*node)->key );
         
         if( cmp < 0 )
         {
@@ -467,7 +467,7 @@ static const struct DKBinaryTreeNode * FindNode( const struct DKBinaryTree * tre
 
     while( node != &tree->null_node )
     {
-        int cmp = tree->keyCompare( node->key, key );
+        int cmp = tree->keyCompare( key, node->key );
         
         if( cmp < 0 )
             node = node->left;
@@ -507,7 +507,7 @@ static void Remove( struct DKBinaryTree * tree, DKObjectRef key, struct DKBinary
     {
         *leaf_node = *node;
     
-        int cmp = tree->keyCompare( (*node)->key, key );
+        int cmp = tree->keyCompare( key, (*node)->key );
         
         if( cmp < 0 )
         {
@@ -522,7 +522,7 @@ static void Remove( struct DKBinaryTree * tree, DKObjectRef key, struct DKBinary
         
         if( *leaf_node == *node )
         {
-            if( (*erase_node != &tree->null_node) && (tree->keyCompare( (*erase_node)->key, key ) == 0) )
+            if( (*erase_node != &tree->null_node) && (tree->keyCompare( key, (*erase_node)->key ) == 0) )
             {
                 DKAssert( (*node)->left == &tree->null_node );
                 

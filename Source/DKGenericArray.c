@@ -27,6 +27,7 @@
 #include "DKConfig.h"
 #include "DKPlatform.h"
 #include "DKGenericArray.h"
+#include "DKQuicksort.h"
 
 
 #define MIN_ELEMENT_ARRAY_SIZE          32
@@ -263,101 +264,21 @@ void DKGenericArraySort( DKGenericArray * array, int (*cmp)(const void *, const 
 
 
 ///
+//  DKGenericArraySortEx()
+//
+void DKGenericArraySortEx( DKGenericArray * array, int (*cmp)(const void *, const void *, void *), void * context )
+{
+    DKQuicksort( array->elements, array->length, array->elementSize, cmp, context );
+}
+
+
+///
 //  DKGenericArraySortObjects()
 //
-static void InsertionSort( DKObjectRef * array, DKIndex count, DKCompareFunction cmp )
-{
-    for( DKIndex i = 1; i < count; ++i )
-    {
-        DKObjectRef x = array[i];
-        DKIndex j = i - 1;
-        
-        while( (j >= 0) && (cmp( array[j], x ) < 0) )
-        {
-            array[j+1] = array[j];
-            --j;
-        }
-        
-        array[j+1] = x;
-    }
-}
-
-static DKObjectRef QuickSortPivot( DKObjectRef * array, DKIndex lo, DKIndex hi, DKCompareFunction cmp )
-{
-    DKIndex mid = lo + (hi - lo) / 2;
-    DKObjectRef swap;
-
-    if( cmp( array[mid], array[lo] ) < 0 )
-    {
-        swap = array[lo];
-        array[lo] = array[mid];
-        array[mid] = swap;
-    }
-    
-    if( cmp( array[hi], array[lo] ) < 0 )
-    {
-        swap = array[lo];
-        array[lo] = array[hi];
-        array[hi] = swap;
-    }
-
-    if( cmp( array[mid], array[hi] ) < 0 )
-    {
-        swap = array[mid];
-        array[mid] = array[hi];
-        array[hi] = swap;
-    }
-
-    return array[hi];
-}
-
-static DKIndex QuickSortPartition( DKObjectRef * array, DKIndex lo, DKIndex hi, DKCompareFunction cmp )
-{
-    DKObjectRef pivot = QuickSortPivot( array, lo, hi, cmp );
-    DKIndex i = lo - 1;
-    DKIndex j = hi + 1;
-    DKObjectRef swap;
-
-    while( true )
-    {
-        while( cmp( array[++i], pivot ) > 0 )
-            ;
-        
-        while( cmp( array[--j], pivot ) < 0 )
-            ;
-        
-        if( i >= j )
-            return j;
-        
-        swap = array[i];
-        array[i] = array[j];
-        array[j] = swap;
-    }
-}
-
-static void QuickSort( DKObjectRef * array, DKIndex lo, DKIndex hi, DKCompareFunction cmp )
-{
-    if( (hi - lo) < 10 )
-    {
-        InsertionSort( &array[lo], hi - lo + 1, cmp );
-        return;
-    }
- 
-    if( lo < hi )
-    {
-        DKIndex p = QuickSortPartition( array, lo, hi, cmp );
-        
-        QuickSort( array, lo, p, cmp );
-        QuickSort( array, p + 1, hi, cmp );
-    }
-}
-
-
-
 void DKGenericArraySortObjects( DKGenericArray * array, DKCompareFunction cmp )
 {
     DKAssert( array->elementSize == sizeof(DKObjectRef) );
-    QuickSort( (DKObjectRef *)array->elements, 0, array->length - 1, cmp );
+    DKQuicksortObjects( (DKObjectRef *)array->elements, array->length, cmp );
 }
 
 

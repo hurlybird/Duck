@@ -51,10 +51,10 @@ bool DKPointerEqual( DKObjectRef _self, DKObjectRef other )
 int DKPointerCompare( DKObjectRef _self, DKObjectRef other )
 {
     if( _self < other )
-        return 1;
+        return -1;
     
     if( _self > other )
-        return -1;
+        return 1;
     
     return 0;
 }

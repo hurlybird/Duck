@@ -256,10 +256,10 @@ static int DKMemberCompare( DKMemberRef _self, DKObjectRef other )
         int cmp = DKCompare( _self->object, _other->object );
         
         if( cmp == 0 )
-            cmp = (int)((int64_t)_other->offset - (int64_t)_self->offset);
+            cmp = (int)((int64_t)_self->offset - (int64_t)_other->offset);
         
         if( cmp == 0 )
-            cmp = DKGetObjectTag( _other ) - DKGetObjectTag( _self );
+            cmp = DKGetObjectTag( _self ) - DKGetObjectTag( _other );
         
         return cmp;
     }

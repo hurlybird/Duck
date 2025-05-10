@@ -238,6 +238,13 @@
 #define DK_ERROR_ON_MISSING_THREADPOOL  0
 #endif
 
+// The maximum size for elements in quicksort. Anything larger than this will allocate
+// memory for temporary swap space.
+#ifndef DK_MAX_SORT_ELEM_SIZE
+#define DK_MAX_SORT_ELEM_SIZE    128
+#endif
+
+
 #endif // _DK_CONFIG_H_
 
 

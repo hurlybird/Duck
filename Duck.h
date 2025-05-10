@@ -80,6 +80,7 @@
 
 #include <Duck/DKFile.h>
 #include <Duck/DKEgg.h>
+#include <Duck/DKQuicksort.h>
 #include <Duck/DKShell.h>
 #include <Duck/DKJSON.h>
 #include <Duck/DKXML.h>

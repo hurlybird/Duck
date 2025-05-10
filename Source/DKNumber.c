@@ -92,10 +92,10 @@ typedef int (*CmpFunction)( const DKNumberValue * x, const DKNumberValue * y, si
         for( size_t i = 0; i < count; ++i )                                             \
         {                                                                               \
             if( x->_ ## xtype[i] < (xtype)y->_ ## ytype[i] )                            \
-                return 1;                                                               \
+                return -1;                                                              \
                                                                                         \
             if( x->_ ## xtype[i] > (xtype)y->_ ## ytype[i] )                            \
-                return -1;                                                              \
+                return 1;                                                               \
         }                                                                               \
                                                                                         \
         return 0;                                                                       \
@@ -929,24 +929,23 @@ int DKNumberCompare( DKNumberRef a, DKNumberRef b )
         size_t a_count = DKEncodingGetCount( a_encoding );
         size_t b_count = DKEncodingGetCount( b_encoding );
 
+        CmpFunction cmpFunction = GetCmpFunction( a_encoding, b_encoding );
+
         if( a_count == b_count )
         {
-            CmpFunction cmpFunction = GetCmpFunction( a_encoding, b_encoding );
             return cmpFunction( &a->value, &b->value, b_count );
         }
         
         else
         {
-            size_t sa = DKEncodingGetSize( a_encoding );
-            size_t sb = DKEncodingGetSize( b_encoding );
+            size_t count = (a_count < b_count) ? a_count : b_count;
         
-            if( sa < sb )
-                return 1;
+            int cmp = cmpFunction( &a->value, &b->value, count );
             
-            if( sa > sb )
-                return -1;
+            if( cmp == 0 )
+                cmp = (a_count < b_count) ? -1 : 1;
             
-            return memcmp( &a->value, &b->value, sa );
+            return cmp;
         }
     }
     

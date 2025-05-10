@@ -23,6 +23,11 @@
 		024786EA2BFE930F0066CA36 /* DKMember.h in Headers */ = {isa = PBXBuildFile; fileRef = 024786E72BFE930F0066CA36 /* DKMember.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		024786EB2BFE930F0066CA36 /* DKMember.c in Sources */ = {isa = PBXBuildFile; fileRef = 024786E82BFE930F0066CA36 /* DKMember.c */; };
 		024786EC2BFE930F0066CA36 /* DKMember.c in Sources */ = {isa = PBXBuildFile; fileRef = 024786E82BFE930F0066CA36 /* DKMember.c */; };
+		025A4E3E2DCFF8E00052A9E0 /* DKQuicksort.c in Sources */ = {isa = PBXBuildFile; fileRef = 025A4E3D2DCFF8E00052A9E0 /* DKQuicksort.c */; };
+		025A4E3F2DCFF8E00052A9E0 /* DKQuicksort.h in Headers */ = {isa = PBXBuildFile; fileRef = 025A4E3C2DCFF8E00052A9E0 /* DKQuicksort.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		025A4E402DCFF8E00052A9E0 /* DKQuicksort.h in Headers */ = {isa = PBXBuildFile; fileRef = 025A4E3C2DCFF8E00052A9E0 /* DKQuicksort.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		025A4E412DCFF8E00052A9E0 /* DKQuicksort.c in Sources */ = {isa = PBXBuildFile; fileRef = 025A4E3D2DCFF8E00052A9E0 /* DKQuicksort.c */; };
+		025A4E432DD002FD0052A9E0 /* TestDKQuicksort.m in Sources */ = {isa = PBXBuildFile; fileRef = 025A4E422DD002FD0052A9E0 /* TestDKQuicksort.m */; };
 		025D78031C245CB7005C56A4 /* DKConversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0212831F1C244F9A00B7C3A7 /* DKConversion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0260FF8F2D2274F200F71143 /* Duck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 028F1A891B0DCA85006FDFDF /* Duck.framework */; };
 		0260FF952D2274FE00F71143 /* TestDKNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 025C0F9918EFEE5D000344C0 /* TestDKNumber.m */; };
@@ -287,6 +292,9 @@
 		024786E72BFE930F0066CA36 /* DKMember.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKMember.h; sourceTree = "<group>"; };
 		024786E82BFE930F0066CA36 /* DKMember.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = DKMember.c; sourceTree = "<group>"; };
 		024786ED2BFE934F0066CA36 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		025A4E3C2DCFF8E00052A9E0 /* DKQuicksort.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DKQuicksort.h; sourceTree = "<group>"; };
+		025A4E3D2DCFF8E00052A9E0 /* DKQuicksort.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = DKQuicksort.c; sourceTree = "<group>"; };
+		025A4E422DD002FD0052A9E0 /* TestDKQuicksort.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestDKQuicksort.m; sourceTree = "<group>"; };
 		025C0F4818EFED96000344C0 /* DKArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKArray.c; sourceTree = "<group>"; };
 		025C0F4918EFED96000344C0 /* DKBinaryTree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = DKBinaryTree.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		025C0F4A18EFED96000344C0 /* DKByteArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKByteArray.c; sourceTree = "<group>"; };
@@ -601,6 +609,8 @@
 				028F5CE619CF59B900CF4D47 /* DKPredicate.c */,
 				02803E9E1EE4AC220070D925 /* DKShell.h */,
 				02803E9D1EE4AC220070D925 /* DKShell.c */,
+				025A4E3C2DCFF8E00052A9E0 /* DKQuicksort.h */,
+				025A4E3D2DCFF8E00052A9E0 /* DKQuicksort.c */,
 				0269BF2E19D85669002E876C /* DKUnicode.h */,
 				025C0F5A18EFED97000344C0 /* DKUnicode.c */,
 				02393EBB1C3EFE15009E8731 /* DKXML.h */,
@@ -623,6 +633,7 @@
 				025C0F9918EFEE5D000344C0 /* TestDKNumber.m */,
 				023098FD19D53E7F00C3DB59 /* TestDKPredicate.m */,
 				02083FA218F3C49E00EEBBAC /* TestDKProperty.m */,
+				025A4E422DD002FD0052A9E0 /* TestDKQuicksort.m */,
 				025C0F9A18EFEE5D000344C0 /* TestDKRuntime.m */,
 				02A33EAA1EEB8E6D005BC38D /* TestDKShell.m */,
 				02083F9818F1EDBE00EEBBAC /* TestDKSet.m */,
@@ -742,6 +753,7 @@
 				02C3078E1C304F8A0077DC56 /* DKMutex.h in Headers */,
 				02E535422232FCC10050BD21 /* DKSemaphore.h in Headers */,
 				028F1AC71B0DCBBB006FDFDF /* DKUnicode.h in Headers */,
+				025A4E3F2DCFF8E00052A9E0 /* DKQuicksort.h in Headers */,
 				02B15F962288B8F300ACF163 /* DKBitList.h in Headers */,
 				02393EBD1C3EFE15009E8731 /* DKXML.h in Headers */,
 				026FBD1A1C309B5F00C96822 /* DKThreadPool.h in Headers */,
@@ -798,6 +810,7 @@
 				02C3078F1C304F8A0077DC56 /* DKMutex.h in Headers */,
 				02E535432232FCC10050BD21 /* DKSemaphore.h in Headers */,
 				028F1B611B0E6BFC006FDFDF /* DKThread.h in Headers */,
+				025A4E402DCFF8E00052A9E0 /* DKQuicksort.h in Headers */,
 				02B15F972288B8F300ACF163 /* DKBitList.h in Headers */,
 				021283231C244F9A00B7C3A7 /* DKConversion.h in Headers */,
 				028F1B621B0E6BFC006FDFDF /* DKUnicode.h in Headers */,
@@ -872,7 +885,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1630;
 				ORGANIZATIONNAME = "Derek W. Nylen";
 				TargetAttributes = {
 					0260FF8A2D2274F200F71143 = {
@@ -945,6 +958,7 @@
 				0260FF9E2D2275A100F71143 /* TestDKSet.m in Sources */,
 				0260FF9F2D2275A100F71143 /* TestDKXML.m in Sources */,
 				0260FFA02D2275A100F71143 /* TestDKProperty.m in Sources */,
+				025A4E432DD002FD0052A9E0 /* TestDKQuicksort.m in Sources */,
 				0260FFA12D2275A100F71143 /* TestDKRuntime.m in Sources */,
 				0260FFA22D2275A100F71143 /* TestDKShell.m in Sources */,
 				0260FFA32D2275A100F71143 /* TestDKPredicate.m in Sources */,
@@ -981,6 +995,7 @@
 				028D61CA1ED9F55B00E7BC72 /* DKGraph.c in Sources */,
 				028F1AD91B0DCC05006FDFDF /* DKLinkedList.c in Sources */,
 				028F1ADA1B0DCC05006FDFDF /* DKList.c in Sources */,
+				025A4E3E2DCFF8E00052A9E0 /* DKQuicksort.c in Sources */,
 				028F1ADB1B0DCC05006FDFDF /* DKSet.c in Sources */,
 				028F1ADC1B0DCC05006FDFDF /* DKBoolean.c in Sources */,
 				028F1ADD1B0DCC05006FDFDF /* DKData.c in Sources */,
@@ -1041,6 +1056,7 @@
 				028D61CB1ED9F55B00E7BC72 /* DKGraph.c in Sources */,
 				028F1B2A1B0E6BC9006FDFDF /* DKLinkedList.c in Sources */,
 				028F1B2B1B0E6BC9006FDFDF /* DKList.c in Sources */,
+				025A4E412DCFF8E00052A9E0 /* DKQuicksort.c in Sources */,
 				028F1B2C1B0E6BC9006FDFDF /* DKSet.c in Sources */,
 				028F1B2D1B0E6BC9006FDFDF /* DKBoolean.c in Sources */,
 				028F1B2E1B0E6BC9006FDFDF /* DKData.c in Sources */,
@@ -1110,6 +1126,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = D45B9CGB68;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -1166,6 +1183,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = D45B9CGB68;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
@@ -1207,7 +1225,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = D45B9CGB68;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -1241,7 +1258,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D45B9CGB68;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -1277,7 +1293,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = D45B9CGB68;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1331,7 +1346,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = D45B9CGB68;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1380,7 +1394,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = D45B9CGB68;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1436,7 +1449,6 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = D45B9CGB68;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";

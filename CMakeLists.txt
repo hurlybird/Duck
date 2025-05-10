@@ -199,6 +199,8 @@ set( DuckSources
     ${DUCK_PATH}/Source/DKPlatform.h
     ${DUCK_PATH}/Source/DKPredicate.c
     ${DUCK_PATH}/Source/DKPredicate.h
+    ${DUCK_PATH}/Source/DKQuicksort.c
+    ${DUCK_PATH}/Source/DKQuicksort.h
     ${DUCK_PATH}/Source/DKReadWriteLock.c
     ${DUCK_PATH}/Source/DKReadWriteLock.h
     ${DUCK_PATH}/Source/DKRuntime.c

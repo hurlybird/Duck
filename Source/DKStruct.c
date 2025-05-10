@@ -252,10 +252,10 @@ int DKStructCompare( DKStructRef _self, DKStructRef other )
             size_t size2 = (size_t)DKGetObjectTag( other );
             
             if( size1 < size2 )
-                return 1;
+                return -1;
             
             if( size1 > size2 )
-                return -1;
+                return 1;
             
             if( size1 == 0 )
                 return 0;

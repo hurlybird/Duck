@@ -80,6 +80,7 @@ DK_API void DKGenericArrayReplaceElements( DKGenericArray * array, DKRange range
 DK_API void DKGenericArrayAppendElements( DKGenericArray * array, const void * elements, DKIndex length );
 
 DK_API void DKGenericArraySort( DKGenericArray * array, int (*cmp)(const void *, const void *) );
+DK_API void DKGenericArraySortEx( DKGenericArray * array, int (*cmp)(const void *, const void *, void *), void * context );
 DK_API void DKGenericArraySortObjects( DKGenericArray * array, DKCompareFunction cmp );
 
 DK_API void DKGenericArrayReverse( DKGenericArray * array );
