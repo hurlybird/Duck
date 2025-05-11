@@ -297,22 +297,22 @@ void DKQuicksort( void * ptr, size_t count, size_t size, int (*cmp)(const void *
 
         switch( size )
         {
-        case 8:
+        case 1:
             ctx.swap = Swap8;
             ctx.isort = InsertionSort8;
             break;
 
-        case 16:
+        case 2:
             ctx.swap = Swap16;
             ctx.isort = InsertionSort16;
             break;
 
-        case 32:
+        case 4:
             ctx.swap = Swap32;
             ctx.isort = InsertionSort32;
             break;
 
-        case 64:
+        case 8:
             ctx.swap = Swap64;
             ctx.isort = InsertionSort64;
             break;
