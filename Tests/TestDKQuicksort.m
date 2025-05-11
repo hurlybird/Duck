@@ -71,9 +71,6 @@ static int CompareInts2( const void * _a, const void * _b, void * context )
     qsort( a, N, sizeof(int), CompareInts1 );
     DKQuicksort( b, N, sizeof(int), CompareInts2, NULL );
     
-    for( int i = 0; i < N; i++ )
-        printf( "% 12d   % 12d\n", a[i], b[i] );
-    
     XCTAssert( memcmp( a, b, sizeof(int) * N ) == 0 );
     
     free( a );
