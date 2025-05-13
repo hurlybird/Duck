@@ -375,7 +375,7 @@ DKObjectRef DKJSONParseEx( DKStringRef json, int options, DKStringRef * error )
                 *error = context.error;
             
             else
-                DKWarning( "%@", context.error );
+                DKWarning( "DKJSON: %@", context.error );
         }
 
         DKRelease( obj );
@@ -396,7 +396,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     
     if( token.length == 0 )
     {
-        context->error = DKStringWithFormat( "DKJSON: Scan error on line %d", context->line );
+        context->error = DKStringWithFormat( "Scan error on line %d", context->line );
         return -1;
     }
     
@@ -556,7 +556,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     DKRelease( value );
 
     *obj = NULL;
-    context->error = DKStringWithFormat( "DKJSON: Parse error on line %d", context->line );
+    context->error = DKStringWithFormat( "Parse error on line %d", context->line );
     return -1;
 }
 
@@ -653,7 +653,7 @@ static Token ScanStringToken( Token token, ParseContext * context, DKObjectRef *
                 break;
                 
             default:
-                context->error = DKStringWithFormat( "DKJSON: Invalid control character on line %ld: %c (%d)", context->line, ch, ch );
+                context->error = DKStringWithFormat( "Invalid control character on line %ld: %c (%d)", context->line, ch, ch );
                 break;
             }
         }
