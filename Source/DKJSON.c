@@ -336,6 +336,8 @@ typedef struct
 {
     const char * start;
     const char * cursor;
+    DKStringRef error;
+    long line;
     int options;
     
 } ParseContext;
@@ -352,21 +354,31 @@ static Token ScanToken( ParseContext * context, DKObjectRef * obj );
 
 
 ///
-//  DKJSONParse()
+//  DKJSONParseEx()
 //
-DKObjectRef DKJSONParse( DKStringRef json, int options )
+DKObjectRef DKJSONParseEx( DKStringRef json, int options, DKStringRef * error )
 {
     ParseContext context;
     context.start = DKStringGetCStringPtr( json );
     context.cursor = context.start;
+    context.error = NULL;
+    context.line = 1;
     context.options = options;
     
     DKObjectRef obj = NULL;
     
     if( ParseObject( &context, &obj ) )
     {
+        if( context.error )
+        {
+            if( error )
+                *error = context.error;
+            
+            else
+                DKWarning( "%@", context.error );
+        }
+
         DKRelease( obj );
-    
         return NULL;
     }
 
@@ -383,7 +395,10 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     Token token = ScanToken( context, &objToken );
     
     if( token.length == 0 )
+    {
+        context->error = DKStringWithFormat( "DKJSON: Scan error on line %d", context->line );
         return -1;
+    }
     
     char ch = *token.str;
     DKObjectRef key = NULL;
@@ -541,6 +556,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     DKRelease( value );
 
     *obj = NULL;
+    context->error = DKStringWithFormat( "DKJSON: Parse error on line %d", context->line );
     return -1;
 }
 
@@ -637,7 +653,7 @@ static Token ScanStringToken( Token token, ParseContext * context, DKObjectRef *
                 break;
                 
             default:
-                DKWarning( "DKJSON: Invalid control character: %c (%d)", ch, ch );
+                context->error = DKStringWithFormat( "DKJSON: Invalid control character on line %ld: %c (%d)", context->line, ch, ch );
                 break;
             }
         }
@@ -652,6 +668,9 @@ static Token ScanStringToken( Token token, ParseContext * context, DKObjectRef *
         
         else
         {
+            if( ch == '\n' )
+                context->line++;
+
             DKStringWrite( buffer, token.str + token.length, 1, n );
         }
 
@@ -898,10 +917,15 @@ static Token ScanToken( ParseContext * context, DKObjectRef * obj )
             return token;
         }
         
-        if( !isspace( ch ) )
+        else if( !isspace( ch ) )
         {
             token.length = n;
             break;
+        }
+        
+        else if( ch == '\n' )
+        {
+            context->line++;
         }
         
         token.str += n;

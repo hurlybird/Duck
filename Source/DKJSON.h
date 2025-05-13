@@ -44,7 +44,9 @@ enum
 
 DK_API int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options );
 
-DK_API DKObjectRef DKJSONParse( DKStringRef json, int options );
+DK_API DKObjectRef DKJSONParseEx( DKStringRef json, int options, DKStringRef * error );
+
+#define DKJSONParse( json, options )    DKJSONParseEx( json, options, NULL )
 
 
 #ifdef __cplusplus
