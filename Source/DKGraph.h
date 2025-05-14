@@ -65,6 +65,7 @@ DK_API DKClassRef  DKGraphClass( void );
 DK_API DKIndex DKGraphGetVertexCount( DKGraphRef _self );
 DK_API DKIndex DKGraphGetEdgeCount( DKGraphRef _self );
 
+DK_API void DKGraphAddVertex( DKGraphRef _self, DKObjectRef vertex );
 DK_API void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional, DKGraphEdgeRef addedEdges[] );
 DK_API void DKGraphRemoveEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional );
 DK_API void DKGraphRemoveAllEdges( DKGraphRef _self );

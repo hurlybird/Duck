@@ -32,12 +32,16 @@
 #include "DKString.h"
 #include "DKEgg.h"
 #include "DKComparison.h"
+#include "DKCopying.h"
 
 
 static void DKPairFinalize( DKObjectRef _untyped_self );
 
 static DKObjectRef DKPairInitWithEgg( DKObjectRef _self, DKEggUnarchiverRef egg );
 static void DKPairAddToEgg( DKObjectRef _self, DKEggArchiverRef egg );
+
+static DKObjectRef DKPairCopy( DKObjectRef _self );
+static DKObjectRef DKPairDeepCopy( DKObjectRef _self, int options );
 
 static bool DKPairEqual( DKPairRef _self, DKObjectRef other );
 static int DKPairCompare( DKPairRef _self, DKObjectRef other );
@@ -56,6 +60,15 @@ DKThreadSafeClassInit( DKPairClass )
 
     DKInstallInterface( cls, comparison );
     DKRelease( comparison );
+
+    // Copying
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
+    copying->copy = DKPairCopy;
+    copying->mutableCopy = DKPairCopy;
+    copying->deepCopy = DKPairDeepCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
 
     // Egg
     struct DKEggInterface * egg = DKNewInterface( DKSelector(Egg) );
@@ -124,6 +137,36 @@ static void DKPairAddToEgg( DKObjectRef _untyped_self, DKEggArchiverRef egg )
 
     DKEggAddObject( egg, DKSTR( "first" ), _self->first );
     DKEggAddObject( egg, DKSTR( "second" ), _self->second );
+}
+
+
+///
+//  DKPairCopy()
+//
+static DKObjectRef DKPairCopy( DKObjectRef _untyped_self )
+{
+    DKPairRef _self = _untyped_self;
+    
+    return DKNewPair( _self->first, _self->second );
+}
+
+
+///
+//  DKPairDeepCopy()
+//
+static DKObjectRef DKPairDeepCopy( DKObjectRef _untyped_self, int options )
+{
+    DKPairRef _self = _untyped_self;
+    
+    DKObjectRef firstCopy = DKDeepCopy( _self->first, options );
+    DKObjectRef secondCopy = DKDeepCopy( _self->second, options );
+    
+    DKPairRef copy = DKNewPair( firstCopy, secondCopy );
+    
+    DKRelease( firstCopy );
+    DKRelease( secondCopy );
+    
+    return copy;
 }
 
 

@@ -30,6 +30,7 @@
 #include "DKRuntime.h"
 #include "DKGraph.h"
 #include "DKCollection.h"
+#include "DKCopying.h"
 #include "DKList.h"
 #include "DKDictionary.h"
 #include "DKSet.h"
@@ -52,11 +53,23 @@ struct DKGraphEdge
 
 static void DKGraphEdgeFinalize( DKObjectRef _untyped_self );
 
+static DKObjectRef DKGraphEdgeCopy( DKObjectRef _self );
+static DKObjectRef DKGraphEdgeDeepCopy( DKObjectRef _self, int options );
+
 
 DKThreadSafeClassInit( DKGraphEdgeClass )
 {
     DKClassRef cls = DKNewClass( DKSTR( "DKGraphEdge" ), DKObjectClass(), sizeof(struct DKGraphEdge), 0, NULL, DKGraphEdgeFinalize );
     
+    // Copying
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
+    copying->copy = DKGraphEdgeCopy;
+    copying->mutableCopy = DKGraphEdgeCopy;
+    copying->deepCopy = DKGraphEdgeDeepCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
     return cls;
 }
 
@@ -88,6 +101,36 @@ static void DKGraphEdgeFinalize( DKObjectRef _untyped_self )
     DKRelease( _self->firstVertex );
     DKRelease( _self->secondVertex );
     DKRelease( _self->userInfo );
+}
+
+
+///
+//  DKGraphEdgeCopy()
+//
+static DKObjectRef DKGraphEdgeCopy( DKObjectRef _untyped_self )
+{
+    DKGraphEdgeRef _self = _untyped_self;
+    
+    return DKGraphEdgeInit( DKAlloc( DKGraphEdgeClass() ), _self->firstVertex, _self->secondVertex );
+}
+
+
+///
+//  DKGraphEdgeDeepCopy()
+//
+static DKObjectRef DKGraphEdgeDeepCopy( DKObjectRef _untyped_self, int options )
+{
+    DKGraphEdgeRef _self = _untyped_self;
+    
+    DKObjectRef firstVertexCopy = DKDeepCopy( _self->firstVertex, options );
+    DKObjectRef secondVertexCopy = DKDeepCopy( _self->secondVertex, options );
+    
+    DKGraphEdgeRef copy = DKGraphEdgeInit( DKAlloc( DKGraphEdgeClass() ), firstVertexCopy, secondVertexCopy );
+    
+    DKRelease( firstVertexCopy );
+    DKRelease( secondVertexCopy );
+    
+    return copy;
 }
 
 
@@ -213,6 +256,9 @@ struct DKGraph
 static DKObjectRef DKGraphInit( DKObjectRef _untyped_self );
 static void DKGraphFinalize( DKObjectRef _untyped_self );
 
+static DKObjectRef DKGraphCopy( DKObjectRef _self );
+static DKObjectRef DKGraphDeepCopy( DKObjectRef _self, int options );
+
 
 DKThreadSafeClassInit( DKGraphClass )
 {
@@ -226,6 +272,15 @@ DKThreadSafeClassInit( DKGraphClass )
     
     DKInstallInterface( cls, collection );
     DKRelease( collection );
+
+    // Copying
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
+    copying->copy = DKGraphCopy;
+    copying->mutableCopy = DKGraphCopy;
+    copying->deepCopy = DKGraphDeepCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
 
     return cls;
 }
@@ -254,6 +309,78 @@ static void DKGraphFinalize( DKObjectRef _untyped_self )
     DKGraphRef _self = _untyped_self;
     
     DKRelease( _self->graph );
+}
+
+
+///
+//  DKGraphCopy()
+//
+static int CopyEdges( DKObjectRef vertex, DKObjectRef edges, void * context )
+{
+    DKGraphRef copy = context;
+    
+    DKMutableListRef edgesCopy = DKMutableCopy( edges );
+    DKDictionarySetObject( copy->graph, vertex, edgesCopy );
+    DKRelease( edgesCopy );
+    
+    return 0;
+}
+
+static DKObjectRef DKGraphCopy( DKObjectRef _untyped_self )
+{
+    DKGraphRef _self = _untyped_self;
+    
+    DKGraphRef copy = DKNewGraph();
+    DKForeachKeyAndObject( _self->graph, CopyEdges, copy );
+    
+    return copy;
+}
+
+
+///
+//  DKGraphDeepCopy()
+//
+struct DeepCopyContext
+{
+    DKGraphRef copy;
+    int options;
+};
+
+static int DeepCopyEdges( DKObjectRef vertex, DKObjectRef edges, void * _context )
+{
+    struct DeepCopyContext * context = _context;
+    
+    DKObjectRef vertexCopy = DKDeepCopy( vertex, context->options );
+    
+    DKMutableListRef edgesCopy = DKNewMutableList();
+    DKIndex count = DKListGetCount( edges );
+    
+    for( DKIndex i = 0; i < count; i++ )
+    {
+        DKGraphEdgeRef edge = DKListGetObjectAtIndex( edges, i );
+        DKGraphEdgeRef edgeCopy = DKGraphEdgeDeepCopy( edge, context->options );
+        DKListAppendObject( edgesCopy, edgeCopy );
+        DKRelease( edgeCopy );
+    }
+    
+    DKDictionarySetObject( context->copy->graph, vertexCopy, edgesCopy );
+    DKRelease( vertexCopy );
+    DKRelease( edgesCopy );
+    
+    return 0;
+}
+
+static DKObjectRef DKGraphDeepCopy( DKObjectRef _untyped_self, int options )
+{
+    DKGraphRef _self = _untyped_self;
+
+    struct DeepCopyContext context;
+    context.copy = DKNewGraph();
+    context.options = options;
+
+    DKForeachKeyAndObject( _self->graph, DeepCopyEdges, &context );
+    
+    return context.copy;
 }
 
 
@@ -355,9 +482,25 @@ static void RemoveEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to )
 
 
 ///
+//  DKGraphAddVertex()
+//
+void DKGraphAddVertex( DKGraphRef _self, DKObjectRef vertex )
+{
+    if( _self )
+    {
+        if( DKDictionaryGetObject( _self->graph, vertex ) == NULL )
+        {
+            DKMutableListRef edges = DKNewMutableList();
+            DKDictionarySetObject( _self->graph, vertex, edges );
+            DKRelease( edges );
+        }
+    }
+}
+
+
+///
 //  DKGraphAddEdge()
 //
-
 void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bidirectional, DKGraphEdgeRef addedEdges[] )
 {
     DKGraphEdgeRef edge;
@@ -379,14 +522,7 @@ void DKGraphAddEdge( DKGraphRef _self, DKObjectRef from, DKObjectRef to, bool bi
         
         else
         {
-            DKMutableListRef edges = DKDictionaryGetObject( _self->graph, to );
-            
-            if( !edges )
-            {
-                edges = DKNewMutableList();
-                DKDictionarySetObject( _self->graph, to, edges );
-                DKRelease( edges );
-            }
+            DKGraphAddVertex( _self, to );
         }
     }
 }

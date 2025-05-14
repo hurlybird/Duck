@@ -90,14 +90,6 @@ DKThreadSafeClassInit( DKPredicateClass )
 {
     DKClassRef cls = DKNewClass( DKSTR( "DKPredicate" ), DKObjectClass(), sizeof(struct DKPredicate), 0, DKPredicateInitialize, DKPredicateFinalize );
     
-    // Copying
-    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
-    copying->copy = DKRetain;
-    copying->mutableCopy = (DKMutableCopyMethod)DKRetain;
-    
-    DKInstallInterface( cls, copying );
-    DKRelease( copying );
-
     // Description
     struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKPredicateGetDescription;
