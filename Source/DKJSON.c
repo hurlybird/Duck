@@ -65,6 +65,7 @@ static void WriteEscapedString( DKStringRef str, WriteContext * context );
 static void WriteComma( WriteContext * context );
 static void BeginGroup( WriteContext * context, char delimiter );
 static void EndGroup( WriteContext * context, char delimiter );
+static void WriteEmptyGroup( WriteContext * context, char beginDelimiter, char endDelimiter );
 
 
 ///
@@ -133,27 +134,43 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
     
     else if( DKQueryInterface( obj, DKSelector(KeyedCollection), (DKInterfaceRef *)&keyedCollection ) )
     {
-        BeginGroup( context, '{' );
-        
-        if( context->options & DKJSONWriteSorted )
+        if( DKGetCount( obj ) > 0 )
         {
-            DKListRef sortedEntries = DKKeyedCollectionGetSortedEntries( obj, DKCompare );
-            result = DKForeachObject( sortedEntries, (DKApplierFunction)WriteKeyAndObjectPair, context );
+            BeginGroup( context, '{' );
+            
+            if( context->options & DKJSONWriteSorted )
+            {
+                DKListRef sortedEntries = DKKeyedCollectionGetSortedEntries( obj, DKCompare );
+                result = DKForeachObject( sortedEntries, (DKApplierFunction)WriteKeyAndObjectPair, context );
+            }
+            
+            else
+            {
+                result = DKForeachKeyAndObject( obj, (DKKeyedApplierFunction)WriteKeyAndObject, context );
+            }
+            
+            EndGroup( context, '}' );
         }
         
         else
         {
-            result = DKForeachKeyAndObject( obj, (DKKeyedApplierFunction)WriteKeyAndObject, context );
+            WriteEmptyGroup( context, '{', '}' );
         }
-        
-        EndGroup( context, '}' );
     }
     
     else if( DKQueryInterface( obj, DKSelector(Collection), (DKInterfaceRef *)&collection ) )
     {
-        BeginGroup( context, '[' );
-        result = DKForeachObject( obj, (DKApplierFunction)WriteObject, context );
-        EndGroup( context, ']' );
+        if( DKGetCount( obj ) > 0 )
+        {
+            BeginGroup( context, '[' );
+            result = DKForeachObject( obj, (DKApplierFunction)WriteObject, context );
+            EndGroup( context, ']' );
+        }
+        
+        else
+        {
+            WriteEmptyGroup( context, '[', ']' );
+        }
     }
 
     context->comma = 1;
@@ -327,6 +344,27 @@ static void EndGroup( WriteContext * context, char delimiter )
     DKSPrintf( context->stream, "%c", delimiter );
 }
 
+
+///
+//  WriteEmptyGroup()
+//
+static void WriteEmptyGroup( WriteContext * context, char beginDelimiter, char endDelimiter )
+{
+    if( context->options & DKJSONWritePretty )
+    {
+        DKSPrintf( context->stream, "%c\n", beginDelimiter );
+
+        for( int i = 0; i < context->indent; i++ )
+            DKSPrintf( context->stream, "    " );
+            
+        DKSPrintf( context->stream, "%c", endDelimiter );
+    }
+    
+    else
+    {
+        DKSPrintf( context->stream, "%c%c", beginDelimiter, endDelimiter );
+    }
+}
 
 
 
