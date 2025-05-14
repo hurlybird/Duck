@@ -33,6 +33,7 @@
 #include "DKStream.h"
 #include "DKAllocation.h"
 #include "DKComparison.h"
+#include "DKCopying.h"
 #include "DKDescription.h"
 #include "DKConversion.h"
 #include "DKEgg.h"
@@ -361,6 +362,14 @@ DKThreadSafeClassInit( DKNumberClass )
     DKInstallInterface( cls, comparison );
     DKRelease( comparison );
     
+    // Copying
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
+    copying->copy = (DKCopyMethod)DKRetain;
+    copying->mutableCopy = (DKCopyMethod)DKNumberVariableCopy;
+    
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
     // Description
     struct DKDescriptionInterface * description = DKNewInterface( DKSelector(Description) );
     description->getDescription = (DKGetDescriptionMethod)DKNumberGetDescription;
@@ -402,7 +411,15 @@ DKThreadSafeClassInit( DKVariableNumberClass )
     // base instance structure size.
     _Static_assert( sizeof(struct DKNumber) == (sizeof(DKObject) + sizeof(DKNumberValue)), "DKNumber struct size inconsistency." );
     DKClassRef cls = DKNewClass( DKSTR( "DKVariableNumber" ), DKNumberClass(), sizeof(DKObject), 0, NULL, NULL );
+
+    // Copying
+    struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
+    copying->copy = (DKCopyMethod)DKNumberCopy;
+    copying->mutableCopy = (DKCopyMethod)DKNumberVariableCopy;
     
+    DKInstallInterface( cls, copying );
+    DKRelease( copying );
+
     return cls;
 }
 
@@ -560,6 +577,30 @@ static void DKNumberAddToEgg( DKNumberRef _self, DKEggArchiverRef egg )
 {
     DKEncoding encoding = DKGetObjectTag( _self );
     DKEggAddNumberData( egg, DKSTR( "value" ), encoding, &_self->value );
+}
+
+
+///
+//  DKNumberCopy()
+//
+DKNumberRef DKNumberCopy( DKNumberRef _self )
+{
+    DKEncoding encoding = DKGetObjectTag( _self );
+    const void * value = DKNumberGetValuePtr( _self );
+    
+    return DKNewNumber( value, encoding );
+}
+
+
+///
+//  DKNumberVariableCopy()
+//
+DKNumberRef DKNumberVariableCopy( DKNumberRef _self )
+{
+    DKEncoding encoding = DKGetObjectTag( _self );
+    const void * value = DKNumberGetValuePtr( _self );
+    
+    return DKNewVariableNumber( value, encoding );
 }
 
 

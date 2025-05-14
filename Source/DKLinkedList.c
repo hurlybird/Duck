@@ -71,6 +71,8 @@ struct DKLinkedList
 static DKObjectRef DKLinkedListInitialize( DKObjectRef _self );
 static void        DKLinkedListFinalize( DKObjectRef _self );
 
+static DKObjectRef DKLinkedListDeepCopy( DKObjectRef _self, int options );
+
 static DKObjectRef DKLinkedListInitWithEgg( DKLinkedListRef _self, DKEggUnarchiverRef egg );
 static void        DKLinkedListAddToEgg( DKLinkedListRef _self, DKEggArchiverRef egg );
 
@@ -105,7 +107,8 @@ DKThreadSafeClassInit( DKLinkedListClass )
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = DKRetain;
-    copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListMutableCopy;
+    copying->mutableCopy = (DKCopyMethod)DKLinkedListMutableCopy;
+    copying->deepCopy = DKLinkedListDeepCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -186,7 +189,8 @@ DKThreadSafeClassInit( DKMutableLinkedListClass )
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = (DKCopyMethod)DKLinkedListCopy;
-    copying->mutableCopy = (DKMutableCopyMethod)DKLinkedListMutableCopy;
+    copying->mutableCopy = (DKCopyMethod)DKLinkedListMutableCopy;
+    copying->deepCopy = DKLinkedListDeepCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -649,6 +653,47 @@ DKLinkedListRef DKLinkedListCopy( DKLinkedListRef _self )
 DKMutableLinkedListRef DKLinkedListMutableCopy( DKLinkedListRef _self )
 {
     return DKLinkedListInitWithCollection( DKAlloc( DKMutableLinkedListClass() ), _self );
+}
+
+
+///
+//  DKLinkedListDeepCopy()
+//
+struct DeepCopyContext
+{
+    DKLinkedListRef copy;
+    int options;
+};
+
+static int DeepCopyObject( DKObjectRef object, void * _context )
+{
+    struct DeepCopyContext * context = _context;
+    
+    DKObjectRef objectCopy = DKDeepCopy( object, context->options );
+
+    InsertObject( context->copy, context->copy->count, objectCopy );
+    
+    DKRelease( objectCopy );
+    
+    return 0;
+}
+
+static DKObjectRef DKLinkedListDeepCopy( DKObjectRef _untyped_self, int options )
+{
+    DKLinkedListRef _self = _untyped_self;
+    
+    struct DeepCopyContext context;
+    context.options = options;
+    
+    if( options & DKDeepCopyMutableContainers )
+        context.copy = DKNew( DKMutableLinkedListClass() );
+
+    else
+        context.copy = DKNew( DKLinkedListClass() );
+    
+    DKLinkedListApplyFunction( _self, DeepCopyObject, &context );
+    
+    return context.copy;
 }
 
 

@@ -67,6 +67,8 @@ struct DKBinaryTree
 static DKObjectRef DKBinaryTreeInitialize( DKObjectRef _self );
 static void        DKBinaryTreeFinalize( DKObjectRef _self );
 
+static DKObjectRef DKBinaryTreeDeepCopy( DKObjectRef _untyped_self, int options );
+
 static DKObjectRef DKBinaryTreeInitWithEgg( DKBinaryTreeRef _self, DKEggUnarchiverRef egg );
 static void DKBinaryTreeAddToEgg( DKBinaryTreeRef _self, DKEggArchiverRef egg );
 
@@ -99,7 +101,8 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = DKRetain;
-    copying->mutableCopy = (DKMutableCopyMethod)DKBinaryTreeMutableCopy;
+    copying->mutableCopy = (DKCopyMethod)DKBinaryTreeMutableCopy;
+    copying->deepCopy = DKBinaryTreeDeepCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -194,7 +197,8 @@ DKThreadSafeClassInit( DKMutableBinaryTreeClass )
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = (DKCopyMethod)DKBinaryTreeCopy;
-    copying->mutableCopy = (DKMutableCopyMethod)DKBinaryTreeMutableCopy;
+    copying->mutableCopy = (DKCopyMethod)DKBinaryTreeMutableCopy;
+    copying->deepCopy = DKBinaryTreeDeepCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -829,6 +833,51 @@ DKMutableBinaryTreeRef DKBinaryTreeMutableCopy( DKBinaryTreeRef _self )
 
 
 ///
+//  DKBinaryTreeDeepCopy()
+//
+struct DeepCopyContext
+{
+    DKBinaryTreeRef copy;
+    int options;
+};
+
+static int DeepCopyKeyAndObject( DKObjectRef key, DKObjectRef object, void * _context )
+{
+    struct DeepCopyContext * context = _context;
+    
+    DKObjectRef keyCopy = DKCopy( key );
+    DKObjectRef objectCopy = DKDeepCopy( object, context->options );
+    
+    Insert( context->copy, keyCopy, objectCopy, DKInsertAlways );
+    
+    DKRelease( keyCopy );
+    DKRelease( objectCopy );
+    
+    return 0;
+}
+
+static DKObjectRef DKBinaryTreeDeepCopy( DKObjectRef _untyped_self, int options )
+{
+    DKBinaryTreeRef _self = _untyped_self;
+    
+    struct DeepCopyContext context;
+    context.options = options;
+    
+    if( options & DKDeepCopyMutableContainers )
+        context.copy = DKNew( DKMutableBinaryTreeClass() );
+
+    else
+        context.copy = DKNew( DKBinaryTreeClass() );
+    
+    context.copy->keyCompare = _self->keyCompare;
+    
+    DKBinaryTreeApplyFunction( _self, DeepCopyKeyAndObject, &context );
+    
+    return context.copy;
+}
+
+
+///
 //  DKBinaryTreeGetCount()
 //
 DKIndex DKBinaryTreeGetCount( DKBinaryTreeRef _self )
@@ -1001,7 +1050,7 @@ static void INTERNAL_DKBinaryTreeInsertObject( DKMutableBinaryTreeRef _self, DKO
 {
     DKRequire( key != NULL );
 
-    DKObjectRef keyCopy = DKCopy ( key );
+    DKObjectRef keyCopy = DKCopy( key );
 
     Insert( _self, keyCopy, object, policy );
     

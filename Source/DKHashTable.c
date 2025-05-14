@@ -58,6 +58,8 @@ struct DKHashTable
 static DKObjectRef DKHashTableInitialize( DKObjectRef _self );
 static void        DKHashTableFinalize( DKObjectRef _self );
 
+static DKObjectRef DKHashTableDeepCopy( DKObjectRef _untyped_self, int options );
+
 static DKObjectRef DKHashTableInitWithEgg( DKHashTableRef _self, DKEggUnarchiverRef egg );
 static void        DKHashTableAddToEgg( DKHashTableRef _self, DKEggArchiverRef egg );
 
@@ -91,7 +93,8 @@ DKThreadSafeClassInit( DKHashTableClass )
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = DKRetain;
-    copying->mutableCopy = (DKMutableCopyMethod)DKHashTableMutableCopy;
+    copying->mutableCopy = (DKCopyMethod)DKHashTableMutableCopy;
+    copying->deepCopy = DKHashTableDeepCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -186,7 +189,8 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = (DKCopyMethod)DKHashTableCopy;
-    copying->mutableCopy = (DKMutableCopyMethod)DKHashTableMutableCopy;
+    copying->mutableCopy = (DKCopyMethod)DKHashTableMutableCopy;
+    copying->deepCopy = DKHashTableDeepCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -557,6 +561,50 @@ DKMutableHashTableRef DKHashTableMutableCopy( DKHashTableRef _self )
     }
     
     return NULL;
+}
+
+
+///
+//  DKHashTableDeepCopy()
+//
+struct DeepCopyContext
+{
+    DKHashTableRef copy;
+    int options;
+};
+
+static int DeepCopyKeyAndObject( DKObjectRef key, DKObjectRef object, void * _context )
+{
+    struct DeepCopyContext * context = _context;
+    
+    struct DKHashTableRow row;
+    row.key = DKCopy( key );
+    row.object = DKDeepCopy( object, context->options );
+    
+    DKGenericHashTableInsert( &context->copy->table, &row, DKInsertAlways );
+    
+    DKRelease( row.key );
+    DKRelease( row.object );
+    
+    return 0;
+}
+
+static DKObjectRef DKHashTableDeepCopy( DKObjectRef _untyped_self, int options )
+{
+    DKHashTableRef _self = _untyped_self;
+    
+    struct DeepCopyContext context;
+    context.options = options;
+    
+    if( options & DKDeepCopyMutableContainers )
+        context.copy = DKNew( DKMutableHashTableClass() );
+
+    else
+        context.copy = DKNew( DKHashTableClass() );
+    
+    DKHashTableApplyFunction( _self, DeepCopyKeyAndObject, &context );
+    
+    return context.copy;
 }
 
 

@@ -194,7 +194,8 @@ static struct DKCopyingInterface DKDefaultCopying_StaticObject =
 {
     DKStaticInterfaceObject( &DKSelector_Copying_StaticObject ),
     DKRetain,
-    (DKMutableCopyMethod)DKRetain
+    (DKCopyMethod)DKRetain,
+    DKDefaultDeepCopy
 };
 
 DKInterfaceRef DKDefaultCopying( void )

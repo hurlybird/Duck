@@ -36,15 +36,23 @@ extern "C"
 DK_API DKDeclareInterfaceSelector( Copying );
 
 
+enum
+{
+    DKDeepCopyMutableContainers =   (1 << 0),
+    DKDeepCopyMutableObjects =      (1 << 1)
+};
+
+
 typedef DKObjectRef (*DKCopyMethod)( DKObjectRef );
-typedef DKObjectRef (*DKMutableCopyMethod)( DKObjectRef );
+typedef DKObjectRef (*DKDeepCopyMethod)( DKObjectRef, int options );
 
 struct DKCopyingInterface
 {
     const DKInterface _interface;
 
     DKCopyMethod        copy;
-    DKMutableCopyMethod mutableCopy;
+    DKCopyMethod        mutableCopy;
+    DKDeepCopyMethod    deepCopy;
 };
 
 typedef const struct DKCopyingInterface * DKCopyingInterfaceRef;
@@ -54,10 +62,12 @@ typedef const struct DKCopyingInterface * DKCopyingInterfaceRef;
 // root classes so it's defined in DKRuntime.c.
 DK_API DKInterfaceRef DKDefaultCopying( void );
 
+// A default deepCopy method that calls DKCopy and DKMutableCopy as needed
+DK_API DKObjectRef DKDefaultDeepCopy( DKObjectRef object, int options );
 
 DK_API DKObjectRef DKCopy( DKObjectRef _self );
 DK_API DKObjectRef DKMutableCopy( DKObjectRef _self );
-
+DK_API DKObjectRef DKDeepCopy( DKObjectRef _self, int options );
 
 
 #ifdef __cplusplus

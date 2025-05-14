@@ -51,6 +51,8 @@ struct DKArray
 static DKObjectRef DKArrayInitialize( DKObjectRef _self );
 static void        DKArrayFinalize( DKObjectRef _self );
 
+static DKObjectRef DKArrayDeepCopy( DKObjectRef _self, int options );
+
 static DKObjectRef DKArrayInitWithEgg( DKArrayRef _self, DKEggUnarchiverRef egg );
 static void        DKArrayAddToEgg( DKArrayRef _self, DKEggArchiverRef egg );
 
@@ -85,7 +87,8 @@ DKThreadSafeClassInit( DKArrayClass )
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = DKRetain;
-    copying->mutableCopy = (DKMutableCopyMethod)DKArrayMutableCopy;
+    copying->mutableCopy = (DKCopyMethod)DKArrayMutableCopy;
+    copying->deepCopy = DKArrayDeepCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -166,7 +169,8 @@ DKThreadSafeClassInit( DKMutableArrayClass )
     // Copying
     struct DKCopyingInterface * copying = DKNewInterface( DKSelector(Copying) );
     copying->copy = (DKCopyMethod)DKArrayCopy;
-    copying->mutableCopy = (DKMutableCopyMethod)DKArrayMutableCopy;
+    copying->mutableCopy = (DKCopyMethod)DKArrayMutableCopy;
+    copying->deepCopy = DKArrayDeepCopy;
     
     DKInstallInterface( cls, copying );
     DKRelease( copying );
@@ -383,6 +387,45 @@ DKArrayRef DKArrayCopy( DKArrayRef _self )
 DKMutableArrayRef DKArrayMutableCopy( DKArrayRef _self )
 {
     return DKArrayInitWithCollection( DKAlloc( DKMutableArrayClass() ), _self );
+}
+
+
+///
+//  DKArrayDeepCopy()
+//
+struct DeepCopyContext
+{
+    DKArrayRef copy;
+    int options;
+};
+
+static int DeepCopyObject( DKObjectRef object, void * _context )
+{
+    struct DeepCopyContext * context = _context;
+    
+    DKObjectRef objectCopy = DKDeepCopy( object, context->options );
+
+    DKGenericArrayPush( &context->copy->ptrArray, &objectCopy );
+    
+    return 0;
+}
+
+static DKObjectRef DKArrayDeepCopy( DKObjectRef _untyped_self, int options )
+{
+    DKArrayRef _self = _untyped_self;
+    
+    struct DeepCopyContext context;
+    context.options = options;
+    
+    if( options & DKDeepCopyMutableContainers )
+        context.copy = DKNew( DKMutableArrayClass() );
+
+    else
+        context.copy = DKNew( DKArrayClass() );
+    
+    DKArrayApplyFunction( _self, DeepCopyObject, &context );
+    
+    return context.copy;
 }
 
 

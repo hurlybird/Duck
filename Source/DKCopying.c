@@ -66,5 +66,32 @@ DKObjectRef DKMutableCopy( DKObjectRef _self )
 }
 
 
+///
+//  DKDeepCopy()
+//
+DKObjectRef DKDeepCopy( DKObjectRef _self, int options )
+{
+    if( _self )
+    {
+        DKCopyingInterfaceRef copying = DKGetInterface( _self, DKSelector(Copying) );
+        return copying->deepCopy( _self, options );
+    }
+
+    return NULL;
+}
+
+
+///
+//  DKDefaultDeepCopy()
+//
+DKObjectRef DKDefaultDeepCopy( DKObjectRef object, int options )
+{
+    if( options & DKDeepCopyMutableObjects )
+        return DKMutableCopy( object );
+        
+    else
+        return DKCopy( object );
+}
+
 
 

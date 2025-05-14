@@ -86,6 +86,9 @@ DK_API DKNumberRef DKNewNumberWithDate( const DKDateTime * date ); // Passing NU
 DK_API DKObjectRef DKNumberInit( DKObjectRef _self, const void * value, DKEncoding encoding );
 DK_API DKObjectRef DKNumberInitWithNumber( DKObjectRef _self, DKNumberRef number, DKEncodingType encodingType );
 
+DK_API DKNumberRef DKNumberCopy( DKNumberRef _self );
+DK_API DKNumberRef DKNumberVariableCopy( DKNumberRef _self );
+
 DK_API DKEncoding  DKNumberGetEncoding( DKNumberRef _self );
 
 DK_API size_t      DKNumberGetValue( DKNumberRef _self, void * value );
