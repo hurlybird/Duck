@@ -116,6 +116,20 @@ DK_API bool        DKDictionaryEqual( DKDictionaryRef _self, DKDictionaryRef oth
 DK_API bool        DKDictionaryIsSubsetOfDictionary( DKDictionaryRef _self, DKDictionaryRef other );
 
 
+// Get/Set wrappers for base types
+DK_API void        DKDictionarySetInt32( DKDictionaryRef _self, DKStringRef key, int32_t value );
+DK_API int32_t     DKDictionaryGetInt32( DKDictionaryRef _self, DKStringRef key, int32_t defaultValue );
+
+DK_API void        DKDictionarySetInt64( DKDictionaryRef _self, DKStringRef key, int64_t value );
+DK_API int64_t     DKDictionaryGetInt64( DKDictionaryRef _self, DKStringRef key, int64_t defaultValue );
+
+DK_API void        DKDictionarySetFloat( DKDictionaryRef _self, DKStringRef key, float value );
+DK_API float       DKDictionaryGetFloat( DKDictionaryRef _self, DKStringRef key, float defaultValue );
+
+DK_API void        DKDictionarySetDouble( DKDictionaryRef _self, DKStringRef key, double value );
+DK_API double      DKDictionaryGetDouble( DKDictionaryRef _self, DKStringRef key, double defaultValue );
+
+
 #ifdef __cplusplus
 }
 #endif

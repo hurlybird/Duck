@@ -34,8 +34,10 @@
 #include "DKHashTable.h"
 #include "DKArray.h"
 #include "DKString.h"
+#include "DKNumber.h"
 #include "DKStream.h"
 #include "DKComparison.h"
+#include "DKConversion.h"
 
 
 DKThreadSafeFastSelectorInit( Dictionary, struct DKDictionaryInterface );
@@ -375,6 +377,83 @@ bool DKDictionaryIsSubsetOfDictionary( DKDictionaryRef _self, DKDictionaryRef ot
 
 
 
+///
+//  DKDictionaryGet/SetInt32()
+//
+void DKDictionarySetInt32( DKDictionaryRef _self, DKStringRef key, int32_t value )
+{
+    DKDictionarySetObject( _self, key, DKNumberWithInt32( value ) );
+}
 
+int32_t DKDictionaryGetInt32( DKDictionaryRef _self, DKStringRef key, int32_t defaultValue )
+{
+    DKObjectRef value = DKDictionaryGetObject( _self, key );
+    
+    if( value )
+        return DKGetInt32( value );
+        
+    else
+        return defaultValue;
+}
+
+
+///
+//  DKDictionaryGet/SetInt64()
+//
+void DKDictionarySetInt64( DKDictionaryRef _self, DKStringRef key, int64_t value )
+{
+    DKDictionarySetObject( _self, key, DKNumberWithInt64( value ) );
+}
+
+int64_t DKDictionaryGetInt64( DKDictionaryRef _self, DKStringRef key, int64_t defaultValue )
+{
+    DKObjectRef value = DKDictionaryGetObject( _self, key );
+    
+    if( value )
+        return DKGetInt64( value );
+        
+    else
+        return defaultValue;
+}
+
+
+///
+//  DKDictionaryGet/SetFloat()
+//
+void DKDictionarySetFloat( DKDictionaryRef _self, DKStringRef key, float value )
+{
+    DKDictionarySetObject( _self, key, DKNumberWithFloat( value ) );
+}
+
+float DKDictionaryGetFloat( DKDictionaryRef _self, DKStringRef key, float defaultValue )
+{
+    DKObjectRef value = DKDictionaryGetObject( _self, key );
+    
+    if( value )
+        return DKGetFloat( value );
+        
+    else
+        return defaultValue;
+}
+
+
+///
+//  DKDictionaryGet/SetDouble()
+//
+void DKDictionarySetDouble( DKDictionaryRef _self, DKStringRef key, double value )
+{
+    DKDictionarySetObject( _self, key, DKNumberWithDouble( value ) );
+}
+
+double DKDictionaryGetDouble( DKDictionaryRef _self, DKStringRef key, double defaultValue )
+{
+    DKObjectRef value = DKDictionaryGetObject( _self, key );
+    
+    if( value )
+        return DKGetDouble( value );
+        
+    else
+        return defaultValue;
+}
 
 
