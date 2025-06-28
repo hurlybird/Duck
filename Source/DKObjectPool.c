@@ -88,6 +88,7 @@ void DKObjectPoolInit( DKObjectPool * pool, DKIndex size, DKIndex count )
     pool->blockList = NULL;
     pool->size = size;
     pool->count = 0;
+    pool->mutex = DKSpinLockInit;
     
     if( count > 0 )
         DKObjectPoolAddBlock( pool, count );
@@ -123,8 +124,34 @@ void * DKObjectPoolAlloc( DKObjectPool * pool )
         
     DKObjectPoolFreeNode * node = pool->freeList;
     pool->freeList = node->next;
+
+    return node;
+}
+
+
+///
+//  DKObjectPoolThreadSafeAlloc()
+//
+void * DKObjectPoolThreadSafeAlloc( DKObjectPool * pool )
+{
+    if( pool->freeList == NULL )
+    {
+        DKSpinLockUnlock( &pool->mutex );
+        
+        if( pool->freeList == NULL )
+            DKObjectPoolAddBlock( pool, 0 );
+     
+        DKSpinLockUnlock( &pool->mutex );
+    }
+        
+    DKObjectPoolFreeNode * node = pool->freeList;
+    DKObjectPoolFreeNode * next = node->next;
     
-    memset( node, 0, pool->size );
+    while( !DKAtomicCmpAndSwapPtr( &pool->freeList, node, next ) )
+    {
+        node = pool->freeList;
+        next = node->next;
+    }
     
     return node;
 }
@@ -133,33 +160,27 @@ void * DKObjectPoolAlloc( DKObjectPool * pool )
 ///
 //  DKObjectPoolFree()
 //
-void DKObjectPoolFree( DKObjectPool * pool, void * node )
+void DKObjectPoolFree( DKObjectPool * pool, void * _node )
 {
-    DKObjectPoolFreeNode * freeNode = (DKObjectPoolFreeNode *)node;
-    freeNode->next = pool->freeList;
-    pool->freeList = freeNode;
+    DKObjectPoolFreeNode * node = _node;
+    
+    node->next = pool->freeList;
+    pool->freeList = node;
 }
-
 
 ///
-//  DKObjectPoolGetBlockSegment()
+//  DKObjectPoolThreadSafeFree()
 //
-DK_API void * DKObjectPoolGetBlockSegment( const DKObjectPoolBlock * block )
+void DKObjectPoolThreadSafeFree( DKObjectPool * pool, void * _node )
 {
-    uint8_t * firstNode = (uint8_t *)block + sizeof(DKObjectPoolBlock);
-    return firstNode;
+    DKObjectPoolFreeNode * node = _node;
+    
+    DKObjectPoolFreeNode * next = pool->freeList;
+    node->next = next;
+    
+    while( !DKAtomicCmpAndSwapPtr( &pool->freeList, next, node ) )
+    {
+        next = pool->freeList;
+        node->next = next;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

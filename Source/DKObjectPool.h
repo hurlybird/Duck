@@ -48,10 +48,11 @@ typedef struct _DKObjectPoolBlock
 
 typedef struct
 {
-    DKObjectPoolFreeNode * freeList;
-    DKObjectPoolBlock * blockList;
+    DKObjectPoolFreeNode * volatile freeList;
+    DKObjectPoolBlock * volatile blockList;
     DKIndex size;
     DKIndex count;
+    DKSpinLock mutex;
     
 } DKObjectPool;
 
@@ -60,9 +61,10 @@ DK_API void DKObjectPoolInit( DKObjectPool * pool, DKIndex size, DKIndex count )
 DK_API void DKObjectPoolFinalize( DKObjectPool * pool );
 
 DK_API void * DKObjectPoolAlloc( DKObjectPool * pool );
-DK_API void DKObjectPoolFree( DKObjectPool * pool, void * node );
+DK_API void * DKObjectPoolThreadSafeAlloc( DKObjectPool * pool );
 
-DK_API void * DKObjectPoolGetBlockSegment( const DKObjectPoolBlock * block );
+DK_API void DKObjectPoolFree( DKObjectPool * pool, void * node );
+DK_API void DKObjectPoolThreadSafeFree( DKObjectPool * pool, void * node );
 
 
 #ifdef __cplusplus
