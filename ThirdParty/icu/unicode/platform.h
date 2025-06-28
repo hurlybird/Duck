@@ -38,7 +38,7 @@
  * and/or from other macros that are predefined by the compiler
  * or defined in standard (POSIX or platform or compiler) headers.
  *
- * As a temporary workaround, you can add an explicit <code>#define</code> for some macros
+ * As a temporary workaround, you can add an explicit \#define for some macros
  * before it is first tested, or add an equivalent -D macro definition
  * to the compiler's command line.
  *
@@ -132,7 +132,19 @@
 #define U_PF_BROWSER_NATIVE_CLIENT 4020
 /** Android is based on Linux. @internal */
 #define U_PF_ANDROID 4050
+/** Haiku is a POSIX-ish platform. @internal */
+#define U_PF_HAIKU 4080
+/** Fuchsia is a POSIX-ish platform. @internal */
+#define U_PF_FUCHSIA 4100
 /* Maximum value for Linux-based platform is 4499 */
+/**
+ * Emscripten is a C++ transpiler for the Web that can target asm.js or
+ * WebAssembly. It provides some POSIX-compatible wrappers and stubs and
+ * some Linux-like functionality, but is not fully compatible with
+ * either.
+ * @internal
+ */
+#define U_PF_EMSCRIPTEN 5010
 /** z/OS is the successor to OS/390 which was the successor to MVS. @internal */
 #define U_PF_OS390 9000
 /** "IBM i" is the current name of what used to be i5/OS and earlier OS/400. @internal */
@@ -144,6 +156,8 @@
 #   define U_PLATFORM U_PF_MINGW
 #elif defined(__CYGWIN__)
 #   define U_PLATFORM U_PF_CYGWIN
+    /* Cygwin uchar.h doesn't exist until Cygwin 3.5. */
+#   include <cygwin/version.h>
 #elif defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 #   define U_PLATFORM U_PF_WINDOWS
 #elif defined(__ANDROID__)
@@ -152,17 +166,19 @@
 #   include <android/api-level.h>
 #elif defined(__pnacl__) || defined(__native_client__)
 #   define U_PLATFORM U_PF_BROWSER_NATIVE_CLIENT
+#elif defined(__Fuchsia__)
+#   define U_PLATFORM U_PF_FUCHSIA
 #elif defined(linux) || defined(__linux__) || defined(__linux)
 #   define U_PLATFORM U_PF_LINUX
 #elif defined(__APPLE__) && defined(__MACH__)
 #   include <TargetConditionals.h>
-#   if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE  /* variant of TARGET_OS_MAC */
+#   if (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) && (defined(TARGET_OS_MACCATALYST) && !TARGET_OS_MACCATALYST)   /* variant of TARGET_OS_MAC */
 #       define U_PLATFORM U_PF_IPHONE
 #   else
 #       define U_PLATFORM U_PF_DARWIN
 #   endif
 #elif defined(BSD) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__MirBSD__)
-#   if defined(__FreeBSD__) && __has_include( <sys/endian.h> )
+#   if defined(__FreeBSD__)
 #       include <sys/endian.h>
 #   endif
 #   define U_PLATFORM U_PF_BSD
@@ -188,8 +204,23 @@
 #   define U_PLATFORM U_PF_OS390
 #elif defined(__OS400__) || defined(__TOS_OS400__)
 #   define U_PLATFORM U_PF_OS400
+#elif defined(__HAIKU__)
+#   define U_PLATFORM U_PF_HAIKU
+#elif defined(__EMSCRIPTEN__)
+#   define U_PLATFORM U_PF_EMSCRIPTEN
 #else
 #   define U_PLATFORM U_PF_UNKNOWN
+#endif
+
+/**
+ * \def U_REAL_MSVC
+ * Defined if the compiler is the real MSVC compiler (and not something like
+ * Clang setting _MSC_VER in order to compile Windows code that requires it).
+ * Otherwise undefined.
+ * @internal
+ */
+#if (defined(_MSC_VER) && !(defined(__clang__) && __clang__)) || defined(U_IN_DOXYGEN)
+#   define U_REAL_MSVC
 #endif
 
 /**
@@ -203,11 +234,14 @@
 #   define CYGWINMSVC
 #endif
 */
+#ifdef U_IN_DOXYGEN
+#   define CYGWINMSVC
+#endif
 
 /**
  * \def U_PLATFORM_USES_ONLY_WIN32_API
  * Defines whether the platform uses only the Win32 API.
- * Set to 1 for Windows/MSVC and MinGW but not Cygwin.
+ * Set to 1 for Windows/MSVC, ClangCL and MinGW but not Cygwin.
  * @internal
  */
 #ifdef U_PLATFORM_USES_ONLY_WIN32_API
@@ -222,7 +256,7 @@
 /**
  * \def U_PLATFORM_HAS_WIN32_API
  * Defines whether the Win32 API is available on the platform.
- * Set to 1 for Windows/MSVC, MinGW and Cygwin.
+ * Set to 1 for Windows/MSVC, ClangCL, MinGW and Cygwin.
  * @internal
  */
 #ifdef U_PLATFORM_HAS_WIN32_API
@@ -283,76 +317,6 @@
 #   define U_PLATFORM_IS_DARWIN_BASED 1
 #else
 #   define U_PLATFORM_IS_DARWIN_BASED 0
-#endif
-
-/**
- * \def U_HAVE_STDINT_H
- * Defines whether stdint.h is available. It is a C99 standard header.
- * We used to include inttypes.h which includes stdint.h but we usually do not need
- * the additional definitions from inttypes.h.
- * @internal
- */
-#ifdef U_HAVE_STDINT_H
-    /* Use the predefined value. */
-#elif U_PLATFORM_USES_ONLY_WIN32_API
-#   if defined(__BORLANDC__) || U_PLATFORM == U_PF_MINGW || (defined(_MSC_VER) && _MSC_VER>=1600)
-        /* Windows Visual Studio 9 and below do not have stdint.h & inttypes.h, but VS 2010 adds them. */
-#       define U_HAVE_STDINT_H 1
-#   else
-#       define U_HAVE_STDINT_H 0
-#   endif
-#elif U_PLATFORM == U_PF_SOLARIS
-    /* Solaris has inttypes.h but not stdint.h. */
-#   define U_HAVE_STDINT_H 0
-#elif U_PLATFORM == U_PF_AIX && !defined(_AIX51) && defined(_POWER)
-    /* PPC AIX <= 4.3 has inttypes.h but not stdint.h. */
-#   define U_HAVE_STDINT_H 0
-#else
-#   define U_HAVE_STDINT_H 1
-#endif
-
-/**
- * \def U_HAVE_INTTYPES_H
- * Defines whether inttypes.h is available. It is a C99 standard header.
- * We include inttypes.h where it is available but stdint.h is not.
- * @internal
- */
-#ifdef U_HAVE_INTTYPES_H
-    /* Use the predefined value. */
-#elif U_PLATFORM == U_PF_SOLARIS
-    /* Solaris has inttypes.h but not stdint.h. */
-#   define U_HAVE_INTTYPES_H 1
-#elif U_PLATFORM == U_PF_AIX && !defined(_AIX51) && defined(_POWER)
-    /* PPC AIX <= 4.3 has inttypes.h but not stdint.h. */
-#   define U_HAVE_INTTYPES_H 1
-#else
-    /* Most platforms have both inttypes.h and stdint.h, or neither. */
-#   define U_HAVE_INTTYPES_H U_HAVE_STDINT_H
-#endif
-
-/**
- * \def U_IOSTREAM_SOURCE
- * Defines what support for C++ streams is available.
- *
- * If U_IOSTREAM_SOURCE is set to 199711, then &lt;iostream&gt; is available
- * (the ISO/IEC C++ FDIS was published in November 1997), and then
- * one should qualify streams using the std namespace in ICU header
- * files.
- * Starting with ICU 49, this is the only supported version.
- *
- * If U_IOSTREAM_SOURCE is set to 198506, then &lt;iostream.h&gt; is
- * available instead (in June 1985 Stroustrup published
- * "An Extensible I/O Facility for C++" at the summer USENIX conference).
- * Starting with ICU 49, this version is not supported any more.
- *
- * If U_IOSTREAM_SOURCE is 0 (or any value less than 199711),
- * then C++ streams are not available and
- * support for them will be silently suppressed in ICU.
- *
- * @internal
- */
-#ifndef U_IOSTREAM_SOURCE
-#define U_IOSTREAM_SOURCE 199711
 #endif
 
 /*===========================================================================*/
@@ -432,23 +396,47 @@
 #endif
 
 /* Compatibility with compilers other than clang: http://clang.llvm.org/docs/LanguageExtensions.html */
-#ifndef __has_attribute
-#    define __has_attribute(x) 0
+#ifdef __has_attribute
+#   define UPRV_HAS_ATTRIBUTE(x) __has_attribute(x)
+#else
+#   define UPRV_HAS_ATTRIBUTE(x) 0
 #endif
-#ifndef __has_cpp_attribute
-#    define __has_cpp_attribute(x) 0
+#ifdef __has_cpp_attribute
+#   define UPRV_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
+#else
+#   define UPRV_HAS_CPP_ATTRIBUTE(x) 0
 #endif
-#ifndef __has_builtin
-#    define __has_builtin(x) 0
+#ifdef __has_declspec_attribute
+#   define UPRV_HAS_DECLSPEC_ATTRIBUTE(x) __has_declspec_attribute(x)
+#else
+#   define UPRV_HAS_DECLSPEC_ATTRIBUTE(x) 0
 #endif
-#ifndef __has_feature
-#    define __has_feature(x) 0
+#ifdef __has_builtin
+#   define UPRV_HAS_BUILTIN(x) __has_builtin(x)
+#else
+#   define UPRV_HAS_BUILTIN(x) 0
 #endif
-#ifndef __has_extension
-#    define __has_extension(x) 0
+#ifdef __has_feature
+#   define UPRV_HAS_FEATURE(x) __has_feature(x)
+#else
+#   define UPRV_HAS_FEATURE(x) 0
 #endif
-#ifndef __has_warning
-#    define __has_warning(x) 0
+#ifdef __has_extension
+#   define UPRV_HAS_EXTENSION(x) __has_extension(x)
+#else
+#   define UPRV_HAS_EXTENSION(x) 0
+#endif
+#ifdef __has_warning
+#   define UPRV_HAS_WARNING(x) __has_warning(x)
+#else
+#   define UPRV_HAS_WARNING(x) 0
+#endif
+
+
+#if defined(__clang__)
+#define UPRV_NO_SANITIZE_UNDEFINED __attribute__((no_sanitize("undefined")))
+#else
+#define UPRV_NO_SANITIZE_UNDEFINED
 #endif
 
 /**
@@ -467,7 +455,9 @@
  * Attribute to specify the size of the allocated buffer for malloc-like functions
  * @internal
  */
-#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))) || __has_attribute(alloc_size)
+#if (defined(__GNUC__) &&                                            \
+        (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))) || \
+        UPRV_HAS_ATTRIBUTE(alloc_size)
 #   define U_ALLOC_SIZE_ATTR(X) __attribute__ ((alloc_size(X)))
 #   define U_ALLOC_SIZE_ATTR2(X,Y) __attribute__ ((alloc_size(X,Y)))
 #else
@@ -489,54 +479,15 @@
     /* Otherwise use the predefined value. */
 #elif !defined(__cplusplus)
 #   define U_CPLUSPLUS_VERSION 0
-#elif __cplusplus >= 201402L
+#elif __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+#   define U_CPLUSPLUS_VERSION 17
+#elif __cplusplus >= 201402L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201402L)
 #   define U_CPLUSPLUS_VERSION 14
-#elif __cplusplus >= 201103L
+#elif __cplusplus >= 201103L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201103L)
 #   define U_CPLUSPLUS_VERSION 11
 #else
     // C++98 or C++03
 #   define U_CPLUSPLUS_VERSION 1
-#endif
-
-#if (U_PLATFORM == U_PF_AIX || U_PLATFORM == U_PF_OS390) && defined(__cplusplus) &&(U_CPLUSPLUS_VERSION < 11)
-// add in std::nullptr_t
-namespace std {
-  typedef decltype(nullptr) nullptr_t;
-};
-#endif
-
-/**
- * \def U_HAVE_RVALUE_REFERENCES
- * Set to 1 if the compiler supports rvalue references.
- * C++11 feature, necessary for move constructor & move assignment.
- * @internal
- */
-#ifdef U_HAVE_RVALUE_REFERENCES
-    /* Use the predefined value. */
-#elif U_CPLUSPLUS_VERSION >= 11 || __has_feature(cxx_rvalue_references) \
-        || defined(__GXX_EXPERIMENTAL_CXX0X__) \
-        || (defined(_MSC_VER) && _MSC_VER >= 1600)  /* Visual Studio 2010 */
-#   define U_HAVE_RVALUE_REFERENCES 1
-#else
-#   define U_HAVE_RVALUE_REFERENCES 0
-#endif
-
-/**
- * \def U_NOEXCEPT
- * "noexcept" if supported, otherwise empty.
- * Some code, especially STL containers, uses move semantics of objects only
- * if the move constructor and the move operator are declared as not throwing exceptions.
- * @internal
- */
-#ifdef U_NOEXCEPT
-    /* Use the predefined value. */
-#elif defined(_HAS_EXCEPTIONS) && !_HAS_EXCEPTIONS  /* Visual Studio */
-#   define U_NOEXCEPT
-#elif U_CPLUSPLUS_VERSION >= 11 || __has_feature(cxx_noexcept) || __has_extension(cxx_noexcept) \
-        || (defined(_MSC_VER) && _MSC_VER >= 1900)  /* Visual Studio 2015 */
-#   define U_NOEXCEPT noexcept
-#else
-#   define U_NOEXCEPT
 #endif
 
 /**
@@ -552,10 +503,13 @@ namespace std {
 #elif defined(__clang__)
     // Test for compiler vs. feature separately.
     // Other compilers might choke on the feature test.
-#   if __has_cpp_attribute(clang::fallthrough) || \
-            (__has_feature(cxx_attributes) && __has_warning("-Wimplicit-fallthrough"))
+#    if UPRV_HAS_CPP_ATTRIBUTE(clang::fallthrough) || \
+             (UPRV_HAS_FEATURE(cxx_attributes) &&     \
+             UPRV_HAS_WARNING("-Wimplicit-fallthrough"))
 #       define U_FALLTHROUGH [[clang::fallthrough]]
 #   endif
+#elif defined(__GNUC__) && (__GNUC__ >= 7)
+#   define U_FALLTHROUGH __attribute__((fallthrough))
 #endif
 
 #ifndef U_FALLTHROUGH
@@ -654,7 +608,8 @@ namespace std {
  */
 #ifdef U_CHARSET_IS_UTF8
     /* Use the predefined value. */
-#elif U_PLATFORM == U_PF_ANDROID || U_PLATFORM_IS_DARWIN_BASED
+#elif U_PLATFORM_IS_LINUX_BASED || U_PLATFORM_IS_DARWIN_BASED || \
+        U_PLATFORM == U_PF_EMSCRIPTEN
 #   define U_CHARSET_IS_UTF8 1
 #else
 #   define U_CHARSET_IS_UTF8 0
@@ -741,7 +696,7 @@ namespace std {
          * narrow-character strings are in EBCDIC.
          */
 #       define U_SIZEOF_WCHAR_T 2
-#else
+#   else
         /*
          * LOCALETYPE(*CLD) or LOCALETYPE(*LOCALE) is specified.
          * Wide-character strings are in 16-bit EBCDIC,
@@ -763,7 +718,7 @@ namespace std {
  * \def U_HAVE_CHAR16_T
  * Defines whether the char16_t type is available for UTF-16
  * and u"abc" UTF-16 string literals are supported.
- * This is a new standard type and standard string literal syntax in C++0x
+ * This is a new standard type and standard string literal syntax in C++11
  * but has been available in some compilers before.
  * @internal
  */
@@ -772,17 +727,17 @@ namespace std {
 #else
     /*
      * Notes:
-     * Visual Studio 10 (_MSC_VER>=1600) defines char16_t but
-     * does not support u"abc" string literals.
-     * gcc 4.4 defines the __CHAR16_TYPE__ macro to a usable type but
-     * does not support u"abc" string literals.
      * C++11 and C11 require support for UTF-16 literals
-     * TODO: Fix for plain C. Doesn't work on Mac.
+     * Doesn't work on Mac C11 (see workaround in ptypes.h)
+     * or Cygwin less than 3.5.
      */
-#   if U_CPLUSPLUS_VERSION >= 11 || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
+#   if defined(__cplusplus)
 #       define U_HAVE_CHAR16_T 1
-#   else
+#   elif U_PLATFORM_IS_DARWIN_BASED || (U_PLATFORM == U_PF_CYGWIN && CYGWIN_VERSION_DLL_MAJOR < 3005)
 #       define U_HAVE_CHAR16_T 0
+#   else
+        // conformant C11
+#       define U_HAVE_CHAR16_T 1
 #   endif
 #endif
 
@@ -790,7 +745,9 @@ namespace std {
  * @{
  * \def U_DECLARE_UTF16
  * Do not use this macro because it is not defined on all platforms.
- * Use the UNICODE_STRING or U_STRING_DECL macros instead.
+ * In C++, use std::u16string_view literals, see the UNICODE_STRING docs.
+ * In C, use u"UTF-16 literals".
+ * See also the public U_STRING_DECL macro.
  * @internal
  */
 #ifdef U_DECLARE_UTF16
@@ -798,7 +755,8 @@ namespace std {
 #elif U_HAVE_CHAR16_T \
     || (defined(__xlC__) && defined(__IBM_UTF_LITERAL) && U_SIZEOF_WCHAR_T != 2) \
     || (defined(__HP_aCC) && __HP_aCC >= 035000) \
-    || (defined(__HP_cc) && __HP_cc >= 111106)
+    || (defined(__HP_cc) && __HP_cc >= 111106) \
+    || (defined(U_IN_DOXYGEN))
 #   define U_DECLARE_UTF16(string) u ## string
 #elif U_SIZEOF_WCHAR_T == 2 \
     && (U_CHARSET_FAMILY == 0 || (U_PF_OS390 <= U_PLATFORM && U_PLATFORM <= U_PF_OS400 && defined(__UCS2__)))
@@ -817,20 +775,21 @@ namespace std {
     /* Use the predefined value. */
 #elif defined(U_STATIC_IMPLEMENTATION)
 #   define U_EXPORT
-#elif defined(__GNUC__)
+#elif defined(_MSC_VER) || (UPRV_HAS_DECLSPEC_ATTRIBUTE(__dllexport__) && \
+                            UPRV_HAS_DECLSPEC_ATTRIBUTE(__dllimport__))
+#   define U_EXPORT __declspec(dllexport)
+#elif defined(__GNUC__) || defined(__open_xl__)
 #   define U_EXPORT __attribute__((visibility("default")))
 #elif (defined(__SUNPRO_CC) && __SUNPRO_CC >= 0x550) \
    || (defined(__SUNPRO_C) && __SUNPRO_C >= 0x550) 
 #   define U_EXPORT __global
 /*#elif defined(__HP_aCC) || defined(__HP_cc)
 #   define U_EXPORT __declspec(dllexport)*/
-#elif defined(_MSC_VER)
-#   define U_EXPORT __declspec(dllexport)
 #else
 #   define U_EXPORT
 #endif
 
-/* U_CALLCONV is releated to U_EXPORT2 */
+/* U_CALLCONV is related to U_EXPORT2 */
 #ifdef U_EXPORT2
     /* Use the predefined value. */
 #elif defined(_MSC_VER)
@@ -841,11 +800,27 @@ namespace std {
 
 #ifdef U_IMPORT
     /* Use the predefined value. */
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) || (UPRV_HAS_DECLSPEC_ATTRIBUTE(__dllexport__) && \
+                            UPRV_HAS_DECLSPEC_ATTRIBUTE(__dllimport__))
     /* Windows needs to export/import data. */
 #   define U_IMPORT __declspec(dllimport)
 #else
 #   define U_IMPORT 
+#endif
+
+/**
+ * \def U_HIDDEN
+ * This is used to mark internal structs declared within external classes,
+ * to prevent the internal structs from having the same visibility as the
+ * class within which they are declared. 
+ * @internal
+ */
+#ifdef U_HIDDEN
+    /* Use the predefined value. */
+#elif defined(__GNUC__) || defined(__open_xl__)
+#   define U_HIDDEN __attribute__((visibility("hidden")))
+#else
+#   define U_HIDDEN 
 #endif
 
 /**
@@ -871,6 +846,16 @@ namespace std {
 #    define U_CALLCONV U_EXPORT2
 #endif
 
-/* @} */
-
+/**
+ * \def U_CALLCONV_FPTR
+ * Similar to U_CALLCONV, but only used on function pointers.
+ * @internal
+ */
+#if U_PLATFORM == U_PF_OS390 && defined(__cplusplus)
+#    define U_CALLCONV_FPTR U_CALLCONV
+#else
+#    define U_CALLCONV_FPTR
 #endif
+/** @} */
+
+#endif  // _PLATFORM_H

@@ -76,7 +76,7 @@
 #endif
 
 /**
- * Determines wheter to enable auto cleanup of libraries. 
+ * Determines whether to enable auto cleanup of libraries. 
  * @internal
  */
 #ifndef UCLN_NO_AUTO_CLEANUP
@@ -183,7 +183,7 @@
  */
 #ifdef U_HAVE_LIB_SUFFIX
     /* Use the predefined value. */
-#elif defined(U_LIB_SUFFIX_C_NAME)
+#elif defined(U_LIB_SUFFIX_C_NAME) || defined(U_IN_DOXYGEN)
 #   define U_HAVE_LIB_SUFFIX 1
 #endif
 
@@ -262,7 +262,8 @@
 
 /**
  * \def UCONFIG_NO_CONVERSION
- * ICU will not completely build with this switch turned on.
+ * ICU will not completely build (compiling the tools fails) with this
+ * switch turned on.
  * This switch turns off all converters.
  *
  * You may want to use this together with U_CHARSET_IS_UTF8 defined to 1
@@ -320,7 +321,19 @@
  */
 #ifndef UCONFIG_NO_NORMALIZATION
 #   define UCONFIG_NO_NORMALIZATION 0
-#elif UCONFIG_NO_NORMALIZATION
+#endif
+
+/**
+ * \def UCONFIG_USE_ML_PHRASE_BREAKING
+ * This switch turns on BudouX ML phrase-based line breaking, rather than using the dictionary.
+ *
+ * @internal
+ */
+#ifndef UCONFIG_USE_ML_PHRASE_BREAKING
+#   define UCONFIG_USE_ML_PHRASE_BREAKING 0
+#endif
+
+#if UCONFIG_NO_NORMALIZATION
     /* common library */
     /* ICU 50 CJK dictionary BreakIterator uses normalization */
 #   define UCONFIG_NO_BREAK_ITERATION 1
@@ -366,6 +379,18 @@
 #   define UCONFIG_MSGPAT_DEFAULT_APOSTROPHE_MODE UMSGPAT_APOS_DOUBLE_OPTIONAL
 #endif
 
+/**
+ * \def UCONFIG_USE_WINDOWS_LCID_MAPPING_API
+ * On platforms where U_PLATFORM_HAS_WIN32_API is true, this switch determines
+ * if the Windows platform APIs are used for LCID<->Locale Name conversions.
+ * Otherwise, only the built-in ICU tables are used.
+ * 
+ * @internal ICU 64
+ */
+#ifndef UCONFIG_USE_WINDOWS_LCID_MAPPING_API
+#   define UCONFIG_USE_WINDOWS_LCID_MAPPING_API 1
+#endif
+
 /* i18n library switches ---------------------------------------------------- */
 
 /**
@@ -386,6 +411,17 @@
  */
 #ifndef UCONFIG_NO_FORMATTING
 #   define UCONFIG_NO_FORMATTING 0
+#endif
+
+/**
+ * \def UCONFIG_NO_MF2
+ * This switch turns off the experimental MessageFormat 2.0 API.
+ *
+ * @internal ICU 75 technology preview
+ * @deprecated This API is for technology preview only.
+ */
+#ifndef UCONFIG_NO_MF2
+#   define UCONFIG_NO_MF2 0
 #endif
 
 /**
@@ -428,17 +464,6 @@
 #   define UCONFIG_HAVE_PARSEALLINPUT 1
 #endif
 
-
-/**
- * \def UCONFIG_FORMAT_FASTPATHS_49
- * This switch turns on other formatting fastpaths. Binary incompatible in object DecimalFormat and DecimalFormatSymbols
- *
- * @internal
- */
-#ifndef UCONFIG_FORMAT_FASTPATHS_49
-#   define UCONFIG_FORMAT_FASTPATHS_49 1
-#endif
-
 /**
  * \def UCONFIG_NO_FILTERED_BREAK_ITERATION
  * This switch turns off filtered break iteration code.
@@ -449,4 +474,4 @@
 #   define UCONFIG_NO_FILTERED_BREAK_ITERATION 0
 #endif
 
-#endif
+#endif  // __UCONFIG_H__

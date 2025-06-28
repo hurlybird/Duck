@@ -31,17 +31,12 @@
   *                    renaming macro, and copyright
   *
   * The following files need to be updated as well, which can be done
-  *  by running the UNIX makefile target 'update-windows-makefiles' in icu/source.
+  *  by running the UNIX makefile target 'update-windows-makefiles' in icu4c/source.
   *
-  *
-  * source/common/common.vcxproj - update 'Output file name' on the link tab so
-  *                   that it contains the new major/minor combination
-  * source/i18n/i18n.vcxproj - same as for the common.vcxproj
-  * source/layoutex/layoutex.vcproj - same
-  * source/stubdata/stubdata.vcproj - same as for the common.vcxproj
-  * source/io/io.vcproj - same as for the common.vcxproj
+  * source/allinone/Build.Windows.IcuVersion.props - Update the IcuMajorVersion
   * source/data/makedata.mak - change U_ICUDATA_NAME so that it contains
-  *                            the new major/minor combination and the Unicode version.
+  *                            the new major/minor combination, and UNICODE_VERSION
+  *                            for the Unicode version.
   */
 
 #ifndef UVERNUM_H
@@ -58,7 +53,7 @@
  *  This value will change in the subsequent releases of ICU
  *  @stable ICU 2.4
  */
-#define U_ICU_VERSION_MAJOR_NUM 59
+#define U_ICU_VERSION_MAJOR_NUM 77
 
 /** The current ICU minor version as an integer.
  *  This value will change in the subsequent releases of ICU
@@ -84,7 +79,7 @@
  *  This value will change in the subsequent releases of ICU
  *  @stable ICU 2.6
  */
-#define U_ICU_VERSION_SUFFIX _59
+#define U_ICU_VERSION_SUFFIX _77
 
 /**
  * \def U_DEF2_ICU_ENTRY_POINT_RENAME
@@ -101,16 +96,34 @@
  *  \def U_ICU_ENTRY_POINT_RENAME
  *  @stable ICU 4.2
  */
+/**
+ * Disable the version suffix. Use the custom suffix if exists.
+ * \def U_DISABLE_VERSION_SUFFIX
+ * @internal
+ */
+#ifndef U_DISABLE_VERSION_SUFFIX
+#define U_DISABLE_VERSION_SUFFIX 0
+#endif
 
 #ifndef U_ICU_ENTRY_POINT_RENAME
 #ifdef U_HAVE_LIB_SUFFIX
-#define U_DEF_ICU_ENTRY_POINT_RENAME(x,y,z) x ## y ##  z
-#define U_DEF2_ICU_ENTRY_POINT_RENAME(x,y,z) U_DEF_ICU_ENTRY_POINT_RENAME(x,y,z)
-#define U_ICU_ENTRY_POINT_RENAME(x)    U_DEF2_ICU_ENTRY_POINT_RENAME(x,U_ICU_VERSION_SUFFIX,U_LIB_SUFFIX_C_NAME)
+#   if !U_DISABLE_VERSION_SUFFIX
+#       define U_DEF_ICU_ENTRY_POINT_RENAME(x,y,z) x ## y ##  z
+#       define U_DEF2_ICU_ENTRY_POINT_RENAME(x,y,z) U_DEF_ICU_ENTRY_POINT_RENAME(x,y,z)
+#       define U_ICU_ENTRY_POINT_RENAME(x)    U_DEF2_ICU_ENTRY_POINT_RENAME(x,U_ICU_VERSION_SUFFIX,U_LIB_SUFFIX_C_NAME)
+#   else
+#       define U_DEF_ICU_ENTRY_POINT_RENAME(x,y) x ## y
+#       define U_DEF2_ICU_ENTRY_POINT_RENAME(x,y) U_DEF_ICU_ENTRY_POINT_RENAME(x,y)
+#       define U_ICU_ENTRY_POINT_RENAME(x)    U_DEF2_ICU_ENTRY_POINT_RENAME(x,U_LIB_SUFFIX_C_NAME)
+#   endif
 #else
-#define U_DEF_ICU_ENTRY_POINT_RENAME(x,y) x ## y
-#define U_DEF2_ICU_ENTRY_POINT_RENAME(x,y) U_DEF_ICU_ENTRY_POINT_RENAME(x,y)
-#define U_ICU_ENTRY_POINT_RENAME(x)    U_DEF2_ICU_ENTRY_POINT_RENAME(x,U_ICU_VERSION_SUFFIX)
+#   if !U_DISABLE_VERSION_SUFFIX
+#       define U_DEF_ICU_ENTRY_POINT_RENAME(x,y) x ## y
+#       define U_DEF2_ICU_ENTRY_POINT_RENAME(x,y) U_DEF_ICU_ENTRY_POINT_RENAME(x,y)
+#       define U_ICU_ENTRY_POINT_RENAME(x)    U_DEF2_ICU_ENTRY_POINT_RENAME(x,U_ICU_VERSION_SUFFIX)
+#   else
+#       define U_ICU_ENTRY_POINT_RENAME(x)    x
+#   endif
 #endif
 #endif
 
@@ -119,24 +132,26 @@
  *  This value will change in the subsequent releases of ICU
  *  @stable ICU 2.4
  */
-#define U_ICU_VERSION "59.1"
+#define U_ICU_VERSION "77.1"
 
-/** The current ICU library major/minor version as a string without dots, for library name suffixes.
- *  This value will change in the subsequent releases of ICU
- *  @stable ICU 2.6
+/**
+ * The current ICU library major version number as a string, for library name suffixes.
+ * This value will change in subsequent releases of ICU.
+ *
+ * Until ICU 4.8, this was the combination of the single-digit major and minor ICU version numbers
+ * into one string without dots ("48").
+ * Since ICU 49, it is the double-digit major ICU version number.
+ * See https://unicode-org.github.io/icu/userguide/design#version-numbers-in-icu
+ *
+ * @stable ICU 2.6
  */
-#if U_PLATFORM_HAS_WINUWP_API == 0
-#define U_ICU_VERSION_SHORT "59"
-#else
-// U_DISABLE_RENAMING does not impact dat file name
-#define U_ICU_VERSION_SHORT
-#endif /* U_PLATFORM_HAS_WINUWP_API == 0 */
+#define U_ICU_VERSION_SHORT "77"
 
 #ifndef U_HIDE_INTERNAL_API
 /** Data version in ICU4C.
  * @internal ICU 4.4 Internal Use Only
  **/
-#define U_ICU_DATA_VERSION "59.1"
+#define U_ICU_DATA_VERSION "77.1"
 #endif  /* U_HIDE_INTERNAL_API */
 
 /*===========================================================================

@@ -260,7 +260,7 @@ size_t dk_ustrscan( const char * str, DKChar32 * ch )
     int32_t i = 0;
     DKChar32 c;
 
-    U8_NEXT( str, i, -1, c )
+    U8_NEXT( str, i, -1, c );
     
     *ch = c;
     return i;

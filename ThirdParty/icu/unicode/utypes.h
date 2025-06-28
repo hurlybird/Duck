@@ -54,21 +54,36 @@
  * integer and other types.
  */
 
+/** @{ API visibility control */
 
 /**
  * \def U_SHOW_CPLUSPLUS_API
+ * When defined to 1 (=default) and compiled with a C++ compiler, both C and C++ APIs are visible.
+ * Otherwise, only C APIs are visible; this is for C++ users who want to
+ * restrict their usage to binary stable C APIs exported by ICU DLLs.
+ * @internal
+ */
+/**
+ * \def U_SHOW_CPLUSPLUS_HEADER_API
+ * When defined to 1 (=default) and compiled with a C++ compiler, C++ header-only APIs are visible.
+ * This is for C++ users who restrict their usage to binary stable C APIs exported by ICU DLLs
+ * (U_SHOW_CPLUSPLUS_API=0)
+ * but who still want to use C++ header-only APIs which do not rely on ICU DLL exports.
  * @internal
  */
 #ifdef __cplusplus
 #   ifndef U_SHOW_CPLUSPLUS_API
 #       define U_SHOW_CPLUSPLUS_API 1
 #   endif
+#   ifndef U_SHOW_CPLUSPLUS_HEADER_API
+#       define U_SHOW_CPLUSPLUS_HEADER_API 1
+#   endif
 #else
 #   undef U_SHOW_CPLUSPLUS_API
 #   define U_SHOW_CPLUSPLUS_API 0
+#   undef U_SHOW_CPLUSPLUS_HEADER_API
+#   define U_SHOW_CPLUSPLUS_HEADER_API 0
 #endif
-
-/** @{ API visibility control */
 
 /**
  * \def U_HIDE_DRAFT_API
@@ -145,7 +160,7 @@
 /**
  *  U_ICU_ENTRY_POINT is the name of the DLL entry point to the ICU data library.
  *    Defined as a literal, not a string.
- *    Tricky Preprocessor use - ## operator replaces macro paramters with the literal string
+ *    Tricky Preprocessor use - ## operator replaces macro parameters with the literal string
  *                              from the corresponding macro invocation, _before_ other macro substitutions.
  *                              Need a nested \#defines to get the actual version numbers rather than
  *                              the literal text U_ICU_VERSION_MAJOR_NUM into the name.
@@ -290,6 +305,11 @@ typedef double UDate;
  * @stable ICU 3.4
  */
 
+#ifdef U_IN_DOXYGEN
+// This definition is required when generating the API docs.
+#define U_COMBINED_IMPLEMENTATION 1
+#endif
+
 #if defined(U_COMBINED_IMPLEMENTATION)
 #define U_DATA_API     U_EXPORT
 #define U_COMMON_API   U_EXPORT
@@ -380,17 +400,31 @@ typedef double UDate;
 /*===========================================================================*/
 
 /**
- * Error code to replace exception handling, so that the code is compatible with all C++ compilers,
- * and to use the same mechanism for C and C++.
+ * Standard ICU4C error code type, a substitute for exceptions.
  *
- * \par
- * ICU functions that take a reference (C++) or a pointer (C) to a UErrorCode
- * first test if(U_FAILURE(errorCode)) { return immediately; }
+ * Initialize the UErrorCode with U_ZERO_ERROR, and check for success or
+ * failure using U_SUCCESS() or U_FAILURE():
+ *
+ *     UErrorCode errorCode = U_ZERO_ERROR;
+ *     // call ICU API that needs an error code parameter.
+ *     if (U_FAILURE(errorCode)) {
+ *         // An error occurred. Handle it here.
+ *     }
+ *
+ * C++ code should use icu::ErrorCode, available in unicode/errorcode.h, or a
+ * suitable subclass.
+ *
+ * For more information, see:
+ * https://unicode-org.github.io/icu/userguide/dev/codingguidelines#details-about-icu-error-codes
+ *
+ * Note: By convention, ICU functions that take a reference (C++) or a pointer
+ * (C) to a UErrorCode first test:
+ *
+ *     if (U_FAILURE(errorCode)) { return immediately; }
+ *
  * so that in a chain of such functions the first one that sets an error code
  * causes the following ones to not perform any operations.
  *
- * \par
- * Error codes should be tested using U_FAILURE() and U_SUCCESS().
  * @stable ICU 2.0
  */
 typedef enum UErrorCode {
@@ -419,6 +453,7 @@ typedef enum UErrorCode {
     
     U_PLUGIN_CHANGED_LEVEL_WARNING = -120, /**< A plugin caused a level change. May not be an error, but later plugins may not load. */
 
+
 #ifndef U_HIDE_DEPRECATED_API
     /**
      * One more than the highest normal UErrorCode warning value.
@@ -446,27 +481,35 @@ typedef enum UErrorCode {
     U_BUFFER_OVERFLOW_ERROR   = 15,     /**< A result would not fit in the supplied buffer */
     U_UNSUPPORTED_ERROR       = 16,     /**< Requested operation not supported in current context */
     U_RESOURCE_TYPE_MISMATCH  = 17,     /**< an operation is requested over a resource that does not support it */
-    U_ILLEGAL_ESCAPE_SEQUENCE = 18,     /**< ISO-2022 illlegal escape sequence */
+    U_ILLEGAL_ESCAPE_SEQUENCE = 18,     /**< ISO-2022 illegal escape sequence */
     U_UNSUPPORTED_ESCAPE_SEQUENCE = 19, /**< ISO-2022 unsupported escape sequence */
     U_NO_SPACE_AVAILABLE      = 20,     /**< No space available for in-buffer expansion for Arabic shaping */
     U_CE_NOT_FOUND_ERROR      = 21,     /**< Currently used only while setting variable top, but can be used generally */
     U_PRIMARY_TOO_LONG_ERROR  = 22,     /**< User tried to set variable top to a primary that is longer than two bytes */
     U_STATE_TOO_OLD_ERROR     = 23,     /**< ICU cannot construct a service from this state, as it is no longer supported */
     U_TOO_MANY_ALIASES_ERROR  = 24,     /**< There are too many aliases in the path to the requested resource.
-                                             It is very possible that a circular alias definition has occured */
+                                             It is very possible that a circular alias definition has occurred */
     U_ENUM_OUT_OF_SYNC_ERROR  = 25,     /**< UEnumeration out of sync with underlying collection */
     U_INVARIANT_CONVERSION_ERROR = 26,  /**< Unable to convert a UChar* string to char* with the invariant converter. */
     U_INVALID_STATE_ERROR     = 27,     /**< Requested operation can not be completed with ICU in its current state */
     U_COLLATOR_VERSION_MISMATCH = 28,   /**< Collator version is not compatible with the base version */
     U_USELESS_COLLATOR_ERROR  = 29,     /**< Collator is options only and no base is specified */
     U_NO_WRITE_PERMISSION     = 30,     /**< Attempt to modify read-only or constant data. */
+    /**
+     * The input is impractically long for an operation.
+     * It is rejected because it may lead to problems such as excessive
+     * processing time, stack depth, or heap memory requirements.
+     *
+     * @stable ICU 68
+     */
+    U_INPUT_TOO_LONG_ERROR = 31,
 
 #ifndef U_HIDE_DEPRECATED_API
     /**
      * One more than the highest standard error code.
      * @deprecated ICU 58 The numeric value may change over time, see ICU ticket #12420.
      */
-    U_STANDARD_ERROR_LIMIT,
+    U_STANDARD_ERROR_LIMIT = 32,
 #endif  // U_HIDE_DEPRECATED_API
 
     /*
@@ -499,7 +542,7 @@ typedef enum UErrorCode {
     U_MULTIPLE_COMPOUND_FILTERS,      /**< More than one compound filter */
     U_INVALID_RBT_SYNTAX,             /**< A "::id" rule was passed to the RuleBasedTransliterator parser */
     U_INVALID_PROPERTY_PATTERN,       /**< UNUSED as of ICU 2.4 */
-    U_MALFORMED_PRAGMA,               /**< A 'use' pragma is invlalid */
+    U_MALFORMED_PRAGMA,               /**< A 'use' pragma is invalid */
     U_UNCLOSED_SEGMENT,               /**< A closing ')' is missing */
     U_ILLEGAL_CHAR_IN_SEGMENT,        /**< UNUSED as of ICU 2.4 */
     U_VARIABLE_RANGE_EXHAUSTED,       /**< Too many stand-ins generated for the given variable range */
@@ -539,12 +582,29 @@ typedef enum UErrorCode {
     U_DEFAULT_KEYWORD_MISSING,        /**< Missing DEFAULT rule in plural rules */
     U_DECIMAL_NUMBER_SYNTAX_ERROR,    /**< Decimal number syntax error */
     U_FORMAT_INEXACT_ERROR,           /**< Cannot format a number exactly and rounding mode is ROUND_UNNECESSARY @stable ICU 4.8 */
+    U_NUMBER_ARG_OUTOFBOUNDS_ERROR,   /**< The argument to a NumberFormatter helper method was out of bounds; the bounds are usually 0 to 999. @stable ICU 61 */
+    U_NUMBER_SKELETON_SYNTAX_ERROR,   /**< The number skeleton passed to C++ NumberFormatter or C UNumberFormatter was invalid or contained a syntax error. @stable ICU 62 */
+
+    /* MessageFormat 2.0 errors */
+    U_MF_UNRESOLVED_VARIABLE_ERROR,    /**< A variable is referred to but not bound by any definition @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_SYNTAX_ERROR,                 /**< Includes all syntax errors @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_UNKNOWN_FUNCTION_ERROR,       /**< An annotation refers to a function not defined by the standard or custom function registry @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_VARIANT_KEY_MISMATCH_ERROR,   /**< In a match-construct, one or more variants had a different number of keys from the number of selectors @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_FORMATTING_ERROR,             /**< Covers all runtime errors: for example, an internally inconsistent set of options. @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_NONEXHAUSTIVE_PATTERN_ERROR,  /**< In a match-construct, the variants do not cover all possible values @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_DUPLICATE_OPTION_NAME_ERROR,  /**< In an annotation, the same option name appears more than once @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_SELECTOR_ERROR,               /**< A selector function is applied to an operand of the wrong type @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_MISSING_SELECTOR_ANNOTATION_ERROR,  /**< A selector expression evaluates to an unannotated operand. @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_DUPLICATE_DECLARATION_ERROR, /**< The same variable is declared in more than one .local or .input declaration. @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_OPERAND_MISMATCH_ERROR,     /**< An operand provided to a function does not have the required form for that function @internal ICU 75 technology preview @deprecated This API is for technology preview only. */
+    U_MF_DUPLICATE_VARIANT_ERROR, /**< A message includes a variant with the same key list as another variant. @internal ICU 76 technology preview @deprecated This API is for technology preview only. */
+    U_MF_BAD_OPTION,             /**< An option value provided to a function does not have the required form for that option. @internal ICU 77 technology preview @deprecated This API is for technology preview only. */
 #ifndef U_HIDE_DEPRECATED_API
     /**
      * One more than the highest normal formatting API error code.
      * @deprecated ICU 58 The numeric value may change over time, see ICU ticket #12420.
      */
-    U_FMT_PARSE_ERROR_LIMIT,
+    U_FMT_PARSE_ERROR_LIMIT = 0x10121,
 #endif  // U_HIDE_DEPRECATED_API
 
     /*
@@ -555,7 +615,7 @@ typedef enum UErrorCode {
     U_BRK_HEX_DIGITS_EXPECTED,             /**< Hex digits expected as part of a escaped char in a rule. */
     U_BRK_SEMICOLON_EXPECTED,              /**< Missing ';' at the end of a RBBI rule.            */
     U_BRK_RULE_SYNTAX,                     /**< Syntax error in RBBI rule.                        */
-    U_BRK_UNCLOSED_SET,                    /**< UnicodeSet witing an RBBI rule missing a closing ']'.  */
+    U_BRK_UNCLOSED_SET,                    /**< UnicodeSet writing an RBBI rule missing a closing ']'. */
     U_BRK_ASSIGN_ERROR,                    /**< Syntax error in RBBI rule assignment statement.   */
     U_BRK_VARIABLE_REDFINITION,            /**< RBBI rule $Variable redefined.                    */
     U_BRK_MISMATCHED_PAREN,                /**< Mis-matched parentheses in an RBBI rule.          */
@@ -564,7 +624,7 @@ typedef enum UErrorCode {
     U_BRK_INIT_ERROR,                      /**< Initialization failure.  Probable missing ICU Data. */
     U_BRK_RULE_EMPTY_SET,                  /**< Rule contains an empty Unicode Set.               */
     U_BRK_UNRECOGNIZED_OPTION,             /**< !!option in RBBI rules not recognized.            */
-    U_BRK_MALFORMED_RULE_TAG,              /**< The {nnn} tag on a rule is mal formed             */
+    U_BRK_MALFORMED_RULE_TAG,              /**< The {nnn} tag on a rule is malformed              */
 #ifndef U_HIDE_DEPRECATED_API
     /**
      * One more than the highest normal BreakIterator error code.
@@ -668,13 +728,13 @@ typedef enum UErrorCode {
      * @stable ICU 2.0
      */
     static
-    inline UBool U_SUCCESS(UErrorCode code) { return (UBool)(code<=U_ZERO_ERROR); }
+    inline UBool U_SUCCESS(UErrorCode code) { return code <= U_ZERO_ERROR; }
     /**
      * Does the error code indicate a failure?
      * @stable ICU 2.0
      */
     static
-    inline UBool U_FAILURE(UErrorCode code) { return (UBool)(code>U_ZERO_ERROR); }
+    inline UBool U_FAILURE(UErrorCode code) { return code > U_ZERO_ERROR; }
 #else
     /**
      * Does the error code indicate success?
@@ -694,7 +754,7 @@ typedef enum UErrorCode {
  * in the UErrorCode enum above.
  * @stable ICU 2.0
  */
-U_STABLE const char * U_EXPORT2
+U_CAPI const char * U_EXPORT2
 u_errorName(UErrorCode code);
 
 
