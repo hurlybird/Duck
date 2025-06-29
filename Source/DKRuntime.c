@@ -48,6 +48,7 @@
 #include "DKCopying.h"
 #include "DKDescription.h"
 #include "DKLocking.h"
+#include "DKObjectPool.h"
 #include "DKThread.h"
 #include "DKMutex.h"
 
@@ -279,6 +280,70 @@ static DKInterfaceRef DKInterfaceComparison( void )
 
 
 
+// Global Object Pools ===================================================================
+
+#define DK_GLOBAL_OBJECT_POOL_BASE_SIZE     32
+#define DK_NUM_GLOBAL_OBJECT_POOLS          4   // 32, 64, 128, 256
+
+static DKObjectPool _GlobalObjectPools[DK_NUM_GLOBAL_OBJECT_POOLS];
+static size_t _MaxSizeForGlobalObjectPool = 0;
+
+
+
+
+// Statistics ============================================================================
+
+#if DK_RUNTIME_STATS
+static int64_t _ObjectAllocations = 0;
+static int64_t _LiveObjectAllocations = 0;
+#endif
+
+
+///
+//  DKRuntimePrintStats()
+//
+void DKRuntimePrintStats( void )
+{
+#if DK_RUNTIME_STATS
+    uint64_t total = _ObjectAllocations;
+    uint64_t live = _LiveObjectAllocations;
+    uint64_t pooled = 0;
+
+    if( _MaxSizeForGlobalObjectPool > 0 )
+    {
+        for( int i = 0; i < DK_NUM_GLOBAL_OBJECT_POOLS; i++ )
+        {
+            DKObjectPool * pool = &_GlobalObjectPools[i];
+            pooled += DKObjectPoolGetAllocatedCount( pool );
+        }
+    }
+
+    printf( "DKRuntime Statistics:\n" );
+    printf( "  Object allocations:        %" PRId64 "\n", total );
+    printf( "  Live Object allocations:   %" PRId64 "\n", live );
+    printf( "  Pooled Object allocations: %" PRId64 ", (%0.1lf%%)\n", pooled, ((double)pooled / (double)live) * 100.0 );
+
+    if( _MaxSizeForGlobalObjectPool > 0 )
+    {
+        for( int i = 0; i < DK_NUM_GLOBAL_OBJECT_POOLS; i++ )
+        {
+            DKObjectPool * pool = &_GlobalObjectPools[i];
+            
+            size_t reserved = DKObjectPoolGetReservedCount( pool );
+            size_t allocated = DKObjectPoolGetAllocatedCount( pool );
+            
+            printf( "  Pool %d (%3zu bytes):        %zu / %zu  (%0.2lf%%)\n", i + 1,
+                DKObjectPoolGetBlockSize( pool ), allocated, reserved,
+                ((double)allocated / (double)reserved) * 100.0 );
+        }
+    }
+#endif
+}
+
+
+
+
+
 // Runtime Init ==========================================================================
 static bool _DKRuntimeIsInitialized = false;
 static bool _DKRuntimeEnableZombieObjects = false;
@@ -393,6 +458,18 @@ void DKRuntimeInit( int options )
         // Initialize the main thread context
         DKMainThreadContextInit();
 
+        // Initialize the global object pools
+        if( options & DKRuntimeOptionUseGlobalObjectPools )
+        {
+            for( size_t i = 0; i < DK_NUM_GLOBAL_OBJECT_POOLS; i++ )
+            {
+                size_t blockSize = DK_GLOBAL_OBJECT_POOL_BASE_SIZE << i;
+                DKObjectPoolInit( &_GlobalObjectPools[i], blockSize, DK_GLOBAL_OBJECT_POOL_RESERVE );
+                
+                _MaxSizeForGlobalObjectPool = blockSize;
+            }
+        }
+
         // Initialize the root classes
         InitRootClass( &__DKRootClass__,       NULL,                  sizeof(struct DKClass),   DKPreventSubclassing | DKAbstractBaseClass | DKDisableReferenceCounting, NULL, DKClassFinalize );
         InitRootClass( &__DKClassClass__,      NULL,                  sizeof(struct DKClass),   DKPreventSubclassing, NULL, DKClassFinalize );
@@ -500,7 +577,7 @@ static void DKClassFinalize( DKObjectRef _untyped_self )
 
     DKNameDatabaseRemoveClass( _self );
 
-    DKPrintf( "Finalizing class %@\n", _self->name );
+    DKDebug( "Finalizing class %@\n", _self->name );
     
     // Note: The finalizer chain is still running at this point so make sure to set
     // the members to NULL to avoid accessing dangling pointers.
@@ -527,6 +604,23 @@ static void DKClassFinalize( DKObjectRef _untyped_self )
 ///
 //  DKAllocObject()
 //
+static DKObjectRef DKInitObjectMemory( DKObject * obj, DKClassRef cls, int poolIndex )
+{
+    // Zero the structure bytes
+    memset( obj, 0, cls->structSize );
+    
+    // Setup the object header
+    obj->isa = DKRetain( cls );
+    
+    if( (cls->options & DKDisableReferenceCounting) != 0 )
+        obj->refcount = (poolIndex << DKRefCountPoolShift) | DKRefCountDisabledBit | 1;
+    
+    else
+        obj->refcount = (poolIndex << DKRefCountPoolShift) | 1;
+    
+    return obj;
+}
+
 DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
 {
     if( !cls )
@@ -546,23 +640,31 @@ DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
         DKFatalError( "DKAllocObject: Class '%@' is an abstract base class", cls->name );
         return NULL;
     }
-    
+
+#if DK_RUNTIME_STATS
+    DKAtomicIncrement64( &_ObjectAllocations );
+    DKAtomicIncrement64( &_LiveObjectAllocations );
+#endif
+
     // Allocate the structure + extra bytes
-    DKObject * obj = dk_malloc( cls->structSize + extraBytes );
+    size_t allocSize = cls->structSize + extraBytes;
+
+    if( allocSize <= _MaxSizeForGlobalObjectPool )
+    {
+        for( int i = 0; i < DK_NUM_GLOBAL_OBJECT_POOLS; i++ )
+        {
+            DKObjectPool * pool = &_GlobalObjectPools[i];
+            
+            if( allocSize <= DKObjectPoolGetBlockSize( pool ) )
+            {
+                DKObject * obj = DKObjectPoolThreadSafeAlloc( pool );
+                return DKInitObjectMemory( obj, cls, i + 1 );
+            }
+        }
+    }
     
-    // Zero the structure bytes
-    memset( obj, 0, cls->structSize );
-    
-    // Setup the object header
-    obj->isa = DKRetain( cls );
-    
-    if( (cls->options & DKDisableReferenceCounting) != 0 )
-        obj->refcount = DKRefCountDisabledBit | 1;
-    
-    else
-        obj->refcount = 1;
-    
-    return obj;
+    DKObject * obj = dk_malloc( allocSize );
+    return DKInitObjectMemory( obj, cls, 0 );
 }
 
 
@@ -576,6 +678,10 @@ void DKDeallocObject( DKObjectRef _self )
     
     DKAssert( obj );
     DKAssert( ((obj->refcount & DKRefCountMask) == 0) || ((obj->refcount & DKRefCountDisabledBit) != 0) );
+
+#if DK_RUNTIME_STATS
+    DKAtomicDecrement64( &_LiveObjectAllocations );
+#endif
 
     // Deallocate
     if( _DKRuntimeEnableZombieObjects )
@@ -597,7 +703,20 @@ void DKDeallocObject( DKObjectRef _self )
 
     else
     {
-        dk_free( obj );
+        int poolIndex = DKObjectGetPoolIndex( obj );
+        DKAssert( (poolIndex >= 0) && (poolIndex <= DK_NUM_GLOBAL_OBJECT_POOLS) );
+        
+        if( poolIndex )
+        {
+            DKObjectPool * pool = &_GlobalObjectPools[poolIndex - 1];
+            DKObjectPoolThreadSafeFree( pool, obj );
+        }
+        
+        else
+        {
+            dk_free( obj );
+        }
+
         DKRelease( cls );
     }
 }

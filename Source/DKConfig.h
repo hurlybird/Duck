@@ -228,7 +228,7 @@
 
 // Remove extra trailing zeroes from %f and %lf float formats in DKSPrintf
 #ifndef DK_PRETTY_PRINT_FLOATS
-#define DK_PRETTY_PRINT_FLOATS  1
+#define DK_PRETTY_PRINT_FLOATS          1
 #endif
 
 // By default, if the thread pool is NULL when scheduling a task (or completion), the
@@ -241,9 +241,22 @@
 // The maximum size for elements in quicksort. Anything larger than this will allocate
 // memory for temporary swap space.
 #ifndef DK_MAX_SORT_ELEM_SIZE
-#define DK_MAX_SORT_ELEM_SIZE    128
+#define DK_MAX_SORT_ELEM_SIZE           128
 #endif
 
+// The intial reserve size for global object pools
+#ifndef DK_GLOBAL_OBJECT_POOL_RESERVE
+#define DK_GLOBAL_OBJECT_POOL_RESERVE   2048
+#endif
+
+// Enable statistics
+#ifndef DK_RUNTIME_STATS
+#ifdef DEBUG
+#define DK_RUNTIME_STATS                1
+#else
+#define DK_RUNTIME_STATS                0
+#endif
+#endif
 
 #endif // _DK_CONFIG_H_
 

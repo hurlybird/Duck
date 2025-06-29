@@ -37,14 +37,14 @@ extern "C"
 
 enum
 {
-    DKRuntimeOptionEnableZombieObjects = (1 << 0)
+    DKRuntimeOptionUseGlobalObjectPools =   (1 << 0),
+    DKRuntimeOptionEnableZombieObjects =    (1 << 1)
 };
 
 // Initialize the library
 DK_API void DKRuntimeInit( int options );
 DK_API bool DKRuntimeIsInitialized( void );
-
-
+DK_API void DKRuntimePrintStats( void );
 
 
 // DKObject ==============================================================================
@@ -81,20 +81,25 @@ typedef struct
 enum
 {
     // Used for reference count overflow checks
-    DKRefCountOverflowBit = 0x10000000,
+    DKRefCountOverflowBit = 0x04000000,
     
     // Reference counting is disabled for the object
-    DKRefCountDisabledBit = 0x20000000,
-    
+    DKRefCountDisabledBit = 0x08000000,
+
+    // The global pool the object was allocated in
+    DKRefCountPoolMask =    0x70000000,
+
     // The object has an associated metadata entry
-    DKRefCountMetadataBit = 0x40000000,
-    
-    // Reserved for future use
-    DKRefCountReservedBit = 0x80000000,
+    DKRefCountMetadataBit = 0x80000000,
     
     // The bits containing the actual reference count
-    DKRefCountMask =        0x0fffffff
+    DKRefCountMask =        0x03ffffff
 };
+
+
+// Retrieve the 1-based index of the global object pool
+#define DKRefCountPoolShift             28
+#define DKObjectGetPoolIndex( obj )     (((obj)->refcount & DKRefCountPoolMask) >> DKRefCountPoolShift)
 
 
 // Use this macro when declaring a static instance of a DKObject to insulate your code

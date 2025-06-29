@@ -717,7 +717,7 @@ DKListRef DKGraphGetShortestPath( DKGraphRef _self, DKObjectRef from, DKObjectRe
     // The set of discovered node that haven't been evaluated
     DKMutableBinaryTreeRef discoveredSet = DKBinaryTreeWithCompareFunction( (DKCompareFunction)DKGraphNodeCompare );
 
-    // Add the start node t- the open set
+    // Add the start node togith the open set
     DKGraphNodeRef start = DKNewDirectedGraphNode( from, 0, heuristic( from, to, context ) );
     DKBinaryTreeAddObjectToSet( discoveredSet, start );
     DKRelease( start );
