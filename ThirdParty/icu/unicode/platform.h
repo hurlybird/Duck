@@ -177,6 +177,8 @@
 #   else
 #       define U_PLATFORM U_PF_DARWIN
 #   endif
+#elif defined(PS5)
+#   define U_PLATFORM U_PF_BSD
 #elif defined(BSD) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__MirBSD__)
 #   if defined(__FreeBSD__)
 #       include <sys/endian.h>
