@@ -57,6 +57,7 @@ DKThreadSafeClassInit( DKFileClass )
     stream->tell = (DKStreamTellMethod)DKFileTell;
     stream->read = (DKStreamReadMethod)DKFileRead;
     stream->write = (DKStreamWriteMethod)DKFileWrite;
+    stream->flush = (DKStreamFlushMethod)DKFileFlush;
     stream->getStatus = (DKStreamGetStatusMethod)DKFileGetStatus;
     stream->getLength = (DKStreamGetLengthMethod)DKFileGetLength;
     
@@ -217,6 +218,23 @@ long DKFileTell( DKFileRef _self )
     }
     
     return -1;
+}
+
+
+///
+//  DKFileFlush()
+//
+int DKFileFlush( DKFileRef _self )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKFileClass() );
+
+        if( _self->file )
+            return fflush( _self->file );
+    }
+    
+    return 0;
 }
 
 

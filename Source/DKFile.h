@@ -66,6 +66,7 @@ DK_API DKIndex     DKFileGetLength( DKFileRef _self );
 DK_API size_t      DKFileRead( DKFileRef _self, void * buffer, size_t size, size_t count );
 DK_API size_t      DKFileWrite( DKFileRef _self, const void * buffer, size_t size, size_t count );
 
+DK_API int         DKFileFlush( DKFileRef _self );
 
 #ifdef __cplusplus
 }

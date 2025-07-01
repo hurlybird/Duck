@@ -43,6 +43,7 @@ typedef int     (*DKStreamSeekMethod)( DKObjectRef _self, long offset, int origi
 typedef long    (*DKStreamTellMethod)( DKObjectRef _self );
 typedef size_t  (*DKStreamReadMethod)( DKObjectRef _self, void * data, size_t size, size_t count );
 typedef size_t  (*DKStreamWriteMethod)( DKObjectRef _self, const void * data, size_t size, size_t count );
+typedef int     (*DKStreamFlushMethod)( DKObjectRef _self );
 
 typedef int     (*DKStreamGetStatusMethod)( DKObjectRef _self );
 typedef DKIndex (*DKStreamGetLengthMethod)( DKObjectRef _self );
@@ -55,6 +56,7 @@ struct DKStreamInterface
     DKStreamTellMethod tell;
     DKStreamReadMethod read;
     DKStreamWriteMethod write;
+    DKStreamFlushMethod flush;
     
     DKStreamGetStatusMethod getStatus;
     DKStreamGetLengthMethod getLength;
@@ -93,6 +95,9 @@ DK_API size_t DKRead( DKStreamRef _self, void * data, size_t size, size_t count 
 // be less than 'count' on partial writes or negative if an error occurs.
 DK_API size_t DKWrite( DKStreamRef _self, const void * data, size_t size, size_t count );
 
+// Flush an output stream
+DK_API int DKFlush( DKStreamRef _self );
+
 // Get the status of the stream
 DK_API int DKStreamGetStatus( DKStreamRef _self );
 
@@ -109,13 +114,13 @@ DK_API int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
 DK_API DKStringRef DKGets( DKStreamRef _self );
 
 // Write a string to the stream. Returns EOF on failure or a non-negative value on success.
-DK_API int         DKPuts( DKStreamRef _self, DKStringRef s );
+DK_API int DKPuts( DKStreamRef _self, DKStringRef s );
 
 // Read a character from the stream. Returns EOF on failure.
-DK_API int         DKGetc( DKStreamRef _self );
+DK_API int DKGetc( DKStreamRef _self );
 
 // Write a character to the stream. Returns EOF on failure or the character written on success.
-DK_API int         DKPutc( DKStreamRef _self, int ch );
+DK_API int DKPutc( DKStreamRef _self, int ch );
 
 
 

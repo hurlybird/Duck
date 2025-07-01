@@ -100,6 +100,21 @@ size_t DKWrite( DKStreamRef _self, const void * data, size_t size, size_t count 
 
 
 ///
+//  DKFlush()
+//
+int DKFlush( DKStreamRef _self )
+{
+    if( _self )
+    {
+        DKStreamInterfaceRef stream = DKGetInterface( _self, DKSelector(Stream) );
+        return stream->flush( _self );
+    }
+    
+    return 0;
+}
+
+
+///
 //  DKStreamGetStatus()
 //
 int DKStreamGetStatus( DKStreamRef _self )
