@@ -249,7 +249,6 @@ DKObjectRef DKPredicateInit( DKObjectRef _untyped_self, DKPredicateOp op, DKObje
 DKObjectRef DKPredicateInitWithFormat( DKObjectRef _untyped_self, DKStringRef fmt, ... )
 {
     DKFatalError( "DKPredicateInitWithFormat: Not Implemented" );
-    return NULL;
 
 /*
     DKPredicateRef _self = _untyped_self;

@@ -85,7 +85,13 @@
 #include <uuid/uuid.h>
 
 #define DK_API
-#define DK_ATTRIBUTE_ANALYZER_NO_RETURN     __attribute__((analyzer_noreturn))
+
+#if defined(__cplusplus)
+#define DK_API_NORETURN [[noreturn]]
+#else
+#define DK_API_NORETURN _Noreturn
+#endif
+
 #endif
 
 
@@ -107,7 +113,12 @@
 #include <uuid/uuid.h>
 
 #define DK_API
-#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+
+#if defined(__cplusplus)
+#define DK_API_NORETURN [[noreturn]]
+#else
+#define DK_API_NORETURN _Noreturn
+#endif
 
 #if !defined(__BIG_ENDIAN__) && !defined(__LITTLE_ENDIAN__)
     #if defined(BYTE_ORDER) && defined(BIG_ENDIAN)
@@ -133,7 +144,13 @@
 // Android -------------------------------------------------------------------------------
 #if DK_PLATFORM_ANDROID
 #define DK_API
-#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+
+#if defined(__cplusplus)
+#define DK_API_NORETURN [[noreturn]]
+#else
+#define DK_API_NORETURN _Noreturn
+#endif
+
 #endif
 
 
@@ -155,10 +172,13 @@
 
 #if defined(DK_API_STATIC)
 #define DK_API
+#define DK_API_NORETURN __declspec(noreturn)
 #elif defined(DK_API_EXPORTS)
-#define DK_API __declspec(dllexport)
+#define DK_API          __declspec(dllexport)
+#define DK_API_NORETURN __declspec(dllexport,noreturn)
 #else
-#define DK_API __declspec(dllimport)
+#define DK_API          __declspec(dllimport)
+#define DK_API_NORETURN __declspec(dllimport,noreturn)
 #endif
 
 #ifdef _WIN64
@@ -171,7 +191,6 @@
 #define __LITTLE_ENDIAN__ 1
 #endif
 
-#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
 
 #ifndef restrict
 #define restrict __restrict
@@ -191,6 +210,7 @@
 #if DK_PLATFORM_NX
 
 #define DK_API
+#define DK_NORETURN _Noreturn
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
 
 #ifndef restrict
@@ -204,6 +224,7 @@
 #if DK_PLATFORM_PS5
 
 #define DK_API
+#define DK_NORETURN _Noreturn
 #define DK_ATTRIBUTE_ANALYZER_NO_RETURN
 
 #ifndef restrict
@@ -441,7 +462,7 @@ DK_API void _DKError( const char * format, ... );
 
 // Print a error. In a debug build execution is halted with assert(0). In a non-debug
 // build the program is halted with abort().
-DK_API void _DKFatalError( const char * format, ... ) DK_ATTRIBUTE_ANALYZER_NO_RETURN;
+DK_API_NORETURN void _DKFatalError( const char * format, ... );
 
 #define DKFatalError( ... ) _DKFatalError( __VA_ARGS__ )
 
@@ -833,9 +854,9 @@ static inline void   _DKAtomicStorePtr( PVOID volatile * ptr, PVOID x )  { *ptr 
 
 // These match the semantics of the new GCC and C11 atomics where 'expected' is a pointer
 // to expected value that is updated with the current value if the compare fails.
-#define DKAtomicCompareAndSwap32( ptr, exp, des )   _DKAtomicCompareAndSwap32( ptr, exp, des )
-#define DKAtomicCompareAndSwap64( ptr, exp, des )   _DKAtomicCompareAndSwap64( ptr, exp, des )
-#define DKAtomicCompareAndSwapPtr( ptr, exp, des )  _DKAtomicCompareAndSwapPtr( ptr, exp, des )
+#define DKAtomicCompareAndSwap32( ptr, exp, des )   _DKAtomicCompareAndSwap32( ptr, (LONG *)(exp), (LONG)(des) )
+#define DKAtomicCompareAndSwap64( ptr, exp, des )   _DKAtomicCompareAndSwap64( ptr, (LONG64 *)(exp), (LONG64)(des) )
+#define DKAtomicCompareAndSwapPtr( ptr, exp, des )  _DKAtomicCompareAndSwapPtr( (PVOID volatile *)(ptr), (PVOID *)(exp), (PVOID)(des) )
 
 static inline bool _DKAtomicCompareAndSwap32( LONG volatile * ptr, LONG * expected, LONG desired )
 {
@@ -866,15 +887,14 @@ static inline bool _DKAtomicCompareAndSwapPtr( PVOID volatile * ptr, PVOID * exp
 
 // These match the semantics of legacy GCC sync builtins and Win32 interlocked functions
 // where 'expected' is a value.
-#define DKAtomicCompareValueAndSwap32( ptr, exp, des )   InterlockedCompareExchange( ptr, des, exp )
-#define DKAtomicCompareValueAndSwap64( ptr, exp, des )   InterlockedCompareExchange64( ptr, des, exp )
+#define DKAtomicCompareValueAndSwap32( ptr, exp, des )   InterlockedCompareExchange( ptr, (LONG)(des), (LONG)(exp) )
+#define DKAtomicCompareValueAndSwap64( ptr, exp, des )   InterlockedCompareExchange64( ptr, (LONG64)(des), (LONG64)(exp) )
 #define DKAtomicCompareValueAndSwapPtr( ptr, exp, des )  InterlockedCompareExchangePointer( (PVOID volatile *)(ptr), des, exp )
 
 #endif
 
 
-// It's not necessarily a problem if these don't match, but we want to be aware of any
-// unexpected sizes that could throw off structure alignment.
+// Make sure the atomic types are the size we expect.
 static_assert( sizeof(DKAtomicInt32) == sizeof(int32_t), "DKAtomicInt32 is not 32-bits." );
 static_assert( sizeof(DKAtomicInt64) == sizeof(int64_t), "DKAtomicInt64 is not 64-bits." );
 static_assert( sizeof(DKAtomicPtr) == sizeof(void *), "DKAtomicPtr is not the size of a pointer" );

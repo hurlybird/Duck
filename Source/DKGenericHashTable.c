@@ -207,9 +207,6 @@ static struct HashTableSize NextHashTableSize( size_t rowCount )
     }
     
     DKFatalError( "DKGenericHashTable: Exceeded maximum table size (~843 million entries)." );
-
-    struct HashTableSize zero = { 0, 0 };
-    return zero;
 }
 
 

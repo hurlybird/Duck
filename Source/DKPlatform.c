@@ -373,22 +373,22 @@ void * dk_calloc( size_t num, size_t size )
 //
 void * dk_realloc( void * ptr, size_t size )
 {
-#if DK_MALLOC_TRACE
-    void * old_ptr = ptr;
-#endif
+    void * new_ptr;
     
     if( realloc_callback )
-        ptr = realloc_callback( ptr, size );
+        new_ptr = realloc_callback( ptr, size );
     
     else
-        ptr = realloc( ptr, size );
+        new_ptr = realloc( ptr, size );
+
+    DKRequire( new_ptr != NULL );
 
 #if DK_MALLOC_TRACE
-    fprintf( stderr, "0x%lx = dk_realloc( 0x%lx, %lu ):\n", (uintptr_t)ptr, (uintptr_t)old_ptr, size );
+    fprintf( stderr, "0x%lx = dk_realloc( 0x%lx, %lu ):\n", (uintptr_t)new_ptr, (uintptr_t)ptr, size );
     dk_print_backtrace( stderr );
 #endif
 
-    return ptr;
+    return new_ptr;
 }
 
 

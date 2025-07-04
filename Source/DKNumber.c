@@ -105,7 +105,6 @@ typedef int (*CmpFunction)( const DKNumberValue * x, const DKNumberValue * y, si
 static int UndefinedCmpFunction( const DKNumberValue * x, const DKNumberValue * y, size_t count )
 {
     DKFatalError( "DKNumber: Undefined compare function." );
-    return 0;
 }
 
 

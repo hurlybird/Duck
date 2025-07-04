@@ -463,7 +463,7 @@ void DKRuntimeInit( int options )
         {
             for( size_t i = 0; i < DK_NUM_GLOBAL_OBJECT_POOLS; i++ )
             {
-                size_t blockSize = DK_GLOBAL_OBJECT_POOL_BASE_SIZE << i;
+                size_t blockSize = (size_t)(DK_GLOBAL_OBJECT_POOL_BASE_SIZE) << i;
                 DKObjectPoolInit( &_GlobalObjectPools[i], blockSize, DK_GLOBAL_OBJECT_POOL_RESERVE );
                 
                 _MaxSizeForGlobalObjectPool = blockSize;
@@ -538,7 +538,6 @@ DKClassRef DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSiz
     if( superclass && ((superclass->options & DKPreventSubclassing) != 0) )
     {
         DKFatalError( "DKNewClass: Class '%@' does not allow subclasses.", superclass->name );
-        return NULL;
     }
     
     if( structSize == 0 )
@@ -632,13 +631,11 @@ DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
     if( cls->structSize < sizeof(DKObject) )
     {
         DKFatalError( "DKAllocObject: Requested struct size is smaller than DKObject." );
-        return NULL;
     }
     
     if( (cls->options & DKAbstractBaseClass) != 0 )
     {
         DKFatalError( "DKAllocObject: Class '%@' is an abstract base class", cls->name );
-        return NULL;
     }
 
 #if DK_RUNTIME_STATS
@@ -774,7 +771,6 @@ DKObjectRef DKInit( DKObjectRef _self )
             if( cls->options & DKNoImplicitInitializer )
             {
                 DKFatalError( "DKInit: Class '%@' has no implicit initializer.", cls->name );
-                return NULL;
             }
         }
     }
@@ -802,7 +798,6 @@ DKObjectRef DKSuperInit( DKObjectRef _self, DKClassRef superclass )
             if( cls->options & DKNoImplicitInitializer )
             {
                 DKFatalError( "DKSuperInit: Class '%@' has no implicit initializer.", cls->name );
-                return NULL;
             }
         }
     }
@@ -844,7 +839,7 @@ void DKLockObject( DKObjectRef _self )
             
             void * _null = NULL;
             
-            if( !DKAtomicCompareAndSwap32( &metadata->mutex, &_null, mutex ) )
+            if( !DKAtomicCompareAndSwapPtr( &metadata->mutex, &_null, mutex ) )
                 DKRelease( mutex );
         }
         
