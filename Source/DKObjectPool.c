@@ -34,12 +34,12 @@
 ///
 //  DKObjectPoolAllocBlock()
 //
-static DKObjectPoolBlock * DKObjectPoolAllocBlock( DKObjectPool * pool, size_t count )
+static DKObjectPoolBlock * DKObjectPoolAllocBlock( DKObjectPool * pool, size_t count, DKObjectPoolFreeNode ** head, DKObjectPoolFreeNode ** tail )
 {
     if( count < MIN_RESERVE_NODE_COUNT )
         count = MIN_RESERVE_NODE_COUNT;
 
-    DKIndex bytes = sizeof(DKObjectPoolBlock) + (pool->blockSize * count);
+    DKIndex bytes = sizeof(DKObjectPoolBlock) + (pool->objectSize * count);
     DKObjectPoolBlock * block = dk_malloc( bytes );
     
     block->next = NULL;
@@ -47,18 +47,21 @@ static DKObjectPoolBlock * DKObjectPoolAllocBlock( DKObjectPool * pool, size_t c
     
     uint8_t * nodes = (uint8_t *)block + sizeof(DKObjectPoolBlock);
     
-    DKObjectPoolFreeNode * cursor = (DKObjectPoolFreeNode *)nodes;
+    DKObjectPoolFreeNode * prev = (DKObjectPoolFreeNode *)nodes;
     
     for( size_t i = 1; i < count; ++i )
     {
-        cursor->next = (DKObjectPoolFreeNode *)(nodes + (pool->blockSize * i));
-        cursor = cursor->next;
+        DKObjectPoolFreeNode * curr = (DKObjectPoolFreeNode *)(nodes + (pool->objectSize * i));
+
+        prev->next = curr;
+        prev = curr;
     }
     
-    DKObjectPoolFreeNode * last = (DKObjectPoolFreeNode *)(nodes + (pool->blockSize * (count - 1)));
-    last->next = pool->freeList;
-    pool->freeList = (DKObjectPoolFreeNode *)nodes;
-    
+    prev->next = NULL;
+
+    *head = (DKObjectPoolFreeNode *)nodes;
+    *tail = (DKObjectPoolFreeNode *)(nodes + (pool->objectSize * (count - 1)));
+
     return block;
 }
 
@@ -68,20 +71,25 @@ static DKObjectPoolBlock * DKObjectPoolAllocBlock( DKObjectPool * pool, size_t c
 //
 static void DKObjectPoolAddBlock( DKObjectPool * pool )
 {
-    DKObjectPoolBlock * newBlock = DKObjectPoolAllocBlock( pool, pool->reserved );
-    
-    if( pool->blockList )
+    DKSpinLockLock( &pool->mutex );
+            
+    if( DKAtomicLoadPtr( &pool->freeList ) == NULL )
     {
+        DKObjectPoolFreeNode * head;
+        DKObjectPoolFreeNode * tail;
+        DKObjectPoolBlock * newBlock = DKObjectPoolAllocBlock( pool, pool->reserved, &head, &tail );
+        
         newBlock->next = pool->blockList;
         pool->blockList = newBlock;
         pool->reserved += newBlock->count;
+
+        tail->next = DKAtomicLoadPtr( &pool->freeList );
+        
+        while( !DKAtomicCompareAndSwapPtr( &pool->freeList, &tail->next, head ) )
+            ;
     }
     
-    else
-    {
-        pool->blockList = newBlock;
-        pool->reserved = pool->blockList->count;
-    }
+    DKSpinLockUnlock( &pool->mutex );
 }
 
 
@@ -92,8 +100,8 @@ void DKObjectPoolInit( DKObjectPool * pool, size_t size, size_t reserve )
 {
     pool->freeList = NULL;
     pool->blockList = NULL;
-    pool->blockSize = size;
-    pool->reserved = reserve;
+    pool->objectSize = (uint32_t)size;
+    pool->reserved = (int64_t)reserve;
     pool->allocated = 0;
     pool->mutex = DKSpinLockInit;
     
@@ -122,6 +130,21 @@ void DKObjectPoolFinalize( DKObjectPool * pool )
 
 
 ///
+//  DKObjectPoolGetReservedCount()
+//
+size_t DKObjectPoolGetReservedCount( DKObjectPool * pool )
+{
+    size_t count;
+    
+    DKSpinLockLock( &pool->mutex );
+    count = (size_t)pool->reserved;
+    DKSpinLockUnlock( &pool->mutex );
+    
+    return count;
+}
+
+
+///
 //  DKObjectPoolAlloc()
 //
 void * DKObjectPoolAlloc( DKObjectPool * pool )
@@ -145,30 +168,29 @@ void * DKObjectPoolAlloc( DKObjectPool * pool )
 //
 void * DKObjectPoolThreadSafeAlloc( DKObjectPool * pool )
 {
-    if( pool->freeList == NULL )
-    {
-        DKSpinLockUnlock( &pool->mutex );
-        
-        if( pool->freeList == NULL )
-            DKObjectPoolAddBlock( pool );
-     
-        DKSpinLockUnlock( &pool->mutex );
-    }
-        
-    DKObjectPoolFreeNode * node = pool->freeList;
-    DKObjectPoolFreeNode * next = node->next;
+    DKObjectPoolFreeNode * node = DKAtomicLoadPtr( &pool->freeList );
     
-    while( !DKAtomicCmpAndSwapPtr( &pool->freeList, node, next ) )
+    while( 1 )
     {
-        node = pool->freeList;
-        next = node->next;
-    }
+        if( node )
+        {
+            DKObjectPoolFreeNode * next = node->next;
 
+            if( DKAtomicCompareAndSwapPtr( &pool->freeList, &node, next ) )
+            {
 #if DK_RUNTIME_STATS
-    DKAtomicIncrement64( &pool->allocated );
+                DKAtomicIncrement64( &pool->allocated );
 #endif
-    
-    return node;
+                return node;
+            }
+        }
+        
+        else
+        {
+            DKObjectPoolAddBlock( pool );
+            node = DKAtomicLoadPtr( &pool->freeList );
+        }
+    }
 }
 
 
@@ -193,15 +215,10 @@ void DKObjectPoolFree( DKObjectPool * pool, void * _node )
 void DKObjectPoolThreadSafeFree( DKObjectPool * pool, void * _node )
 {
     DKObjectPoolFreeNode * node = _node;
+    node->next = DKAtomicLoadPtr( &pool->freeList );
     
-    DKObjectPoolFreeNode * next = pool->freeList;
-    node->next = next;
-    
-    while( !DKAtomicCmpAndSwapPtr( &pool->freeList, next, node ) )
-    {
-        next = pool->freeList;
-        node->next = next;
-    }
+    while( !DKAtomicCompareAndSwapPtr( &pool->freeList, &node->next, node ) )
+        ;
 
 #if DK_RUNTIME_STATS
     DKAtomicDecrement64( &pool->allocated );

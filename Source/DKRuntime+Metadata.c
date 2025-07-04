@@ -138,7 +138,7 @@ DKMetadataRef DKMetadataFindOrInsert( DKObject * obj )
 
     if( DKGenericHashTableInsert( &MetadataTable, &newMetadata, DKInsertIfNotFound ) )
     {
-        DKAtomicOr32( (uint32_t *)&obj->refcount, DKRefCountMetadataBit );
+        DKAtomicOr32( &obj->refcount, DKRefCountMetadataBit );
         metadata = newMetadata;
     }
     

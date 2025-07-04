@@ -294,8 +294,8 @@ static size_t _MaxSizeForGlobalObjectPool = 0;
 // Statistics ============================================================================
 
 #if DK_RUNTIME_STATS
-static int64_t _ObjectAllocations = 0;
-static int64_t _LiveObjectAllocations = 0;
+static DKAtomicInt64 _ObjectAllocations = 0;
+static DKAtomicInt64 _LiveObjectAllocations = 0;
 #endif
 
 
@@ -333,7 +333,7 @@ void DKRuntimePrintStats( void )
             size_t allocated = DKObjectPoolGetAllocatedCount( pool );
             
             printf( "  Pool %d (%3zu bytes):        %zu / %zu  (%0.2lf%%)\n", i + 1,
-                DKObjectPoolGetBlockSize( pool ), allocated, reserved,
+                DKObjectPoolGetObjectSize( pool ), allocated, reserved,
                 ((double)allocated / (double)reserved) * 100.0 );
         }
     }
@@ -655,7 +655,7 @@ DKObjectRef DKAllocObject( DKClassRef cls, size_t extraBytes )
         {
             DKObjectPool * pool = &_GlobalObjectPools[i];
             
-            if( allocSize <= DKObjectPoolGetBlockSize( pool ) )
+            if( allocSize <= DKObjectPoolGetObjectSize( pool ) )
             {
                 DKObject * obj = DKObjectPoolThreadSafeAlloc( pool );
                 return DKInitObjectMemory( obj, cls, i + 1 );
@@ -677,17 +677,18 @@ void DKDeallocObject( DKObjectRef _self )
     DKClassRef cls = obj->isa;
     
     DKAssert( obj );
-    DKAssert( ((obj->refcount & DKRefCountMask) == 0) || ((obj->refcount & DKRefCountDisabledBit) != 0) );
 
 #if DK_RUNTIME_STATS
     DKAtomicDecrement64( &_LiveObjectAllocations );
 #endif
 
+    int32_t rc = DKAtomicLoad32( &obj->refcount );
+    DKAssert( ((rc & DKRefCountMask) == 0) || ((rc & DKRefCountDisabledBit) != 0) );
+
     // Deallocate
     if( _DKRuntimeEnableZombieObjects )
     {
         obj->isa = DKZombieClass();
-        obj->refcount = 0;
 
         if( cls->structSize >= sizeof(DKZombie) )
         {
@@ -703,7 +704,7 @@ void DKDeallocObject( DKObjectRef _self )
 
     else
     {
-        int poolIndex = DKObjectGetPoolIndex( obj );
+        int poolIndex = DKObjectGetPoolIndex( rc );
         DKAssert( (poolIndex >= 0) && (poolIndex <= DK_NUM_GLOBAL_OBJECT_POOLS) );
         
         if( poolIndex )
@@ -841,7 +842,9 @@ void DKLockObject( DKObjectRef _self )
         {
             DKMutexRef mutex = DKNewMutex();
             
-            if( !DKAtomicCmpAndSwapPtr( &metadata->mutex, NULL, mutex ) )
+            void * _null = NULL;
+            
+            if( !DKAtomicCompareAndSwap32( &metadata->mutex, &_null, mutex ) )
                 DKRelease( mutex );
         }
         

@@ -44,89 +44,105 @@
 // Apple
 #if DK_PLATFORM_APPLE
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1 // Clang supports GCC-style sync and swap intrinsics
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1 // Clang supports GCC-style intrinsics
 
 
 // Linux
 #elif DK_PLATFORM_LINUX
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Generic Unix
 #elif DK_PLATFORM_UNIX
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Android
 #elif DK_PLATFORM_ANDROID
 #define DK_PLATFORM_POSIX           1
 #define DK_PLATFORM_ANDROID_NDK     1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Windows
 #elif DK_PLATFORM_WINDOWS
+#define DK_PLATFORM_WIN32_ATOMICS   1
+#define DK_PLATFORM_WIN32_BYTESWAP  1
 
 
 // Nintendo Switch
 #elif DK_PLATFORM_NX
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // PlayStation 5
 #elif DK_PLATFORM_PS5
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Autodetect Apple
 #elif __APPLE__
 #define DK_PLATFORM_APPLE           1
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Autodetect Android
 #elif __ANDROID__
 #define DK_PLATFORM_ANDROID         1
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Autodetect Nintendo Switch
 #elif NX
 #define DK_PLATFORM_NX              1
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Autodetect PlayStation 5
 #elif PS5
 #define DK_PLATFORM_PS5             1
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Autodetect Linux
 #elif __linux__
 #define DK_PLATFORM_LINUX           1
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Autodetect Other Unix
 #elif __unix__
 #define DK_PLATFORM_UNIX            1
 #define DK_PLATFORM_POSIX           1
-#define DK_PLATFORM_GCC_INTRINSICS  1
+#define DK_PLATFORM_GCC_ATOMICS     1
+#define DK_PLATFORM_GCC_BYTESWAP    1
 
 
 // Autodetect Windows
 #elif defined(_WIN32) || defined(_WIN64)
 #define DK_PLATFORM_WINDOWS         1
+#define DK_PLATFORM_WIN32_ATOMICS   1
+#define DK_PLATFORM_WIN32_BYTESWAP  1
 
 
 // Unknown Platform

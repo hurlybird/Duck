@@ -53,7 +53,10 @@ DKObjectRef DKRetain( DKObjectRef _self )
     {
         DKObject * obj = _self;
 
-        int32_t rc = obj->refcount;
+        // The refcount flags do not change throughout an object's lifetime so it's
+        // generally safe to check them nonatomically. (The metadata flag is a special
+        // case--it's set once, atomically, and inside a spinlock.)
+        int32_t rc = obj->refcount; // DKAtomicLoad32( &obj->refcount );
 
         if( (rc & DKRefCountDisabledBit) == 0 )
         {
@@ -75,7 +78,10 @@ DKObjectRef DKRelease( DKObjectRef _self )
     {
         DKObject * obj = _self;
 
-        int32_t rc = obj->refcount;
+        // The refcount flags do not change throughout an object's lifetime so it's
+        // generally safe to check them nonatomically. (The metadata flag is a special
+        // case--it's set once, atomically, and inside a spinlock.)
+        int32_t rc = obj->refcount; // DKAtomicLoad32( &obj->refcount );
 
         if( (rc & DKRefCountDisabledBit) == 0 )
         {
@@ -130,7 +136,7 @@ DKObjectRef DKTryRelease( DKObjectRef _self )
     {
         DKObject * obj = _self;
 
-        int32_t rc = obj->refcount;
+        int32_t rc = DKAtomicLoad32( &obj->refcount );
 
         if( (rc & DKRefCountDisabledBit) == 0 )
         {
@@ -140,7 +146,7 @@ DKObjectRef DKTryRelease( DKObjectRef _self )
                 {
                     int32_t rc_zero = rc & ~DKRefCountMask;
                     
-                    if( DKAtomicCmpAndSwap32( &obj->refcount, rc, rc_zero ) )
+                    if( DKAtomicCompareAndSwap32( &obj->refcount, &rc, rc_zero ) )
                     {
                         DKFinalize( _self );
                         DKDealloc( _self );
@@ -156,13 +162,13 @@ DKObjectRef DKTryRelease( DKObjectRef _self )
                 
                 DKSpinLockLock( &metadata->weakLock );
                 
-                rc = obj->refcount; // Fetch again while locked
+                rc = DKAtomicLoad32( &obj->refcount ); // Fetch again while locked
                 
                 if( (rc & DKRefCountMask) == 1 )
                 {
                     int32_t rc_zero = rc & ~DKRefCountMask;
                     
-                    if( DKAtomicCmpAndSwap32( &obj->refcount, rc, rc_zero ) )
+                    if( DKAtomicCompareAndSwap32( &obj->refcount, &rc, rc_zero ) )
                     {
                         metadata->weakTarget = NULL;
                         result = NULL;
@@ -335,7 +341,12 @@ DKObjectRef DKAutorelease( DKObjectRef _self )
     {
         DKObject * obj = _self;
 
-        if( (obj->refcount & DKRefCountDisabledBit) == 0 )
+        // The refcount flags do not change throughout an object's lifetime so it's
+        // generally safe to check them nonatomically. (The metadata flag is a special
+        // case--it's set once, atomically, and inside a spinlock.)
+        int32_t rc = obj->refcount; // DKAtomicLoad32( &obj->refcount )
+
+        if( (rc & DKRefCountDisabledBit) == 0 )
         {
             struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
 

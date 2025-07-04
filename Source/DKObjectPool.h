@@ -48,12 +48,12 @@ typedef struct _DKObjectPoolBlock
 
 typedef struct
 {
-    DKObjectPoolFreeNode * volatile freeList;
-    DKObjectPoolBlock * volatile blockList;
-    size_t blockSize;
-    size_t reserved;
-    size_t volatile allocated;
+    DKAtomic(DKObjectPoolFreeNode *) freeList;
+    DKObjectPoolBlock * blockList;
     DKSpinLock mutex;
+    uint32_t objectSize;
+    uint64_t reserved;
+    DKAtomicInt64 allocated;
     
 } DKObjectPool;
 
@@ -67,10 +67,9 @@ DK_API void * DKObjectPoolThreadSafeAlloc( DKObjectPool * pool );
 DK_API void DKObjectPoolFree( DKObjectPool * pool, void * node );
 DK_API void DKObjectPoolThreadSafeFree( DKObjectPool * pool, void * node );
 
-#define DKObjectPoolGetBlockSize( pool )        ((pool)->blockSize)
-#define DKObjectPoolGetAllocatedCount( pool )   ((pool)->allocated)
-#define DKObjectPoolGetReservedCount( pool )    ((pool)->reserved)
-
+#define DKObjectPoolGetObjectSize( pool )       ((size_t)((pool)->objectSize))
+#define DKObjectPoolGetAllocatedCount( pool )   ((size_t)DKAtomicLoad64( &((pool)->allocated) ))
+DK_API size_t DKObjectPoolGetReservedCount( DKObjectPool * pool );
 
 #ifdef __cplusplus
 }

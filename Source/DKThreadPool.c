@@ -80,7 +80,7 @@ struct DKThreadPoolQueue
     struct DKThreadPoolTask * completions;
 
     int64_t taskGroup;
-    int32_t pendingTasks;
+    DKAtomicInt32 pendingTasks;
     bool closed;
 };
 
@@ -106,16 +106,16 @@ struct DKThreadPool
     DKThreadPoolCallback onThreadStop;
     void * onThreadStartStopContext;
 
-    volatile int32_t totalThreads;
-    volatile int32_t idleThreads;
-    volatile int32_t sleepingThreads;
+    int32_t totalThreads;
+    int32_t idleThreads;
+    int32_t sleepingThreads;
 
     DKThreadPoolScheduling scheduling;
     uint32_t yieldNSecs;
     uint32_t idleCooldown;
     uint32_t alertCooldown;
 
-    int64_t nextTaskGroup;
+    DKAtomicInt64 nextTaskGroup;
 };
 
 
@@ -191,9 +191,14 @@ void DKThreadPoolSetCallbacks( DKThreadPoolRef _self,
     DKThreadPoolCallback onThreadStop,
     void * context )
 {
+    DKMutexLock( _self->threadMutex );
+    DKRequire( DKListGetCount( _self->threads ) == 0 );
+
     _self->onThreadStart = onThreadStart;
     _self->onThreadStop = onThreadStop;
     _self->onThreadStartStopContext = context;
+    
+    DKMutexUnlock( _self->threadMutex );
 }
 
 
@@ -209,6 +214,9 @@ void DKThreadPoolSetScheduling( DKThreadPoolRef _self, DKThreadPoolScheduling sc
 void DKThreadPoolSetSchedulingEx( DKThreadPoolRef _self, DKThreadPoolScheduling scheduling,
     int yieldNSecs, uint64_t idleNSecs, uint64_t alertNSecs )
 {
+    DKMutexLock( _self->threadMutex );
+    DKRequire( DKListGetCount( _self->threads ) == 0 );
+
     _self->scheduling = scheduling;
 
     if( yieldNSecs < 0 )
@@ -256,6 +264,8 @@ void DKThreadPoolSetSchedulingEx( DKThreadPoolRef _self, DKThreadPoolScheduling 
 
     if( _self->alertCooldown < 100 )
         _self->alertCooldown = 100;
+        
+    DKMutexUnlock( _self->threadMutex );
 }
 
 
@@ -264,9 +274,14 @@ void DKThreadPoolSetSchedulingEx( DKThreadPoolRef _self, DKThreadPoolScheduling 
 //
 void DKThreadPoolSetLabel( DKThreadPoolRef _self, DKStringRef label )
 {
+    DKMutexLock( _self->threadMutex );
+    DKRequire( DKListGetCount( _self->threads ) == 0 );
+
     label = DKCopy( label );
     DKRelease( _self->label );
     _self->label = label;
+    
+    DKMutexUnlock( _self->threadMutex );
 }
 
 
@@ -524,7 +539,7 @@ static struct DKThreadPoolTask * DKThreadPoolGetNextTask( DKThreadPoolRef _self 
         }
         
         // If all the tasks in the queue's task group are done...
-        else if( queue->pendingTasks == 0 )
+        else if( DKAtomicLoad32( &queue->pendingTasks ) == 0 )
         {
             // If there's a completion available, run it
             if( queue->completions )
@@ -827,38 +842,46 @@ int DKThreadPoolStart( DKThreadPoolRef _self, int numThreads )
     {
         DKMutexLock( _self->threadMutex );
     
-        DKAssert( _self->totalThreads == (int)DKListGetCount( _self->threads ) );
-        int startedThreads = numThreads - _self->totalThreads;
+        int currentThreads = (int)DKListGetCount( _self->threads );
+        int startedThreads = numThreads - currentThreads;
         
-        if( startedThreads < 0 )
-            startedThreads = 0;
-
-        _self->totalThreads = _self->totalThreads + startedThreads;
-
-        for( int i = 0; i < startedThreads; i++ )
+        if( startedThreads > 0 )
         {
-            DKThreadRef thread;
-
-            if( _self->scheduling == DKThreadPoolRealTimeScheduling )
-                thread = DKThreadInit( DKAlloc( DKThreadClass() ), DKThreadPoolRealTimeExec, _self );
-            
-            else // if( _self->scheduling == DKThreadPoolDefaultScheduling )
-                thread = DKThreadInit( DKAlloc( DKThreadClass() ), DKThreadPoolExec, _self );
-            
-            if( _self->label )
+            for( int i = 0; i < startedThreads; i++ )
             {
-                int x = (int)DKListGetCount( _self->threads );
-                DKStringRef threadLabel = DKNewStringWithFormat( "%@[%d]", _self->label, x );
-                DKThreadSetLabel( thread, threadLabel );
-                DKRelease( threadLabel );
+                DKThreadRef thread;
+
+                if( _self->scheduling == DKThreadPoolRealTimeScheduling )
+                    thread = DKThreadInit( DKAlloc( DKThreadClass() ), DKThreadPoolRealTimeExec, _self );
+                
+                else // if( _self->scheduling == DKThreadPoolDefaultScheduling )
+                    thread = DKThreadInit( DKAlloc( DKThreadClass() ), DKThreadPoolExec, _self );
+                
+                if( _self->label )
+                {
+                    int x = (int)DKListGetCount( _self->threads );
+                    DKStringRef threadLabel = DKNewStringWithFormat( "%@[%d]", _self->label, x );
+                    DKThreadSetLabel( thread, threadLabel );
+                    DKRelease( threadLabel );
+                }
+                
+                DKThreadStart( thread );
+                
+                DKListAppendObject( _self->threads, thread );
+                DKRelease( thread );
             }
-            
-            DKThreadStart( thread );
-            
-            DKListAppendObject( _self->threads, thread );
-            DKRelease( thread );
+
+            // Update the thread counters
+            DKMutexLock( _self->queueMutex );
+            _self->totalThreads = (int32_t)DKListGetCount( _self->threads );
+            DKMutexUnlock( _self->queueMutex );
         }
         
+        else
+        {
+            startedThreads = 0;
+        }
+
         DKMutexUnlock( _self->threadMutex );
         
         return startedThreads;
@@ -903,6 +926,13 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
 
         // Release the thread objects
         DKListRemoveAllObjects( _self->threads );
+
+        // Reset the thread counters
+        DKMutexLock( _self->queueMutex );
+        _self->totalThreads = 0;
+        DKAssert( _self->sleepingThreads == 0 );
+        DKAssert( _self->idleThreads == 0 );
+        DKMutexUnlock( _self->queueMutex );
 
         DKMutexUnlock( _self->threadMutex );
     }
@@ -961,13 +991,11 @@ bool DKThreadPoolIsIdle( DKThreadPoolRef _self )
 
     if( _self )
     {
-        DKMutexLock( _self->threadMutex );
         DKMutexLock( _self->queueMutex );
         
-        busy = _self->idleThreads == (int32_t)DKListGetCount( _self->threads );
+        busy = _self->idleThreads == _self->totalThreads;
         
         DKMutexUnlock( _self->queueMutex );
-        DKMutexUnlock( _self->threadMutex );
     }
     
     return busy;
@@ -984,7 +1012,9 @@ void DKThreadPoolWaitUntilIdle( DKThreadPoolRef _self )
         DKMutexLock( _self->threadMutex );
         DKMutexLock( _self->queueMutex );
         
-        while( _self->idleThreads < (int32_t)DKListGetCount( _self->threads ) )
+        DKAssert( _self->totalThreads == (int32_t)DKListGetCount( _self->threads ) );
+        
+        while( _self->idleThreads < _self->totalThreads )
             DKConditionWait( _self->stateChangedCondition, _self->queueMutex );
         
         DKMutexUnlock( _self->queueMutex );
@@ -1005,7 +1035,7 @@ void DKThreadPoolWaitForTasks( DKThreadPoolRef _self, int64_t taskGroup )
         while( true )
         {
             struct DKThreadPoolQueue * queue = DKThreadPoolGetQueue( _self, taskGroup );
-            DKAssert( (queue == NULL) || (queue->pendingTasks > 0) || (queue->completions) );
+            DKAssert( (queue == NULL) || (DKAtomicLoad32( &queue->pendingTasks ) > 0) || (queue->completions) );
             
             if( queue == NULL )
                 break;

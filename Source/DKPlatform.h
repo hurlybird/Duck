@@ -43,10 +43,15 @@
 #include <float.h>
 #include <math.h>
 #include <limits.h>
+#include <assert.h>
 
 // Some system headers (i.e. inttypes.h) can cause errors when exposed by the framework.
 #ifndef DK_EXCLUDE_NONMODULAR_HEADERS
 #include <inttypes.h>
+#endif
+
+#if DK_PLATFORM_C11_ATOMICS
+#include <stdatomic.h>
 #endif
 
 // C++ Compatibility
@@ -658,69 +663,233 @@ DK_API void   dk_free( void * ptr );
 
 
 // Atomic Operations =====================================================================
-#if DK_PLATFORM_GCC_INTRINSICS
 
-#define DKAtomicAdd32( ptr, x )                     __sync_add_and_fetch( ptr, x )
-#define DKAtomicSub32( ptr, x )                     __sync_sub_and_fetch( ptr, x )
-#define DKAtomicAnd32( ptr, x )                     __sync_and_and_fetch( ptr, x )
-#define DKAtomicOr32( ptr, x )                      __sync_or_and_fetch( ptr, x )
-#define DKAtomicIncrement32( ptr )                  __sync_add_and_fetch( ptr, 1 )
-#define DKAtomicDecrement32( ptr )                  __sync_sub_and_fetch( ptr, 1 )
-#define DKAtomicCmpAndSwap32( ptr, _old, _new )     __sync_bool_compare_and_swap( ptr, _old, _new )
+// C11 atomic_* --------------------------------------------------------------------------
+// THESE ARE ONLY FOR REFERENCE -- THEY CAUSE COMPATIBILITY PROBLEMS WITH C++
 
-#define DKAtomicAdd64( ptr, x )                     __sync_add_and_fetch( ptr, x )
-#define DKAtomicSub64( ptr, x )                     __sync_sub_and_fetch( ptr, x )
-#define DKAtomicAnd64( ptr, x )                     __sync_and_and_fetch( ptr, x )
-#define DKAtomicOr64( ptr, x )                      __sync_or_and_fetch( ptr, x )
-#define DKAtomicIncrement64( ptr )                  __sync_add_and_fetch( ptr, 1 )
-#define DKAtomicDecrement64( ptr )                  __sync_sub_and_fetch( ptr, 1 )
-#define DKAtomicCmpAndSwap64( ptr, _old, _new )     __sync_bool_compare_and_swap( ptr, _old, _new )
+#if DK_PLATFORM_C11_ATOMICS
+typedef atomic_int_fast32_t                         DKAtomicInt32;
+typedef atomic_int_fast64_t                         DKAtomicInt64;
+typedef _Atomic(void *)                             DKAtomicPtr;
+#define DKAtomic( type )                            _Atomic(type)
 
-#define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    __sync_bool_compare_and_swap( ptr, _old, _new )
+#define DKAtomicLoad32( ptr )                       atomic_load( ptr )
+#define DKAtomicStore32( ptr, x )                   atomic_store( ptr, x )
+#define DKAtomicAdd32( ptr, x )                     (atomic_fetch_add( ptr, x ) + (x))
+#define DKAtomicSub32( ptr, x )                     (atomic_fetch_sub( ptr, x ) - (x))
+#define DKAtomicAnd32( ptr, x )                     (atomic_fetch_and( ptr, x ) & (x))
+#define DKAtomicOr32( ptr, x )                      (atomic_fetch_or( ptr, x ) | (x))
+#define DKAtomicIncrement32( ptr )                  (atomic_fetch_add( ptr, 1 ) + 1)
+#define DKAtomicDecrement32( ptr )                  (atomic_fetch_sub( ptr, 1 ) - 1)
+#define DKAtomicSwap32( ptr, x )                    atomic_exchange( ptr, x )
 
-#define DKMemoryBarrier()                           __sync_synchronize()
+#define DKAtomicLoad64( ptr )                       atomic_load( ptr )
+#define DKAtomicStore64( ptr, x )                   atomic_store( ptr, x )
+#define DKAtomicAdd64( ptr, x )                     atomic_fetch_add( ptr, x )
+#define DKAtomicSub64( ptr, x )                     atomic_fetch_sub( ptr, x )
+#define DKAtomicAnd64( ptr, x )                     atomic_fetch_and( ptr, x )
+#define DKAtomicOr64( ptr, x )                      atomic_fetch_or( ptr, x )
+#define DKAtomicIncrement64( ptr )                  atomic_fetch_add( ptr, 1 )
+#define DKAtomicDecrement64( ptr )                  atomic_fetch_sub( ptr, 1 )
+#define DKAtomicSwap64( ptr, x )                    atomic_exchange( ptr, x )
+
+#define DKAtomicLoadPtr( ptr )                      atomic_load( ptr )
+#define DKAtomicStorePtr( ptr, x )                  atomic_store( ptr, x )
+#define DKAtomicSwapPtr( ptr, x )                   atomic_exchange( ptr, x )
+
+// These match the semantics of the new GCC and C11 atomics where 'expected' is a pointer
+// to a value that is updated with the current value if the compare fails.
+#define DKAtomicCompareAndSwap32( ptr, exp, des )   atomic_compare_exchange_strong_explicit( ptr, exp, des, memory_order_seq_cst, memory_order_relaxed )
+#define DKAtomicCompareAndSwap64( ptr, exp, des )   atomic_compare_exchange_strong_explicit( ptr, exp, des, memory_order_seq_cst, memory_order_relaxed )
+#define DKAtomicCompareAndSwapPtr( ptr, exp, des )  atomic_compare_exchange_strong_explicit( ptr, exp, des, memory_order_seq_cst, memory_order_relaxed )
+
+// These match the semantics of legacy GCC sync builtins and Win32 interlocked functions
+// where 'expected' is a value.
+#define DKAtomicCompareValueAndSwap32( ptr, exp, des )   _DKAtomicCompareValueAndSwap32( ptr, exp, des )
+#define DKAtomicCompareValueAndSwap64( ptr, exp, des )   _DKAtomicCompareValueAndSwap64( ptr, exp, des )
+#define DKAtomicCompareValueAndSwapPtr( ptr, exp, des )  _DKAtomicCompareValueAndSwapPtr( (void * volatile *)(ptr), exp, des )
+
+static inline bool _DKAtomicCompareValueAndSwap32( int32_t volatile * ptr, int32_t expected, int32_t desired )
+{
+    return atomic_compare_exchange_strong_explicit( ptr, &expected, desired, true, memory_order_seq_cst, memory_order_relaxed );
+}
+
+static inline bool _DKAtomicCompareValueAndSwap64( int64_t volatile * ptr, int64_t expected, int64_t desired )
+{
+    return atomic_compare_exchange_strong_explicit( ptr, &expected, desired, true, memory_order_seq_cst, memory_order_relaxed );
+}
+
+static inline bool _DKAtomicCompareValueAndSwapPtr( void * volatile * ptr, void * expected, void * desired )
+{
+    return atomic_compare_exchange_strong_explicit( ptr, &expected, desired, true, memory_order_seq_cst, memory_order_relaxed );
+}
 
 #endif
 
-#if DK_PLATFORM_WINDOWS
 
-static_assert( sizeof(LONG) == sizeof(int32_t), "DKAtomic: Windows LONG type is not 32-bits." );
+// GCC __atomic_* --------------------------------------------------------------------------
+#if DK_PLATFORM_GCC_ATOMICS
+typedef int32_t                                     DKAtomicInt32;
+typedef int64_t                                     DKAtomicInt64;
+typedef void *                                      DKAtomicPtr;
+#define DKAtomic( type )                            type
 
-#define DKAtomicAdd32( ptr, x )                     InterlockedAdd( (LONG volatile *)(ptr), (LONG)(x) )
-#define DKAtomicSub32( ptr, x )                     InterlockedAdd( (LONG volatile *)(ptr), -(LONG)(x) )
-#define DKAtomicAnd32( ptr, x )                     InterlockedAnd( (LONG volatile *)(ptr), (LONG)(x) )
-#define DKAtomicOr32( ptr, x )                      InterlockedOr( (LONG volatile *)(ptr), (LONG)(x) )
-#define DKAtomicIncrement32( ptr )                  InterlockedIncrement( (LONG volatile *)(ptr) )
-#define DKAtomicDecrement32( ptr )                  InterlockedDecrement( (LONG volatile *)(ptr) )
-#define DKAtomicCmpAndSwap32( ptr, _old, _new )     (InterlockedCompareExchange( (LONG volatile *)(ptr), (LONG)(_new), (LONG)(_old) ) == (LONG)(_old))
+#define DKAtomicLoad32( ptr )                       __atomic_load_n( ptr, __ATOMIC_SEQ_CST )
+#define DKAtomicStore32( ptr, x )                   __atomic_store_n( ptr, x, __ATOMIC_SEQ_CST )
+#define DKAtomicAdd32( ptr, x )                     __atomic_add_fetch( ptr, x, __ATOMIC_SEQ_CST  )
+#define DKAtomicSub32( ptr, x )                     __atomic_sub_fetch( ptr, x, __ATOMIC_SEQ_CST  )
+#define DKAtomicAnd32( ptr, x )                     __atomic_and_fetch( ptr, x, __ATOMIC_SEQ_CST  )
+#define DKAtomicOr32( ptr, x )                      __atomic_or_fetch( ptr, x, __ATOMIC_SEQ_CST  )
+#define DKAtomicIncrement32( ptr )                  __atomic_add_fetch( ptr, 1, __ATOMIC_SEQ_CST  )
+#define DKAtomicDecrement32( ptr )                  __atomic_sub_fetch( ptr, 1, __ATOMIC_SEQ_CST  )
+#define DKAtomicSwap32( ptr, x )                    __atomic_exchange_n( ptr, x, __ATOMIC_SEQ_CST  )
 
-#define DKAtomicAdd64( ptr, x )                     InterlockedAdd64( (LONG64 volatile *)(ptr), (LONG64)(x) )
-#define DKAtomicSub64( ptr, x )                     InterlockedAdd64( (LONG64 volatile *)(ptr), -(LONG64)(x) )
-#define DKAtomicAnd64( ptr, x )                     InterlockedAnd64( (LONG64 volatile *)(ptr), (LONG64)(x) )
-#define DKAtomicOr64( ptr, x )                      InterlockedOr64( (LONG64 volatile *)(ptr), -(LONG64)(x) )
-#define DKAtomicIncrement64( ptr )                  InterlockedIncrement64( (LONG64 volatile *)(ptr) )
-#define DKAtomicDecrement64( ptr )                  InterlockedDecrement64( (LONG64 volatile *)(ptr) )
-#define DKAtomicCmpAndSwap64( ptr, _old, _new )     (InterlockedCompareExchange64( (LONG64 volatile *)(ptr), (LONG64)(_new), (LONG64)(_old) ) == (LONG64)(_old))
+#define DKAtomicLoad64( ptr )                       __atomic_load_n( ptr, __ATOMIC_SEQ_CST )
+#define DKAtomicStore64( ptr, x )                   __atomic_store_n( ptr, x, __ATOMIC_SEQ_CST )
+#define DKAtomicAdd64( ptr, x )                     __atomic_add_fetch( ptr, x, __ATOMIC_SEQ_CST  )
+#define DKAtomicSub64( ptr, x )                     __atomic_sub_fetch( ptr, x, __ATOMIC_SEQ_CST  )
+#define DKAtomicAnd64( ptr, x )                     __atomic_and_fetch( ptr, x, __ATOMIC_SEQ_CST  )
+#define DKAtomicOr64( ptr, x )                      __atomic_or_fetch( ptr, x, __ATOMIC_SEQ_CST  )
+#define DKAtomicIncrement64( ptr )                  __atomic_add_fetch( ptr, 1, __ATOMIC_SEQ_CST  )
+#define DKAtomicDecrement64( ptr )                  __atomic_sub_fetch( ptr, 1, __ATOMIC_SEQ_CST  )
+#define DKAtomicSwap64( ptr, x )                    __atomic_exchange_n( ptr, x, __ATOMIC_SEQ_CST  )
 
-#define DKAtomicCmpAndSwapPtr( ptr, _old, _new )    (InterlockedCompareExchangePointer( (PVOID volatile *)ptr, _new, _old ) == (_old))
+#define DKAtomicLoadPtr( ptr )                      __atomic_load_n( ptr, __ATOMIC_SEQ_CST )
+#define DKAtomicStorePtr( ptr, x )                  __atomic_store_n( ptr, x, __ATOMIC_SEQ_CST )
+#define DKAtomicSwapPtr( ptr, x )                   __atomic_exchange_n( ptr, x, __ATOMIC_SEQ_CST  )
 
-#define DKMemoryBarrier()                           MemoryBarrier()
+// These match the semantics of the new GCC and C11 atomics where 'expected' is a pointer
+// to a value that is updated with the current value if the compare fails.
+#define DKAtomicCompareAndSwap32( ptr, exp, des )   __atomic_compare_exchange_n( ptr, exp, des, true, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED )
+#define DKAtomicCompareAndSwap64( ptr, exp, des )   __atomic_compare_exchange_n( ptr, exp, des, true, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED )
+#define DKAtomicCompareAndSwapPtr( ptr, exp, des )  __atomic_compare_exchange_n( ptr, exp, des, true, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED )
+
+// These match the semantics of legacy GCC sync builtins and Win32 interlocked functions
+// where 'expected' is a value.
+#define DKAtomicCompareValueAndSwap32( ptr, exp, des )   _DKAtomicCompareValueAndSwap32( ptr, exp, des )
+#define DKAtomicCompareValueAndSwap64( ptr, exp, des )   _DKAtomicCompareValueAndSwap64( ptr, exp, des )
+#define DKAtomicCompareValueAndSwapPtr( ptr, exp, des )  _DKAtomicCompareValueAndSwapPtr( (void * volatile *)(ptr), exp, des )
+
+static inline bool _DKAtomicCompareValueAndSwap32( int32_t volatile * ptr, int32_t expected, int32_t desired )
+{
+    return __atomic_compare_exchange_n( ptr, &expected, desired, true, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED );
+}
+
+static inline bool _DKAtomicCompareValueAndSwap64( int64_t volatile * ptr, int64_t expected, int64_t desired )
+{
+    return __atomic_compare_exchange_n( ptr, &expected, desired, true, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED );
+}
+
+static inline bool _DKAtomicCompareValueAndSwapPtr( void * volatile * ptr, void * expected, void * desired )
+{
+    return __atomic_compare_exchange_n( ptr, &expected, desired, true, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED );
+}
 
 #endif
+
+
+// Win32 Interlocked* --------------------------------------------------------------------
+
+#if DK_PLATFORM_WIN32_ATOMICS
+typedef LONG                                        DKAtomicInt32;
+typedef LONG64                                      DKAtomicInt64;
+typedef PVOID                                       DKAtomicPtr;
+#define DKAtomic( type )                            type
+
+#define DKAtomicLoad32( ptr )                       _DKAtomicLoad32( ptr )
+#define DKAtomicStore32( ptr, x )                   _DKAtomicStore32( ptr, (LONG)(x) )
+#define DKAtomicAdd32( ptr, x )                     InterlockedAdd( ptr, (LONG)(x) )
+#define DKAtomicSub32( ptr, x )                     InterlockedAdd( ptr, -(LONG)(x) )
+#define DKAtomicAnd32( ptr, x )                     InterlockedAnd( ptr, (LONG)(x) )
+#define DKAtomicOr32( ptr, x )                      InterlockedOr( ptr, (LONG)(x) )
+#define DKAtomicIncrement32( ptr )                  InterlockedIncrement( ptr )
+#define DKAtomicDecrement32( ptr )                  InterlockedDecrement( ptr )
+#define DKAtomicSwap32( ptr, x )                    InterlockedExchange( ptr, (LONG)(x) )
+
+#define DKAtomicLoad64( ptr )                       _DKAtomicLoad64( ptr )
+#define DKAtomicStore64( ptr, x )                   _DKAtomicStore64( ptr, (LONG64)(x) )
+#define DKAtomicAdd64( ptr, x )                     InterlockedAdd64( ptr, (LONG64)(x) )
+#define DKAtomicSub64( ptr, x )                     InterlockedAdd64( ptr, -(LONG64)(x) )
+#define DKAtomicAnd64( ptr, x )                     InterlockedAnd64( ptr, (LONG64)(x) )
+#define DKAtomicOr64( ptr, x )                      InterlockedOr64( ptr, -(LONG64)(x) )
+#define DKAtomicIncrement64( ptr )                  InterlockedIncrement64( ptr )
+#define DKAtomicDecrement64( ptr )                  InterlockedDecrement64( ptr )
+#define DKAtomicSwap64( ptr, x )                    InterlockedExchange64( ptr, (LONG64)(x) )
+
+#define DKAtomicLoadPtr( ptr )                      _DKAtomicLoadPtr( (PVOID volatile *)(ptr) )
+#define DKAtomicStorePtr( ptr, x )                  _DKAtomicStorePtr( (PVOID volatile *)(ptr), x )
+#define DKAtomicSwapPtr( ptr, x )                   InterlockedExchangePointer( (PVOID volatile *)(ptr), x )
+
+// Microsoft doesn't have interlocked load/store, but per the docs:
+// Simple reads and writes to properly-aligned 32-bit variables are atomic operations.
+// Simple reads and writes to properly aligned 64-bit variables are atomic on 64-bit Windows.
+static inline LONG   _DKAtomicLoad32( LONG volatile * ptr )              { return *ptr; }
+static inline LONG64 _DKAtomicLoad64( LONG64 volatile * ptr )            { return *ptr; }
+static inline PVOID  _DKAtomicLoadPtr( PVOID volatile * ptr )            { return *ptr; }
+
+static inline void   _DKAtomicStore32( LONG volatile * ptr, LONG x )     { *ptr = x; }
+static inline void   _DKAtomicStore64( LONG64 volatile * ptr, LONG64 x ) { *ptr = x; }
+static inline void   _DKAtomicStorePtr( PVOID volatile * ptr, PVOID x )  { *ptr = x; }
+
+// These match the semantics of the new GCC and C11 atomics where 'expected' is a pointer
+// to expected value that is updated with the current value if the compare fails.
+#define DKAtomicCompareAndSwap32( ptr, exp, des )   _DKAtomicCompareAndSwap32( ptr, exp, des )
+#define DKAtomicCompareAndSwap64( ptr, exp, des )   _DKAtomicCompareAndSwap64( ptr, exp, des )
+#define DKAtomicCompareAndSwapPtr( ptr, exp, des )  _DKAtomicCompareAndSwapPtr( ptr, exp, des )
+
+static inline bool _DKAtomicCompareAndSwap32( LONG volatile * ptr, LONG * expected, LONG desired )
+{
+    if( InterlockedCompareExchange( ptr, desired, *expected ) == *expected )
+        return true;
+        
+    *expected = *ptr;
+    return false;
+}
+
+static inline bool _DKAtomicCompareAndSwap64( LONG64 volatile * ptr, LONG64 * expected, LONG64 desired )
+{
+    if( InterlockedCompareExchange64( ptr, desired, *expected ) == *expected )
+        return true;
+        
+    *expected = *ptr;
+    return false;
+}
+
+static inline bool _DKAtomicCompareAndSwapPtr( PVOID volatile * ptr, PVOID * expected, PVOID desired )
+{
+    if( InterlockedCompareExchangePointer( ptr, desired, *expected ) == *expected )
+        return true;
+        
+    *expected = *ptr;
+    return false;
+}
+
+// These match the semantics of legacy GCC sync builtins and Win32 interlocked functions
+// where 'expected' is a value.
+#define DKAtomicCompareValueAndSwap32( ptr, exp, des )   InterlockedCompareExchange( ptr, des, exp )
+#define DKAtomicCompareValueAndSwap64( ptr, exp, des )   InterlockedCompareExchange64( ptr, des, exp )
+#define DKAtomicCompareValueAndSwapPtr( ptr, exp, des )  InterlockedCompareExchangePointer( (PVOID volatile *)(ptr), des, exp )
+
+#endif
+
+
+// It's not necessarily a problem if these don't match, but we want to be aware of any
+// unexpected sizes that could throw off structure alignment.
+static_assert( sizeof(DKAtomicInt32) == sizeof(int32_t), "DKAtomicInt32 is not 32-bits." );
+static_assert( sizeof(DKAtomicInt64) == sizeof(int64_t), "DKAtomicInt64 is not 64-bits." );
+static_assert( sizeof(DKAtomicPtr) == sizeof(void *), "DKAtomicPtr is not the size of a pointer" );
 
 
 
 
 // Spin Locks ============================================================================
-typedef int32_t DKSpinLock;
+typedef DKAtomicInt32 DKSpinLock;
 
-#define DKSpinLockInit              0
+#define DKSpinLockInit  0
 
 inline static void DKSpinLockLock( DKSpinLock * spinlock )
 {
-    int32_t volatile * lock = spinlock;
-
-    while( !DKAtomicCmpAndSwap32( lock, 0, 1 ) )
+    while( DKAtomicSwap32( spinlock, 1 ) )
     {
         dk_spinlock_yield();
     }
@@ -728,19 +897,26 @@ inline static void DKSpinLockLock( DKSpinLock * spinlock )
 
 inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
 {
-    int32_t volatile * lock = spinlock;
-    
-    DKAtomicAnd32( lock, 0 );
+    DKAtomicStore32( spinlock, 0 );
 }
+
+#define DKSpinLockIsLocked( spinlock )  ((bool)DKAtomicLoad32( spinlock ))
+
 
 
 
 // Byte Order Operations =================================================================
-#if DK_PLATFORM_GCC_INTRINSICS
+#if DK_PLATFORM_GCC_BYTESWAP
 
-#define DKSwapInt16( x )                        __builtin_bswap16( x )
-#define DKSwapInt32( x )                        __builtin_bswap32( x )
-#define DKSwapInt64( x )                        __builtin_bswap64( x )
+#define DKSwapInt16( x )    __builtin_bswap16( x )
+#define DKSwapInt32( x )    __builtin_bswap32( x )
+#define DKSwapInt64( x )    __builtin_bswap64( x )
+
+#elif DK_PLATFORM_WIN32_BYTESWAP
+
+#define DKSwapInt16( x )    _byteswap_ushort( x )
+#define DKSwapInt32( x )    _byteswap_ulong( x )
+#define DKSwapInt64( x )    _byteswap_uint64( x )
 
 #else
 

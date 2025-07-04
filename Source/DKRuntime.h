@@ -54,7 +54,7 @@ typedef struct
     DKClassRef isa;
     
     // Reference count. Never modify this directly.
-    int32_t refcount;
+    DKAtomicInt32 refcount;
     
     // The usage of the object tag is entirely up to individual classes. On 64-bit
     // platforms DKObject should be 8-byte aligned anyway, so this field allows the use
@@ -99,7 +99,7 @@ enum
 
 // Retrieve the 1-based index of the global object pool
 #define DKRefCountPoolShift             28
-#define DKObjectGetPoolIndex( obj )     (((obj)->refcount & DKRefCountPoolMask) >> DKRefCountPoolShift)
+#define DKObjectGetPoolIndex( rc )      (((rc) & DKRefCountPoolMask) >> DKRefCountPoolShift)
 
 
 // Use this macro when declaring a static instance of a DKObject to insulate your code
@@ -903,7 +903,7 @@ struct DKMetadata
     DKSpinLock      weakLock;
     
     // Thread Synchronization
-    DKObjectRef     mutex;
+    DKAtomic(DKObjectRef) mutex;
 };
 
 typedef struct DKMetadata * DKMetadataRef;
