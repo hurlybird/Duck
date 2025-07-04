@@ -210,12 +210,18 @@
 #if DK_PLATFORM_NX
 
 #define DK_API
-#define DK_NORETURN _Noreturn
-#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+
+#if defined(__cplusplus)
+#define DK_API_NORETURN [[noreturn]]
+#else
+#define DK_API_NORETURN _Noreturn
+#endif
 
 #ifndef restrict
 #define restrict __restrict
 #endif
+
+#define static_assert _Static_assert
 
 #endif
 
@@ -224,8 +230,12 @@
 #if DK_PLATFORM_PS5
 
 #define DK_API
-#define DK_NORETURN _Noreturn
-#define DK_ATTRIBUTE_ANALYZER_NO_RETURN
+
+#if defined(__cplusplus)
+#define DK_API_NORETURN [[noreturn]]
+#else
+#define DK_API_NORETURN _Noreturn
+#endif
 
 #ifndef restrict
 #define restrict __restrict
