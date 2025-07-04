@@ -897,9 +897,9 @@ static inline bool _DKAtomicCompareAndSwapPtr( PVOID volatile * ptr, PVOID * exp
 
 // These match the semantics of legacy GCC sync builtins and Win32 interlocked functions
 // where 'expected' is a value.
-#define DKAtomicCompareValueAndSwap32( ptr, exp, des )   InterlockedCompareExchange( ptr, (LONG)(des), (LONG)(exp) )
-#define DKAtomicCompareValueAndSwap64( ptr, exp, des )   InterlockedCompareExchange64( ptr, (LONG64)(des), (LONG64)(exp) )
-#define DKAtomicCompareValueAndSwapPtr( ptr, exp, des )  InterlockedCompareExchangePointer( (PVOID volatile *)(ptr), des, exp )
+#define DKAtomicCompareValueAndSwap32( ptr, exp, des )   (InterlockedCompareExchange( ptr, (LONG)(des), (LONG)(exp) ) == (LONG)(exp))
+#define DKAtomicCompareValueAndSwap64( ptr, exp, des )   (InterlockedCompareExchange64( ptr, (LONG64)(des), (LONG64)(exp) ) == (LONG64)(exp))
+#define DKAtomicCompareValueAndSwapPtr( ptr, exp, des )  (InterlockedCompareExchangePointer( (PVOID volatile *)(ptr), des, exp ) == (PVOID)(exp))
 
 #endif
 
