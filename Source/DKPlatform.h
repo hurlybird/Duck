@@ -917,8 +917,11 @@ typedef DKAtomicInt32 DKSpinLock;
 
 #define DKSpinLockInit  0
 
+// Boolean spinlocks
 inline static void DKSpinLockLock( DKSpinLock * spinlock )
 {
+    // We can avoid an atomic comparison here since the lock value MUST be 0 or 1 and we
+    // only care about the transition from 0 to 1.
     while( DKAtomicSwap32( spinlock, 1 ) )
     {
         dk_spinlock_yield();
@@ -931,6 +934,20 @@ inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
 }
 
 #define DKSpinLockIsLocked( spinlock )  ((bool)DKAtomicLoad32( spinlock ))
+
+
+// Spinlocks with state storage. BE CAREFUL MIXING THESE WITH BOOLEAN LOCK/UNLOCK
+#define DKSpinLockTryLockWithState( spinlock, state )   DKAtomicCompareValueAndSwap32( spinlock, 0, state )
+#define DKSpinLockTryUnlockWhenState( spinlock, state ) DKAtomicCompareValueAndSwap32( spinlock, state, 0 )
+#define DKSpinLockGetState( spinlock )                  DKAtomicLoad32( spinlock )
+
+static inline void DKSpinLockLockWithState( DKSpinLock * spinlock, int32_t state )
+{
+    while( !DKSpinLockTryLockWithState( spinlock, state ) )
+    {
+        dk_spinlock_yield();
+    }
+}
 
 
 
