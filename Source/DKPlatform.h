@@ -938,7 +938,7 @@ inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
 
 // Spinlocks with state storage. BE CAREFUL MIXING THESE WITH BOOLEAN LOCK/UNLOCK
 #define DKSpinLockTryLockWithState( spinlock, state )   DKAtomicCompareValueAndSwap32( spinlock, 0, state )
-#define DKSpinLockTryUnlockWhenState( spinlock, state ) DKAtomicCompareValueAndSwap32( spinlock, state, 0 )
+#define DKSpinLockTryUnlockFromState( spinlock, state ) DKAtomicCompareValueAndSwap32( spinlock, state, 0 )
 #define DKSpinLockGetState( spinlock )                  DKAtomicLoad32( spinlock )
 
 static inline void DKSpinLockLockWithState( DKSpinLock * spinlock, int32_t state )
@@ -947,6 +947,11 @@ static inline void DKSpinLockLockWithState( DKSpinLock * spinlock, int32_t state
     {
         dk_spinlock_yield();
     }
+}
+
+static inline int32_t DKSpinLockUnlockFromState( DKSpinLock * spinlock )
+{
+    return DKAtomicSwap32( spinlock, 0 );
 }
 
 
