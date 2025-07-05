@@ -43,10 +43,10 @@ struct NameDatabaseEntry
 
 
 static DKGenericHashTable ClassNameDatabase;
-static DKSpinLock ClassNameDatabaseSpinLock = DKSpinLockInit;
+static DKSpinlock ClassNameDatabaseSpinLock = DKSpinlockInit;
 
 static DKGenericHashTable SelectorNameDatabase;
-static DKSpinLock SelectorNameDatabaseSpinLock = DKSpinLockInit;
+static DKSpinlock SelectorNameDatabaseSpinLock = DKSpinlockInit;
 
 
 
@@ -123,11 +123,11 @@ void DKNameDatabaseInsertClass( DKClassRef _class )
     if( _class->name == NULL )
         return;
     
-    DKSpinLockLock( &ClassNameDatabaseSpinLock );
+    DKSpinlockLock( &ClassNameDatabaseSpinLock );
 
     bool inserted = DKGenericHashTableInsert( &ClassNameDatabase, &_class, DKInsertIfNotFound );
     
-    DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
+    DKSpinlockUnlock( &ClassNameDatabaseSpinLock );
     
     if( !inserted )
     {
@@ -141,9 +141,9 @@ void DKNameDatabaseInsertClass( DKClassRef _class )
 //
 void DKNameDatabaseRemoveClass( DKClassRef _class )
 {
-    DKSpinLockLock( &ClassNameDatabaseSpinLock );
+    DKSpinlockLock( &ClassNameDatabaseSpinLock );
     DKGenericHashTableRemove( &ClassNameDatabase, &_class );
-    DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
+    DKSpinlockUnlock( &ClassNameDatabaseSpinLock );
 }
 
 
@@ -155,11 +155,11 @@ void DKNameDatabaseInsertSelector( DKSEL sel )
     if( sel->name == NULL )
         return;
 
-    DKSpinLockLock( &SelectorNameDatabaseSpinLock );
+    DKSpinlockLock( &SelectorNameDatabaseSpinLock );
 
     bool inserted = DKGenericHashTableInsert( &SelectorNameDatabase, &sel, DKInsertIfNotFound );
     
-    DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
+    DKSpinlockUnlock( &SelectorNameDatabaseSpinLock );
     
     if( !inserted )
     {
@@ -173,9 +173,9 @@ void DKNameDatabaseInsertSelector( DKSEL sel )
 //
 void DKNameDatabaseRemoveSelector( DKSEL sel )
 {
-    DKSpinLockLock( &SelectorNameDatabaseSpinLock );
+    DKSpinlockLock( &SelectorNameDatabaseSpinLock );
     DKGenericHashTableRemove( &SelectorNameDatabase, &sel );
-    DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
+    DKSpinlockUnlock( &SelectorNameDatabaseSpinLock );
 }
 
 
@@ -337,14 +337,14 @@ DKClassRef DKClassFromString( DKStringRef className )
         
         struct NameDatabaseEntry * key = &_key;
 
-        DKSpinLockLock( &ClassNameDatabaseSpinLock );
+        DKSpinlockLock( &ClassNameDatabaseSpinLock );
         
         DKClassRef * entry = (DKClassRef *)DKGenericHashTableFind( &ClassNameDatabase, &key );
         
         if( entry )
             cls = *entry;
         
-        DKSpinLockUnlock( &ClassNameDatabaseSpinLock );
+        DKSpinlockUnlock( &ClassNameDatabaseSpinLock );
     }
     
     return cls;
@@ -395,14 +395,14 @@ DKSEL DKSelectorFromString( DKStringRef name )
         
         struct NameDatabaseEntry * key = &_key;
 
-        DKSpinLockLock( &SelectorNameDatabaseSpinLock );
+        DKSpinlockLock( &SelectorNameDatabaseSpinLock );
         
         DKSEL * entry = (DKSEL *)DKGenericHashTableFind( &SelectorNameDatabase, &key );
         
         if( entry )
             sel = *entry;
         
-        DKSpinLockUnlock( &SelectorNameDatabaseSpinLock );
+        DKSpinlockUnlock( &SelectorNameDatabaseSpinLock );
     }
     
     return sel;

@@ -219,7 +219,7 @@ DK_API void        DKUnlockObject( DKObjectRef _self );
 // Thread-safe initialization of shared objects.
 #define DKThreadSafeSharedObjectInit( accessor, type )                                  \
     static type accessor ## _SharedObject = NULL;                                       \
-    static DKSpinLock accessor ## _SharedObjectLock = DKSpinLockInit;                   \
+    static DKSpinlock accessor ## _SharedObjectLock = DKSpinlockInit;                   \
     static type accessor ## _Create( void );                                            \
                                                                                         \
     type accessor( void )                                                               \
@@ -227,12 +227,12 @@ DK_API void        DKUnlockObject( DKObjectRef _self );
         if( accessor ## _SharedObject != NULL )                                         \
             return accessor ## _SharedObject;                                           \
                                                                                         \
-        DKSpinLockLock( &accessor ## _SharedObjectLock );                               \
+        DKSpinlockLock( &accessor ## _SharedObjectLock );                               \
                                                                                         \
         if( accessor ## _SharedObject == NULL )                                         \
             accessor ## _SharedObject = accessor ## _Create();                          \
                                                                                         \
-        DKSpinLockUnlock( &accessor ## _SharedObjectLock );                             \
+        DKSpinlockUnlock( &accessor ## _SharedObjectLock );                             \
                                                                                         \
         return accessor ## _SharedObject;                                               \
     }                                                                                   \
@@ -243,7 +243,7 @@ DK_API void        DKUnlockObject( DKObjectRef _self );
 // Static accessor version of the previous macro
 #define DKThreadSafeStaticObjectInit( accessor, type )                                  \
     static type accessor ## _SharedObject = NULL;                                       \
-    static DKSpinLock accessor ## _SharedObjectLock = DKSpinLockInit;                   \
+    static DKSpinlock accessor ## _SharedObjectLock = DKSpinlockInit;                   \
     static type accessor ## _Create( void );                                            \
                                                                                         \
     static type accessor( void )                                                        \
@@ -251,12 +251,12 @@ DK_API void        DKUnlockObject( DKObjectRef _self );
         if( accessor ## _SharedObject != NULL )                                         \
             return accessor ## _SharedObject;                                           \
                                                                                         \
-        DKSpinLockLock( &accessor ## _SharedObjectLock );                               \
+        DKSpinlockLock( &accessor ## _SharedObjectLock );                               \
                                                                                         \
         if( accessor ## _SharedObject == NULL )                                         \
             accessor ## _SharedObject = accessor ## _Create();                          \
                                                                                         \
-        DKSpinLockUnlock( &accessor ## _SharedObjectLock );                             \
+        DKSpinlockUnlock( &accessor ## _SharedObjectLock );                             \
                                                                                         \
         return accessor ## _SharedObject;                                               \
     }                                                                                   \
@@ -858,7 +858,7 @@ struct DKInterfaceTable
 {
     struct _DKInterface *       cache[DKStaticCacheSize + DKDynamicCacheSize];
 
-    DKSpinLock                  lock;
+    DKSpinlock                  lock;
     DKGenericHashTable          interfaces;
     struct DKInterfaceTable *   inherited;
 };
@@ -885,7 +885,7 @@ struct DKClass
     uint32_t                structSize;
     uint32_t                options;
 
-    DKSpinLock              propertiesLock;
+    DKSpinlock              propertiesLock;
     DKMutableHashTableRef   properties;
 };
 
@@ -900,7 +900,7 @@ struct DKMetadata
     
     // Weak referencing
     DKObjectRef     weakTarget;
-    DKSpinLock      weakLock;
+    DKSpinlock      weakLock;
     
     // Thread Synchronization
     DKAtomic(DKObjectRef) mutex;

@@ -40,7 +40,7 @@ static DKObjectRef DKMetadataInitWithOwner( DKObjectRef _self, DKObjectRef owner
 
 // Metadata Table ========================================================================
 
-static DKSpinLock MetadataTableLock = DKSpinLockInit;
+static DKSpinlock MetadataTableLock = DKSpinlockInit;
 static DKGenericHashTable MetadataTable;
 
 
@@ -115,7 +115,7 @@ DKMetadataRef DKMetadataFindOrInsert( DKObject * obj )
     struct DKMetadata * key = &_key;
 
     // Check the table for a weak reference
-    DKSpinLockLock( &MetadataTableLock );
+    DKSpinlockLock( &MetadataTableLock );
     
     DKMetadataRef * entry = (DKMetadataRef *)DKGenericHashTableFind( &MetadataTable, &key );
     
@@ -123,18 +123,18 @@ DKMetadataRef DKMetadataFindOrInsert( DKObject * obj )
     {
         metadata = *entry;
         
-        DKSpinLockUnlock( &MetadataTableLock );
+        DKSpinlockUnlock( &MetadataTableLock );
         
         return metadata;
     }
     
-    DKSpinLockUnlock( &MetadataTableLock );
+    DKSpinlockUnlock( &MetadataTableLock );
 
     // Create a new metadata object
     DKMetadataRef newMetadata = DKMetadataInitWithOwner( DKAlloc( DKMetadataClass() ), obj );
 
     // Try to insert it into the table
-    DKSpinLockLock( &MetadataTableLock );
+    DKSpinlockLock( &MetadataTableLock );
 
     if( DKGenericHashTableInsert( &MetadataTable, &newMetadata, DKInsertIfNotFound ) )
     {
@@ -148,7 +148,7 @@ DKMetadataRef DKMetadataFindOrInsert( DKObject * obj )
         metadata = *entry;
     }
 
-    DKSpinLockUnlock( &MetadataTableLock );
+    DKSpinlockUnlock( &MetadataTableLock );
 
     // Discard the new weak reference if we're not using it
     if( metadata != newMetadata )
@@ -163,9 +163,9 @@ DKMetadataRef DKMetadataFindOrInsert( DKObject * obj )
 //
 void DKMetadataRemove( DKMetadataRef metadata )
 {
-    DKSpinLockLock( &MetadataTableLock );
+    DKSpinlockLock( &MetadataTableLock );
     DKGenericHashTableRemove( &MetadataTable, &metadata );
-    DKSpinLockUnlock( &MetadataTableLock );
+    DKSpinlockUnlock( &MetadataTableLock );
     
     // The owner is about to be deallocated
     metadata->owner = NULL;
@@ -186,7 +186,7 @@ static DKObjectRef DKMetadataInitWithOwner( DKObjectRef _untyped_self, DKObjectR
         _self->owner = owner;
         
         _self->weakTarget = owner;
-        _self->weakLock = DKSpinLockInit;
+        _self->weakLock = DKSpinlockInit;
     }
     
     return _self;

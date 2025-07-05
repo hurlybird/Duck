@@ -101,7 +101,7 @@ DKObjectRef DKRelease( DKObjectRef _self )
             {
                 DKMetadataRef metadata = DKMetadataFindOrInsert( obj );
                 
-                DKSpinLockLock( &metadata->weakLock );
+                DKSpinlockLock( &metadata->weakLock );
                 
                 rc = DKAtomicDecrement32( &obj->refcount );
                 DKAssert( (rc & DKRefCountOverflowBit) == 0 );
@@ -109,7 +109,7 @@ DKObjectRef DKRelease( DKObjectRef _self )
                 if( (rc & DKRefCountMask) == 0 )
                     metadata->weakTarget = NULL;
 
-                DKSpinLockUnlock( &metadata->weakLock );
+                DKSpinlockUnlock( &metadata->weakLock );
                 
                 if( (rc & DKRefCountMask) == 0 )
                 {
@@ -160,7 +160,7 @@ DKObjectRef DKTryRelease( DKObjectRef _self )
             {
                 DKMetadataRef metadata = DKMetadataFindOrInsert( obj );
                 
-                DKSpinLockLock( &metadata->weakLock );
+                DKSpinlockLock( &metadata->weakLock );
                 
                 rc = DKAtomicLoad32( &obj->refcount ); // Fetch again while locked
                 
@@ -175,7 +175,7 @@ DKObjectRef DKTryRelease( DKObjectRef _self )
                     }
                 }
 
-                DKSpinLockUnlock( &metadata->weakLock );
+                DKSpinlockUnlock( &metadata->weakLock );
                 
                 if( result == NULL )
                 {
@@ -222,11 +222,11 @@ DKObjectRef DKResolveWeak( DKWeakRef weakref )
     
         DKMetadataRef metadata = weakref;
     
-        DKSpinLockLock( &metadata->weakLock );
+        DKSpinlockLock( &metadata->weakLock );
         
         DKObjectRef target = DKRetain( metadata->weakTarget );
         
-        DKSpinLockUnlock( &metadata->weakLock );
+        DKSpinlockUnlock( &metadata->weakLock );
         
         return target;
     }

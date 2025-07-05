@@ -421,7 +421,7 @@ static void InitRootClass( struct DKClass * cls, struct DKClass * superclass, si
     InstallRootClassInstanceInterface( cls, DKDefaultCopying() );
     InstallRootClassInstanceInterface( cls, DKDefaultDescription() );
     
-    cls->propertiesLock = DKSpinLockInit;
+    cls->propertiesLock = DKSpinlockInit;
 }
 
 
@@ -555,7 +555,7 @@ DKClassRef DKNewClass( DKStringRef name, DKClassRef superclass, size_t structSiz
     DKInterfaceTableInit( &cls->classInterfaces, superclass ? &superclass->classInterfaces : NULL );
     DKInterfaceTableInit( &cls->instanceInterfaces, superclass ? &superclass->instanceInterfaces : NULL );
     
-    cls->propertiesLock = DKSpinLockInit;
+    cls->propertiesLock = DKSpinlockInit;
     cls->properties = DKCopyPropertiesTable( superclass );
     
     // Insert the class into the name database

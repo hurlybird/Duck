@@ -86,14 +86,14 @@ static void DKInstallProperty( DKClassRef _class, DKStringRef name, struct DKPro
 {
     DKAssert( _class && property && name );
     
-    DKSpinLockLock( &_class->propertiesLock );
+    DKSpinlockLock( &_class->propertiesLock );
     
     if( _class->properties == NULL )
         _class->properties = DKNewMutableHashTable();
     
     DKHashTableInsertObject( _class->properties, name, property, DKInsertAlways );
     
-    DKSpinLockUnlock( &_class->propertiesLock );
+    DKSpinlockUnlock( &_class->propertiesLock );
 }
 
 
@@ -106,12 +106,12 @@ DKMutableHashTableRef DKCopyPropertiesTable( DKClassRef _class )
 
     if( _class )
     {
-        DKSpinLockLock( &_class->propertiesLock );
+        DKSpinlockLock( &_class->propertiesLock );
         
         if( _class->properties )
             copy = DKCopy( _class->properties );
         
-        DKSpinLockUnlock( &_class->propertiesLock );
+        DKSpinlockUnlock( &_class->propertiesLock );
     }
     
     return copy;
@@ -298,9 +298,9 @@ DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self )
         if( (cls == DKClassClass()) || (cls == DKRootClass()) )
             cls = _self;
 
-        DKSpinLockLock( &cls->propertiesLock );
+        DKSpinlockLock( &cls->propertiesLock );
         DKListRef properties = DKDictionaryGetAllObjects( (DKDictionaryRef)cls->properties );
-        DKSpinLockUnlock( &cls->propertiesLock );
+        DKSpinlockUnlock( &cls->propertiesLock );
         
         return properties;
     }
@@ -323,9 +323,9 @@ DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
         if( (cls == DKClassClass()) || (cls == DKRootClass()) )
             cls = _self;
 
-        DKSpinLockLock( &cls->propertiesLock );
+        DKSpinlockLock( &cls->propertiesLock );
         DKPropertyRef property = DKHashTableGetObject( cls->properties, name );
-        DKSpinLockUnlock( &cls->propertiesLock );
+        DKSpinlockUnlock( &cls->propertiesLock );
         
         return property;
     }

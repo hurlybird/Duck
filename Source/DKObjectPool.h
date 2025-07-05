@@ -50,7 +50,7 @@ typedef struct
 {
     DKAtomic(DKObjectPoolFreeNode *) freeList;
     DKObjectPoolBlock * blockList;
-    DKSpinLock mutex;
+    DKSpinlock mutex;
     uint32_t objectSize;
     uint64_t reserved;
     DKAtomicInt64 allocated;

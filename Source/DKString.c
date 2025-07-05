@@ -2709,7 +2709,7 @@ DK_API DKDataRef DKStringGetWStringAsData( DKStringRef _self )
 
 // Constant Strings ======================================================================
 static DKGenericHashTable * DKConstantStringTable = NULL;
-static DKSpinLock DKConstantStringTableLock = DKSpinLockInit;
+static DKSpinlock DKConstantStringTableLock = DKSpinlockInit;
 
 
 static DKRowStatus DKConstantStringTableRowStatus( const void * _row, void * not_used )
@@ -2773,12 +2773,12 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
 
         DKGenericHashTableInit( table, sizeof(DKStringRef), &callbacks, NULL );
         
-        DKSpinLockLock( &DKConstantStringTableLock );
+        DKSpinlockLock( &DKConstantStringTableLock );
         
         if( DKConstantStringTable == NULL )
             DKConstantStringTable = table;
         
-        DKSpinLockUnlock( &DKConstantStringTableLock );
+        DKSpinlockUnlock( &DKConstantStringTableLock );
 
         if( DKConstantStringTable != table )
         {
@@ -2810,19 +2810,19 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
     // Lookup the string in the hash table
     DKStringRef constantString;
 
-    DKSpinLockLock( &DKConstantStringTableLock );
+    DKSpinlockLock( &DKConstantStringTableLock );
     DKStringRef * entry = (DKStringRef *)DKGenericHashTableFind( DKConstantStringTable, &lookupString );
     
     if( entry )
     {
         constantString = *entry;
 
-        DKSpinLockUnlock( &DKConstantStringTableLock );
+        DKSpinlockUnlock( &DKConstantStringTableLock );
 
         return constantString;
     }
     
-    DKSpinLockUnlock( &DKConstantStringTableLock );
+    DKSpinlockUnlock( &DKConstantStringTableLock );
     
     if( !insert )
         return NULL;
@@ -2833,7 +2833,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
     newConstantString->hashCode = hashCode;
 
     // Try to insert it in the table
-    DKSpinLockLock( &DKConstantStringTableLock );
+    DKSpinlockLock( &DKConstantStringTableLock );
     
     if( DKGenericHashTableInsert( DKConstantStringTable, &newConstantString, DKInsertIfNotFound ) )
     {
@@ -2846,7 +2846,7 @@ DKStringRef __DKStringGetConstantString( const char * str, bool insert )
         constantString = *entry;
     }
 
-    DKSpinLockUnlock( &DKConstantStringTableLock );
+    DKSpinlockUnlock( &DKConstantStringTableLock );
 
     // Discard the new string if we're not using it
     if( constantString != newConstantString )

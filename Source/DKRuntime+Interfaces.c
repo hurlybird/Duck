@@ -176,7 +176,7 @@ void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKIn
 
     memset( interfaceTable->cache, 0, sizeof(interfaceTable->cache) );
 
-    interfaceTable->lock = DKSpinLockInit;
+    interfaceTable->lock = DKSpinlockInit;
     interfaceTable->inherited = inheritedInterfaces;
 
     DKGenericHashTableInit( &interfaceTable->interfaces, sizeof(struct DKInterfaceTableRow), &callbacks, NULL );
@@ -227,7 +227,7 @@ void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interf
     struct DKInterfaceTableRow row;
     row.interface = interface;
     
-    DKSpinLockLock( &interfaceTable->lock );
+    DKSpinlockLock( &interfaceTable->lock );
     
     for( DKSEL sel = interface->sel; sel != NULL; sel = sel->extends )
     {
@@ -240,7 +240,7 @@ void DKInterfaceTableInsert( DKClassRef _class, struct DKInterfaceTable * interf
         interfaceTable->cache[sel->cacheline] = interface;
     }
 
-    DKSpinLockUnlock( &interfaceTable->lock );
+    DKSpinlockUnlock( &interfaceTable->lock );
 }
 
 
@@ -253,12 +253,12 @@ DKInterface * DKInterfaceTableLookup( DKClassRef _class, struct DKInterfaceTable
     key.sel = sel;
     key.interface = NULL;
 
-    DKSpinLockLock( &interfaceTable->lock );
+    DKSpinlockLock( &interfaceTable->lock );
     
     const struct DKInterfaceTableRow * entry = DKGenericHashTableFind( &interfaceTable->interfaces, &key );
     DKInterface * interface = entry ? entry->interface : NULL;
 
-    DKSpinLockUnlock( &interfaceTable->lock );
+    DKSpinlockUnlock( &interfaceTable->lock );
 
     // If the lookup failed, search the inherited table. This allows subclasses to locate
     // interfaces added after class creation (a.k.a categories/extensions).
@@ -324,7 +324,7 @@ DKInterface * DKInterfaceTableFind( DKObjectRef object, DKClassRef _class, struc
 
 // DKSelector ============================================================================
 
-static DKSpinLock NextCacheLineSpinLock = DKSpinLockInit;
+static DKSpinlock NextCacheLineSpinLock = DKSpinlockInit;
 static unsigned int NextCacheLine = 0;
 
 
@@ -341,10 +341,10 @@ DKSEL DKAllocSelector( DKStringRef name, size_t structSize, DKSEL extends )
     sel->extends = DKRetain( extends );
     sel->methodCount = (unsigned int)DKInterfaceCountMethods( structSize );
     
-    DKSpinLockLock( &NextCacheLineSpinLock );
+    DKSpinlockLock( &NextCacheLineSpinLock );
     sel->cacheline = DKStaticCacheSize + (NextCacheLine % DKDynamicCacheSize);
     NextCacheLine++;
-    DKSpinLockUnlock( &NextCacheLineSpinLock );
+    DKSpinlockUnlock( &NextCacheLineSpinLock );
 
     DKNameDatabaseInsertSelector( sel );
 

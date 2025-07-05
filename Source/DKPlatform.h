@@ -913,12 +913,12 @@ static_assert( sizeof(DKAtomicPtr) == sizeof(void *), "DKAtomicPtr is not the si
 
 
 // Spin Locks ============================================================================
-typedef DKAtomicInt32 DKSpinLock;
+typedef DKAtomicInt32 DKSpinlock;
 
-#define DKSpinLockInit  0
+#define DKSpinlockInit  0
 
 // Boolean spinlocks
-inline static void DKSpinLockLock( DKSpinLock * spinlock )
+inline static void DKSpinlockLock( DKSpinlock * spinlock )
 {
     // We can avoid an atomic comparison here since the lock value MUST be 0 or 1 and we
     // only care about the transition from 0 to 1.
@@ -928,28 +928,28 @@ inline static void DKSpinLockLock( DKSpinLock * spinlock )
     }
 }
 
-inline static void DKSpinLockUnlock( DKSpinLock * spinlock )
+inline static void DKSpinlockUnlock( DKSpinlock * spinlock )
 {
     DKAtomicStore32( spinlock, 0 );
 }
 
-#define DKSpinLockIsLocked( spinlock )  ((bool)DKAtomicLoad32( spinlock ))
+#define DKSpinlockIsLocked( spinlock )  ((bool)DKAtomicLoad32( spinlock ))
 
 
 // Spinlocks with state storage. BE CAREFUL MIXING THESE WITH BOOLEAN LOCK/UNLOCK
-#define DKSpinLockTryLockWithState( spinlock, state )   DKAtomicCompareValueAndSwap32( spinlock, 0, state )
-#define DKSpinLockTryUnlockFromState( spinlock, state ) DKAtomicCompareValueAndSwap32( spinlock, state, 0 )
-#define DKSpinLockGetState( spinlock )                  DKAtomicLoad32( spinlock )
+#define DKSpinlockTryLockWithState( spinlock, state )   DKAtomicCompareValueAndSwap32( spinlock, 0, state )
+#define DKSpinlockTryUnlockFromState( spinlock, state ) DKAtomicCompareValueAndSwap32( spinlock, state, 0 )
+#define DKSpinlockGetState( spinlock )                  DKAtomicLoad32( spinlock )
 
-static inline void DKSpinLockLockWithState( DKSpinLock * spinlock, int32_t state )
+static inline void DKSpinlockLockWithState( DKSpinlock * spinlock, int32_t state )
 {
-    while( !DKSpinLockTryLockWithState( spinlock, state ) )
+    while( !DKSpinlockTryLockWithState( spinlock, state ) )
     {
         dk_spinlock_yield();
     }
 }
 
-static inline int32_t DKSpinLockUnlockFromState( DKSpinLock * spinlock )
+static inline int32_t DKSpinlockUnlockFromState( DKSpinlock * spinlock )
 {
     return DKAtomicSwap32( spinlock, 0 );
 }

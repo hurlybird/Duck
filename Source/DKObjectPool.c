@@ -71,7 +71,7 @@ static DKObjectPoolBlock * DKObjectPoolAllocBlock( DKObjectPool * pool, size_t c
 //
 static void DKObjectPoolAddBlock( DKObjectPool * pool )
 {
-    DKSpinLockLock( &pool->mutex );
+    DKSpinlockLock( &pool->mutex );
             
     if( DKAtomicLoadPtr( &pool->freeList ) == NULL )
     {
@@ -89,7 +89,7 @@ static void DKObjectPoolAddBlock( DKObjectPool * pool )
             ;
     }
     
-    DKSpinLockUnlock( &pool->mutex );
+    DKSpinlockUnlock( &pool->mutex );
 }
 
 
@@ -103,7 +103,7 @@ void DKObjectPoolInit( DKObjectPool * pool, size_t size, size_t reserve )
     pool->objectSize = (uint32_t)size;
     pool->reserved = (int64_t)reserve;
     pool->allocated = 0;
-    pool->mutex = DKSpinLockInit;
+    pool->mutex = DKSpinlockInit;
     
     if( reserve > 0 )
         DKObjectPoolAddBlock( pool );
@@ -136,9 +136,9 @@ size_t DKObjectPoolGetReservedCount( DKObjectPool * pool )
 {
     size_t count;
     
-    DKSpinLockLock( &pool->mutex );
+    DKSpinlockLock( &pool->mutex );
     count = (size_t)pool->reserved;
-    DKSpinLockUnlock( &pool->mutex );
+    DKSpinlockUnlock( &pool->mutex );
     
     return count;
 }
