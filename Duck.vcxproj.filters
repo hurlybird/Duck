@@ -120,9 +120,6 @@
     <ClCompile Include="Source\DKGenericHashTable.c">
       <Filter>Source\Storage Types</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DKNodePool.c">
-      <Filter>Source\Storage Types</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DKList.c">
       <Filter>Source\Collection Types</Filter>
     </ClCompile>
@@ -200,6 +197,12 @@
     </ClCompile>
     <ClCompile Include="Source\DKMember.c">
       <Filter>Source\Data Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DKObjectPool.c">
+      <Filter>Source\Storage Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DKQuicksort.c">
+      <Filter>Source\Other</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -327,9 +330,6 @@
     <ClInclude Include="Source\DKGenericHashTable.h">
       <Filter>Source\Storage Types</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DKNodePool.h">
-      <Filter>Source\Storage Types</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DKList.h">
       <Filter>Source\Collection Types</Filter>
     </ClInclude>
@@ -372,21 +372,6 @@
     <ClInclude Include="Source\DKRuntime.h">
       <Filter>Source\Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DKRuntime+Interfaces.h">
-      <Filter>Source\Runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DKRuntime+Metadata.h">
-      <Filter>Source\Runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DKRuntime+Properties.h">
-      <Filter>Source\Runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DKRuntime+RefCount.h">
-      <Filter>Source\Runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DKRuntime+Reflection.h">
-      <Filter>Source\Runtime</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DKLocking.h">
       <Filter>Source\Interfaces</Filter>
     </ClInclude>
@@ -404,6 +389,12 @@
     </ClInclude>
     <ClInclude Include="Source\DKMember.h">
       <Filter>Source\Data Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DKObjectPool.h">
+      <Filter>Source\Storage Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DKQuicksort.h">
+      <Filter>Source\Other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

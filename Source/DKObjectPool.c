@@ -101,7 +101,7 @@ void DKObjectPoolInit( DKObjectPool * pool, size_t size, size_t reserve )
     pool->freeList = NULL;
     pool->blockList = NULL;
     pool->objectSize = (uint32_t)size;
-    pool->reserved = (int64_t)reserve;
+    pool->reserved = reserve;
     pool->allocated = 0;
     pool->mutex = DKSpinlockInit;
     
@@ -137,7 +137,7 @@ size_t DKObjectPoolGetReservedCount( DKObjectPool * pool )
     size_t count;
     
     DKSpinlockLock( &pool->mutex );
-    count = (size_t)pool->reserved;
+    count = pool->reserved;
     DKSpinlockUnlock( &pool->mutex );
     
     return count;

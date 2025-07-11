@@ -52,7 +52,7 @@ typedef struct
     DKObjectPoolBlock * blockList;
     DKSpinlock mutex;
     uint32_t objectSize;
-    uint64_t reserved;
+    size_t reserved;
     DKAtomicInt64 allocated;
     
 } DKObjectPool;

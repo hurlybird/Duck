@@ -125,7 +125,7 @@ static void DKThreadPoolFinalize( DKObjectRef _untyped_self );
 
 DKThreadSafeClassInit( DKThreadPoolClass )
 {
-    _Static_assert( sizeof(struct DKThreadPoolQueue) <= sizeof(struct DKThreadPoolTask), "DKThreadPoolQueue struct size inconsistency." );
+    static_assert( sizeof(struct DKThreadPoolQueue) <= sizeof(struct DKThreadPoolTask), "DKThreadPoolQueue struct size inconsistency." );
 
     DKClassRef cls = DKNewClass( DKSTR( "DKThreadPool" ), DKObjectClass(), sizeof(struct DKThreadPool), 0, DKThreadPoolInit, DKThreadPoolFinalize );
 
