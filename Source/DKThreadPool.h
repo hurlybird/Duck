@@ -36,6 +36,10 @@ extern "C"
 #define DK_THREADPOOL_1_MS  1000000
 #define DK_THREADPOOL_1_US  1000
 
+#define DK_THREADPOOL_DEFAULT_YIELD_TIME        (10 * DK_THREADPOOL_1_US)
+#define DK_THREADPOOL_DEFAULT_IDLE_COOLDOWN     (100 * DK_THREADPOOL_1_US)
+#define DK_THREADPOOL_DEFAULT_ALERT_COOLDOWN    (100 * DK_THREADPOOL_1_MS)
+
 typedef enum
 {
     // Default scheduling uses conditions and signals to wake threads when tasks are added
