@@ -61,6 +61,7 @@ DK_API DKIndex     DKArrayGetCount( DKArrayRef _self );
 DK_API DKObjectRef DKArrayGetObjectAtIndex( DKArrayRef _self, DKIndex index );
 DK_API DKIndex     DKArrayGetObjectsInRange( DKArrayRef _self, DKRange range, DKObjectRef objects[] );
 
+DK_API void        DKArrayReserve( DKMutableArrayRef _self, size_t reserve );
 DK_API void        DKArrayAppendObject( DKMutableArrayRef _self, DKObjectRef object );
 DK_API void        DKArrayAppendCArray( DKMutableArrayRef _self, DKObjectRef objects[], DKIndex count );
 DK_API void        DKArrayAppendCollection( DKMutableArrayRef _self, DKObjectRef srcCollection );

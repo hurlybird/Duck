@@ -499,6 +499,19 @@ static DKIndex INTERNAL_DKArrayGetObjectsInRange( DKArrayRef _self, DKRange rang
 
 
 ///
+//  DKArrayReserve()
+//
+void DKArrayReserve( DKMutableArrayRef _self, size_t reserve )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableArrayClass() );
+        DKGenericArrayReserve( &_self->ptrArray, reserve );
+    }
+}
+
+
+///
 //  DKArrayAppendObject()
 //
 void DKArrayAppendObject( DKMutableArrayRef _self, DKObjectRef object )

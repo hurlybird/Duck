@@ -87,6 +87,8 @@ typedef struct
 DK_API void DKGenericHashTableInit( DKGenericHashTable * hashTable, size_t rowSize, const DKGenericHashTableCallbacks * callbacks, void * context );
 DK_API void DKGenericHashTableFinalize( DKGenericHashTable * hashTable );
 
+DK_API void DKGenericHashTableReserve( DKGenericHashTable * hashTable, size_t reserve );
+
 #define DKGenericHashTableGetCount( table )     ((table)->activeCount)
 #define DKGenericHashTableGetRow( table, i )    (const void *)((table)->rows + ((table)->rowSize * i))
 #define DKGenericHashTableGetRowCount( table )  ((DKIndex)((table)->rowCount))

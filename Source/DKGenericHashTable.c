@@ -198,11 +198,11 @@ void DKGenerateHashTableSizes( void )
 ///
 //  NextHashTableSize()
 //
-static struct HashTableSize NextHashTableSize( size_t rowCount )
+static struct HashTableSize NextHashTableSize( size_t minRowCount )
 {
     for( int i = 0; HashTableSizes[i].rowCount != 0; i++ )
     {
-        if( HashTableSizes[i].rowCount > rowCount )
+        if( HashTableSizes[i].rowCount >= minRowCount )
             return HashTableSizes[i];
     }
     
@@ -213,18 +213,22 @@ static struct HashTableSize NextHashTableSize( size_t rowCount )
 ///
 //  ResizeAndRehash()
 //
-static void ResizeAndRehash( DKGenericHashTable * hashTable )
+static void ResizeAndRehash( DKGenericHashTable * hashTable, size_t minRowCount )
 {
-    if( (size_t)(hashTable->activeCount + hashTable->deletedCount) < hashTable->maxActive )
+    // Never reduce the table size
+    if( minRowCount < hashTable->maxActive )
         return;
-    
+
     uint8_t * oldRows = hashTable->rows;
     size_t oldRowCount = hashTable->rowCount;
 
     // Only resize the table if its more than half full
     if( (hashTable->rowCount == 0) || (hashTable->activeCount > hashTable->deletedCount) )
     {
-        struct HashTableSize newSize = NextHashTableSize( hashTable->rowCount );
+        if( minRowCount <= hashTable->rowCount )
+            minRowCount = hashTable->rowCount + 1;
+    
+        struct HashTableSize newSize = NextHashTableSize( minRowCount );
         
         hashTable->rowCount = newSize.rowCount;
         hashTable->maxActive = newSize.maxActive;
@@ -365,6 +369,15 @@ void DKGenericHashTableFinalize( DKGenericHashTable * hashTable )
 
 
 ///
+//  DKGenericHashTableReserve()
+//
+void DKGenericHashTableReserve( DKGenericHashTable * hashTable, size_t reserve )
+{
+    ResizeAndRehash( hashTable, reserve );
+}
+
+
+///
 //  DKGenericHashTableFind()
 //
 const void * DKGenericHashTableFind( DKGenericHashTable * hashTable, const void * entry )
@@ -389,7 +402,7 @@ bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entr
 {
     // Lazy table allocation
     if( hashTable->rows == NULL )
-        ResizeAndRehash( hashTable );
+        ResizeAndRehash( hashTable, 1 );
 
     DKRowStatus status;
     void * row = Find( hashTable, entry, &status );
@@ -408,13 +421,20 @@ bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entr
             return false;
         
         if( DKRowIsDeleted( status ) )
+        {
             hashTable->deletedCount--;
+            hashTable->callbacks.rowUpdate( row, entry, hashTable->context );
+            hashTable->activeCount++;
+        }
         
-        hashTable->callbacks.rowUpdate( row, entry, hashTable->context );
+        else
+        {
+            hashTable->callbacks.rowUpdate( row, entry, hashTable->context );
+            hashTable->activeCount++;
 
-        hashTable->activeCount++;
-        
-        ResizeAndRehash( hashTable );
+            // After an insertion we may need to rehash the table to clean up deleted rows
+            ResizeAndRehash( hashTable, (size_t)(hashTable->activeCount + hashTable->deletedCount) );
+        }
     }
     
     return true;

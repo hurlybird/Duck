@@ -752,6 +752,19 @@ static bool INTERNAL_DKHashTableSetProperty( DKMutableHashTableRef _self, DKObje
 
 
 ///
+//  DKHashTableReserve()
+//
+void DKHashTableReserve( DKMutableHashTableRef _self, size_t reserve )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableHashTableClass() );
+        return DKGenericHashTableReserve( &_self->table, reserve );
+    }
+}
+
+
+///
 //  DKHashTableInsertObject()
 //
 void DKHashTableInsertObject( DKMutableHashTableRef _self, DKObjectRef key, DKObjectRef object, DKInsertPolicy policy )
