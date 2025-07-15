@@ -32,6 +32,9 @@ extern "C"
 {
 #endif
 
+#define DK_THREADPOOL_1_S   1000000000
+#define DK_THREADPOOL_1_MS  1000000
+#define DK_THREADPOOL_1_US  1000
 
 typedef enum
 {
