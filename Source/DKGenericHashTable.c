@@ -215,14 +215,17 @@ static struct HashTableSize NextHashTableSize( size_t minRowCount )
 //
 static void ResizeAndRehash( DKGenericHashTable * hashTable, size_t minRowCount )
 {
-    // Never reduce the table size
-    if( minRowCount < hashTable->maxActive )
+    // If we've burnt all our available rows we need to resize and/or rehash the table
+    size_t burntRows = hashTable->activeCount + hashTable->deletedCount;
+
+    if( (minRowCount <= hashTable->maxActive) && (burntRows < hashTable->maxActive) )
         return;
 
     uint8_t * oldRows = hashTable->rows;
     size_t oldRowCount = hashTable->rowCount;
 
-    // Only resize the table if its more than half full
+    // Only resize the table if its more than half full. Otherwise we can just rehash
+    // to reclaim any deleted rows.
     if( (hashTable->rowCount == 0) || (hashTable->activeCount > hashTable->deletedCount) )
     {
         if( minRowCount <= hashTable->rowCount )
@@ -233,6 +236,12 @@ static void ResizeAndRehash( DKGenericHashTable * hashTable, size_t minRowCount 
         hashTable->rowCount = newSize.rowCount;
         hashTable->maxActive = newSize.maxActive;
     }
+
+    // If we aren't resizing the table it'd be nice to rehash without allocating/copying.
+    // Doing so, however, likely still involves copying the active rows into a scratchpad,
+    // or probing the table until every active row is in the first slot available to it.
+    // It's not clear that either approach is faster or better, and we only need to rehash
+    // after a substantial number of deletions.
 
     hashTable->activeCount = 0;
     hashTable->deletedCount = 0;
@@ -400,9 +409,7 @@ const void * DKGenericHashTableFind( DKGenericHashTable * hashTable, const void 
 //
 bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entry, DKInsertPolicy policy )
 {
-    // Lazy table allocation
-    if( hashTable->rows == NULL )
-        ResizeAndRehash( hashTable, 1 );
+    ResizeAndRehash( hashTable, hashTable->activeCount + 1 );
 
     DKRowStatus status;
     void * row = Find( hashTable, entry, &status );
@@ -431,9 +438,6 @@ bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void * entr
         {
             hashTable->callbacks.rowUpdate( row, entry, hashTable->context );
             hashTable->activeCount++;
-
-            // After an insertion we may need to rehash the table to clean up deleted rows
-            ResizeAndRehash( hashTable, (size_t)(hashTable->activeCount + hashTable->deletedCount) );
         }
     }
     

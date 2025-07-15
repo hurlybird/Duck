@@ -71,8 +71,8 @@ typedef struct
 {
     uint8_t * rows;
     
-    DKIndex activeCount;    // number of active rows in the table
-    DKIndex deletedCount;   // number of deleted rows in the table
+    size_t activeCount;     // number of active rows in the table
+    size_t deletedCount;    // number of deleted rows in the table
     
     size_t rowSize;         // row size in bytes
     size_t rowCount;        // total number of rows in the table
