@@ -759,7 +759,7 @@ void DKHashTableReserve( DKMutableHashTableRef _self, size_t reserve )
     if( _self )
     {
         DKAssertKindOfClass( _self, DKMutableHashTableClass() );
-        return DKGenericHashTableReserve( &_self->table, reserve );
+        DKGenericHashTableReserve( &_self->table, reserve );
     }
 }
 
