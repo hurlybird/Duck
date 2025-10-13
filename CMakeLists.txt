@@ -299,13 +299,17 @@ function( add_duck_library TargetName TargetType FRAMEWORK LibraryName )
         LINKER_LANGUAGE C
         C_STANDARD 11 )
 
-    if( APPLE AND NOT IOS )
-        add_target_property( ${TargetName} OSX_ARCHITECTURES "arm64;x86_64" )
-    endif()
-
     target_compile_definitions( ${TargetName}
          PUBLIC
          $<$<CONFIG:Debug>:DEBUG=1> )
+
+    if( APPLE )
+        target_compile_options( ${TargetName} PRIVATE -g )
+
+        if( NOT IOS )
+            add_target_property( ${TargetName} OSX_ARCHITECTURES "arm64;x86_64" )
+        endif()
+    endif()
 
     if( WIN32 )
         target_compile_definitions( ${TargetName}
