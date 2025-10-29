@@ -768,7 +768,12 @@ DKDateTime dk_localtime( void )
 #if DK_PLATFORM_APPLE || DK_PLATFORM_LINUX || DK_PLATFORM_UNIX || DK_PLATFORM_ANDROID
 DKDateTime dk_systemtime( void )
 {
-    return dk_datetime();
+    struct timespec t;
+
+    if( clock_gettime( CLOCK_MONOTONIC, &t ) )
+        return 0.0;
+
+    return ((DKDateTime)t.tv_sec) + (((DKDateTime)t.tv_nsec) * 1.0e-9);
 }
 
 #elif DK_PLATFORM_WINDOWS
