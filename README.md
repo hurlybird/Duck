@@ -174,9 +174,11 @@ The library provides several container and data classes:
 * *[DKData](Source/DKData.h)* for binary data.
 * *[DKNumber](Source/DKNumber.h)* for integer and floating-point scalars and vectors.
 * *[DKStruct](Source/DKStruct.h)* for storing arbitrary C structs.
+* *[DKPair](Source/DKPair.h)* for storing pairs of objects.
 * *[DKArray](Source/DKArray.h)* and *[DKLinkedList](Source/DKLinkedList.h)* for ordered sequences.
 * *[DKHashTable](Source/DKHashTable.h)* and *[DKBinaryTree](Source/DKBinaryTree.h)* for key-value storage.
 * *[DKGraph](Source/DKGraph.h)* for directed and undirected graphs.
+* *[DKBitList](Source/DKBitList.h)* for storing and manipulating bit lists.
 
 And some common interfaces:
 
@@ -187,16 +189,19 @@ And some common interfaces:
 * *[DKCopying](Source/DKCopying.h)* has methods for creating mutable and immutable copies of objects.
 * *[DKConversion](Source/DKConversion.h)* provides methods to convert between strings and numbers.
 * *[DKStream](Source/DKStream.h)* provides stream-style access to *DKData*, *DKString*, and *DKFile*.
+* *[DKBuffer](Source/DKBuffer.h)* provides byte level access to *DKData* and *DKString*.
 
 And other useful stuff:
 
+* *[DKFile](Source/DKFile.h)* - wrapper for C file I/O that supports the *DKStream* interface.
 * *[DKThread](Source/DKThread.h)* and friends - wrapper classes for pthreads and thread synchronization.
+* *[DKEnum](Source/DKEnum.h)* - mapping C enums to strings.
 * *[DKPredicate](Source/DKPredicate.h)* - logical predicates.
 * *[DKEgg](Source/DKEgg.h)* - object graph serialization.
 * *[DKShell](Source/DKShell.h)* - multipart binary/text aggregates.
 * *[DKJSON](Source/DKJSON.h)* - JSON serialization functions.
 * *[DKXML](Source/DKXML.h)* - XML parsing.
-
+* *[DKUnicode](Source/DKUnicode.h)* - UTF-8 equivalents of some C string functions.
 
 
 
