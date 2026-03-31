@@ -161,6 +161,7 @@ DKThreadSafeClassInit( DKHashTableClass )
     
     // Property
     struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property) );
+    property->getNames = (DKGetPropertyNamesMethod)DKDictionaryGetAllKeys;
     property->getProperty = (DKGetPropertyMethod)INTERNAL_DKHashTableGetObject;
     property->setProperty = (DKSetPropertyMethod)DKImmutableObjectAccessError;
     
@@ -228,7 +229,6 @@ DKThreadSafeClassInit(  DKMutableHashTableClass )
 
     // Property
     struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property) );
-    property->getProperty = (DKGetPropertyMethod)INTERNAL_DKHashTableGetObject;
     property->setProperty = (DKSetPropertyMethod)INTERNAL_DKHashTableSetProperty;
     
     DKInstallInterface( cls, property );

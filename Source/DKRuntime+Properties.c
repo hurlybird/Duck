@@ -285,6 +285,31 @@ void DKInstallEnumProperty( DKClassRef _class,
 
 
 ///
+//  DKGetAllPropertyNames()
+//
+DKListRef DKGetAllPropertyNames( DKObjectRef _self )
+{
+    if( _self )
+    {
+        const DKObject * obj = _self;
+        struct DKClass * cls = (struct DKClass *)obj->isa;
+        
+        // If this object is a class, look in its own properties
+        if( (cls == DKClassClass()) || (cls == DKRootClass()) )
+            cls = _self;
+
+        DKSpinlockLock( &cls->propertiesLock );
+        DKListRef names = DKDictionaryGetAllKeys( (DKDictionaryRef)cls->properties );
+        DKSpinlockUnlock( &cls->propertiesLock );
+
+        return names;
+    }
+    
+    return NULL;
+}
+
+
+///
 //  DKGetAllPropertyDefinitions()
 //
 DKListRef DKGetAllPropertyDefinitions( DKObjectRef _self )
@@ -331,6 +356,52 @@ DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name )
     }
     
     return NULL;
+}
+
+
+///
+//  DKCopyProperties()
+//
+struct DKCopyPropertyContext
+{
+    DKObjectRef toObject;
+    DKObjectRef fromObject;
+};
+
+static int DKCopyPropertyCallback( DKObjectRef object, void * _context )
+{
+    DKStringRef name = object;
+    struct DKCopyPropertyContext * context = _context;
+    
+    DKObjectRef value = DKTryGetProperty( context->fromObject, name, false );
+    DKTrySetProperty( context->toObject, name, value, false );
+    
+    return 0;
+}
+
+void DKCopyProperties( DKObjectRef toObject, DKObjectRef fromObject )
+{
+    if( toObject && fromObject && (toObject != fromObject) )
+    {
+        DKCheck( !DKIsClass( toObject ) && !DKIsClass( fromObject ) );
+        
+        struct DKCopyPropertyContext context;
+        context.toObject = toObject;
+        context.fromObject = fromObject;
+    
+        // Copy defined properties
+        DKListRef names = DKGetAllPropertyNames( fromObject );
+        DKForeachObject( names, DKCopyPropertyCallback, &context );
+        
+        // Copy dynamic properties
+        DKPropertyInterfaceRef propertyInterface;
+        
+        if( DKQueryInterface( fromObject, DKSelector(Property), (DKInterfaceRef *)&propertyInterface ) )
+        {
+            DKListRef dynamicNames = propertyInterface->getNames( fromObject );
+            DKForeachObject( dynamicNames, DKCopyPropertyCallback, &context );
+        }
+    }
 }
 
 

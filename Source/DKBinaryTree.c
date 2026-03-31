@@ -169,6 +169,7 @@ DKThreadSafeClassInit(  DKBinaryTreeClass )
     
     // Property
     struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property) );
+    property->getNames = (DKGetPropertyNamesMethod)DKDictionaryGetAllKeys;
     property->getProperty = (DKGetPropertyMethod)INTERNAL_DKBinaryTreeGetObject;
     property->setProperty = (DKSetPropertyMethod)DKImmutableObjectAccessError;
     
@@ -236,7 +237,6 @@ DKThreadSafeClassInit( DKMutableBinaryTreeClass )
     
     // Property
     struct DKPropertyInterface * property = DKNewInterface( DKSelector(Property) );
-    property->getProperty = (DKGetPropertyMethod)INTERNAL_DKBinaryTreeGetObject;
     property->setProperty = (DKSetPropertyMethod)INTERNAL_DKBinaryTreeSetProperty;
     
     DKInstallInterface( cls, property );

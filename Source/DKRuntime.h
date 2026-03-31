@@ -674,6 +674,7 @@ DK_API DKClassRef DKPropertyClass( void );
 // Interface for custom get/set property
 DK_API DKDeclareInterfaceSelector( Property );
 
+typedef DKListRef   (*DKGetPropertyNamesMethod)( DKObjectRef _self );
 typedef DKObjectRef (*DKGetPropertyMethod)( DKObjectRef _self, DKStringRef name );
 typedef bool        (*DKSetPropertyMethod)( DKObjectRef _self, DKStringRef name, DKObjectRef object );
 
@@ -681,6 +682,7 @@ struct DKPropertyInterface
 {
     const DKInterface _interface;
 
+    DKGetPropertyNamesMethod getNames;
     DKGetPropertyMethod getProperty;
     DKSetPropertyMethod setProperty;
 };
@@ -754,14 +756,18 @@ DK_API void DKInstallEnumProperty( DKClassRef _class,
     DKPropertyObserver didWrite );
 
 // Retrieve installed properties
+DK_API DKListRef   DKGetAllPropertyNames( DKObjectRef _self );
 DK_API DKListRef   DKGetAllPropertyDefinitions( DKObjectRef _self );
 DK_API DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
 
-// Accessors
+// DKProperty Accessors
 static inline DKStringRef DKPropertyGetName( DKPropertyRef _self ) { return _self ? _self->name : NULL; }
 static inline DKStringRef DKPropertyGetSemantic( DKPropertyRef _self ) { return _self ? _self->semantic : NULL; }
 static inline DKEncoding DKPropertyGetEncoding( DKPropertyRef _self ) { return _self ? _self->encoding : 0; }
 static inline size_t DKPropertyGetOffset( DKPropertyRef _self ) { return _self ? _self->offset : 0; }
+
+// Copy properties from one object to another
+DK_API void        DKCopyProperties( DKObjectRef toObject, DKObjectRef fromObject );
 
 // Set an object property. DKNumbers and DKStructs will be automatically unpacked if the
 // property is stored as a number type or structure.
@@ -816,6 +822,9 @@ DK_API DKObjectRef DKGetSelf( DKObjectRef _self );
 
 // Returns false if the object's class was created with the DKImmutableInstances option.
 DK_API bool        DKIsMutable( DKObjectRef _self );
+
+// Returns true if the object is a class (i.e. is either DKClassClass or DKRootClass)
+DK_API bool        DKIsClass( DKObjectRef _self );
 
 // Retrieve the class, superclass and class name. These functions return the same values
 // for classes and instances (i.e. DKGetClass(DKObjectClass()) == DKObjectClass()).

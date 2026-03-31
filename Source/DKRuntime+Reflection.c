@@ -209,6 +209,25 @@ bool DKIsMutable( DKObjectRef _self )
 
 
 ///
+//  DKIsClass()
+//
+bool DKIsClass( DKObjectRef _self )
+{
+    if( _self )
+    {
+        const DKObject * obj = _self;
+        struct DKClass * cls = (struct DKClass *)obj->isa;
+        
+        // If the source object object is a class, bail out
+        if( (cls == DKClassClass()) || (cls == DKRootClass()) )
+            return true;
+    }
+    
+    return false;
+}
+
+
+///
 //  DKGetClass()
 //
 DKClassRef DKGetClass( DKObjectRef _self )
@@ -332,9 +351,7 @@ DKClassRef DKClassFromString( DKStringRef className )
     
     if( className )
     {
-        struct NameDatabaseEntry _key;
-        _key.name = className;
-        
+        struct NameDatabaseEntry _key = { { NULL, 0, 0 }, className };
         struct NameDatabaseEntry * key = &_key;
 
         DKSpinlockLock( &ClassNameDatabaseSpinLock );
@@ -390,9 +407,7 @@ DKSEL DKSelectorFromString( DKStringRef name )
     
     if( name )
     {
-        struct NameDatabaseEntry _key;
-        _key.name = name;
-        
+        struct NameDatabaseEntry _key = { { NULL, 0, 0 }, name };
         struct NameDatabaseEntry * key = &_key;
 
         DKSpinlockLock( &SelectorNameDatabaseSpinLock );
