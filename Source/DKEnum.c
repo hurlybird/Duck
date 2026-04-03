@@ -228,9 +228,9 @@ DKObjectRef DKEnumInitWithCStringsAndValues64( DKObjectRef _untyped_self, ... )
 
 
 ///
-//  DKEnumFromString64()
+//  DKEnumFromStringEx()
 //
-int64_t DKEnumFromString64( DKEnumRef _self, DKStringRef str )
+int64_t DKEnumFromStringEx( DKEnumRef _self, DKStringRef str, int64_t not_found )
 {
     struct DKEnumEntry findRow;
     findRow.str = str;
@@ -241,14 +241,14 @@ int64_t DKEnumFromString64( DKEnumRef _self, DKStringRef str )
     if( row )
         return row->value;
 
-    return 0;
+    return not_found;
 }
 
 
 ///
-//  DKStringFromEnum64()
+//  DKStringFromEnum()
 //
-DKStringRef DKStringFromEnum64( DKEnumRef _self, int64_t value )
+DKStringRef DKStringFromEnum( DKEnumRef _self, int64_t value )
 {
     if( _self )
     {

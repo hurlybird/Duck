@@ -59,11 +59,10 @@ DK_API DKObjectRef DKEnumInitWithCStringsAndValues64( DKObjectRef _self, ... );
             NULL );                                                                     \
     }
 
-#define DKEnumFromString( _self, str )  ((int)DKEnumFromString64( (_self), (str) ))
-#define DKStringFromEnum( _self, val )  DKStringFromEnum64( (_self), (val) )
+#define DKEnumFromString( _self, str )  ((int)DKEnumFromStringEx( (_self), (str), 0 ))
 
-DK_API int64_t DKEnumFromString64( DKEnumRef _self, DKStringRef str );
-DK_API DKStringRef DKStringFromEnum64( DKEnumRef _self, int64_t value );
+DK_API int64_t DKEnumFromStringEx( DKEnumRef _self, DKStringRef str, int64_t not_found );
+DK_API DKStringRef DKStringFromEnum( DKEnumRef _self, int64_t value );
 
 DK_API DKListRef DKEnumGetStrings( DKEnumRef _self, int sortOrder );
 

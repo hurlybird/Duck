@@ -94,18 +94,11 @@ DKDefineEnum64( TestEnum64,
     XCTAssert( DKEnumFromString( TestEnum(), DKSTR( "Eleven" ) ) == 0 );
 }
 
-- (void) testDKStringFromEnum64
+- (void) testDKEnumFromStringEx
 {
-    XCTAssert( DKEqual( DKStringFromEnum64( TestEnum64(), Four ), DKSTR( "Four" ) ) );
-    XCTAssert( !DKEqual( DKStringFromEnum64( TestEnum64(), Seven ), DKSTR( "Five" ) ) );
-    XCTAssert( DKStringFromEnum64( TestEnum64(), 17 ) == NULL );
-}
-
-- (void) testDKEnumFromString64
-{
-    XCTAssert( DKEnumFromString64( TestEnum64(), DKSTR( "Three" ) ) == Three );
-    XCTAssert( DKEnumFromString64( TestEnum64(), DKSTR( "Eight" ) ) != Two );
-    XCTAssert( DKEnumFromString64( TestEnum64(), DKSTR( "Eleven" ) ) == 0 );
+    XCTAssert( DKEnumFromStringEx( TestEnum64(), DKSTR( "Three" ), DKNotFound ) == Three );
+    XCTAssert( DKEnumFromStringEx( TestEnum64(), DKSTR( "Eight" ), DKNotFound ) != Two );
+    XCTAssert( DKEnumFromStringEx( TestEnum64(), DKSTR( "Eleven" ), DKNotFound ) == DKNotFound );
 }
 
 
