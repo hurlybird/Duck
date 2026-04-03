@@ -593,16 +593,37 @@ uint64_t dk_memhash64( const void * buffer, size_t buffer_size )
 ///
 //  dk_strtonum()
 //
+inline static int scan_digits( const char * str, int64_t * ival )
+{
+    const char * cur = str;
+    int64_t val = 0;
+    
+    while( (*cur >= '0') && (*cur <= '9') ) // isdigit( *cur )
+    {
+        int x = (*cur) - '0';
+        val = (val * 10) + x;
+    
+        cur++;
+    }
+
+    *ival = val;
+
+    return (int)(cur - str);
+}
+
 bool dk_strtonum( const char * str, int64_t * ival, double * fval, char const ** str_end )
 {
     const char * cursor = str;
 
     int sign = 1;
-    int64_t ipart = 0;
-    double fpart = 0;
-    int64_t epart = 0;
-    bool has_fpart = false;
-    bool has_epart = false;
+    int64_t int_part = 0;
+    int64_t dec_part = 0;
+    int64_t dec_len = 0;
+    int64_t exp_part = 0;
+    int64_t rat_part = 0;
+    bool has_dec_part = false;
+    bool has_exp_part = false;
+    bool has_rat_part = false;
 
     // Skip whitespace
     while( isspace( *cursor ) )
@@ -624,32 +645,17 @@ bool dk_strtonum( const char * str, int64_t * ival, double * fval, char const **
     }
     
     // Integer part
-    while( (*cursor >= '0') && (*cursor <= '9') ) // isdigit( *cursor )
-    {
-        int x = (*cursor) - '0';
-        ipart = (ipart * 10) + x;
-    
-        cursor++;
-    }
+    cursor += scan_digits( cursor, &int_part );
     
     // Fractional part
     if( *cursor == '.' )
     {
         cursor++;
 
-        has_fpart = true;
+        has_dec_part = true;
 
-        long denom = 10;
-        
-        while( (*cursor >= '0') && (*cursor <= '9') ) // isdigit( *cursor )
-        {
-            long numer = (*cursor) - '0';
-            fpart = fpart + ((double)numer / (double)denom);
-        
-            denom *= 10;
-            cursor++;
-        }
-        
+        dec_len = scan_digits( cursor, &dec_part );
+        cursor += dec_len;
     }
 
     // Exponent part
@@ -657,16 +663,27 @@ bool dk_strtonum( const char * str, int64_t * ival, double * fval, char const **
     {
         cursor++;
 
-        has_fpart = true;
-        has_epart = true;
+        has_exp_part = true;
 
-        while( (*cursor >= '0') && (*cursor <= '9') ) // isdigit( *cursor )
-        {
-            int x = (*cursor) - '0';
-            epart = (epart * 10) + x;
+        cursor += scan_digits( cursor, &exp_part );
+    }
+    
+    // Percent
+    if( *cursor == '%' )
+    {
+        cursor++;
         
-            cursor++;
-        }
+        has_rat_part = true;
+        rat_part = 100;
+    }
+    
+    else if( *cursor == '/' )
+    {
+        cursor++;
+
+        has_rat_part = true;
+
+        cursor += scan_digits( cursor, &rat_part );
     }
 
     // Return the end position
@@ -676,13 +693,20 @@ bool dk_strtonum( const char * str, int64_t * ival, double * fval, char const **
     }
 
     // Return a floating-point value
-    if( has_fpart )
+    if( has_dec_part || has_exp_part || has_rat_part )
     {
-        if( has_epart )
-            *fval = (double)sign * ((double)ipart + fpart) * pow( 10, (double)epart );
+        double val = (double)sign * (double)int_part;
         
-        else
-            *fval = (double)sign * ((double)ipart + fpart);
+        if( has_dec_part )
+            val += (double)sign * (double)dec_part / pow( 10.0, (double)dec_len );
+        
+        if( has_exp_part )
+            val *= pow( 10.0, (double)exp_part );
+        
+        if( has_rat_part )
+            val *= 1.0 / (double)rat_part;
+        
+        *fval = val;
         
         return false;
     }
@@ -690,7 +714,7 @@ bool dk_strtonum( const char * str, int64_t * ival, double * fval, char const **
     // Return an integer value
     else
     {
-        *ival = ipart * sign;
+        *ival = int_part * sign;
         return true;
     }
 }
