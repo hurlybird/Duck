@@ -46,6 +46,11 @@
 #include "DKGenericArray.h"
 
 
+DKThreadSafeSelectorInit( JSONSerialization, struct DKJSONSerializationInterface );
+
+
+
+
 // Writer ================================================================================
 
 typedef struct
@@ -71,7 +76,6 @@ static void WriteEmptyGroup( WriteContext * context, char beginDelimiter, char e
 ///
 //  DKJSONWrite()
 //
-
 int DKJSONWrite( DKStreamRef stream, DKObjectRef object, int options )
 {
     WriteContext context;
@@ -98,6 +102,7 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
 
     DKCollectionInterfaceRef collection = NULL;
     DKKeyedCollectionInterfaceRef keyedCollection = NULL;
+    DKJSONSerializationInterfaceRef serialization = NULL;
 
     WriteComma( context );
     
@@ -127,7 +132,7 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
         
         else
         {
-            DKWarning( "DKJSON: Only scalar number encodings are supported. Writing vector as string." );
+            DKWarning( "DKJSON: Only scalar number encodings are supported. Writing vector as string" );
             DKSPrintf( context->stream, "\"%@\"", obj );
         }
     }
@@ -171,6 +176,17 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
         {
             WriteEmptyGroup( context, '[', ']' );
         }
+    }
+
+    else if( (context->options & DKJSONObjectSerialization) && DKQueryInterface( obj, DKSelector(JSONSerialization), (DKInterfaceRef *)&serialization ) )
+    {
+        DKObjectRef jsonObject = serialization->getJSONObject( obj );
+        result = WriteObject( jsonObject, context );
+    }
+    
+    else
+    {
+        DKWarning( "DKJSON: No JSON representation for object '%@'", DKGetClassName( obj ) );
     }
 
     context->comma = 1;
@@ -388,6 +404,7 @@ typedef struct
 } Token;
 
 static int ParseObject( ParseContext * context, DKObjectRef * obj );
+static int DeserializeObject( ParseContext * context, DKObjectRef * obj );
 static Token ScanToken( ParseContext * context, DKObjectRef * obj );
 
 
@@ -501,7 +518,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
             result = ParseObject( context, &key );
             
             if( result == '}' )
-                return 0;
+                return DeserializeObject( context, obj );
             
             else if( result != 0 )
                 break;
@@ -536,7 +553,7 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
             ch = *token.str;
             
             if( ch == '}' )
-                return 0;
+                return DeserializeObject( context, obj );
             
             if( ch != ',' )
                 break;
@@ -596,6 +613,55 @@ static int ParseObject( ParseContext * context, DKObjectRef * obj )
     *obj = NULL;
     context->error = DKStringWithFormat( "Parse error on line %d", context->line );
     return -1;
+}
+
+
+///
+//  DeserializeObject()
+//
+static int DeserializeObject( ParseContext * context, DKObjectRef * obj )
+{
+    if( context->options & DKJSONObjectSerialization )
+    {
+        DKDictionaryRef jsonObject = *obj;
+        DKAssertKindOfClass( jsonObject, DKDictionaryClass() );
+        
+        DKObjectRef className = DKDictionaryGetObject( jsonObject, DKJSONSerializationClassNameKey );
+        
+        if( className )
+        {
+            DKClassRef cls = DKClassFromString( className );
+            
+            if( cls )
+            {
+                DKObjectRef object = DKAlloc( cls );
+
+                DKJSONSerializationInterfaceRef serialization;
+                
+                if( DKQueryInterface( object, DKSelector(JSONSerialization), (DKInterfaceRef *)&serialization ) )
+                {
+                    object = serialization->initWithJSONObject( object, jsonObject );
+                    
+                    DKRelease( *obj );
+                    *obj = object;
+                }
+
+                else
+                {
+                    DKRelease( object );
+                    
+                    context->error = DKStringWithFormat( "Class '%@' does not support JSON deserialization", className );
+                }
+            }
+            
+            else
+            {
+                context->error = DKStringWithFormat( "Missing class '%@' for JSON deserialization", className );
+            }
+        }
+    }
+    
+    return 0;
 }
 
 

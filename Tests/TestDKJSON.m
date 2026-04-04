@@ -9,10 +9,100 @@
 #import <XCTest/XCTest.h>
 #import <Duck/Duck.h>
 
+
+// JSON Serialization Object
+struct MyObject
+{
+    DKObject _obj;
+
+    DKStringRef string;
+    int integer;
+};
+
+typedef struct MyObject * MyObjectRef;
+
+static DKObjectRef MyObjectInit( DKObjectRef _untyped_self, DKStringRef string, int integer )
+{
+    MyObjectRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
+    
+    if( _self )
+    {
+        _self->string = DKCopy( string );
+        _self->integer = integer;
+    }
+    
+    return _self;
+}
+
+static DKObjectRef MyObjectInitWithJSONObject( DKObjectRef _untyped_self, DKDictionaryRef jsonObject )
+{
+    MyObjectRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
+
+    if( _self )
+    {
+        _self->string = DKCopy( DKDictionaryGetObject( jsonObject, DKSTR( "string" ) ) );
+        _self->integer = DKGetInt32( DKDictionaryGetObject( jsonObject, DKSTR( "integer" ) ) );
+    }
+    
+    return _self;
+}
+
+static DKObjectRef MyObjectGetJSONObject( DKObjectRef _untyped_self )
+{
+    MyObjectRef _self = _untyped_self;
+    
+    DKMutableDictionaryRef jsonObject = DKMutableDictionary();
+    DKDictionarySetObject( jsonObject, DKJSONSerializationClassNameKey, DKGetClassName( _self ) );
+    DKDictionarySetObject( jsonObject, DKSTR( "string" ), _self->string );
+    DKDictionarySetObject( jsonObject, DKSTR( "integer" ), DKNumberWithInt32( _self->integer ) );
+
+    return jsonObject;
+}
+
+static bool MyObjectEqual( DKObjectRef _untyped_self, DKObjectRef _untyped_other )
+{
+    MyObjectRef _self = _untyped_self;
+    MyObjectRef other = _untyped_other;
+    
+    return (_self->integer == other->integer) && DKStringEqualToString( _self->string, other->string );
+}
+
+static void MyObjectFinalize( DKObjectRef _untyped_self )
+{
+    MyObjectRef _self = _untyped_self;
+    
+    DKRelease( _self->string );
+}
+
+DKThreadSafeStaticClassInit( MyObjectClass )
+{
+    DKClassRef cls = DKNewClass( DKSTR( "MyObject" ), DKObjectClass(), sizeof(struct MyObject), 0, NULL, MyObjectFinalize );
+
+    // Comparison
+    struct DKComparisonInterface * comparison = DKNewInterface( DKSelector(Comparison) );
+    comparison->equal = MyObjectEqual;
+
+    DKInstallInterface( cls, comparison );
+    DKRelease( comparison );
+
+    // JSON Serialization
+    struct DKJSONSerializationInterface * jsonSerialization = DKNewInterface( DKSelector(JSONSerialization) );
+    jsonSerialization->initWithJSONObject = MyObjectInitWithJSONObject;
+    jsonSerialization->getJSONObject = MyObjectGetJSONObject;
+    
+    DKInstallInterface( cls, jsonSerialization );
+    DKRelease( jsonSerialization );
+    
+    return cls;
+}
+
+
+// Exception Wiring
 static int RaiseException( const char * format, va_list arg_ptr )
 {
     @throw NSGenericException;
 }
+
 
 @interface TestDKJSON : XCTestCase
 
@@ -170,6 +260,22 @@ static int RaiseException( const char * format, va_list arg_ptr )
 //    DKPrintf( "JSON:\n%@\n\n", json );
 //    DKPrintf( "Parsed Document:\n%@\n\n", parsedDocument );
 }
+
+
+- (void) testJSONSerialization
+{
+    MyObjectRef myObject = MyObjectInit( DKAlloc( MyObjectClass() ), DKSTR( "Don't Panic" ), 42 );
+    
+    // Convert it to JSON
+    DKMutableStringRef json = DKMutableString();
+    DKJSONWrite( json, myObject, DKJSONObjectSerialization );
+
+    // Parse the JSON
+    DKObjectRef parsedObject = DKJSONParse( json, DKJSONObjectSerialization );
+
+    XCTAssert( DKEqual( myObject, parsedObject ) );
+}
+
 
 
 #if 0
