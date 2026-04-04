@@ -56,14 +56,14 @@ DK_API DKDeclareInterfaceSelector( JSONSerialization );
 #define DKJSONSerializationClassNameKey DKSTR( "__class__" )
 
 typedef DKObjectRef (*DKInitWithJSONObjectMethod)( DKObjectRef _self, DKDictionaryRef jsonObject );
-typedef DKObjectRef (*DKGetJSONObjectMethod)( DKObjectRef _self );
+typedef void (*DKWriteJSONObjectMethod)( DKObjectRef _self, DKMutableDictionaryRef jsonObject );
 
 struct DKJSONSerializationInterface
 {
     const DKInterface _interface;
     
     DKInitWithJSONObjectMethod  initWithJSONObject;
-    DKGetJSONObjectMethod       getJSONObject;
+    DKWriteJSONObjectMethod     writeJSONObject;
 };
 
 typedef const struct DKJSONSerializationInterface * DKJSONSerializationInterfaceRef;

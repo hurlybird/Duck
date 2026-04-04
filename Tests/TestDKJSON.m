@@ -47,16 +47,12 @@ static DKObjectRef MyObjectInitWithJSONObject( DKObjectRef _untyped_self, DKDict
     return _self;
 }
 
-static DKObjectRef MyObjectGetJSONObject( DKObjectRef _untyped_self )
+static void MyObjectWriteJSONObject( DKObjectRef _untyped_self, DKMutableDictionaryRef jsonObject )
 {
     MyObjectRef _self = _untyped_self;
     
-    DKMutableDictionaryRef jsonObject = DKMutableDictionary();
-    DKDictionarySetObject( jsonObject, DKJSONSerializationClassNameKey, DKGetClassName( _self ) );
     DKDictionarySetObject( jsonObject, DKSTR( "string" ), _self->string );
     DKDictionarySetObject( jsonObject, DKSTR( "integer" ), DKNumberWithInt32( _self->integer ) );
-
-    return jsonObject;
 }
 
 static bool MyObjectEqual( DKObjectRef _untyped_self, DKObjectRef _untyped_other )
@@ -88,7 +84,7 @@ DKThreadSafeStaticClassInit( MyObjectClass )
     // JSON Serialization
     struct DKJSONSerializationInterface * jsonSerialization = DKNewInterface( DKSelector(JSONSerialization) );
     jsonSerialization->initWithJSONObject = MyObjectInitWithJSONObject;
-    jsonSerialization->getJSONObject = MyObjectGetJSONObject;
+    jsonSerialization->writeJSONObject = MyObjectWriteJSONObject;
     
     DKInstallInterface( cls, jsonSerialization );
     DKRelease( jsonSerialization );

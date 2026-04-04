@@ -180,8 +180,14 @@ static int WriteObject( DKObjectRef obj, WriteContext * context )
 
     else if( (context->options & DKJSONObjectSerialization) && DKQueryInterface( obj, DKSelector(JSONSerialization), (DKInterfaceRef *)&serialization ) )
     {
-        DKObjectRef jsonObject = serialization->getJSONObject( obj );
+        DKMutableDictionaryRef jsonObject = DKNewMutableDictionary();
+        DKDictionarySetObject( jsonObject, DKJSONSerializationClassNameKey, DKGetClassName( obj ) );
+        
+        serialization->writeJSONObject( obj, jsonObject );
+        
         result = WriteObject( jsonObject, context );
+        
+        DKRelease( jsonObject );
     }
     
     else
