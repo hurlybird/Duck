@@ -648,8 +648,16 @@ static int DeserializeObject( ParseContext * context, DKObjectRef * obj )
                 {
                     object = serialization->initWithJSONObject( object, jsonObject );
                     
-                    DKRelease( *obj );
-                    *obj = object;
+                    if( object )
+                    {
+                        DKRelease( *obj );
+                        *obj = object;
+                    }
+                    
+                    else
+                    {
+                        context->error = DKStringWithFormat( "Failed to deserialize '%@'", className );
+                    }
                 }
 
                 else
