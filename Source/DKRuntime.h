@@ -755,9 +755,12 @@ DK_API void DKInstallEnumProperty( DKClassRef _class,
     DKPropertyObserver willWrite,
     DKPropertyObserver didWrite );
 
-// Retrieve installed properties
-DK_API DKListRef   DKGetAllPropertyNames( DKObjectRef _self );
-DK_API DKListRef   DKGetAllPropertyDefinitions( DKObjectRef _self );
+// Retrieve property names and definitions
+DK_API DKListRef   DKGetDefinedPropertyNames( DKObjectRef _self );
+DK_API DKListRef   DKGetDynamicPropertyNames( DKObjectRef _self );
+DK_API DKListRef   DKGetPropertyNames( DKObjectRef _self );
+
+DK_API DKListRef   DKGetPropertyDefinitions( DKObjectRef _self );
 DK_API DKPropertyRef DKGetPropertyDefinition( DKObjectRef _self, DKStringRef name );
 
 // DKProperty Accessors

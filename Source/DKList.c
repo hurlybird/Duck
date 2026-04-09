@@ -29,6 +29,7 @@
 #include "DKEncoding.h"
 #include "DKRuntime.h"
 #include "DKCollection.h"
+#include "DKCopying.h"
 #include "DKList.h"
 #include "DKArray.h"
 #include "DKLinkedList.h"
@@ -402,6 +403,28 @@ void DKListAppendCollection( DKMutableListRef _self, DKObjectRef srcCollection )
         DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
         list->appendCollection( _self, srcCollection );
     }
+}
+
+
+///
+//  DKListByAppendingCollection()
+//
+DKListRef DKListByAppendingCollection( DKListRef _self, DKObjectRef srcCollection )
+{
+    if( _self )
+    {
+        if( srcCollection )
+        {
+            DKMutableListRef list = DKMutableCopy( _self );
+            DKListAppendCollection( list, srcCollection );
+            
+            return list;
+        }
+        
+        return DKCopy( _self );
+    }
+    
+    return NULL;
 }
 
 

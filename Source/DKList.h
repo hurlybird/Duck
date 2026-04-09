@@ -139,6 +139,8 @@ DK_API void        DKListAppendObject( DKMutableListRef _self, DKObjectRef objec
 DK_API void        DKListAppendCArray( DKMutableListRef _self, DKObjectRef objects[], DKIndex count );
 DK_API void        DKListAppendCollection( DKMutableListRef _self, DKObjectRef srcCollection );
 
+DK_API DKListRef   DKListByAppendingCollection( DKListRef _self, DKObjectRef srcCollection );
+
 DK_API void        DKListSetObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
 DK_API void        DKListInsertObjectAtIndex( DKMutableListRef _self, DKObjectRef object, DKIndex index );
 
