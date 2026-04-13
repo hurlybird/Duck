@@ -417,7 +417,7 @@ static int DKCopyPropertyCallback( DKObjectRef object, void * _context )
     struct DKCopyPropertyContext * context = _context;
     
     DKObjectRef value = DKTryGetProperty( context->fromObject, name, false );
-    DKTrySetProperty( context->toObject, name, value, false );
+    DKTrySetPropertyForKeyPath( context->toObject, name, value, false );
     
     return 0;
 }
@@ -787,7 +787,7 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
         {
             // If the target has a property matching the key, use it. This lets us resolve
             // dotted keys at the end of a key path.
-            if( DKGetProperty( currTarget, currKey ) )
+            if( DKGetPropertyDefinition( currTarget, currKey ) )
             {
                 *target = currTarget; // Already retained
                 *key = DKAutorelease( DKRetain( currKey ) );

@@ -36,6 +36,9 @@ extern "C"
 DK_API DKDeclareInterfaceSelector( Buffer );
 
 
+typedef DKObjectRef DKBufferRef;
+
+
 typedef DKIndex      (*DKBufferGetLengthMethod)( DKObjectRef _self );
 typedef const void * (*DKBufferGetBytePtrMethod)( DKObjectRef _self, DKIndex index );
 
