@@ -247,6 +247,21 @@ const char * dk_ustrridx( const char * str, size_t idx )
 
 
 ///
+//  dk_ustrscan8()
+//
+size_t dk_ustrscan8( const char * str, DKChar8 * ch )
+{
+    DKChar32 c;
+    int32_t i = 0;
+
+    U8_GET_OR_FFFD( (uint8_t *)str, 0, 0, -1, c );
+    U8_APPEND_UNSAFE( (uint8_t *)ch->s, i, c );
+        
+    return i;
+}
+
+
+///
 //  dk_ustrscan()
 //
 size_t dk_ustrscan( const char * str, DKChar32 * ch )

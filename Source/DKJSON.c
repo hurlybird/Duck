@@ -1095,21 +1095,5 @@ static Token ScanToken( ParseContext * context, DKObjectRef * obj )
     }
 }
 
-#if 0 // Test scanning
-static Token ScanToken( ParseContext * context, DKObjectRef * obj )
-{
-    Token token = _ScanToken( context, obj );
-    
-    char tmp[128];
-    strncpy( tmp, token.str, token.length );
-    tmp[token.length] = '\0';
-    
-    printf( "ScanToken: %s\n", tmp );
-    
-    return token;
-}
-#endif
-
-
 
 

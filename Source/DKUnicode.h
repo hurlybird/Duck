@@ -61,6 +61,7 @@ DK_API const char * dk_ustridx( const char * str, size_t idx );
 DK_API const char * dk_ustrridx( const char * str, size_t idx );
 
 // Scans one character from 'str' into 'ch' and returns the number of bytes read
+DK_API size_t dk_ustrscan8( const char * str, DKChar8 * ch );
 DK_API size_t dk_ustrscan( const char * str, DKChar32 * ch );
 
 // Writes the character 'ch' into 'str' and returns the number of bytes written

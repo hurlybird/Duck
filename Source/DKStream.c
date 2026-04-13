@@ -237,7 +237,7 @@ static size_t TrimZeroes( char * num, size_t len )
 
 static void CopyFormat( char * dst, const char * src, size_t len, size_t max_len )
 {
-    DKAssert( len < max_len );
+    DKCheck( len < max_len );
     strncpy( dst, src, len );
     dst[len] = '\0';
 }
