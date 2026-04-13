@@ -786,7 +786,8 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
         while( currTarget && currKey )
         {
             // If the target has a property matching the key, use it. This lets us resolve
-            // dotted keys at the end of a key path.
+            // dotted keys at the end of a key path. We need to check for both an explicit
+            // property definition (that may contain NULL), and a dynamic property.
             if( DKGetPropertyDefinition( currTarget, currKey ) )
             {
                 *target = currTarget; // Already retained
@@ -794,7 +795,27 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
                 
                 return true;
             }
-            
+
+            else
+            {
+                DKPropertyInterfaceRef propertyInterface;
+                
+                if( DKQueryInterface( currTarget, DKSelector(Property), (void *)&propertyInterface ) )
+                {
+                    if( propertyInterface->getProperty( currTarget, currKey ) )
+                    {
+                        *target = currTarget; // Already retained
+                        *key = DKAutorelease( DKRetain( currKey ) );
+                        return true;
+                    }
+                }
+                
+                else
+                {
+                    PropertyNotDefined( currTarget, currKey );
+                }
+            }
+
             DKPairRef components = DKStringSplitFirst( currKey, DKSTR( "." ) );
             DKStringRef nextKey = DKPairGetSecondObject( components );
             
