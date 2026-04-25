@@ -433,11 +433,15 @@ DK_API DKObjectRef DKAutorelease( DKObjectRef _self );
 
 // Convenience macro to exchange an object reference (not atomic or thread-safe).
 #define DKCompareRetain( ref, obj )         \
-    if( (ref) != (obj) )                    \
+    do                                      \
     {                                       \
-        DKRelease( ref );                   \
-        ref = DKRetain( obj );              \
-    }
+        if( (ref) != (obj) )                \
+        {                                   \
+            DKRelease( ref );               \
+            ref = DKRetain( obj );          \
+        }                                   \
+    }                                       \
+    while( 0 )
 
 
 

@@ -98,6 +98,7 @@ DK_API const void* DKNumberGetValuePtr( DKNumberRef _self );
 DK_API void *      DKNumberGetVariableValuePtr( DKNumberRef _self ); // Variable numbers only
 
 DK_API size_t      DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding );
+DK_API size_t      DKNumberCastValueIndexed( DKNumberRef _self, void * value, DKEncodingType encodingType, unsigned int index );
 
 DK_API const void* DKNumberQueryValuePtr( DKNumberRef _self, DKEncoding * encoding );
 DK_API void *      DKNumberQueryVariableValuePtr( DKNumberRef _self, DKEncoding * encoding );

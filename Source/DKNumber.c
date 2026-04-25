@@ -708,7 +708,7 @@ size_t DKNumberGetValue( DKNumberRef _self, void * value )
 
 
 ///
-//  DKNumberGetValue()
+//  DKNumberSetValue()
 //
 size_t DKNumberSetValue( DKNumberRef _self, const void * srcValue, DKEncoding srcEncoding )
 {
@@ -735,6 +735,34 @@ size_t DKNumberCastValue( DKNumberRef _self, void * value, DKEncoding encoding )
         DKAssertKindOfClass( _self, DKNumberClass() );
         
         return DKNumberConvert( &_self->value, DKGetObjectTag( _self ), value, encoding );
+    }
+
+    return 0;
+}
+
+
+///
+//  DKNumberCastValueIndexed()
+//
+size_t DKNumberCastValueIndexed( DKNumberRef _self, void * value, DKEncodingType encodingType, unsigned int index )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKNumberClass() );
+        
+        DKEncoding encoding = DKGetObjectTag( _self );
+        unsigned int count = DKEncodingGetCount( encoding );
+        
+        if( index < count )
+        {
+            size_t typeSize = DKEncodingGetTypeSize( encoding );
+            const void * src = _self->value._int8_t + (index * typeSize);
+            
+            DKEncoding srcEncoding = DKEncode( DKEncodingGetType( encoding ), 1 );
+            DKEncoding dstEncoding = DKEncode( encodingType, 1 );
+            
+            return DKNumberConvert( src, srcEncoding, value, dstEncoding );
+        }
     }
 
     return 0;
