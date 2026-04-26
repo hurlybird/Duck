@@ -60,6 +60,7 @@ DKThreadSafeClassInit( DKPropertyClass )
 }
 
 DKThreadSafeSelectorInit( Property, struct DKPropertyInterface );
+DKThreadSafeSelectorInit( MissingProperty, DKMsgHandler );
 
 
 ///
@@ -134,8 +135,9 @@ void DKInstallObjectProperty( DKClassRef _class,
     DKPropertyObserver willWrite,
     DKPropertyObserver didWrite )
 {
-    DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
-    DKAssert( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
+    DKRequire( (offset >= sizeof(DKObject)) || (getter != NULL) );
+    DKRequire( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
+    DKRequire( (attributes & (DKPropertyWeak | DKPropertyNonNull)) != (DKPropertyWeak | DKPropertyNonNull) );
 
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
@@ -176,9 +178,9 @@ void DKInstallNumberProperty( DKClassRef _class,
     DKPropertyObserver willWrite,
     DKPropertyObserver didWrite )
 {
-    DKAssert( DKEncodingIsNumber( encoding ) );
-    DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
-    DKAssert( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
+    DKRequire( DKEncodingIsNumber( encoding ) );
+    DKRequire( (offset >= sizeof(DKObject)) || (getter != NULL) );
+    DKRequire( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
     
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
@@ -217,8 +219,8 @@ void DKInstallStructProperty( DKClassRef _class,
     DKPropertyObserver willWrite,
     DKPropertyObserver didWrite )
 {
-    DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
-    DKAssert( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
+    DKRequire( (offset >= sizeof(DKObject)) || (getter != NULL) );
+    DKRequire( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
 
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
@@ -258,9 +260,9 @@ void DKInstallEnumProperty( DKClassRef _class,
     DKPropertyObserver willWrite,
     DKPropertyObserver didWrite )
 {
-    DKAssert( DKEncodingIsNumber( encoding ) );
-    DKAssert( (offset >= sizeof(DKObject)) || (getter != NULL) );
-    DKAssert( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
+    DKRequire( DKEncodingIsNumber( encoding ) );
+    DKRequire( (offset >= sizeof(DKObject)) || (getter != NULL) );
+    DKRequire( (offset >= sizeof(DKObject)) || (setter != NULL) || (attributes & DKPropertyReadOnly) );
     
     struct DKProperty * property = DKNew( DKPropertyClass() );
     
@@ -497,9 +499,9 @@ static void PropertyNotReadWrite( DKObjectRef _self, DKPropertyRef property )
 ///
 //  CheckNonNullRequirement()
 //
-static void FailedNonNullRequirement( DKObjectRef _self, DKPropertyRef property, DKObjectRef object )
+static void FailedNonNullRequirement( DKObjectRef _self, DKPropertyRef property )
 {
-    DKWarning( "DKProperty: Property '%@' cannot be set to NULL.", property->name );
+    DKWarning( "DKProperty: Property '%@' cannot be NULL.", property->name );
 }
 
 #define CheckNonNullRequirement( obj, property, object, ... )                           \
@@ -507,7 +509,7 @@ static void FailedNonNullRequirement( DKObjectRef _self, DKPropertyRef property,
     {                                                                                   \
         if( ((property)->attributes & DKPropertyNonNull) && (object == NULL) )          \
         {                                                                               \
-            FailedNonNullRequirement( obj, property, object );                          \
+            FailedNonNullRequirement( obj, property );                                  \
             return __VA_ARGS__;                                                         \
         }                                                                               \
     } while( 0 )
@@ -716,6 +718,14 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
     {
         DKWillReadProperty( _self, property );
         DKObjectRef object;
+
+        if( (*((DKObjectRef *)value) == NULL) && (property->attributes & DKPropertyNonNull) )
+        {
+            DKMsgSend( _self, MissingProperty, property );
+            
+            if( *((DKObjectRef *)value) == NULL )
+                FailedNonNullRequirement( _self, property );
+        }
 
         if( property->attributes & DKPropertyWeak )
         {

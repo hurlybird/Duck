@@ -341,7 +341,7 @@ struct _DKSEL
 
 
 // Offset of the instance interface table for fast selector lookups
-// i.e. offsetof( struct DKClass, instanceInterfaceTable )
+// i.e. offsetof( struct DKClass, instanceInterfaces )
 #if __LP64__
 #define DK_INTERFACE_TABLE_OFFSET   0x18
 #else
@@ -641,7 +641,9 @@ enum
     // The property should not be archived or serialized
     DKPropertyTransient =       (1 << 3),
     
-    // The property cannot be set to NULL -- attempting to do so will raise a warning
+    // The property cannot be NULL. If the property is NULL when attempting to read it,
+    // a MissingProperty message will be sent to the object. Attempting to set the
+    // property to NULL will raise a warning.
     DKPropertyNonNull =         (1 << 4)
 };
 
@@ -650,6 +652,10 @@ enum
 typedef DKObjectRef (*DKPropertyGetter)( DKObjectRef _self, DKPropertyRef property );
 typedef void (*DKPropertySetter)( DKObjectRef _self, DKPropertyRef property, DKObjectRef object );
 typedef void (*DKPropertyObserver)( DKObjectRef _self, DKPropertyRef property );
+
+
+// Missing Property message
+DK_API DKDeclareMessageSelector( MissingProperty, DKPropertyRef property );
 
 
 // The property definition object (visible for use by custom getters/setters)
