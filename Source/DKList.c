@@ -483,6 +483,15 @@ void DKListReplaceRangeWithCollection( DKMutableListRef _self, DKRange range, DK
 
 
 ///
+//  DKListReplaceObjectAtIndexWithObject()
+//
+void DKListReplaceObjectAtIndexWithObject( DKMutableListRef _self, DKIndex index, DKObjectRef object )
+{
+    DKListReplaceRangeWithCArray( _self, DKRangeMake( index, 0 ), &object, 1 );
+}
+
+
+///
 //  DKListExchangeObjectsAtIndexes()
 //
 void DKListExchangeObjectsAtIndexes( DKMutableListRef _self, DKIndex index1, DKIndex index2 )

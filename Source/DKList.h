@@ -147,6 +147,7 @@ DK_API void        DKListInsertObjectAtIndex( DKMutableListRef _self, DKObjectRe
 DK_API void        DKListReplaceRangeWithCArray( DKMutableListRef _self, DKRange range, DKObjectRef objects[], DKIndex count );
 DK_API void        DKListReplaceRangeWithCollection( DKMutableListRef _self, DKRange range, DKObjectRef srcCollection );
 
+DK_API void        DKListReplaceObjectAtIndexWithObject( DKMutableListRef _self, DKIndex index, DKObjectRef object );
 DK_API void        DKListExchangeObjectsAtIndexes( DKMutableListRef _self, DKIndex index1, DKIndex index2 );
 
 DK_API DKIndex     DKListAddSortedObject( DKListRef _self, DKObjectRef object, DKCompareFunction cmp );
