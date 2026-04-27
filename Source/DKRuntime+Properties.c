@@ -786,7 +786,7 @@ static DKObjectRef DKReadPropertyObject( DKObjectRef _self, DKPropertyRef proper
 ///
 //  DKResolveTargetForKeyPath()
 //
-static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObjectRef * target, DKStringRef * key )
+static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObjectRef * target, DKStringRef * key, DKPropertyRef * property )
 {
     if( root )
     {
@@ -798,10 +798,13 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
             // If the target has a property matching the key, use it. This lets us resolve
             // dotted keys at the end of a key path. We need to check for both an explicit
             // property definition (that may contain NULL), and a dynamic property.
-            if( DKGetPropertyDefinition( currTarget, currKey ) )
+            DKPropertyRef foundProperty = DKGetPropertyDefinition( currTarget, currKey );
+            
+            if( foundProperty )
             {
                 *target = currTarget; // Already retained
                 *key = DKAutorelease( DKRetain( currKey ) );
+                *property = foundProperty;
                 
                 return true;
             }
@@ -816,6 +819,7 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
                     {
                         *target = currTarget; // Already retained
                         *key = DKAutorelease( DKRetain( currKey ) );
+                        *property = NULL;
                         return true;
                     }
                 }
@@ -835,6 +839,7 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
             {
                 *target = currTarget; // Already retained
                 *key = DKAutorelease( DKRetain( currKey ) );
+                *property = NULL;
                 
                 return true;
             }
@@ -852,6 +857,33 @@ static bool DKResolveTargetForKeyPath( DKObjectRef root, DKStringRef path, DKObj
 ///
 //  DKTrySetProperty()
 //
+static bool DKTrySetPropertyInternal( DKObjectRef _self, DKStringRef name, DKPropertyRef property, DKObjectRef object, bool warnIfNotFound )
+{
+    if( property )
+    {
+        CheckPropertyIsReadWrite( _self, property, false );
+        
+        DKWritePropertyObject( _self, property, object );
+        
+        return true;
+    }
+
+    DKPropertyInterfaceRef propertyInterface;
+    
+    if( DKQueryInterface( _self, DKSelector(Property), (DKInterfaceRef *)&propertyInterface ) )
+    {
+        if( propertyInterface->setProperty( _self, name, object ) )
+            return true;
+    }
+        
+    if( warnIfNotFound )
+    {
+        PropertyNotDefined( _self, name );
+    }
+    
+    return false;
+}
+
 bool DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, bool warnIfNotFound )
 {
     if( _self )
@@ -859,27 +891,7 @@ bool DKTrySetProperty( DKObjectRef _self, DKStringRef name, DKObjectRef object, 
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
 
-        if( property )
-        {
-            CheckPropertyIsReadWrite( _self, property, false );
-            
-            DKWritePropertyObject( _self, property, object );
-            
-            return true;
-        }
-
-        DKPropertyInterfaceRef propertyInterface;
-        
-        if( DKQueryInterface( _self, DKSelector(Property), (DKInterfaceRef *)&propertyInterface ) )
-        {
-            if( propertyInterface->setProperty( _self, name, object ) )
-                return true;
-        }
-            
-        if( warnIfNotFound )
-        {
-            PropertyNotDefined( _self, name );
-        }
+        return DKTrySetPropertyInternal( _self, name, property, object, warnIfNotFound );
     }
     
     return false;
@@ -893,9 +905,10 @@ bool DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRe
 {
     DKObjectRef target;
     DKStringRef key;
+    DKPropertyRef property;
     
-    if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
-        return DKTrySetProperty( target, key, object, warnIfNotFound );
+    if( DKResolveTargetForKeyPath( _self, path, &target, &key, &property ) )
+        return DKTrySetPropertyInternal( target, key, property, object, warnIfNotFound );
         
     if( warnIfNotFound )
         FailedToResolveKeyPath( _self, path );
@@ -907,6 +920,27 @@ bool DKTrySetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKObjectRe
 ///
 //  DKGetProperty()
 //
+static DKObjectRef DKTryGetPropertyInternal( DKObjectRef _self, DKStringRef name, DKPropertyRef property, bool warnIfNotFound )
+{
+    if( property )
+    {
+        return DKReadPropertyObject( _self, property );
+    }
+
+    else
+    {
+        DKPropertyInterfaceRef propertyInterface;
+        
+        if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
+            return propertyInterface->getProperty( _self, name );
+        
+        if( warnIfNotFound )
+            PropertyNotDefined( _self, name );
+    }
+    
+    return NULL;
+}
+
 DKObjectRef DKTryGetProperty( DKObjectRef _self, DKStringRef name, bool warnIfNotFound )
 {
     if( _self )
@@ -914,21 +948,7 @@ DKObjectRef DKTryGetProperty( DKObjectRef _self, DKStringRef name, bool warnIfNo
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
 
-        if( property )
-        {
-            return DKReadPropertyObject( _self, property );
-        }
-
-        else
-        {
-            DKPropertyInterfaceRef propertyInterface;
-            
-            if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
-                return propertyInterface->getProperty( _self, name );
-            
-            if( warnIfNotFound )
-                PropertyNotDefined( _self, name );
-        }
+        return DKTryGetPropertyInternal( _self, name, property, warnIfNotFound );
     }
     
     return NULL;
@@ -942,9 +962,10 @@ DKObjectRef DKTryGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, boo
 {
     DKObjectRef target;
     DKStringRef key;
+    DKPropertyRef property;
     
-    if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
-        return DKTryGetProperty( target, key, warnIfNotFound );
+    if( DKResolveTargetForKeyPath( _self, path, &target, &key, &property ) )
+        return DKTryGetPropertyInternal( target, key, property, warnIfNotFound );
 
     if( warnIfNotFound )
         FailedToResolveKeyPath( _self, path );
@@ -957,6 +978,52 @@ DKObjectRef DKTryGetPropertyForKeyPath( DKObjectRef _self, DKStringRef path, boo
 ///
 //  DKSetNumberProperty()
 //
+static void DKSetNumberPropertyInternal( DKObjectRef _self, DKStringRef name, DKPropertyRef property, const void * srcValue, DKEncoding srcEncoding )
+{
+    DKAssert( DKEncodingIsNumber( srcEncoding ) );
+
+    if( property == NULL )
+    {
+        DKPropertyInterfaceRef propertyInterface;
+        
+        if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
+        {
+            DKNumberRef number = DKNewNumber( srcValue, srcEncoding );
+            propertyInterface->setProperty( _self, name, number );
+            DKRelease( number );
+            return;
+        }
+        
+        PropertyNotDefined( _self, name );
+        return;
+    }
+
+    CheckPropertyIsReadWrite( _self, property );
+    
+    if( property->setter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
+    {
+        DKNumberRef number = DKNewNumber( srcValue, srcEncoding );
+        DKWritePropertyObject( _self, property, number );
+        DKRelease( number );
+        return;
+    }
+
+    else
+    {
+        void * dstValue = (uint8_t *)_self + property->offset;
+
+        DKWillWriteProperty( _self, property );
+        bool success = DKNumberConvert( srcValue, srcEncoding, dstValue, property->encoding );
+        DKDidWriteProperty( _self, property );
+        
+        if( success )
+            return;
+    }
+    
+    DKWarning( "DKProperty: No available conversion for property '%@' from %s[%d].",
+        name, DKEncodingGetTypeName( srcEncoding ), DKEncodingGetCount( srcEncoding ) );
+}
+
 void DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcValue, DKEncoding srcEncoding )
 {
     DKAssert( DKEncodingIsNumber( srcEncoding ) );
@@ -966,46 +1033,7 @@ void DKSetNumberProperty( DKObjectRef _self, DKStringRef name, const void * srcV
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
 
-        if( property == NULL )
-        {
-            DKPropertyInterfaceRef propertyInterface;
-            
-            if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
-            {
-                DKNumberRef number = DKNewNumber( srcValue, srcEncoding );
-                propertyInterface->setProperty( _self, name, number );
-                DKRelease( number );
-                return;
-            }
-            
-            PropertyNotDefined( _self, name );
-            return;
-        }
-
-        CheckPropertyIsReadWrite( _self, property );
-        
-        if( property->setter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
-        {
-            DKNumberRef number = DKNewNumber( srcValue, srcEncoding );
-            DKWritePropertyObject( _self, property, number );
-            DKRelease( number );
-            return;
-        }
-
-        else
-        {
-            void * dstValue = (uint8_t *)_self + property->offset;
-
-            DKWillWriteProperty( _self, property );
-            bool success = DKNumberConvert( srcValue, srcEncoding, dstValue, property->encoding );
-            DKDidWriteProperty( _self, property );
-            
-            if( success )
-                return;
-        }
-        
-        DKWarning( "DKProperty: No available conversion for property '%@' from %s[%d].",
-            name, DKEncodingGetTypeName( srcEncoding ), DKEncodingGetCount( srcEncoding ) );
+        DKSetNumberPropertyInternal( _self, name, property, srcValue, srcEncoding );
     }
 }
 
@@ -1017,9 +1045,10 @@ void DKSetNumberPropertyForKeyPath( DKObjectRef _self, DKStringRef path, const v
 {
     DKObjectRef target;
     DKStringRef key;
+    DKPropertyRef property;
     
-    if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
-        DKSetNumberProperty( target, key, srcValue, srcEncoding );
+    if( DKResolveTargetForKeyPath( _self, path, &target, &key, &property ) )
+        DKSetNumberPropertyInternal( target, key, property, srcValue, srcEncoding );
 }
 
 
@@ -1044,63 +1073,70 @@ static size_t UnpackNumber( DKObjectRef number, void * dstValue, DKEncoding dstE
     return result;
 }
 
-size_t DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKEncoding dstEncoding )
+static size_t DKGetNumberPropertyInternal( DKObjectRef _self, DKStringRef name, DKPropertyRef property, void * dstValue, DKEncoding dstEncoding )
 {
-    size_t result = 0;
+    size_t result;
 
     DKAssert( DKEncodingIsNumber( dstEncoding ) );
 
+    if( property == NULL )
+    {
+        DKPropertyInterfaceRef propertyInterface;
+        
+        if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
+        {
+            DKObjectRef number = propertyInterface->getProperty( _self, name );
+            result = UnpackNumber( number, dstValue, dstEncoding );
+            
+            if( result != 0 )
+                return result;
+        }
+        
+        else
+        {
+            PropertyNotDefined( _self, name );
+            return 0;
+        }
+    }
+    
+    else
+    {
+        if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
+        {
+            DKObjectRef number = DKReadPropertyObject( _self, property );
+            result = UnpackNumber( number, dstValue, dstEncoding );
+            
+            if( result != 0 )
+                return result;
+        }
+        
+        else
+        {
+            void * srcValue = (uint8_t *)_self + property->offset;
+
+            DKWillReadProperty( _self, property );
+            result = DKNumberConvert( srcValue, property->encoding, dstValue, dstEncoding );
+            DKDidReadProperty( _self, property );
+            
+            if( result != 0 )
+                return result;
+        }
+    }
+
+    DKWarning( "DKProperty: No available conversion for property '%@' to %s[%d].",
+        name, DKEncodingGetTypeName( dstEncoding ), DKEncodingGetCount( dstEncoding ) );
+    
+    return 0;
+}
+
+size_t DKGetNumberProperty( DKObjectRef _self, DKStringRef name, void * dstValue, DKEncoding dstEncoding )
+{
     if( _self )
     {
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
 
-        if( property == NULL )
-        {
-            DKPropertyInterfaceRef propertyInterface;
-            
-            if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
-            {
-                DKObjectRef number = propertyInterface->getProperty( _self, name );
-                result = UnpackNumber( number, dstValue, dstEncoding );
-                
-                if( result != 0 )
-                    return result;
-            }
-            
-            else
-            {
-                PropertyNotDefined( _self, name );
-                return 0;
-            }
-        }
-        
-        else
-        {
-            if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
-            {
-                DKObjectRef number = DKReadPropertyObject( _self, property );
-                result = UnpackNumber( number, dstValue, dstEncoding );
-                
-                if( result != 0 )
-                    return result;
-            }
-            
-            else
-            {
-                void * srcValue = (uint8_t *)_self + property->offset;
-
-                DKWillReadProperty( _self, property );
-                result = DKNumberConvert( srcValue, property->encoding, dstValue, dstEncoding );
-                DKDidReadProperty( _self, property );
-                
-                if( result != 0 )
-                    return result;
-            }
-        }
-
-        DKWarning( "DKProperty: No available conversion for property '%@' to %s[%d].",
-            name, DKEncodingGetTypeName( dstEncoding ), DKEncodingGetCount( dstEncoding ) );
+        return DKGetNumberPropertyInternal( _self, name, property, dstValue, dstEncoding );
     }
     
     return 0;
@@ -1114,9 +1150,10 @@ size_t DKGetNumberPropertyForKeyPath( DKObjectRef _self, DKStringRef path, void 
 {
     DKObjectRef target;
     DKStringRef key;
+    DKPropertyRef property;
     
-    if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
-        return DKGetNumberProperty( target, key, dstValue, dstEncoding );
+    if( DKResolveTargetForKeyPath( _self, path, &target, &key, &property ) )
+        return DKGetNumberPropertyInternal( target, key, property, dstValue, dstEncoding );
 
     return 0;
 }
@@ -1126,6 +1163,49 @@ size_t DKGetNumberPropertyForKeyPath( DKObjectRef _self, DKStringRef path, void 
 ///
 //  DKSetStructProperty()
 //
+static void DKSetStructPropertyInternal( DKObjectRef _self, DKStringRef name, DKStringRef semantic, DKPropertyRef property, const void * srcValue, size_t srcSize )
+{
+    if( property == NULL )
+    {
+        DKPropertyInterfaceRef propertyInterface;
+        
+        if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
+        {
+            DKStructRef structure = DKNewStruct( semantic, srcValue, srcSize );
+            propertyInterface->setProperty( _self, name, structure );
+            DKRelease( structure );
+            return;
+        }
+        
+        PropertyNotDefined( _self, name );
+        return;
+    }
+
+    CheckPropertyIsReadWrite( _self, property );
+    CheckSemanticRequirement( _self, property, semantic );
+    
+    if( property->setter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
+    {
+        DKStructRef structure = DKNewStruct( semantic, srcValue, srcSize );
+        DKWritePropertyObject( _self, property, structure );
+        DKRelease( structure );
+        return;
+    }
+
+    if( property->encoding == DKEncode( DKEncodingTypeBinaryData, srcSize ) )
+    {
+        void * dstValue = (uint8_t *)_self + property->offset;
+
+        DKWillWriteProperty( _self, property );
+        memcpy( dstValue, srcValue, srcSize );
+        DKDidWriteProperty( _self, property );
+
+        return;
+    }
+    
+    DKWarning( "DKProperty: No available conversion for property '%@' from structure (%@).", name, semantic );
+}
+
 void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, const void * srcValue, size_t srcSize )
 {
     if( _self )
@@ -1133,45 +1213,7 @@ void DKSetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef seman
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
 
-        if( property == NULL )
-        {
-            DKPropertyInterfaceRef propertyInterface;
-            
-            if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
-            {
-                DKStructRef structure = DKNewStruct( semantic, srcValue, srcSize );
-                propertyInterface->setProperty( _self, name, structure );
-                DKRelease( structure );
-                return;
-            }
-            
-            PropertyNotDefined( _self, name );
-            return;
-        }
-
-        CheckPropertyIsReadWrite( _self, property );
-        CheckSemanticRequirement( _self, property, semantic );
-        
-        if( property->setter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
-        {
-            DKStructRef structure = DKNewStruct( semantic, srcValue, srcSize );
-            DKWritePropertyObject( _self, property, structure );
-            DKRelease( structure );
-            return;
-        }
-
-        if( property->encoding == DKEncode( DKEncodingTypeBinaryData, srcSize ) )
-        {
-            void * dstValue = (uint8_t *)_self + property->offset;
-
-            DKWillWriteProperty( _self, property );
-            memcpy( dstValue, srcValue, srcSize );
-            DKDidWriteProperty( _self, property );
-
-            return;
-        }
-        
-        DKWarning( "DKProperty: No available conversion for property '%@' from structure (%@).", name, semantic );
+        DKSetStructPropertyInternal( _self, name, semantic, property, srcValue, srcSize );
     }
 }
 
@@ -1183,9 +1225,10 @@ void DKSetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStrin
 {
     DKObjectRef target;
     DKStringRef key;
+    DKPropertyRef property;
     
-    if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
-        DKSetStructProperty( target, key, semantic, srcValue, srcSize );
+    if( DKResolveTargetForKeyPath( _self, path, &target, &key, &property ) )
+        DKSetStructPropertyInternal( target, key, semantic, property, srcValue, srcSize );
 }
 
 
@@ -1210,61 +1253,68 @@ static size_t UnpackStructure( DKObjectRef structure, DKStringRef semantic, void
     return result;
 }
 
+static size_t DKGetStructPropertyInternal( DKObjectRef _self, DKStringRef name, DKStringRef semantic, DKPropertyRef property, void * dstValue, size_t dstSize )
+{
+    size_t result;
+
+    if( property == NULL )
+    {
+        DKPropertyInterfaceRef propertyInterface;
+        
+        if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
+        {
+            DKObjectRef structure = propertyInterface->getProperty( _self, name );
+            result = UnpackStructure( structure, semantic, dstValue, dstSize );
+            
+            if( result != 0 )
+                return result;
+        }
+        
+        else
+        {
+            PropertyNotDefined( _self, name );
+            return 0;
+        }
+    }
+    
+    else
+    {
+        CheckSemanticRequirement( _self, property, semantic, 0 );
+        
+        if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
+        {
+            DKObjectRef structure = DKReadPropertyObject( _self, property );
+            result = UnpackStructure( structure, semantic, dstValue, dstSize );
+            
+            if( result != 0 )
+                return result;
+        }
+
+        if( property->encoding == DKEncode( DKEncodingTypeBinaryData, dstSize ) )
+        {
+            const void * srcValue = (uint8_t *)_self + property->offset;
+
+            DKWillReadProperty( _self, property );
+            memcpy( dstValue, srcValue, dstSize );
+            DKDidReadProperty( _self, property );
+            
+            return dstSize;
+        }
+    }
+    
+    DKWarning( "DKProperty: No available conversion for property '%@' to structure (%@).", name, semantic );
+    
+    return 0;
+}
+
 size_t DKGetStructProperty( DKObjectRef _self, DKStringRef name, DKStringRef semantic, void * dstValue, size_t dstSize )
 {
-    size_t result = 0;
-
     if( _self )
     {
         const DKObject * obj = _self;
         DKPropertyRef property = DKGetPropertyDefinition( obj->isa, name );
         
-        if( property == NULL )
-        {
-            DKPropertyInterfaceRef propertyInterface;
-            
-            if( DKQueryInterface( _self, DKSelector(Property), (void *)&propertyInterface ) )
-            {
-                DKObjectRef structure = propertyInterface->getProperty( _self, name );
-                result = UnpackStructure( structure, semantic, dstValue, dstSize );
-                
-                if( result != 0 )
-                    return result;
-            }
-            
-            else
-            {
-                PropertyNotDefined( _self, name );
-                return 0;
-            }
-        }
-        
-        else
-        {
-            CheckSemanticRequirement( _self, property, semantic, 0 );
-            
-            if( property->getter || (property->encoding == DKEncode( DKEncodingTypeObject, 1 )) )
-            {
-                DKObjectRef structure = DKReadPropertyObject( _self, property );
-                result = UnpackStructure( structure, semantic, dstValue, dstSize );
-                
-                if( result != 0 )
-                    return result;
-            }
-
-            if( property->encoding == DKEncode( DKEncodingTypeBinaryData, dstSize ) )
-            {
-                const void * srcValue = (uint8_t *)_self + property->offset;
-
-                DKWillReadProperty( _self, property );
-                memcpy( dstValue, srcValue, dstSize );
-                DKDidReadProperty( _self, property );
-                
-                return dstSize;
-            }
-        }
-        
-        DKWarning( "DKProperty: No available conversion for property '%@' to structure (%@).", name, semantic );
+        return DKGetStructPropertyInternal( _self, name, semantic, property, dstValue, dstSize );
     }
     
     return 0;
@@ -1278,9 +1328,10 @@ size_t DKGetStructPropertyForKeyPath( DKObjectRef _self, DKStringRef path, DKStr
 {
     DKObjectRef target;
     DKStringRef key;
+    DKPropertyRef property;
     
-    if( DKResolveTargetForKeyPath( _self, path, &target, &key ) )
-        return DKGetStructProperty( target, key, semantic, dstValue, dstSize );
+    if( DKResolveTargetForKeyPath( _self, path, &target, &key, &property ) )
+        return DKGetStructPropertyInternal( target, key, semantic, property, dstValue, dstSize );
 
     return 0;
 }
