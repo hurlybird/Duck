@@ -149,6 +149,8 @@ DK_API void        DKListReplaceRangeWithCollection( DKMutableListRef _self, DKR
 
 DK_API void        DKListExchangeObjectsAtIndexes( DKMutableListRef _self, DKIndex index1, DKIndex index2 );
 
+DK_API DKIndex     DKListAddSortedObject( DKListRef _self, DKObjectRef object, DKCompareFunction cmp );
+
 DK_API bool        DKListContainsObject( DKListRef _self, DKObjectRef object );
 DK_API DKObjectRef DKListGetMemberOfSet( DKListRef _self, DKObjectRef object );
 DK_API void        DKListAddObjectToSet( DKMutableListRef _self, DKObjectRef object );

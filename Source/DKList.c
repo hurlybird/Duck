@@ -499,6 +499,38 @@ void DKListExchangeObjectsAtIndexes( DKMutableListRef _self, DKIndex index1, DKI
 
 
 ///
+//  DKListAddSortedObject()
+//
+DKIndex DKListAddSortedObject( DKListRef _self, DKObjectRef object, DKCompareFunction cmp )
+{
+    if( _self )
+    {
+        DKListInterfaceRef list = DKGetInterface( _self, DKSelector(List) );
+
+        DKIndex count = list->getCount( _self );
+        
+        for( DKIndex i = 0; i < count; i++ )
+        {
+            DKObjectRef obji = list->getObjectAtIndex( _self, i );
+            
+            if( cmp( obji, object ) > 0 )
+            {
+                DKRange insert = DKRangeMake( i, 0 );
+                list->replaceRangeWithCArray( _self, insert, &object, 1 );
+                return i;
+            }
+        }
+
+        DKRange insert = DKRangeMake( count, 0 );
+        list->replaceRangeWithCArray( _self, insert, &object, 1 );
+        return count;
+    }
+    
+    return DKNotFound;
+}
+
+
+///
 //  DKListContainsObject()
 //
 bool DKListContainsObject( DKListRef _self, DKObjectRef object )
