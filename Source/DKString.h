@@ -141,6 +141,9 @@ DK_API void        DKStringAppendCString( DKMutableStringRef _self, const char *
 DK_API void        DKStringAppendBytes( DKMutableStringRef _self, const void * bytes, DKIndex length );
 
 DK_API void        DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKStringRef str );
+DK_API void        DKStringReplaceSubstringWithCString( DKMutableStringRef _self, DKRange range, const char * cstr );
+DK_API void        DKStringReplaceSubstringWithBytes( DKMutableStringRef _self, DKRange range, const void * bytes, DKIndex length );
+
 DK_API void        DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement );
 
 DK_API void        DKStringEscape( DKMutableStringRef _self, DKDictionaryRef patterns );

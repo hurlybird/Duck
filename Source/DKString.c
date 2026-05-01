@@ -1743,6 +1743,33 @@ void DKStringReplaceSubstring( DKMutableStringRef _self, DKRange range, DKString
 
 
 ///
+//  DKStringReplaceSubstringWithCString()
+//
+void DKStringReplaceSubstringWithCString( DKMutableStringRef _self, DKRange range, const char * cstr )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
+        DKCheckRange( range, _self->byteArray.length );
+
+        DKIndex length = cstr ? strlen( cstr ) : 0;
+        ReplaceBytes( _self, range, cstr, length );
+    }
+}
+
+void DKStringReplaceSubstringWithBytes( DKMutableStringRef _self, DKRange range, const void * bytes, DKIndex length )
+{
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKMutableStringClass() );
+        DKCheckRange( range, _self->byteArray.length );
+
+        ReplaceBytes( _self, range, bytes, length );
+    }
+}
+
+
+///
 //  DKStringReplaceOccurrencesOfString()
 //
 static void INTERNAL_DKStringReplaceOccurrencesOfString( DKMutableStringRef _self, DKStringRef pattern, DKStringRef replacement )
