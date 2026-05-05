@@ -1325,7 +1325,7 @@ DKPairRef DKStringSplitFirst( DKStringRef _self, DKStringRef separator )
         if( a < b )
         {
             DKStringRef first = CopySubstring( a, DKRangeMake( 0, b - a ) );
-            DKStringRef second = CopySubstring( b + len, DKRangeMake( 0, end - b + len ) );
+            DKStringRef second = CopySubstring( b + len, DKRangeMake( 0, end - (b + len) ) );
             
             DKPairRef pair = DKPair( first, second );
             
