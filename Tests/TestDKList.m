@@ -207,6 +207,7 @@ static int RaiseException( const char * format, va_list arg_ptr )
 #define PERFORMANCE_SIZE        5000
 #define PERFORMANCE_ITERATIONS  100000
 #define PERFORMANCE_QUEUE_SIZE  10000
+#define PERFORMANCE_SORT_SIZE   100000
 
 
 // NSArray ===============================================================================
@@ -214,6 +215,12 @@ static int RaiseException( const char * format, va_list arg_ptr )
 {
     for( int i = 0; i < count; i++ )
         [array addObject:[NSString stringWithFormat:@"%d", i]];
+}
+
+- (void) fillNSArrayRandom:(NSMutableArray *)array count:(int)count
+{
+    for( int i = 0; i < count; i++ )
+        [array addObject:[NSString stringWithFormat:@"%d", rand()]];
 }
 
 #if PERFORMANCE_TESTS
@@ -295,6 +302,19 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 #endif
 
+#if PERFORMANCE_TESTS
+- (void) testNSArrayPerformanceSort
+{
+    [self measureBlock:^()
+    {
+        NSMutableArray * array = [NSMutableArray array];
+        [self fillNSArrayRandom:array count:PERFORMANCE_SORT_SIZE];
+        [array sortUsingSelector:@selector(compare:)];
+    }];
+}
+#endif
+
+
 
 // DKArray ===============================================================================
 #if PERFORMANCE_TESTS
@@ -358,6 +378,20 @@ static int RaiseException( const char * format, va_list arg_ptr )
     DKRelease( list );
 }
 #endif
+
+#if PERFORMANCE_TESTS
+- (void) testDKArrayPerformanceSort
+{
+    [self measureBlock:^()
+    {
+        DKObjectRef list = DKNewMutableArray();
+        [self fillListRandom:list count:PERFORMANCE_SORT_SIZE];
+        DKListSort( list, (DKCompareFunction)DKStringCompare );
+        DKRelease( list );
+    }];
+}
+#endif
+
 
 
 // DKLinkedList ==========================================================================
@@ -423,6 +457,19 @@ static int RaiseException( const char * format, va_list arg_ptr )
 }
 #endif
 
+#if PERFORMANCE_TESTS
+- (void) testDKLinkedListPerformanceSort
+{
+    [self measureBlock:^()
+    {
+        DKObjectRef list = DKNewMutableLinkedList();
+        [self fillListRandom:list count:PERFORMANCE_SORT_SIZE];
+        DKListSort( list, (DKCompareFunction)DKStringCompare );
+        DKRelease( list );
+    }];
+}
+#endif
+
 
 // DKList Internals ======================================================================
 - (void) fillList:(DKMutableListRef)list count:(int)count
@@ -430,6 +477,16 @@ static int RaiseException( const char * format, va_list arg_ptr )
     for( int i = 0; i < count; i++ )
     {
         DKStringRef s = DKStringInitWithFormat( DKAlloc( DKStringClass() ), "%d", i );
+        DKListAppendObject( list, s );
+        DKRelease( s );
+    }
+}
+
+- (void) fillListRandom:(DKMutableListRef)list count:(int)count
+{
+    for( int i = 0; i < count; i++ )
+    {
+        DKStringRef s = DKStringInitWithFormat( DKAlloc( DKStringClass() ), "%d", rand() );
         DKListAppendObject( list, s );
         DKRelease( s );
     }

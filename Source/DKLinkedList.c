@@ -257,6 +257,12 @@ static void CheckListIntegrity( struct DKLinkedList * list )
         DKAssert( list->cursor.index == 0 );
     }
     
+    else
+    {
+        DKAssert( list->first->prev == NULL );
+        DKAssert( list->last->next == NULL );
+    }
+    
     while( node )
     {
         DKAssert( count < list->count );
@@ -872,7 +878,7 @@ static void INTERNAL_DKLinkedListReplaceRangeWithCollection( struct DKLinkedList
 
 
 ///
-//  DKLinkedListSort()
+//  ListToArray(), ArrayToList()
 //
 static void ListToArray( DKGenericArray * array, struct DKLinkedList * list )
 {
@@ -898,6 +904,106 @@ static void ArrayToList( struct DKLinkedList * list, DKGenericArray * array )
     }
 }
 
+
+///
+//  DKLinkedListSort()
+//
+static struct DKLinkedListNode * Merge( struct DKLinkedListNode * a, struct DKLinkedListNode * b, DKCompareFunction cmp, struct DKLinkedListNode ** end )
+{
+    struct DKLinkedListNode * merged = NULL;
+    struct DKLinkedListNode * cursor;
+
+    if( cmp( a->object, b->object ) <= 0 )
+    {
+        merged = a;
+        a = a->next;
+        merged->next = NULL;
+    }
+    
+    else
+    {
+        merged = b;
+        b = b->next;
+        merged->next = NULL;
+    }
+    
+    cursor = merged;
+    
+    while( a && b )
+    {
+        if( cmp( a->object, b->object ) <= 0 )
+        {
+            cursor->next = a;
+            a->prev = cursor;
+            a = a->next;
+        }
+            
+        else
+        {
+            cursor->next = b;
+            b->prev = cursor;
+            b = b->next;
+        }
+
+        cursor = cursor->next;
+    }
+    
+    if( a )
+    {
+        cursor->next = a;
+        a->prev = cursor;
+        
+        while( a )
+        {
+            cursor = a;
+            a = a->next;
+        }
+    }
+    
+    else if( b )
+    {
+        cursor->next = b;
+        b->prev = cursor;
+        
+        while( b )
+        {
+            cursor = b;
+            b = b->next;
+        }
+    }
+    
+    *end = cursor;
+
+    return merged;
+}
+
+static struct DKLinkedListNode * MergeSort( struct DKLinkedListNode * list, size_t count, DKCompareFunction cmp, struct DKLinkedListNode ** end )
+{
+    if( count == 1 )
+    {
+        *end = list;
+        return list;
+    }
+
+    DKIndex half = count >> 1;
+    
+    struct DKLinkedListNode * split = list;
+    
+    for( DKIndex i = 0; i < half; i++ )
+        split = split->next;
+        
+    split->prev->next = NULL;
+    split->prev = NULL;
+    
+    struct DKLinkedListNode * a_end;
+    struct DKLinkedListNode * a = MergeSort( list, half, cmp, &a_end );
+
+    struct DKLinkedListNode * b_end;
+    struct DKLinkedListNode * b = MergeSort( split, count - half, cmp, &b_end );
+    
+    return Merge( a, b, cmp, end );
+}
+
 void DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp )
 {
     if( _self )
@@ -906,20 +1012,12 @@ void DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp )
 
         if( _self->count > 1 )
         {
-            // This is absurd, yet probably not much slower than doing all the pointer
-            // gymnastics needed for sorting the list nodes.
-            DKGenericArray array;
-            DKGenericArrayInit( &array, sizeof(DKObjectRef) );
-            DKGenericArraySetLength( &array, _self->count );
-            ListToArray( &array, _self );
+            _self->first = MergeSort( _self->first, _self->count, cmp, &_self->last );
 
-            DKGenericArraySortObjects( &array, cmp );
-
-            ArrayToList( _self, &array );
-            DKGenericArrayFinalize( &array );
-            
             _self->cursor.node = _self->first;
             _self->cursor.index = 0;
+
+            CheckListIntegrity( _self );
         }
     }
 }
