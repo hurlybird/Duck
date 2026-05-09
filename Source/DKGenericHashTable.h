@@ -41,9 +41,9 @@ extern "C"
 
 typedef void * DKRowStatus;
 
-extern void * DKRowStatusActive;
-extern void * DKRowStatusEmpty;
-extern void * DKRowStatusDeleted;
+extern void * const DKRowStatusActive;
+extern void * const DKRowStatusEmpty;
+extern void * const DKRowStatusDeleted;
 
 
 #define DKRowIsActive(x)        (((x) != DKRowStatusEmpty) && ((x) != DKRowStatusDeleted))

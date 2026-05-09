@@ -29,9 +29,9 @@
 #include "DKGenericHashTable.h"
 
 
-void * DKRowStatusActive =  "DKRowStatusActive";
-void * DKRowStatusEmpty =   "DKRowStatusEmpty";
-void * DKRowStatusDeleted = "DKRowStatusDeleted";
+void * const DKRowStatusActive =  "DKRowStatusActive";
+void * const DKRowStatusEmpty =   "DKRowStatusEmpty";
+void * const DKRowStatusDeleted = "DKRowStatusDeleted";
 
 
 struct HashTableSize
