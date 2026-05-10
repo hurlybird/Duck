@@ -1019,60 +1019,59 @@ DKChar32 DKStringGetCharacterAtIndex( DKStringRef _self, DKIndex index, DKChar8 
 
 
 ///
-//  DKStringGetFirstIndexOfCharacter()
+//  DKStringGetRangeOfCharactersFromSet()
 //
-DKIndex DKStringGetFirstIndexOfCharacter( DKStringRef _self, DKChar32 ch, DKIndex startLoc )
+DKRange DKStringGetRangeOfCharactersFromSet( DKStringRef _self, DKStringRef charset )
 {
-    if( _self )
-    {
-        const char * str = (const char *)_self->byteArray.bytes;
-
-        for( DKIndex i = 0; *str; i++ )
-        {
-            DKChar32 utf32;
-            size_t bytes = dk_ustrscan( str, &utf32 );
-            
-            if( i >= startLoc )
-            {
-                if( utf32 == ch )
-                    return i;
-            }
-            
-            str += bytes;
-        }
-    }
-
-    return DKNotFound;
+    return DKStringGetRangeOfCharactersFromSetInRange( _self, charset, DKRangeMake( 0, LONG_MAX ) );
 }
 
 
 ///
-//  DKStringGetLastIndexOfCharacter()
+//  DKStringGetRangeOfCharactersFromSetInRange()
 //
-DKIndex DKStringGetLastIndexOfCharacter( DKStringRef _self, DKChar32 ch, DKIndex startLoc )
+DKRange DKStringGetRangeOfCharactersFromSetInRange( DKStringRef _self, DKStringRef charset, DKRange searchRange )
 {
-    DKIndex lastIndex = DKNotFound;
+    DKRange foundRange = DKRangeMake( DKNotFound, 0 );
     
     if( _self )
     {
+        DKCheckKindOfClass( _self, DKStringClass(), foundRange );
+        DKCheckKindOfClass( charset, DKStringClass(), foundRange );
+
         const char * str = (const char *)_self->byteArray.bytes;
 
         for( DKIndex i = 0; *str; i++ )
         {
-            DKChar32 utf32;
-            size_t bytes = dk_ustrscan( str, &utf32 );
+            DKChar32 ch1;
+            str += dk_ustrscan( str, &ch1 );
+
+            if( i < searchRange.location )
+                continue;
+                
+            if( i > (searchRange.location + searchRange.length) )
+                break;
+
+            const char * characters = (const char *)charset->byteArray.bytes;
             
-            if( i >= startLoc )
+            while( *characters )
             {
-                if( utf32 == ch )
-                    lastIndex = i;
+                DKChar32 ch2;
+                characters += dk_ustrscan( characters, &ch2 );
+                
+                if( ch1 == ch2 )
+                {
+                    if( foundRange.location == DKNotFound )
+                        foundRange.location = i;
+
+                    foundRange.length = i - foundRange.location + 1;
+                    break;
+                }
             }
-            
-            str += bytes;
         }
     }
 
-    return lastIndex;
+    return foundRange;
 }
 
 

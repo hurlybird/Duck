@@ -252,7 +252,7 @@
 		02083F9618F1E4EF00EEBBAC /* DKSet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKSet.c; sourceTree = "<group>"; };
 		02083F9818F1EDBE00EEBBAC /* TestDKSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKSet.m; sourceTree = "<group>"; };
 		02083F9B18F2615E00EEBBAC /* DKCollection.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKCollection.c; sourceTree = "<group>"; };
-		02083FA018F3BC2200EEBBAC /* DKRuntime+Properties.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = "DKRuntime+Properties.c"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		02083FA018F3BC2200EEBBAC /* DKRuntime+Properties.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = "DKRuntime+Properties.c"; sourceTree = "<group>"; };
 		02083FA218F3C49E00EEBBAC /* TestDKProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDKProperty.m; sourceTree = "<group>"; };
 		02083FA518F4A86700EEBBAC /* DKStruct.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DKStruct.c; sourceTree = "<group>"; };
 		020864BF2293233B00885EB1 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -885,7 +885,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2610;
+				LastUpgradeCheck = 2640;
 				ORGANIZATIONNAME = "Derek W. Nylen";
 				TargetAttributes = {
 					0260FF8A2D2274F200F71143 = {
@@ -1151,6 +1151,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				USER_HEADER_SEARCH_PATHS = (
 					ThirdParty,
 					ThirdParty/icu,
@@ -1200,6 +1201,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				USER_HEADER_SEARCH_PATHS = (
 					ThirdParty,
 					ThirdParty/icu,

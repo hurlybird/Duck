@@ -99,8 +99,8 @@ DK_API void        DKStringSetByteLength( DKMutableStringRef _self, DKIndex leng
 
 DK_API const char * DKStringGetCStringPtr( DKStringRef _self );
 DK_API DKChar32    DKStringGetCharacterAtIndex( DKStringRef _self, DKIndex index, DKChar8 * utf8 );
-DK_API DKIndex     DKStringGetFirstIndexOfCharacter( DKStringRef _self, DKChar32 ch, DKIndex startLoc );
-DK_API DKIndex     DKStringGetLastIndexOfCharacter( DKStringRef _self, DKChar32 ch, DKIndex startLoc );
+DK_API DKRange     DKStringGetRangeOfCharactersFromSet( DKStringRef _self, DKStringRef charset );
+DK_API DKRange     DKStringGetRangeOfCharactersFromSetInRange( DKStringRef _self, DKStringRef charset, DKRange searchRange );
 
 DK_API const void * DKStringGetBytePtr( DKStringRef _self, DKIndex index );
 DK_API void *      DKStringGetMutableBytePtr( DKStringRef _self, DKIndex index );
