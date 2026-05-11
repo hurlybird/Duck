@@ -167,6 +167,36 @@ int dk_ustrcmp( const char * str1, const char * str2 )
 
 
 ///
+//  dk_ustrcasecmp()
+//
+int dk_ustrcasecmp( const char * str1, const char * str2 )
+{
+    int32_t i = 0;
+    int32_t j = 0;
+    DKChar32 ch1, ch2;
+    
+    do
+    {
+        if( U8_IS_SINGLE( str1[i] ) )
+            ch1 = toupper( str1[i++] );
+        
+        else
+            U8_NEXT( str1, i, -1, ch1 );
+        
+        if( U8_IS_SINGLE( str2[j] ) )
+            ch2 = toupper( str2[j++] );
+        
+        else
+            U8_NEXT( str2, j, -1, ch2 );
+        
+    }
+    while( (ch1 == ch2) && (ch1 != '\0') );
+
+    return ch1 - ch2;
+}
+
+
+///
 //  dk_ustrlen()
 //
 size_t dk_ustrlen( const char * str )

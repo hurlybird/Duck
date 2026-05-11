@@ -49,6 +49,7 @@ DK_API DKRange dk_ustrstr_range( const char * str1, const char * str2 );
 
 // strcmp
 DK_API int dk_ustrcmp( const char * str1, const char * str2 );
+DK_API int dk_ustrcasecmp( const char * str1, const char * str2 );
 
 // strlen
 DK_API size_t dk_ustrlen( const char * str );

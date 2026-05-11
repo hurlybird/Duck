@@ -88,6 +88,10 @@ DK_API int         DKStringCompareCString( DKStringRef _self, const char * cstr 
 DK_API int         DKStringReverseCompareString( DKStringRef _self, DKStringRef other );
 DK_API int         DKStringReverseCompareCString( DKStringRef _self, const char * cstr );
 
+// Case insensitive comparison only supports ASCII
+DK_API int         DKStringCompareStringCI( DKStringRef _self, DKStringRef other );
+DK_API int         DKStringCompareCStringCI( DKStringRef _self, const char * cstr );
+
 DK_API bool        DKStringIsEmptyString( DKStringRef _self );
 DK_API bool        DKStringHasPrefix( DKStringRef _self, DKStringRef other );
 DK_API bool        DKStringHasSuffix( DKStringRef _self, DKStringRef other );
@@ -128,6 +132,10 @@ DK_API DKStringRef DKStringByTrimmingWhitespace( DKStringRef _self );
 // Filtering
 DK_API typedef DKFilterAction (*ZLStringFilterFunction)( DKIndex sourceIndex, DKIndex destinationIndex, DKChar8 utf8, DKChar32 utf32, void * context );
 DK_API DKStringRef DKStringByFilteringString( DKStringRef _self, ZLStringFilterFunction filter, void * context );
+
+// Case conversion (only supports ASCII)
+DK_API DKStringRef DKStringGetLowercaseString( DKStringRef _self );
+DK_API DKStringRef DKStringGetUppercaseString( DKStringRef _self );
 
 // Modifying mutable strings
 DK_API void        DKStringSetString( DKMutableStringRef _self, DKStringRef str );

@@ -821,6 +821,51 @@ int DKStringReverseCompareCString( DKStringRef _self, const char * cstr )
 
 
 ///
+//  DKStringCompareStringCI()
+//
+int DKStringCompareStringCI( DKStringRef _self, DKStringRef other )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        if( other )
+        {
+            DKAssertKindOfClass( other, DKStringClass() );
+    
+            if( _self == other )
+                return 0;
+
+            return dk_ustrcasecmp( (const char *)_self->byteArray.bytes, (const char *)other->byteArray.bytes );
+        }
+
+        return 1;
+    }
+    
+    return -1;
+}
+
+
+///
+//  DKStringCompareCStringCI()
+//
+int DKStringCompareCStringCI( DKStringRef _self, const char * cstr )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+
+        if( cstr )
+            return dk_ustrcasecmp( (const char *)_self->byteArray.bytes, cstr );
+
+        return 1;
+    }
+    
+    return -1;
+}
+
+
+///
 //  DKStringHash()
 //
 DKHashCode DKStringHash( DKStringRef _self )
@@ -1559,6 +1604,50 @@ DKStringRef DKStringByFilteringString( DKStringRef _self, ZLStringFilterFunction
     }
 
     return _self;
+}
+
+
+///
+//  DKStringGetLowercaseString()
+//
+DKStringRef DKStringGetLowercaseString( DKStringRef _self )
+{
+    DKStringRef lcs = _self;
+    
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+    
+        if( _self->byteArray.length > 0 )
+        {
+            lcs = DKStringCopy( _self );
+            dk_ustrlwr( (char *)lcs->byteArray.bytes, lcs->byteArray.length, (const char *)lcs->byteArray.bytes );
+        }
+    }
+    
+    return lcs;
+}
+
+
+///
+//  DKStringGetUppercaseString()
+//
+DKStringRef DKStringGetUppercaseString( DKStringRef _self )
+{
+    DKStringRef ucs = _self;
+    
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+    
+        if( _self->byteArray.length > 0 )
+        {
+            ucs = DKStringCopy( _self );
+            dk_ustrupr( (char *)ucs->byteArray.bytes, ucs->byteArray.length, (const char *)ucs->byteArray.bytes );
+        }
+    }
+    
+    return ucs;
 }
 
 

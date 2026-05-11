@@ -408,6 +408,8 @@ struct PathAppendTestCase
 {
     char buffer[100];
     
+    XCTAssert( dk_ustrcasecmp( "hello world!", "HELLO WORLD!" ) == 0 );
+    
     dk_ustrlwr( buffer, sizeof(buffer), "Hello World!" );
     XCTAssert( strcmp( buffer, "hello world!" ) == 0 );
 
