@@ -979,29 +979,33 @@ static struct DKLinkedListNode * Merge( struct DKLinkedListNode * a, struct DKLi
 
 static struct DKLinkedListNode * MergeSort( struct DKLinkedListNode * list, size_t count, DKCompareFunction cmp, struct DKLinkedListNode ** end )
 {
-    if( count == 1 )
+    if( count <= 1 )
     {
         *end = list;
         return list;
     }
-
-    DKIndex half = count >> 1;
     
-    struct DKLinkedListNode * split = list;
-    
-    for( DKIndex i = 0; i < half; i++ )
-        split = split->next;
+    else
+    {
+        DKIndex half = count >> 1;
+        DKAssert( half > 0 ); // This is logically impossible but it shuts up the static analyzer
         
-    split->prev->next = NULL;
-    split->prev = NULL;
-    
-    struct DKLinkedListNode * a_end;
-    struct DKLinkedListNode * a = MergeSort( list, half, cmp, &a_end );
+        struct DKLinkedListNode * split = list;
+        
+        for( DKIndex i = 0; i < half; i++ )
+            split = split->next;
+            
+        split->prev->next = NULL;
+        split->prev = NULL;
+        
+        struct DKLinkedListNode * a_end;
+        struct DKLinkedListNode * a = MergeSort( list, half, cmp, &a_end );
 
-    struct DKLinkedListNode * b_end;
-    struct DKLinkedListNode * b = MergeSort( split, count - half, cmp, &b_end );
-    
-    return Merge( a, b, cmp, end );
+        struct DKLinkedListNode * b_end;
+        struct DKLinkedListNode * b = MergeSort( split, count - half, cmp, &b_end );
+        
+        return Merge( a, b, cmp, end );
+    }
 }
 
 void DKLinkedListSort( DKMutableLinkedListRef _self, DKCompareFunction cmp )
