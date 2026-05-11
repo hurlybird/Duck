@@ -118,6 +118,18 @@ void DKCharacterSetExcludeCharactersInRange( DKCharacterSetRef _self, DKCharacte
 
 
 ///
+//  DKCharacterSetExcludeUnicodeNonCharacters()
+//
+void DKCharacterSetExcludeUnicodeNonCharacters( DKCharacterSetRef _self )
+{
+    DKCharacterSetExcludeCharactersInRange( _self, DKCharacterRangeUnicodeSurrogates );
+    DKCharacterSetExcludeCharactersInRange( _self, DKCharacterRangeUnicodePrivateUseArea );
+    DKCharacterSetExcludeCharactersInRange( _self, DKCharacterRangeUnicodePrivateUseSuplA );
+    DKCharacterSetExcludeCharactersInRange( _self, DKCharacterRangeUnicodePrivateUseSuplB );
+}
+
+
+///
 //  DKCharacterSetContainsCharacter()
 //
 bool DKCharacterSetContainsCharacter( DKCharacterSetRef _self, DKChar32 ch )

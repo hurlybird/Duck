@@ -44,10 +44,14 @@ typedef struct
 #define DKCharacterRangeMake( first, last )     (DKCharacterRange){ first, last }
 
 
-#define DKCharacterRangeAll                 DKCharacterRangeMake( 0, INT_MAX )
-#define DKCharacterRangeASCII               DKCharacterRangeMake( 0, 0x7F )
-#define DKCharacterRangeASCIIControlCodes   DKCharacterRangeMake( 0, 0x1F )
-#define DKCharacterRangeUnicodePrivateArea  DKCharacterRangeMake( 0xE000, 0xF8FF )
+#define DKCharacterRangeASCII                   DKCharacterRangeMake( 0, 0x7F )
+#define DKCharacterRangeASCIIControlCodes       DKCharacterRangeMake( 0, 0x1F )
+
+#define DKCharacterRangeUnicode                 DKCharacterRangeMake( 0, 0x10ffff )
+#define DKCharacterRangeUnicodeSurrogates       DKCharacterRangeMake( 0xD800, 0xDFFF )
+#define DKCharacterRangeUnicodePrivateUseArea   DKCharacterRangeMake( 0xE000, 0xF8FF )
+#define DKCharacterRangeUnicodePrivateUseSuplA  DKCharacterRangeMake( 0xF0000, 0xFFFFF )
+#define DKCharacterRangeUnicodePrivateUseSuplB  DKCharacterRangeMake( 0x100000, 0x10FFFF )
 
 
 
@@ -65,6 +69,8 @@ DK_API void DKCharacterSetExcludeCharactersInRange( DKCharacterSetRef _self, DKC
 
 #define DKCharacterSetIncludeCharacter( _self, ch ) DKCharacterSetIncludeCharactersInRange( _self, DKCharacterRangeMake( ch, ch ) )
 #define DKCharacterSetExcludeCharacter( _self, ch ) DKCharacterSetExcludeCharactersInRange( _self, DKCharacterRangeMake( ch, ch ) )
+
+DK_API void DKCharacterSetExcludeUnicodeNonCharacters( DKCharacterSetRef _self );
 
 DK_API bool DKCharacterSetContainsCharacter( DKCharacterSetRef _self, DKChar32 ch );
 
