@@ -88,6 +88,7 @@ void DKGenericArrayReserve( DKGenericArray * array, DKIndex length )
         if( length < MIN_ELEMENT_ARRAY_SIZE )
             length = MIN_ELEMENT_ARRAY_SIZE;
     
+        DKRequire( (size_t)length <= SIZE_MAX / (size_t)array->elementSize );
         uint8_t * elements = dk_malloc( length * array->elementSize );
         
         if( array->elements != NULL )
