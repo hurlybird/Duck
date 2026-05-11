@@ -47,6 +47,7 @@
 #include <Duck/DKGenericHashTable.h>
 #include <Duck/DKObjectPool.h>
 #include <Duck/DKUnicode.h>
+#include <Duck/DKCharacterSet.h>
 
 #include <Duck/DKRuntime.h>
 

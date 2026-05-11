@@ -144,6 +144,8 @@ set( DuckSources
     ${DUCK_PATH}/Source/DKBuffer.h
     ${DUCK_PATH}/Source/DKByteArray.c
     ${DUCK_PATH}/Source/DKByteArray.h
+    ${DUCK_PATH}/Source/DKCharacterSet.h
+    ${DUCK_PATH}/Source/DKCharacterSet.c
     ${DUCK_PATH}/Source/DKCollection.c
     ${DUCK_PATH}/Source/DKCollection.h
     ${DUCK_PATH}/Source/DKComparison.c
