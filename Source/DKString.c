@@ -30,6 +30,7 @@
 #include "DKRuntime.h"
 #include "DKString.h"
 #include "DKUnicode.h"
+#include "DKCharacterSet.h"
 #include "DKByteArray.h"
 #include "DKBuffer.h"
 #include "DKStream.h"
@@ -1064,25 +1065,25 @@ DKChar32 DKStringGetCharacterAtIndex( DKStringRef _self, DKIndex index, DKChar8 
 
 
 ///
-//  DKStringGetRangeOfCharactersFromSet()
+//  DKStringGetRangeOfCharacters()
 //
-DKRange DKStringGetRangeOfCharactersFromSet( DKStringRef _self, DKStringRef charset )
+DKRange DKStringGetRangeOfCharacters( DKStringRef _self, DKStringRef characters )
 {
-    return DKStringGetRangeOfCharactersFromSetInRange( _self, charset, DKRangeMake( 0, LONG_MAX ) );
+    return DKStringGetRangeOfCharactersInRange( _self, characters, DKRangeMake( 0, LONG_MAX ) );
 }
 
 
 ///
-//  DKStringGetRangeOfCharactersFromSetInRange()
+//  DKStringGetRangeOfCharactersInRange()
 //
-DKRange DKStringGetRangeOfCharactersFromSetInRange( DKStringRef _self, DKStringRef charset, DKRange searchRange )
+DKRange DKStringGetRangeOfCharactersInRange( DKStringRef _self, DKStringRef characters, DKRange searchRange )
 {
     DKRange foundRange = DKRangeMake( DKNotFound, 0 );
     
     if( _self )
     {
         DKCheckKindOfClass( _self, DKStringClass(), foundRange );
-        DKCheckKindOfClass( charset, DKStringClass(), foundRange );
+        DKCheckKindOfClass( characters, DKStringClass(), foundRange );
 
         const char * str = (const char *)_self->byteArray.bytes;
 
@@ -1097,12 +1098,12 @@ DKRange DKStringGetRangeOfCharactersFromSetInRange( DKStringRef _self, DKStringR
             if( i > (searchRange.location + searchRange.length) )
                 break;
 
-            const char * characters = (const char *)charset->byteArray.bytes;
+            const char * charcursor = (const char *)characters->byteArray.bytes;
             
-            while( *characters )
+            while( *charcursor )
             {
                 DKChar32 ch2;
-                characters += dk_ustrscan( characters, &ch2 );
+                charcursor += dk_ustrscan( charcursor, &ch2 );
                 
                 if( ch1 == ch2 )
                 {
@@ -1112,6 +1113,54 @@ DKRange DKStringGetRangeOfCharactersFromSetInRange( DKStringRef _self, DKStringR
                     foundRange.length = i - foundRange.location + 1;
                     break;
                 }
+            }
+        }
+    }
+
+    return foundRange;
+}
+
+
+///
+//  DKStringGetRangeOfCharactersFromSet()
+//
+DKRange DKStringGetRangeOfCharactersFromSet( DKStringRef _self, DKCharacterSetRef charset )
+{
+    return DKStringGetRangeOfCharactersFromSetInRange( _self, charset, DKRangeMake( 0, LONG_MAX ) );
+}
+
+
+///
+//  DKStringGetRangeOfCharactersFromSetInRange()
+//
+DKRange DKStringGetRangeOfCharactersFromSetInRange( DKStringRef _self, DKCharacterSetRef charset, DKRange searchRange )
+{
+    DKRange foundRange = DKRangeMake( DKNotFound, 0 );
+    
+    if( _self )
+    {
+        DKCheckKindOfClass( _self, DKStringClass(), foundRange );
+        DKCheckKindOfClass( charset, DKCharacterSetClass(), foundRange );
+
+        const char * str = (const char *)_self->byteArray.bytes;
+
+        for( DKIndex i = 0; *str; i++ )
+        {
+            DKChar32 ch1;
+            str += dk_ustrscan( str, &ch1 );
+
+            if( i < searchRange.location )
+                continue;
+                
+            if( i > (searchRange.location + searchRange.length) )
+                break;
+
+            if( DKCharacterSetContainsCharacter( charset, ch1 ) )
+            {
+                if( foundRange.location == DKNotFound )
+                    foundRange.location = i;
+
+                foundRange.length = i - foundRange.location + 1;
             }
         }
     }

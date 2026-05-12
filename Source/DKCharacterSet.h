@@ -56,7 +56,7 @@ typedef struct
 
 
 // DKCharacterSet
-typedef struct DKCharacterSet * DKCharacterSetRef;
+//typedef struct DKCharacterSet * DKCharacterSetRef; -- Declared in DKPlatform.h
 
 
 DK_API DKClassRef  DKCharacterSetClass( void );
