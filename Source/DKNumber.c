@@ -464,26 +464,24 @@ DKObjectRef DKNumberInit( DKObjectRef _untyped_self, const void * value, DKEncod
 {
     DKNumberRef _self = _untyped_self;
 
+    DKAssert( DKEncodingIsNumber( encoding ) );
+    size_t size = DKEncodingGetSize( encoding );
+
     if( _self == &DKPlaceholderNumber )
     {
-        DKAssert( value != NULL );
-        DKAssert( DKEncodingIsNumber( encoding ) );
-
-        size_t size = DKEncodingGetSize( encoding );
-
         _self = DKAllocObject( _self->_obj.isa, size );
         
         DKSetObjectTag( _self, encoding );
 
-        memcpy( &_self->value, value, size );
+        if( value )
+            memcpy( &_self->value, value, size );
+            
+        else
+            memset( &_self->value, 0, size );
     }
 
     else if( _self == &DKPlaceholderVariableNumber )
     {
-        DKAssert( DKEncodingIsNumber( encoding ) );
-
-        size_t size = DKEncodingGetSize( encoding );
-
         _self = DKAllocObject( _self->_obj.isa, size );
         
         DKSetObjectTag( _self, encoding );
@@ -836,6 +834,37 @@ void * DKNumberQueryVariableValuePtr( DKNumberRef _self, DKEncoding * encoding )
     }
     
     *encoding = DKEncodingNull;
+    
+    return NULL;
+}
+
+
+///
+//  DKNumberByCastingToType()
+//
+DKNumberRef DKNumberByCastingToType( DKNumberRef _self, DKEncodingType targetType )
+{
+    if( _self )
+    {
+        DKEncoding srcEncoding = DKGetObjectTag( _self );
+        DKEncodingType srcType = DKEncodingGetType( srcEncoding );
+        
+        if( srcType == targetType )
+        {
+            return _self;
+        }
+        
+        else
+        {
+            unsigned int count = DKEncodingGetCount( srcEncoding );
+            DKEncoding dstEncoding = DKEncode( targetType, count );
+            
+            DKNumberRef dst = DKNumber( NULL, dstEncoding );
+            DKNumberConvert( &_self->value, srcEncoding, &dst->value, dstEncoding );
+    
+            return dst;
+        }
+    }
     
     return NULL;
 }

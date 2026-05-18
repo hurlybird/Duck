@@ -105,6 +105,8 @@ DK_API void *      DKNumberQueryVariableValuePtr( DKNumberRef _self, DKEncoding 
 
 #define            DKNumberGetValueAs( _self, type )     (*((type *)DKNumberGetValuePtr( _self )))
 
+DK_API DKNumberRef DKNumberByCastingToType( DKNumberRef _self, DKEncodingType targetType );
+
 DK_API void        DKNumberEnumerateValue( DKNumberRef _self, DKEncodingType encodingType,
                        void (*callback)( const void * value, size_t valueIndex, void * context ), void * context );
 
