@@ -1,11 +1,11 @@
+// =======================================================================================
 //
-//  TestDKString.m
-//  Duck
+// TestDKString.m
+// Duck Object Library -- See LICENSE for legal information.
 //
-//  Created by Derek Nylen on 2014-03-29.
-//  Copyright (c) 2014 Derek W. Nylen. All rights reserved.
+// Copyright (c) 2014-2026 Derek W. Nylen
 //
-
+// =======================================================================================
 #import <XCTest/XCTest.h>
 #import <Duck/Duck.h>
 

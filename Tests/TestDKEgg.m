@@ -1,11 +1,11 @@
+// =======================================================================================
 //
-//  TestDKEgg.m
-//  Duck
+// TestDKEgg.m
+// Duck Object Library -- See LICENSE for legal information.
 //
-//  Created by Derek Nylen on 2014-04-21.
-//  Copyright (c) 2014 Derek W. Nylen. All rights reserved.
+// Copyright (c) 2014-2026 Derek W. Nylen
 //
-
+// =======================================================================================
 #import <XCTest/XCTest.h>
 #import <Duck/Duck.h>
 

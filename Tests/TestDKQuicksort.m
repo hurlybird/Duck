@@ -1,11 +1,11 @@
+// =======================================================================================
 //
-//  TestDKQuicksort.m
-//  Duck-Tests
+// TestDKQuicksort.m
+// Duck Object Library -- See LICENSE for legal information.
 //
-//  Created by Derek Nylen on 2025-05-10.
-//  Copyright © 2025 Derek W. Nylen. All rights reserved.
+// Copyright (c) 2014-2026 Derek W. Nylen
 //
-
+// =======================================================================================
 #import <XCTest/XCTest.h>
 #import <Duck/Duck.h>
 

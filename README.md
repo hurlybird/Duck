@@ -1,6 +1,6 @@
 # The Duck Object Library
 
-The Duck Object Library is an object system and library for "duck-typed"
+The Duck Object Library is an object system and library for duck-typed
 programming in C. It takes many cues from Objective-C, CoreFoundation and COM,
 yet is small and readable enough to be easily ported to platforms where using
 those is inconvenient.

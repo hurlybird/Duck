@@ -1,11 +1,11 @@
+// =======================================================================================
 //
-//  TestDKXML.m
-//  Duck
+// TestDKXML.m
+// Duck Object Library -- See LICENSE for legal information.
 //
-//  Created by Derek Nylen on 2016-01-07.
-//  Copyright © 2016 Derek W. Nylen. All rights reserved.
+// Copyright (c) 2014-2026 Derek W. Nylen
 //
-
+// =======================================================================================
 #import <XCTest/XCTest.h>
 #import <Duck/Duck.h>
 

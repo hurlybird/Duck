@@ -1,11 +1,11 @@
+// =======================================================================================
 //
-//  TestDKJSON.m
-//  Duck
+// TestDKJSON.m
+// Duck Object Library -- See LICENSE for legal information.
 //
-//  Created by Derek Nylen on 2015-05-21.
-//  Copyright (c) 2015 Derek W. Nylen. All rights reserved.
+// Copyright (c) 2014-2026 Derek W. Nylen
 //
-
+// =======================================================================================
 #import <XCTest/XCTest.h>
 #import <Duck/Duck.h>
 
