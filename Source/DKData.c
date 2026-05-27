@@ -488,6 +488,23 @@ DKDataRef DKDataCopy( DKDataRef _self )
 
 
 ///
+//  DKDataCopyByteRange()
+//
+DKDataRef DKDataCopyByteRange( DKDataRef _self, DKRange range )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKDataClass() );
+        DKCheckRange( range, _self->byteArray.length, NULL );
+        
+        return DKDataInitWithBytes( DKAlloc( DKGetClass( _self ) ), _self->byteArray.bytes + range.location, range.length );
+    }
+    
+    return NULL;
+}
+
+
+///
 //  DKDataMutableCopy()
 //
 DKMutableDataRef DKDataMutableCopy( DKDataRef _self )
@@ -573,6 +590,36 @@ void DKDataSetEncodingType( DKDataRef _self, DKEncodingType type )
     {
         DKSetObjectTag( _self, type );
     }
+}
+
+
+///
+//  DKDataContainsByteIndex()
+//
+bool DKDataContainsByteIndex( DKDataRef _self, DKIndex index )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKDataClass() );
+        return DKIndexInside( index, _self->byteArray.length );
+    }
+
+    return false;
+}
+
+
+///
+//  DKDataContainsByteRange()
+//
+bool DKDataContainsByteRange( DKDataRef _self, DKRange range )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKDataClass() );
+        return DKRangeInsideOrEnd( range, _self->byteArray.length );
+    }
+
+    return false;
 }
 
 

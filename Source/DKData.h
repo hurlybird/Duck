@@ -46,6 +46,7 @@ DK_API DKMutableDataRef DKDataInitWithCapacity( DKObjectRef _self, DKIndex capac
 DK_API DKDataRef   DKDataMakeImmutable( DKMutableDataRef _self );
 
 DK_API DKDataRef   DKDataCopy( DKDataRef _self );
+DK_API DKDataRef   DKDataCopyByteRange( DKDataRef _self, DKRange range );
 DK_API DKMutableDataRef DKDataMutableCopy( DKDataRef _self );
 
 DK_API DKStringRef DKDataGetDescription( DKDataRef _self );
@@ -59,7 +60,10 @@ DK_API void        DKDataSetLength( DKMutableDataRef _self, DKIndex length );
 DK_API void        DKDataIncreaseLength( DKMutableDataRef _self, DKIndex length );
 
 DK_API DKEncodingType DKDataGetEncodingType( DKDataRef _self );
-DK_API void DKDataSetEncodingType( DKDataRef _self, DKEncodingType type );
+DK_API void        DKDataSetEncodingType( DKDataRef _self, DKEncodingType type );
+
+DK_API bool        DKDataContainsByteIndex( DKDataRef _self, DKIndex index );
+DK_API bool        DKDataContainsByteRange( DKDataRef _self, DKRange range );
 
 DK_API const void * DKDataGetBytePtr( DKDataRef _self, DKIndex index );
 DK_API const void * DKDataGetByteRange( DKDataRef _self, DKRange range );

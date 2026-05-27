@@ -91,6 +91,11 @@ DK_API DKRange     DKStringGetRangeOfCharactersInRange( DKStringRef _self, DKStr
 DK_API DKRange     DKStringGetRangeOfCharactersFromSet( DKStringRef _self, DKCharacterSetRef charset );
 DK_API DKRange     DKStringGetRangeOfCharactersFromSetInRange( DKStringRef _self, DKCharacterSetRef charset, DKRange searchRange );
 
+DK_API const char * DKStringGetCharacterPtr( DKStringRef _self, DKIndex index );
+DK_API const char * DKStringGetCharacterRange( DKStringRef _self, DKRange range, char const ** end );
+DK_API char *      DKStringGetMutableCharacterPtr( DKStringRef _self, DKIndex index );
+DK_API char *      DKStringGetMutableCharacterRange( DKStringRef _self, DKRange range, char ** end );
+
 DK_API const void * DKStringGetBytePtr( DKStringRef _self, DKIndex index );
 DK_API void *      DKStringGetMutableBytePtr( DKStringRef _self, DKIndex index );
 

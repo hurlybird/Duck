@@ -320,8 +320,13 @@ typedef struct
 #define DKRangeMake( loc, len )     (const DKRange){ loc, len }
 #define DKRangeEnd( range )         (((range).location) + ((range).length))
 
-// True if range is inside 0..len OR is the empty sequence at len+1
-#define DKRangeInsideOrEnd( range, len )    (((range).location >= 0) && ((range).length >= 0) && (DKRangeEnd(range) <= len))
+// True if index/range is inside 0..len
+#define DKIndexInside( index, len )         (((index) >= 0) && ((index) < (len)))
+#define DKRangeInside( range, len )         (((range).location >= 0) && ((range).length >= 0) && ((range).location < (len)) && (DKRangeEnd(range) <= (len)))
+
+// True if index/range is inside 0..len OR is the empty sequence at len+1
+#define DKIndexInsideOrEnd( index, len )    (((index) >= 0) && ((index) <= (len)))
+#define DKRangeInsideOrEnd( range, len )    (((range).location >= 0) && ((range).length >= 0) && (DKRangeEnd(range) <= (len)))
 
 
 // Callback Types

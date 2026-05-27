@@ -1152,6 +1152,82 @@ DKRange DKStringGetRangeOfCharactersFromSetInRange( DKStringRef _self, DKCharact
 
 
 ///
+//  DKStringGetCharacterPtr()
+//
+const char * DKStringGetCharacterPtr( DKStringRef _self, DKIndex index )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        DKCheck( index >= 0, NULL );
+        
+        const char * char_ptr = dk_ustridx( (const char *)_self->byteArray.bytes, index );
+        DKCheck( char_ptr != NULL, NULL );
+        
+        return char_ptr;
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringGetCharacterRange()
+//
+const char * DKStringGetCharacterRange( DKStringRef _self, DKRange range, char const ** end )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        DKCheck( range.location >= 0, NULL );
+        
+        const char * char_ptr = dk_ustridx( (const char *)_self->byteArray.bytes, range.location );
+        DKCheck( char_ptr != NULL, NULL );
+        
+        if( end )
+        {
+            const char * char_end = dk_ustridx( char_ptr, range.length );
+            *end = char_end ? char_end : (const char *)&_self->byteArray.bytes[_self->byteArray.length];
+        }
+        
+        return char_ptr;
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringGetMutableCharacterPtr()
+//
+char * DKStringGetMutableCharacterPtr( DKStringRef _self, DKIndex index )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        return (char *)DKStringGetCharacterPtr( _self, index );
+    }
+    
+    return NULL;
+}
+
+
+///
+//  DKStringGetMutableCharacterRange()
+//
+char * DKStringGetMutableCharacterRange( DKStringRef _self, DKRange range, char ** end )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKMutableStringClass() );
+        return (char *)DKStringGetCharacterRange( _self, range, (char const **)end );
+    }
+    
+    return NULL;
+}
+
+
+///
 //  DKStringGetBytePtr()
 //
 const void * DKStringGetBytePtr( DKStringRef _self, DKIndex index )
