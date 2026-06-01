@@ -21,6 +21,73 @@
 //DKThreadSafeFastSelectorInit( Stream );
 
 
+// DKNullStream ==========================================================================
+struct DKNullStream
+{
+    DKObject _obj;
+};
+
+static int DKNullStreamSeek( DKStreamRef _self, long offset, int origin )
+{
+    return 0;
+}
+
+static long DKNullStreamTell( DKStreamRef _self )
+{
+    return 0;
+}
+
+static int DKNullStreamGetStatus( DKStreamRef _self )
+{
+    return 0;
+}
+
+static DKIndex DKNullStreamGetLength( DKStreamRef _self )
+{
+    return 0;
+}
+
+static size_t DKNullStreamRead( DKStreamRef _self, void * buffer, size_t size, size_t count )
+{
+    return 0;
+}
+
+static size_t DKNullStreamWrite( DKStreamRef _self, const void * buffer, size_t size, size_t count )
+{
+    return size * count;
+}
+
+static int DKNullStreamFlush( DKStreamRef _self )
+{
+    return 0;
+}
+
+DKThreadSafeClassInit( DKNullStreamClass )
+{
+    DKClassRef cls = DKNewClass( DKSTR( "DKNullStream" ), DKObjectClass(),
+        sizeof(struct DKNullStream), 0, NULL, NULL );
+    
+    // Comparison
+    struct DKStreamInterface * stream = DKNewInterface( DKSelector(Stream) );
+    stream->seek = DKNullStreamSeek;
+    stream->tell = DKNullStreamTell;
+    stream->read = DKNullStreamRead;
+    stream->write = DKNullStreamWrite;
+    stream->flush = DKNullStreamFlush;
+    stream->getStatus = DKNullStreamGetStatus;
+    stream->getLength = DKNullStreamGetLength;
+    
+    DKInstallInterface( cls, stream );
+    DKRelease( stream );
+    
+    return cls;
+}
+
+
+
+
+// DKStream Functions ====================================================================
+
 ///
 //  DKSeek()
 //

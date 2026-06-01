@@ -15,6 +15,7 @@ extern "C"
 #endif
 
 
+// DKStreamInterface =====================================================================
 DK_API DKDeclareInterfaceSelector( Stream );
 
 
@@ -46,6 +47,14 @@ struct DKStreamInterface
 
 typedef const struct DKStreamInterface * DKStreamInterfaceRef;
 
+// DKNullStream ==========================================================================
+#define DKNullStream()      DKAutorelease( DKNew( DKNullStreamClass() ) )
+#define DKNewNullStream()   DKNew( DKNullStreamClass() )
+
+DK_API DKClassRef DKNullStreamClass( void );
+
+
+// DKStream Functions ====================================================================
 
 // Sets the current stream position.
 //
