@@ -83,6 +83,9 @@ DK_API DKIndex     DKStringGetLength( DKStringRef _self );
 DK_API DKIndex     DKStringGetByteLength( DKStringRef _self );
 DK_API void        DKStringSetByteLength( DKMutableStringRef _self, DKIndex length );
 
+DK_API bool        DKStringContainsIndex( DKStringRef _self, DKIndex index );
+DK_API bool        DKStringContainsRange( DKStringRef _self, DKRange range );
+
 DK_API const char * DKStringGetCStringPtr( DKStringRef _self );
 
 DK_API DKChar32    DKStringGetCharacterAtIndex( DKStringRef _self, DKIndex index, DKChar8 * utf8 );

@@ -977,6 +977,42 @@ void DKStringSetByteLength( DKMutableStringRef _self, DKIndex length )
 
 
 ///
+//  DKStringContainsIndex()
+//
+bool DKStringContainsIndex( DKStringRef _self, DKIndex index )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        
+        DKIndex length = DKStringGetLength( _self );
+        
+        return DKIndexInside( index, length );
+    }
+    
+    return false;
+}
+
+
+///
+//  DKStringContainsRange()
+//
+bool DKStringContainsRange( DKStringRef _self, DKRange range )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKStringClass() );
+        
+        DKIndex length = DKStringGetLength( _self );
+
+        return DKRangeInsideOrEnd( range, length );
+    }
+    
+    return false;
+}
+
+
+///
 ///
 //  DKStringGetCStringPtr()
 //
