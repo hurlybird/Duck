@@ -19,7 +19,7 @@ extern "C"
 
 typedef enum
 {
-    DKEncodingNull =        0,
+    DKEncodingTypeNone =    0,
 
     // Special Types
     DKEncodingTypeClass,

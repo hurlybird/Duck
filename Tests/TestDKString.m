@@ -421,6 +421,26 @@ struct PathAppendTestCase
 
     dk_ustrupr( buffer, sizeof(buffer), "Hello 🦋!" );
     XCTAssert( strcmp( buffer, "HELLO 🦋!" ) == 0 );
+    
+    DKStringRef input = DKStringWithCString( "🍎🍒🍋" );
+    
+    DKChar8 apple, cherry, lemon;
+    DKGetUTF8( input, &apple );
+    XCTAssert( strcmp( apple.s, "🍎" ) == 0 );
+    
+    DKGetUTF8( input, &cherry );
+    XCTAssert( strcmp( cherry.s, "🍒" ) == 0 );
+    
+    DKGetUTF8( input, &lemon );
+    XCTAssert( strcmp( lemon.s, "🍋" ) == 0 );
+    
+    DKMutableStringRef output = DKMutableString();
+    
+    DKPutUTF8( output, apple );
+    DKPutUTF8( output, cherry );
+    DKPutUTF8( output, lemon );
+    
+    XCTAssert( DKStringEqualToString( input, output ) );
 }
 
 

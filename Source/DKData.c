@@ -174,13 +174,14 @@ static void DKDataSetCursor( const struct DKData * data, DKIndex cursor )
 ///
 //  DKDataInitialize()
 //
-DKObjectRef DKDataInitialize( DKObjectRef _untyped_self )
+static DKObjectRef DKDataInitialize( DKObjectRef _untyped_self )
 {
     DKDataRef _self = DKSuperInit( _untyped_self, DKObjectClass() );
 
     if( _self )
     {
         DKByteArrayInit( &_self->byteArray );
+        DKDataSetEncodingType( _self, DKEncodingTypeBinaryData );
         _self->cursor = 0;
     }
     
@@ -910,7 +911,7 @@ static int DKDataFlush( DKObjectRef _self )
 //
 static int DKDataGetStreamStatus( DKObjectRef _self )
 {
-    return 0;
+    return _self ? DKStreamOK : DKStreamEOF;
 }
 
 

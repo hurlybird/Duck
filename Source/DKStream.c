@@ -39,7 +39,7 @@ static long DKNullStreamTell( DKStreamRef _self )
 
 static int DKNullStreamGetStatus( DKStreamRef _self )
 {
-    return 0;
+    return _self ? DKStreamOK : DKStreamEOF;
 }
 
 static DKIndex DKNullStreamGetLength( DKStreamRef _self )
@@ -658,6 +658,45 @@ int DKPutc( DKStreamRef _self, int ch )
 }
 
 
+///
+//  DKGetChar8()
+//
+DKChar32 DKGetUTF8( DKStreamRef _self, DKChar8 * ch )
+{
+    int len = 0;
+    
+    for( int i = 0; i < 6; i++ )
+    {
+        if( DKRead( _self, &ch->s[len], 1, 1 ) != 1 )
+            break;
+
+        len++;
+        ch->s[len] = '\0';
+        
+        DKChar32 ch32;
+        dk_ustrscan( ch->s, &ch32 );
+        
+        if( ch32 >= 0 )
+            return ch32;
+    }
+    
+    return EOF;
+}
+
+
+///
+//  DKPutChar8()
+//
+DKChar32 DKPutUTF8( DKStreamRef _self, DKChar8 ch )
+{
+    DKChar32 ch32;
+    size_t len = dk_ustrscan( ch.s, &ch32 );
+    
+    if( DKWrite( _self, ch.s, 1, len ) == len )
+        return ch32;
+        
+    return EOF;
+}
 
 
 

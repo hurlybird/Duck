@@ -2787,7 +2787,7 @@ static int DKStringFlush( DKObjectRef _self )
 //
 static int DKStringGetStreamStatus( DKObjectRef _self )
 {
-    return 0;
+    return _self ? DKStreamOK : DKStreamEOF;
 }
 
 

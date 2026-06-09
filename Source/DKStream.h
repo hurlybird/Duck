@@ -90,6 +90,14 @@ DK_API size_t DKWrite( DKStreamRef _self, const void * data, size_t size, size_t
 DK_API int DKFlush( DKStreamRef _self );
 
 // Get the status of the stream
+enum
+{
+    DKStreamOK =      0,
+    DKStreamEOF,
+    DKStreamClosed,
+    DKStreamError
+};
+
 DK_API int DKStreamGetStatus( DKStreamRef _self );
 
 // Get the current length of the stream in bytes. Returns DKNotFound if the length cannot
@@ -107,11 +115,17 @@ DK_API DKStringRef DKGets( DKStreamRef _self );
 // Write a string to the stream. Returns EOF on failure or a non-negative value on success.
 DK_API int DKPuts( DKStreamRef _self, DKStringRef s );
 
-// Read a character from the stream. Returns EOF on failure.
+// Read a ASCII character from the stream. Returns EOF on failure.
 DK_API int DKGetc( DKStreamRef _self );
 
-// Write a character to the stream. Returns EOF on failure or the character written on success.
+// Write an ASCII character to the stream. Returns EOF on failure or the character written on success.
 DK_API int DKPutc( DKStreamRef _self, int ch );
+
+// Read a UTF-8 character from the stream. Returns EOF on failure.
+DK_API DKChar32 DKGetUTF8( DKStreamRef _self, DKChar8 * ch );
+
+// Write a UTF-8 character to the stream. Returns EOF on failure or the character written on success.
+DK_API DKChar32 DKPutUTF8( DKStreamRef _self, DKChar8 ch );
 
 
 

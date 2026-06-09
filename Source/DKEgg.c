@@ -556,7 +556,7 @@ DKEncoding DKEggGetEncoding( DKEggUnarchiverRef _self, DKStringRef key )
     if( attribute )
         return attribute->encoding;
     
-    return DKEncodingNull;
+    return DKEncodingTypeNone;
 }
 
 

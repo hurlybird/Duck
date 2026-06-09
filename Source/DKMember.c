@@ -166,7 +166,7 @@ DKEncoding DKMemberGetEncoding( DKMemberRef _self )
         return DKGetObjectTag( _self );
     }
 
-    return DKEncodingNull;
+    return DKEncodingTypeNone;
 }
 
 

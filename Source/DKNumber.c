@@ -795,7 +795,7 @@ const void * DKNumberQueryValuePtr( DKNumberRef _self, DKEncoding * encoding )
         return &_self->value;
     }
     
-    *encoding = DKEncodingNull;
+    *encoding = DKEncodingTypeNone;
     
     return NULL;
 }
@@ -815,7 +815,7 @@ void * DKNumberQueryVariableValuePtr( DKNumberRef _self, DKEncoding * encoding )
         return &_self->value;
     }
     
-    *encoding = DKEncodingNull;
+    *encoding = DKEncodingTypeNone;
     
     return NULL;
 }

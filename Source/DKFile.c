@@ -229,11 +229,20 @@ int DKFileGetStatus( DKFileRef _self )
     {
         DKAssertKindOfClass( _self, DKFileClass() );
 
-        if( _self->file )
-            return ferror( _self->file );
+        if( _self->file == NULL )
+            return DKStreamClosed;
+            
+        else if( feof( _self->file ) )
+            return DKStreamEOF;
+            
+        else if( ferror( _self->file ) )
+            return DKStreamError;
+            
+        else
+            return DKStreamOK;
     }
     
-    return -1;
+    return DKStreamEOF;
 }
 
 
