@@ -33,6 +33,7 @@ DK_API DKClassRef  DKMutableStringClass( void );
 #define            DKStringWithBytes( bytes, length )           DKAutorelease( DKStringInitWithBytes( DKAlloc( DKStringClass() ), bytes, length ) )
 #define            DKStringWithFormat( fmt, ... )               DKAutorelease( DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ ) )
 #define            DKStringWithContentsOfFile( filename )       DKAutorelease( DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename ) )
+#define            DKStringWithContentsOfStream( stream )       DKAutorelease( DKStringInitWithContentsOfStream( DKAlloc( DKStringClass() ), stream ) )
 
 #define            DKNewMutableString()                         DKNew( DKMutableStringClass() )
 #define            DKNewMutableStringWithCapacity( capacity )   DKStringInitWithCapacity( DKAlloc( DKMutableStringClass() ), capacity )
@@ -43,6 +44,7 @@ DK_API DKClassRef  DKMutableStringClass( void );
 #define            DKNewStringWithBytes( bytes, length )        DKStringInitWithBytes( DKAlloc( DKStringClass() ), bytes, length )
 #define            DKNewStringWithFormat( fmt, ... )            DKStringInitWithFormat( DKAlloc( DKStringClass() ), fmt, __VA_ARGS__ )
 #define            DKNewStringWithContentsOfFile( filename )    DKStringInitWithContentsOfFile( DKAlloc( DKStringClass() ), filename )
+#define            DKNewStringWithContentsOfStream( stream )    DKStringInitWithContentsOfStream( DKAlloc( DKStringClass() ), stream )
 
 DK_API DKObjectRef DKStringInitWithString( DKObjectRef _self, DKStringRef other );
 DK_API DKObjectRef DKStringInitWithCString( DKObjectRef _self, const char * cstr );
@@ -50,6 +52,7 @@ DK_API DKObjectRef DKStringInitWithCStringNoCopy( DKObjectRef _self, const char 
 DK_API DKObjectRef DKStringInitWithBytes( DKObjectRef _self, const void * bytes, DKIndex length );
 DK_API DKObjectRef DKStringInitWithFormat( DKObjectRef _self, const char * format, ... );
 DK_API DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _self, DKObjectRef file );
+DK_API DKObjectRef DKStringInitWithContentsOfStream( DKObjectRef _untyped_self, DKObjectRef stream );
 DK_API DKMutableStringRef DKStringInitWithCapacity( DKObjectRef _self, DKIndex capacity );
 
 DK_API DKStringRef DKStringMakeImmutable( DKMutableStringRef _self );

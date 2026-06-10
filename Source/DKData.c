@@ -294,6 +294,32 @@ DKDataRef DKDataInitWithContentsOfFile( DKObjectRef _untyped_self, DKObjectRef f
 
 
 ///
+//  DKDataInitWithContentsOfStream()
+//
+DKObjectRef DKDataInitWithContentsOfStream( DKObjectRef _untyped_self, DKObjectRef stream )
+{
+    DKDataRef _self = DKInit( _untyped_self );
+
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKDataClass() );
+
+        DKIndex length = DKStreamGetLength( stream );
+        
+        if( length > 0 )
+        {
+            DKByteArraySetLength( &_self->byteArray, length );
+
+            void * buffer = DKByteArrayGetBytePtr( &_self->byteArray, 0 );
+            DKRead( stream, buffer, 1, length );
+        }
+    }
+    
+    return _self;
+}
+
+
+///
 //  DKDataInitWithCapacity()
 //
 DKMutableDataRef DKDataInitWithCapacity( DKObjectRef _untyped_self, DKIndex capacity )

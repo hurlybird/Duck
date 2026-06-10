@@ -543,7 +543,7 @@ void * DKStringInitWithFormat( DKObjectRef _untyped_self, const char * format, .
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKStringInit: Trying to initialize a non-string object." );
+        DKFatalError( "DKStringInitWithFormat: Trying to initialize a non-string object." );
     }
     
     return _self;
@@ -568,7 +568,7 @@ DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _untyped_self, DKObjectR
     
     else if( _self != NULL )
     {
-        DKFatalError( "DKStringInit: Trying to initialize a non-string object." );
+        DKFatalError( "DKStringInitWithContentsOfFile: Trying to initialize a non-string object." );
     }
     
     if( _self )
@@ -600,6 +600,46 @@ DKObjectRef DKStringInitWithContentsOfFile( DKObjectRef _untyped_self, DKObjectR
         else if( file != NULL )
         {
             DKError( "DKStringInitWithContentsOfFile: '%@' is not a file.", file );
+        }
+    }
+    
+    return _self;
+}
+
+
+///
+//  DKStringInitWithContentsOfStream()
+//
+DKObjectRef DKStringInitWithContentsOfStream( DKObjectRef _untyped_self, DKObjectRef stream )
+{
+    DKStringRef _self = _untyped_self;
+
+    if( (_self == &DKPlaceholderString) || (_self == &DKPlaceholderConstantString)  )
+    {
+        _self = DKAllocObject( DKStringClass(), 0 );
+    }
+    
+    else if( DKIsMemberOfClass( _self, DKMutableStringClass() ) )
+    {
+    }
+    
+    else if( _self != NULL )
+    {
+        DKFatalError( "DKStringInitWithContentsOfStream: Trying to initialize a non-string object." );
+    }
+    
+    if( _self )
+    {
+        DKByteArrayInit( &_self->byteArray );
+
+        DKIndex length = DKStreamGetLength( stream );
+        
+        if( length > 0 )
+        {
+            DKByteArraySetLength( &_self->byteArray, length );
+
+            void * buffer = DKByteArrayGetBytePtr( &_self->byteArray, 0 );
+            DKRead( stream, buffer, 1, length );
         }
     }
     

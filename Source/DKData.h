@@ -28,6 +28,7 @@ DK_API DKClassRef  DKMutableDataClass( void );
 #define            DKDataWithBytes( bytes, length )        DKAutorelease( DKDataInitWithBytes( DKAlloc( DKDataClass() ), bytes, length ) )
 #define            DKDataWithBytesNoCopy( bytes, length )  DKAutorelease( DKDataInitWithBytesNoCopy( DKAlloc( DKDataClass() ), bytes, length ) )
 #define            DKDataWithContentsOfFile( filename )    DKAutorelease( DKDataInitWithContentsOfFile( DKAlloc( DKDataClass() ), filename ) )
+#define            DKDataWithContentsOfStream( stream )    DKAutorelease( DKDataInitWithContentsOfStream( DKAlloc( DKDataClass() ), stream ) )
 
 #define            DKNewMutableData()                      DKNew( DKMutableDataClass() )
 #define            DKNewMutableDataWithLength( length )    DKDataInitWithLength( DKAlloc( DKMutableDataClass() ), length )
@@ -41,6 +42,7 @@ DK_API DKDataRef   DKDataInitWithBytes( DKObjectRef _self, const void * bytes, D
 DK_API DKDataRef   DKDataInitWithBytesNoCopy( DKObjectRef _self, const void * bytes, DKIndex length );
 DK_API DKDataRef   DKDataInitWithLength( DKObjectRef _self, DKIndex length );
 DK_API DKDataRef   DKDataInitWithContentsOfFile( DKObjectRef _self, DKObjectRef file );
+DK_API DKObjectRef DKDataInitWithContentsOfStream( DKObjectRef _untyped_self, DKObjectRef stream );
 DK_API DKMutableDataRef DKDataInitWithCapacity( DKObjectRef _self, DKIndex capacity );
 
 DK_API DKDataRef   DKDataMakeImmutable( DKMutableDataRef _self );
