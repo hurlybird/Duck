@@ -438,7 +438,8 @@ void DKRuntimeInit( int options )
         _DKRuntimeEnableZombieObjects = (options & DKRuntimeOptionEnableZombieObjects) != 0;
 
         // Sanity Checks
-        DKRequire( offsetof(struct DKClass, instanceInterfaces) == DK_INTERFACE_TABLE_OFFSET );
+        //DKRequire( offsetof(struct DKClass, instanceInterfaces) == DK_INTERFACE_TABLE_OFFSET );
+        static_assert( offsetof(struct DKClass, instanceInterfaces) == DK_INTERFACE_TABLE_OFFSET );
 
         // Initialize the main thread context
         DKMainThreadContextInit();
