@@ -439,7 +439,7 @@ void DKRuntimeInit( int options )
 
         // Sanity Checks
         //DKRequire( offsetof(struct DKClass, instanceInterfaces) == DK_INTERFACE_TABLE_OFFSET );
-        static_assert( offsetof(struct DKClass, instanceInterfaces) == DK_INTERFACE_TABLE_OFFSET );
+        static_assert( offsetof(struct DKClass, instanceInterfaces) == DK_INTERFACE_TABLE_OFFSET, "DK_INTERFACE_TABLE_OFFSET doesn't match the DKClass structure" );
 
         // Initialize the main thread context
         DKMainThreadContextInit();
