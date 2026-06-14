@@ -23,6 +23,62 @@
 #include "DKThread.h"
 
 
+// Object Life-cycle Watch ===============================================================
+#if DK_DIAGNOSTIC_OBJECT_LIFECYCLE_WATCH
+
+static DKObjectRef LifecycleWatchList[DK_OBJECT_LIFECYCLE_WATCH_LIST_SIZE] = { NULL, };
+static DKSpinlock LifecycleWatchListLock = DKSpinlockInit;
+
+static void DKLifecycleWatchListReport( DKObjectRef object, const char * label )
+{
+    DKSpinlockLock( &LifecycleWatchListLock );
+
+    for( int i = 0; i < DK_OBJECT_LIFECYCLE_WATCH_LIST_SIZE; i++ )
+    {
+        if( LifecycleWatchList[i] == object )
+        {
+            DKObject * obj = object;
+            int32_t rc = DKAtomicLoad32( &obj->refcount ) & DKRefCountMask;
+            
+            fprintf( stderr, "Object Life Cycle: 0x%p  rc=%d  %s\n", object, rc, label );
+            
+            if( rc == 0 )
+                LifecycleWatchList[i] = NULL;
+            break;
+        }
+    }
+
+    DKSpinlockUnlock( &LifecycleWatchListLock );
+}
+
+void DKWatchObjectLifecycle( DKObjectRef object )
+{
+    DKSpinlockLock( &LifecycleWatchListLock );
+
+    for( int i = 0; i < DK_OBJECT_LIFECYCLE_WATCH_LIST_SIZE; i++ )
+    {
+        if( LifecycleWatchList[i] == NULL )
+        {
+            LifecycleWatchList[i] = object;
+            DKSpinlockUnlock( &LifecycleWatchListLock );
+            
+            DKLifecycleWatchListReport( object, "watching" );
+            return;
+        }
+    }
+
+    DKAssert( 0 );
+    DKSpinlockUnlock( &LifecycleWatchListLock );
+}
+
+#else
+
+#define DKLifecycleWatchListReport( object, label )
+
+#endif
+
+
+
 
 // Strong References =====================================================================
 
@@ -43,6 +99,8 @@ DKObjectRef DKRetain( DKObjectRef _self )
         if( (rc & DKRefCountDisabledBit) == 0 )
         {
             rc = DKAtomicIncrement32( &obj->refcount );
+            
+            DKLifecycleWatchListReport( obj, "retained" );
             DKAssert( (rc & DKRefCountOverflowBit) == 0 );
         }
     }
@@ -70,6 +128,8 @@ DKObjectRef DKRelease( DKObjectRef _self )
             if( (rc & DKRefCountMetadataBit) == 0 )
             {
                 rc = DKAtomicDecrement32( &obj->refcount );
+                
+                DKLifecycleWatchListReport( obj, "released" );
                 DKAssert( (rc & DKRefCountOverflowBit) == 0 );
 
                 if( (rc & DKRefCountMask) == 0 )
@@ -86,6 +146,8 @@ DKObjectRef DKRelease( DKObjectRef _self )
                 DKSpinlockLock( &metadata->weakLock );
                 
                 rc = DKAtomicDecrement32( &obj->refcount );
+                
+                DKLifecycleWatchListReport( obj, "released" );
                 DKAssert( (rc & DKRefCountOverflowBit) == 0 );
 
                 if( (rc & DKRefCountMask) == 0 )
@@ -130,6 +192,8 @@ DKObjectRef DKTryRelease( DKObjectRef _self )
                     
                     if( DKAtomicCompareAndSwap32( &obj->refcount, &rc, rc_zero ) )
                     {
+                        DKLifecycleWatchListReport( obj, "released" );
+                        
                         DKFinalize( _self );
                         DKDealloc( _self );
 
@@ -152,6 +216,8 @@ DKObjectRef DKTryRelease( DKObjectRef _self )
                     
                     if( DKAtomicCompareAndSwap32( &obj->refcount, &rc, rc_zero ) )
                     {
+                        DKLifecycleWatchListReport( obj, "released" );
+                        
                         metadata->weakTarget = NULL;
                         result = NULL;
                     }
@@ -333,6 +399,8 @@ DKObjectRef DKAutorelease( DKObjectRef _self )
             struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
 
             DKGenericArrayAppendElements( &threadContext->arp.objects, &_self, 1 );
+
+            DKLifecycleWatchListReport( obj, "autoreleased" );
         }
     }
     

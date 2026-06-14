@@ -256,6 +256,17 @@
 #endif
 #endif
 
+
+
+
+// Diagnostics ===========================================================================
+
+// Enable DKWatchObjectLifecycle(). Watched objects report to stderr whenever they are
+// retained, released or autoreleased.
+#define DK_DIAGNOSTIC_OBJECT_LIFECYCLE_WATCH    0
+#define DK_OBJECT_LIFECYCLE_WATCH_LIST_SIZE     4
+
+
 #endif // _DK_CONFIG_H_
 
 

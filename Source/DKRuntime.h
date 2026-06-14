@@ -425,6 +425,10 @@ DK_API DKObjectRef DKAutorelease( DKObjectRef _self );
     }                                       \
     while( 0 )
 
+// Watch the lifecycle of an object
+#if DK_DIAGNOSTIC_OBJECT_LIFECYCLE_WATCH
+DK_API void        DKWatchObjectLifecycle( DKObjectRef object );
+#endif
 
 
 // DKInterface ===========================================================================
