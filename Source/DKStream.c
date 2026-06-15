@@ -212,6 +212,27 @@ int DKSPrintf( DKStreamRef _self, const char * format, ... )
 ///
 //  DKVSPrintf()
 //
+enum
+{
+    LeftJustified =     (1 << 0),
+    LeadingSign =       (1 << 1),
+    LeadingSpace =      (1 << 2),
+    AlternateForm =     (1 << 3),
+    LeadingZeroes =     (1 << 4),
+    WidthLiteral =      (1 << 5),
+    WidthArgument =     (1 << 6),
+    PrecisionLiteral =  (1 << 7),
+    PrecisionArgument = (1 << 8)
+};
+
+typedef struct
+{
+    unsigned int flags;
+    int width;
+    int precision;
+
+} FormatOptions;
+
 static size_t IntegerSize( const char * format, size_t len )
 {
     if( len <= 2 )
@@ -284,11 +305,153 @@ static size_t TrimZeroes( char * num, size_t len )
     return len;
 }
 
-static void CopyFormat( char * dst, const char * src, size_t len, size_t max_len )
+static unsigned int ReadFlag( char ch )
+{
+    switch( ch )
+    {
+    case '-': return LeftJustified;
+    case '+': return LeadingSign;
+    case ' ': return LeadingSpace;
+    case '#': return AlternateForm;
+    case '0': return LeadingZeroes;
+    default: return 0;
+    }
+}
+
+static void CopyFormat( char * dst, FormatOptions * options, const char * src, size_t len, size_t max_len )
 {
     DKCheck( len < max_len );
-    strncpy( dst, src, len );
-    dst[len] = '\0';
+
+    options->flags = 0;
+    options->width = 0;
+    options->precision = 0;
+    
+    char * dst_cursor = dst;
+    const char * src_cursor = src;
+    
+    *dst_cursor++ = *src_cursor++;
+    
+    while( *src_cursor != '\0' )
+    {
+        unsigned int flag = ReadFlag( *src_cursor );
+
+        if( flag )
+        {
+            options->flags |= flag;
+            *dst_cursor++ = *src_cursor++;
+            continue;
+        }
+
+        break;
+    }
+    
+    if( *src_cursor == '*' )
+    {
+        options->flags |= WidthArgument;
+        *dst_cursor++ = *src_cursor++;
+    }
+    
+    else if( isdigit( *src_cursor ) )
+    {
+        options->flags |= WidthLiteral;
+
+        char * end;
+        options->width = (int)strtol( src_cursor, &end, 10 );
+        
+        while( isdigit( *src_cursor ) )
+            *dst_cursor++ = *src_cursor++;
+    }
+
+    if( *src_cursor == '.' )
+    {
+        *dst_cursor++ = *src_cursor++;
+        
+        if( *src_cursor == '*' )
+        {
+            options->flags |= PrecisionArgument;
+            *dst_cursor++ = *src_cursor++;
+        }
+        
+        else if( isdigit( *src_cursor ) )
+        {
+            options->flags |= PrecisionLiteral;
+            
+            char * end;
+            options->precision = (int)strtol( src_cursor, &end, 10 );
+            
+            while( isdigit( *src_cursor ) )
+                *dst_cursor++ = *src_cursor++;
+        }
+    }
+    
+    while( (size_t)(dst_cursor - dst) < len )
+        *dst_cursor++ = *src_cursor++;
+    
+    *dst_cursor = '\0';
+}
+
+static size_t WriteBinary( DKStreamRef _self, DKStreamInterfaceRef stream, const char * format, const FormatOptions * options, int width, uint64_t number )
+{
+    size_t write_count = 0;
+    
+    char buffer[64]; // Not null terminated
+    int length = 0;
+
+    uint64_t bit = (uint64_t)1 << 63;
+
+    for( ; bit != 0; bit = (bit >> 1) )
+    {
+        if( number & bit )
+            break;
+    }
+
+    for( ; bit != 0; bit = (bit >> 1) )
+    {
+        buffer[length++] = (number & bit) ? '1' : '0';
+    }
+    
+    if( options->flags & AlternateForm )
+    {
+        write_count += stream->write( _self, "0b", 1, 2 );
+    }
+
+    if( options->flags & LeftJustified )
+    {
+        write_count += stream->write( _self, buffer, 1, length );
+        
+        if( options->flags & WidthLiteral )
+        {
+            for( int i = length; i < options->width; i++ )
+                write_count += stream->write( _self, " ", 1, 1 );
+        }
+        
+        else if( (options->flags & WidthArgument) && (width > 0) )
+        {
+            for( int i = length; i < width; i++ )
+                write_count += stream->write( _self, " ", 1, 1 );
+        }
+    }
+    
+    else
+    {
+        const char * fill = (options->flags & LeadingZeroes) ? "0" : " ";
+        
+        if( options->flags & WidthLiteral )
+        {
+            for( int i = length; i < options->width; i++ )
+                write_count += stream->write( _self, fill, 1, 1 );
+        }
+        
+        else if( (options->flags & WidthArgument) && (width > 0) )
+        {
+            for( int i = length; i < width; i++ )
+                write_count += stream->write( _self, fill, 1, 1 );
+        }
+
+        write_count += stream->write( _self, buffer, 1, length );
+    }
+    
+    return write_count;
 }
 
 static void WriteCounter( const char * format, size_t len, size_t count, void * counter )
@@ -360,8 +523,9 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
 
     size_t num_size;
 
-    char tmp_format[8];
-    char tmp[120];
+    char tmp_format[16];
+    char tmp[128];
+    FormatOptions tmp_options;
     size_t tmp_len;
     
     while( (n = dk_ustrscan( cursor, &ch )) != 0 )
@@ -404,7 +568,7 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
         */
         
         // Find the format token
-        size_t tok = strcspn( cursor + 1, "@%csdioxXufFeEaAgGnp" ) + 1;
+        size_t tok = strcspn( cursor + 1, "@%csdiboxXufFeEaAgGnp" ) + 1;
         
         seq_start = cursor + tok + 1;
         seq_count = 0;
@@ -428,7 +592,7 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
                 if( !wstr )
                     wstr = L"(null)";
 
-                CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+                CopyFormat( tmp_format, &tmp_options, cursor, tok + 1, sizeof(tmp_format) );
 
                 int wlen = snprintf( NULL, 0, tmp_format, wstr );
 
@@ -450,7 +614,7 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
 
                 if( tok > 1 )
                 {
-                    CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+                    CopyFormat( tmp_format, &tmp_options, cursor, tok + 1, sizeof(tmp_format) );
 
                     int clen = snprintf( NULL, 0, tmp_format, cstr );
 
@@ -485,6 +649,38 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
                 write_count++;
             break;
         
+        // Binary (this can move to using sprintf in C23)
+        case 'b':
+            CopyFormat( tmp_format, &tmp_options, cursor, tok + 1, sizeof(tmp_format) );
+            num_size = IntegerSize( cursor, tok + 1 );
+            switch( num_size )
+            {
+            case sizeof(int8_t):
+            case sizeof(int16_t):
+            case sizeof(int32_t):
+                if( tmp_options.flags & WidthArgument )
+                    tmp_len = WriteBinary( _self, stream, tmp_format, &tmp_options, va_arg( arg_ptr, int ), va_arg( arg_ptr, uint32_t ) );
+                
+                else
+                    tmp_len = WriteBinary( _self, stream, tmp_format, &tmp_options, 1, va_arg( arg_ptr, uint32_t ) );
+                break;
+                
+            case sizeof(int64_t):
+                if( tmp_options.flags & WidthArgument )
+                    tmp_len = WriteBinary( _self, stream, tmp_format, &tmp_options, va_arg( arg_ptr, int ), va_arg( arg_ptr, uint64_t ) );
+                
+                else
+                    tmp_len = WriteBinary( _self, stream, tmp_format, &tmp_options, 1, va_arg( arg_ptr, uint64_t ) );
+                break;
+                
+            default:
+                DKAssert( 0 );
+                break;
+            };
+
+            write_count += tmp_len;
+            break;
+        
         // Integer / Pointer
         case 'd':
         case 'i':
@@ -493,22 +689,26 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
         case 'x':
         case 'X':
         case 'p':
-            CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+            CopyFormat( tmp_format, &tmp_options, cursor, tok + 1, sizeof(tmp_format) );
             num_size = IntegerSize( cursor, tok + 1 );
             switch( num_size )
             {
             case sizeof(int8_t):
             case sizeof(int16_t):
-                // char and short types are promoted to int
-                tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int ) );
-                break;
-
             case sizeof(int32_t):
-                tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int32_t ) );
+                if( tmp_options.flags & WidthArgument )
+                    tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int ), va_arg( arg_ptr, int32_t ) );
+                
+                else
+                    tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int32_t ) );
                 break;
                 
             case sizeof(int64_t):
-                tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int64_t ) );
+                if( tmp_options.flags & WidthArgument )
+                    tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int ), va_arg( arg_ptr, int64_t ) );
+                
+                else
+                    tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int64_t ) );
                 break;
                 
             default:
@@ -532,12 +732,28 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
         case 'E':
         case 'a':
         case 'A':
-            CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+            CopyFormat( tmp_format, &tmp_options, cursor, tok + 1, sizeof(tmp_format) );
             num_size = FloatSize( cursor, tok + 1 );
             
             if( num_size == sizeof(double) )
             {
-                tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, double ) );
+                if( tmp_options.flags & WidthArgument )
+                {
+                    if( tmp_options.flags & PrecisionArgument )
+                        tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int ), va_arg( arg_ptr, int ), va_arg( arg_ptr, double ) );
+                    
+                    else
+                        tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int ), va_arg( arg_ptr, double ) );
+                }
+                
+                else
+                {
+                    if( tmp_options.flags & PrecisionArgument )
+                        tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, int ), va_arg( arg_ptr, double ) );
+                    
+                    else
+                        tmp_len = sprintf( tmp, tmp_format, va_arg( arg_ptr, double ) );
+                }
             }
 
             else if( num_size == sizeof(long double) )
@@ -566,7 +782,7 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
         
         // %n
         case 'n':
-            CopyFormat( tmp_format, cursor, tok + 1, sizeof(tmp_format) );
+            CopyFormat( tmp_format, &tmp_options, cursor, tok + 1, sizeof(tmp_format) );
             WriteCounter( tmp_format, tok + 1, write_count, va_arg( arg_ptr, void * ) );
             break;
         
