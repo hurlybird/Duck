@@ -31,6 +31,9 @@ DK_API DKFileRef   DKFileInitWithStreamPtr( DKObjectRef _self, FILE * stream, bo
 // Returns true if the file exists
 DK_API bool        DKFileExists( DKStringRef filename );
 
+// Delete a file
+DK_API void        DKDeleteFile( DKStringRef filename );
+
 // Create and open a new file - the returned object must be closed or released
 DK_API DKFileRef   DKFileOpen( DKStringRef filename, const char * mode );
 

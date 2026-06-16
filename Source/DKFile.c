@@ -106,6 +106,15 @@ bool DKFileExists( DKStringRef filename )
 
 
 ///
+//  DKDeleteFile()
+//
+void DKDeleteFile( DKStringRef filename )
+{
+    remove( DKStringGetCStringPtr( filename ) );
+}
+
+
+///
 //  DKFileOpen()
 //
 DKFileRef DKFileOpen( DKStringRef filename, const char * mode )
