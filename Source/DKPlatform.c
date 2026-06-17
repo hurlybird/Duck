@@ -17,21 +17,6 @@
 #include "DKUnicode.h"
 
 
-// Basic Types & Constants ===============================================================
-
-///
-//  DKChar8FromCString()
-//
-inline DKChar8 DKChar8FromCString( const char * s )
-{
-    DKChar8 ch;
-    *((uint64_t *)&ch) = 0;
-    dk_ustrscan8( s, &ch );
-    
-    return ch;
-}
-
-
 
 
 // Error Reporting =======================================================================

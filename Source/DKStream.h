@@ -121,11 +121,13 @@ DK_API int DKGetc( DKStreamRef _self );
 // Write an ASCII character to the stream. Returns EOF on failure or the character written on success.
 DK_API int DKPutc( DKStreamRef _self, int ch );
 
-// Read a UTF-8 character from the stream. Returns EOF on failure.
-DK_API DKChar32 DKGetUTF8( DKStreamRef _self, DKChar8 * ch );
+// Read a UTF character from the stream. Returns EOF on failure.
+DK_API DKChar32 DKGetChar8( DKStreamRef _self, DKChar8 * ch );
+DK_API DKChar32 DKGetChar32( DKStreamRef _self );
 
-// Write a UTF-8 character to the stream. Returns EOF on failure or the character written on success.
-DK_API DKChar32 DKPutUTF8( DKStreamRef _self, DKChar8 ch );
+// Write a UTF character to the stream. Returns EOF/ETB on failure or the character written on success.
+DK_API DKChar32 DKPutChar8( DKStreamRef _self, DKChar8 ch );
+DK_API DKChar32 DKPutChar32( DKStreamRef _self, DKChar32 ch );
 
 
 

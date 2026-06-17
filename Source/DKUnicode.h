@@ -14,6 +14,13 @@ extern "C"
 {
 #endif
 
+// Character conversions
+DK_API DKChar8 DKChar8FromCString( const char * s );
+DK_API DKChar8 DKChar8FromChar32( DKChar32 ch );
+
+DK_API DKChar32 DKChar32FromCString( const char * s );
+DK_API DKChar32 DKChar32FromChar8( DKChar8 ch );
+
 
 // UTF8 aware versions of standard string functions
 

@@ -294,8 +294,6 @@ typedef struct
     
 } DKChar8;
 
-DK_API DKChar8 DKChar8FromCString( const char * s );
-
 
 // UTF-32 character - char32_t support is flaky
 typedef int32_t DKChar32;

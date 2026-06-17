@@ -877,7 +877,7 @@ int DKPutc( DKStreamRef _self, int ch )
 ///
 //  DKGetChar8()
 //
-DKChar32 DKGetUTF8( DKStreamRef _self, DKChar8 * ch )
+DKChar32 DKGetChar8( DKStreamRef _self, DKChar8 * ch )
 {
     int len = 0;
     
@@ -901,17 +901,40 @@ DKChar32 DKGetUTF8( DKStreamRef _self, DKChar8 * ch )
 
 
 ///
+//  DKGetChar32()
+//
+DKChar32 DKGetChar32( DKStreamRef _self )
+{
+    DKChar8 ch8;
+    return DKGetChar8( _self, &ch8 );
+}
+
+
+///
 //  DKPutChar8()
 //
-DKChar32 DKPutUTF8( DKStreamRef _self, DKChar8 ch )
+DKChar32 DKPutChar8( DKStreamRef _self, DKChar8 ch )
 {
     DKChar32 ch32;
     size_t len = dk_ustrscan( ch.s, &ch32 );
     
-    if( DKWrite( _self, ch.s, 1, len ) == len )
-        return ch32;
+    if( len > 0 )
+    {
+        if( DKWrite( _self, ch.s, 1, len ) == len )
+            return ch32;
+    }
         
     return EOF;
+}
+
+
+///
+//  DKPutChar32()
+//
+DKChar32 DKPutChar32( DKStreamRef _self, DKChar32 ch )
+{
+    DKChar8 ch8 = DKChar8FromChar32( ch );
+    return DKPutChar8( _self, ch8 );
 }
 
 

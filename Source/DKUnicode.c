@@ -13,6 +13,61 @@
 
 
 ///
+//  DKChar8FromCString()
+//
+inline DKChar8 DKChar8FromCString( const char * s )
+{
+    DKChar8 ch;
+    *((uint64_t *)&ch) = 0;
+    
+    dk_ustrscan8( s, &ch );
+    
+    return ch;
+}
+
+
+///
+//  DKChar8FromChar32()
+//
+DKChar8 DKChar8FromChar32( DKChar32 ch )
+{
+    DKChar8 ch8;
+    *((uint64_t *)&ch8) = 0;
+    
+    dk_ustrwrite( ch, ch8.s, sizeof(DKChar8) );
+    
+    return ch8;
+}
+
+
+///
+//  DKChar32FromCString()
+//
+DKChar32 DKChar32FromCString( const char * s )
+{
+    DKChar32 ch = 0;
+    
+    dk_ustrscan( s, &ch );
+    
+    return ch;
+}
+
+
+///
+//  DKChar32FromChar8()
+//
+DKChar32 DKChar32FromChar8( DKChar8 ch )
+{
+    DKChar32 ch32 = 0;
+    
+    dk_ustrscan( ch.s, &ch32 );
+    
+    return ch32;
+}
+
+
+
+///
 //  dk_ustrchr()
 //
 const char * dk_ustrchr( const char * str, int ch )
