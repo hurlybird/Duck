@@ -20,7 +20,7 @@ def parse_command_line() -> argparse.ArgumentParser:
     parser.add_argument( '-c', '--copyright', action='store', default='Copyright N/A', help='Copyright String' )
     parser.add_argument( '-p', '--project', action='store', default='Project N/A', help='Project Name' )
     parser.add_argument( '-t', '--template', action='store', required=True, help='Blurb Template' )
-    parser.add_argument( '-r', '--recursive', action='store_true' )
+    parser.add_argument( '-d', '--root-dir', dest='root_dir', action='store', default='./')
     parser.add_argument( 'files', nargs='+' )
     
     return parser
@@ -44,12 +44,11 @@ def main() -> None:
     files = []
     
     for file_pattern in options.files:
-        for path in Path( './' ).rglob( file_pattern ):
+        for path in Path( options.root_dir ).rglob( file_pattern ):
             filename = str( path )
             files.append( filename )
 
     for filename in files:
-    
         lines = []
         
         with open( filename, mode='r' ) as srcfile:
