@@ -37,24 +37,27 @@ security and thread safety.**
 
 ## Building
 
+### Xcode and Visual Studio
+
 Duck is mainly developed in Xcode and includes framework targets for Mac OS and
 iOS. The Xcode project also contains unit tests.
 
 A Visual Studio project is also available and has configurations for both 32 and
-64-bit Windows builds.
+64-bit Windows builds. (The 32-bit build is largely untested at this point.)
+
+
+### CMake
 
 A [CMakeLists](CMakeLists.txt) file is included for building from the command line,
 Visual Studio Code, CLion, Android Studio, etc. That file also contains some
 documentation on including Duck in another CMake project.
 
 The [cmake.sh](cmake.sh) script is a convenience wrapper for building with CMake
-from the command line.
-
-From the project directory, run:
-* `./cmake.sh` to build static and shared libraries.
-* `./cmake.sh --debug` to build debug versions of the library.
-* `./cmake.sh --examples` to build the HelloWorld example.
-* `./cmake.sh --install` to install the library to */usr/local*.
+from the command line. See the script for detailed options, but for a basic build run:
+* `cmake.sh --build` to build static and shared libraries.
+* `cmake.sh --build --debug` to build debug versions of the library.
+* `cmake.sh --build --examples` to build the HelloWorld example.
+* `cmake.sh --install` to install the library to */usr/local*.
 
 
 ## Porting

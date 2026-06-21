@@ -2,18 +2,18 @@
 
 # How to add libduck to your CMakeLists.txt build.
 
-# (Optional) - Set the path to the Duck project files (i.e. where this file lives). This
-# is mainly useful if you're adding libduck via include vs. add_subdirectory.
+# (Optional) Set the path to the Duck project files (i.e. where this file lives).
 #
 # set( DUCK_PATH Absolute-Path-To-Duck-Project )
-# get_filename_component( DUCK_PATH Relative-Path-To-Duck-Project ABSOLUTE )
+# OR get_filename_component( DUCK_PATH Relative-Path-To-Duck-Project ABSOLUTE )
 
 # (Optional) - Set the build variants. Valid values are:
 #   SHARED -    build the shared library and public headers
 #   STATIC -    build the static library and public headers
 #   FRAMEWORK - build the framework (on Apple platforms)
+#   EXAMPLES  - build the sample projects
 #
-# If not specified, the default is to build everything.
+# If not specified, the default is to build SHARED STATIC and FRAMEWORK.
 #
 # set( DUCK_BUILD STATIC SHARED )
 
@@ -29,10 +29,13 @@
 # include( ${DUCK_PATH}/CMakeLists.txt )
 # add_subdirectory( ${DUCK_PATH} ${PROJECT_BINARY_DIR}/Duck )
 
-# Link against 'DuckStaticLibrary', 'DuckSharedLibrary' or 'DuckFramework'.
+# Link against the library or framework.
 #
 # target_include_directories( Your-Target PUBLIC ${DUCK_PUBLIC_HEADERS_PATH} )
+#
 # target_link_libraries( Your-Target DuckSharedLibrary )
+# target_link_libraries( Your-Target DuckStaticLibrary )
+# target_link_libraries( Your-Target DuckFramework )
 
 
 # Project Settings =======================================================================

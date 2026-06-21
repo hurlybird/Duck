@@ -5,7 +5,7 @@ usage()
     echo "Usage: cmake.sh [-h,--help] [-d,--debug] [-r,--release] [-c,--clean] [options]"
     echo ""
     echo "Options:"
-    echo "  --arch <architecture>"
+    echo "  --ninja"
     echo "  --static"
     echo "  --shared"
     echo "  --framework"
@@ -15,13 +15,14 @@ usage()
     echo ""
 }
 
-SOURCE_ROOT="."
-BUILD_ROOT="_Build"
+SOURCE_ROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+BUILD_ROOT="${SOURCE_ROOT}/_Build"
 BUILD_TYPE="Release"
-BUILD_ARCH=""
+GENERATOR=()
 OPTIONS=()
 TARGETS=()
 CLEAN=""
+BUILD=0
 INSTALL=0
 INSTALL_PREFIX=""
 
@@ -36,8 +37,7 @@ while [ "$1" != "" ]; do
                                 ;;
         -r | --release )        BUILD_TYPE="Release"
                                 ;;
-        --arch )                shift
-                                BUILD_ARCH=$1
+        --ninja )               GENERATOR=("-G" "Ninja")
                                 ;;
         --static )              TARGETS+=("STATIC")
                                 ;;
@@ -46,6 +46,8 @@ while [ "$1" != "" ]; do
         --framework )           TARGETS+=("FRAMEWORK")
                                 ;;
         --examples )            TARGETS+=("EXAMPLES")
+                                ;;
+        --build )               BUILD=1
                                 ;;
         --install )             INSTALL=1
                                 ;;
@@ -59,12 +61,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ "$BUILD_ARCH" = "" ]
-then
-    BUILD_DIR="$BUILD_ROOT/${BUILD_TYPE}"
-else
-    BUILD_DIR="$BUILD_ROOT/${BUILD_TYPE}-${BUILD_ARCH}"
-fi
+BUILD_DIR="$BUILD_ROOT/${BUILD_TYPE}"
 
 if [ ${#TARGETS[@]} -eq 0 ]
 then
@@ -73,8 +70,12 @@ else
     printf -v TARGETS '%s;' "${TARGETS[@]}";
 fi
 
-cmake "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" "-DDUCK_BUILD=${TARGETS}" ${OPTIONS[*]} -S "$SOURCE_ROOT" -B "$BUILD_DIR"
-cmake --build "$BUILD_DIR" $CLEAN
+cmake ${GENERATOR[*]} "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" "-DDUCK_BUILD=${TARGETS}" ${OPTIONS[*]} -S "$SOURCE_ROOT" -B "$BUILD_DIR"
+
+if [ $BUILD = 1 ]
+then
+    cmake --build "$BUILD_DIR" $CLEAN
+fi
 
 if [ $INSTALL = 1 ]
 then
