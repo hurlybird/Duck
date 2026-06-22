@@ -204,6 +204,9 @@
     <ClCompile Include="Source\DKQuicksort.c">
       <Filter>Source\Other</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DKCharacterSet.c">
+      <Filter>Source\Other</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\yxml\yxml.h">
@@ -394,6 +397,9 @@
       <Filter>Source\Storage Types</Filter>
     </ClInclude>
     <ClInclude Include="Source\DKQuicksort.h">
+      <Filter>Source\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DKCharacterSet.h">
       <Filter>Source\Other</Filter>
     </ClInclude>
   </ItemGroup>

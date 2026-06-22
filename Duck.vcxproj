@@ -198,6 +198,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     <ClCompile Include="Source\DKBoolean.c" />
     <ClCompile Include="Source\DKBuffer.c" />
     <ClCompile Include="Source\DKByteArray.c" />
+    <ClCompile Include="Source\DKCharacterSet.c" />
     <ClCompile Include="Source\DKCollection.c" />
     <ClCompile Include="Source\DKComparison.c" />
     <ClCompile Include="Source\DKCondition.c" />
@@ -256,6 +257,7 @@ xcopy /y /q $(ProjectDir)Source\*.h $(OutDir)Include\Duck\</Command>
     <ClInclude Include="Source\DKBoolean.h" />
     <ClInclude Include="Source\DKBuffer.h" />
     <ClInclude Include="Source\DKByteArray.h" />
+    <ClInclude Include="Source\DKCharacterSet.h" />
     <ClInclude Include="Source\DKCollection.h" />
     <ClInclude Include="Source\DKComparison.h" />
     <ClInclude Include="Source\DKCondition.h" />
