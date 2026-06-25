@@ -675,6 +675,7 @@ int DKVSPrintf( DKStreamRef _self, const char * format, va_list arg_ptr )
                 
             default:
                 DKAssert( 0 );
+                tmp_len = 0;
                 break;
             };
 
