@@ -29,7 +29,7 @@ static const struct HashTableSize HashTableSizes[] =
     #if 1
     { 11, 5 },
     { 17, 8 },
-    { 25, 12 },
+    { 29, 14 },
     { 61, 30 },
     { 127, 63 },
     { 191, 95 },
@@ -116,7 +116,7 @@ static bool IsPrime( int64_t x )
     if( x <= 3 )
         return x != 0;
 
-    for( int64_t i = 3; (i * i) < x; i += 2 )
+    for( int64_t i = 3; (i * i) <= x; i += 2 )
     {
         if( (x % i) == 0 )
             return false;
