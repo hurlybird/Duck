@@ -320,12 +320,14 @@ static unsigned int ReadFlag( char ch )
 
 static void CopyFormat( char * dst, FormatOptions * options, const char * src, size_t len, size_t max_len )
 {
-    DKCheck( len < max_len );
-
+    dst[0] = '\0';
+    
     options->flags = 0;
     options->width = 0;
     options->precision = 0;
-    
+
+    DKRequire( len < max_len );
+
     char * dst_cursor = dst;
     const char * src_cursor = src;
     
