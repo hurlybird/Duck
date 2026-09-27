@@ -117,6 +117,7 @@ DK_API DKStringRef DKStringCopySubstringToIndex( DKStringRef _self, DKIndex inde
 DK_API DKRange     DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex startLoc );
 
 // Separating and concatenating strings
+DK_API DKStringRef DKStringByAppendingString( DKStringRef _self, DKStringRef string );
 DK_API DKListRef   DKStringSplit( DKStringRef _self, DKStringRef separator );
 DK_API DKPairRef   DKStringSplitFirst( DKStringRef _self, DKStringRef separator );
 DK_API DKListRef   DKStringWrap( DKStringRef _self, size_t glyphsPerLine );

@@ -1489,6 +1489,24 @@ DKRange DKStringGetRangeOfString( DKStringRef _self, DKStringRef str, DKIndex st
 
 
 ///
+//  DKStringByAppendingString()
+//
+DKStringRef DKStringByAppendingString( DKStringRef _self, DKStringRef string )
+{
+    if( _self && string )
+    {
+        DKMutableStringRef concat = DKMutableString();
+        DKStringAppendString( concat, _self );
+        DKStringAppendString( concat, string );
+
+        return DKStringMakeImmutable( concat );
+    }
+
+    return _self;
+}
+
+
+///
 //  DKStringSplit()
 //
 DKListRef DKStringSplit( DKStringRef _self, DKStringRef separator )
