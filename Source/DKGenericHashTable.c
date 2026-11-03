@@ -474,6 +474,8 @@ void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable )
 //
 void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHashTableForeachRowCallback callback, void * context )
 {
+    size_t deleted = 0;
+
     for( size_t i = 0; i < hashTable->rowCount; ++i )
     {
         void * row = hashTable->rows + (hashTable->rowSize * i);
@@ -485,12 +487,20 @@ void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHash
             int result = callback( row, context );
 
             if( result & DKGenericHashTableForeachDelete )
+            {
                 hashTable->callbacks.rowDelete( row, hashTable->context );
+                deleted++;
+            }
 
             if( result & DKGenericHashTableForeachStop )
+            {
                 break;
+            }
         }
     }
+
+    hashTable->activeCount -= deleted;
+    hashTable->deletedCount += deleted;
 }
 
 
