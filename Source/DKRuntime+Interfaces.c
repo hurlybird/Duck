@@ -138,10 +138,11 @@ static void InterfaceTableRowDelete( void * _row, void * not_used )
 ///
 //  DKInterfaceTableInit()
 //
-static void InsertRowCallback( const void * _row, void * context )
+static int InsertRowCallback( const void * _row, void * context )
 {
     struct DKInterfaceTable * interfaceTable = context;
     DKGenericHashTableInsert( &interfaceTable->interfaces, _row, DKInsertAlways );
+    return 0;
 }
 
 void DKInterfaceTableInit( struct DKInterfaceTable * interfaceTable, struct DKInterfaceTable * inheritedInterfaces )

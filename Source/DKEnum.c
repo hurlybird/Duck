@@ -259,12 +259,13 @@ DKStringRef DKStringFromEnum( DKEnumRef _self, int64_t value )
 ///
 //  DKEnumGetStrings()
 //
-static void GetStringsCallback( const void * _row, void * context )
+static int GetStringsCallback( const void * _row, void * context )
 {
     const struct DKEnumEntry * row = _row;
     DKMutableListRef list = context;
     
     DKListAppendObject( list, row->str );
+    return 0;
 }
 
 DKListRef DKEnumGetStrings( DKEnumRef _self, int sortOrder )

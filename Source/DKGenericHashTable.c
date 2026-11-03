@@ -481,7 +481,15 @@ void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHash
         DKRowStatus status = hashTable->callbacks.rowStatus( row, hashTable->context );
 
         if( DKRowIsActive( status ) )
-            callback( row, context );
+        {
+            int result = callback( row, context );
+
+            if( result & DKGenericHashTableForeachDelete )
+                hashTable->callbacks.rowDelete( row, hashTable->context );
+
+            if( result & DKGenericHashTableForeachStop )
+                break;
+        }
     }
 }
 

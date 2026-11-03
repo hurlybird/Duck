@@ -36,7 +36,6 @@ DK_API extern void * const DKRowStatusDeleted;
 #define DKRowStatusString(x)    (const char *)(((x) == DKRowStatusEmpty) ? DKRowStatusEmpty : (((x) == DKRowStatusDeleted) ? DKRowStatusDeleted : DKRowStatusActive))
 
 
-
 typedef struct
 {
     DKRowStatus (*rowStatus)( const void * row, void * context );
@@ -66,6 +65,14 @@ typedef struct
 } DKGenericHashTable;
 
 
+enum
+{
+    DKGenericHashTableForeachContinue =     0,
+    DKGenericHashTableForeachStop =         (1 << 0),
+    DKGenericHashTableForeachDelete =       (1 << 1)
+};
+
+
 DK_API void DKGenericHashTableInit( DKGenericHashTable * hashTable, size_t rowSize, const DKGenericHashTableCallbacks * callbacks, void * context );
 DK_API void DKGenericHashTableFinalize( DKGenericHashTable * hashTable );
 
@@ -81,7 +88,7 @@ DK_API bool DKGenericHashTableInsert( DKGenericHashTable * hashTable, const void
 DK_API void DKGenericHashTableRemove( DKGenericHashTable * hashTable, const void * entry );
 DK_API void DKGenericHashTableRemoveAll( DKGenericHashTable * hashTable );
 
-DK_API typedef void (*DKGenericHashTableForeachRowCallback)( const void * row, void * context );
+DK_API typedef int (*DKGenericHashTableForeachRowCallback)( const void * row, void * context );
 DK_API void DKGenericHashTableForeachRow( DKGenericHashTable * hashTable, DKGenericHashTableForeachRowCallback callback, void * context );
 
 
