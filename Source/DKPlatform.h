@@ -1084,10 +1084,6 @@ DK_API uint64_t dk_memhash64( const void * buffer, size_t buffer_size );
 #endif
 
 
-// Interpret a string as a base-10 integer (true) or floating-point (false) value
-DK_API bool dk_strtonum( const char * str, int64_t * ival, double * fval, char const ** str_end );
-
-
 // String-to-X wrappers (because MS likes to be different)
 #define dk_strtoi32( str, end, base )       ((int32_t)strtol( (str), (end), (base) ));
 #define dk_strtou32( str, end, base )       ((uint32_t)strtoul( (str), (end), (base) ));

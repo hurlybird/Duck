@@ -421,3 +421,134 @@ char * dk_ustrupr( char * dst, size_t dst_size, const char * src )
     return dst;
 }
 
+
+///
+//  dk_strtonum()
+//
+inline static int scan_digits( const char * str, int64_t * ival )
+{
+    const char * cur = str;
+    int64_t val = 0;
+    
+    while( (*cur >= '0') && (*cur <= '9') ) // isdigit( *cur )
+    {
+        int x = (*cur) - '0';
+        val = (val * 10) + x;
+    
+        cur++;
+    }
+
+    *ival = val;
+
+    return (int)(cur - str);
+}
+
+bool dk_strtonum( const char * str, int64_t * ival, double * fval, char const ** str_end )
+{
+    const char * cursor = str;
+
+    int sign = 1;
+    int64_t int_part = 0;
+    int64_t dec_part = 0;
+    int64_t dec_len = 0;
+    int64_t exp_part = 0;
+    int64_t rat_part = 0;
+    bool has_dec_part = false;
+    bool has_exp_part = false;
+    bool has_rat_part = false;
+
+    // Skip whitespace
+    while( isspace( *cursor ) )
+    {
+        cursor++;
+    }
+    
+    // Optional sign
+    if( *cursor == '-' )
+    {
+        sign = -1;
+        cursor++;
+    }
+    
+    else if( *cursor == '+' )
+    {
+        sign = 1;
+        cursor++;
+    }
+    
+    // Integer part
+    cursor += scan_digits( cursor, &int_part );
+    
+    // Fractional part
+    if( *cursor == '.' )
+    {
+        cursor++;
+
+        has_dec_part = true;
+
+        dec_len = scan_digits( cursor, &dec_part );
+        cursor += dec_len;
+    }
+
+    // Exponent part
+    if( (*cursor == 'e') || (*cursor == 'E') )
+    {
+        cursor++;
+
+        has_exp_part = true;
+
+        cursor += scan_digits( cursor, &exp_part );
+    }
+    
+    // Percent
+    if( *cursor == '%' )
+    {
+        cursor++;
+        
+        has_rat_part = true;
+        rat_part = 100;
+    }
+    
+    else if( *cursor == '/' )
+    {
+        cursor++;
+
+        has_rat_part = true;
+
+        cursor += scan_digits( cursor, &rat_part );
+    }
+
+    // Return the end position
+    if( str_end )
+    {
+        *str_end = cursor;
+    }
+
+    // Return a floating-point value
+    if( has_dec_part || has_exp_part || has_rat_part )
+    {
+        double val = (double)sign * (double)int_part;
+        
+        if( has_dec_part )
+            val += (double)sign * (double)dec_part / pow( 10.0, (double)dec_len );
+        
+        if( has_exp_part )
+            val *= pow( 10.0, (double)exp_part );
+        
+        if( has_rat_part )
+            val *= 1.0 / (double)rat_part;
+        
+        *fval = val;
+        
+        return false;
+    }
+    
+    // Return an integer value
+    else
+    {
+        *ival = int_part * sign;
+        return true;
+    }
+}
+
+

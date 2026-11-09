@@ -62,6 +62,12 @@ DK_API char * dk_ustrlwr( char * dst, size_t dst_size, const char * src );
 DK_API char * dk_ustrupr( char * dst, size_t dst_size, const char * src );
 
 
+// Other string utilities
+
+// Interpret a string as a base-10 integer (true) or floating-point (false) value
+DK_API bool dk_strtonum( const char * str, int64_t * ival, double * fval, char const ** str_end );
+
+
 #ifdef __cplusplus
 }
 #endif
