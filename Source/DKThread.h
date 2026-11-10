@@ -40,9 +40,11 @@ DK_API DKClassRef DKThreadClass( void );
 DK_API DKThreadRef DKThreadGetCurrentThread( void );
 DK_API DKThreadRef DKThreadGetMainThread( void );
 
-
 DK_API void DKDetachNewThread( DKThreadProc proc, void * context );
 DK_API void DKDetachNewThreadToTarget( DKObjectRef target, DKThreadMethod method, DKObjectRef param );
+
+#define DKNewThread( proc, context )                    DKThreadInit( DKAlloc( DKThreadClass() ), proc, context );
+#define DKNewThreadWithObject( target, method, param )  DKThreadInitWithObject( DKAlloc( DKThreadClass() ), target, method, param );
 
 DK_API DKObjectRef DKThreadInit( DKObjectRef _self, DKThreadProc proc, void * context );
 DK_API DKObjectRef DKThreadInitWithTarget( DKObjectRef _self, DKObjectRef target, DKThreadMethod method, DKObjectRef param );

@@ -23,11 +23,11 @@ struct DKSemaphore
 #if DK_PLATFORM_POSIX
     pthread_mutex_t mutex;
     pthread_cond_t condition;
-    int32_t counter;
+    unsigned int counter;
 #elif DK_PLATFORM_WINDOWS
     CRITICAL_SECTION criticalSection;
     CONDITION_VARIABLE conditionVariable;
-    int32_t counter;
+    unsigned int counter;
 #endif
 };
 
@@ -86,7 +86,7 @@ static void DKSemaphoreFinalize( DKObjectRef _untyped_self )
 ///
 //  DKSemaphoreIncrement()
 //
-void DKSemaphoreIncrement( DKSemaphoreRef _self, uint32_t value )
+void DKSemaphoreIncrement( DKSemaphoreRef _self, unsigned int value )
 {
     if( _self )
     {
@@ -98,7 +98,6 @@ void DKSemaphoreIncrement( DKSemaphoreRef _self, uint32_t value )
         _self->counter += value;
         
         pthread_mutex_unlock( &_self->mutex );
-        
         pthread_cond_broadcast( &_self->condition );
 #elif DK_PLATFORM_WINDOWS
         EnterCriticalSection( &_self->criticalSection );
@@ -106,7 +105,6 @@ void DKSemaphoreIncrement( DKSemaphoreRef _self, uint32_t value )
         _self->counter += value;
 
         LeaveCriticalSection( &_self->criticalSection );
-
         WakeAllConditionVariable( &_self->conditionVariable );
 #endif
     }
@@ -116,7 +114,7 @@ void DKSemaphoreIncrement( DKSemaphoreRef _self, uint32_t value )
 ///
 //  DKSemaphoreDecrement()
 //
-void DKSemaphoreDecrement( DKSemaphoreRef _self, uint32_t value )
+void DKSemaphoreDecrement( DKSemaphoreRef _self, unsigned int value )
 {
     if( _self )
     {
@@ -125,20 +123,46 @@ void DKSemaphoreDecrement( DKSemaphoreRef _self, uint32_t value )
 #if DK_PLATFORM_POSIX
         pthread_mutex_lock( &_self->mutex );
         
-        DKRequire( _self->counter >= (int32_t)value );
+        DKRequire( _self->counter >= value );
         _self->counter -= value;
         
         pthread_mutex_unlock( &_self->mutex );
-        
         pthread_cond_broadcast( &_self->condition );
 #elif DK_PLATFORM_WINDOWS
         EnterCriticalSection( &_self->criticalSection );
 
-        DKRequire( _self->counter >= (int32_t)value );
+        DKRequire( _self->counter >= value );
         _self->counter -= value;
 
         LeaveCriticalSection( &_self->criticalSection );
+        WakeAllConditionVariable( &_self->conditionVariable );
+#endif
+    }
+}
 
+
+///
+//  DKSemaphoreSignal()
+//
+void DKSemaphoreSignal( DKSemaphoreRef _self, uint32_t value )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKSemaphoreClass() );
+
+#if DK_PLATFORM_POSIX
+        pthread_mutex_lock( &_self->mutex );
+        
+        _self->counter = value;
+        
+        pthread_mutex_unlock( &_self->mutex );
+        pthread_cond_broadcast( &_self->condition );
+#elif DK_PLATFORM_WINDOWS
+        EnterCriticalSection( &_self->criticalSection );
+
+        _self->counter = value;
+
+        LeaveCriticalSection( &_self->criticalSection );
         WakeAllConditionVariable( &_self->conditionVariable );
 #endif
     }
@@ -148,7 +172,7 @@ void DKSemaphoreDecrement( DKSemaphoreRef _self, uint32_t value )
 ///
 //  DKSemaphoreWait()
 //
-void DKSemaphoreWait( DKSemaphoreRef _self, uint32_t value )
+void DKSemaphoreWait( DKSemaphoreRef _self )
 {
     if( _self )
     {
@@ -157,14 +181,16 @@ void DKSemaphoreWait( DKSemaphoreRef _self, uint32_t value )
 #if DK_PLATFORM_POSIX
         pthread_mutex_lock( &_self->mutex );
         
-        while( _self->counter != (int32_t)value )
+        while( _self->counter == 0 )
             pthread_cond_wait( &_self->condition, &_self->mutex );
         
+        _self->counter--;
+
         pthread_mutex_unlock( &_self->mutex );
 #elif DK_PLATFORM_WINDOWS
         EnterCriticalSection( &_self->criticalSection );
 
-        while( _self->counter != (int32_t)value )
+        while( _self->counter != value )
             SleepConditionVariableCS( &_self->conditionVariable, &_self->criticalSection, INFINITE );
 
         LeaveCriticalSection( &_self->criticalSection );
@@ -172,3 +198,78 @@ void DKSemaphoreWait( DKSemaphoreRef _self, uint32_t value )
     }
 }
 
+
+///
+//  DKSemaphoreWaitUntil()
+//
+void DKSemaphoreWaitUntil( DKSemaphoreRef _self, unsigned int test, int reset )
+{
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKSemaphoreClass() );
+
+#if DK_PLATFORM_POSIX
+        pthread_mutex_lock( &_self->mutex );
+        
+        while( _self->counter != test )
+            pthread_cond_wait( &_self->condition, &_self->mutex );
+
+        if( reset >= 0 )
+            _self->counter = reset;
+
+        pthread_mutex_unlock( &_self->mutex );
+#elif DK_PLATFORM_WINDOWS
+        EnterCriticalSection( &_self->criticalSection );
+
+        while( _self->counter != test )
+            SleepConditionVariableCS( &_self->conditionVariable, &_self->criticalSection, INFINITE );
+
+        if( reset >= 0 )
+            _self->counter = reset;
+
+        LeaveCriticalSection( &_self->criticalSection );
+#endif
+    }
+}
+
+
+///
+//  DKSemaphoreWaitWhile()
+//
+unsigned int DKSemaphoreWaitWhile( DKSemaphoreRef _self, unsigned int test, int reset )
+{
+    unsigned int x = 0;
+
+    if( _self )
+    {
+        DKAssertKindOfClass( _self, DKSemaphoreClass() );
+
+#if DK_PLATFORM_POSIX
+        pthread_mutex_lock( &_self->mutex );
+        
+        while( _self->counter == test )
+            pthread_cond_wait( &_self->condition, &_self->mutex );
+        
+        x = _self->counter;
+
+        if( reset >= 0 )
+            _self->counter = reset;
+
+        pthread_mutex_unlock( &_self->mutex );
+#elif DK_PLATFORM_WINDOWS
+        EnterCriticalSection( &_self->criticalSection );
+
+        while( _self->counter == value )
+            SleepConditionVariableCS( &_self->conditionVariable, &_self->criticalSection, INFINITE );
+
+        x = _self->counter;
+
+        if( reset >= 0 )
+            _self->counter = reset;
+
+        LeaveCriticalSection( &_self->criticalSection );
+#endif
+    }
+
+    return x;
+}

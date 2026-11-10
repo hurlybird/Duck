@@ -23,9 +23,23 @@ DK_API DKClassRef DKSemaphoreClass( void );
 #define DKNewSemaphore()        DKNew( DKSemaphoreClass() )
 
 
-DK_API void DKSemaphoreIncrement( DKSemaphoreRef _self, uint32_t value );
-DK_API void DKSemaphoreDecrement( DKSemaphoreRef _self, uint32_t value );
-DK_API void DKSemaphoreWait( DKSemaphoreRef _self, uint32_t value );
+// counter += value
+DK_API void DKSemaphoreIncrement( DKSemaphoreRef _self, unsigned int value );
+
+// counter -= value
+DK_API void DKSemaphoreDecrement( DKSemaphoreRef _self, unsigned int value );
+
+// counter = value
+DK_API void DKSemaphoreSignal( DKSemaphoreRef _self, unsigned int value );
+
+// Wait until counter > 0, then decrements the counter by 1
+DK_API void DKSemaphoreWait( DKSemaphoreRef _self );
+
+// Wait until counter == test. If reset >= 0, set the counter to the reset value.
+DK_API void DKSemaphoreWaitUntil( DKSemaphoreRef _self, unsigned int test, int reset );
+
+// Wait until counter != test and return the counter. If reset >= 0, set the counter to the reset value.
+DK_API unsigned int DKSemaphoreWaitWhile( DKSemaphoreRef _self, unsigned int test, int reset );
 
 
 #ifdef __cplusplus

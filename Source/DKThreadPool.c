@@ -896,7 +896,7 @@ void DKThreadPoolStop( DKThreadPoolRef _self )
         DKConditionSignalAll( _self->workAvailableCondition );
 
         // Wait for the threads to finish
-        DKSemaphoreWait( _self->stopCounter, 0 );
+        DKSemaphoreWaitUntil( _self->stopCounter, 0, -1 );
 
         // Release the thread objects
         DKListRemoveAllObjects( _self->threads );
