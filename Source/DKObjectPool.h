@@ -35,7 +35,7 @@ typedef struct
     DKSpinlock mutex;
     uint32_t objectSize;
     size_t reserved;
-    _Alignas(8) DKAtomicInt64 allocated;
+    alignas(8) DKAtomicInt64 allocated;
     
 } DKObjectPool;
 

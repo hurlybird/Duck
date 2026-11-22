@@ -20,6 +20,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdalign.h>
 #include <string.h>
 #include <ctype.h>
 #include <float.h>

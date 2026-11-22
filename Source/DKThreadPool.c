@@ -89,7 +89,7 @@ struct DKThreadPool
     uint32_t idleCooldown;
     uint32_t alertCooldown;
 
-    _Alignas(8) DKAtomicInt64 nextTaskGroup;
+    alignas(8) DKAtomicInt64 nextTaskGroup;
 };
 
 
