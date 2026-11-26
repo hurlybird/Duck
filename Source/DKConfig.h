@@ -219,11 +219,6 @@
 
 // Settings ==============================================================================
 
-// Use thread local storage instead of pthread_setspecific, etc.
-#ifndef DK_USE_THREAD_LOCAL_STORAGE
-#define DK_USE_THREAD_LOCAL_STORAGE     1
-#endif
-
 // Max nested autorelease pools
 #ifndef DK_AUTORELEASE_POOL_STACK_SIZE
 #define DK_AUTORELEASE_POOL_STACK_SIZE  8

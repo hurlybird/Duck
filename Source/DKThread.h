@@ -29,6 +29,9 @@ typedef enum
     DKThreadCancelled,
     DKThreadFinished,
 
+    // The thread is the main thread
+    DKThreadStateMain,
+
     // The thread was not created by DKThread
     DKThreadStateUnknown
 
@@ -74,7 +77,9 @@ typedef struct DKThreadContext * DKThreadContextRef;
 DK_API DKThreadContextRef DKAllocThreadContext( void );
 DK_API void DKFreeThreadContext( DKThreadContextRef threadContext );
 
-// Get/Set the thread context for the current thread
+// Get/Set the thread context for the current thread. On Windows, threads don't clean up
+// local storage on exit, so storing an allocated thread context will leak if the calling
+// code doesn't free it.
 DK_API void DKSetCurrentThreadContext( DKThreadContextRef threadContext );
 DK_API DKThreadContextRef DKGetCurrentThreadContext( void );
 

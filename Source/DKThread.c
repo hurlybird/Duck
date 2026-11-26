@@ -33,16 +33,12 @@ enum
 
 static struct DKThreadContext MainThreadContext;
 
-#if DK_USE_THREAD_LOCAL_STORAGE
-static _Thread_local DKThreadContextRef CurrentThreadContext;
-#else
-static bool DKThreadContextKeyInitialized = false;
+static int32_t CurrentThreadContextKeyInitialized = 0;
 
 #if DK_PLATFORM_POSIX
-static pthread_key_t DKThreadContextKey;
+static pthread_key_t CurrentThreadContextKey;
 #elif DK_PLATFORM_WINDOWS
-static DWORD DKThreadContextKey; 
-#endif
+static DWORD CurrentThreadContextKey;
 #endif
 
 
@@ -52,10 +48,9 @@ static DWORD DKThreadContextKey;
 void DKThreadContextInit( DKThreadContextRef threadContext, unsigned int options )
 {
     threadContext->threadObject = NULL;
-
     threadContext->options = options;
     
-    // Initialize the autorelease pool stack
+    // Initialize the autorelease pool
     DKGenericArrayInit( &threadContext->arp.objects, sizeof(DKObjectRef) );
     DKGenericArrayReserve( &threadContext->arp.objects, DK_AUTORELEASE_POOL_RESERVE );
 
@@ -74,7 +69,6 @@ void DKThreadContextFinalize( DKThreadContextRef threadContext )
     DKRelease( threadContext->threadObject );
 
     DKRequire( threadContext->arp.top == -1 );
-    
     DKGenericArrayFinalize( &threadContext->arp.objects );
 }
 
@@ -108,21 +102,31 @@ void DKFreeThreadContext( DKThreadContextRef threadContext )
 
 
 ///
+//  DKThreadContextDestructor()
+//
+#if DK_PLATFORM_POSIX && !DK_THREAD_LOCAL_CONTEXT
+static void DKThreadContextDestructor( void * context )
+{
+    DKFreeThreadContext( context );
+}
+#endif
+
+
+///
 //  DKSetCurrentThreadContext()
 //
 void DKSetCurrentThreadContext( DKThreadContextRef threadContext )
 {
-#if DK_USE_THREAD_LOCAL_STORAGE
-    CurrentThreadContext = threadContext;
-#else
-    DKAssert( DKThreadContextKeyInitialized );
-   
+    DKAssert( CurrentThreadContextKeyInitialized );
+
 #if DK_PLATFORM_POSIX
-    pthread_setspecific( DKThreadContextKey, threadContext );
+    int error = pthread_setspecific( CurrentThreadContextKey, threadContext );
+
+    if( error )
+        DKFatalError( "DKThread: Failed to save thread context to thread local storage (error %d).", error );
 #elif DK_PLATFORM_WINDOWS
-    if( !TlsSetValue( DKThreadContextKey, threadContext ) )
+    if( !TlsSetValue( CurrentThreadContextKey, threadContext ) )
         DKFatalError( "DKThread: Failed to save thread context to thread local storage." );
-#endif
 #endif
 }
 
@@ -132,21 +136,15 @@ void DKSetCurrentThreadContext( DKThreadContextRef threadContext )
 //
 DKThreadContextRef DKGetCurrentThreadContext( void )
 {
-#if DK_USE_THREAD_LOCAL_STORAGE
-    return CurrentThreadContext;
-#else
-    DKAssert( DKThreadContextKeyInitialized );
+    DKAssert( CurrentThreadContextKeyInitialized );
 
 #if DK_PLATFORM_POSIX
-    DKThreadContextRef threadContext = pthread_getspecific( DKThreadContextKey );
+    DKThreadContextRef threadContext = pthread_getspecific( CurrentThreadContextKey );
 #elif DK_PLATFORM_WINDOWS
-    DKThreadContextRef threadContext = TlsGetValue( DKThreadContextKey );
+    DKThreadContextRef threadContext = TlsGetValue( CurrentThreadContextKey );
 #endif
 
-    DKAssert( threadContext != NULL );
-    
     return threadContext;
-#endif
 }
 
 
@@ -155,17 +153,14 @@ DKThreadContextRef DKGetCurrentThreadContext( void )
 //
 void DKMainThreadContextInit( void )
 {
-#if !DK_USE_THREAD_LOCAL_STORAGE
-    DKRequire( !DKThreadContextKeyInitialized );
-    
-    DKThreadContextKeyInitialized = true;
+    DKRequire( !CurrentThreadContextKeyInitialized );
+    CurrentThreadContextKeyInitialized = 1;
 
 #if DK_PLATFORM_POSIX
-    pthread_key_create( &DKThreadContextKey, NULL );
+    pthread_key_create( &CurrentThreadContextKey, DKThreadContextDestructor );
 #elif DK_PLATFORM_WINDOWS
-    if( (DKThreadContextKey = TlsAlloc()) == TLS_OUT_OF_INDEXES ) 
+    if( (CurrentThreadContextKey = TlsAlloc()) == TLS_OUT_OF_INDEXES ) 
         DKFatalError( "DKThread: Out of thread local storage indexes." );
-#endif
 #endif
 
     DKThreadContextInit( &MainThreadContext, 0 );
@@ -178,10 +173,7 @@ void DKMainThreadContextInit( void )
 //
 DKThreadContextRef DKGetMainThreadContext( void )
 {
-#if !DK_USE_THREAD_LOCAL_STORAGE
-    DKAssert( DKThreadContextKeyInitialized );
-#endif
-
+    DKAssert( CurrentThreadContextKeyInitialized );
     return &MainThreadContext;
 }
 
@@ -276,12 +268,18 @@ void DKThreadSetLabel( DKThreadRef _self, DKStringRef label )
 //
 DKThreadRef DKThreadGetCurrentThread( void )
 {
-    struct DKThreadContext * threadContext = DKGetCurrentThreadContext();
-    
-    if( !threadContext->threadObject )
+    DKThreadContextRef threadContext = DKGetCurrentThreadContext();
+
+    // Lazily init the thread object
+    if( threadContext->threadObject == NULL )
     {
         threadContext->threadObject = DKNew( DKThreadClass() );
-        threadContext->threadObject->state = DKThreadStateUnknown;
+
+        if( threadContext == &MainThreadContext )
+            threadContext->threadObject->state = DKThreadStateMain;
+
+        else
+            threadContext->threadObject->state = DKThreadStateUnknown;
 
 #if DK_PLATFORM_POSIX
         threadContext->threadObject->threadId = pthread_self();
@@ -565,6 +563,7 @@ DKMutableDictionaryRef DKThreadGetDictionary( DKThreadRef _self )
 bool DKThreadIsMainThread( DKThreadRef _self )
 {
     DKThreadContextRef mainThreadContext = DKGetMainThreadContext();
+    DKAssert( mainThreadContext );
 
     if( _self )
     {
